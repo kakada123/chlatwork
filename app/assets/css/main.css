@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* helps reduce flash on slow machines */
+html {
+  background: #f9fafb; /* same as bg-gray-50 */
+}
