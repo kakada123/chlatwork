@@ -28,8 +28,10 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-        { rel: "icon", type: "image/png", href: "/favicon.png" },
+        { rel: "icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg?v=2" },
+        { rel: "icon", type: "image/png", href: "/favicon.png?v=2" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2" },
       ],
     },
   },
