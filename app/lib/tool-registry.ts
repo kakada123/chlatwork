@@ -1,16 +1,3 @@
-export type ToolCategory = "Utilities" | "Business" | "POS";
-export type ToolStatus = "alpha" | "beta" | "stable" | "coming-soon";
-
-export type ToolDef = {
-  key: string;
-  name: string;
-  route: string;
-  enabled: boolean;
-  status: ToolStatus;
-  category: ToolCategory;
-  description: string;
-};
-
 export const TOOLS: ToolDef[] = [
   {
     key: "calculator",
@@ -30,6 +17,18 @@ export const TOOLS: ToolDef[] = [
     category: "Utilities",
     description: "Generate QR for text/URL.",
   },
+
+  // ✅ NEW
+  {
+    key: "wifi-qr",
+    name: "Wi-Fi QR Generator",
+    route: "/tools/wifi-qr",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Generate Wi-Fi QR to connect instantly by scanning.",
+  },
+
   {
     key: "invoice",
     name: "Invoice Generator",
