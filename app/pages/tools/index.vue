@@ -17,49 +17,66 @@ const badgeClass = (s: ToolStatus) => {
 </script>
 
 <template>
-  <main class="max-w-5xl mx-auto p-6 space-y-6">
+  <main class="mx-auto w-full max-w-6xl px-4 py-6 space-y-6 sm:px-6">
+    <!-- Header -->
     <header class="space-y-1">
-      <h1 class="text-xl font-bold">Tools</h1>
+      <h1 class="text-xl font-bold sm:text-2xl">Tools</h1>
       <p class="text-sm text-gray-500">Pick a tool and get things done.</p>
     </header>
 
-    <!-- Enabled -->
-    <div class="grid gap-4 md:grid-cols-2">
+    <!-- ✅ Enabled tools -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
       <NuxtLink
         v-for="t in ENABLED_TOOLS"
         :key="t.key"
         :to="t.route"
-        class="rounded-2xl border bg-white p-4 shadow-sm hover:shadow transition"
+        class="group h-full rounded-2xl border bg-white p-4 shadow-sm transition hover:shadow active:scale-[0.99]"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <h2 class="font-semibold truncate">{{ t.name }}</h2>
+            <!-- Title -->
+            <h2
+              class="text-base font-semibold leading-snug text-gray-900 sm:truncate"
+            >
+              {{ t.name }}
+            </h2>
 
-            <!-- ✅ no plugin needed -->
-            <p class="mt-1 text-sm text-gray-500 truncate">
+            <!-- Description -->
+            <p class="mt-1 text-sm text-gray-500 line-clamp-2 sm:line-clamp-1">
               {{ t.description }}
             </p>
           </div>
 
+          <!-- Status badge -->
           <span
-            class="shrink-0 rounded-full px-2 py-0.5 text-[10px]"
+            class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
             :class="badgeClass(t.status)"
           >
             {{ t.status }}
           </span>
         </div>
 
-        <p class="mt-3 text-xs text-gray-400">{{ t.category }}</p>
+        <div class="mt-3 flex items-center justify-between">
+          <p class="text-xs text-gray-400 truncate">
+            {{ t.category }}
+          </p>
+
+          <span
+            class="text-xs text-gray-300 transition group-hover:text-gray-400"
+          >
+            →
+          </span>
+        </div>
       </NuxtLink>
     </div>
 
-    <!-- Coming soon -->
+    <!-- ✅ Coming soon -->
     <section class="pt-4">
       <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500">
         Coming soon
       </h2>
 
-      <div class="mt-3 grid gap-3 md:grid-cols-2">
+      <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="t in comingSoon"
           :key="t.key"
@@ -67,8 +84,13 @@ const badgeClass = (s: ToolStatus) => {
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="font-semibold text-gray-700 truncate">{{ t.name }}</p>
-              <p class="mt-1 text-sm text-gray-500 truncate">
+              <p class="font-semibold text-gray-700 sm:truncate">
+                {{ t.name }}
+              </p>
+
+              <p
+                class="mt-1 text-sm text-gray-500 line-clamp-2 sm:line-clamp-1"
+              >
                 {{ t.description }}
               </p>
             </div>
@@ -80,7 +102,9 @@ const badgeClass = (s: ToolStatus) => {
             </span>
           </div>
 
-          <p class="mt-3 text-xs text-gray-400">{{ t.category }}</p>
+          <p class="mt-3 text-xs text-gray-400 truncate">
+            {{ t.category }}
+          </p>
         </div>
       </div>
     </section>
