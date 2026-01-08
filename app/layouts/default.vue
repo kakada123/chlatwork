@@ -35,7 +35,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 text-gray-900">
+  <!-- ✅ make whole page a flex column -->
+  <div class="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
     <!-- Top Task Bar -->
     <header class="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
       <div
@@ -232,69 +233,89 @@ onBeforeUnmount(() => {
       </aside>
     </div>
 
-    <!-- Layout body -->
-    <div
-      class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 md:grid-cols-[260px_1fr]"
-    >
-      <!-- Desktop Sidebar -->
-      <aside class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block">
-        <p
-          class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
-        >
-          Tools
-        </p>
-
-        <div class="space-y-1">
-          <NuxtLink
-            to="/tools"
-            class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-            active-class="bg-gray-900 text-white hover:bg-gray-900"
+    <!-- ✅ Content wrapper grows to push footer to bottom -->
+    <div class="flex-1">
+      <!-- Layout body -->
+      <div
+        class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 md:grid-cols-[260px_1fr]"
+      >
+        <!-- Desktop Sidebar -->
+        <aside class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block">
+          <p
+            class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
           >
-            <span>All Tools</span>
-          </NuxtLink>
+            Tools
+          </p>
 
-          <NuxtLink
-            v-for="t in enabledTools"
-            :key="t.key"
-            :to="t.route"
-            class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-            active-class="bg-gray-900 text-white hover:bg-gray-900"
-          >
-            <span class="truncate">{{ t.name }}</span>
-
-            <span
-              class="text-[10px] rounded-full px-2 py-0.5"
-              :class="badgeClass(t.status)"
+          <div class="space-y-1">
+            <NuxtLink
+              to="/tools"
+              class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
+              active-class="bg-gray-900 text-white hover:bg-gray-900"
             >
-              {{ t.status }}
-            </span>
-          </NuxtLink>
+              <span>All Tools</span>
+            </NuxtLink>
 
-          <div class="mt-4">
-            <p
-              class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500"
-            >
-              Coming soon
-            </p>
-
-            <div
-              v-for="t in comingSoon"
+            <NuxtLink
+              v-for="t in enabledTools"
               :key="t.key"
-              class="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-400"
+              :to="t.route"
+              class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
+              active-class="bg-gray-900 text-white hover:bg-gray-900"
             >
               <span class="truncate">{{ t.name }}</span>
-              <span class="text-[10px] rounded-full bg-gray-100 px-2 py-0.5">
-                soon
+
+              <span
+                class="text-[10px] rounded-full px-2 py-0.5"
+                :class="badgeClass(t.status)"
+              >
+                {{ t.status }}
               </span>
+            </NuxtLink>
+
+            <div class="mt-4">
+              <p
+                class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500"
+              >
+                Coming soon
+              </p>
+
+              <div
+                v-for="t in comingSoon"
+                :key="t.key"
+                class="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-400"
+              >
+                <span class="truncate">{{ t.name }}</span>
+                <span class="text-[10px] rounded-full bg-gray-100 px-2 py-0.5">
+                  soon
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      <!-- Page content -->
-      <main class="min-w-0">
-        <slot />
-      </main>
+        <!-- Page content -->
+        <main class="min-w-0">
+          <slot />
+        </main>
+      </div>
     </div>
+
+    <!-- ✅ Footer now sticks to bottom -->
+    <footer class="mt-0 border-t bg-white py-6">
+      <div
+        class="mx-auto flex max-w-6xl flex-wrap gap-4 px-4 text-sm text-gray-500 sm:px-6"
+      >
+        <NuxtLink to="/about" class="hover:text-gray-900">About</NuxtLink>
+        <NuxtLink to="/privacy" class="hover:text-gray-900"
+          >Privacy Policy</NuxtLink
+        >
+        <NuxtLink to="/terms" class="hover:text-gray-900">Terms</NuxtLink>
+        <NuxtLink to="/disclaimer" class="hover:text-gray-900"
+          >Disclaimer</NuxtLink
+        >
+        <NuxtLink to="/contact" class="hover:text-gray-900">Contact</NuxtLink>
+      </div>
+    </footer>
   </div>
 </template>
