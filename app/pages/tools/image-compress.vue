@@ -11,8 +11,6 @@ useSeoMeta({
 
 <template>
   <main class="max-w-5xl mx-auto">
-    <div class="mt-4">
-      <ImageCompressor />
-    </div>
+    <ImageCompressor />
   </main>
 </template>
