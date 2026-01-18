@@ -304,20 +304,26 @@ onBeforeUnmount(() => {
     <!-- ✅ Footer now sticks to bottom -->
     <footer class="mt-0 border-t bg-white py-6">
       <div
-        class="mx-auto flex max-w-6xl flex-wrap gap-4 px-4 text-sm text-gray-500 sm:px-6"
+        class="mx-auto max-w-6xl px-4 text-sm sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <NuxtLink to="/about" class="hover:text-gray-900">About</NuxtLink>
-        <NuxtLink to="/privacy" class="hover:text-gray-900"
-          >Privacy Policy</NuxtLink
-        >
-        <NuxtLink to="/terms" class="hover:text-gray-900">Terms</NuxtLink>
-        <NuxtLink to="/disclaimer" class="hover:text-gray-900"
-          >Disclaimer</NuxtLink
-        >
-        <NuxtLink to="/contact" class="hover:text-gray-900">Contact</NuxtLink>
+        <!-- Left links -->
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500">
+          <NuxtLink to="/about" class="hover:text-gray-900">About</NuxtLink>
+          <NuxtLink to="/privacy" class="hover:text-gray-900"
+            >Privacy Policy</NuxtLink
+          >
+          <NuxtLink to="/terms" class="hover:text-gray-900">Terms</NuxtLink>
+          <NuxtLink to="/disclaimer" class="hover:text-gray-900"
+            >Disclaimer</NuxtLink
+          >
+          <NuxtLink to="/contact" class="hover:text-gray-900">Contact</NuxtLink>
+        </div>
 
-        <!-- ☕ Support -->
-        <NuxtLink to="/payme" class="hover:text-gray-900 font-medium">
+        <!-- Right CTA -->
+        <NuxtLink
+          to="/payme"
+          class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+        >
           Buy me a coffee ☕
         </NuxtLink>
       </div>
