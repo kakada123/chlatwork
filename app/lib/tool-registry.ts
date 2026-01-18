@@ -29,6 +29,17 @@ export const TOOLS: ToolDef[] = [
     description: "Generate Wi-Fi QR to connect instantly by scanning.",
   },
 
+  // ✅ NEW
+  {
+    key: "payback-calculator",
+    name: "PayBack Calculator",
+    route: "/tools/payback-calculator",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Split group spending and calculate who pays who.",
+  },
+
   {
     key: "invoice",
     name: "Invoice Generator",
