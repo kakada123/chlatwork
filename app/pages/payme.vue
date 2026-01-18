@@ -42,8 +42,7 @@ const copyLink = async () => {
 <template>
   <div class="mx-auto w-full max-w-6xl">
     <!-- Header (same as tools) -->
-    <div class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-2xl bg-gray-900" />
+    <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
         <h1 class="text-xl font-bold">Buy me a coffee</h1>
         <p class="text-sm text-gray-500 truncate">
