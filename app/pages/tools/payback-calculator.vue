@@ -401,12 +401,12 @@ const avg = computed(() =>
 const settlements = computed(() => computeSettlements(people.value));
 
 function loadExample() {
-  raw.value = `Dyna 5$
-Kakada : 10$
+  raw.value = `Mina 5$
+Sreynea : 10$
 John: 4$
 Minea: 0
 Reak: 0
-Daya: 38$`;
+Rotha: 38$`;
 }
 
 function reset() {
