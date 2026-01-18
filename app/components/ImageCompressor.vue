@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-lg font-bold">Image Compressor</h1>
+      <h1 class="text-xl font-bold">Image Compressor</h1>
       <p class="text-sm text-gray-500">
         Compress images in your browser — no upload, no API. Download instantly.
       </p>

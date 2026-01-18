@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-lg font-bold">Barcode Generator</h1>
+      <h1 class="text-xl font-bold">Barcode Generator</h1>
       <p class="text-sm text-gray-500">
         Generate barcodes (CODE128, EAN13, UPC, CODE39) and download as SVG.
       </p>
@@ -197,7 +197,7 @@ watch(
     // avoid calling before mount / before jsbarcode loaded
     if (!import.meta.client || !isMounted.value || !JsBarcode.value) return;
     generate();
-  }
+  },
 );
 
 function normalizeValue(v: string, fmt: BarcodeFormat): string {
