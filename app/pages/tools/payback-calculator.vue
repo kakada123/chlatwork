@@ -17,11 +17,39 @@
           >
             Reset
           </button>
+
+          <!-- Share link (ChatGPT-style) -->
           <button
-            class="px-4 py-2 rounded-lg bg-black text-white hover:opacity-90"
+            class="px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 inline-flex items-center gap-2"
             @click="shareLink"
+            :aria-label="shareCopied ? 'Link copied' : 'Share link'"
           >
-            Share link
+            <svg
+              v-if="!shareCopied"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              class="w-4 h-4"
+            >
+              <path
+                fill="currentColor"
+                d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.5 2.5 0 0 0 0-1.39l7-4.11A2.99 2.99 0 1 0 14 5a2.9 2.9 0 0 0 .05.52l-7 4.11a3 3 0 1 0 0 4.74l7.05 4.11c-.03.17-.05.34-.05.52a3 3 0 1 0 3-2.92Z"
+              />
+            </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              class="w-4 h-4"
+            >
+              <path
+                fill="currentColor"
+                d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65Z"
+              />
+            </svg>
+
+            <span class="text-sm font-medium">
+              {{ shareCopied ? "Link copied" : "Share link" }}
+            </span>
           </button>
         </div>
       </div>
@@ -45,11 +73,11 @@
             class="w-full h-72 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Example:
 Dyna 5$
-Kakada : 10$
+Lyviry : 10$
 John 4
 Minea: 0
-Bopha: 0
-Koy: 38$"
+Lokpreas: 0
+Bopha: 38$"
           />
 
           <div class="flex gap-2 mt-3">
@@ -59,12 +87,40 @@ Koy: 38$"
             >
               Load example
             </button>
+
+            <!-- Copy result (ChatGPT-style) -->
             <button
-              class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               @click="copyResult"
               :disabled="settlements.length === 0"
+              :aria-label="copied ? 'Copied' : 'Copy result'"
             >
-              Copy result
+              <svg
+                v-if="!copied"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="w-4 h-4"
+              >
+                <path
+                  fill="currentColor"
+                  d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"
+                />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="w-4 h-4"
+              >
+                <path
+                  fill="currentColor"
+                  d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65Z"
+                />
+              </svg>
+
+              <span class="text-sm font-medium">{{
+                copied ? "Copied" : "Copy result"
+              }}</span>
             </button>
           </div>
 
@@ -175,23 +231,19 @@ type Settlement = {
 const route = useRoute();
 const router = useRouter();
 
-// ✅ SEO Meta (for Google + social share)
+// ✅ SEO Meta (Google + social)
 useSeoMeta({
   title: "PayBack Calculator | ChlatWork",
   description:
     "Split group spending and calculate who pays who. Paste names + amounts and get minimal payback transfers instantly.",
-
   ogTitle: "PayBack Calculator | ChlatWork",
   ogDescription:
     "Split group spending and calculate who pays who. Minimal transfers, instant results.",
   ogType: "website",
-  // ogImage: "https://chlatwork.com/og.png",
-
   twitterCard: "summary_large_image",
   twitterTitle: "PayBack Calculator | ChlatWork",
   twitterDescription:
     "Split group spending and calculate who pays who. Minimal transfers, instant results.",
-  // twitterImage: "https://chlatwork.com/og.png",
 });
 
 useHead({
@@ -203,11 +255,36 @@ useHead({
   ],
 });
 
+// ---------- UI state for ChatGPT-style buttons ----------
+const copied = ref(false);
+const shareCopied = ref(false);
+
+let copiedTimer: ReturnType<typeof setTimeout> | null = null;
+let shareTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flashCopied(ms = 1500) {
+  copied.value = true;
+  if (copiedTimer) clearTimeout(copiedTimer);
+  copiedTimer = setTimeout(() => {
+    copied.value = false;
+    copiedTimer = null;
+  }, ms);
+}
+
+function flashShareCopied(ms = 1500) {
+  shareCopied.value = true;
+  if (shareTimer) clearTimeout(shareTimer);
+  shareTimer = setTimeout(() => {
+    shareCopied.value = false;
+    shareTimer = null;
+  }, ms);
+}
+
+// ---------- Core ----------
 const currency = ref<"USD" | "KHR">("USD");
 const raw = ref("");
 const error = ref<string>("");
 
-// ---------- Helpers ----------
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 function fmt(n: number) {
@@ -215,12 +292,8 @@ function fmt(n: number) {
   const abs = Math.abs(n);
 
   if (currency.value === "KHR") {
-    // no decimals for riel typically
-    return `${sign}${abs.toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}៛`;
+    return `${sign}${abs.toLocaleString("en-US", { maximumFractionDigits: 0 })}៛`;
   }
-
   return `${sign}$${abs.toFixed(2)}`;
 }
 
@@ -237,9 +310,7 @@ function parseLines(input: string): Array<{ name: string; paid: number }> {
     const cleaned = line.replace(/\$/g, "").replace(/៛/g, "");
     const match = cleaned.match(/^(.+?)[\s:=-]+(-?\d+(\.\d+)?)\s*$/);
 
-    if (!match) {
-      throw new Error(`Invalid line: "${line}"`);
-    }
+    if (!match) throw new Error(`Invalid line: "${line}"`);
 
     const name = match[1].trim();
     const paid = Number(match[2]);
@@ -294,20 +365,17 @@ function computeSettlements(people: Person[]): Settlement[] {
   return res;
 }
 
-// ---------- Computed ----------
 const people = computed<Person[]>(() => {
   error.value = "";
-
   if (!raw.value.trim()) return [];
 
   try {
     const entries = parseLines(raw.value);
 
-    // Merge duplicates by name (if user repeats same person)
+    // Merge duplicates by name
     const map = new Map<string, number>();
-    for (const e of entries) {
+    for (const e of entries)
       map.set(e.name, round2((map.get(e.name) || 0) + e.paid));
-    }
 
     const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
 
@@ -335,7 +403,6 @@ const avg = computed(() =>
 );
 const settlements = computed(() => computeSettlements(people.value));
 
-// ---------- Actions ----------
 function loadExample() {
   raw.value = `Dyna 5$
 Kakada : 10$
@@ -350,12 +417,9 @@ function reset() {
   error.value = "";
 }
 
+// ---- Share link helpers ----
 function buildSharePayload() {
-  // keep it simple: json -> base64url
-  const payload = {
-    c: currency.value,
-    t: raw.value,
-  };
+  const payload = { c: currency.value, t: raw.value };
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)))
     .replaceAll("+", "-")
@@ -365,7 +429,6 @@ function buildSharePayload() {
 }
 
 function readSharePayload(b64: string) {
-  // base64url -> json
   const padded =
     b64.replaceAll("-", "+").replaceAll("_", "/") +
     "=".repeat((4 - (b64.length % 4)) % 4);
@@ -376,15 +439,7 @@ function readSharePayload(b64: string) {
   if (payload.t) raw.value = payload.t;
 }
 
-async function shareLink() {
-  const s = buildSharePayload();
-  await router.replace({ query: { s } });
-
-  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
-  await navigator.clipboard.writeText(url);
-  alert("✅ Share link copied!");
-}
-
+// ✅ Copy result (ChatGPT-style)
 async function copyResult() {
   if (settlements.value.length === 0) return;
 
@@ -393,17 +448,27 @@ async function copyResult() {
   lines.push(`People: ${people.value.length}`);
   lines.push(`Total: ${fmt(total.value)}`);
   lines.push(`Average: ${fmt(avg.value)}`);
-  lines.push(``);
+  lines.push("");
   lines.push(`Who pays who:`);
   for (const s of settlements.value) {
     lines.push(`- ${s.from} -> ${s.to}: ${fmt(s.amount)}`);
   }
 
   await navigator.clipboard.writeText(lines.join("\n"));
-  alert("✅ Result copied!");
+  flashCopied();
 }
 
-// ---------- Load from share link ----------
+// ✅ Share link (ChatGPT-style)
+async function shareLink() {
+  const s = buildSharePayload();
+  await router.replace({ query: { s } });
+
+  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
+  await navigator.clipboard.writeText(url);
+  flashShareCopied();
+}
+
+// Load from share link
 onMounted(() => {
   const s = route.query.s;
   if (typeof s === "string" && s.trim()) {
