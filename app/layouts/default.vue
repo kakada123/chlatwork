@@ -19,7 +19,7 @@ const closeMenu = () => (isMenuOpen.value = false);
 const route = useRoute();
 watch(
   () => route.fullPath,
-  () => closeMenu()
+  () => closeMenu(),
 );
 
 // ✅ lock background scroll when menu open
@@ -315,6 +315,11 @@ onBeforeUnmount(() => {
           >Disclaimer</NuxtLink
         >
         <NuxtLink to="/contact" class="hover:text-gray-900">Contact</NuxtLink>
+
+        <!-- ☕ Support -->
+        <NuxtLink to="/payme" class="hover:text-gray-900 font-medium">
+          Buy me a coffee ☕
+        </NuxtLink>
       </div>
     </footer>
   </div>
