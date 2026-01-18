@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   ssr: true,
-  modules: ["@nuxtjs/tailwindcss"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
+  sitemap: {
+    siteUrl: "https://chlatwork.com",
+  },
   css: ["~/assets/css/main.css"],
 
   app: {
