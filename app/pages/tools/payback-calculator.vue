@@ -1,18 +1,23 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="mx-auto max-w-5xl px-4 py-10">
-      <div class="flex items-start justify-between gap-4 mb-6">
+      <!-- ✅ Mobile-friendly header -->
+      <div
+        class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
+      >
         <div>
-          <h1 class="text-2xl font-bold">PayBack Calculator</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-3xl font-bold leading-tight md:text-2xl">
+            PayBack Calculator
+          </h1>
+          <p class="mt-2 max-w-xl text-gray-600">
             Paste names + amounts. We’ll calculate who owes who (minimal
             transfers).
           </p>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button
-            class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100"
+            class="w-full sm:w-auto px-4 py-2 rounded-lg bg-white border hover:bg-gray-100"
             @click="reset"
           >
             Reset
@@ -20,7 +25,7 @@
 
           <!-- Share link (ChatGPT-style) -->
           <button
-            class="px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 inline-flex items-center gap-2"
+            class="w-full sm:w-auto px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 inline-flex items-center justify-center gap-2"
             @click="shareLink"
             :aria-label="shareCopied ? 'Link copied' : 'Share link'"
           >
@@ -72,17 +77,18 @@
             v-model="raw"
             class="w-full h-72 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Example:
-Dyna 5$
-Lyviry : 10$
+Mina 5$
+Sreynea : 10$
 John 4
 Minea: 0
-Lokpreas: 0
-Bopha: 38$"
+Reak: 0
+Jompa: 38$"
           />
 
-          <div class="flex gap-2 mt-3">
+          <!-- ✅ Mobile-friendly buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
             <button
-              class="px-4 py-2 rounded-lg bg-gray-900 text-white hover:opacity-90"
+              class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white hover:opacity-90"
               @click="loadExample"
             >
               Load example
@@ -90,7 +96,7 @@ Bopha: 38$"
 
             <!-- Copy result (ChatGPT-style) -->
             <button
-              class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              class="w-full px-4 py-2 rounded-lg bg-white border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               @click="copyResult"
               :disabled="settlements.length === 0"
               :aria-label="copied ? 'Copied' : 'Copy result'"
@@ -118,9 +124,9 @@ Bopha: 38$"
                 />
               </svg>
 
-              <span class="text-sm font-medium">{{
-                copied ? "Copied" : "Copy result"
-              }}</span>
+              <span class="text-sm font-medium">
+                {{ copied ? "Copied" : "Copy result" }}
+              </span>
             </button>
           </div>
 
@@ -306,7 +312,6 @@ function parseLines(input: string): Array<{ name: string; paid: number }> {
   const out: Array<{ name: string; paid: number }> = [];
 
   for (const line of lines) {
-    // Accept: "Name 10", "Name: 10$", "Name = 10", "Name - 10"
     const cleaned = line.replace(/\$/g, "").replace(/៛/g, "");
     const match = cleaned.match(/^(.+?)[\s:=-]+(-?\d+(\.\d+)?)\s*$/);
 
@@ -325,13 +330,6 @@ function parseLines(input: string): Array<{ name: string; paid: number }> {
   return out;
 }
 
-/**
- * Minimal settlement algorithm:
- * - compute balance = paid - avg
- * - debtors: negative balance (owe)
- * - creditors: positive balance (receive)
- * - greedy match until both lists settled
- */
 function computeSettlements(people: Person[]): Settlement[] {
   const debtors = people
     .filter((p) => p.balance < 0)
@@ -372,7 +370,6 @@ const people = computed<Person[]>(() => {
   try {
     const entries = parseLines(raw.value);
 
-    // Merge duplicates by name
     const map = new Map<string, number>();
     for (const e of entries)
       map.set(e.name, round2((map.get(e.name) || 0) + e.paid));
@@ -417,7 +414,6 @@ function reset() {
   error.value = "";
 }
 
-// ---- Share link helpers ----
 function buildSharePayload() {
   const payload = { c: currency.value, t: raw.value };
   const json = JSON.stringify(payload);
@@ -439,7 +435,6 @@ function readSharePayload(b64: string) {
   if (payload.t) raw.value = payload.t;
 }
 
-// ✅ Copy result (ChatGPT-style)
 async function copyResult() {
   if (settlements.value.length === 0) return;
 
@@ -458,7 +453,6 @@ async function copyResult() {
   flashCopied();
 }
 
-// ✅ Share link (ChatGPT-style)
 async function shareLink() {
   const s = buildSharePayload();
   await router.replace({ query: { s } });
@@ -468,7 +462,6 @@ async function shareLink() {
   flashShareCopied();
 }
 
-// Load from share link
 onMounted(() => {
   const s = route.query.s;
   if (typeof s === "string" && s.trim()) {
