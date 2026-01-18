@@ -217,14 +217,13 @@ watch(
   () => security.value,
   (s) => {
     if (s === "nopass") showPassword.value = false;
-  }
+  },
 );
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl px-4 py-6 space-y-4">
-    <div class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-2xl bg-gray-900"></div>
+  <div class="mx-auto w-full max-w-6xl">
+    <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
         <h1 class="text-xl font-bold">Wi-Fi QR Generator</h1>
         <p class="text-sm text-gray-500 truncate">

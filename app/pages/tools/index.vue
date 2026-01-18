@@ -17,10 +17,10 @@ const badgeClass = (s: ToolStatus) => {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-6xl px-4 py-6 space-y-6 sm:px-6">
+  <main class="mx-auto w-full max-w-6xl">
     <!-- Header -->
-    <header class="space-y-1">
-      <h1 class="text-xl font-bold sm:text-2xl">Tools</h1>
+    <header class="space-y-1 pb-6">
+      <h1 class="text-xl font-bold">Tools</h1>
       <p class="text-sm text-gray-500">Pick a tool and get things done.</p>
     </header>
 

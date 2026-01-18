@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-lg font-bold">QR Generator</h1>
+      <h1 class="text-xl font-bold">QR Generator</h1>
       <p class="text-sm text-gray-500">
         Generate QR codes for text/URL and download as PNG (no upload, no API).
       </p>
@@ -200,7 +200,7 @@ watch(
     }
     if (!import.meta.client || !isMounted.value || !QR.value) return;
     generate();
-  }
+  },
 );
 
 function clearCanvasOnly() {

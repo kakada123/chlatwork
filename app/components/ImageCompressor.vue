@@ -10,12 +10,77 @@
     <section class="rounded-2xl border bg-white p-4 shadow-sm space-y-4">
       <h2 class="text-sm font-semibold">Upload</h2>
 
+      <!-- Hidden input -->
       <input
+        ref="fileInput"
         type="file"
         accept="image/*"
         @change="onPick"
-        class="block w-full text-sm"
+        class="sr-only"
       />
+
+      <!-- Pretty upload box -->
+      <label
+        class="group block cursor-pointer rounded-2xl border-2 border-dashed p-5 transition hover:border-gray-400 hover:bg-gray-50"
+        @click.prevent="openPicker"
+      >
+        <div class="flex items-center gap-4">
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-2xl border bg-white shadow-sm group-hover:shadow"
+          >
+            <!-- simple upload icon -->
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              class="h-6 w-6 text-gray-700"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 16V4" />
+              <path d="M7 9l5-5 5 5" />
+              <path d="M20 20H4" />
+            </svg>
+          </div>
+
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-900">
+              {{ file ? "File selected" : "Click to upload" }}
+            </p>
+            <p class="text-xs text-gray-500">
+              {{
+                file
+                  ? `${file.name} • ${formatBytes(file.size)}`
+                  : "PNG, JPG, WebP — up to you 😄"
+              }}
+            </p>
+          </div>
+
+          <span
+            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white group-hover:bg-gray-800"
+          >
+            {{ file ? "Change" : "Choose file" }}
+          </span>
+        </div>
+      </label>
+
+      <!-- Optional actions -->
+      <div v-if="file" class="flex items-center gap-2">
+        <button
+          type="button"
+          @click="openPicker"
+          class="rounded-xl bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+        >
+          Change
+        </button>
+
+        <button
+          type="button"
+          @click="resetAll"
+          class="rounded-xl px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+        >
+          Remove
+        </button>
+      </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
     </section>
@@ -193,6 +258,8 @@ import { reactive, ref, computed, onBeforeUnmount } from "vue";
 const error = ref("");
 const loading = ref(false);
 
+const fileInput = ref<HTMLInputElement | null>(null);
+
 const file = ref<File | null>(null);
 const srcUrl = ref<string>("");
 
@@ -224,6 +291,10 @@ const savedPct = computed(() => {
   return ((originalBytes.value - outBytes.value) / originalBytes.value) * 100;
 });
 
+function openPicker() {
+  fileInput.value?.click();
+}
+
 function onPick(e: Event) {
   const input = e.target as HTMLInputElement;
   const f = input.files?.[0] ?? null;
@@ -247,6 +318,10 @@ function resetAll() {
   error.value = "";
   loading.value = false;
   file.value = null;
+
+  // ✅ also clear native input so picking same file again triggers change
+  if (fileInput.value) fileInput.value.value = "";
+
   clearOutput();
   if (srcUrl.value) URL.revokeObjectURL(srcUrl.value);
   srcUrl.value = "";
@@ -268,7 +343,7 @@ async function compress() {
     const blob = await canvasToBlob(
       canvas,
       opts.format,
-      opts.format === "image/png" ? 1 : opts.quality
+      opts.format === "image/png" ? 1 : opts.quality,
     );
 
     outBytes.value = blob.size;
@@ -325,13 +400,13 @@ function createCanvasForImage(img: HTMLImageElement, maxWidth: number) {
 function canvasToBlob(
   canvas: HTMLCanvasElement,
   type: string,
-  quality: number
+  quality: number,
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Failed to export image."))),
       type,
-      quality
+      quality,
     );
   });
 }

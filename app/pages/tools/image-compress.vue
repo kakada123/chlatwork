@@ -10,11 +10,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="max-w-5xl mx-auto p-6">
-    <NuxtLink to="/tools" class="text-sm text-gray-500 hover:text-gray-900">
-      ← Back to tools
-    </NuxtLink>
-
+  <main class="max-w-5xl mx-auto">
     <div class="mt-4">
       <ImageCompressor />
     </div>
