@@ -139,12 +139,16 @@
           >
             Quality
             <span
-              v-if="opts.format === 'image/png'"
+              v-if="
+                opts.format === 'image/png' ||
+                (opts.format === 'image/webp' && opts.webpLossless)
+              "
               class="normal-case text-gray-400"
             >
-              (ignored for PNG)
+              (ignored)
             </span>
           </label>
+
           <input
             v-model.number="opts.quality"
             type="range"
@@ -152,11 +156,28 @@
             max="1"
             step="0.05"
             class="mt-2 w-full"
-            :disabled="opts.format === 'image/png'"
+            :disabled="
+              opts.format === 'image/png' ||
+              (opts.format === 'image/webp' && opts.webpLossless)
+            "
           />
+
           <p class="text-xs text-gray-500 mt-1">
             {{ Math.round(opts.quality * 100) }}%
           </p>
+
+          <!-- ✅ WebP lossless toggle (great for screenshots/text) -->
+          <label
+            v-if="opts.format === 'image/webp'"
+            class="mt-2 inline-flex items-center gap-2 text-xs text-gray-600 select-none"
+          >
+            <input
+              type="checkbox"
+              v-model="opts.webpLossless"
+              class="h-4 w-4 rounded border-gray-300"
+            />
+            WebP lossless (best for screenshots / UI text)
+          </label>
         </div>
 
         <div>
@@ -245,15 +266,15 @@
       </div>
 
       <p class="text-xs text-gray-500">
-        Note: PNG is lossless and may become bigger. For best compression use
-        WebP or JPEG.
+        Note: PNG is lossless and may become bigger. For screenshots/UI, try
+        WebP lossless. For photos, try WebP/JPEG with lower quality.
       </p>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onBeforeUnmount } from "vue";
+import { reactive, ref, computed, onBeforeUnmount, watch } from "vue";
 
 const error = ref("");
 const loading = ref(false);
@@ -270,6 +291,7 @@ const opts = reactive({
   format: "image/webp" as "image/webp" | "image/jpeg" | "image/png",
   quality: 0.8,
   maxWidth: 1280, // 0 = keep
+  webpLossless: false, // ✅ NEW: great for screenshots/UI text
 });
 
 const fileName = computed(() => file.value?.name ?? "image");
@@ -290,6 +312,25 @@ const savedPct = computed(() => {
   if (!originalBytes.value || !outBytes.value) return 0;
   return ((originalBytes.value - outBytes.value) / originalBytes.value) * 100;
 });
+
+const inputExt = computed(() => {
+  const n = (fileName.value || "").toLowerCase();
+  const m = n.match(/\.([a-z0-9]+)$/);
+  return m?.[1] ?? "";
+});
+
+// ✅ Smart defaults: screenshots/UI usually PNG -> WebP lossless by default
+watch(
+  () => file.value,
+  () => {
+    if (!file.value) return;
+
+    // If PNG, WebP lossless is often best for screenshots
+    if (inputExt.value === "png" && opts.format === "image/webp") {
+      opts.webpLossless = true;
+    }
+  },
+);
 
 function openPicker() {
   fileInput.value?.click();
@@ -340,12 +381,45 @@ async function compress() {
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    const blob = await canvasToBlob(
-      canvas,
-      opts.format,
-      opts.format === "image/png" ? 1 : opts.quality,
-    );
+    // ✅ Base export quality logic
+    const baseQuality =
+      opts.format === "image/png"
+        ? 1
+        : opts.format === "image/webp" && opts.webpLossless
+          ? 1 // treated as "lossless" in many modern browsers
+          : opts.quality;
 
+    let blob = await canvasToBlob(canvas, opts.format, baseQuality);
+
+    // ✅ If output is bigger, try to rescue (only for lossy formats)
+    if (blob.size >= originalBytes.value && opts.format !== "image/png") {
+      const canLower =
+        !(opts.format === "image/webp" && opts.webpLossless) &&
+        (opts.format === "image/webp" || opts.format === "image/jpeg");
+
+      if (canLower) {
+        const q2 = Math.max(0.5, baseQuality - 0.2);
+        const retry = await canvasToBlob(canvas, opts.format, q2);
+        if (retry.size < blob.size) blob = retry;
+      }
+    }
+
+    // ✅ HARD RULE: never generate output if bigger
+    if (blob.size >= originalBytes.value) {
+      const pct =
+        ((blob.size - originalBytes.value) / originalBytes.value) * 100;
+
+      // no output
+      clearOutput();
+
+      error.value = `😅 Compression not applied because output is bigger (+${pct.toFixed(
+        1,
+      )}%). Try WebP lossless (for screenshots), lower quality, or reduce max width.`;
+
+      return;
+    }
+
+    // ✅ Only set output when it's actually smaller
     outBytes.value = blob.size;
     outUrl.value = URL.createObjectURL(blob);
   } catch (e: any) {
