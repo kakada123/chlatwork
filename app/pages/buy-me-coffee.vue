@@ -8,7 +8,7 @@ useSeoMeta({
   ogTitle: title,
   ogDescription: description,
   ogType: "website",
-  ogUrl: "https://chlatwork.com/payme",
+  ogUrl: "https://chlatwork.com/buy-me-coffee",
   ogImage: "https://chlatwork.com/images/khqr.png",
   twitterCard: "summary_large_image",
   twitterTitle: title,
@@ -17,7 +17,7 @@ useSeoMeta({
 });
 
 useHead({
-  link: [{ rel: "canonical", href: "https://chlatwork.com/payme" }],
+  link: [{ rel: "canonical", href: "https://chlatwork.com/buy-me-coffee" }],
 });
 
 const qrSrc = "/images/khqr.png";
@@ -34,7 +34,7 @@ const showToast = (message: string) => {
 
 const copyLink = async () => {
   if (!process.client) return;
-  await navigator.clipboard.writeText(`${location.origin}/payme`);
+  await navigator.clipboard.writeText(`${location.origin}/buy-me-coffee`);
   showToast("Link copied ✅");
 };
 </script>
@@ -44,7 +44,7 @@ const copyLink = async () => {
     <!-- Header (same as tools) -->
     <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold">Buy me a coffee</h1>
+        <h1 class="text-xl font-bold">Buy me a coffee ☕️🤣</h1>
         <p class="text-sm text-gray-500 truncate">
           Scan with ABA / Bakong / any KHQR app.
         </p>
