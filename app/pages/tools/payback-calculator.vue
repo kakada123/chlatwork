@@ -70,33 +70,77 @@
           </select>
         </div>
 
-        <textarea
-          v-model="raw"
-          class="w-full h-72 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
-          placeholder="Example:
-Mina 5$
-Sreynea : 10$
-John 4
-Minea: 0
-Reak: 0
-Jompa: 38$"
-        />
+        <!-- ✅ Column input (Name / Amount) -->
+        <div class="overflow-auto border rounded-xl">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="text-left p-2 w-[55%]">Name</th>
+                <th class="text-right p-2 w-[35%]">Amount</th>
+                <th class="p-2 w-[10%]"></th>
+              </tr>
+            </thead>
 
-        <!-- ✅ Mobile-friendly buttons -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+            <tbody>
+              <tr v-for="(r, i) in rows" :key="i" class="border-t align-top">
+                <td class="p-2">
+                  <input
+                    v-model.trim="r.name"
+                    class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
+                    placeholder="e.g. Mina"
+                  />
+                </td>
+
+                <td class="p-2">
+                  <input
+                    v-model.trim="r.amount"
+                    inputmode="decimal"
+                    class="w-full text-right border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
+                    placeholder="e.g. 5"
+                  />
+                </td>
+
+                <td class="p-2 text-right">
+                  <button
+                    class="px-2 py-2 rounded-lg border hover:bg-gray-100"
+                    @click="removeRow(i)"
+                    :aria-label="`Remove row ${i + 1}`"
+                  >
+                    ✕
+                  </button>
+                </td>
+              </tr>
+
+              <tr v-if="rows.length === 0">
+                <td class="p-3 text-gray-500" colspan="3">
+                  No rows yet. Click “Add row”.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ✅ Clean action bar -->
+        <div class="mt-3 grid grid-cols-3 gap-2">
           <button
-            class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white hover:opacity-90"
-            @click="loadExample"
+            class="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-gray-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+            @click="addRow()"
           >
-            Load example
+            <span class="text-base leading-none">＋</span>
+            <span class="truncate">Add row</span>
           </button>
 
-          <!-- Copy result (ChatGPT-style) -->
           <button
-            class="w-full px-4 py-2 rounded-lg bg-white border hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+            class="h-11 rounded-lg bg-black text-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:opacity-90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+            @click="loadExample"
+          >
+            <span class="truncate">Load example</span>
+          </button>
+
+          <button
+            class="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-gray-50 active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
             @click="copyResult"
             :disabled="settlements.length === 0"
-            :aria-label="copied ? 'Copied' : 'Copy result'"
           >
             <svg
               v-if="!copied"
@@ -121,11 +165,39 @@ Jompa: 38$"
               />
             </svg>
 
-            <span class="text-sm font-medium">
-              {{ copied ? "Copied" : "Copy result" }}
-            </span>
+            <span class="truncate">{{ copied ? "Copied" : "Copy" }}</span>
           </button>
         </div>
+
+        <!-- Optional: keep paste textarea for power users (and share payload debugging) -->
+        <details class="mt-4">
+          <summary
+            class="cursor-pointer text-sm text-gray-600 hover:text-gray-900"
+          >
+            Paste mode (optional)
+          </summary>
+
+          <textarea
+            v-model="raw"
+            class="mt-2 w-full h-40 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
+            placeholder="Example:
+Mina 5$
+Sreynea : 10$
+John 4
+Minea: 0
+Reak: 0
+Jompa: 38$"
+          />
+
+          <div class="mt-2 flex gap-2">
+            <button
+              class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100"
+              @click="applyRawToRows"
+            >
+              Apply paste to rows
+            </button>
+          </div>
+        </details>
 
         <p v-if="error" class="text-sm text-red-600 mt-3">{{ error }}</p>
       </div>
@@ -209,8 +281,10 @@ Jompa: 38$"
         </div>
 
         <p class="text-xs text-gray-500 mt-4">
-          Tip: lines like <span class="font-mono">Name: 10$</span> or
-          <span class="font-mono">Name 10</span> both work.
+          Tip: rows like <span class="font-mono">Name + Amount</span> are
+          easier. Paste mode still supports
+          <span class="font-mono">Name: 10$</span> or
+          <span class="font-mono">Name 10</span>.
         </p>
       </div>
     </div>
@@ -228,6 +302,11 @@ type Settlement = {
   from: string;
   to: string;
   amount: number;
+};
+
+type InputRow = {
+  name: string;
+  amount: string; // keep as string for input UX
 };
 
 const route = useRoute();
@@ -284,7 +363,17 @@ function flashShareCopied(ms = 1500) {
 
 // ---------- Core ----------
 const currency = ref<"USD" | "KHR">("USD");
+
+// ✅ Keep raw for share-link payload + paste mode
 const raw = ref("");
+
+// ✅ New table rows (main input)
+const rows = ref<InputRow[]>([
+  { name: "", amount: "" },
+  { name: "", amount: "" },
+  { name: "", amount: "" },
+]);
+
 const error = ref<string>("");
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -297,6 +386,14 @@ function fmt(n: number) {
     return `${sign}${abs.toLocaleString("en-US", { maximumFractionDigits: 0 })}៛`;
   }
   return `${sign}$${abs.toFixed(2)}`;
+}
+
+function addRow() {
+  rows.value.push({ name: "", amount: "" });
+}
+
+function removeRow(i: number) {
+  rows.value.splice(i, 1);
 }
 
 function parseLines(input: string): Array<{ name: string; paid: number }> {
@@ -324,6 +421,68 @@ function parseLines(input: string): Array<{ name: string; paid: number }> {
   }
 
   return out;
+}
+
+function parseRows(
+  inputRows: InputRow[],
+): Array<{ name: string; paid: number }> {
+  const out: Array<{ name: string; paid: number }> = [];
+
+  for (const r of inputRows) {
+    const name = (r.name ?? "").trim();
+    const amtRaw = (r.amount ?? "").trim();
+
+    // ignore totally empty rows
+    if (!name && !amtRaw) continue;
+
+    if (!name) throw new Error("Missing name in a row.");
+    if (!amtRaw) throw new Error(`Missing amount for "${name}".`);
+
+    const cleaned = amtRaw.replace(/\$/g, "").replace(/៛/g, "");
+    const paid = Number(cleaned);
+
+    if (Number.isNaN(paid)) throw new Error(`Invalid amount for "${name}".`);
+
+    out.push({ name, paid });
+  }
+
+  return out;
+}
+
+function buildRawFromRows(inputRows: InputRow[]): string {
+  // Keep it simple for share payload + paste mode
+  return inputRows
+    .map((r) => {
+      const name = (r.name ?? "").trim();
+      const amt = (r.amount ?? "").trim();
+      if (!name && !amt) return "";
+      return `${name}: ${amt}`;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function buildRowsFromRaw(input: string): InputRow[] {
+  const entries = parseLines(input);
+  const built = entries.map((e) => ({
+    name: e.name,
+    amount: String(e.paid),
+  }));
+  return built.length ? built : [{ name: "", amount: "" }];
+}
+
+function applyRawToRows() {
+  error.value = "";
+  if (!raw.value.trim()) {
+    rows.value = [{ name: "", amount: "" }];
+    return;
+  }
+
+  try {
+    rows.value = buildRowsFromRaw(raw.value);
+  } catch (e: any) {
+    error.value = e?.message || "Invalid paste input";
+  }
 }
 
 function computeSettlements(people: Person[]): Settlement[] {
@@ -359,12 +518,44 @@ function computeSettlements(people: Person[]): Settlement[] {
   return res;
 }
 
+// ✅ Prevent infinite sync loops
+let syncing = false;
+
+// Keep raw updated from rows (so Share Link always matches table)
+watch(
+  rows,
+  () => {
+    if (syncing) return;
+    syncing = true;
+    raw.value = buildRawFromRows(rows.value);
+    syncing = false;
+  },
+  { deep: true },
+);
+
+// Keep rows updated when raw changes (share payload / paste / example)
+watch(
+  raw,
+  (v) => {
+    if (syncing) return;
+    // if raw changed programmatically (share payload), rebuild rows
+    syncing = true;
+    try {
+      if (v.trim()) rows.value = buildRowsFromRaw(v);
+      else rows.value = [{ name: "", amount: "" }];
+    } catch {
+      // ignore (error will show via computed people)
+    }
+    syncing = false;
+  },
+  { immediate: true },
+);
+
 const people = computed<Person[]>(() => {
   error.value = "";
-  if (!raw.value.trim()) return [];
 
   try {
-    const entries = parseLines(raw.value);
+    const entries = parseRows(rows.value);
 
     const map = new Map<string, number>();
     for (const e of entries)
@@ -383,7 +574,11 @@ const people = computed<Person[]>(() => {
       }))
       .sort((a, b) => b.paid - a.paid);
   } catch (e: any) {
-    error.value = e?.message || "Invalid input";
+    // If there is no meaningful input, don't show error
+    const hasAny = rows.value.some(
+      (r) => (r.name ?? "").trim() || (r.amount ?? "").trim(),
+    );
+    if (hasAny) error.value = e?.message || "Invalid input";
     return [];
   }
 });
@@ -397,6 +592,7 @@ const avg = computed(() =>
 const settlements = computed(() => computeSettlements(people.value));
 
 function loadExample() {
+  // set via raw so it also updates share payload nicely
   raw.value = `Mina 5$
 Sreynea : 10$
 John: 4$
@@ -408,9 +604,11 @@ Rotha: 38$`;
 function reset() {
   raw.value = "";
   error.value = "";
+  rows.value = [{ name: "", amount: "" }];
 }
 
 function buildSharePayload() {
+  // raw is always synced from rows
   const payload = { c: currency.value, t: raw.value };
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)))
@@ -428,7 +626,7 @@ function readSharePayload(b64: string) {
   const json = decodeURIComponent(escape(atob(padded)));
   const payload = JSON.parse(json) as { c?: "USD" | "KHR"; t?: string };
   if (payload.c) currency.value = payload.c;
-  if (payload.t) raw.value = payload.t;
+  if (payload.t) raw.value = payload.t; // watcher updates rows
 }
 
 async function copyResult() {
