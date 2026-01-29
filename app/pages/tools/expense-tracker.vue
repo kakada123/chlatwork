@@ -96,19 +96,42 @@
           >
             {{ c }}
           </button>
+
+          <!-- ✅ Quick income -->
+          <button
+            class="px-2.5 py-1 rounded-full border bg-white text-xs hover:bg-gray-50 active:scale-[0.99]"
+            @click="quickAddIncome()"
+            type="button"
+            title="Add income row"
+          >
+            + Income
+          </button>
         </div>
 
         <!-- ✅ Mobile: Card rows (compact, note always visible) -->
         <div class="md:hidden space-y-3">
           <div v-for="(r, i) in rows" :key="i" class="border rounded-xl p-3">
             <div class="grid grid-cols-1 gap-2">
-              <div>
-                <div class="text-xs text-gray-500 mb-1">Date</div>
-                <input
-                  v-model="r.date"
-                  type="date"
-                  class="h-10 w-full text-sm border rounded-lg px-3 outline-none focus:ring-2 focus:ring-black/10"
-                />
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <div class="text-xs text-gray-500 mb-1">Type</div>
+                  <select
+                    v-model="r.type"
+                    class="h-10 w-full text-sm border rounded-lg px-3 bg-white outline-none focus:ring-2 focus:ring-black/10"
+                  >
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div class="text-xs text-gray-500 mb-1">Date</div>
+                  <input
+                    v-model="r.date"
+                    type="date"
+                    class="h-10 w-full text-sm border rounded-lg px-3 outline-none focus:ring-2 focus:ring-black/10"
+                  />
+                </div>
               </div>
 
               <div>
@@ -117,7 +140,11 @@
                   v-model="r.category"
                   class="h-10 w-full text-sm border rounded-lg px-3 bg-white outline-none focus:ring-2 focus:ring-black/10"
                 >
-                  <option v-for="c in presetCategories" :key="c" :value="c">
+                  <option
+                    v-for="c in presetCategoriesForRow(r)"
+                    :key="c"
+                    :value="c"
+                  >
                     {{ c }}
                   </option>
                   <option value="__custom__">Custom…</option>
@@ -175,16 +202,28 @@
           <table class="w-full table-fixed text-sm">
             <thead class="bg-gray-50">
               <tr>
+                <th class="text-left p-2 w-[110px]">Type</th>
                 <th class="text-left p-2 w-[22%]">Date</th>
                 <th class="text-left p-2 w-[22%]">Category</th>
-                <th class="text-left p-2 w-[36%]">Note</th>
-                <th class="text-right p-2 w-[20%]">Amount</th>
+                <th class="text-left p-2 w-[33%]">Note</th>
+                <th class="text-right p-2 w-[15%]">Amount</th>
                 <th class="p-2 w-[72px]"></th>
               </tr>
             </thead>
 
             <tbody>
               <tr v-for="(r, i) in rows" :key="i" class="border-t align-top">
+                <!-- Type -->
+                <td class="p-2">
+                  <select
+                    v-model="r.type"
+                    class="h-11 w-full text-sm border rounded-lg px-2 bg-white outline-none focus:ring-2 focus:ring-black/10"
+                  >
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </td>
+
                 <!-- Date -->
                 <td class="p-2">
                   <input
@@ -200,7 +239,11 @@
                     v-model="r.category"
                     class="h-11 w-full text-sm border rounded-lg px-3 bg-white outline-none focus:ring-2 focus:ring-black/10"
                   >
-                    <option v-for="c in presetCategories" :key="c" :value="c">
+                    <option
+                      v-for="c in presetCategoriesForRow(r)"
+                      :key="c"
+                      :value="c"
+                    >
                       {{ c }}
                     </option>
                     <option value="__custom__">Custom…</option>
@@ -249,7 +292,7 @@
               </tr>
 
               <tr v-if="rows.length === 0">
-                <td class="p-3 text-gray-500" colspan="5">
+                <td class="p-3 text-gray-500" colspan="6">
                   No rows yet. Click “Add row”.
                 </td>
               </tr>
@@ -321,8 +364,8 @@
             v-model="raw"
             class="mt-2 w-full h-44 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Format:
-2026-01-29, Food, lunch, 3.5
-2026-01-29, Coffee, latte, 2.0
+2026-01-29, expense, Food, lunch, 3.5
+2026-01-29, income, Salary, Jan, 740
 
 (Comma or tab supported)"
           />
@@ -346,7 +389,7 @@
         <div class="flex items-center justify-between gap-3 mb-2">
           <h2 class="font-semibold">Summary</h2>
 
-          <!-- ✅ compact badges to reduce scrolling + give quick context -->
+          <!-- ✅ compact badges -->
           <div class="flex flex-wrap justify-end gap-2">
             <span
               class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs bg-white"
@@ -358,7 +401,7 @@
             <span
               class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs bg-white"
             >
-              Top:
+              Top expense:
               <span class="ml-1 font-semibold">
                 {{ categoryBreakdown[0]?.category ?? "—" }}
               </span>
@@ -373,7 +416,7 @@
           </div>
         </div>
 
-        <!-- Cards (✅ 2 cols on mobile, 4 on desktop) -->
+        <!-- Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="rounded-xl bg-gray-50 border p-3">
             <div class="text-xs text-gray-500">Items</div>
@@ -381,32 +424,34 @@
           </div>
 
           <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">Total</div>
+            <div class="text-xs text-gray-500">Income</div>
+            <div class="text-lg font-bold">{{ fmt(totalIncome) }}</div>
+          </div>
+
+          <div class="rounded-xl bg-gray-50 border p-3">
+            <div class="text-xs text-gray-500">Spent</div>
             <div class="text-lg font-bold">{{ fmt(totalSpent) }}</div>
           </div>
 
           <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">Daily avg</div>
-            <div class="text-lg font-bold">{{ fmt(dailyAvg) }}</div>
-          </div>
-
-          <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">Budget used</div>
-            <div class="text-lg font-bold">
-              {{ budgetValue ? `${budgetPercent}%` : "—" }}
+            <div class="text-xs text-gray-500">Net</div>
+            <div
+              class="text-lg font-bold"
+              :class="netBalance >= 0 ? 'text-green-700' : 'text-red-700'"
+            >
+              {{ fmt(netBalance) }}
             </div>
             <div class="mt-1">
               <span
-                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs border"
-                :class="budgetValue ? budgetStatus.bg : 'bg-white'"
+                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs border bg-white"
               >
-                {{ budgetValue ? budgetStatus.label : "Set budget" }}
+                Daily avg (spent): {{ fmt(dailyAvg) }}
               </span>
             </div>
           </div>
         </div>
 
-        <!-- ✅ Budget + Insights side-by-side on large screens (less scroll) -->
+        <!-- ✅ Budget + Insights side-by-side -->
         <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <!-- Budget -->
           <div class="border rounded-xl p-3">
@@ -486,10 +531,10 @@
           </div>
         </div>
 
-        <!-- Breakdown -->
+        <!-- Breakdown (expense only) -->
         <div class="mt-4">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold">Category breakdown</h3>
+            <h3 class="font-semibold">Expense breakdown</h3>
             <span class="text-xs text-gray-500">
               {{ categoryBreakdown.length ? "Top first" : "" }}
             </span>
@@ -558,7 +603,10 @@
 </template>
 
 <script setup lang="ts">
+type MoneyType = "expense" | "income";
+
 type ExpenseRow = {
+  type?: MoneyType; // ✅ new
   date: string; // YYYY-MM-DD
   category: string; // preset name or "__custom__"
   customCategory?: string; // if category="__custom__"
@@ -638,8 +686,8 @@ const budget = ref<Budget>({
 const raw = ref("");
 const error = ref("");
 
-// ✅ Default categories (short + useful)
-const presetCategories = [
+// ✅ Default categories
+const expenseCategories = [
   "Food",
   "Coffee",
   "Transport",
@@ -652,6 +700,15 @@ const presetCategories = [
   "Other",
 ];
 
+const incomeCategories = ["Salary", "Bonus", "Freelance", "Gift", "Other"];
+
+const presetCategories = expenseCategories; // keep your existing chips for expense
+function presetCategoriesForRow(r: ExpenseRow) {
+  return (r.type ?? "expense") === "income"
+    ? incomeCategories
+    : expenseCategories;
+}
+
 const todayISO = () => {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -661,8 +718,16 @@ const todayISO = () => {
 };
 
 const rows = ref<ExpenseRow[]>([
-  { date: todayISO(), category: "Food", note: "", amount: "", showNote: false },
   {
+    type: "expense",
+    date: todayISO(),
+    category: "Food",
+    note: "",
+    amount: "",
+    showNote: false,
+  },
+  {
+    type: "expense",
     date: todayISO(),
     category: "Coffee",
     note: "",
@@ -696,16 +761,19 @@ function resolveCategory(r: ExpenseRow): string {
   return c;
 }
 
-function normalizeCategoryToRow(categoryRaw: string): {
+function normalizeCategoryToRow(
+  categoryRaw: string,
+  type: MoneyType,
+): {
   category: string;
   customCategory?: string;
 } {
   const c = (categoryRaw ?? "").trim();
   if (!c) return { category: "" };
 
-  const matchPreset = presetCategories.find(
-    (x) => x.toLowerCase() === c.toLowerCase(),
-  );
+  const presets = type === "income" ? incomeCategories : expenseCategories;
+
+  const matchPreset = presets.find((x) => x.toLowerCase() === c.toLowerCase());
   if (matchPreset) return { category: matchPreset };
 
   return { category: "__custom__", customCategory: c };
@@ -713,6 +781,7 @@ function normalizeCategoryToRow(categoryRaw: string): {
 
 function addRow() {
   rows.value.push({
+    type: "expense",
     date: todayISO(),
     category: "Food",
     note: "",
@@ -723,8 +792,20 @@ function addRow() {
 
 function quickAdd(cat: string) {
   rows.value.push({
+    type: "expense",
     date: todayISO(),
     category: cat,
+    note: "",
+    amount: "",
+    showNote: false,
+  });
+}
+
+function quickAddIncome() {
+  rows.value.push({
+    type: "income",
+    date: todayISO(),
+    category: "Salary",
     note: "",
     amount: "",
     showNote: false,
@@ -764,9 +845,11 @@ const filteredExpenses = computed(() => {
     category: string;
     note: string;
     amount: number;
+    type: MoneyType;
   }> = [];
 
   for (const r of rows.value) {
+    const type = (r.type ?? "expense") as MoneyType;
     const date = (r.date ?? "").trim();
     const category = resolveCategory(r);
     const note = (r.note ?? "").trim();
@@ -798,7 +881,7 @@ const filteredExpenses = computed(() => {
       continue;
     }
 
-    out.push({ date, category, note, amount: round2(amount) });
+    out.push({ date, category, note, amount: round2(amount), type });
   }
 
   if (rangeMode.value === "all") return out;
@@ -808,9 +891,9 @@ const filteredExpenses = computed(() => {
   const monthStart = startOfMonthISO();
   const weekStartDate = new Date(now);
   weekStartDate.setDate(now.getDate() - 6); // inclusive 7 days
-  const weekStartISO = `${weekStartDate.getFullYear()}-${String(weekStartDate.getMonth() + 1).padStart(2, "0")}-${String(
-    weekStartDate.getDate(),
-  ).padStart(2, "0")}`;
+  const weekStartISO = `${weekStartDate.getFullYear()}-${String(
+    weekStartDate.getMonth() + 1,
+  ).padStart(2, "0")}-${String(weekStartDate.getDate()).padStart(2, "0")}`;
 
   return out.filter((x) => {
     if (rangeMode.value === "today") return x.date === today;
@@ -822,8 +905,22 @@ const filteredExpenses = computed(() => {
 
 // ---------- Summary numbers ----------
 const totalSpent = computed(() =>
-  round2(filteredExpenses.value.reduce((s, x) => s + x.amount, 0)),
+  round2(
+    filteredExpenses.value
+      .filter((x) => x.type !== "income")
+      .reduce((s, x) => s + x.amount, 0),
+  ),
 );
+
+const totalIncome = computed(() =>
+  round2(
+    filteredExpenses.value
+      .filter((x) => x.type === "income")
+      .reduce((s, x) => s + x.amount, 0),
+  ),
+);
+
+const netBalance = computed(() => round2(totalIncome.value - totalSpent.value));
 
 const dateSpanDays = computed(() => {
   const list = filteredExpenses.value;
@@ -845,11 +942,12 @@ const dateSpanDays = computed(() => {
 });
 
 const dailyAvg = computed(() => {
-  if (!filteredExpenses.value.length) return 0;
+  const expenseOnly = filteredExpenses.value.filter((x) => x.type !== "income");
+  if (!expenseOnly.length) return 0;
   return round2(totalSpent.value / dateSpanDays.value);
 });
 
-// ---------- Budget logic ----------
+// ---------- Budget logic (expense only) ----------
 const budgetValue = computed(() => {
   const rawVal = (budget.value.amount ?? "").trim();
   if (!rawVal) return 0;
@@ -915,9 +1013,9 @@ const budgetStatus = computed(() => {
   };
 });
 
-// ---------- Breakdown ----------
+// ---------- Breakdown (expense only) ----------
 const categoryBreakdown = computed<Breakdown[]>(() => {
-  const list = filteredExpenses.value;
+  const list = filteredExpenses.value.filter((x) => x.type !== "income");
   if (!list.length) return [];
 
   const map = new Map<string, number>();
@@ -937,7 +1035,10 @@ const categoryBreakdown = computed<Breakdown[]>(() => {
 });
 
 const topExpenses = computed(() =>
-  [...filteredExpenses.value].sort((a, b) => b.amount - a.amount).slice(0, 5),
+  [...filteredExpenses.value]
+    .filter((x) => x.type !== "income")
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5),
 );
 
 // ---------- Insights ----------
@@ -947,10 +1048,15 @@ const insights = computed(() => {
 
   const msgs: string[] = [];
 
+  if (totalIncome.value > 0) msgs.push(`Income: ${fmt(totalIncome.value)}.`);
+  if (totalSpent.value > 0) msgs.push(`Spent: ${fmt(totalSpent.value)}.`);
+  if (totalIncome.value > 0 || totalSpent.value > 0)
+    msgs.push(`Net: ${fmt(netBalance.value)}.`);
+
   const biggest = categoryBreakdown.value[0];
   if (biggest) {
     const pct = Math.round(biggest.percent);
-    msgs.push(`Biggest category: ${biggest.category} (${pct}%).`);
+    msgs.push(`Biggest expense: ${biggest.category} (${pct}%).`);
   }
 
   const top = topExpenses.value[0];
@@ -996,16 +1102,27 @@ function applyRaw() {
 
     for (const line of lines) {
       const parts = line.split(/\t|,/).map((x) => x.trim());
+
+      // Support both:
+      // A) date, category, note, amount
+      // B) date, type, category, note, amount
       if (parts.length < 4) throw new Error(`Invalid line: "${line}"`);
 
       const date = parts[0];
-      const catRaw = parts[1];
-      const note = parts[2];
-      const amount = parts.slice(3).join(" ").trim();
+      const maybeType = (parts[1] || "").toLowerCase();
+      const hasType = maybeType === "expense" || maybeType === "income";
 
-      const normalized = normalizeCategoryToRow(catRaw);
+      const type: MoneyType = (hasType ? maybeType : "expense") as MoneyType;
+      const catRaw = hasType ? parts[2] : parts[1];
+      const note = hasType ? (parts[3] ?? "") : (parts[2] ?? "");
+      const amount = (hasType ? parts.slice(4) : parts.slice(3))
+        .join(" ")
+        .trim();
+
+      const normalized = normalizeCategoryToRow(catRaw, type);
 
       next.push({
+        type,
         date,
         category: normalized.category,
         customCategory: normalized.customCategory,
@@ -1019,6 +1136,7 @@ function applyRaw() {
       ? next
       : [
           {
+            type: "expense",
             date: todayISO(),
             category: "Food",
             note: "",
@@ -1068,8 +1186,8 @@ function readSharePayload(b64: string) {
   if (typeof payload.t === "string") raw.value = payload.t;
 
   if (Array.isArray(payload.rows)) {
-    // ✅ Backward-safe: ensure new fields exist
     rows.value = payload.rows.map((x) => ({
+      type: (x.type ?? "expense") as MoneyType,
       date: x.date ?? todayISO(),
       category: x.category ?? "Food",
       customCategory: x.customCategory,
@@ -1095,8 +1213,10 @@ async function copySummary() {
   const lines: string[] = [];
   lines.push(`Expense Tracker (${rangeLabel.value})`);
   lines.push(`Items: ${filteredExpenses.value.length}`);
-  lines.push(`Total: ${fmt(totalSpent.value)}`);
-  lines.push(`Daily avg: ${fmt(dailyAvg.value)}`);
+  lines.push(`Income: ${fmt(totalIncome.value)}`);
+  lines.push(`Spent: ${fmt(totalSpent.value)}`);
+  lines.push(`Net: ${fmt(netBalance.value)}`);
+  lines.push(`Daily avg (spent): ${fmt(dailyAvg.value)}`);
 
   if (budgetValue.value) {
     lines.push(`Budget (${budget.value.period}): ${fmt(budgetValue.value)}`);
@@ -1106,7 +1226,7 @@ async function copySummary() {
   }
 
   lines.push("");
-  lines.push("Top categories:");
+  lines.push("Top expense categories:");
   for (const c of categoryBreakdown.value.slice(0, 5)) {
     lines.push(`- ${c.category}: ${fmt(c.total)} (${Math.round(c.percent)}%)`);
   }
@@ -1120,6 +1240,23 @@ function loadExample() {
   const t = todayISO();
   rows.value = [
     {
+      type: "income",
+      date: t,
+      category: "Salary",
+      note: "Jan",
+      amount: "740",
+      showNote: false,
+    },
+    {
+      type: "income",
+      date: t,
+      category: "Bonus",
+      note: "",
+      amount: "20",
+      showNote: false,
+    },
+    {
+      type: "expense",
       date: t,
       category: "Food",
       note: "Lunch",
@@ -1127,6 +1264,7 @@ function loadExample() {
       showNote: false,
     },
     {
+      type: "expense",
       date: t,
       category: "Coffee",
       note: "Latte",
@@ -1134,6 +1272,7 @@ function loadExample() {
       showNote: false,
     },
     {
+      type: "expense",
       date: t,
       category: "Transport",
       note: "Tuk tuk",
@@ -1141,6 +1280,7 @@ function loadExample() {
       showNote: false,
     },
     {
+      type: "expense",
       date: t,
       category: "Rent",
       note: "Monthly",
@@ -1148,6 +1288,7 @@ function loadExample() {
       showNote: false,
     },
     {
+      type: "expense",
       date: t,
       category: "__custom__",
       customCategory: "Gym",
@@ -1158,11 +1299,13 @@ function loadExample() {
   ];
   budget.value = { period: "monthly", amount: "200" };
   rangeMode.value = "month";
-  raw.value = `2026-01-29, Food, lunch, 4.5
-2026-01-29, Coffee, latte, 2.0
-2026-01-29, Transport, tuk tuk, 1.5
-2026-01-29, Rent, monthly, 100
-2026-01-29, Gym, , 15`;
+  raw.value = `2026-01-29, income, Salary, Jan, 740
+2026-01-29, income, Bonus, , 20
+2026-01-29, expense, Food, lunch, 4.5
+2026-01-29, expense, Coffee, latte, 2.0
+2026-01-29, expense, Transport, tuk tuk, 1.5
+2026-01-29, expense, Rent, monthly, 100
+2026-01-29, expense, Gym, , 15`;
 }
 
 function reset() {
@@ -1172,6 +1315,7 @@ function reset() {
   rangeMode.value = "month";
   rows.value = [
     {
+      type: "expense",
       date: todayISO(),
       category: "Food",
       note: "",
@@ -1179,6 +1323,7 @@ function reset() {
       showNote: false,
     },
     {
+      type: "expense",
       date: todayISO(),
       category: "Coffee",
       note: "",
