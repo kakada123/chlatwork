@@ -697,10 +697,21 @@ const expenseCategories = [
   "Shopping",
   "Health",
   "Entertainment",
+  "Loan", // ✅ NEW
+  "Braces", // ✅ NEW (Brace treatment)
   "Other",
 ];
 
-const incomeCategories = ["Salary", "Bonus", "Freelance", "Gift", "Other"];
+const incomeCategories = [
+  "Salary",
+  "Bonus",
+  "Freelance",
+  "Seniority",
+  "OT",
+  "Gift",
+  "Allowance",
+  "Other",
+];
 
 const presetCategories = expenseCategories; // keep your existing chips for expense
 function presetCategoriesForRow(r: ExpenseRow) {
