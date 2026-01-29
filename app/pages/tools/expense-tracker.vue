@@ -604,6 +604,10 @@
 
 <script setup lang="ts">
 type MoneyType = "expense" | "income";
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from "lz-string";
 
 type ExpenseRow = {
   type?: MoneyType; // ✅ new
@@ -1169,20 +1173,14 @@ function buildSharePayload() {
     t: raw.value,
     rows: rows.value,
   };
-  const json = JSON.stringify(payload);
-  const b64 = btoa(unescape(encodeURIComponent(json)))
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
-  return b64;
+
+  return compressToEncodedURIComponent(JSON.stringify(payload));
 }
 
-function readSharePayload(b64: string) {
-  const padded =
-    b64.replaceAll("-", "+").replaceAll("_", "/") +
-    "=".repeat((4 - (b64.length % 4)) % 4);
+function readSharePayload(s: string) {
+  const json = decompressFromEncodedURIComponent(s);
+  if (!json) throw new Error("Invalid share payload");
 
-  const json = decodeURIComponent(escape(atob(padded)));
   const payload = JSON.parse(json) as {
     c?: "USD" | "KHR";
     r?: "all" | "month" | "week" | "today";
@@ -1195,18 +1193,7 @@ function readSharePayload(b64: string) {
   if (payload.r) rangeMode.value = payload.r;
   if (payload.b) budget.value = payload.b;
   if (typeof payload.t === "string") raw.value = payload.t;
-
-  if (Array.isArray(payload.rows)) {
-    rows.value = payload.rows.map((x) => ({
-      type: (x.type ?? "expense") as MoneyType,
-      date: x.date ?? todayISO(),
-      category: x.category ?? "Food",
-      customCategory: x.customCategory,
-      note: x.note ?? "",
-      showNote: x.showNote ?? false,
-      amount: x.amount ?? "",
-    }));
-  }
+  if (Array.isArray(payload.rows)) rows.value = payload.rows as any;
 }
 
 async function shareLink() {
