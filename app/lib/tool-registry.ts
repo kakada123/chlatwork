@@ -18,7 +18,6 @@ export const TOOLS: ToolDef[] = [
     description: "Generate QR for text/URL.",
   },
 
-  // ✅ NEW
   {
     key: "wifi-qr",
     name: "Wi-Fi QR Generator",
@@ -29,7 +28,6 @@ export const TOOLS: ToolDef[] = [
     description: "Generate Wi-Fi QR to connect instantly by scanning.",
   },
 
-  // ✅ NEW
   {
     key: "payback-calculator",
     name: "PayBack Calculator",
@@ -38,6 +36,17 @@ export const TOOLS: ToolDef[] = [
     status: "stable",
     category: "Utilities",
     description: "Split group spending and calculate who pays who.",
+  },
+
+  // ✅ NEW
+  {
+    key: "expense-tracker",
+    name: "Expense Tracker",
+    route: "/tools/expense-tracker",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Track daily expenses with budget, breakdown, and insights.",
   },
 
   {
