@@ -458,7 +458,10 @@ function fmt(n: number) {
     })}៛`;
   }
 
-  return `${sign}$${abs.toFixed(2)}`;
+  return `${sign}$${abs.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 function fmtExactKhr(n: number) {
