@@ -70,52 +70,6 @@
           </select>
         </div>
 
-        <!-- ✅ KHR remainder handling -->
-        <div
-          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
-          class="mb-4 rounded-xl border bg-gray-50 p-3 space-y-3"
-        >
-          <div>
-            <label class="block text-sm font-medium mb-1">
-              KHR leftover handling
-            </label>
-
-            <select
-              v-model="khrRemainderMode"
-              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
-            >
-              <option value="LEFTOVER_ONLY">Keep leftover separate</option>
-              <option value="ASSIGN_TO_PERSON">
-                Assign leftover to one person
-              </option>
-            </select>
-          </div>
-
-          <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
-            <label class="block text-sm font-medium mb-1">
-              Who covers the leftover?
-            </label>
-
-            <select
-              v-model="khrRemainderPayer"
-              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
-            >
-              <option
-                v-for="option in uniqueNames"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </select>
-
-            <p class="mt-2 text-xs text-gray-500">
-              This person will absorb the remaining KHR amount that cannot be
-              evenly split by 100៛.
-            </p>
-          </div>
-        </div>
-
         <!-- ✅ Column input (Name / Amount) -->
         <div class="overflow-auto border rounded-xl">
           <table class="w-full text-sm">
@@ -228,12 +182,12 @@
             v-model="raw"
             class="mt-2 w-full h-40 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Example:
-Mina 5000៛
-Sreynea : 10000៛
-John 4000
+Mina 5$
+Sreynea : 10$
+John 4
 Minea: 0
 Reak: 0
-Jompa: 38000៛"
+Jompa: 38$"
           />
 
           <div class="mt-2 flex gap-2">
@@ -266,34 +220,6 @@ Jompa: 38000៛"
             <div class="text-xs text-gray-500">Average</div>
             <div class="text-lg font-bold">{{ fmt(avg) }}</div>
           </div>
-        </div>
-
-        <div
-          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
-          class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"
-        >
-          <div class="font-semibold text-amber-800">KHR leftover</div>
-
-          <p class="mt-1 text-amber-700">
-            Remaining amount that cannot be evenly split by 100៛:
-            <span class="font-bold">{{
-              fmtExactKhr(khrRemainder.leftover)
-            }}</span>
-          </p>
-
-          <p
-            v-if="khrRemainderMode === 'LEFTOVER_ONLY'"
-            class="mt-1 text-amber-700"
-          >
-            This leftover is shown separately and is not auto-assigned to
-            anyone.
-          </p>
-
-          <p v-else-if="khrRemainder.assignedTo" class="mt-1 text-amber-700">
-            This leftover is assigned to
-            <span class="font-semibold">{{ khrRemainder.assignedTo }}</span
-            >.
-          </p>
         </div>
 
         <div class="mt-4">
@@ -353,6 +279,60 @@ Jompa: 38000៛"
               <div class="font-bold">{{ fmt(s.amount) }}</div>
             </li>
           </ul>
+        </div>
+
+        <div
+          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
+          class="mt-4 rounded-xl border bg-gray-50 p-3 space-y-3"
+        >
+          <div>
+            <h3 class="font-semibold">KHR rounding remainder</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Remaining amount that cannot be evenly split by 100៛:
+              <span class="font-semibold">{{
+                fmtExactKhr(khrRemainder.leftover)
+              }}</span>
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">
+              How should this leftover be handled?
+            </label>
+
+            <select
+              v-model="khrRemainderMode"
+              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
+            >
+              <option value="LEFTOVER_ONLY">Keep leftover separate</option>
+              <option value="ASSIGN_TO_PERSON">
+                Assign leftover to one person
+              </option>
+            </select>
+          </div>
+
+          <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
+            <label class="block text-sm font-medium mb-1">
+              Who covers the leftover?
+            </label>
+
+            <select
+              v-model="khrRemainderPayer"
+              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
+            >
+              <option
+                v-for="option in uniqueNames"
+                :key="option"
+                :value="option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </div>
+
+          <p class="text-xs text-gray-500">
+            This only affects the small KHR remainder after rounding to 100៛.
+          </p>
         </div>
 
         <p class="text-xs text-gray-500 mt-4">
@@ -446,8 +426,6 @@ function flashShareCopied(ms = 1500) {
 
 // ---------- Core ----------
 const currency = ref<"USD" | "KHR">("USD");
-
-// ✅ New: explicit KHR remainder handling
 const khrRemainderMode = ref<KhrRemainderMode>("LEFTOVER_ONLY");
 const khrRemainderPayer = ref("");
 
@@ -520,7 +498,7 @@ function removeRow(i: number) {
 function parseLines(input: string): Array<{ name: string; paid: number }> {
   const lines = input
     .split("\n")
-    .map((l) => l.trim())
+    .map((line) => line.trim())
     .filter(Boolean);
 
   const out: Array<{ name: string; paid: number }> = [];
@@ -549,17 +527,17 @@ function parseRows(
 ): Array<{ name: string; paid: number }> {
   const out: Array<{ name: string; paid: number }> = [];
 
-  for (const r of inputRows) {
-    const name = (r.name ?? "").trim();
-    const amtRaw = (r.amount ?? "").trim();
+  for (const row of inputRows) {
+    const name = (row.name ?? "").trim();
+    const amountRaw = (row.amount ?? "").trim();
 
     // ignore totally empty rows
-    if (!name && !amtRaw) continue;
+    if (!name && !amountRaw) continue;
 
     if (!name) throw new Error("Missing name in a row.");
-    if (!amtRaw) throw new Error(`Missing amount for "${name}".`);
+    if (!amountRaw) throw new Error(`Missing amount for "${name}".`);
 
-    const cleaned = amtRaw.replace(/\$/g, "").replace(/៛/g, "");
+    const cleaned = amountRaw.replace(/\$/g, "").replace(/៛/g, "");
     const paid = Number(cleaned);
 
     if (Number.isNaN(paid)) throw new Error(`Invalid amount for "${name}".`);
@@ -571,13 +549,13 @@ function parseRows(
 }
 
 function buildRawFromRows(inputRows: InputRow[]): string {
-  // Keep it simple for share payload + paste mode
   return inputRows
-    .map((r) => {
-      const name = (r.name ?? "").trim();
-      const amt = (r.amount ?? "").trim();
-      if (!name && !amt) return "";
-      return `${name}: ${amt}`;
+    .map((row) => {
+      const name = (row.name ?? "").trim();
+      const amount = (row.amount ?? "").trim();
+
+      if (!name && !amount) return "";
+      return `${name}: ${amount}`;
     })
     .filter(Boolean)
     .join("\n");
@@ -585,15 +563,17 @@ function buildRawFromRows(inputRows: InputRow[]): string {
 
 function buildRowsFromRaw(input: string): InputRow[] {
   const entries = parseLines(input);
-  const built = entries.map((e) => ({
-    name: e.name,
-    amount: String(e.paid),
+  const built = entries.map((entry) => ({
+    name: entry.name,
+    amount: String(entry.paid),
   }));
+
   return built.length ? built : [{ name: "", amount: "" }];
 }
 
 function applyRawToRows() {
   error.value = "";
+
   if (!raw.value.trim()) {
     rows.value = [{ name: "", amount: "" }];
     nameInputRefs.value = [];
@@ -697,33 +677,38 @@ function buildKhrBalances(
 
 function computeSettlements(people: Person[]): Settlement[] {
   const debtors = people
-    .filter((p) => p.balance < 0)
-    .map((p) => ({ ...p, balance: round2(Math.abs(p.balance)) }))
+    .filter((person) => person.balance < 0)
+    .map((person) => ({ ...person, balance: round2(Math.abs(person.balance)) }))
     .sort((a, b) => b.balance - a.balance);
 
   const creditors = people
-    .filter((p) => p.balance > 0)
-    .map((p) => ({ ...p, balance: round2(p.balance) }))
+    .filter((person) => person.balance > 0)
+    .map((person) => ({ ...person, balance: round2(person.balance) }))
     .sort((a, b) => b.balance - a.balance);
 
   const res: Settlement[] = [];
-  let i = 0;
-  let j = 0;
+  let debtorIndex = 0;
+  let creditorIndex = 0;
 
-  while (i < debtors.length && j < creditors.length) {
-    const d = debtors[i];
-    const c = creditors[j];
+  while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
+    const debtor = debtors[debtorIndex];
+    const creditor = creditors[creditorIndex];
 
-    const amount = round2(Math.min(d.balance, c.balance));
+    const amount = round2(Math.min(debtor.balance, creditor.balance));
 
     if (amount > 0) {
-      res.push({ from: d.name, to: c.name, amount });
-      d.balance = round2(d.balance - amount);
-      c.balance = round2(c.balance - amount);
+      res.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount,
+      });
+
+      debtor.balance = round2(debtor.balance - amount);
+      creditor.balance = round2(creditor.balance - amount);
     }
 
-    if (d.balance <= 0.009) i++;
-    if (c.balance <= 0.009) j++;
+    if (debtor.balance <= 0.009) debtorIndex++;
+    if (creditor.balance <= 0.009) creditorIndex++;
   }
 
   return res;
@@ -737,6 +722,7 @@ watch(
   rows,
   () => {
     if (syncing) return;
+
     syncing = true;
     raw.value = buildRawFromRows(rows.value);
     syncing = false;
@@ -747,19 +733,23 @@ watch(
 // Keep rows updated when raw changes (share payload / paste / example)
 watch(
   raw,
-  (v) => {
+  (value) => {
     if (syncing) return;
+
     syncing = true;
+
     try {
-      if (v.trim()) {
-        rows.value = buildRowsFromRaw(v);
+      if (value.trim()) {
+        rows.value = buildRowsFromRaw(value);
       } else {
         rows.value = [{ name: "", amount: "" }];
       }
+
       nameInputRefs.value = [];
     } catch {
       // ignore (error will show via computed people)
     }
+
     syncing = false;
   },
   { immediate: true },
@@ -772,12 +762,14 @@ const people = computed<Person[]>(() => {
     const entries = parseRows(rows.value);
 
     const map = new Map<string, number>();
-    for (const e of entries) {
-      map.set(e.name, round2((map.get(e.name) || 0) + e.paid));
+    for (const entry of entries) {
+      map.set(entry.name, round2((map.get(entry.name) || 0) + entry.paid));
     }
 
     const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
-    const totalPaid = round2(list.reduce((sum, p) => sum + p.paid, 0));
+    const totalPaid = round2(
+      list.reduce((sum, person) => sum + person.paid, 0),
+    );
     const averagePaid = list.length ? round2(totalPaid / list.length) : 0;
 
     if (currency.value === "KHR") {
@@ -785,23 +777,24 @@ const people = computed<Person[]>(() => {
     }
 
     return list
-      .map((p) => ({
-        name: p.name,
-        paid: p.paid,
-        balance: round2(p.paid - averagePaid),
+      .map((person) => ({
+        name: person.name,
+        paid: person.paid,
+        balance: round2(person.paid - averagePaid),
       }))
       .sort((a, b) => b.paid - a.paid);
   } catch (e: any) {
     const hasAny = rows.value.some(
-      (r) => (r.name ?? "").trim() || (r.amount ?? "").trim(),
+      (row) => (row.name ?? "").trim() || (row.amount ?? "").trim(),
     );
+
     if (hasAny) error.value = e?.message || "Invalid input";
     return [];
   }
 });
 
 const total = computed(() =>
-  round2(people.value.reduce((s, p) => s + p.paid, 0)),
+  round2(people.value.reduce((sum, person) => sum + person.paid, 0)),
 );
 
 const avg = computed(() =>
@@ -831,7 +824,6 @@ const khrRemainder = computed<KhrRemainderMeta>(() => {
 });
 
 function loadExample() {
-  // set via raw so it also updates share payload nicely
   if (currency.value === "KHR") {
     raw.value = `Mina 5000៛
 Sreynea : 10000៛
@@ -860,7 +852,6 @@ function reset() {
 }
 
 function buildSharePayload() {
-  // raw is always synced from rows
   const payload = {
     c: currency.value,
     t: raw.value,
@@ -873,6 +864,7 @@ function buildSharePayload() {
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replaceAll("=", "");
+
   return b64;
 }
 
@@ -899,7 +891,7 @@ async function copyResult() {
   if (settlements.value.length === 0) return;
 
   const lines: string[] = [];
-  lines.push(`PayBack Calculator`);
+  lines.push("PayBack Calculator");
   lines.push(`People: ${people.value.length}`);
   lines.push(`Total: ${fmt(total.value)}`);
   lines.push(`Average: ${fmt(avg.value)}`);
@@ -913,14 +905,16 @@ async function copyResult() {
     ) {
       lines.push(`Covered by: ${khrRemainder.value.assignedTo}`);
     } else {
-      lines.push(`Leftover handling: kept separate`);
+      lines.push("Leftover handling: kept separate");
     }
   }
 
   lines.push("");
-  lines.push(`Who pays who:`);
-  for (const s of settlements.value) {
-    lines.push(`- ${s.from} -> ${s.to}: ${fmt(s.amount)}`);
+  lines.push("Who pays who:");
+  for (const settlement of settlements.value) {
+    lines.push(
+      `- ${settlement.from} -> ${settlement.to}: ${fmt(settlement.amount)}`,
+    );
   }
 
   await navigator.clipboard.writeText(lines.join("\n"));
@@ -938,6 +932,7 @@ async function shareLink() {
 
 onMounted(() => {
   const s = route.query.s;
+
   if (typeof s === "string" && s.trim()) {
     try {
       readSharePayload(s.trim());
