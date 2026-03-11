@@ -70,6 +70,52 @@
           </select>
         </div>
 
+        <!-- ✅ KHR remainder handling -->
+        <div
+          v-if="currency === 'KHR'"
+          class="mb-4 rounded-xl border bg-gray-50 p-3 space-y-3"
+        >
+          <div>
+            <label class="block text-sm font-medium mb-1">
+              KHR leftover handling
+            </label>
+
+            <select
+              v-model="khrRemainderMode"
+              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
+            >
+              <option value="LEFTOVER_ONLY">Keep leftover separate</option>
+              <option value="ASSIGN_TO_PERSON">
+                Assign leftover to one person
+              </option>
+            </select>
+          </div>
+
+          <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
+            <label class="block text-sm font-medium mb-1">
+              Who covers the leftover?
+            </label>
+
+            <select
+              v-model="khrRemainderPayer"
+              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
+            >
+              <option
+                v-for="option in uniqueNames"
+                :key="option"
+                :value="option"
+              >
+                {{ option }}
+              </option>
+            </select>
+
+            <p class="mt-2 text-xs text-gray-500">
+              This person will absorb the remaining KHR amount that cannot be
+              evenly split by 100៛.
+            </p>
+          </div>
+        </div>
+
         <!-- ✅ Column input (Name / Amount) -->
         <div class="overflow-auto border rounded-xl">
           <table class="w-full text-sm">
@@ -182,12 +228,12 @@
             v-model="raw"
             class="mt-2 w-full h-40 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Example:
-Mina 5$
-Sreynea : 10$
-John 4
+Mina 5000៛
+Sreynea : 10000៛
+John 4000
 Minea: 0
 Reak: 0
-Jompa: 38$"
+Jompa: 38000៛"
           />
 
           <div class="mt-2 flex gap-2">
@@ -220,6 +266,34 @@ Jompa: 38$"
             <div class="text-xs text-gray-500">Average</div>
             <div class="text-lg font-bold">{{ fmt(avg) }}</div>
           </div>
+        </div>
+
+        <div
+          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
+          class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"
+        >
+          <div class="font-semibold text-amber-800">KHR leftover</div>
+
+          <p class="mt-1 text-amber-700">
+            Remaining amount that cannot be evenly split by 100៛:
+            <span class="font-bold">{{
+              fmtExactKhr(khrRemainder.leftover)
+            }}</span>
+          </p>
+
+          <p
+            v-if="khrRemainderMode === 'LEFTOVER_ONLY'"
+            class="mt-1 text-amber-700"
+          >
+            This leftover is shown separately and is not auto-assigned to
+            anyone.
+          </p>
+
+          <p v-else-if="khrRemainder.assignedTo" class="mt-1 text-amber-700">
+            This leftover is assigned to
+            <span class="font-semibold">{{ khrRemainder.assignedTo }}</span
+            >.
+          </p>
         </div>
 
         <div class="mt-4">
@@ -310,6 +384,14 @@ type InputRow = {
   amount: string; // keep as string for input UX
 };
 
+type KhrRemainderMode = "LEFTOVER_ONLY" | "ASSIGN_TO_PERSON";
+
+type KhrRemainderMeta = {
+  baseShare: number;
+  leftover: number;
+  assignedTo: string | null;
+};
+
 const route = useRoute();
 const router = useRouter();
 
@@ -365,6 +447,10 @@ function flashShareCopied(ms = 1500) {
 // ---------- Core ----------
 const currency = ref<"USD" | "KHR">("USD");
 
+// ✅ New: explicit KHR remainder handling
+const khrRemainderMode = ref<KhrRemainderMode>("LEFTOVER_ONLY");
+const khrRemainderPayer = ref("");
+
 // ✅ Keep raw for share-link payload + paste mode
 const raw = ref("");
 
@@ -395,6 +481,15 @@ function fmt(n: number) {
   }
 
   return `${sign}$${abs.toFixed(2)}`;
+}
+
+function fmtExactKhr(n: number) {
+  const sign = n < 0 ? "-" : "";
+  const abs = Math.abs(n);
+
+  return `${sign}${abs.toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  })}៛`;
 }
 
 // ---------- Focus handling ----------
@@ -513,32 +608,83 @@ function applyRawToRows() {
   }
 }
 
-function buildKhrBalances(
+const uniqueNames = computed(() => {
+  try {
+    const parsed = parseRows(rows.value);
+    return [...new Set(parsed.map((item) => item.name))];
+  } catch {
+    return [];
+  }
+});
+
+watch(
+  uniqueNames,
+  (names) => {
+    if (!names.length) {
+      khrRemainderPayer.value = "";
+      return;
+    }
+
+    if (!names.includes(khrRemainderPayer.value)) {
+      khrRemainderPayer.value = names[0];
+    }
+  },
+  { immediate: true },
+);
+
+function buildKhrRemainderMeta(
   list: Array<{ name: string; paid: number }>,
-): Person[] {
+): KhrRemainderMeta {
   const totalPaid = round2(list.reduce((sum, person) => sum + person.paid, 0));
   const peopleCount = list.length;
 
-  if (!peopleCount) return [];
+  if (!peopleCount) {
+    return {
+      baseShare: 0,
+      leftover: 0,
+      assignedTo: null,
+    };
+  }
 
   const baseShare = Math.floor(totalPaid / peopleCount / 100) * 100;
-  const remainder = round2(totalPaid - baseShare * peopleCount);
-  const extraHundreds = Math.floor(remainder / 100);
+  const leftover = round2(totalPaid - baseShare * peopleCount);
 
-  const extraShareNames = new Set(
-    [...list]
-      .sort((a, b) => {
-        if (a.paid !== b.paid) return a.paid - b.paid;
-        return a.name.localeCompare(b.name);
-      })
-      .slice(0, extraHundreds)
-      .map((person) => person.name),
-  );
+  if (khrRemainderMode.value === "ASSIGN_TO_PERSON") {
+    const selected =
+      list.find((person) => person.name === khrRemainderPayer.value)?.name ??
+      list[0]?.name ??
+      null;
+
+    return {
+      baseShare,
+      leftover,
+      assignedTo: selected,
+    };
+  }
+
+  return {
+    baseShare,
+    leftover,
+    assignedTo: null,
+  };
+}
+
+function buildKhrBalances(
+  list: Array<{ name: string; paid: number }>,
+): Person[] {
+  const meta = buildKhrRemainderMeta(list);
 
   return list
     .map((person) => {
-      const targetShare =
-        baseShare + (extraShareNames.has(person.name) ? 100 : 0);
+      let targetShare = meta.baseShare;
+
+      if (
+        khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
+        meta.leftover > 0 &&
+        meta.assignedTo === person.name
+      ) {
+        targetShare = round2(targetShare + meta.leftover);
+      }
 
       return {
         name: person.name,
@@ -664,8 +810,38 @@ const avg = computed(() =>
 
 const settlements = computed(() => computeSettlements(people.value));
 
+const khrRemainder = computed<KhrRemainderMeta>(() => {
+  try {
+    const entries = parseRows(rows.value);
+
+    const map = new Map<string, number>();
+    for (const entry of entries) {
+      map.set(entry.name, round2((map.get(entry.name) || 0) + entry.paid));
+    }
+
+    const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
+    return buildKhrRemainderMeta(list);
+  } catch {
+    return {
+      baseShare: 0,
+      leftover: 0,
+      assignedTo: null,
+    };
+  }
+});
+
 function loadExample() {
   // set via raw so it also updates share payload nicely
+  if (currency.value === "KHR") {
+    raw.value = `Mina 5000៛
+Sreynea : 10000៛
+John: 4000៛
+Minea: 0
+Reak: 0
+Rotha: 38100៛`;
+    return;
+  }
+
   raw.value = `Mina 5$
 Sreynea : 10$
 John: 4$
@@ -679,11 +855,19 @@ function reset() {
   error.value = "";
   rows.value = [{ name: "", amount: "" }];
   nameInputRefs.value = [];
+  khrRemainderMode.value = "LEFTOVER_ONLY";
+  khrRemainderPayer.value = "";
 }
 
 function buildSharePayload() {
   // raw is always synced from rows
-  const payload = { c: currency.value, t: raw.value };
+  const payload = {
+    c: currency.value,
+    t: raw.value,
+    krm: khrRemainderMode.value,
+    krp: khrRemainderPayer.value,
+  };
+
   const json = JSON.stringify(payload);
   const b64 = btoa(unescape(encodeURIComponent(json)))
     .replaceAll("+", "-")
@@ -698,9 +882,17 @@ function readSharePayload(b64: string) {
     "=".repeat((4 - (b64.length % 4)) % 4);
 
   const json = decodeURIComponent(escape(atob(padded)));
-  const payload = JSON.parse(json) as { c?: "USD" | "KHR"; t?: string };
+  const payload = JSON.parse(json) as {
+    c?: "USD" | "KHR";
+    t?: string;
+    krm?: KhrRemainderMode;
+    krp?: string;
+  };
+
   if (payload.c) currency.value = payload.c;
-  if (payload.t) raw.value = payload.t; // watcher updates rows
+  if (payload.t) raw.value = payload.t;
+  if (payload.krm) khrRemainderMode.value = payload.krm;
+  if (payload.krp) khrRemainderPayer.value = payload.krp;
 }
 
 async function copyResult() {
@@ -711,6 +903,20 @@ async function copyResult() {
   lines.push(`People: ${people.value.length}`);
   lines.push(`Total: ${fmt(total.value)}`);
   lines.push(`Average: ${fmt(avg.value)}`);
+
+  if (currency.value === "KHR" && khrRemainder.value.leftover > 0) {
+    lines.push(`KHR leftover: ${fmtExactKhr(khrRemainder.value.leftover)}`);
+
+    if (
+      khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
+      khrRemainder.value.assignedTo
+    ) {
+      lines.push(`Covered by: ${khrRemainder.value.assignedTo}`);
+    } else {
+      lines.push(`Leftover handling: kept separate`);
+    }
+  }
+
   lines.push("");
   lines.push(`Who pays who:`);
   for (const s of settlements.value) {
