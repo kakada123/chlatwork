@@ -72,7 +72,7 @@
 
         <!-- ✅ KHR remainder handling -->
         <div
-          v-if="currency === 'KHR'"
+          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
           class="mb-4 rounded-xl border bg-gray-50 p-3 space-y-3"
         >
           <div>
