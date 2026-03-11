@@ -378,13 +378,28 @@ const error = ref<string>("");
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+function roundKhrDown(n: number) {
+  return Math.floor(n / 100) * 100;
+}
+
+function formatAmount(n: number) {
+  if (currency.value === "KHR") {
+    return roundKhrDown(n);
+  }
+  return round2(n);
+}
+
 function fmt(n: number) {
   const sign = n < 0 ? "-" : "";
   const abs = Math.abs(n);
 
   if (currency.value === "KHR") {
-    return `${sign}${abs.toLocaleString("en-US", { maximumFractionDigits: 0 })}៛`;
+    const rounded = roundKhrDown(abs);
+    return `${sign}${rounded.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    })}៛`;
   }
+
   return `${sign}$${abs.toFixed(2)}`;
 }
 
@@ -504,15 +519,18 @@ function computeSettlements(people: Person[]): Settlement[] {
     const d = debtors[i];
     const c = creditors[j];
 
-    const amount = round2(Math.min(d.balance, c.balance));
-    if (amount > 0) {
-      res.push({ from: d.name, to: c.name, amount });
-      d.balance = round2(d.balance - amount);
-      c.balance = round2(c.balance - amount);
+    const rawAmount = round2(Math.min(d.balance, c.balance));
+    const finalAmount = formatAmount(rawAmount);
+
+    if (finalAmount > 0) {
+      res.push({ from: d.name, to: c.name, amount: finalAmount });
     }
 
-    if (d.balance <= 0) i++;
-    if (c.balance <= 0) j++;
+    d.balance = round2(d.balance - rawAmount);
+    c.balance = round2(c.balance - rawAmount);
+
+    if (d.balance <= 0.009) i++;
+    if (c.balance <= 0.009) j++;
   }
 
   return res;
@@ -538,7 +556,6 @@ watch(
   raw,
   (v) => {
     if (syncing) return;
-    // if raw changed programmatically (share payload), rebuild rows
     syncing = true;
     try {
       if (v.trim()) rows.value = buildRowsFromRaw(v);
@@ -558,23 +575,23 @@ const people = computed<Person[]>(() => {
     const entries = parseRows(rows.value);
 
     const map = new Map<string, number>();
-    for (const e of entries)
+    for (const e of entries) {
       map.set(e.name, round2((map.get(e.name) || 0) + e.paid));
+    }
 
     const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
 
-    const total = round2(list.reduce((sum, p) => sum + p.paid, 0));
-    const avg = list.length ? round2(total / list.length) : 0;
+    const totalPaid = round2(list.reduce((sum, p) => sum + p.paid, 0));
+    const averagePaid = list.length ? round2(totalPaid / list.length) : 0;
 
     return list
       .map((p) => ({
         name: p.name,
-        paid: round2(p.paid),
-        balance: round2(p.paid - avg),
+        paid: p.paid,
+        balance: p.paid - averagePaid,
       }))
       .sort((a, b) => b.paid - a.paid);
   } catch (e: any) {
-    // If there is no meaningful input, don't show error
     const hasAny = rows.value.some(
       (r) => (r.name ?? "").trim() || (r.amount ?? "").trim(),
     );
@@ -586,9 +603,11 @@ const people = computed<Person[]>(() => {
 const total = computed(() =>
   round2(people.value.reduce((s, p) => s + p.paid, 0)),
 );
+
 const avg = computed(() =>
   people.value.length ? round2(total.value / people.value.length) : 0,
 );
+
 const settlements = computed(() => computeSettlements(people.value));
 
 function loadExample() {
