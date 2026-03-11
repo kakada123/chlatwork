@@ -383,13 +383,6 @@ function roundKhrDown(n: number) {
   return Math.floor(n / 100) * 100;
 }
 
-function formatAmount(n: number) {
-  if (currency.value === "KHR") {
-    return roundKhrDown(n);
-  }
-  return round2(n);
-}
-
 function fmt(n: number) {
   const sign = n < 0 ? "-" : "";
   const abs = Math.abs(n);
@@ -520,6 +513,42 @@ function applyRawToRows() {
   }
 }
 
+function buildKhrBalances(
+  list: Array<{ name: string; paid: number }>,
+): Person[] {
+  const totalPaid = round2(list.reduce((sum, person) => sum + person.paid, 0));
+  const peopleCount = list.length;
+
+  if (!peopleCount) return [];
+
+  const baseShare = Math.floor(totalPaid / peopleCount / 100) * 100;
+  const remainder = round2(totalPaid - baseShare * peopleCount);
+  const extraHundreds = Math.floor(remainder / 100);
+
+  const extraShareNames = new Set(
+    [...list]
+      .sort((a, b) => {
+        if (a.paid !== b.paid) return a.paid - b.paid;
+        return a.name.localeCompare(b.name);
+      })
+      .slice(0, extraHundreds)
+      .map((person) => person.name),
+  );
+
+  return list
+    .map((person) => {
+      const targetShare =
+        baseShare + (extraShareNames.has(person.name) ? 100 : 0);
+
+      return {
+        name: person.name,
+        paid: person.paid,
+        balance: round2(person.paid - targetShare),
+      };
+    })
+    .sort((a, b) => b.paid - a.paid);
+}
+
 function computeSettlements(people: Person[]): Settlement[] {
   const debtors = people
     .filter((p) => p.balance < 0)
@@ -539,15 +568,13 @@ function computeSettlements(people: Person[]): Settlement[] {
     const d = debtors[i];
     const c = creditors[j];
 
-    const rawAmount = round2(Math.min(d.balance, c.balance));
-    const finalAmount = formatAmount(rawAmount);
+    const amount = round2(Math.min(d.balance, c.balance));
 
-    if (finalAmount > 0) {
-      res.push({ from: d.name, to: c.name, amount: finalAmount });
+    if (amount > 0) {
+      res.push({ from: d.name, to: c.name, amount });
+      d.balance = round2(d.balance - amount);
+      c.balance = round2(c.balance - amount);
     }
-
-    d.balance = round2(d.balance - rawAmount);
-    c.balance = round2(c.balance - rawAmount);
 
     if (d.balance <= 0.009) i++;
     if (c.balance <= 0.009) j++;
@@ -604,15 +631,18 @@ const people = computed<Person[]>(() => {
     }
 
     const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
-
     const totalPaid = round2(list.reduce((sum, p) => sum + p.paid, 0));
     const averagePaid = list.length ? round2(totalPaid / list.length) : 0;
+
+    if (currency.value === "KHR") {
+      return buildKhrBalances(list);
+    }
 
     return list
       .map((p) => ({
         name: p.name,
         paid: p.paid,
-        balance: p.paid - averagePaid,
+        balance: round2(p.paid - averagePaid),
       }))
       .sort((a, b) => b.paid - a.paid);
   } catch (e: any) {
