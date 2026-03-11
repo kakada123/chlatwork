@@ -85,6 +85,7 @@
               <tr v-for="(r, i) in rows" :key="i" class="border-t align-top">
                 <td class="p-2">
                   <input
+                    :ref="(element) => setNameInputRef(element, i)"
                     v-model.trim="r.name"
                     class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
                     placeholder="e.g. Mina"
@@ -124,7 +125,7 @@
         <div class="mt-3 grid grid-cols-3 gap-2">
           <button
             class="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-gray-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
-            @click="addRow()"
+            @click="addRow"
           >
             <span class="text-base leading-none">＋</span>
             <span class="truncate">Add row</span>
@@ -403,12 +404,29 @@ function fmt(n: number) {
   return `${sign}$${abs.toFixed(2)}`;
 }
 
-function addRow() {
+// ---------- Focus handling ----------
+const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
+
+function setNameInputRef(
+  element: Element | ComponentPublicInstance | null,
+  index: number,
+) {
+  nameInputRefs.value[index] = element as HTMLInputElement | null;
+}
+
+async function focusRowNameInput(index: number) {
+  await nextTick();
+  nameInputRefs.value[index]?.focus();
+}
+
+async function addRow() {
   rows.value.push({ name: "", amount: "" });
+  await focusRowNameInput(rows.value.length - 1);
 }
 
 function removeRow(i: number) {
   rows.value.splice(i, 1);
+  nameInputRefs.value.splice(i, 1);
 }
 
 function parseLines(input: string): Array<{ name: string; paid: number }> {
@@ -490,11 +508,13 @@ function applyRawToRows() {
   error.value = "";
   if (!raw.value.trim()) {
     rows.value = [{ name: "", amount: "" }];
+    nameInputRefs.value = [];
     return;
   }
 
   try {
     rows.value = buildRowsFromRaw(raw.value);
+    nameInputRefs.value = [];
   } catch (e: any) {
     error.value = e?.message || "Invalid paste input";
   }
@@ -558,8 +578,12 @@ watch(
     if (syncing) return;
     syncing = true;
     try {
-      if (v.trim()) rows.value = buildRowsFromRaw(v);
-      else rows.value = [{ name: "", amount: "" }];
+      if (v.trim()) {
+        rows.value = buildRowsFromRaw(v);
+      } else {
+        rows.value = [{ name: "", amount: "" }];
+      }
+      nameInputRefs.value = [];
     } catch {
       // ignore (error will show via computed people)
     }
@@ -624,6 +648,7 @@ function reset() {
   raw.value = "";
   error.value = "";
   rows.value = [{ name: "", amount: "" }];
+  nameInputRefs.value = [];
 }
 
 function buildSharePayload() {
