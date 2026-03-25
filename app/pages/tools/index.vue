@@ -69,44 +69,5 @@ const badgeClass = (s: ToolStatus) => {
         </div>
       </NuxtLink>
     </div>
-
-    <!-- ✅ Coming soon -->
-    <section class="pt-4">
-      <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Coming soon
-      </h2>
-
-      <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <div
-          v-for="t in comingSoon"
-          :key="t.key"
-          class="rounded-2xl border bg-gray-50 p-4"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="font-semibold text-gray-700 sm:truncate">
-                {{ t.name }}
-              </p>
-
-              <p
-                class="mt-1 text-sm text-gray-500 line-clamp-2 sm:line-clamp-1"
-              >
-                {{ t.description }}
-              </p>
-            </div>
-
-            <span
-              class="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] text-gray-700"
-            >
-              soon
-            </span>
-          </div>
-
-          <p class="mt-3 text-xs text-gray-400 truncate">
-            {{ t.category }}
-          </p>
-        </div>
-      </div>
-    </section>
   </main>
 </template>

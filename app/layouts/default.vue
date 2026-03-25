@@ -197,37 +197,8 @@ onBeforeUnmount(() => {
                 @click="closeMenu"
               >
                 <span class="min-w-0 truncate">{{ t.name }}</span>
-
-                <span
-                  class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium"
-                  :class="badgeClass(t.status)"
-                >
-                  {{ t.status }}
-                </span>
               </NuxtLink>
             </nav>
-          </div>
-
-          <!-- Coming soon -->
-          <div class="mt-5">
-            <p
-              class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
-            >
-              Coming soon
-            </p>
-
-            <div
-              v-for="t in comingSoon"
-              :key="t.key"
-              class="flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm text-gray-400"
-            >
-              <span class="min-w-0 truncate">{{ t.name }}</span>
-              <span
-                class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px]"
-              >
-                soon
-              </span>
-            </div>
           </div>
         </div>
       </aside>
@@ -264,33 +235,7 @@ onBeforeUnmount(() => {
               active-class="bg-gray-900 text-white hover:bg-gray-900"
             >
               <span class="truncate">{{ t.name }}</span>
-
-              <span
-                class="text-[10px] rounded-full px-2 py-0.5"
-                :class="badgeClass(t.status)"
-              >
-                {{ t.status }}
-              </span>
             </NuxtLink>
-
-            <div class="mt-4">
-              <p
-                class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500"
-              >
-                Coming soon
-              </p>
-
-              <div
-                v-for="t in comingSoon"
-                :key="t.key"
-                class="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-400"
-              >
-                <span class="truncate">{{ t.name }}</span>
-                <span class="text-[10px] rounded-full bg-gray-100 px-2 py-0.5">
-                  soon
-                </span>
-              </div>
-            </div>
           </div>
         </aside>
 

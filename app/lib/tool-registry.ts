@@ -48,25 +48,6 @@ export const TOOLS: ToolDef[] = [
     category: "Utilities",
     description: "Track daily expenses with budget, breakdown, and insights.",
   },
-
-  {
-    key: "invoice",
-    name: "Invoice Generator",
-    route: "/tools/invoice",
-    enabled: false,
-    status: "coming-soon",
-    category: "Business",
-    description: "Create invoice + export PDF (later).",
-  },
-  {
-    key: "queue",
-    name: "Queue System",
-    route: "/tools/queue",
-    enabled: false,
-    status: "coming-soon",
-    category: "POS",
-    description: "Ticket + display + call next (later).",
-  },
   {
     key: "barcode",
     name: "Barcode Generator",
@@ -85,6 +66,16 @@ export const TOOLS: ToolDef[] = [
     category: "Utilities",
     description:
       "Compress images instantly without uploading — fast, private, and secure.",
+  },
+  {
+    key: "lucky-draw",
+    name: "Lucky Draw",
+    route: "/tools/lucky-draw",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Add participants and randomly draw one or more winners instantly.",
   },
 ];
 
