@@ -60,7 +60,7 @@
           <h2 class="font-semibold">Participants</h2>
 
           <div class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
-            {{ uniquePeople.length }} people
+            {{ participants.length }} people
           </div>
         </div>
 
@@ -68,7 +68,7 @@
           <table class="w-full text-sm">
             <thead class="bg-gray-50">
               <tr>
-                <th class="w-[85%] p-2 text-left">Name</th>
+                <th class="w-[85%] p-2 text-left">Full name</th>
                 <th class="w-[15%] p-2"></th>
               </tr>
             </thead>
@@ -84,7 +84,7 @@
                     :ref="(element) => setNameInputRef(element, index)"
                     v-model.trim="row.name"
                     class="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
-                    placeholder="e.g. Kakada"
+                    placeholder="e.g. Kakada Ngen"
                   />
                 </td>
 
@@ -143,132 +143,212 @@
             v-model="raw"
             class="mt-2 h-40 w-full rounded-xl border p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
             placeholder="Example:
-Kakada
-Mina
-Sreynea
-John"
+Kakada Ngen
+Mina Sok
+Sreynea Chhun
+John Smith"
           />
         </details>
 
         <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
       </div>
 
-      <div class="rounded-xl border bg-white p-4">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 class="font-semibold">Wheel Spinner</h2>
+      <div ref="wheelStageRef" :class="wheelCardClass">
+        <canvas
+          ref="confettiCanvasRef"
+          class="pointer-events-none absolute inset-0 z-40 h-full w-full"
+        />
 
-          <div class="text-sm text-gray-500">
-            {{ canSpin ? "Ready to spin" : "Need at least 2 people" }}
-          </div>
-        </div>
+        <div class="relative z-10 flex h-full min-h-0 flex-col">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-semibold">Wheel Spinner</h2>
 
-        <div class="relative mx-auto aspect-square w-full max-w-[380px]">
-          <div class="absolute left-1/2 top-0 z-30 -translate-x-1/2">
-            <div
-              class="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[24px] border-l-transparent border-r-transparent border-b-black drop-shadow-sm"
-            />
-          </div>
+              <div class="text-sm text-gray-500">
+                {{ canSpin ? "Ready to spin" : "Need at least 2 people" }}
+              </div>
+            </div>
 
-          <div
-            class="relative h-full w-full overflow-hidden rounded-full border-[10px] border-white bg-gray-50 shadow-xl"
-          >
-            <svg
-              viewBox="0 0 100 100"
-              class="h-full w-full"
-              aria-label="Lucky draw wheel"
+            <button
+              v-if="isFullscreenSupported"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-lg border bg-white hover:bg-gray-100"
+              @click="toggleWheelFullscreen"
+              :aria-label="
+                isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
+              "
+              :title="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
             >
-              <g :transform="`rotate(${wheelRotation} 50 50)`">
-                <template v-if="wheelSegments.length > 0">
-                  <path
-                    v-for="segment in wheelSegments"
-                    :key="segment.index"
-                    :d="segment.path"
-                    :fill="segment.color"
-                    stroke="#ffffff"
-                    stroke-width="0.8"
-                  />
-
-                  <g
-                    v-for="segment in wheelSegments"
-                    :key="`label-${segment.index}`"
-                    :transform="`translate(${segment.labelX} ${segment.labelY}) rotate(${segment.textRotation})`"
-                  >
-                    <text
-                      text-anchor="middle"
-                      dominant-baseline="middle"
-                      fill="#ffffff"
-                      stroke="rgba(0,0,0,0.18)"
-                      stroke-width="0.4"
-                      paint-order="stroke"
-                      font-weight="700"
-                      :font-size="wheelLabelFontSize"
-                      style="letter-spacing: 0.2px"
-                    >
-                      {{ segment.name }}
-                    </text>
-                  </g>
-                </template>
-
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="15"
-                  fill="rgba(255,255,255,0.96)"
-                  stroke="#e5e7eb"
-                  stroke-width="1"
-                />
-              </g>
-            </svg>
-
-            <div class="absolute inset-0 flex items-center justify-center">
-              <button
-                class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-black text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-                :disabled="!canSpin"
-                @click="runLuckyDraw"
+              <svg
+                v-if="!isFullscreen"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
               >
-                {{ isSpinning ? "..." : "SPIN" }}
-              </button>
+                <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+                <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+                <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+              </svg>
+
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 3H5v4" />
+                <path d="M15 3h4v4" />
+                <path d="M9 21H5v-4" />
+                <path d="M15 21h4v-4" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex flex-1 min-h-0 flex-col">
+            <div class="flex flex-1 items-center justify-center min-h-0">
+              <div
+                class="relative mx-auto aspect-square w-full"
+                :style="wheelBoxStyle"
+              >
+                <div class="absolute left-1/2 top-0 z-30 -translate-x-1/2">
+                  <div
+                    class="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[24px] border-l-transparent border-r-transparent border-b-black drop-shadow-sm"
+                  />
+                </div>
+
+                <div
+                  class="relative h-full w-full overflow-hidden rounded-full border-[10px] border-white bg-gray-50 shadow-xl"
+                >
+                  <svg
+                    viewBox="0 0 100 100"
+                    class="h-full w-full"
+                    aria-label="Lucky draw wheel"
+                  >
+                    <g :transform="`rotate(${wheelRotation} 50 50)`">
+                      <template v-if="wheelSegments.length > 0">
+                        <path
+                          v-for="segment in wheelSegments"
+                          :key="segment.index"
+                          :d="segment.path"
+                          :fill="segment.color"
+                          stroke="#ffffff"
+                          stroke-width="0.8"
+                        />
+
+                        <g
+                          v-for="segment in wheelSegments"
+                          :key="`label-${segment.index}`"
+                          :transform="`translate(${segment.labelX} ${segment.labelY}) rotate(${segment.textRotation})`"
+                        >
+                          <text
+                            text-anchor="middle"
+                            fill="#ffffff"
+                            stroke="rgba(0,0,0,0.18)"
+                            stroke-width="0.4"
+                            paint-order="stroke"
+                            font-weight="700"
+                            :font-size="wheelLabelFontSize"
+                            style="letter-spacing: 0.15px"
+                          >
+                            <tspan
+                              v-for="(line, lineIndex) in segment.labelLines"
+                              :key="`${segment.index}-${lineIndex}`"
+                              x="0"
+                              :dy="
+                                getLabelLineDy(
+                                  lineIndex,
+                                  segment.labelLines.length,
+                                )
+                              "
+                            >
+                              {{ line }}
+                            </tspan>
+                          </text>
+                        </g>
+                      </template>
+
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="15"
+                        fill="rgba(255,255,255,0.96)"
+                        stroke="#e5e7eb"
+                        stroke-width="1"
+                      />
+                    </g>
+                  </svg>
+
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <button
+                      class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-black text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                      :disabled="!canSpin"
+                      @click="runLuckyDraw"
+                    >
+                      {{ isSpinning ? "..." : "SPIN" }}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <p class="mt-4 text-center text-sm text-gray-500">
-          The top pointer lands exactly in the middle of the winning color.
-        </p>
+            <p class="mt-4 text-center text-sm text-gray-500">
+              The top pointer lands exactly in the middle of the winning color.
+            </p>
 
-        <div
-          v-if="lastWinner"
-          class="mt-3 rounded-xl border bg-gray-50 p-3 text-center text-sm"
-        >
-          <span class="text-gray-500">Winner:</span>
-          <span class="ml-2 font-semibold text-gray-900">{{ lastWinner }}</span>
-        </div>
-
-        <div class="mt-4">
-          <h3 class="mb-2 font-semibold">Participants</h3>
-
-          <div v-if="uniquePeople.length === 0" class="text-sm text-gray-500">
-            No participants yet.
-          </div>
-
-          <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div
-              v-for="segment in wheelSegments"
-              :key="segment.name"
-              class="flex items-center gap-2 rounded-lg border bg-gray-50 px-3 py-2 text-sm"
+              v-if="lastWinner"
+              class="mt-3 rounded-xl border bg-gray-50 p-3 text-center text-sm"
             >
-              <span
-                class="h-3 w-3 rounded-full"
-                :style="{ backgroundColor: segment.color }"
-              />
-              <span class="truncate">{{ segment.name }}</span>
+              <span class="text-gray-500">Winner:</span>
+              <span class="ml-2 font-semibold text-gray-900">{{
+                lastWinner
+              }}</span>
             </div>
+
+            <div
+              :class="
+                isFullscreen
+                  ? 'mt-4 min-h-0 max-h-[28vh] overflow-auto'
+                  : 'mt-4'
+              "
+            >
+              <h3 class="mb-2 font-semibold">Participants</h3>
+
+              <div
+                v-if="participants.length === 0"
+                class="text-sm text-gray-500"
+              >
+                No participants yet.
+              </div>
+
+              <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div
+                  v-for="segment in wheelSegments"
+                  :key="`${segment.index}-${segment.name}`"
+                  class="flex items-center gap-2 rounded-lg border bg-gray-50 px-3 py-2 text-sm"
+                >
+                  <span
+                    class="h-3 w-3 shrink-0 rounded-full"
+                    :style="{ backgroundColor: segment.color }"
+                  />
+                  <span class="truncate">{{ segment.name }}</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="sr-only" aria-live="polite">
+              {{ lastWinner ? `Winner is ${lastWinner}` : "No winner yet" }}
+            </p>
           </div>
         </div>
-
-        <p class="sr-only" aria-live="polite">
-          {{ lastWinner ? `Winner is ${lastWinner}` : "No winner yet" }}
-        </p>
       </div>
     </div>
   </div>
@@ -296,7 +376,10 @@ type WheelSegment = {
   labelX: number;
   labelY: number;
   textRotation: number;
+  labelLines: string[];
 };
+
+type ConfettiLauncher = ((options?: Record<string, unknown>) => unknown) | null;
 
 const route = useRoute();
 const router = useRouter();
@@ -345,11 +428,10 @@ const SEGMENT_COLORS = [
   "#ec4899",
 ];
 
-const SPIN_DURATION_MS = 7600;
+const SPIN_DURATION_MS = 8200;
 const FULL_TURNS = 12;
 const WHEEL_CENTER = 50;
 const WHEEL_RADIUS = 49;
-const LABEL_RADIUS = 31;
 
 const rows = ref<InputRow[]>(INITIAL_ROWS());
 const raw = ref("");
@@ -358,69 +440,145 @@ const shareCopied = ref(false);
 const isSpinning = ref(false);
 const wheelRotation = ref(0);
 const lastWinner = ref("");
+const isFullscreen = ref(false);
 
 const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
-
+const wheelStageRef = ref<HTMLElement | null>(null);
+const confettiCanvasRef = ref<HTMLCanvasElement | null>(null);
 const audioContext = ref<AudioContext | null>(null);
 
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
 let spinAnimationFrameId: number | null = null;
+let confettiLauncher: ConfettiLauncher = null;
 
 function normalizeName(value: string) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-function dedupeNames(names: string[]) {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const name of names) {
-    const normalized = normalizeName(name);
-    if (!normalized) continue;
-
-    const key = normalized.toLowerCase();
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    result.push(normalized);
-  }
-
-  return result;
-}
-
 function parseRows(inputRows: InputRow[]) {
-  return dedupeNames(
-    inputRows.map((row) => normalizeName(row.name ?? "")).filter(Boolean),
-  );
+  return inputRows.map((row) => normalizeName(row.name ?? "")).filter(Boolean);
 }
 
 function parseLines(input: string) {
-  return dedupeNames(
-    input
-      .split(/\n|,/)
-      .map((line) => normalizeName(line))
-      .filter(Boolean),
-  );
+  return input
+    .split(/\n|,/)
+    .map((line) => normalizeName(line))
+    .filter(Boolean);
 }
 
-const uniquePeople = computed(() => parseRows(rows.value));
+function truncateText(value: string, maxLength: number) {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, Math.max(1, maxLength - 1)).trim()}…`;
+}
+
+function splitNameForWheelLabel(
+  value: string,
+  maxCharsPerLine: number,
+  maxLines = 3,
+) {
+  const words = normalizeName(value).split(" ").filter(Boolean);
+  if (words.length === 0) return [""];
+
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    if (word.length > maxCharsPerLine && !currentLine) {
+      lines.push(truncateText(word, maxCharsPerLine));
+      continue;
+    }
+
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+
+    if (nextLine.length <= maxCharsPerLine) {
+      currentLine = nextLine;
+      continue;
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    currentLine =
+      word.length > maxCharsPerLine
+        ? truncateText(word, maxCharsPerLine)
+        : word;
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  if (lines.length <= maxLines) {
+    return lines;
+  }
+
+  const visibleLines = lines.slice(0, maxLines - 1);
+  const remaining = lines.slice(maxLines - 1).join(" ");
+  visibleLines.push(truncateText(remaining, maxCharsPerLine));
+
+  return visibleLines;
+}
+
+const participants = computed(() => parseRows(rows.value));
 
 const canSpin = computed(
-  () => uniquePeople.value.length >= 2 && !isSpinning.value,
+  () => participants.value.length >= 2 && !isSpinning.value,
 );
 
 const segmentAngle = computed(() => {
-  if (uniquePeople.value.length === 0) return 360;
-  return 360 / uniquePeople.value.length;
+  if (participants.value.length === 0) return 360;
+  return 360 / participants.value.length;
 });
 
 const wheelLabelFontSize = computed(() => {
-  const count = uniquePeople.value.length;
+  const count = participants.value.length;
 
-  if (count <= 6) return 4.1;
-  if (count <= 10) return 3.3;
-  if (count <= 14) return 2.6;
-  return 2.1;
+  if (count <= 4) return 4;
+  if (count <= 6) return 3.5;
+  if (count <= 10) return 2.8;
+  if (count <= 14) return 2.3;
+  return 1.9;
+});
+
+const labelRadius = computed(() => {
+  const count = participants.value.length;
+
+  if (count <= 4) return 28;
+  if (count <= 8) return 31;
+  if (count <= 12) return 34;
+  if (count <= 18) return 36;
+  return 38;
+});
+
+const labelMaxCharsPerLine = computed(() => {
+  const count = participants.value.length;
+
+  if (count <= 4) return 14;
+  if (count <= 8) return 12;
+  if (count <= 12) return 10;
+  return 8;
+});
+
+const isFullscreenSupported = computed(() => {
+  return import.meta.client && typeof document !== "undefined"
+    ? document.fullscreenEnabled
+    : false;
+});
+
+const wheelCardClass = computed(() => {
+  return [
+    "relative flex min-h-0 flex-col bg-white",
+    isFullscreen.value
+      ? "fixed inset-0 z-[120] overflow-hidden rounded-none border-0 p-4 sm:p-5 md:p-6"
+      : "rounded-xl border p-4",
+  ].join(" ");
+});
+
+const wheelBoxStyle = computed(() => {
+  return {
+    maxWidth: isFullscreen.value ? "min(78vw, 68vh)" : "380px",
+  };
 });
 
 function angleToPoint(angle: number, radius: number) {
@@ -455,12 +613,20 @@ function getTextRotation(midAngle: number) {
   return rotation;
 }
 
+function getLabelLineDy(lineIndex: number, totalLines: number) {
+  if (lineIndex === 0) {
+    return `${-((totalLines - 1) * 0.58)}em`;
+  }
+
+  return "1.15em";
+}
+
 const wheelSegments = computed<WheelSegment[]>(() => {
-  return uniquePeople.value.map((name, index) => {
+  return participants.value.map((name, index) => {
     const startAngle = index * segmentAngle.value;
     const endAngle = (index + 1) * segmentAngle.value;
     const midAngle = startAngle + segmentAngle.value / 2;
-    const labelPoint = angleToPoint(midAngle, LABEL_RADIUS);
+    const labelPoint = angleToPoint(midAngle, labelRadius.value);
 
     return {
       index,
@@ -473,6 +639,7 @@ const wheelSegments = computed<WheelSegment[]>(() => {
       labelX: labelPoint.x,
       labelY: labelPoint.y,
       textRotation: getTextRotation(midAngle),
+      labelLines: splitNameForWheelLabel(name, labelMaxCharsPerLine.value),
     };
   });
 });
@@ -520,12 +687,12 @@ function applyRawToRows() {
 
 function loadExample() {
   rows.value = [
-    { name: "Kakada" },
-    { name: "Mina" },
-    { name: "Sreynea" },
-    { name: "John" },
-    { name: "Rotha" },
-    { name: "Minea" },
+    { name: "Kakada Ngen" },
+    { name: "Mina Sok" },
+    { name: "Sreynea Chhun" },
+    { name: "John Smith" },
+    { name: "Rotha Chan" },
+    { name: "Minea Chea" },
   ];
   raw.value = rows.value.map((row) => row.name).join("\n");
   error.value = "";
@@ -551,7 +718,7 @@ function reset() {
 
 function buildSharePayload() {
   const payload: SharePayload = {
-    t: uniquePeople.value.join("\n"),
+    t: participants.value.join("\n"),
   };
 
   const json = JSON.stringify(payload);
@@ -600,13 +767,13 @@ async function shareLink() {
 }
 
 function getWinningIndexFromRotation(rotation: number) {
-  if (uniquePeople.value.length === 0) return -1;
+  if (participants.value.length === 0) return -1;
 
   const normalizedRotation = ((rotation % 360) + 360) % 360;
   const pointerAngle = (360 - normalizedRotation + 0.0001) % 360;
 
   return Math.min(
-    uniquePeople.value.length - 1,
+    participants.value.length - 1,
     Math.floor(pointerAngle / segmentAngle.value),
   );
 }
@@ -706,38 +873,80 @@ function playWinSound() {
   });
 }
 
-async function launchConfetti() {
-  if (!import.meta.client) return;
+async function getConfettiLauncher() {
+  if (!import.meta.client) return null;
+
+  if (confettiLauncher) {
+    return confettiLauncher;
+  }
 
   try {
     const module = await import("canvas-confetti");
     const confetti = module.default;
 
-    confetti({
-      particleCount: 110,
-      spread: 90,
-      startVelocity: 36,
-      scalar: 0.9,
-      origin: { y: 0.42, x: 0.5 },
-    });
+    if (confettiCanvasRef.value) {
+      confettiLauncher = confetti.create(confettiCanvasRef.value, {
+        resize: true,
+        useWorker: true,
+      });
+    } else {
+      confettiLauncher = confetti;
+    }
 
-    confetti({
-      particleCount: 70,
-      spread: 120,
-      startVelocity: 28,
-      scalar: 0.75,
-      origin: { y: 0.42, x: 0.25 },
-    });
-
-    confetti({
-      particleCount: 70,
-      spread: 120,
-      startVelocity: 28,
-      scalar: 0.75,
-      origin: { y: 0.42, x: 0.75 },
-    });
+    return confettiLauncher;
   } catch {
-    // ignore confetti failure
+    return null;
+  }
+}
+
+async function launchConfetti() {
+  const fire = await getConfettiLauncher();
+  if (!fire) return;
+
+  const originY = isFullscreen.value ? 0.35 : 0.42;
+
+  fire({
+    particleCount: 120,
+    spread: 90,
+    startVelocity: 38,
+    scalar: 0.95,
+    origin: { y: originY, x: 0.5 },
+  });
+
+  fire({
+    particleCount: 80,
+    spread: 120,
+    startVelocity: 30,
+    scalar: 0.8,
+    origin: { y: originY, x: 0.22 },
+  });
+
+  fire({
+    particleCount: 80,
+    spread: 120,
+    startVelocity: 30,
+    scalar: 0.8,
+    origin: { y: originY, x: 0.78 },
+  });
+}
+
+function syncFullscreenState() {
+  if (!import.meta.client) return;
+  isFullscreen.value = document.fullscreenElement === wheelStageRef.value;
+}
+
+async function toggleWheelFullscreen() {
+  if (!import.meta.client || !wheelStageRef.value) return;
+
+  try {
+    if (document.fullscreenElement === wheelStageRef.value) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await wheelStageRef.value.requestFullscreen();
+  } catch {
+    // ignore fullscreen failure
   }
 }
 
@@ -746,7 +955,7 @@ async function runLuckyDraw() {
 
   await ensureAudioContext();
 
-  const people = uniquePeople.value;
+  const people = participants.value;
   const winnerIndex = Math.floor(Math.random() * people.length);
   const winnerName = people[winnerIndex];
 
@@ -807,7 +1016,7 @@ watch(
   rows,
   () => {
     error.value = "";
-    raw.value = uniquePeople.value.join("\n");
+    raw.value = participants.value.join("\n");
   },
   { deep: true },
 );
@@ -822,11 +1031,20 @@ onMounted(() => {
       // ignore invalid payload
     }
   }
+
+  if (import.meta.client) {
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    syncFullscreenState();
+  }
 });
 
 onBeforeUnmount(() => {
   if (shareTimer) clearTimeout(shareTimer);
   stopSpinAnimation();
+
+  if (import.meta.client) {
+    document.removeEventListener("fullscreenchange", syncFullscreenState);
+  }
 
   if (audioContext.value && audioContext.value.state !== "closed") {
     audioContext.value.close();
