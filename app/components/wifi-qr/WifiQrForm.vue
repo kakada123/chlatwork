@@ -3,7 +3,7 @@ import type {
   Security,
   PrintTheme,
   PosterSize,
-} from "~/pages/tools/wifi-qr.vue";
+} from "~/lib/wifi-qr";
 
 const props = defineProps<{
   payload: string;

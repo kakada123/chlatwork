@@ -2,10 +2,14 @@
 import { ref, watch, computed, nextTick } from "vue";
 import WifiQrForm from "~/components/wifi-qr/WifiQrForm.vue";
 import WifiQrPreview from "~/components/wifi-qr/WifiQrPreview.vue";
-
-export type Security = "WPA" | "WEP" | "nopass";
-export type PrintTheme = "cute" | "modern" | "minimal";
-export type PosterSize = "A4" | "A5";
+import type { PosterSize, PrintTheme, Security } from "~/lib/wifi-qr";
+import {
+  buildWifiPayload,
+  buildWifiPosterFileName,
+  buildWifiQrFileName,
+  dataUrlToFile,
+  getWifiDisplayPassword,
+} from "~/lib/wifi-qr";
 
 const ssid = ref("");
 const password = ref("");
@@ -55,46 +59,19 @@ useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/tools/wifi-qr" }],
 });
 
-// helpers
-const escapeWifi = (v: string) => v.replace(/([\\;,:"])/g, "\\$1");
-
-const buildWifiPayload = () => {
-  const S = escapeWifi(ssid.value.trim());
-  const P = escapeWifi(password.value);
-  const T = security.value;
-  return `WIFI:T:${T};S:${S};P:${T === "nopass" ? "" : P};H:${hidden.value};;`;
-};
-
 const displayPassword = computed(() => {
-  if (security.value === "nopass") return "";
-  return password.value || "";
+  return getWifiDisplayPassword(password.value, security.value);
 });
 
 const qrFileName = computed(() => {
-  const safeSsid = ssid.value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-_]/g, "")
-    .slice(0, 32);
-
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-
-  return `chlatwork-wifi-${safeSsid || "qr"}-${yyyy}-${mm}-${dd}.png`;
+  return buildWifiQrFileName(ssid.value);
 });
 
 const posterFileName = computed(() => {
-  const safeShop = shopName.value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-_]/g, "")
-    .slice(0, 24);
-
-  return `chlatwork-wifi-poster-${safeShop || "shop"}-${posterSize.value}.png`;
+  return buildWifiPosterFileName({
+    shopName: shopName.value,
+    posterSize: posterSize.value,
+  });
 });
 
 // lazy imports (SSR-safe)
@@ -103,7 +80,12 @@ const loadHtmlToImage = async () => await import("html-to-image");
 
 // QR SVG
 const generateSvg = async () => {
-  payload.value = buildWifiPayload();
+  payload.value = buildWifiPayload({
+    ssid: ssid.value,
+    password: password.value,
+    security: security.value,
+    hidden: hidden.value,
+  });
 
   if (!ssid.value.trim()) {
     qrSvg.value = "";
@@ -137,12 +119,6 @@ const copyPayload = async () => {
   if (!process.client) return;
   if (!payload.value) return;
   await navigator.clipboard.writeText(payload.value);
-};
-
-const dataUrlToFile = async (dataUrl: string, name: string) => {
-  const res = await fetch(dataUrl);
-  const blob = await res.blob();
-  return new File([blob], name, { type: blob.type || "image/png" });
 };
 
 const shareQrPng = async () => {
