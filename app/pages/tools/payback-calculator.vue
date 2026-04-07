@@ -1,381 +1,67 @@
 <template>
   <div class="mx-auto max-w-5xl">
-    <!-- ✅ Mobile-friendly header -->
-    <div
-      class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
-    >
-      <div>
-        <h1 class="text-xl font-bold leading-tight">PayBack Calculator</h1>
-        <p class="mt-2 max-w-xl text-gray-600">
-          Paste names + amounts. We’ll calculate who owes who (minimal
-          transfers).
-        </p>
-      </div>
+    <PaybackCalculatorHeader
+      :share-copied="shareCopied"
+      @reset="reset"
+      @share="shareLink"
+    />
 
-      <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <button
-          class="w-full sm:w-auto px-4 py-2 rounded-lg bg-white border hover:bg-gray-100"
-          @click="reset"
-        >
-          Reset
-        </button>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <PaybackCalculatorInputCard
+        v-model:currency="currency"
+        v-model:rows="rows"
+        v-model:raw="raw"
+        :copied="copied"
+        :can-copy="settlements.length > 0"
+        :error="error"
+        @copy-result="copyResult"
+        @load-example="loadExample"
+        @sync-rows-from-raw="syncRowsFromRaw"
+      />
 
-        <!-- Share link (ChatGPT-style) -->
-        <button
-          class="w-full sm:w-auto px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 inline-flex items-center justify-center gap-2"
-          @click="shareLink"
-          :aria-label="shareCopied ? 'Link copied' : 'Share link'"
-        >
-          <svg
-            v-if="!shareCopied"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="w-4 h-4"
-          >
-            <path
-              fill="currentColor"
-              d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.5 2.5 0 0 0 0-1.39l7-4.11A2.99 2.99 0 1 0 14 5a2.9 2.9 0 0 0 .05.52l-7 4.11a3 3 0 1 0 0 4.74l7.05 4.11c-.03.17-.05.34-.05.52a3 3 0 1 0 3-2.92Z"
-            />
-          </svg>
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="w-4 h-4"
-          >
-            <path
-              fill="currentColor"
-              d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65Z"
-            />
-          </svg>
-
-          <span class="text-sm font-medium">
-            {{ shareCopied ? "Link copied" : "Share link" }}
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Input -->
-      <div class="bg-white rounded-xl border p-4">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="font-semibold">Input</h2>
-          <select
-            v-model="currency"
-            class="text-sm border rounded-lg px-2 py-1"
-          >
-            <option value="USD">USD</option>
-            <option value="KHR">KHR</option>
-          </select>
-        </div>
-
-        <!-- ✅ Column input (Name / Amount) -->
-        <div class="overflow-auto border rounded-xl">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="text-left p-2 w-[55%]">Name</th>
-                <th class="text-right p-2 w-[35%]">Amount</th>
-                <th class="p-2 w-[10%]"></th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="(r, i) in rows" :key="i" class="border-t align-top">
-                <td class="p-2">
-                  <input
-                    :ref="(element) => setNameInputRef(element, i)"
-                    v-model.trim="r.name"
-                    class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
-                    placeholder="e.g. Mina"
-                  />
-                </td>
-
-                <td class="p-2">
-                  <input
-                    v-model.trim="r.amount"
-                    inputmode="decimal"
-                    class="w-full text-right border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
-                    placeholder="e.g. 5"
-                  />
-                </td>
-
-                <td class="p-2 text-right">
-                  <button
-                    class="px-2 py-2 rounded-lg border hover:bg-gray-100"
-                    @click="removeRow(i)"
-                    :aria-label="`Remove row ${i + 1}`"
-                  >
-                    ✕
-                  </button>
-                </td>
-              </tr>
-
-              <tr v-if="rows.length === 0">
-                <td class="p-3 text-gray-500" colspan="3">
-                  No rows yet. Click “Add row”.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- ✅ Clean action bar -->
-        <div class="mt-3 grid grid-cols-3 gap-2">
-          <button
-            class="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-gray-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
-            @click="addRow"
-          >
-            <span class="text-base leading-none">＋</span>
-            <span class="truncate">Add row</span>
-          </button>
-
-          <button
-            class="h-11 rounded-lg bg-black text-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:opacity-90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
-            @click="loadExample"
-          >
-            <span class="truncate">Load example</span>
-          </button>
-
-          <button
-            class="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium inline-flex items-center justify-center gap-2 whitespace-nowrap hover:bg-gray-50 active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
-            @click="copyResult"
-            :disabled="settlements.length === 0"
-          >
-            <svg
-              v-if="!copied"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="w-4 h-4"
-            >
-              <path
-                fill="currentColor"
-                d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"
-              />
-            </svg>
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="w-4 h-4"
-            >
-              <path
-                fill="currentColor"
-                d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65Z"
-              />
-            </svg>
-
-            <span class="truncate">{{ copied ? "Copied" : "Copy" }}</span>
-          </button>
-        </div>
-
-        <!-- Optional: keep paste textarea for power users (and share payload debugging) -->
-        <details class="mt-4">
-          <summary
-            class="cursor-pointer text-sm text-gray-600 hover:text-gray-900"
-          >
-            Paste mode (optional)
-          </summary>
-
-          <textarea
-            v-model="raw"
-            class="mt-2 w-full h-40 border rounded-xl p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
-            placeholder="Example:
-Mina 5$
-Sreynea : 10$
-John 4
-Minea: 0
-Reak: 0
-Jompa: 38$"
-          />
-
-          <div class="mt-2 flex gap-2">
-            <button
-              class="px-4 py-2 rounded-lg bg-white border hover:bg-gray-100"
-              @click="applyRawToRows"
-            >
-              Apply paste to rows
-            </button>
-          </div>
-        </details>
-
-        <p v-if="error" class="text-sm text-red-600 mt-3">{{ error }}</p>
-      </div>
-
-      <!-- Summary -->
-      <div class="bg-white rounded-xl border p-4">
-        <h2 class="font-semibold mb-3">Summary</h2>
-
-        <div class="grid grid-cols-3 gap-3">
-          <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">People</div>
-            <div class="text-lg font-bold">{{ people.length }}</div>
-          </div>
-          <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">Total</div>
-            <div class="text-lg font-bold">{{ fmt(total) }}</div>
-          </div>
-          <div class="rounded-xl bg-gray-50 border p-3">
-            <div class="text-xs text-gray-500">Average</div>
-            <div class="text-lg font-bold">{{ fmt(avg) }}</div>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h3 class="font-semibold mb-2">Balances</h3>
-
-          <div class="overflow-auto border rounded-xl">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="text-left p-2">Name</th>
-                  <th class="text-right p-2">Paid</th>
-                  <th class="text-right p-2">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="p in people" :key="p.name" class="border-t">
-                  <td class="p-2 font-medium">{{ p.name }}</td>
-                  <td class="p-2 text-right">{{ fmt(p.paid) }}</td>
-                  <td class="p-2 text-right">
-                    <span
-                      :class="
-                        p.balance >= 0 ? 'text-green-700' : 'text-red-700'
-                      "
-                      class="font-semibold"
-                    >
-                      {{ p.balance >= 0 ? "+" : "" }}{{ fmt(p.balance) }}
-                    </span>
-                  </td>
-                </tr>
-
-                <tr v-if="people.length === 0">
-                  <td class="p-3 text-gray-500" colspan="3">No data yet.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h3 class="font-semibold mb-2">Who pays who</h3>
-
-          <div v-if="settlements.length === 0" class="text-sm text-gray-500">
-            Add input to see settlements.
-          </div>
-
-          <ul v-else class="space-y-2">
-            <li
-              v-for="(s, i) in settlements"
-              :key="i"
-              class="flex items-center justify-between gap-3 border rounded-xl p-3 bg-gray-50"
-            >
-              <div class="text-sm">
-                <span class="font-semibold">{{ s.from }}</span>
-                <span class="text-gray-500"> → </span>
-                <span class="font-semibold">{{ s.to }}</span>
-              </div>
-              <div class="font-bold">{{ fmt(s.amount) }}</div>
-            </li>
-          </ul>
-        </div>
-
-        <div
-          v-if="currency === 'KHR' && khrRemainder.leftover > 0"
-          class="mt-4 rounded-xl border bg-gray-50 p-3 space-y-3"
-        >
-          <div>
-            <h3 class="font-semibold">KHR rounding remainder</h3>
-            <p class="mt-1 text-sm text-gray-600">
-              Remaining amount that cannot be evenly split by 100៛:
-              <span class="font-semibold">{{
-                fmtExactKhr(khrRemainder.leftover)
-              }}</span>
-            </p>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-1">
-              How should this leftover be handled?
-            </label>
-
-            <select
-              v-model="khrRemainderMode"
-              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
-            >
-              <option value="LEFTOVER_ONLY">Keep leftover separate</option>
-              <option value="ASSIGN_TO_PERSON">
-                Assign leftover to one person
-              </option>
-            </select>
-          </div>
-
-          <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
-            <label class="block text-sm font-medium mb-1">
-              Who covers the leftover?
-            </label>
-
-            <select
-              v-model="khrRemainderPayer"
-              class="w-full text-sm border rounded-lg px-3 py-2 bg-white"
-            >
-              <option
-                v-for="option in uniqueNames"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </select>
-          </div>
-
-          <p class="text-xs text-gray-500">
-            This only affects the small KHR remainder after rounding to 100៛.
-          </p>
-        </div>
-
-        <p class="text-xs text-gray-500 mt-4">
-          Tip: rows like <span class="font-mono">Name + Amount</span> are
-          easier. Paste mode still supports
-          <span class="font-mono">Name: 10$</span> or
-          <span class="font-mono">Name 10</span>.
-        </p>
-      </div>
+      <PaybackCalculatorSummaryCard
+        v-model:khr-remainder-mode="khrRemainderMode"
+        v-model:khr-remainder-payer="khrRemainderPayer"
+        :currency="currency"
+        :people="people"
+        :total="total"
+        :avg="avg"
+        :settlements="settlements"
+        :khr-remainder="khrRemainder"
+        :unique-names="uniqueNames"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-type Person = {
-  name: string;
-  paid: number;
-  balance: number;
-};
-
-type Settlement = {
-  from: string;
-  to: string;
-  amount: number;
-};
-
-type InputRow = {
-  name: string;
-  amount: string; // keep as string for input UX
-};
-
-type KhrRemainderMode = "LEFTOVER_ONLY" | "ASSIGN_TO_PERSON";
-
-type KhrRemainderMeta = {
-  baseShare: number;
-  leftover: number;
-  assignedTo: string | null;
-};
+import type {
+  PaybackCurrency,
+  PaybackKhrRemainderMode,
+} from "~/lib/payback-calculator";
+import {
+  buildPaybackKhrRemainderMeta,
+  buildPaybackPeople,
+  buildPaybackRawFromRows,
+  buildPaybackRowsFromRaw,
+  buildPaybackSharePayload,
+  computePaybackSettlements,
+  createEmptyPaybackKhrRemainder,
+  createEmptyPaybackRow,
+  createPaybackRows,
+  formatPaybackAmount,
+  formatPaybackExactKhr,
+  getPaybackExampleRaw,
+  groupPaybackEntries,
+  hasPaybackInput,
+  parsePaybackRows,
+  parsePaybackSharePayload,
+  roundPayback,
+} from "~/lib/payback-calculator";
 
 const route = useRoute();
 const router = useRouter();
 
-// ✅ SEO Meta (Google + social)
 useSeoMeta({
   title: "PayBack Calculator | ChlatWork",
   description:
@@ -399,16 +85,25 @@ useHead({
   ],
 });
 
-// ---------- UI state for ChatGPT-style buttons ----------
 const copied = ref(false);
 const shareCopied = ref(false);
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
 
+const currency = ref<PaybackCurrency>("USD");
+const khrRemainderMode = ref<PaybackKhrRemainderMode>("LEFTOVER_ONLY");
+const khrRemainderPayer = ref("");
+const raw = ref("");
+const rows = ref(createPaybackRows());
+const syncError = ref("");
+
 function flashCopied(ms = 1500) {
   copied.value = true;
-  if (copiedTimer) clearTimeout(copiedTimer);
+  if (copiedTimer) {
+    clearTimeout(copiedTimer);
+  }
+
   copiedTimer = setTimeout(() => {
     copied.value = false;
     copiedTimer = null;
@@ -417,188 +112,56 @@ function flashCopied(ms = 1500) {
 
 function flashShareCopied(ms = 1500) {
   shareCopied.value = true;
-  if (shareTimer) clearTimeout(shareTimer);
+  if (shareTimer) {
+    clearTimeout(shareTimer);
+  }
+
   shareTimer = setTimeout(() => {
     shareCopied.value = false;
     shareTimer = null;
   }, ms);
 }
 
-// ---------- Core ----------
-const currency = ref<"USD" | "KHR">("USD");
-const khrRemainderMode = ref<KhrRemainderMode>("LEFTOVER_ONLY");
-const khrRemainderPayer = ref("");
-
-// ✅ Keep raw for share-link payload + paste mode
-const raw = ref("");
-
-// ✅ New table rows (main input)
-const rows = ref<InputRow[]>([
-  { name: "", amount: "" },
-  { name: "", amount: "" },
-  { name: "", amount: "" },
-]);
-
-const error = ref<string>("");
-
-const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
-
-function roundKhrDown(n: number) {
-  return Math.floor(n / 100) * 100;
+function fmt(value: number) {
+  return formatPaybackAmount(value, currency.value);
 }
 
-function fmt(n: number) {
-  const sign = n < 0 ? "-" : "";
-  const abs = Math.abs(n);
-
-  if (currency.value === "KHR") {
-    const rounded = roundKhrDown(abs);
-    return `${sign}${rounded.toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}៛`;
-  }
-
-  return `${sign}$${abs.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
-function fmtExactKhr(n: number) {
-  const sign = n < 0 ? "-" : "";
-  const abs = Math.abs(n);
-
-  return `${sign}${abs.toLocaleString("en-US", {
-    maximumFractionDigits: 2,
-  })}៛`;
-}
-
-// ---------- Focus handling ----------
-const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
-
-function setNameInputRef(
-  element: Element | ComponentPublicInstance | null,
-  index: number,
-) {
-  nameInputRefs.value[index] = element as HTMLInputElement | null;
-}
-
-async function focusRowNameInput(index: number) {
-  await nextTick();
-  nameInputRefs.value[index]?.focus();
-}
-
-async function addRow() {
-  rows.value.push({ name: "", amount: "" });
-  await focusRowNameInput(rows.value.length - 1);
-}
-
-function removeRow(i: number) {
-  rows.value.splice(i, 1);
-  nameInputRefs.value.splice(i, 1);
-}
-
-function parseLines(input: string): Array<{ name: string; paid: number }> {
-  const lines = input
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const out: Array<{ name: string; paid: number }> = [];
-
-  for (const line of lines) {
-    const cleaned = line.replace(/\$/g, "").replace(/៛/g, "");
-    const match = cleaned.match(/^(.+?)[\s:=-]+(-?\d+(\.\d+)?)\s*$/);
-
-    if (!match) throw new Error(`Invalid line: "${line}"`);
-
-    const name = match[1].trim();
-    const paid = Number(match[2]);
-
-    if (!name) throw new Error(`Missing name in line: "${line}"`);
-    if (Number.isNaN(paid))
-      throw new Error(`Invalid amount in line: "${line}"`);
-
-    out.push({ name, paid });
-  }
-
-  return out;
-}
-
-function parseRows(
-  inputRows: InputRow[],
-): Array<{ name: string; paid: number }> {
-  const out: Array<{ name: string; paid: number }> = [];
-
-  for (const row of inputRows) {
-    const name = (row.name ?? "").trim();
-    const amountRaw = (row.amount ?? "").trim();
-
-    // ignore totally empty rows
-    if (!name && !amountRaw) continue;
-
-    if (!name) throw new Error("Missing name in a row.");
-    if (!amountRaw) throw new Error(`Missing amount for "${name}".`);
-
-    const cleaned = amountRaw.replace(/\$/g, "").replace(/៛/g, "");
-    const paid = Number(cleaned);
-
-    if (Number.isNaN(paid)) throw new Error(`Invalid amount for "${name}".`);
-
-    out.push({ name, paid });
-  }
-
-  return out;
-}
-
-function buildRawFromRows(inputRows: InputRow[]): string {
-  return inputRows
-    .map((row) => {
-      const name = (row.name ?? "").trim();
-      const amount = (row.amount ?? "").trim();
-
-      if (!name && !amount) return "";
-      return `${name}: ${amount}`;
-    })
-    .filter(Boolean)
-    .join("\n");
-}
-
-function buildRowsFromRaw(input: string): InputRow[] {
-  const entries = parseLines(input);
-  const built = entries.map((entry) => ({
-    name: entry.name,
-    amount: String(entry.paid),
-  }));
-
-  return built.length ? built : [{ name: "", amount: "" }];
-}
-
-function applyRawToRows() {
-  error.value = "";
+function syncRowsFromRaw() {
+  syncError.value = "";
 
   if (!raw.value.trim()) {
-    rows.value = [{ name: "", amount: "" }];
-    nameInputRefs.value = [];
+    rows.value = [createEmptyPaybackRow()];
     return;
   }
 
   try {
-    rows.value = buildRowsFromRaw(raw.value);
-    nameInputRefs.value = [];
-  } catch (e: any) {
-    error.value = e?.message || "Invalid paste input";
+    rows.value = buildPaybackRowsFromRaw(raw.value);
+  } catch (error: any) {
+    syncError.value = error?.message || "Invalid paste input";
   }
 }
 
-const uniqueNames = computed(() => {
+const parsedRowsState = computed(() => {
   try {
-    const parsed = parseRows(rows.value);
-    return [...new Set(parsed.map((item) => item.name))];
-  } catch {
-    return [];
+    return {
+      entries: parsePaybackRows(rows.value),
+      error: "",
+    };
+  } catch (error: any) {
+    return {
+      entries: [],
+      error: hasPaybackInput(rows.value) ? error?.message || "Invalid input" : "",
+    };
   }
 });
+
+const groupedEntries = computed(() =>
+  groupPaybackEntries(parsedRowsState.value.entries),
+);
+
+const uniqueNames = computed(() =>
+  groupedEntries.value.map((entry) => entry.name),
+);
 
 watch(
   uniqueNames,
@@ -615,292 +178,96 @@ watch(
   { immediate: true },
 );
 
-function buildKhrRemainderMeta(
-  list: Array<{ name: string; paid: number }>,
-): KhrRemainderMeta {
-  const totalPaid = round2(list.reduce((sum, person) => sum + person.paid, 0));
-  const peopleCount = list.length;
+const people = computed(() =>
+  buildPaybackPeople(
+    groupedEntries.value,
+    currency.value,
+    khrRemainderMode.value,
+    khrRemainderPayer.value,
+  ),
+);
 
-  if (!peopleCount) {
-    return {
-      baseShare: 0,
-      leftover: 0,
-      assignedTo: null,
-    };
+const total = computed(() =>
+  roundPayback(people.value.reduce((sum, person) => sum + person.paid, 0)),
+);
+
+const avg = computed(() =>
+  people.value.length ? roundPayback(total.value / people.value.length) : 0,
+);
+
+const settlements = computed(() => computePaybackSettlements(people.value));
+
+const khrRemainder = computed(() => {
+  if (currency.value !== "KHR") {
+    return createEmptyPaybackKhrRemainder();
   }
 
-  const baseShare = Math.floor(totalPaid / peopleCount / 100) * 100;
-  const leftover = round2(totalPaid - baseShare * peopleCount);
+  return buildPaybackKhrRemainderMeta(
+    groupedEntries.value,
+    khrRemainderMode.value,
+    khrRemainderPayer.value,
+  );
+});
 
-  if (khrRemainderMode.value === "ASSIGN_TO_PERSON") {
-    const selected =
-      list.find((person) => person.name === khrRemainderPayer.value)?.name ??
-      list[0]?.name ??
-      null;
+const error = computed(() => syncError.value || parsedRowsState.value.error);
 
-    return {
-      baseShare,
-      leftover,
-      assignedTo: selected,
-    };
-  }
-
-  return {
-    baseShare,
-    leftover,
-    assignedTo: null,
-  };
-}
-
-function buildKhrBalances(
-  list: Array<{ name: string; paid: number }>,
-): Person[] {
-  const meta = buildKhrRemainderMeta(list);
-
-  return list
-    .map((person) => {
-      let targetShare = meta.baseShare;
-
-      if (
-        khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
-        meta.leftover > 0 &&
-        meta.assignedTo === person.name
-      ) {
-        targetShare = round2(targetShare + meta.leftover);
-      }
-
-      return {
-        name: person.name,
-        paid: person.paid,
-        balance: round2(person.paid - targetShare),
-      };
-    })
-    .sort((a, b) => b.paid - a.paid);
-}
-
-function computeSettlements(people: Person[]): Settlement[] {
-  const debtors = people
-    .filter((person) => person.balance < 0)
-    .map((person) => ({ ...person, balance: round2(Math.abs(person.balance)) }))
-    .sort((a, b) => b.balance - a.balance);
-
-  const creditors = people
-    .filter((person) => person.balance > 0)
-    .map((person) => ({ ...person, balance: round2(person.balance) }))
-    .sort((a, b) => b.balance - a.balance);
-
-  const res: Settlement[] = [];
-  let debtorIndex = 0;
-  let creditorIndex = 0;
-
-  while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
-    const debtor = debtors[debtorIndex];
-    const creditor = creditors[creditorIndex];
-
-    const amount = round2(Math.min(debtor.balance, creditor.balance));
-
-    if (amount > 0) {
-      res.push({
-        from: debtor.name,
-        to: creditor.name,
-        amount,
-      });
-
-      debtor.balance = round2(debtor.balance - amount);
-      creditor.balance = round2(creditor.balance - amount);
-    }
-
-    if (debtor.balance <= 0.009) debtorIndex++;
-    if (creditor.balance <= 0.009) creditorIndex++;
-  }
-
-  return res;
-}
-
-// ✅ Prevent infinite sync loops
 let syncing = false;
 
-// Keep raw updated from rows (so Share Link always matches table)
 watch(
   rows,
   () => {
-    if (syncing) return;
+    if (syncing) {
+      return;
+    }
 
     syncing = true;
-    raw.value = buildRawFromRows(rows.value);
+    syncError.value = "";
+    raw.value = buildPaybackRawFromRows(rows.value);
     syncing = false;
   },
   { deep: true },
 );
 
-// Keep rows updated when raw changes (share payload / paste / example)
 watch(
   raw,
-  (value) => {
-    if (syncing) return;
-
-    syncing = true;
-
-    try {
-      if (value.trim()) {
-        rows.value = buildRowsFromRaw(value);
-      } else {
-        rows.value = [{ name: "", amount: "" }];
-      }
-
-      nameInputRefs.value = [];
-    } catch {
-      // ignore (error will show via computed people)
+  () => {
+    if (syncing) {
+      return;
     }
 
+    syncing = true;
+    syncRowsFromRaw();
     syncing = false;
   },
   { immediate: true },
 );
 
-const people = computed<Person[]>(() => {
-  error.value = "";
-
-  try {
-    const entries = parseRows(rows.value);
-
-    const map = new Map<string, number>();
-    for (const entry of entries) {
-      map.set(entry.name, round2((map.get(entry.name) || 0) + entry.paid));
-    }
-
-    const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
-    const totalPaid = round2(
-      list.reduce((sum, person) => sum + person.paid, 0),
-    );
-    const averagePaid = list.length ? round2(totalPaid / list.length) : 0;
-
-    if (currency.value === "KHR") {
-      return buildKhrBalances(list);
-    }
-
-    return list
-      .map((person) => ({
-        name: person.name,
-        paid: person.paid,
-        balance: round2(person.paid - averagePaid),
-      }))
-      .sort((a, b) => b.paid - a.paid);
-  } catch (e: any) {
-    const hasAny = rows.value.some(
-      (row) => (row.name ?? "").trim() || (row.amount ?? "").trim(),
-    );
-
-    if (hasAny) error.value = e?.message || "Invalid input";
-    return [];
-  }
-});
-
-const total = computed(() =>
-  round2(people.value.reduce((sum, person) => sum + person.paid, 0)),
-);
-
-const avg = computed(() =>
-  people.value.length ? round2(total.value / people.value.length) : 0,
-);
-
-const settlements = computed(() => computeSettlements(people.value));
-
-const khrRemainder = computed<KhrRemainderMeta>(() => {
-  try {
-    const entries = parseRows(rows.value);
-
-    const map = new Map<string, number>();
-    for (const entry of entries) {
-      map.set(entry.name, round2((map.get(entry.name) || 0) + entry.paid));
-    }
-
-    const list = [...map.entries()].map(([name, paid]) => ({ name, paid }));
-    return buildKhrRemainderMeta(list);
-  } catch {
-    return {
-      baseShare: 0,
-      leftover: 0,
-      assignedTo: null,
-    };
-  }
-});
-
 function loadExample() {
-  if (currency.value === "KHR") {
-    raw.value = `Mina 5000៛
-Sreynea : 10000៛
-John: 4000៛
-Minea: 0
-Reak: 0
-Rotha: 38100៛`;
-    return;
-  }
-
-  raw.value = `Mina 5$
-Sreynea : 10$
-John: 4$
-Minea: 0
-Reak: 0
-Rotha: 38$`;
+  raw.value = getPaybackExampleRaw(currency.value);
 }
 
 function reset() {
   raw.value = "";
-  error.value = "";
-  rows.value = [{ name: "", amount: "" }];
-  nameInputRefs.value = [];
+  syncError.value = "";
+  rows.value = createPaybackRows();
   khrRemainderMode.value = "LEFTOVER_ONLY";
   khrRemainderPayer.value = "";
 }
 
-function buildSharePayload() {
-  const payload = {
-    c: currency.value,
-    t: raw.value,
-    krm: khrRemainderMode.value,
-    krp: khrRemainderPayer.value,
-  };
-
-  const json = JSON.stringify(payload);
-  const b64 = btoa(unescape(encodeURIComponent(json)))
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
-
-  return b64;
-}
-
-function readSharePayload(b64: string) {
-  const padded =
-    b64.replaceAll("-", "+").replaceAll("_", "/") +
-    "=".repeat((4 - (b64.length % 4)) % 4);
-
-  const json = decodeURIComponent(escape(atob(padded)));
-  const payload = JSON.parse(json) as {
-    c?: "USD" | "KHR";
-    t?: string;
-    krm?: KhrRemainderMode;
-    krp?: string;
-  };
-
-  if (payload.c) currency.value = payload.c;
-  if (payload.t) raw.value = payload.t;
-  if (payload.krm) khrRemainderMode.value = payload.krm;
-  if (payload.krp) khrRemainderPayer.value = payload.krp;
-}
-
 async function copyResult() {
-  if (settlements.value.length === 0) return;
+  if (settlements.value.length === 0) {
+    return;
+  }
 
-  const lines: string[] = [];
-  lines.push("PayBack Calculator");
-  lines.push(`People: ${people.value.length}`);
-  lines.push(`Total: ${fmt(total.value)}`);
-  lines.push(`Average: ${fmt(avg.value)}`);
+  const lines: string[] = [
+    "PayBack Calculator",
+    `People: ${people.value.length}`,
+    `Total: ${fmt(total.value)}`,
+    `Average: ${fmt(avg.value)}`,
+  ];
 
   if (currency.value === "KHR" && khrRemainder.value.leftover > 0) {
-    lines.push(`KHR leftover: ${fmtExactKhr(khrRemainder.value.leftover)}`);
+    lines.push(`KHR leftover: ${formatPaybackExactKhr(khrRemainder.value.leftover)}`);
 
     if (
       khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
@@ -912,12 +279,10 @@ async function copyResult() {
     }
   }
 
-  lines.push("");
-  lines.push("Who pays who:");
+  lines.push("", "Who pays who:");
+
   for (const settlement of settlements.value) {
-    lines.push(
-      `- ${settlement.from} -> ${settlement.to}: ${fmt(settlement.amount)}`,
-    );
+    lines.push(`- ${settlement.from} -> ${settlement.to}: ${fmt(settlement.amount)}`);
   }
 
   await navigator.clipboard.writeText(lines.join("\n"));
@@ -925,7 +290,13 @@ async function copyResult() {
 }
 
 async function shareLink() {
-  const s = buildSharePayload();
+  const s = buildPaybackSharePayload({
+    c: currency.value,
+    t: raw.value,
+    krm: khrRemainderMode.value,
+    krp: khrRemainderPayer.value,
+  });
+
   await router.replace({ query: { s } });
 
   const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
@@ -936,12 +307,40 @@ async function shareLink() {
 onMounted(() => {
   const s = route.query.s;
 
-  if (typeof s === "string" && s.trim()) {
-    try {
-      readSharePayload(s.trim());
-    } catch {
-      // ignore invalid payload
+  if (typeof s !== "string" || !s.trim()) {
+    return;
+  }
+
+  try {
+    const payload = parsePaybackSharePayload(s.trim());
+
+    if (payload.c) {
+      currency.value = payload.c;
     }
+
+    if (payload.t !== undefined) {
+      raw.value = payload.t;
+    }
+
+    if (payload.krm) {
+      khrRemainderMode.value = payload.krm;
+    }
+
+    if (payload.krp) {
+      khrRemainderPayer.value = payload.krp;
+    }
+  } catch {
+    // ignore invalid payload
+  }
+});
+
+onBeforeUnmount(() => {
+  if (copiedTimer) {
+    clearTimeout(copiedTimer);
+  }
+
+  if (shareTimer) {
+    clearTimeout(shareTimer);
   }
 });
 </script>
