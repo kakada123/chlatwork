@@ -46,6 +46,20 @@ useSeoMeta({
     </section>
 
     <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Advertising</h2>
+      <p class="text-gray-700">
+        ChlatWork may display ads from Google AdSense or other advertising
+        partners. You must not click ads repeatedly, encourage others to click
+        ads, use automated methods to generate ad impressions or clicks, or
+        interact with ads in a way that violates advertising network policies.
+      </p>
+      <p class="text-gray-700">
+        Advertising and cookie practices are described in our Privacy Policy and
+        Cookie Policy.
+      </p>
+    </section>
+
+    <section class="space-y-3">
       <h2 class="text-lg font-semibold">Disclaimer</h2>
       <p class="text-gray-700">
         ChlatWork is provided without warranties of any kind. To the maximum
