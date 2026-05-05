@@ -23,18 +23,29 @@ const raw = defineModel<string>("raw", { required: true });
 
 const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
 
+onBeforeUpdate(() => {
+  nameInputRefs.value = [];
+});
+
 function setNameInputRef(element: Element | null, index: number) {
   nameInputRefs.value[index] = element as HTMLInputElement | null;
 }
 
 async function focusRowNameInput(index: number) {
   await nextTick();
-  nameInputRefs.value[index]?.focus();
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+
+  const input = nameInputRefs.value[index];
+  input?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  input?.focus({ preventScroll: true });
 }
 
 async function addRow() {
-  rows.value = [...rows.value, createEmptyPaybackRow()];
-  await focusRowNameInput(rows.value.length - 1);
+  const nextRows = [...rows.value, createEmptyPaybackRow()];
+  const newRowIndex = nextRows.length - 1;
+
+  rows.value = nextRows;
+  await focusRowNameInput(newRowIndex);
 }
 
 function removeRow(index: number) {
@@ -89,12 +100,24 @@ function removeRow(index: number) {
 
             <td class="p-2 text-right">
               <button
-                class="rounded-lg border px-2 py-2 hover:bg-gray-100"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border hover:bg-gray-100"
                 type="button"
                 :aria-label="`Remove row ${index + 1}`"
                 @click="removeRow(index)"
               >
-                ✕
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
               </button>
             </td>
           </tr>
@@ -114,7 +137,20 @@ function removeRow(index: number) {
         type="button"
         @click="addRow"
       >
-        <span class="text-base leading-none">＋</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="h-4 w-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
         <span class="truncate">Add row</span>
       </button>
 
@@ -123,6 +159,22 @@ function removeRow(index: number) {
         type="button"
         @click="emit('load-example')"
       >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="h-4 w-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 19.5V5a2 2 0 0 1 2-2h8.5L20 8.5V19a2 2 0 0 1-2 2H5.5A1.5 1.5 0 0 1 4 19.5Z" />
+          <path d="M14 3v6h6" />
+          <path d="M8 13h8" />
+          <path d="M8 17h5" />
+        </svg>
         <span class="truncate">Load example</span>
       </button>
 
@@ -178,11 +230,27 @@ Jompa: 38$"
 
       <div class="mt-2 flex gap-2">
         <button
-          class="rounded-lg border bg-white px-4 py-2 hover:bg-gray-100"
+          class="inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2 hover:bg-gray-100"
           type="button"
           @click="emit('sync-rows-from-raw')"
         >
-          Apply paste to rows
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="h-4 w-4 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M8 4h8" />
+            <path d="M9 2h6v4H9z" />
+            <path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <path d="m9 14 2 2 4-4" />
+          </svg>
+          <span>Apply paste to rows</span>
         </button>
       </div>
     </details>

@@ -10,21 +10,25 @@ const comingSoon = computed(() => TOOLS.filter((t) => !t.enabled));
 
 const toolIconPaths: Record<string, string[]> = {
   calculator: [
-    "M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z",
-    "M8 7h8",
-    "M8 11h2",
-    "M14 11h2",
-    "M8 15h2",
-    "M14 15h2",
+    "M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z",
+    "M8 7.5h8",
+    "M8.5 11.5h2",
+    "M13.5 11.5h2",
+    "M8.5 15.5h2",
+    "M13.5 15.5h2",
+    "M8.5 18h7",
   ],
   qr: [
     "M4 4h6v6H4V4Z",
     "M14 4h6v6h-6V4Z",
     "M4 14h6v6H4v-6Z",
-    "M14 14h2",
-    "M18 14h2v2",
-    "M14 18h2v2",
-    "M18 20h2",
+    "M7 7h.01",
+    "M17 7h.01",
+    "M7 17h.01",
+    "M14 14h2v2",
+    "M19 14h1",
+    "M14 20h6",
+    "M18 18h2",
   ],
   "wifi-qr": [
     "M4 4h6v6H4V4Z",
@@ -35,18 +39,21 @@ const toolIconPaths: Record<string, string[]> = {
     "M17 20h.01",
   ],
   "payback-calculator": [
-    "M7 7h11",
-    "M7 7l3-3",
-    "M7 7l3 3",
-    "M17 17H6",
-    "M17 17l-3-3",
-    "M17 17l-3 3",
+    "M8 6.5h10",
+    "M8 6.5l3-3",
+    "M8 6.5l3 3",
+    "M16 17.5H6",
+    "M16 17.5l-3-3",
+    "M16 17.5l-3 3",
+    "M7 12h10",
+    "M12 9.5V14.5",
   ],
   "expense-tracker": [
     "M6 3h12a2 2 0 0 1 2 2v16l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z",
     "M8 8h8",
     "M8 12h8",
     "M8 16h5",
+    "M16 16h.01",
   ],
   barcode: [
     "M4 5v14",
@@ -62,12 +69,31 @@ const toolIconPaths: Record<string, string[]> = {
     "M8 9h.01",
     "M9 20v-3",
     "M15 20v-3",
+    "M10 3v2",
+    "M14 3v2",
   ],
   "lucky-draw": [
     "M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.3 7.2 18l.9-5.4-3.9-3.8 5.4-.8L12 3Z",
     "M19 21l-3-3",
     "M5 21l3-3",
+    "M12 15.3V21",
   ],
+};
+
+const toolIconClass: Record<string, string> = {
+  calculator: "bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white",
+  qr: "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
+  "wifi-qr": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
+  "payback-calculator":
+    "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
+  "expense-tracker":
+    "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
+  barcode:
+    "bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white",
+  "image-compress":
+    "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
+  "lucky-draw":
+    "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
 };
 
 const badgeClass = (s: ToolStatus) => {
@@ -97,7 +123,8 @@ const badgeClass = (s: ToolStatus) => {
         <div class="flex items-start justify-between gap-3">
           <div class="flex min-w-0 items-start gap-3">
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700 transition group-hover:bg-gray-900 group-hover:text-white"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition"
+              :class="toolIconClass[t.key] || toolIconClass.calculator"
               aria-hidden="true"
             >
               <svg
