@@ -13,7 +13,9 @@ useSeoMeta({
 
 const toolSearch = ref("");
 
-const filteredTools = computed(() => filterTools(ENABLED_TOOLS, toolSearch.value));
+const filteredTools = computed(() =>
+  filterTools(ENABLED_TOOLS, toolSearch.value),
+);
 const groupedTools = computed(() => groupTools(filteredTools.value));
 const filteredToolCount = computed(() => filteredTools.value.length);
 
@@ -49,14 +51,17 @@ function groupTools(tools: ToolDef[]) {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-6xl space-y-8">
+  <main class="mx-auto w-full max-w-[1440px] space-y-8">
     <header class="space-y-1">
       <h1 class="text-xl font-bold">Tools</h1>
       <p class="text-sm text-gray-500">Pick a tool and get things done.</p>
     </header>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
-      <label for="tool-search" class="block text-sm font-semibold text-gray-900">
+      <label
+        for="tool-search"
+        class="block text-sm font-semibold text-gray-900"
+      >
         Search tools
       </label>
       <div class="mt-2 flex gap-2">
@@ -88,10 +93,16 @@ function groupTools(tools: ToolDef[]) {
       No tools found.
     </section>
 
-    <section v-for="group in groupedTools" :key="group.category" class="space-y-3">
+    <section
+      v-for="group in groupedTools"
+      :key="group.category"
+      class="space-y-3"
+    >
       <div class="flex items-end justify-between gap-3">
         <div>
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2
+            class="text-sm font-semibold uppercase tracking-wide text-gray-500"
+          >
             {{ group.category }}
           </h2>
           <p class="mt-1 text-xs text-gray-400">
@@ -100,7 +111,9 @@ function groupTools(tools: ToolDef[]) {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
+      >
         <NuxtLink
           v-for="tool in group.tools"
           :key="tool.key"
@@ -111,7 +124,9 @@ function groupTools(tools: ToolDef[]) {
             <div class="flex min-w-0 items-start gap-3">
               <span
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition"
-                :class="TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator"
+                :class="
+                  TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator
+                "
                 aria-hidden="true"
               >
                 <svg
@@ -125,7 +140,8 @@ function groupTools(tools: ToolDef[]) {
                   stroke-linejoin="round"
                 >
                   <path
-                    v-for="path in TOOL_ICON_PATHS[tool.key] || TOOL_ICON_PATHS.calculator"
+                    v-for="path in TOOL_ICON_PATHS[tool.key] ||
+                    TOOL_ICON_PATHS.calculator"
                     :key="path"
                     :d="path"
                   />
@@ -133,7 +149,9 @@ function groupTools(tools: ToolDef[]) {
               </span>
 
               <div class="min-w-0">
-                <h3 class="text-base font-semibold leading-snug text-gray-900 sm:truncate">
+                <h3
+                  class="text-base font-semibold leading-snug text-gray-900 sm:truncate"
+                >
                   {{ tool.name }}
                 </h3>
                 <p class="mt-1 text-sm text-gray-500 line-clamp-2">
@@ -148,7 +166,9 @@ function groupTools(tools: ToolDef[]) {
               {{ tool.category }}
             </p>
 
-            <span class="text-xs text-gray-300 transition group-hover:text-gray-400">
+            <span
+              class="text-xs text-gray-300 transition group-hover:text-gray-400"
+            >
               ->
             </span>
           </div>

@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   ssr: true,
+  compatibilityDate: "2026-05-07",
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
     siteUrl: "https://chlatwork.com",

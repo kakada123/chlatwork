@@ -198,7 +198,7 @@ watch(
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-6xl">
+  <div class="mx-auto w-full max-w-[1440px]">
     <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
         <h1 class="text-xl font-bold">Wi-Fi QR Generator</h1>
