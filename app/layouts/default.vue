@@ -86,10 +86,8 @@ onBeforeUnmount(() => {
           @click="closeMenu"
         >
           <img
-            src="/assets/chlart-work.png"
+            src="/assets/chlart-work-nav.png"
             alt="ChlatWork"
-            width="36"
-            height="36"
             class="h-9 w-9 shrink-0 rounded-xl object-contain"
           />
 
@@ -180,10 +178,8 @@ onBeforeUnmount(() => {
           <div class="flex items-center justify-between">
             <div class="flex min-w-0 items-center gap-3">
               <img
-                src="/assets/chlart-work.png"
+                src="/assets/chlart-work-nav.png"
                 alt="ChlatWork"
-                width="32"
-                height="32"
                 class="h-8 w-8 shrink-0 rounded-lg object-contain"
               />
               <p class="truncate text-sm font-semibold">ChlatWork</p>
