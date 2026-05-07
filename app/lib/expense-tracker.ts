@@ -1,7 +1,9 @@
-import {
+import lzString from "lz-string";
+
+const {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
-} from "lz-string";
+} = lzString;
 
 export type ExpenseCurrency = "USD" | "KHR";
 export type MoneyType = "expense" | "income";
