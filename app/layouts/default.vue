@@ -1,105 +1,50 @@
 <script setup lang="ts">
-import { ENABLED_TOOLS, TOOLS, type ToolStatus } from "~/lib/tool-registry";
+import {
+  ALL_TOOLS_ICON_PATHS,
+  ENABLED_TOOLS,
+  TOOL_ICON_CLASSES,
+  TOOL_ICON_PATHS,
+  type ToolDef,
+} from "~/lib/tool-registry";
 
-const enabledTools = computed(() => ENABLED_TOOLS);
-const comingSoon = computed(() => TOOLS.filter((t) => !t.enabled));
+const toolNavSearch = ref("");
+const filteredEnabledTools = computed(() =>
+  filterTools(ENABLED_TOOLS, toolNavSearch.value),
+);
+const groupedEnabledTools = computed(() => groupTools(filteredEnabledTools.value));
+const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
+const toolIconPaths = TOOL_ICON_PATHS;
+const toolIconClass = TOOL_ICON_CLASSES;
 
-const badgeClass = (s: ToolStatus) => {
-  if (s === "stable") return "bg-green-100 text-green-700";
-  if (s === "beta") return "bg-yellow-100 text-yellow-700";
-  if (s === "alpha") return "bg-purple-100 text-purple-700";
-  return "bg-gray-100 text-gray-600";
-};
+function filterTools(tools: ToolDef[], query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
 
-const allToolsIconPaths = [
-  "M4 5h7v7H4V5Z",
-  "M13 5h7v7h-7V5Z",
-  "M4 14h7v5H4v-5Z",
-  "M13 14h7v5h-7v-5Z",
-];
+  if (!normalizedQuery) {
+    return tools;
+  }
 
-const toolIconPaths: Record<string, string[]> = {
-  calculator: [
-    "M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z",
-    "M8 7.5h8",
-    "M8.5 11.5h2",
-    "M13.5 11.5h2",
-    "M8.5 15.5h2",
-    "M13.5 15.5h2",
-    "M8.5 18h7",
-  ],
-  qr: [
-    "M4 4h6v6H4V4Z",
-    "M14 4h6v6h-6V4Z",
-    "M4 14h6v6H4v-6Z",
-    "M7 7h.01",
-    "M17 7h.01",
-    "M7 17h.01",
-    "M14 14h2v2",
-    "M19 14h1",
-    "M14 20h6",
-    "M18 18h2",
-  ],
-  "wifi-qr": [
-    "M4 4h6v6H4V4Z",
-    "M14 4h6v6h-6V4Z",
-    "M4 14h6v6H4v-6Z",
-    "M13.5 15.5a5.5 5.5 0 0 1 7 0",
-    "M15.5 18a2.5 2.5 0 0 1 3 0",
-    "M17 20h.01",
-  ],
-  "payback-calculator": [
-    "M8 6.5h10",
-    "M8 6.5l3-3",
-    "M8 6.5l3 3",
-    "M16 17.5H6",
-    "M16 17.5l-3-3",
-    "M16 17.5l-3 3",
-    "M7 12h10",
-    "M12 9.5V14.5",
-  ],
-  "expense-tracker": [
-    "M6 3h12a2 2 0 0 1 2 2v16l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z",
-    "M8 8h8",
-    "M8 12h8",
-    "M8 16h5",
-    "M16 16h.01",
-  ],
-  barcode: [
-    "M4 5v14",
-    "M7 5v14",
-    "M11 5v14",
-    "M13 5v14",
-    "M17 5v14",
-    "M20 5v14",
-  ],
-  "image-compress": [
-    "M4 5h16v14H4V5Z",
-    "M8 11l3 3 2-2 4 4",
-    "M8 9h.01",
-    "M9 20v-3",
-    "M15 20v-3",
-    "M10 3v2",
-    "M14 3v2",
-  ],
-  "lucky-draw": [
-    "M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.3 7.2 18l.9-5.4-3.9-3.8 5.4-.8L12 3Z",
-    "M19 21l-3-3",
-    "M5 21l3-3",
-    "M12 15.3V21",
-  ],
-};
+  return tools.filter((tool) =>
+    [tool.name, tool.description, tool.category, tool.key]
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery),
+  );
+}
 
-const toolIconClass: Record<string, string> = {
-  calculator: "bg-blue-50 text-blue-700",
-  qr: "bg-emerald-50 text-emerald-700",
-  "wifi-qr": "bg-cyan-50 text-cyan-700",
-  "payback-calculator": "bg-amber-50 text-amber-700",
-  "expense-tracker": "bg-rose-50 text-rose-700",
-  barcode: "bg-slate-100 text-slate-700",
-  "image-compress": "bg-violet-50 text-violet-700",
-  "lucky-draw": "bg-fuchsia-50 text-fuchsia-700",
-};
+function groupTools(tools: ToolDef[]) {
+  const groups = new Map<string, ToolDef[]>();
+
+  for (const tool of tools) {
+    const current = groups.get(tool.category) ?? [];
+    current.push(tool);
+    groups.set(tool.category, current);
+  }
+
+  return Array.from(groups.entries()).map(([category, items]) => ({
+    category,
+    tools: items,
+  }));
+}
 
 // ✅ mobile drawer state
 const isMenuOpen = ref(false);
@@ -309,20 +254,56 @@ onBeforeUnmount(() => {
             </NuxtLink>
           </nav>
 
-          <!-- Enabled -->
-          <div class="mt-4">
+          <div class="mt-4 px-3">
+            <label
+              for="mobile-tool-nav-search"
+              class="sr-only"
+            >
+              Search tools
+            </label>
+            <div class="flex gap-2">
+              <input
+                id="mobile-tool-nav-search"
+                v-model="toolNavSearch"
+                type="search"
+                class="h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+                placeholder="Search tools"
+              />
+              <button
+                v-if="toolNavSearch"
+                type="button"
+                class="h-10 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                @click="toolNavSearch = ''"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <p
+            v-if="filteredEnabledTools.length === 0"
+            class="px-3 py-4 text-sm text-gray-500"
+          >
+            No tools found.
+          </p>
+
+          <div
+            v-for="group in groupedEnabledTools"
+            :key="group.category"
+            class="mt-4"
+          >
             <p
               class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
             >
-              Enabled
+              {{ group.category }}
             </p>
 
             <nav class="space-y-1">
               <NuxtLink
-                v-for="t in enabledTools"
+                v-for="t in group.tools"
                 :key="t.key"
                 :to="t.route"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-900 hover:bg-gray-100"
+                class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-900 hover:bg-gray-100"
                 active-class="bg-gray-900 text-white hover:bg-gray-900"
                 @click="closeMenu"
               >
@@ -400,37 +381,67 @@ onBeforeUnmount(() => {
               <span>All Tools</span>
             </NuxtLink>
 
-            <NuxtLink
-              v-for="t in enabledTools"
-              :key="t.key"
-              :to="t.route"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-              active-class="bg-gray-900 text-white hover:bg-gray-900"
+            <div class="px-3 py-2">
+              <label for="tool-nav-search" class="sr-only">Search tools</label>
+              <input
+                id="tool-nav-search"
+                v-model="toolNavSearch"
+                type="search"
+                class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+                placeholder="Search tools"
+              />
+            </div>
+
+            <p
+              v-if="filteredEnabledTools.length === 0"
+              class="px-3 py-4 text-sm text-gray-500"
             >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                :class="toolIconClass[t.key] || toolIconClass.calculator"
-                aria-hidden="true"
+              No tools found.
+            </p>
+
+            <div
+              v-for="group in groupedEnabledTools"
+              :key="group.category"
+              class="pt-3 first:pt-2"
+            >
+              <p
+                class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                {{ group.category }}
+              </p>
+
+              <NuxtLink
+                v-for="t in group.tools"
+                :key="t.key"
+                :to="t.route"
+                class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
+                active-class="bg-gray-900 text-white hover:bg-gray-900"
+              >
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                  :class="toolIconClass[t.key] || toolIconClass.calculator"
+                  aria-hidden="true"
                 >
-                  <path
-                    v-for="path in toolIconPaths[t.key] || toolIconPaths.calculator"
-                    :key="path"
-                    :d="path"
-                  />
-                </svg>
-              </span>
-              <span class="truncate">{{ t.name }}</span>
-            </NuxtLink>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      v-for="path in toolIconPaths[t.key] || toolIconPaths.calculator"
+                      :key="path"
+                      :d="path"
+                    />
+                  </svg>
+                </span>
+                <span class="truncate">{{ t.name }}</span>
+              </NuxtLink>
+            </div>
           </div>
         </aside>
 
