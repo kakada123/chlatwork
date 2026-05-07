@@ -75,22 +75,82 @@
       </div>
 
       <div v-else class="space-y-4">
-        <div>
-          <label class="block text-sm font-semibold text-gray-900">
-            File to Base64
-          </label>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between gap-3">
+            <label class="block text-sm font-semibold text-gray-900">
+              File to Base64
+            </label>
+            <button
+              v-if="fileName"
+              type="button"
+              class="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              @click="clearFile"
+            >
+              Remove
+            </button>
+          </div>
+
           <input
+            id="base64-file-upload"
+            ref="fileInput"
             type="file"
-            class="mt-2 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm"
+            class="sr-only"
             @change="handleFile"
           />
-          <p class="mt-2 text-xs text-gray-500">
-            The file is read locally and is not uploaded.
-          </p>
-        </div>
 
-        <div v-if="fileName" class="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
-          {{ fileName }} - {{ fileSize }}
+          <label
+            for="base64-file-upload"
+            class="group block cursor-pointer rounded-xl border-2 border-dashed p-5 transition"
+            :class="
+              isDragging
+                ? 'border-gray-900 bg-gray-50'
+                : 'border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50'
+            "
+            @dragenter.prevent="isDragging = true"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+          >
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <span
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-white text-gray-700 shadow-sm transition group-hover:shadow"
+                aria-hidden="true"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  class="h-6 w-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 16V4" />
+                  <path d="m7 9 5-5 5 5" />
+                  <path d="M20 20H4" />
+                </svg>
+              </span>
+
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-semibold text-gray-900">
+                  {{ fileName ? "File selected" : "Choose or drop a file" }}
+                </span>
+                <span class="mt-1 block truncate text-xs text-gray-500">
+                  {{
+                    fileName
+                      ? `${fileName} - ${fileSize}`
+                      : "Read locally in your browser. Nothing is uploaded."
+                  }}
+                </span>
+              </span>
+
+              <span
+                class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800"
+              >
+                {{ fileName ? "Change file" : "Choose file" }}
+              </span>
+            </div>
+          </label>
         </div>
 
         <div class="space-y-2">
@@ -139,6 +199,8 @@ const result = ref("");
 const error = ref("");
 const fileName = ref("");
 const fileSize = ref("");
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
 
 function switchMode(nextMode: TabKey) {
   mode.value = nextMode;
@@ -164,19 +226,44 @@ function clearAll() {
   input.value = "";
   result.value = "";
   error.value = "";
+  clearFile();
+}
+
+function clearFile() {
+  result.value = "";
+  error.value = "";
   fileName.value = "";
   fileSize.value = "";
+
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
 }
 
 function handleFile(event: Event) {
-  error.value = "";
-  result.value = "";
   const file = (event.target as HTMLInputElement).files?.[0];
 
   if (!file) {
     return;
   }
 
+  readFileAsBase64(file);
+}
+
+function handleDrop(event: DragEvent) {
+  isDragging.value = false;
+  const file = event.dataTransfer?.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  readFileAsBase64(file);
+}
+
+function readFileAsBase64(file: File) {
+  error.value = "";
+  result.value = "";
   fileName.value = file.name;
   fileSize.value = `${(file.size / 1024).toFixed(1)} KB`;
 
