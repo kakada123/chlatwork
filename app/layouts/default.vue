@@ -11,7 +11,9 @@ const toolNavSearch = ref("");
 const filteredEnabledTools = computed(() =>
   filterTools(ENABLED_TOOLS, toolNavSearch.value),
 );
-const groupedEnabledTools = computed(() => groupTools(filteredEnabledTools.value));
+const groupedEnabledTools = computed(() =>
+  groupTools(filteredEnabledTools.value),
+);
 const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
 const toolIconPaths = TOOL_ICON_PATHS;
 const toolIconClass = TOOL_ICON_CLASSES;
@@ -75,7 +77,7 @@ onBeforeUnmount(() => {
     <!-- Top Task Bar -->
     <header class="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
       <div
-        class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6"
+        class="mx-auto flex max-w-[1440px] items-center justify-between px-3 py-3 sm:px-4"
       >
         <!-- Brand -->
         <NuxtLink
@@ -255,10 +257,7 @@ onBeforeUnmount(() => {
           </nav>
 
           <div class="mt-4 px-3">
-            <label
-              for="mobile-tool-nav-search"
-              class="sr-only"
-            >
+            <label for="mobile-tool-nav-search" class="sr-only">
               Search tools
             </label>
             <div class="flex gap-2">
@@ -323,7 +322,8 @@ onBeforeUnmount(() => {
                     stroke-linejoin="round"
                   >
                     <path
-                      v-for="path in toolIconPaths[t.key] || toolIconPaths.calculator"
+                      v-for="path in toolIconPaths[t.key] ||
+                      toolIconPaths.calculator"
                       :key="path"
                       :d="path"
                     />
@@ -341,7 +341,7 @@ onBeforeUnmount(() => {
     <div class="flex-1">
       <!-- Layout body -->
       <div
-        class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 md:grid-cols-[260px_1fr]"
+        class="mx-auto grid max-w-[1440px] gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]"
       >
         <!-- Desktop Sidebar -->
         <aside class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block">
@@ -433,7 +433,8 @@ onBeforeUnmount(() => {
                     stroke-linejoin="round"
                   >
                     <path
-                      v-for="path in toolIconPaths[t.key] || toolIconPaths.calculator"
+                      v-for="path in toolIconPaths[t.key] ||
+                      toolIconPaths.calculator"
                       :key="path"
                       :d="path"
                     />
@@ -455,7 +456,7 @@ onBeforeUnmount(() => {
     <!-- ✅ Footer now sticks to bottom -->
     <footer class="mt-0 border-t bg-white py-6">
       <div
-        class="mx-auto max-w-6xl px-4 text-sm sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        class="mx-auto max-w-[1440px] px-3 text-sm sm:px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
         <!-- Left links -->
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500">
