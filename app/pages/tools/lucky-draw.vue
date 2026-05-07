@@ -83,16 +83,18 @@
                   <input
                     :ref="(element) => setNameInputRef(element, index)"
                     v-model.trim="row.name"
-                    class="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
+                    class="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="e.g. Kakada Ngen"
+                    :disabled="isSpinning"
                   />
                 </td>
 
                 <td class="p-2 text-right">
                   <button
-                    class="rounded-lg border px-2 py-2 hover:bg-gray-100"
+                    class="rounded-lg border px-2 py-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
                     @click="removeRow(index)"
                     :aria-label="`Remove row ${index + 1}`"
+                    :disabled="isSpinning"
                   >
                     ✕
                   </button>
@@ -110,23 +112,26 @@
 
         <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
             @click="addRow"
+            :disabled="isSpinning"
           >
             <span class="text-base leading-none">＋</span>
             <span class="truncate">Add row</span>
           </button>
 
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-3 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-3 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
             @click="loadExample"
+            :disabled="isSpinning"
           >
             <span class="truncate">Load example</span>
           </button>
 
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
             @click="applyRawToRows"
+            :disabled="isSpinning"
           >
             <span class="truncate">Apply paste</span>
           </button>
@@ -141,7 +146,8 @@
 
           <textarea
             v-model="raw"
-            class="mt-2 h-40 w-full rounded-xl border p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
+            class="mt-2 h-40 w-full rounded-xl border p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+            :disabled="isSpinning"
             placeholder="Example:
 Kakada Ngen
 Mina Sok
@@ -218,7 +224,7 @@ John Smith"
               >
                 <div class="absolute left-1/2 top-0 z-30 -translate-x-1/2">
                   <div
-                    class="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[24px] border-l-transparent border-r-transparent border-b-black drop-shadow-sm"
+                    class="h-0 w-0 border-l-[14px] border-r-[14px] border-t-[24px] border-l-transparent border-r-transparent border-t-black drop-shadow-sm"
                   />
                 </div>
 
@@ -248,13 +254,14 @@ John Smith"
                         >
                           <text
                             text-anchor="middle"
+                            dominant-baseline="middle"
                             fill="#ffffff"
-                            stroke="rgba(0,0,0,0.18)"
-                            stroke-width="0.4"
+                            stroke="rgba(0,0,0,0.24)"
+                            stroke-width="0.34"
                             paint-order="stroke"
                             font-weight="700"
                             :font-size="wheelLabelFontSize"
-                            style="letter-spacing: 0.15px"
+                            style="letter-spacing: 0"
                           >
                             <tspan
                               v-for="(line, lineIndex) in segment.labelLines"
@@ -441,6 +448,7 @@ const isSpinning = ref(false);
 const wheelRotation = ref(0);
 const lastWinner = ref("");
 const isFullscreen = ref(false);
+const activeWheelParticipants = ref<string[]>([]);
 
 const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
 const wheelStageRef = ref<HTMLElement | null>(null);
@@ -450,6 +458,7 @@ const audioContext = ref<AudioContext | null>(null);
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
 let spinAnimationFrameId: number | null = null;
 let confettiLauncher: ConfettiLauncher = null;
+let spinRunId = 0;
 
 function normalizeName(value: string) {
   return value.trim().replace(/\s+/g, " ");
@@ -522,42 +531,55 @@ function splitNameForWheelLabel(
 
 const participants = computed(() => parseRows(rows.value));
 
+const wheelParticipants = computed(() => {
+  return activeWheelParticipants.value.length
+    ? activeWheelParticipants.value
+    : participants.value;
+});
+
 const canSpin = computed(
   () => participants.value.length >= 2 && !isSpinning.value,
 );
 
 const segmentAngle = computed(() => {
-  if (participants.value.length === 0) return 360;
-  return 360 / participants.value.length;
+  return getSegmentAngle(wheelParticipants.value.length);
 });
 
 const wheelLabelFontSize = computed(() => {
-  const count = participants.value.length;
+  const count = wheelParticipants.value.length;
 
-  if (count <= 4) return 4;
-  if (count <= 6) return 3.5;
-  if (count <= 10) return 2.8;
-  if (count <= 14) return 2.3;
-  return 1.9;
+  if (count <= 4) return 3.7;
+  if (count <= 8) return 3.1;
+  if (count <= 14) return 2.45;
+  if (count <= 24) return 2.05;
+  if (count <= 48) return 1.68;
+  return 1.45;
 });
 
 const labelRadius = computed(() => {
-  const count = participants.value.length;
+  const count = wheelParticipants.value.length;
 
-  if (count <= 4) return 28;
-  if (count <= 8) return 31;
-  if (count <= 12) return 34;
-  if (count <= 18) return 36;
-  return 38;
+  if (count <= 4) return 31;
+  if (count <= 8) return 34;
+  if (count <= 18) return 37;
+  return 39.5;
 });
 
 const labelMaxCharsPerLine = computed(() => {
-  const count = participants.value.length;
+  const count = wheelParticipants.value.length;
 
   if (count <= 4) return 14;
-  if (count <= 8) return 12;
-  if (count <= 12) return 10;
-  return 8;
+  if (count <= 8) return 16;
+  if (count <= 18) return 18;
+  if (count <= 48) return 19;
+  return 16;
+});
+
+const labelMaxLines = computed(() => {
+  const count = wheelParticipants.value.length;
+
+  if (count <= 4) return 2;
+  return 1;
 });
 
 const isFullscreenSupported = computed(() => {
@@ -590,6 +612,14 @@ function angleToPoint(angle: number, radius: number) {
   };
 }
 
+function normalizeDegrees(value: number) {
+  return ((value % 360) + 360) % 360;
+}
+
+function getSegmentAngle(count: number) {
+  return count > 0 ? 360 / count : 360;
+}
+
 function createSlicePath(startAngle: number, endAngle: number) {
   const start = angleToPoint(startAngle, WHEEL_RADIUS);
   const end = angleToPoint(endAngle, WHEEL_RADIUS);
@@ -604,9 +634,9 @@ function createSlicePath(startAngle: number, endAngle: number) {
 }
 
 function getTextRotation(midAngle: number) {
-  let rotation = midAngle;
+  let rotation = midAngle - 90;
 
-  if (midAngle > 90 && midAngle < 270) {
+  if (midAngle > 180 && midAngle < 360) {
     rotation += 180;
   }
 
@@ -622,7 +652,7 @@ function getLabelLineDy(lineIndex: number, totalLines: number) {
 }
 
 const wheelSegments = computed<WheelSegment[]>(() => {
-  return participants.value.map((name, index) => {
+  return wheelParticipants.value.map((name, index) => {
     const startAngle = index * segmentAngle.value;
     const endAngle = (index + 1) * segmentAngle.value;
     const midAngle = startAngle + segmentAngle.value / 2;
@@ -639,7 +669,11 @@ const wheelSegments = computed<WheelSegment[]>(() => {
       labelX: labelPoint.x,
       labelY: labelPoint.y,
       textRotation: getTextRotation(midAngle),
-      labelLines: splitNameForWheelLabel(name, labelMaxCharsPerLine.value),
+      labelLines: splitNameForWheelLabel(
+        name,
+        labelMaxCharsPerLine.value,
+        labelMaxLines.value,
+      ),
     };
   });
 });
@@ -699,6 +733,7 @@ function loadExample() {
 }
 
 function reset() {
+  spinRunId += 1;
   rows.value = INITIAL_ROWS();
   raw.value = "";
   error.value = "";
@@ -706,6 +741,7 @@ function reset() {
   isSpinning.value = false;
   wheelRotation.value = 0;
   lastWinner.value = "";
+  activeWheelParticipants.value = [];
   nameInputRefs.value = [];
 
   if (shareTimer) {
@@ -766,15 +802,30 @@ async function shareLink() {
   flashShareCopied();
 }
 
-function getWinningIndexFromRotation(rotation: number) {
-  if (participants.value.length === 0) return -1;
+function getTargetRotationForWinner(
+  winnerIndex: number,
+  totalParticipants: number,
+) {
+  const winnerCenterAngle =
+    winnerIndex * getSegmentAngle(totalParticipants) +
+    getSegmentAngle(totalParticipants) / 2;
 
-  const normalizedRotation = ((rotation % 360) + 360) % 360;
+  return normalizeDegrees(360 - winnerCenterAngle);
+}
+
+function getWinningIndexFromRotation(
+  rotation: number,
+  totalParticipants: number,
+) {
+  if (totalParticipants === 0) return -1;
+
+  const normalizedRotation = normalizeDegrees(rotation);
   const pointerAngle = (360 - normalizedRotation + 0.0001) % 360;
+  const angleSize = getSegmentAngle(totalParticipants);
 
   return Math.min(
-    participants.value.length - 1,
-    Math.floor(pointerAngle / segmentAngle.value),
+    totalParticipants - 1,
+    Math.floor(pointerAngle / angleSize),
   );
 }
 
@@ -953,29 +1004,41 @@ async function toggleWheelFullscreen() {
 async function runLuckyDraw() {
   if (!canSpin.value) return;
 
-  await ensureAudioContext();
+  const runId = (spinRunId += 1);
+  const people = [...participants.value];
+  const totalParticipants = people.length;
+  activeWheelParticipants.value = people;
+  isSpinning.value = true;
+  lastWinner.value = "";
 
-  const people = participants.value;
+  try {
+    await ensureAudioContext();
+  } catch {
+    // Continue without sound if the browser blocks audio setup.
+  }
+
+  if (runId !== spinRunId || !isSpinning.value) return;
+
   const winnerIndex = Math.floor(Math.random() * people.length);
   const winnerName = people[winnerIndex];
 
-  const winnerCenterAngle =
-    winnerIndex * segmentAngle.value + segmentAngle.value / 2;
-
   const startRotation = wheelRotation.value;
-  const normalizedCurrentRotation = ((startRotation % 360) + 360) % 360;
-  const targetRotation = (360 - winnerCenterAngle + 360) % 360;
+  const normalizedCurrentRotation = normalizeDegrees(startRotation);
+  const targetRotation = getTargetRotationForWinner(
+    winnerIndex,
+    totalParticipants,
+  );
   const rotationDelta =
     FULL_TURNS * 360 +
     ((targetRotation - normalizedCurrentRotation + 360) % 360);
 
-  isSpinning.value = true;
-  lastWinner.value = "";
-
   stopSpinAnimation();
 
   let animationStartTime: number | null = null;
-  let previousIndex = getWinningIndexFromRotation(startRotation);
+  let previousIndex = getWinningIndexFromRotation(
+    startRotation,
+    totalParticipants,
+  );
 
   const animate = (timestamp: number) => {
     if (animationStartTime === null) {
@@ -989,7 +1052,10 @@ async function runLuckyDraw() {
 
     wheelRotation.value = nextRotation;
 
-    const currentIndex = getWinningIndexFromRotation(nextRotation);
+    const currentIndex = getWinningIndexFromRotation(
+      nextRotation,
+      totalParticipants,
+    );
     if (currentIndex !== previousIndex && currentIndex !== -1) {
       playTickSound();
       previousIndex = currentIndex;
@@ -1000,7 +1066,7 @@ async function runLuckyDraw() {
       return;
     }
 
-    wheelRotation.value = startRotation + rotationDelta;
+    wheelRotation.value = targetRotation;
     isSpinning.value = false;
     lastWinner.value = winnerName;
     spinAnimationFrameId = null;
@@ -1017,6 +1083,12 @@ watch(
   () => {
     error.value = "";
     raw.value = participants.value.join("\n");
+
+    if (!isSpinning.value) {
+      activeWheelParticipants.value = [];
+      lastWinner.value = "";
+      wheelRotation.value = 0;
+    }
   },
   { deep: true },
 );
@@ -1039,6 +1111,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  spinRunId += 1;
+
   if (shareTimer) clearTimeout(shareTimer);
   stopSpinAnimation();
 
