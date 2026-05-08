@@ -24,6 +24,9 @@
             </label>
             <span class="shrink-0 text-xs text-gray-400">
               {{ characterCount }} characters
+              <span v-if="usesNarakeetVoice">
+                · ~{{ estimatedSpeechSeconds }}s / 10s
+              </span>
             </span>
           </div>
 
@@ -216,11 +219,15 @@ type SpeechEngine = "online" | "browser";
 
 const DEFAULT_TEXT =
   "សួស្តី! សូមសាកល្បងបញ្ចូលអត្ថបទភាសាខ្មែរ ហើយចុច Speak ដើម្បីស្តាប់សំឡេង។";
-const ONLINE_TTS_CHUNK_LIMIT = 180;
+const MAX_AUDIO_SECONDS = 10;
+const GOOGLE_TTS_CHUNK_LIMIT = 180;
+const KHMER_GRAPHEMES_PER_SECOND = 12;
+const NARAKEET_TTS_CHUNK_LIMIT = MAX_AUDIO_SECONDS * KHMER_GRAPHEMES_PER_SECOND;
 const onlineVoiceOptions = [
-  { key: "khmer-default", label: "Khmer default" },
-  { key: "khmer-male-sovath", label: "Sovath - Male" },
-  { key: "khmer-female-nisa", label: "Nisa - Female" },
+  { key: "khmer-default", label: "Khmer default", provider: "google" },
+  { key: "khmer-male-graham", label: "Graham - Male Warm Smooth", provider: "narakeet" },
+  { key: "khmer-male-sovath", label: "Sovath - Male", provider: "narakeet" },
+  { key: "khmer-female-nisa", label: "Nisa - Female", provider: "narakeet" },
 ] as const;
 
 const text = ref(DEFAULT_TEXT);
@@ -242,6 +249,25 @@ const downloadProgress = ref({ current: 0, total: 0 });
 const currentAudioUrl = ref("");
 
 const characterCount = computed(() => text.value.length);
+const estimatedSpeechSeconds = computed(() => estimateSpeechSeconds(text.value));
+const selectedOnlineVoiceOption = computed(
+  () => onlineVoiceOptions.find((voice) => voice.key === onlineVoice.value) ?? null,
+);
+const usesNarakeetVoice = computed(
+  () => engine.value === "online" && selectedOnlineVoiceOption.value?.provider === "narakeet",
+);
+const onlineTtsChunkLimit = computed(() =>
+  selectedOnlineVoiceOption.value?.provider === "narakeet"
+    ? NARAKEET_TTS_CHUNK_LIMIT
+    : GOOGLE_TTS_CHUNK_LIMIT,
+);
+const isOverDurationLimit = computed(
+  () => usesNarakeetVoice.value && estimatedSpeechSeconds.value > MAX_AUDIO_SECONDS,
+);
+const narakeetDurationLimitMessage = computed(
+  () =>
+    `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for Narakeet voices.`,
+);
 const hasOnlineAudioSupport = computed(() => process.client);
 const hasSpeechSupport = computed(
   () => process.client && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window,
@@ -251,7 +277,7 @@ const canSpeak = computed(() => {
   const hasEngine =
     engine.value === "online" ? hasOnlineAudioSupport.value : hasSpeechSupport.value;
 
-  return hasText && hasEngine;
+  return hasText && hasEngine && !isOverDurationLimit.value;
 });
 const canDownload = computed(
   () => engine.value === "online" && canSpeak.value && !isDownloading.value,
@@ -289,6 +315,10 @@ const message = computed(() => {
     return "No Khmer voice was found. The browser may still read with its default voice.";
   }
 
+  if (isOverDurationLimit.value) {
+    return narakeetDurationLimitMessage.value;
+  }
+
   if (isPaused.value) {
     return "Speech is paused.";
   }
@@ -307,6 +337,7 @@ const message = computed(() => {
 });
 const messageClass = computed(() =>
   error.value ||
+  isOverDurationLimit.value ||
   (engine.value === "online" && !hasOnlineAudioSupport.value) ||
   (engine.value === "browser" && !hasSpeechSupport.value)
     ? "text-red-600"
@@ -341,6 +372,12 @@ watch(engine, () => {
   error.value = "";
 });
 
+watch([text, onlineVoice], () => {
+  if (!isOverDurationLimit.value && error.value.includes("for Narakeet voices")) {
+    error.value = "";
+  }
+});
+
 watch([rate, volume], ([nextRate, nextVolume]) => {
   if (!audioPlayer.value) {
     return;
@@ -358,6 +395,11 @@ function speak() {
   const trimmedText = text.value.trim();
   if (!trimmedText) {
     error.value = "Enter text before speaking.";
+    return;
+  }
+
+  if (isOverDurationLimit.value) {
+    error.value = narakeetDurationLimitMessage.value;
     return;
   }
 
@@ -520,6 +562,11 @@ async function downloadSpeech() {
     return;
   }
 
+  if (isOverDurationLimit.value) {
+    error.value = narakeetDurationLimitMessage.value;
+    return;
+  }
+
   const chunks = splitTextForOnlineTts(trimmedText);
   if (chunks.length === 0) {
     error.value = "Enter text before downloading.";
@@ -650,7 +697,7 @@ function splitByWords(words: string[]) {
   for (const word of words) {
     const nextChunk = currentChunk ? `${currentChunk} ${word}` : word;
 
-    if (countGraphemes(nextChunk) <= ONLINE_TTS_CHUNK_LIMIT) {
+    if (countGraphemes(nextChunk) <= onlineTtsChunkLimit.value) {
       currentChunk = nextChunk;
       continue;
     }
@@ -659,7 +706,7 @@ function splitByWords(words: string[]) {
       chunks.push(currentChunk);
     }
 
-    if (countGraphemes(word) > ONLINE_TTS_CHUNK_LIMIT) {
+    if (countGraphemes(word) > onlineTtsChunkLimit.value) {
       chunks.push(...splitByGraphemes(word));
       currentChunk = "";
       continue;
@@ -679,8 +726,8 @@ function splitByGraphemes(value: string) {
   const graphemes = getGraphemes(value);
   const chunks: string[] = [];
 
-  for (let index = 0; index < graphemes.length; index += ONLINE_TTS_CHUNK_LIMIT) {
-    chunks.push(graphemes.slice(index, index + ONLINE_TTS_CHUNK_LIMIT).join(""));
+  for (let index = 0; index < graphemes.length; index += onlineTtsChunkLimit.value) {
+    chunks.push(graphemes.slice(index, index + onlineTtsChunkLimit.value).join(""));
   }
 
   return chunks;
@@ -688,6 +735,16 @@ function splitByGraphemes(value: string) {
 
 function countGraphemes(value: string) {
   return getGraphemes(value).length;
+}
+
+function estimateSpeechSeconds(value: string) {
+  const graphemeCount = countGraphemes(value.replace(/\s+/g, " ").trim());
+
+  if (graphemeCount === 0) {
+    return 0;
+  }
+
+  return Math.ceil(graphemeCount / KHMER_GRAPHEMES_PER_SECOND);
 }
 
 function getGraphemes(value: string) {

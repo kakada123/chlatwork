@@ -1,4 +1,6 @@
-const MAX_TEXT_LENGTH = 180;
+const MAX_AUDIO_SECONDS = 10;
+const GOOGLE_TTS_TEXT_LIMIT = 180;
+const KHMER_GRAPHEMES_PER_SECOND = 12;
 const SUPPORTED_LANGUAGES = new Set(["km"]);
 
 type VoiceProvider = "google" | "narakeet";
@@ -14,6 +16,11 @@ const VOICES: Record<
   "khmer-default": {
     fileName: "khmer-default",
     provider: "google",
+  },
+  "khmer-male-graham": {
+    fileName: "khmer-graham-male",
+    provider: "narakeet",
+    upstreamVoice: "graham",
   },
   "khmer-male-sovath": {
     fileName: "khmer-sovath-male",
@@ -57,10 +64,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (countGraphemes(text) > MAX_TEXT_LENGTH) {
+  if (selectedVoice.provider === "narakeet") {
+    const estimatedAudioSeconds = estimateSpeechSeconds(text);
+
+    if (estimatedAudioSeconds > MAX_AUDIO_SECONDS) {
+      throw createError({
+        statusCode: 413,
+        statusMessage: `Text is estimated at ${estimatedAudioSeconds}s. Limit is ${MAX_AUDIO_SECONDS}s for Narakeet voices.`,
+      });
+    }
+  } else if (countGraphemes(text) > GOOGLE_TTS_TEXT_LIMIT) {
     throw createError({
       statusCode: 413,
-      statusMessage: `Text must be ${MAX_TEXT_LENGTH} characters or fewer.`,
+      statusMessage: `Text must be ${GOOGLE_TTS_TEXT_LIMIT} characters or fewer for Google voice.`,
     });
   }
 
@@ -189,4 +205,14 @@ function countGraphemes(value: string) {
   }
 
   return Array.from(value).length;
+}
+
+function estimateSpeechSeconds(value: string) {
+  const graphemeCount = countGraphemes(value.replace(/\s+/g, " ").trim());
+
+  if (graphemeCount === 0) {
+    return 0;
+  }
+
+  return Math.ceil(graphemeCount / KHMER_GRAPHEMES_PER_SECOND);
 }
