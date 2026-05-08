@@ -87,6 +87,15 @@ export const TOOLS: ToolDef[] = [
       "Add participants and randomly draw one or more winners instantly.",
   },
   {
+    key: "text-to-voice",
+    name: "Text to Voice",
+    route: "/tools/text-to-voice",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Read Khmer text aloud with the ChlatWork audio API.",
+  },
+  {
     key: "base64",
     name: "Base64 Encoder / Decoder",
     route: "/tools/base64",
@@ -257,6 +266,11 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M5 21l3-3",
     "M12 15.3V21",
   ],
+  "text-to-voice": [
+    "M4 9v6h4l5 4V5L8 9H4Z",
+    "M16 9.5a4 4 0 0 1 0 5",
+    "M18.5 7a7.5 7.5 0 0 1 0 10",
+  ],
   base64: ["M7 7h4a3 3 0 0 1 0 6H7V7Z", "M7 13h5a3 3 0 0 1 0 6H7v-6Z", "M17 7v12"],
   "json-formatter": [
     "M8 6H6a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2 2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h2",
@@ -324,6 +338,7 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
   "image-compress":
     "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
   "lucky-draw": "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
+  "text-to-voice": "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
   base64: "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
   "json-formatter":
     "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
