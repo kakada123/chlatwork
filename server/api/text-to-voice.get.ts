@@ -10,6 +10,7 @@ const VOICES: Record<
   {
     fileName: string;
     provider: VoiceProvider;
+    narrationLanguage?: string;
     upstreamVoice?: string;
   }
 > = {
@@ -20,6 +21,7 @@ const VOICES: Record<
   "khmer-male-graham": {
     fileName: "khmer-graham-male",
     provider: "narakeet",
+    narrationLanguage: "km-KH",
     upstreamVoice: "graham",
   },
   "khmer-male-sovath": {
@@ -82,7 +84,7 @@ export default defineEventHandler(async (event) => {
 
   const upstreamResponse =
     selectedVoice.provider === "narakeet"
-      ? await synthesizeWithNarakeet(text, selectedVoice.upstreamVoice)
+      ? await synthesizeWithNarakeet(text, selectedVoice)
       : await synthesizeWithGoogle(text, lang);
 
   return new Response(upstreamResponse.body, {
@@ -119,7 +121,10 @@ async function synthesizeWithGoogle(text: string, lang: string) {
   return normalizeAudioResponse(upstreamResponse);
 }
 
-async function synthesizeWithNarakeet(text: string, voice?: string) {
+async function synthesizeWithNarakeet(
+  text: string,
+  voiceConfig: (typeof VOICES)[string],
+) {
   const config = useRuntimeConfig();
   const apiKey =
     String(config.narakeetApiKey || "").trim() ||
@@ -133,7 +138,7 @@ async function synthesizeWithNarakeet(text: string, voice?: string) {
     });
   }
 
-  if (!voice) {
+  if (!voiceConfig.upstreamVoice) {
     throw createError({
       statusCode: 500,
       statusMessage: "Narakeet voice is not configured.",
@@ -141,10 +146,10 @@ async function synthesizeWithNarakeet(text: string, voice?: string) {
   }
 
   const upstreamUrl = new URL("https://api.narakeet.com/text-to-speech/mp3");
-  upstreamUrl.searchParams.set("voice", voice);
+  upstreamUrl.searchParams.set("voice", voiceConfig.upstreamVoice);
 
   const upstreamResponse = await fetch(upstreamUrl, {
-    body: text,
+    body: buildNarakeetScript(text, voiceConfig),
     headers: {
       Accept: "application/octet-stream",
       "Content-Type": "text/plain; charset=utf-8",
@@ -154,6 +159,20 @@ async function synthesizeWithNarakeet(text: string, voice?: string) {
   });
 
   return normalizeAudioResponse(upstreamResponse);
+}
+
+function buildNarakeetScript(text: string, voiceConfig: (typeof VOICES)[string]) {
+  if (!voiceConfig.narrationLanguage) {
+    return text;
+  }
+
+  return [
+    "---",
+    `narration-language: ${voiceConfig.narrationLanguage}`,
+    "---",
+    "",
+    text,
+  ].join("\n");
 }
 
 function getNodeEnvValue(key: string) {
