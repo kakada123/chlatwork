@@ -120,7 +120,10 @@ async function synthesizeWithGoogle(text: string, lang: string) {
 }
 
 async function synthesizeWithNarakeet(text: string, voice?: string) {
-  const apiKey = process.env.NARAKEET_API_KEY;
+  const config = useRuntimeConfig();
+  const apiKey =
+    String(config.narakeetApiKey || "").trim() ||
+    String(getNodeEnvValue("NARAKEET_API_KEY") || "").trim();
 
   if (!apiKey) {
     throw createError({
@@ -151,6 +154,16 @@ async function synthesizeWithNarakeet(text: string, voice?: string) {
   });
 
   return normalizeAudioResponse(upstreamResponse);
+}
+
+function getNodeEnvValue(key: string) {
+  const nodeProcess = (
+    globalThis as typeof globalThis & {
+      process?: { env?: Record<string, string | undefined> };
+    }
+  ).process;
+
+  return nodeProcess?.env?.[key] || "";
 }
 
 async function normalizeAudioResponse(upstreamResponse: Response) {

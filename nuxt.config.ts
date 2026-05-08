@@ -1,6 +1,16 @@
+const nodeEnv =
+  (
+    globalThis as typeof globalThis & {
+      process?: { env?: Record<string, string | undefined> };
+    }
+  ).process?.env ?? {};
+
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
+  runtimeConfig: {
+    narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
+  },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
