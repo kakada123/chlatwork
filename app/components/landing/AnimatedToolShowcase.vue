@@ -128,37 +128,41 @@ onBeforeUnmount(() => {
     :style="{ height: pinnedHeight }"
   >
     <div
-      class="showcase-pin relative mx-auto max-w-7xl overflow-hidden rounded-[32px] border border-gray-200/80 bg-white/65 p-5 shadow-2xl shadow-slate-200/80 backdrop-blur-xl transition-colors md:sticky md:top-24 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/25 sm:p-7"
+      class="showcase-pin relative mx-auto max-w-7xl overflow-hidden rounded-[32px] border border-white/80 bg-white/[0.65] p-5 shadow-2xl shadow-sky-100/80 backdrop-blur-xl transition-colors md:sticky md:top-24 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/25 sm:p-7"
     >
       <div
-        class="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-gradient-to-br opacity-25 blur-3xl transition-all duration-700 dark:opacity-35"
+        class="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-gradient-to-br opacity-35 blur-3xl transition-all duration-700 dark:opacity-35"
         :class="activeTool?.accent"
         aria-hidden="true"
       />
       <div
-        class="pointer-events-none absolute -bottom-28 right-0 h-72 w-72 rounded-full bg-gradient-to-br opacity-20 blur-3xl transition-all duration-700 dark:opacity-30"
+        class="pointer-events-none absolute -bottom-28 right-0 h-72 w-72 rounded-full bg-gradient-to-br opacity-28 blur-3xl transition-all duration-700 dark:opacity-30"
         :class="activeTool?.accent"
+        aria-hidden="true"
+      />
+      <div
+        class="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(14,165,233,0.08),rgba(255,255,255,0.08),rgba(217,70,239,0.08))] dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.07),rgba(255,255,255,0.025),rgba(217,70,239,0.07))]"
         aria-hidden="true"
       />
 
       <div class="relative z-10 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-gray-500 dark:text-white/[0.45]">
+          <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
             Tool Flow
           </p>
-          <h2 class="mt-3 max-w-2xl text-3xl font-black tracking-tight text-gray-950 dark:text-white sm:text-5xl">
+          <h2 class="mt-3 max-w-2xl text-3xl font-black text-slate-950 dark:text-white sm:text-5xl">
             Find the right tool in one smooth flow.
           </h2>
         </div>
 
         <div class="lg:justify-self-end">
-          <p class="max-w-xl text-sm leading-6 text-gray-600 dark:text-white/[0.58]">
+          <p class="max-w-xl text-sm leading-6 text-slate-600 dark:text-white/[0.58]">
             Utilities and developer helpers move through a focused rail, with
             each card getting a clear moment as it comes into view.
           </p>
-          <div class="mt-5 h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+          <div class="mt-5 h-1.5 overflow-hidden rounded-full bg-sky-100 dark:bg-white/10">
             <div
-              class="h-full rounded-full bg-gradient-to-r from-teal-300 to-cyan-300 transition-[width] duration-150 dark:from-[#0a84ff] dark:to-[#5e5ce6]"
+              class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 transition-[width] duration-150"
               :style="{ width: scrollPercent }"
             />
           </div>

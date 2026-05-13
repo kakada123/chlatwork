@@ -136,7 +136,7 @@ const stats = computed(() => [
 
 <template>
   <section
-    class="relative overflow-hidden bg-[linear-gradient(135deg,#020712_0%,#070b17_45%,#02040b_100%)] px-5 py-12 text-white sm:px-8 lg:px-12 lg:py-12 xl:py-14"
+    class="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(34,211,238,0.26),transparent_34%),radial-gradient(circle_at_76%_4%,rgba(217,70,239,0.18),transparent_30%),linear-gradient(135deg,#f8fbff_0%,#eef7ff_48%,#fff7fe_100%)] px-5 py-12 text-slate-950 sm:px-8 lg:px-12 lg:py-12 xl:py-14 dark:bg-[linear-gradient(135deg,#020712_0%,#070b17_45%,#02040b_100%)] dark:text-white"
   >
     <div class="hero-star-field absolute inset-0" aria-hidden="true" />
     <div
@@ -150,7 +150,7 @@ const stats = computed(() => [
       <div class="max-w-2xl">
         <NuxtLink
           to="/"
-          class="inline-flex items-center gap-3 text-white"
+          class="inline-flex items-center gap-3 text-slate-950 dark:text-white"
           aria-label="ChlatWork home"
         >
           <img
@@ -162,7 +162,7 @@ const stats = computed(() => [
         </NuxtLink>
 
         <h1
-          class="mt-12 max-w-2xl text-5xl font-black leading-[1.04] text-white sm:text-6xl lg:text-7xl"
+          class="mt-12 max-w-2xl text-5xl font-black leading-[1.04] text-slate-950 sm:text-6xl lg:text-7xl dark:text-white"
         >
           Simple tools that get things
           <span
@@ -172,7 +172,9 @@ const stats = computed(() => [
           </span>
         </h1>
 
-        <p class="mt-6 max-w-xl text-lg leading-8 text-slate-300 sm:text-xl">
+        <p
+          class="mt-6 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl dark:text-slate-300"
+        >
           Fast, clean, and practical tools for daily work, developers, and
           creators.
         </p>
@@ -200,7 +202,7 @@ const stats = computed(() => [
 
           <NuxtLink
             to="/tools"
-            class="inline-flex h-12 items-center justify-center gap-3 rounded-2xl border border-white/16 bg-white/[0.04] px-7 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur transition hover:-translate-y-0.5 hover:border-white/28 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-white/50"
+            class="inline-flex h-12 items-center justify-center gap-3 rounded-2xl border border-sky-200/80 bg-white/70 px-7 text-sm font-bold text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_16px_40px_rgba(14,165,233,0.12)] backdrop-blur transition hover:-translate-y-0.5 hover:border-fuchsia-200 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/16 dark:bg-white/[0.04] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-white/28 dark:hover:bg-white/[0.08] dark:focus:ring-white/50"
           >
             Developer Tools
             <svg
@@ -236,10 +238,10 @@ const stats = computed(() => [
         />
 
         <div
-          class="relative z-10 mx-auto flex h-48 w-48 items-center justify-center rounded-[30px] border border-white/16 bg-[linear-gradient(145deg,rgba(14,23,42,0.92),rgba(6,11,24,0.96))] shadow-[0_28px_90px_rgba(37,99,235,0.22),inset_0_1px_0_rgba(255,255,255,0.12)] sm:h-56 sm:w-56 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rotate-[-6deg]"
+          class="relative z-10 mx-auto flex h-48 w-48 items-center justify-center rounded-[30px] border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(224,242,254,0.72))] shadow-[0_28px_90px_rgba(14,165,233,0.18),inset_0_1px_0_rgba(255,255,255,0.75)] sm:h-56 sm:w-56 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rotate-[-6deg] dark:border-white/16 dark:bg-[linear-gradient(145deg,rgba(14,23,42,0.92),rgba(6,11,24,0.96))] dark:shadow-[0_28px_90px_rgba(37,99,235,0.22),inset_0_1px_0_rgba(255,255,255,0.12)]"
         >
           <div
-            class="flex h-32 w-32 items-center justify-center rounded-[26px] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] sm:h-36 sm:w-36"
+            class="flex h-32 w-32 items-center justify-center rounded-[26px] bg-[linear-gradient(145deg,rgba(255,255,255,0.86),rgba(125,211,252,0.16))] sm:h-36 sm:w-36 dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))]"
           >
             <img
               src="/assets/chlart-work.png"
@@ -254,10 +256,10 @@ const stats = computed(() => [
             v-for="item in mobileTools"
             :key="item.tool.key"
             :to="item.tool.route"
-            class="group rounded-2xl border border-white/12 bg-white/[0.06] p-3 shadow-xl shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-cyan-200"
+            class="group rounded-2xl border border-white/80 bg-white/70 p-3 shadow-xl shadow-sky-100/80 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/12 dark:bg-white/[0.06] dark:shadow-black/20 dark:hover:bg-white/[0.1] dark:focus:ring-cyan-200"
           >
             <span
-              class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg shadow-black/20"
+              class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/20 dark:text-white"
               :class="item.tool.accent"
               aria-hidden="true"
             >
@@ -277,7 +279,9 @@ const stats = computed(() => [
                 />
               </svg>
             </span>
-            <span class="block truncate text-sm font-bold text-white">
+            <span
+              class="block truncate text-sm font-bold text-slate-950 dark:text-white"
+            >
               {{ item.tool.name }}
             </span>
           </NuxtLink>
@@ -287,7 +291,7 @@ const stats = computed(() => [
           v-for="item in orbitTools"
           :key="item.tool.key"
           :to="item.tool.route"
-          class="hero-tool-card group absolute hidden w-[132px] rounded-2xl border border-white/12 bg-white/[0.08] p-3 text-white shadow-2xl backdrop-blur-xl transition hover:z-20 hover:-translate-y-1 hover:border-white/24 hover:bg-white/[0.12] focus:outline-none focus:ring-2 focus:ring-cyan-200 lg:block"
+          class="hero-tool-card group absolute hidden w-[132px] rounded-2xl border border-white/80 bg-white/70 p-3 text-slate-950 shadow-2xl backdrop-blur-xl transition hover:z-20 hover:-translate-y-1 hover:border-white hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-300 lg:block dark:border-white/12 dark:bg-white/[0.08] dark:text-white dark:hover:border-white/24 dark:hover:bg-white/[0.12] dark:focus:ring-cyan-200"
           :style="{
             top: item.layout.top,
             left: item.layout.left,
@@ -297,7 +301,7 @@ const stats = computed(() => [
           }"
         >
           <span
-            class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg shadow-black/25 transition group-hover:scale-105"
+            class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/25 transition group-hover:scale-105 dark:text-white"
             :class="item.tool.accent"
             aria-hidden="true"
           >
@@ -314,7 +318,7 @@ const stats = computed(() => [
             </svg>
           </span>
           <span
-            class="block truncate text-center text-xs font-bold leading-tight text-white"
+            class="block truncate text-center text-xs font-bold leading-tight text-slate-950 dark:text-white"
           >
             {{ item.tool.name }}
           </span>
@@ -322,16 +326,18 @@ const stats = computed(() => [
       </div>
 
       <div
-        class="rounded-2xl border border-white/10 bg-white/[0.05] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur lg:col-span-2"
+        class="rounded-2xl border border-white/80 bg-white/70 p-4 shadow-[0_24px_80px_rgba(14,165,233,0.14),inset_0_1px_0_rgba(255,255,255,0.62)] backdrop-blur lg:col-span-2 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-[0_24px_80px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)]"
       >
-        <div class="grid gap-3 md:grid-cols-3 md:divide-x md:divide-white/10">
+        <div
+          class="grid gap-3 md:grid-cols-3 md:divide-x md:divide-sky-200/60 dark:md:divide-white/10"
+        >
           <div
             v-for="stat in stats"
             :key="stat.label"
             class="flex items-center gap-4 px-2 py-2 md:px-6"
           >
             <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg shadow-black/25"
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/25 dark:text-white"
               :class="stat.accent"
               aria-hidden="true"
             >
@@ -348,10 +354,12 @@ const stats = computed(() => [
               </svg>
             </span>
             <span class="min-w-0">
-              <span class="block text-base font-bold leading-6 text-white">
+              <span
+                class="block text-base font-bold leading-6 text-slate-950 dark:text-white"
+              >
                 {{ stat.label }}
               </span>
-              <span class="block text-sm text-slate-400">
+              <span class="block text-sm text-slate-500 dark:text-slate-400">
                 {{ stat.caption }}
               </span>
             </span>
@@ -365,8 +373,8 @@ const stats = computed(() => [
 <style scoped>
 .hero-star-field {
   background-image:
-    radial-gradient(circle, rgb(255 255 255 / 0.72) 1px, transparent 1.5px),
-    radial-gradient(circle, rgb(125 211 252 / 0.5) 1px, transparent 1.6px);
+    radial-gradient(circle, rgb(14 165 233 / 0.35) 1px, transparent 1.5px),
+    radial-gradient(circle, rgb(217 70 239 / 0.28) 1px, transparent 1.6px);
   background-position:
     28px 32px,
     140px 90px;
@@ -376,11 +384,17 @@ const stats = computed(() => [
   opacity: 0.28;
 }
 
+:global(.dark) .hero-star-field {
+  background-image:
+    radial-gradient(circle, rgb(255 255 255 / 0.72) 1px, transparent 1.5px),
+    radial-gradient(circle, rgb(125 211 252 / 0.5) 1px, transparent 1.6px);
+}
+
 .hero-orbit {
   position: absolute;
   left: 50%;
   top: 50%;
-  border: 1px solid rgb(139 92 246 / 0.24);
+  border: 1px solid rgb(14 165 233 / 0.24);
   border-radius: 9999px;
   pointer-events: none;
   transform: translate(-50%, -50%) rotate(-8deg);
@@ -394,14 +408,14 @@ const stats = computed(() => [
 .hero-orbit-two {
   width: 94%;
   height: 56%;
-  border-color: rgb(56 189 248 / 0.16);
+  border-color: rgb(217 70 239 / 0.18);
   transform: translate(-50%, -50%) rotate(8deg);
 }
 
 .hero-orbit-three {
   width: 62%;
   height: 34%;
-  border-color: rgb(236 72 153 / 0.18);
+  border-color: rgb(59 130 246 / 0.18);
   transform: translate(-50%, -50%) rotate(18deg);
 }
 
@@ -409,10 +423,29 @@ const stats = computed(() => [
   animation: hero-tool-float 9s ease-in-out infinite;
   animation-delay: var(--float-delay);
   box-shadow:
+    0 20px 44px rgb(14 165 233 / 0.14),
+    0 0 36px var(--card-glow),
+    inset 0 1px 0 rgb(255 255 255 / 0.48);
+  transform: translate3d(-50%, 0, 0) rotate(var(--card-rotate));
+}
+
+:global(.dark) .hero-orbit {
+  border-color: rgb(139 92 246 / 0.24);
+}
+
+:global(.dark) .hero-orbit-two {
+  border-color: rgb(56 189 248 / 0.16);
+}
+
+:global(.dark) .hero-orbit-three {
+  border-color: rgb(236 72 153 / 0.18);
+}
+
+:global(.dark) .hero-tool-card {
+  box-shadow:
     0 20px 44px rgb(0 0 0 / 0.35),
     0 0 36px var(--card-glow),
     inset 0 1px 0 rgb(255 255 255 / 0.12);
-  transform: translate3d(-50%, 0, 0) rotate(var(--card-rotate));
 }
 
 @keyframes hero-tool-float {

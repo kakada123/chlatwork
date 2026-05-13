@@ -15,7 +15,7 @@ import {
 
 <template>
   <div
-    class="overflow-clip rounded-[28px] border border-gray-200/80 bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_45%,#f8fafc_100%)] text-gray-950 shadow-2xl shadow-slate-200/70 transition-colors dark:border-white/10 dark:bg-[#1c1c1e] dark:bg-none dark:text-white dark:shadow-black/25"
+    class="overflow-clip rounded-[28px] border border-sky-100/90 bg-[radial-gradient(circle_at_16%_16%,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_86%_30%,rgba(217,70,239,0.11),transparent_26%),linear-gradient(135deg,#f8fbff_0%,#edf7ff_48%,#fff7fe_100%)] text-slate-950 shadow-2xl shadow-sky-100/80 transition-colors dark:border-white/10 dark:bg-[radial-gradient(circle_at_16%_16%,rgba(34,211,238,0.12),transparent_30%),radial-gradient(circle_at_86%_30%,rgba(217,70,239,0.11),transparent_28%),linear-gradient(135deg,#020712_0%,#070b17_48%,#02040b_100%)] dark:text-white dark:shadow-black/25"
   >
     <HeroSection :tools="LANDING_TOOLS" />
     <ToolCategorySection :categories="LANDING_CATEGORIES" />

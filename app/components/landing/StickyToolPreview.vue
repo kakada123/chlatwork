@@ -14,22 +14,22 @@ useLandingReveal(sectionEl);
     <div class="mx-auto max-w-7xl">
       <div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
         <div data-reveal>
-          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-teal-600 dark:text-[#8ab4ff]">
+          <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
             Sticky Preview
           </p>
-          <h2 class="mt-4 text-3xl font-black tracking-tight text-gray-950 dark:text-white sm:text-5xl">
+          <h2 class="mt-4 text-3xl font-black text-slate-950 dark:text-white sm:text-5xl">
             A focused workspace for practical tasks.
           </h2>
         </div>
 
         <div data-reveal="right">
-          <p class="mt-5 max-w-xl text-base leading-7 text-gray-600 dark:text-white/60">
+          <p class="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-white/60">
             ChlatWork keeps the interface quiet and the actions direct. Open a
             tool, finish the job, move on.
           </p>
           <NuxtLink
             to="/tools"
-            class="mt-6 inline-flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-5 text-sm font-bold text-gray-950 shadow-lg shadow-slate-200/70 transition hover:-translate-y-0.5 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400 dark:border-white/[0.12] dark:bg-white/10 dark:text-white dark:shadow-black/20 dark:hover:bg-white/[0.15] dark:focus:ring-white/40"
+            class="mt-6 inline-flex h-12 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-5 text-sm font-bold text-slate-950 shadow-lg shadow-sky-100/80 transition hover:-translate-y-0.5 hover:border-fuchsia-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/[0.12] dark:bg-white/10 dark:text-white dark:shadow-black/20 dark:hover:bg-white/[0.15] dark:focus:ring-cyan-200/70"
           >
             Browse all tools
           </NuxtLink>
@@ -41,7 +41,7 @@ useLandingReveal(sectionEl);
           v-for="(tool, index) in props.tools"
           :key="tool.key"
           :to="tool.route"
-          class="preview-card group relative isolate flex min-h-[220px] overflow-hidden rounded-[26px] border border-gray-200/80 bg-white/80 p-4 shadow-xl shadow-slate-200/70 backdrop-blur transition hover:-translate-y-1 hover:border-gray-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-teal-400 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20 dark:hover:bg-white/[0.11] dark:focus:ring-white/40"
+          class="preview-card group relative isolate flex min-h-[220px] overflow-hidden rounded-[26px] border border-white/80 bg-white/[0.72] p-4 shadow-xl shadow-sky-100/80 backdrop-blur transition hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20 dark:hover:bg-white/[0.11] dark:focus:ring-cyan-200/70"
           :data-reveal="index % 2 === 0 ? 'left' : 'right'"
           :style="{ '--reveal-delay': `${Math.min(index, 6) * 55}ms` }"
         >
@@ -75,22 +75,22 @@ useLandingReveal(sectionEl);
               </span>
 
               <span
-                class="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/[0.45]"
+                class="rounded-full border border-sky-100 bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase text-slate-500 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/[0.45]"
               >
                 {{ tool.category }}
               </span>
             </span>
 
             <span class="mt-5 block">
-              <span class="block text-lg font-black leading-tight text-gray-950 dark:text-white">
+              <span class="block text-lg font-black leading-tight text-slate-950 dark:text-white">
                 {{ tool.name }}
               </span>
-              <span class="mt-3 block text-sm leading-6 text-gray-600 dark:text-white/[0.58]">
+              <span class="mt-3 block text-sm leading-6 text-slate-600 dark:text-white/[0.58]">
                 {{ tool.description }}
               </span>
             </span>
 
-            <span class="mt-auto pt-6 text-sm font-bold text-teal-700 transition group-hover:translate-x-1 dark:text-[#8ab4ff]">
+            <span class="mt-auto pt-6 text-sm font-bold text-sky-700 transition group-hover:translate-x-1 dark:text-cyan-300">
               Open tool
             </span>
           </span>
@@ -109,9 +109,9 @@ useLandingReveal(sectionEl);
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    rgb(255 255 255 / 0.72),
-    rgb(20 184 166 / 0.12),
-    rgb(99 102 241 / 0.10)
+    rgb(255 255 255 / 0.68),
+    rgb(14 165 233 / 0.12),
+    rgb(217 70 239 / 0.10)
   );
   opacity: 0;
   transform: scale(0.96);

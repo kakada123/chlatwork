@@ -79,7 +79,9 @@ onBeforeUnmount(() => {
 
 <template>
   <!-- ✅ make whole page a flex column -->
-  <div class="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
+  <div
+    class="flex min-h-screen flex-col bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.10),transparent_30%),radial-gradient(circle_at_85%_18%,rgba(217,70,239,0.08),transparent_28%),#f8fbff] text-gray-900 dark:bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.08),transparent_30%),radial-gradient(circle_at_85%_18%,rgba(217,70,239,0.08),transparent_28%),#020712] dark:text-white"
+  >
     <!-- Top Task Bar -->
     <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
       <div
@@ -347,7 +349,7 @@ onBeforeUnmount(() => {
             class="mt-4"
           >
             <p
-              class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+              class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
             >
               {{ group.category }}
             </p>
@@ -399,10 +401,10 @@ onBeforeUnmount(() => {
         <!-- Desktop Sidebar -->
         <aside
           v-if="!isLandingPage"
-          class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block"
+          class="hidden h-fit rounded-2xl border border-white/80 bg-white/75 p-4 shadow-sm shadow-sky-100/80 backdrop-blur md:block dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
         >
           <p
-            class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="mb-3 text-xs font-semibold uppercase text-gray-500"
           >
             Tools
           </p>
@@ -461,7 +463,7 @@ onBeforeUnmount(() => {
               class="pt-3 first:pt-2"
             >
               <p
-                class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+                class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
               >
                 {{ group.category }}
               </p>
@@ -533,7 +535,7 @@ onBeforeUnmount(() => {
         <!-- Right CTA -->
         <NuxtLink
           to="/buy-me-coffee"
-          class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          class="inline-flex items-center justify-center rounded-full border border-sky-100 bg-white/70 px-4 py-2 font-medium text-gray-700 shadow-sm shadow-sky-100/70 hover:bg-white hover:text-gray-900 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:shadow-none dark:hover:bg-white/[0.12] dark:hover:text-white"
         >
           Buy me a coffee ☕🤣
         </NuxtLink>
