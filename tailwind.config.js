@@ -1,4 +1,5 @@
 export default {
+  darkMode: "class",
   safelist: [
     "bg-blue-50",
     "text-blue-700",

@@ -118,7 +118,7 @@ function groupTools(tools: ToolDef[]) {
           v-for="tool in group.tools"
           :key="tool.key"
           :to="tool.route"
-          class="group h-full rounded-xl border bg-white p-4 shadow-sm transition hover:shadow active:scale-[0.99]"
+          class="tool-card group h-full rounded-xl border bg-white p-4 shadow-sm transition hover:shadow active:scale-[0.99]"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="flex min-w-0 items-start gap-3">

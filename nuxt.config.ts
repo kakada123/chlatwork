@@ -5,6 +5,36 @@ const nodeEnv =
     }
   ).process?.env ?? {};
 
+const colorModeScript = `
+(() => {
+  const storageKey = "chlatwork-color-mode";
+  const lightThemeColor = "#f9fafb";
+  const darkThemeColor = "#1c1c1e";
+
+  try {
+    const root = document.documentElement;
+    const storedMode = window.localStorage.getItem(storageKey);
+    const systemPreference = window.matchMedia?.("(prefers-color-scheme: dark)");
+    const prefersDark = Boolean(systemPreference?.matches);
+    const mode =
+      storedMode === "light" || storedMode === "dark"
+        ? storedMode
+        : prefersDark
+          ? "dark"
+          : "light";
+    const isDark = mode === "dark";
+
+    root.classList.toggle("dark", isDark);
+    root.dataset.theme = mode;
+    root.style.colorScheme = mode;
+
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", isDark ? darkThemeColor : lightThemeColor);
+  } catch (_) {}
+})();
+`;
+
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
@@ -22,6 +52,8 @@ export default defineNuxtConfig({
       title: "ChlatWork",
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "color-scheme", content: "light dark" },
+        { name: "theme-color", content: "#f9fafb" },
         { name: "description", content: "Smart tools for everyday work." },
 
         // Open Graph (FB / Zalo / Telegram previews)
@@ -48,6 +80,9 @@ export default defineNuxtConfig({
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2" },
       ],
       script: [
+        {
+          children: colorModeScript,
+        },
         {
           async: true,
           src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4280865455316436",

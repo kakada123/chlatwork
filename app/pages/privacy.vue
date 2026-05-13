@@ -6,7 +6,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-3xl px-4 py-10 space-y-6">
+  <main class="mx-auto w-full px-4 py-10 space-y-6">
     <header class="space-y-2">
       <h1 class="text-2xl font-bold">Privacy Policy</h1>
       <p class="text-gray-600">
@@ -38,9 +38,7 @@ useSeoMeta({
         If a tool requires a server-side feature, we may temporarily process the
         minimum data needed to provide that feature.
       </p>
-      <p class="text-gray-700">
-        We do not sell personal information.
-      </p>
+      <p class="text-gray-700">We do not sell personal information.</p>
     </section>
 
     <section class="space-y-3">
@@ -55,8 +53,9 @@ useSeoMeta({
         As a result of ad serving, third-party vendors, including Google, may
         place and read cookies on your browser or use web beacons, IP addresses,
         or other identifiers to collect information. These technologies may be
-        used to serve ads, limit how often you see an ad, measure ad performance,
-        prevent fraud, and show personalized or non-personalized ads.
+        used to serve ads, limit how often you see an ad, measure ad
+        performance, prevent fraud, and show personalized or non-personalized
+        ads.
       </p>
       <p class="text-gray-700">
         Google may use advertising cookies to serve ads based on your prior

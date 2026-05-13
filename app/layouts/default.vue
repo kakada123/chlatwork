@@ -17,6 +17,14 @@ const groupedEnabledTools = computed(() =>
 const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
 const toolIconPaths = TOOL_ICON_PATHS;
 const toolIconClass = TOOL_ICON_CLASSES;
+const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
+const route = useRoute();
+const isLandingPage = computed(() => route.path === "/");
+const layoutGridClass = computed(() =>
+  isLandingPage.value
+    ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
+    : "mx-auto grid max-w-[1440px] gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
+);
 
 function filterTools(tools: ToolDef[], query: string) {
   const normalizedQuery = query.trim().toLowerCase();
@@ -52,8 +60,6 @@ function groupTools(tools: ToolDef[]) {
 const isMenuOpen = ref(false);
 const closeMenu = () => (isMenuOpen.value = false);
 
-// ✅ auto close on route change
-const route = useRoute();
 watch(
   () => route.fullPath,
   () => closeMenu(),
@@ -75,7 +81,7 @@ onBeforeUnmount(() => {
   <!-- ✅ make whole page a flex column -->
   <div class="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
     <!-- Top Task Bar -->
-    <header class="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
+    <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
       <div
         class="mx-auto flex max-w-[1440px] items-center justify-between px-3 py-3 sm:px-4"
       >
@@ -117,46 +123,95 @@ onBeforeUnmount(() => {
           </NuxtLink>
         </nav>
 
-        <!-- Mobile Hamburger -->
-        <button
-          class="inline-flex items-center justify-center rounded-xl border bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-50 sm:hidden"
-          aria-label="Open menu"
-          :aria-expanded="isMenuOpen"
-          @click="isMenuOpen = !isMenuOpen"
-        >
-          <!-- hamburger / close -->
-          <svg
-            v-if="!isMenuOpen"
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="theme-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition"
+            :aria-label="nextColorModeLabel"
+            :title="nextColorModeLabel"
+            @click="toggleColorMode"
           >
-            <path
+            <svg
+              v-if="isDark"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2.5v2" />
+              <path d="M12 19.5v2" />
+              <path d="m4.6 4.6 1.4 1.4" />
+              <path d="m18 18 1.4 1.4" />
+              <path d="M2.5 12h2" />
+              <path d="M19.5 12h2" />
+              <path d="m4.6 19.4 1.4-1.4" />
+              <path d="m18 6 1.4-1.4" />
+            </svg>
 
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+              aria-hidden="true"
+            >
+              <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5" />
+              <path d="M9.5 3.5A8.5 8.5 0 1 0 20.5 14.5" />
+            </svg>
+          </button>
+
+          <!-- Mobile Hamburger -->
+          <button
+            class="inline-flex items-center justify-center rounded-xl border bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-50 sm:hidden"
+            aria-label="Open menu"
+            :aria-expanded="isMenuOpen"
+            @click="isMenuOpen = !isMenuOpen"
+          >
+            <!-- hamburger / close -->
+            <svg
+              v-if="!isMenuOpen"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -340,11 +395,12 @@ onBeforeUnmount(() => {
     <!-- ✅ Content wrapper grows to push footer to bottom -->
     <div class="flex-1">
       <!-- Layout body -->
-      <div
-        class="mx-auto grid max-w-[1440px] gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]"
-      >
+      <div :class="layoutGridClass">
         <!-- Desktop Sidebar -->
-        <aside class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block">
+        <aside
+          v-if="!isLandingPage"
+          class="hidden h-fit rounded-2xl bg-white p-4 shadow-sm md:block"
+        >
           <p
             class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500"
           >
@@ -454,7 +510,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- ✅ Footer now sticks to bottom -->
-    <footer class="mt-0 border-t bg-white py-6">
+    <footer class="site-footer mt-0 border-t py-6">
       <div
         class="mx-auto max-w-[1440px] px-3 text-sm sm:px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
