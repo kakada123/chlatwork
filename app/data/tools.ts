@@ -33,6 +33,7 @@ const TOOL_ACCENTS: Record<string, string> = {
   "expense-tracker": "from-rose-400 to-pink-300",
   barcode: "from-slate-300 to-zinc-500",
   "image-compress": "from-violet-400 to-indigo-300",
+  "image-to-pdf": "from-orange-300 to-rose-400",
   "lucky-draw": "from-fuchsia-400 to-pink-300",
   "text-to-voice": "from-teal-300 to-emerald-400",
   base64: "from-indigo-400 to-blue-300",
