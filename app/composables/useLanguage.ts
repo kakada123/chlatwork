@@ -254,6 +254,10 @@ const TOOL_TRANSLATIONS: Record<
       name: "បង្រួមរូបភាព",
       description: "បង្រួមរូបភាពលឿន ដោយមិន upload ឯកសារ។",
     },
+    "image-to-pdf": {
+      name: "បម្លែងរូបភាពទៅ PDF",
+      description: "បម្លែង JPG, PNG និង WebP ជា PDF មួយឯកសារភ្លាមៗ។",
+    },
     "lucky-draw": {
       name: "ចាប់ឆ្នោត",
       description: "បញ្ចូលអ្នកចូលរួម ហើយចាប់អ្នកឈ្នះដោយចៃដន្យ។",

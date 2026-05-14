@@ -32,6 +32,16 @@ export const TOOLS: ToolDef[] = [
       "Compress images instantly without uploading - fast, private, and secure.",
   },
   {
+    key: "image-to-pdf",
+    name: "Image to PDF Converter",
+    route: "/tools/image-to-pdf",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Convert JPG, PNG, and WebP images into one clean PDF file instantly.",
+  },
+  {
     key: "qr",
     name: "QR Generator",
     route: "/tools/qr",
@@ -260,6 +270,13 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M10 3v2",
     "M14 3v2",
   ],
+  "image-to-pdf": [
+    "M6 3.5h9l3.5 3.5V20.5h-12.5V3.5Z",
+    "M15 3.5v4h4",
+    "M8 13.5h8",
+    "M8 16.5h4",
+    "M13 12l3 3-3 3",
+  ],
   "lucky-draw": [
     "M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.3 7.2 18l.9-5.4-3.9-3.8 5.4-.8L12 3Z",
     "M19 21l-3-3",
@@ -337,6 +354,8 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
   barcode: "bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white",
   "image-compress":
     "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
+  "image-to-pdf":
+    "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
   "lucky-draw": "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
   "text-to-voice": "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
   base64: "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
