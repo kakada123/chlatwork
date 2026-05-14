@@ -11,7 +11,7 @@
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
-      <div class="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div class="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_320px]">
         <div class="space-y-4">
           <ImageToPdfUploadCard
             :key="uploadKey"
@@ -24,6 +24,21 @@
             @convert="convertToPdf"
             @clear="clearAll"
           />
+
+          <div class="lg:hidden">
+            <ImageToPdfSettingsPanel
+              v-model:page-size="pageSize"
+              v-model:orientation="orientation"
+              v-model:margin="margin"
+              v-model:images-per-page="imagesPerPage"
+              :page-size-label="pageSizeLabel"
+              :orientation-label="orientationLabel"
+              :margin-label="marginLabel"
+              :images-per-page-label="imagesPerPageLabel"
+              :page-count="pageCount"
+              id-suffix="mobile"
+            />
+          </div>
 
           <ImageToPdfPreview
             v-if="imageCount > 0"
@@ -39,17 +54,20 @@
           />
         </div>
 
-        <ImageToPdfSettingsPanel
-          v-model:page-size="pageSize"
-          v-model:orientation="orientation"
-          v-model:margin="margin"
-          v-model:images-per-page="imagesPerPage"
-          :page-size-label="pageSizeLabel"
-          :orientation-label="orientationLabel"
-          :margin-label="marginLabel"
-          :images-per-page-label="imagesPerPageLabel"
-          :page-count="pageCount"
-        />
+        <div class="hidden lg:block">
+          <ImageToPdfSettingsPanel
+            v-model:page-size="pageSize"
+            v-model:orientation="orientation"
+            v-model:margin="margin"
+            v-model:images-per-page="imagesPerPage"
+            :page-size-label="pageSizeLabel"
+            :orientation-label="orientationLabel"
+            :margin-label="marginLabel"
+            :images-per-page-label="imagesPerPageLabel"
+            :page-count="pageCount"
+            id-suffix="desktop"
+          />
+        </div>
       </div>
     </section>
   </div>

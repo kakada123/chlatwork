@@ -1,11 +1,11 @@
 <template>
   <aside class="space-y-4 rounded-xl border bg-gray-50 p-4">
     <div>
-      <label for="page-size" class="block text-sm font-semibold text-gray-900">
+      <label :for="fieldId('page-size')" class="block text-sm font-semibold text-gray-900">
         Page size
       </label>
       <select
-        id="page-size"
+        :id="fieldId('page-size')"
         v-model="pageSize"
         class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
@@ -16,11 +16,11 @@
     </div>
 
     <div>
-      <label for="orientation" class="block text-sm font-semibold text-gray-900">
+      <label :for="fieldId('orientation')" class="block text-sm font-semibold text-gray-900">
         Orientation
       </label>
       <select
-        id="orientation"
+        :id="fieldId('orientation')"
         v-model="orientation"
         class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
@@ -35,11 +35,11 @@
     </div>
 
     <div>
-      <label for="margin" class="block text-sm font-semibold text-gray-900">
+      <label :for="fieldId('margin')" class="block text-sm font-semibold text-gray-900">
         Margin
       </label>
       <select
-        id="margin"
+        :id="fieldId('margin')"
         v-model="margin"
         class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
@@ -50,11 +50,11 @@
     </div>
 
     <div>
-      <label for="images-per-page" class="block text-sm font-semibold text-gray-900">
+      <label :for="fieldId('images-per-page')" class="block text-sm font-semibold text-gray-900">
         Images per page
       </label>
       <select
-        id="images-per-page"
+        :id="fieldId('images-per-page')"
         v-model="imagesPerPage"
         class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
@@ -107,11 +107,17 @@ const {
   marginLabel,
   imagesPerPageLabel,
   pageCount,
+  idSuffix = "",
 } = defineProps<{
   pageSizeLabel: string;
   orientationLabel: string;
   marginLabel: string;
   imagesPerPageLabel: string;
   pageCount: number;
+  idSuffix?: string;
 }>();
+
+function fieldId(name: string) {
+  return idSuffix ? `${name}-${idSuffix}` : name;
+}
 </script>
