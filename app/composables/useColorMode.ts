@@ -21,16 +21,6 @@ function getStoredColorMode(): ColorMode | null {
   }
 }
 
-function getSystemColorMode(): ColorMode {
-  if (!import.meta.client || !window.matchMedia) {
-    return "light";
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
 function applyColorMode(mode: ColorMode) {
   if (!import.meta.client) {
     return;
@@ -49,7 +39,7 @@ function applyColorMode(mode: ColorMode) {
 }
 
 export function useColorMode() {
-  const colorMode = useState<ColorMode>("color-mode", () => "light");
+  const colorMode = useState<ColorMode>("color-mode", () => "dark");
   const isDark = computed(() => colorMode.value === "dark");
   const colorModeLabel = computed(() =>
     isDark.value ? "Dark mode" : "Light mode",
@@ -57,8 +47,6 @@ export function useColorMode() {
   const nextColorModeLabel = computed(() =>
     isDark.value ? "Use light mode" : "Use dark mode",
   );
-
-  let mediaQuery: MediaQueryList | null = null;
 
   const setColorMode = (mode: ColorMode) => {
     colorMode.value = mode;
@@ -78,32 +66,11 @@ export function useColorMode() {
     setColorMode(isDark.value ? "light" : "dark");
   };
 
-  const syncSystemColorMode = () => {
-    if (getStoredColorMode()) {
-      return;
-    }
-
-    const systemMode = getSystemColorMode();
-    colorMode.value = systemMode;
-    applyColorMode(systemMode);
-  };
-
   onMounted(() => {
-    const initialMode = getStoredColorMode() ?? getSystemColorMode();
+    const initialMode = getStoredColorMode() ?? "dark";
 
     colorMode.value = initialMode;
     applyColorMode(initialMode);
-
-    if (!window.matchMedia) {
-      return;
-    }
-
-    mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    mediaQuery.addEventListener("change", syncSystemColorMode);
-  });
-
-  onBeforeUnmount(() => {
-    mediaQuery?.removeEventListener("change", syncSystemColorMode);
   });
 
   return {

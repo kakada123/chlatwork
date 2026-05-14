@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-5xl">
+  <div class="mx-auto w-full max-w-[1440px]">
     <div
       class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
     >
@@ -823,10 +823,7 @@ function getWinningIndexFromRotation(
   const pointerAngle = (360 - normalizedRotation + 0.0001) % 360;
   const angleSize = getSegmentAngle(totalParticipants);
 
-  return Math.min(
-    totalParticipants - 1,
-    Math.floor(pointerAngle / angleSize),
-  );
+  return Math.min(totalParticipants - 1, Math.floor(pointerAngle / angleSize));
 }
 
 function easeOutQuint(value: number) {

@@ -6,7 +6,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="mx-auto w-full px-4 py-10 space-y-6">
+  <main class="mx-auto w-full max-w-[1440px]6">
     <header class="space-y-2">
       <h1 class="text-2xl font-bold">Cookie Policy</h1>
       <p class="text-gray-600">

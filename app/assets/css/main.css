@@ -2,8 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Hanuman";
+  src: url("~/assets/fonts/Hanuman-VariableFont_wght.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+  unicode-range: U+1780-17FF, U+19E0-19FF;
+}
+
 :root {
   color-scheme: light;
+  --app-font:
+    "-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui",
+    "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+html[data-locale="km"] {
+  --app-font:
+    "Hanuman", "-apple-system-body", "ui-sans-serif", "-apple-system",
+    "system-ui", "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial",
+    "sans-serif", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 html {
@@ -13,6 +33,27 @@ html {
 body {
   background: #f8fbff;
   color: #111827;
+  font-family: var(--app-font);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.language-toggle {
+  font-family: var(--app-font);
+}
+
+.sidebar-scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 html.dark {
@@ -45,15 +86,6 @@ html.dark body {
 .theme-toggle:hover {
   background-color: rgb(255 255 255 / 0.96);
   color: #0369a1;
-}
-
-.tool-card {
-  border-color: rgb(226 232 240 / 0.9);
-}
-
-.tool-card:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
 }
 
 html.dark .bg-white {
@@ -202,15 +234,6 @@ html.dark .theme-toggle {
 html.dark .theme-toggle:hover {
   background-color: rgb(255 255 255 / 0.12);
   color: #fff;
-}
-
-html.dark .tool-card {
-  border-color: rgb(84 84 88 / 0.48);
-}
-
-html.dark .tool-card:hover {
-  background-color: #3a3a3c;
-  border-color: rgb(99 99 102 / 0.76);
 }
 
 [data-reveal] {

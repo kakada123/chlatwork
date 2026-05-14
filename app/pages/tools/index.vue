@@ -6,18 +6,30 @@ import {
   type ToolDef,
 } from "~/lib/tool-registry";
 
-useSeoMeta({
-  title: "Tools - ChlatWork",
-  description: "Explore privacy-friendly utilities and developer tools.",
-});
-
+const { categoryLabel, copy, lineHeightForText, localizeTool } = useLanguage();
 const toolSearch = ref("");
+const toolSearchInput = ref<HTMLInputElement | null>(null);
+const localizedEnabledTools = computed(() =>
+  ENABLED_TOOLS.map(localizeTool),
+);
 
 const filteredTools = computed(() =>
-  filterTools(ENABLED_TOOLS, toolSearch.value),
+  filterTools(localizedEnabledTools.value, toolSearch.value),
 );
 const groupedTools = computed(() => groupTools(filteredTools.value));
 const filteredToolCount = computed(() => filteredTools.value.length);
+const pageEl = ref<HTMLElement | null>(null);
+
+useLandingReveal(pageEl);
+useSeoMeta({
+  title: computed(() => copy.value.toolsPage.metaTitle),
+  description: computed(() => copy.value.toolsPage.metaDescription),
+});
+
+function clearToolSearch() {
+  toolSearch.value = "";
+  toolSearchInput.value?.focus();
+}
 
 function filterTools(tools: ToolDef[], query: string) {
   const normalizedQuery = query.trim().toLowerCase();
@@ -51,125 +63,146 @@ function groupTools(tools: ToolDef[]) {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-[1440px] space-y-8">
-    <header class="space-y-1">
-      <h1 class="text-xl font-bold">Tools</h1>
-      <p class="text-sm text-gray-500">Pick a tool and get things done.</p>
+  <main ref="pageEl" class="mx-auto w-full max-w-[1440px] space-y-10">
+    <header class="space-y-2" data-reveal>
+      <p
+        class="text-xs font-semibold uppercase text-sky-600 dark:text-cyan-300"
+      >
+        {{ copy.toolsPage.eyebrow }}
+      </p>
+      <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
+        {{ copy.toolsPage.title }}
+      </h1>
+      <p class="max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/65">
+        {{ copy.toolsPage.description }}
+      </p>
     </header>
 
-    <section class="rounded-xl border bg-white p-4 shadow-sm">
+    <section
+      data-reveal
+      class="rounded-[22px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/80 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.09] dark:shadow-black/20"
+    >
       <label
         for="tool-search"
-        class="block text-sm font-semibold text-gray-900"
+        class="block text-sm font-semibold text-slate-900 dark:text-white"
       >
         Search tools
       </label>
       <div class="mt-2 flex gap-2">
         <input
           id="tool-search"
+          ref="toolSearchInput"
           v-model="toolSearch"
           type="search"
-          class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-          placeholder="Search by tool name, category, or task"
+          class="h-11 w-full rounded-xl border border-slate-200/80 bg-white/90 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-2 focus:ring-sky-200/60 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/40"
+          :placeholder="copy.nav.searchTools"
+          @search="clearToolSearch"
         />
         <button
           v-if="toolSearch"
           type="button"
-          class="h-10 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-          @click="toolSearch = ''"
+          class="h-11 shrink-0 rounded-xl border border-slate-200/80 bg-white/90 px-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
+          @click="clearToolSearch"
         >
           Clear
         </button>
       </div>
-      <p class="mt-2 text-xs text-gray-500">
-        {{ filteredToolCount }} of {{ ENABLED_TOOLS.length }} tools
+      <p class="mt-2 text-xs text-slate-500 dark:text-white/50">
+        {{ filteredToolCount }} of {{ localizedEnabledTools.length }} tools
       </p>
     </section>
 
     <section
       v-if="filteredToolCount === 0"
-      class="rounded-xl border border-dashed bg-white p-6 text-center text-sm text-gray-500"
+      data-reveal
+      class="rounded-[22px] border border-dashed border-slate-200/80 bg-white/75 p-6 text-center text-sm text-slate-500 shadow-lg shadow-sky-100/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:text-white/55"
     >
-      No tools found.
+      {{ copy.toolsPage.emptyState }}
     </section>
 
     <section
-      v-for="group in groupedTools"
+      v-for="(group, groupIndex) in groupedTools"
       :key="group.category"
       class="space-y-3"
+      data-reveal
+      :style="{ '--reveal-delay': `${groupIndex * 120}ms` }"
     >
       <div class="flex items-end justify-between gap-3">
         <div>
           <h2
-            class="text-sm font-semibold uppercase tracking-wide text-gray-500"
+            class="text-sm font-semibold uppercase text-slate-500 dark:text-white/45"
           >
-            {{ group.category }}
+            {{ categoryLabel(group.category) }}
           </h2>
-          <p class="mt-1 text-xs text-gray-400">
+          <p class="mt-1 text-xs text-slate-400 dark:text-white/35">
             {{ group.tools.length }} tools
           </p>
         </div>
       </div>
 
-      <div
-        class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
-      >
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         <NuxtLink
-          v-for="tool in group.tools"
+          v-for="(tool, toolIndex) in group.tools"
           :key="tool.key"
           :to="tool.route"
-          class="tool-card group h-full rounded-xl border bg-white p-4 shadow-sm transition hover:shadow active:scale-[0.99]"
+          class="group flex h-full flex-col rounded-[22px] border border-white/80 bg-white/75 p-4 text-left shadow-lg shadow-sky-100/80 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.09] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.14] dark:focus:ring-cyan-200/70"
+          data-reveal
+          :style="{ '--reveal-delay': `${groupIndex * 120 + toolIndex * 60}ms` }"
         >
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex min-w-0 items-start gap-3">
-              <span
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition"
-                :class="
-                  TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator
-                "
-                aria-hidden="true"
+          <div class="flex items-start gap-3">
+            <span
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3 dark:ring-white/10"
+              :class="
+                TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator
+              "
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    v-for="path in TOOL_ICON_PATHS[tool.key] ||
-                    TOOL_ICON_PATHS.calculator"
-                    :key="path"
-                    :d="path"
-                  />
-                </svg>
-              </span>
+                <path
+                  v-for="path in TOOL_ICON_PATHS[tool.key] ||
+                  TOOL_ICON_PATHS.calculator"
+                  :key="path"
+                  :d="path"
+                />
+              </svg>
+            </span>
 
-              <div class="min-w-0">
-                <h3
-                  class="text-base font-semibold leading-snug text-gray-900 sm:truncate"
-                >
-                  {{ tool.name }}
-                </h3>
-                <p class="mt-1 text-sm text-gray-500 line-clamp-2">
-                  {{ tool.description }}
-                </p>
-              </div>
+            <div class="min-w-0">
+              <h3
+                :style="{ lineHeight: lineHeightForText(tool.name, 'heading') }"
+                class="text-base font-black text-slate-950 dark:text-white sm:truncate"
+              >
+                {{ tool.name }}
+              </h3>
+              <p
+                :style="{ lineHeight: lineHeightForText(tool.description, 'body') }"
+                class="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-white/65"
+              >
+                {{ tool.description }}
+              </p>
             </div>
           </div>
 
-          <div class="mt-3 flex items-center justify-between">
-            <p class="truncate text-xs text-gray-400">
+          <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+            <span
+              class="rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm shadow-sky-100/40 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/60"
+            >
               {{ tool.category }}
-            </p>
+            </span>
 
             <span
-              class="text-xs text-gray-300 transition group-hover:text-gray-400"
+              class="text-sm font-semibold text-sky-700 transition duration-300 group-hover:translate-x-1 dark:text-cyan-300"
             >
-              ->
+              Open
             </span>
           </div>
         </NuxtLink>

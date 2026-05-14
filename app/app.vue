@@ -8,33 +8,58 @@
 <script setup lang="ts">
 import { Analytics } from "@vercel/analytics/nuxt";
 
+const { copy, isKhmer, locale } = useLanguage();
+const { isDark } = useColorMode();
 const siteUrl = "https://chlatwork.com";
 const ogImage = `${siteUrl}/og-home.png`;
+const localizedTitle = computed(() => copy.value.metaTitle);
+const localizedDescription = computed(() => copy.value.metaDescription);
+const themeColor = computed(() => (isDark.value ? "#1c1c1e" : "#f9fafb"));
 
 useSeoMeta({
-  title: "ChlatWork - Simple tools that get things done",
-  description:
-    "Fast, clean, and practical tools for daily work, developers, and creators.",
+  title: localizedTitle,
+  description: localizedDescription,
 
-  ogTitle: "ChlatWork - Simple tools that get things done",
-  ogDescription:
-    "Fast, clean, and practical tools for daily work, developers, and creators.",
+  ogTitle: localizedTitle,
+  ogDescription: localizedDescription,
   ogImage,
   ogUrl: siteUrl,
   ogType: "website",
 
   twitterCard: "summary_large_image",
-  twitterTitle: "ChlatWork - Simple tools that get things done",
-  twitterDescription:
-    "Fast, clean, and practical tools for daily work, developers, and creators.",
+  twitterTitle: localizedTitle,
+  twitterDescription: localizedDescription,
   twitterImage: ogImage,
 });
 
 useHead({
+  htmlAttrs: {
+    lang: locale,
+    class: computed(() => (isDark.value ? "dark" : "")),
+    style: computed(() => `color-scheme: ${isDark.value ? "dark" : "light"};`),
+    "data-locale": locale,
+    "data-theme": computed(() => (isDark.value ? "dark" : "light")),
+  },
   link: [
     {
       rel: "canonical",
+      href: computed(() => (isKhmer.value ? `${siteUrl}/km` : siteUrl)),
+    },
+    {
+      rel: "alternate",
+      hreflang: "en",
       href: siteUrl,
+    },
+    {
+      rel: "alternate",
+      hreflang: "km",
+      href: `${siteUrl}/km`,
+    },
+  ],
+  meta: [
+    {
+      name: "theme-color",
+      content: themeColor,
     },
   ],
   script: [

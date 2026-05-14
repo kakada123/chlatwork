@@ -2,34 +2,55 @@ export function useLandingReveal(root: Ref<HTMLElement | null>) {
   onMounted(() => {
     const rootEl = root.value;
 
-    if (!rootEl || !("IntersectionObserver" in window)) {
-      rootEl
-        ?.querySelectorAll<HTMLElement>("[data-reveal]")
-        .forEach((el) => el.classList.add("is-visible"));
+    if (!rootEl) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            return;
-          }
+    const revealElements = () => {
+      rootEl.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+        if (!("IntersectionObserver" in window)) {
+          el.classList.add("is-visible");
+          return;
+        }
 
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        });
-      },
-      {
-        rootMargin: "0px 0px -12% 0px",
-        threshold: 0.16,
-      },
-    );
+        observer?.observe(el);
+      });
+    };
 
-    rootEl
-      .querySelectorAll<HTMLElement>("[data-reveal]")
-      .forEach((el) => observer.observe(el));
+    const observer =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                  return;
+                }
 
-    onBeforeUnmount(() => observer.disconnect());
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              });
+            },
+            {
+              rootMargin: "0px 0px -12% 0px",
+              threshold: 0.16,
+            },
+          )
+        : null;
+
+    revealElements();
+
+    const mutationObserver = new MutationObserver(() => {
+      revealElements();
+    });
+
+    mutationObserver.observe(rootEl, {
+      childList: true,
+      subtree: true,
+    });
+
+    onBeforeUnmount(() => {
+      observer?.disconnect();
+      mutationObserver.disconnect();
+    });
   });
 }

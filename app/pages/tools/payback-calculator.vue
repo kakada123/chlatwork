@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-5xl">
+  <div class="mx-auto w-full max-w-[1440px]">
     <PaybackCalculatorHeader
       :share-copied="shareCopied"
       @reset="reset"
@@ -150,7 +150,9 @@ const parsedRowsState = computed(() => {
   } catch (error: any) {
     return {
       entries: [],
-      error: hasPaybackInput(rows.value) ? error?.message || "Invalid input" : "",
+      error: hasPaybackInput(rows.value)
+        ? error?.message || "Invalid input"
+        : "",
     };
   }
 });
@@ -267,7 +269,9 @@ async function copyResult() {
   ];
 
   if (currency.value === "KHR" && khrRemainder.value.leftover > 0) {
-    lines.push(`KHR leftover: ${formatPaybackExactKhr(khrRemainder.value.leftover)}`);
+    lines.push(
+      `KHR leftover: ${formatPaybackExactKhr(khrRemainder.value.leftover)}`,
+    );
 
     if (
       khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
@@ -282,7 +286,9 @@ async function copyResult() {
   lines.push("", "Who pays who:");
 
   for (const settlement of settlements.value) {
-    lines.push(`- ${settlement.from} -> ${settlement.to}: ${fmt(settlement.amount)}`);
+    lines.push(
+      `- ${settlement.from} -> ${settlement.to}: ${fmt(settlement.amount)}`,
+    );
   }
 
   await navigator.clipboard.writeText(lines.join("\n"));

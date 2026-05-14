@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-5xl">
+  <div class="mx-auto w-full max-w-[1440px]">
     <ExpenseTrackerHeader
       :share-copied="shareCopied"
       @reset="reset"

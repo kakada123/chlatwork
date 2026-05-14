@@ -5,6 +5,7 @@ const props = defineProps<{
   categories: LandingToolCategory[];
 }>();
 
+const { copy } = useLanguage();
 const sectionEl = ref<HTMLElement | null>(null);
 useLandingReveal(sectionEl);
 </script>
@@ -14,10 +15,10 @@ useLandingReveal(sectionEl);
     <div class="mx-auto max-w-7xl">
       <div class="mb-8 max-w-2xl" data-reveal>
         <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-          Tool Categories
+          {{ copy.categories.eyebrow }}
         </p>
         <h2 class="mt-3 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
-          Pick the right lane.
+          {{ copy.categories.title }}
         </h2>
       </div>
 
@@ -43,7 +44,7 @@ useLandingReveal(sectionEl);
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-sm text-slate-500 dark:text-white/[0.55]">
-                  {{ category.count }} tools
+                  {{ category.count }} {{ copy.categories.toolsLabel }}
                 </p>
                 <h3 class="mt-2 text-2xl font-black text-slate-950 dark:text-white">
                   {{ category.name }}
@@ -52,7 +53,7 @@ useLandingReveal(sectionEl);
               <span
                 class="rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-bold text-slate-700 shadow-sm shadow-sky-100/70 dark:border-white/10 dark:bg-white/10 dark:text-white/80 dark:shadow-none"
               >
-                Explore
+                {{ copy.categories.explore }}
               </span>
             </div>
             <p class="mt-5 max-w-xl text-sm leading-6 text-slate-600 dark:text-white/[0.62]">

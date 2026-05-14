@@ -13,13 +13,23 @@ export type ToolDef = {
 
 export const TOOLS: ToolDef[] = [
   {
-    key: "calculator",
-    name: "Calculator",
-    route: "/tools/calculator",
+    key: "payback-calculator",
+    name: "PayBack Calculator",
+    route: "/tools/payback-calculator",
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Quick calculations with history.",
+    description: "Split group spending and calculate who pays who.",
+  },
+  {
+    key: "image-compress",
+    name: "Image Compressor",
+    route: "/tools/image-compress",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Compress images instantly without uploading - fast, private, and secure.",
   },
   {
     key: "qr",
@@ -40,22 +50,22 @@ export const TOOLS: ToolDef[] = [
     description: "Generate Wi-Fi QR to connect instantly by scanning.",
   },
   {
-    key: "payback-calculator",
-    name: "PayBack Calculator",
-    route: "/tools/payback-calculator",
+    key: "text-to-voice",
+    name: "Text to Voice",
+    route: "/tools/text-to-voice",
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Split group spending and calculate who pays who.",
+    description: "Read Khmer text aloud with the ChlatWork audio API.",
   },
   {
-    key: "expense-tracker",
-    name: "Expense Tracker",
-    route: "/tools/expense-tracker",
+    key: "calculator",
+    name: "Calculator",
+    route: "/tools/calculator",
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Track daily expenses with budget, breakdown, and insights.",
+    description: "Quick calculations with history.",
   },
   {
     key: "barcode",
@@ -67,14 +77,13 @@ export const TOOLS: ToolDef[] = [
     description: "Generate barcodes instantly from text or numbers.",
   },
   {
-    key: "image-compress",
-    name: "Image Compressor",
-    route: "/tools/image-compress",
+    key: "expense-tracker",
+    name: "Expense Tracker",
+    route: "/tools/expense-tracker",
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description:
-      "Compress images instantly without uploading - fast, private, and secure.",
+    description: "Track daily expenses with budget, breakdown, and insights.",
   },
   {
     key: "lucky-draw",
@@ -85,24 +94,6 @@ export const TOOLS: ToolDef[] = [
     category: "Utilities",
     description:
       "Add participants and randomly draw one or more winners instantly.",
-  },
-  {
-    key: "text-to-voice",
-    name: "Text to Voice",
-    route: "/tools/text-to-voice",
-    enabled: true,
-    status: "stable",
-    category: "Utilities",
-    description: "Read Khmer text aloud with the ChlatWork audio API.",
-  },
-  {
-    key: "base64",
-    name: "Base64 Encoder / Decoder",
-    route: "/tools/base64",
-    enabled: true,
-    status: "stable",
-    category: "Developer Tools",
-    description: "Encode, decode, and convert files to Base64 locally.",
   },
   {
     key: "json-formatter",
@@ -123,6 +114,15 @@ export const TOOLS: ToolDef[] = [
     description: "Decode JWT header, payload, and token timing claims.",
   },
   {
+    key: "base64",
+    name: "Base64 Encoder / Decoder",
+    route: "/tools/base64",
+    enabled: true,
+    status: "stable",
+    category: "Developer Tools",
+    description: "Encode, decode, and convert files to Base64 locally.",
+  },
+  {
     key: "url-encoder",
     name: "URL Encoder / Decoder",
     route: "/tools/url-encoder",
@@ -132,6 +132,15 @@ export const TOOLS: ToolDef[] = [
     description: "Encode and decode URL components and query strings.",
   },
   {
+    key: "regex-tester",
+    name: "Regex Tester",
+    route: "/tools/regex-tester",
+    enabled: true,
+    status: "stable",
+    category: "Developer Tools",
+    description: "Test regex patterns, flags, matches, and groups.",
+  },
+  {
     key: "uuid-generator",
     name: "UUID Generator",
     route: "/tools/uuid-generator",
@@ -139,15 +148,6 @@ export const TOOLS: ToolDef[] = [
     status: "stable",
     category: "Developer Tools",
     description: "Generate v4 UUIDs one at a time or in bulk.",
-  },
-  {
-    key: "password-generator",
-    name: "Password Generator",
-    route: "/tools/password-generator",
-    enabled: true,
-    status: "stable",
-    category: "Developer Tools",
-    description: "Generate strong passwords with length and character controls.",
   },
   {
     key: "unix-timestamp",
@@ -168,15 +168,6 @@ export const TOOLS: ToolDef[] = [
     description: "Explain cron expressions and preview upcoming run times.",
   },
   {
-    key: "regex-tester",
-    name: "Regex Tester",
-    route: "/tools/regex-tester",
-    enabled: true,
-    status: "stable",
-    category: "Developer Tools",
-    description: "Test regex patterns, flags, matches, and groups.",
-  },
-  {
     key: "hash-generator",
     name: "Hash Generator",
     route: "/tools/hash-generator",
@@ -184,6 +175,15 @@ export const TOOLS: ToolDef[] = [
     status: "stable",
     category: "Developer Tools",
     description: "Generate MD5, SHA-1, SHA-256, and SHA-512 hashes.",
+  },
+  {
+    key: "password-generator",
+    name: "Password Generator",
+    route: "/tools/password-generator",
+    enabled: true,
+    status: "stable",
+    category: "Developer Tools",
+    description: "Generate strong passwords with length and character controls.",
   },
 ];
 

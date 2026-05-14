@@ -12,6 +12,8 @@ const props = withDefaults(
     pinned: false,
   },
 );
+
+const { lineHeightForText } = useLanguage();
 </script>
 
 <template>
@@ -50,10 +52,16 @@ const props = withDefaults(
       </span>
 
       <div class="min-w-0">
-        <h3 class="text-base font-black leading-tight text-slate-950 dark:text-white">
+        <h3
+          :style="{ lineHeight: lineHeightForText(props.tool.name, 'heading') }"
+          class="text-base font-black text-slate-950 dark:text-white"
+        >
           {{ props.tool.name }}
         </h3>
-        <p class="mt-2 line-clamp-3 text-sm leading-5 text-slate-600 dark:text-white/[0.62]">
+        <p
+          :style="{ lineHeight: lineHeightForText(props.tool.description, 'body') }"
+          class="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-white/[0.62]"
+        >
           {{ props.tool.description }}
         </p>
       </div>

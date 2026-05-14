@@ -8,8 +8,21 @@ import {
 } from "~/lib/tool-registry";
 
 const toolNavSearch = ref("");
+const {
+  categoryLabel,
+  copy,
+  homePath,
+  languageLabel,
+  fontFamilyForText,
+  localizeTool,
+  switchLanguage,
+} = useLanguage();
+const languageToggleFontFamily = computed(() =>
+  fontFamilyForText(languageLabel.value),
+);
+const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const filteredEnabledTools = computed(() =>
-  filterTools(ENABLED_TOOLS, toolNavSearch.value),
+  filterTools(localizedEnabledTools.value, toolNavSearch.value),
 );
 const groupedEnabledTools = computed(() =>
   groupTools(filteredEnabledTools.value),
@@ -19,11 +32,15 @@ const toolIconPaths = TOOL_ICON_PATHS;
 const toolIconClass = TOOL_ICON_CLASSES;
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
-const isLandingPage = computed(() => route.path === "/");
+// The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
+const isToolsIndexPage = computed(() => route.path === "/tools");
+const isLandingPage = computed(
+  () => route.path === "/" || route.path === "/km" || isToolsIndexPage.value,
+);
 const layoutGridClass = computed(() =>
   isLandingPage.value
     ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
-    : "mx-auto grid max-w-[1440px] gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
+    : "mx-auto grid max-w-[1440px] items-start gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
 );
 
 function filterTools(tools: ToolDef[], query: string) {
@@ -42,7 +59,7 @@ function filterTools(tools: ToolDef[], query: string) {
 }
 
 function groupTools(tools: ToolDef[]) {
-  const groups = new Map<string, ToolDef[]>();
+  const groups = new Map<ToolDef["category"], ToolDef[]>();
 
   for (const tool of tools) {
     const current = groups.get(tool.category) ?? [];
@@ -89,7 +106,7 @@ onBeforeUnmount(() => {
       >
         <!-- Brand -->
         <NuxtLink
-          to="/"
+          :to="homePath"
           class="flex min-w-0 items-center gap-3"
           @click="closeMenu"
         >
@@ -104,7 +121,7 @@ onBeforeUnmount(() => {
               ChlatWork
             </p>
             <p class="hidden truncate text-xs text-gray-500 sm:block">
-              Simple tools that get things done.
+              {{ copy.tagline }}
             </p>
           </div>
         </NuxtLink>
@@ -112,20 +129,31 @@ onBeforeUnmount(() => {
         <!-- Desktop Navigation -->
         <nav class="hidden items-center gap-2 text-sm sm:flex">
           <NuxtLink
-            to="/"
+            :to="homePath"
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
           >
-            Home
+            {{ copy.nav.home }}
           </NuxtLink>
           <NuxtLink
             to="/tools"
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
           >
-            Tools
+            {{ copy.nav.tools }}
           </NuxtLink>
         </nav>
 
         <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="language-toggle inline-flex h-10 items-center justify-center rounded-xl border border-sky-200/80 bg-white/75 px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:hover:bg-white/[0.12] dark:hover:text-white"
+            :style="{ fontFamily: languageToggleFontFamily }"
+            :aria-label="languageLabel"
+            :title="languageLabel"
+            @click="switchLanguage"
+          >
+            {{ languageLabel }}
+          </button>
+
           <button
             type="button"
             class="theme-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition"
@@ -257,7 +285,7 @@ onBeforeUnmount(() => {
           <!-- Main -->
           <nav class="space-y-1">
             <NuxtLink
-              to="/"
+              :to="homePath"
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
               @click="closeMenu"
             >
@@ -280,7 +308,7 @@ onBeforeUnmount(() => {
                   <path d="M10 19v-5h4v5" />
                 </svg>
               </span>
-              Home
+              {{ copy.nav.home }}
             </NuxtLink>
 
             <NuxtLink
@@ -309,13 +337,13 @@ onBeforeUnmount(() => {
                   />
                 </svg>
               </span>
-              All Tools
+              {{ copy.nav.allTools }}
             </NuxtLink>
           </nav>
 
           <div class="mt-4 px-3">
             <label for="mobile-tool-nav-search" class="sr-only">
-              Search tools
+              {{ copy.nav.searchTools }}
             </label>
             <div class="flex gap-2">
               <input
@@ -323,7 +351,7 @@ onBeforeUnmount(() => {
                 v-model="toolNavSearch"
                 type="search"
                 class="h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-                placeholder="Search tools"
+                :placeholder="copy.nav.searchTools"
               />
               <button
                 v-if="toolNavSearch"
@@ -331,7 +359,7 @@ onBeforeUnmount(() => {
                 class="h-10 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                 @click="toolNavSearch = ''"
               >
-                Clear
+                {{ copy.nav.clear }}
               </button>
             </div>
           </div>
@@ -340,7 +368,7 @@ onBeforeUnmount(() => {
             v-if="filteredEnabledTools.length === 0"
             class="px-3 py-4 text-sm text-gray-500"
           >
-            No tools found.
+            {{ copy.nav.noToolsFound }}
           </p>
 
           <div
@@ -351,7 +379,7 @@ onBeforeUnmount(() => {
             <p
               class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
             >
-              {{ group.category }}
+              {{ categoryLabel(group.category) }}
             </p>
 
             <nav class="space-y-1">
@@ -401,12 +429,10 @@ onBeforeUnmount(() => {
         <!-- Desktop Sidebar -->
         <aside
           v-if="!isLandingPage"
-          class="hidden h-fit rounded-2xl border border-white/80 bg-white/75 p-4 shadow-sm shadow-sky-100/80 backdrop-blur md:block dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
+          class="sidebar-scrollbar-hidden hidden max-h-[calc(100dvh-8rem)] overflow-y-auto self-start rounded-2xl border border-white/80 bg-white/75 p-4 shadow-sm shadow-sky-100/80 backdrop-blur md:sticky md:top-24 md:block dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
         >
-          <p
-            class="mb-3 text-xs font-semibold uppercase text-gray-500"
-          >
-            Tools
+          <p class="mb-3 text-xs font-semibold uppercase text-gray-500">
+            {{ copy.nav.toolsHeading }}
           </p>
 
           <div class="space-y-1">
@@ -436,17 +462,19 @@ onBeforeUnmount(() => {
                   />
                 </svg>
               </span>
-              <span>All Tools</span>
+              <span>{{ copy.nav.allTools }}</span>
             </NuxtLink>
 
             <div class="px-3 py-2">
-              <label for="tool-nav-search" class="sr-only">Search tools</label>
+              <label for="tool-nav-search" class="sr-only">
+                {{ copy.nav.searchTools }}
+              </label>
               <input
                 id="tool-nav-search"
                 v-model="toolNavSearch"
                 type="search"
                 class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-                placeholder="Search tools"
+                :placeholder="copy.nav.searchTools"
               />
             </div>
 
@@ -454,7 +482,7 @@ onBeforeUnmount(() => {
               v-if="filteredEnabledTools.length === 0"
               class="px-3 py-4 text-sm text-gray-500"
             >
-              No tools found.
+              {{ copy.nav.noToolsFound }}
             </p>
 
             <div
@@ -465,7 +493,7 @@ onBeforeUnmount(() => {
               <p
                 class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
               >
-                {{ group.category }}
+                {{ categoryLabel(group.category) }}
               </p>
 
               <NuxtLink
@@ -518,18 +546,24 @@ onBeforeUnmount(() => {
       >
         <!-- Left links -->
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500">
-          <NuxtLink to="/about" class="hover:text-gray-900">About</NuxtLink>
+          <NuxtLink to="/about" class="hover:text-gray-900">
+            {{ copy.footer.about }}
+          </NuxtLink>
           <NuxtLink to="/privacy" class="hover:text-gray-900"
-            >Privacy Policy</NuxtLink
+            >{{ copy.footer.privacy }}</NuxtLink
           >
           <NuxtLink to="/cookies" class="hover:text-gray-900"
-            >Cookie Policy</NuxtLink
+            >{{ copy.footer.cookies }}</NuxtLink
           >
-          <NuxtLink to="/terms" class="hover:text-gray-900">Terms</NuxtLink>
+          <NuxtLink to="/terms" class="hover:text-gray-900">
+            {{ copy.footer.terms }}
+          </NuxtLink>
           <NuxtLink to="/disclaimer" class="hover:text-gray-900"
-            >Disclaimer</NuxtLink
+            >{{ copy.footer.disclaimer }}</NuxtLink
           >
-          <NuxtLink to="/contact" class="hover:text-gray-900">Contact</NuxtLink>
+          <NuxtLink to="/contact" class="hover:text-gray-900">
+            {{ copy.footer.contact }}
+          </NuxtLink>
         </div>
 
         <!-- Right CTA -->
@@ -537,7 +571,7 @@ onBeforeUnmount(() => {
           to="/buy-me-coffee"
           class="inline-flex items-center justify-center rounded-full border border-sky-100 bg-white/70 px-4 py-2 font-medium text-gray-700 shadow-sm shadow-sky-100/70 hover:bg-white hover:text-gray-900 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:shadow-none dark:hover:bg-white/[0.12] dark:hover:text-white"
         >
-          Buy me a coffee ☕🤣
+          {{ copy.footer.coffee }}
         </NuxtLink>
       </div>
     </footer>

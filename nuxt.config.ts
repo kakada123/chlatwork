@@ -14,14 +14,10 @@ const colorModeScript = `
   try {
     const root = document.documentElement;
     const storedMode = window.localStorage.getItem(storageKey);
-    const systemPreference = window.matchMedia?.("(prefers-color-scheme: dark)");
-    const prefersDark = Boolean(systemPreference?.matches);
     const mode =
       storedMode === "light" || storedMode === "dark"
         ? storedMode
-        : prefersDark
-          ? "dark"
-          : "light";
+        : "dark";
     const isDark = mode === "dark";
 
     root.classList.toggle("dark", isDark);
@@ -52,8 +48,8 @@ export default defineNuxtConfig({
       title: "ChlatWork",
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { name: "color-scheme", content: "light dark" },
-        { name: "theme-color", content: "#f9fafb" },
+        { name: "color-scheme", content: "dark light" },
+        { name: "theme-color", content: "#1c1c1e" },
         { name: "description", content: "Smart tools for everyday work." },
 
         // Open Graph (FB / Zalo / Telegram previews)

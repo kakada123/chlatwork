@@ -5,6 +5,8 @@ const props = defineProps<{
   tools: LandingTool[];
 }>();
 
+const { copy, homePath } = useLanguage();
+
 type OrbitLayout = {
   top: string;
   left: string;
@@ -17,11 +19,11 @@ const featuredToolKeys = [
   "qr",
   "json-formatter",
   "image-compress",
-  "expense-tracker",
+  "payback-calculator",
   "text-to-voice",
   "jwt-decoder",
   "password-generator",
-  "calculator",
+  "wifi-qr",
 ];
 
 const orbitLayouts: OrbitLayout[] = [
@@ -106,8 +108,10 @@ const mobileTools = computed(() => orbitTools.value.slice(0, 4));
 
 const stats = computed(() => [
   {
-    label: `${props.tools.length}+ Tools`,
-    caption: "And counting",
+    label: `${props.tools.length}+ ${
+      copy.value.hero.stats[0]?.label ?? "Tools"
+    }`,
+    caption: copy.value.hero.stats[0]?.caption ?? "And counting",
     paths: [
       "M5 15.5 4 20l4.5-1 8.8-8.8a4.2 4.2 0 0 0-5.9-5.9L5 15.5Z",
       "M14 6l4 4",
@@ -117,8 +121,8 @@ const stats = computed(() => [
     accent: "from-sky-400 to-violet-500",
   },
   {
-    label: "100% Browser Friendly",
-    caption: "No installation required",
+    label: copy.value.hero.stats[1]?.label ?? "100% Browser Friendly",
+    caption: copy.value.hero.stats[1]?.caption ?? "No installation required",
     paths: [
       "M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4Z",
       "M9 12l2 2 4-4",
@@ -126,8 +130,8 @@ const stats = computed(() => [
     accent: "from-violet-400 to-cyan-400",
   },
   {
-    label: "Fast & Secure",
-    caption: "Works offline, stays private",
+    label: copy.value.hero.stats[2]?.label ?? "Fast & Secure",
+    caption: copy.value.hero.stats[2]?.caption ?? "Works offline, stays private",
     paths: ["M13 2 4 14h7l-1 8 9-12h-7l1-8Z"],
     accent: "from-amber-300 to-orange-500",
   },
@@ -149,7 +153,7 @@ const stats = computed(() => [
     >
       <div class="max-w-2xl">
         <NuxtLink
-          to="/"
+          :to="homePath"
           class="inline-flex items-center gap-3 text-slate-950 dark:text-white"
           aria-label="ChlatWork home"
         >
@@ -164,19 +168,18 @@ const stats = computed(() => [
         <h1
           class="mt-12 max-w-2xl text-5xl font-black leading-[1.04] text-slate-950 sm:text-6xl lg:text-7xl dark:text-white"
         >
-          Simple tools that get things
+          {{ copy.hero.titleStart }}
           <span
             class="block bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 bg-clip-text text-transparent"
           >
-            done.
+            {{ copy.hero.titleAccent }}
           </span>
         </h1>
 
         <p
           class="mt-6 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl dark:text-slate-300"
         >
-          Fast, clean, and practical tools for daily work, developers, and
-          creators.
+          {{ copy.hero.description }}
         </p>
 
         <div class="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -184,7 +187,7 @@ const stats = computed(() => [
             to="/tools"
             class="inline-flex h-12 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 px-7 text-sm font-bold text-white shadow-[0_18px_50px_rgba(59,130,246,0.34)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(168,85,247,0.4)] focus:outline-none focus:ring-2 focus:ring-cyan-200"
           >
-            Explore Tools
+            {{ copy.hero.primaryAction }}
             <svg
               viewBox="0 0 24 24"
               class="h-5 w-5"
@@ -204,7 +207,7 @@ const stats = computed(() => [
             to="/tools"
             class="inline-flex h-12 items-center justify-center gap-3 rounded-2xl border border-sky-200/80 bg-white/70 px-7 text-sm font-bold text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_16px_40px_rgba(14,165,233,0.12)] backdrop-blur transition hover:-translate-y-0.5 hover:border-fuchsia-200 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/16 dark:bg-white/[0.04] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-white/28 dark:hover:bg-white/[0.08] dark:focus:ring-white/50"
           >
-            Developer Tools
+            {{ copy.hero.secondaryAction }}
             <svg
               viewBox="0 0 24 24"
               class="h-5 w-5"

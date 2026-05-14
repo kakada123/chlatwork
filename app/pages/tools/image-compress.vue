@@ -10,7 +10,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="max-w-5xl mx-auto">
+  <main class="w-full max-w-[1440px] mx-auto">
     <ImageCompressor />
   </main>
 </template>

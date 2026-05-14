@@ -34,6 +34,7 @@
             id="text-to-voice-input"
             v-model="text"
             class="h-80 w-full resize-y rounded-lg border px-3 py-2 text-base leading-8 outline-none focus:ring-2 focus:ring-gray-900/20"
+            :style="{ fontFamily: textFontFamily }"
             lang="km-KH"
             placeholder="សូមបញ្ចូលអត្ថបទភាសាខ្មែរ..."
           />
@@ -219,6 +220,9 @@ type SpeechEngine = "online" | "browser";
 
 const DEFAULT_TEXT =
   "សួស្តី! សូមសាកល្បងបញ្ចូលអត្ថបទភាសាខ្មែរ ហើយចុច Speak ដើម្បីស្តាប់សំឡេង។";
+const ENGLISH_FONT_STACK =
+  '"-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui", "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif", "Segoe UI Emoji", "Segoe UI Symbol"';
+const KHMER_FONT_STACK = `"Hanuman", ${ENGLISH_FONT_STACK}`;
 const MAX_AUDIO_SECONDS = 10;
 const GOOGLE_TTS_CHUNK_LIMIT = 180;
 const KHMER_GRAPHEMES_PER_SECOND = 12;
@@ -249,6 +253,10 @@ const downloadProgress = ref({ current: 0, total: 0 });
 const currentAudioUrl = ref("");
 
 const characterCount = computed(() => text.value.length);
+const hasKhmerContent = computed(() => containsKhmerContent(text.value));
+const textFontFamily = computed(() =>
+  hasKhmerContent.value ? KHMER_FONT_STACK : ENGLISH_FONT_STACK,
+);
 const estimatedSpeechSeconds = computed(() => estimateSpeechSeconds(text.value));
 const selectedOnlineVoiceOption = computed(
   () => onlineVoiceOptions.find((voice) => voice.key === onlineVoice.value) ?? null,
@@ -386,6 +394,10 @@ watch([rate, volume], ([nextRate, nextVolume]) => {
   audioPlayer.value.playbackRate = nextRate;
   audioPlayer.value.volume = nextVolume;
 });
+
+function containsKhmerContent(value: string) {
+  return /[\u1780-\u17FF\u19E0-\u19FF]/u.test(value);
+}
 
 function loadVoices() {
   voices.value = window.speechSynthesis.getVoices();
