@@ -10,6 +10,7 @@ import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
+import { filterTools } from "~/lib/tool-search";
 
 const toolNavSearch = ref("");
 const {
@@ -73,21 +74,6 @@ const layoutGridClass = computed(() =>
     ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
     : "mx-auto grid max-w-[1440px] items-start gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
 );
-
-function filterTools(tools: ToolDef[], query: string) {
-  const normalizedQuery = query.trim().toLowerCase();
-
-  if (!normalizedQuery) {
-    return tools;
-  }
-
-  return tools.filter((tool) =>
-    [tool.name, tool.description, tool.category, tool.key]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery),
-  );
-}
 
 function groupTools(tools: ToolDef[]) {
   const groups = new Map<ToolDef["category"], ToolDef[]>();

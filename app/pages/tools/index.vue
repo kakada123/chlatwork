@@ -5,6 +5,7 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import { filterTools } from "~/lib/tool-search";
 import { TOOL_GUIDES } from "~/data/tool-guides";
 
 const { categoryLabel, copy, lineHeightForText, localizeTool } = useLanguage();
@@ -19,6 +20,7 @@ const filteredTools = computed(() =>
 );
 const groupedTools = computed(() => groupTools(filteredTools.value));
 const filteredToolCount = computed(() => filteredTools.value.length);
+const isToolSearchActive = computed(() => toolSearch.value.trim().length > 0);
 const guideCards = TOOL_GUIDES;
 const pageEl = ref<HTMLElement | null>(null);
 
@@ -31,21 +33,6 @@ useSeoMeta({
 function clearToolSearch() {
   toolSearch.value = "";
   toolSearchInput.value?.focus();
-}
-
-function filterTools(tools: ToolDef[], query: string) {
-  const normalizedQuery = query.trim().toLowerCase();
-
-  if (!normalizedQuery) {
-    return tools;
-  }
-
-  return tools.filter((tool) =>
-    [tool.name, tool.description, tool.category, tool.key]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery),
-  );
 }
 
 function groupTools(tools: ToolDef[]) {
@@ -122,7 +109,7 @@ function groupTools(tools: ToolDef[]) {
       {{ copy.toolsPage.emptyState }}
     </section>
 
-    <section class="space-y-3" data-reveal>
+    <section v-if="!isToolSearchActive" class="space-y-3" data-reveal>
       <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
