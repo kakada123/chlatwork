@@ -34,8 +34,13 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
 // The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
 const isToolsIndexPage = computed(() => route.path === "/tools");
+const isPortfolioPage = computed(() => route.path === "/portfolio");
 const isLandingPage = computed(
-  () => route.path === "/" || route.path === "/km" || isToolsIndexPage.value,
+  () =>
+    route.path === "/" ||
+    route.path === "/km" ||
+    isToolsIndexPage.value ||
+    isPortfolioPage.value,
 );
 const layoutGridClass = computed(() =>
   isLandingPage.value

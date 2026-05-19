@@ -28,6 +28,7 @@ html[data-locale="km"] {
 
 html {
   background: #f8fbff;
+  scroll-behavior: smooth;
 }
 
 body {

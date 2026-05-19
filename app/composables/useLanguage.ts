@@ -19,6 +19,7 @@ type LandingCopy = {
   nav: {
     home: string;
     tools: string;
+    portfolio: string;
     allTools: string;
     searchTools: string;
     clear: string;
@@ -84,6 +85,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
     nav: {
       home: "Home",
       tools: "Tools",
+      portfolio: "Portfolio",
       allTools: "All Tools",
       searchTools: "Search tools",
       clear: "Clear",
@@ -145,6 +147,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
     nav: {
       home: "ទំព័រដើម",
       tools: "ឧបករណ៍",
+      portfolio: "Portfolio",
       allTools: "ឧបករណ៍ទាំងអស់",
       searchTools: "ស្វែងរកឧបករណ៍",
       clear: "សម្អាត",
