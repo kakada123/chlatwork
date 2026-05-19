@@ -109,10 +109,10 @@ function openTopResult() {
     <div
       class="overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-[0_20px_60px_rgba(14,165,233,0.18)] backdrop-blur-xl dark:border-white/12 dark:bg-white/[0.07] dark:shadow-black/25"
     >
-      <div class="flex items-center gap-3 px-4 py-3">
+      <div class="relative">
         <svg
           viewBox="0 0 24 24"
-          class="h-5 w-5 shrink-0 text-sky-600 dark:text-cyan-300"
+          class="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-sky-600 dark:text-cyan-300"
           fill="none"
           stroke="currentColor"
           stroke-width="1.9"
@@ -129,7 +129,7 @@ function openTopResult() {
           ref="searchInput"
           v-model="globalSearch"
           type="search"
-          class="h-11 min-w-0 flex-1 bg-transparent text-base font-semibold text-slate-950 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-white/35"
+          class="h-14 w-full bg-transparent pl-14 pr-14 text-base font-semibold text-slate-950 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-white/35"
           :placeholder="copy.heroSearch.placeholder"
           @keydown.enter.prevent="openTopResult"
           @keydown.esc="clearSearch"
@@ -139,7 +139,7 @@ function openTopResult() {
         <button
           v-if="globalSearch"
           type="button"
-          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white dark:focus:ring-cyan-200"
+          class="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white dark:focus:ring-cyan-200"
           :aria-label="copy.heroSearch.clear"
           @click="clearSearch"
         >
