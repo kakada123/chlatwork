@@ -44,6 +44,40 @@ select {
   font: inherit;
 }
 
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  input,
+  textarea,
+  select {
+    color: inherit;
+    background-color: inherit;
+    -webkit-text-fill-color: inherit;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="color"]
+    ):not([type="file"]),
+  textarea {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  /* Mobile browsers zoom focused controls below 16px; desktop utility sizing stays unchanged. */
+  @media (max-width: 767px), (hover: none) and (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+  }
+}
+
 .language-toggle {
   font-family: var(--app-font);
 }

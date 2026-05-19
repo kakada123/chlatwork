@@ -1,5 +1,10 @@
 import type { ToolDef } from "~/lib/tool-registry";
 
+type SearchableTool = Pick<
+  ToolDef,
+  "key" | "name" | "route" | "category" | "description"
+>;
+
 const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   "payback-calculator": ["split bill", "split expense", "group expense"],
   "image-compress": ["compress photo", "reduce image size", "image optimizer"],
@@ -23,7 +28,7 @@ const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   "password-generator": ["strong password", "random password"],
 };
 
-function normalizeSearchText(value: string) {
+export function normalizeSearchText(value: string) {
   return value
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -33,41 +38,52 @@ function normalizeSearchText(value: string) {
     .replace(/\s+/g, " ");
 }
 
-function getToolSearchText(tool: ToolDef) {
-  // Users search with natural names like "wifi qr" or "jpg to pdf", not only exact registry labels.
-  return normalizeSearchText(
-    [
-      tool.name,
-      tool.description,
-      tool.category,
-      tool.key,
-      tool.route,
-      ...(TOOL_SEARCH_ALIASES[tool.key] ?? []),
-    ].join(" "),
+export function searchTextMatches(searchText: string, query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const normalizedSearchText = normalizeSearchText(searchText);
+  const queryTokens = normalizedQuery.split(" ");
+  const compactQuery = normalizedQuery.replace(/\s+/g, "");
+  const compactSearchText = normalizedSearchText.replace(/\s+/g, "");
+
+  return (
+    normalizedSearchText.includes(normalizedQuery) ||
+    compactSearchText.includes(compactQuery) ||
+    queryTokens.every(
+      (token) =>
+        normalizedSearchText.includes(token) ||
+        compactSearchText.includes(token),
+    )
   );
 }
 
-export function filterTools(tools: ToolDef[], query: string) {
+function getToolSearchText(tool: SearchableTool) {
+  // Users search with natural names like "wifi qr" or "jpg to pdf", not only exact registry labels.
+  return [
+    tool.name,
+    tool.description,
+    tool.category,
+    tool.key,
+    tool.route,
+    ...(TOOL_SEARCH_ALIASES[tool.key] ?? []),
+  ].join(" ");
+}
+
+export function filterTools<T extends SearchableTool>(
+  tools: T[],
+  query: string,
+) {
   const normalizedQuery = normalizeSearchText(query);
 
   if (!normalizedQuery) {
     return tools;
   }
 
-  const queryTokens = normalizedQuery.split(" ");
-  const compactQuery = normalizedQuery.replace(/\s+/g, "");
-
-  return tools.filter((tool) => {
-    const searchText = getToolSearchText(tool);
-    const compactSearchText = searchText.replace(/\s+/g, "");
-
-    return (
-      searchText.includes(normalizedQuery) ||
-      compactSearchText.includes(compactQuery) ||
-      queryTokens.every(
-        (token) =>
-          searchText.includes(token) || compactSearchText.includes(token),
-      )
-    );
-  });
+  return tools.filter((tool) =>
+    searchTextMatches(getToolSearchText(tool), query),
+  );
 }

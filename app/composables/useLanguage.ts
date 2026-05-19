@@ -48,6 +48,16 @@ type LandingCopy = {
       caption: string;
     }>;
   };
+  heroSearch: {
+    label: string;
+    placeholder: string;
+    clear: string;
+    toolsLabel: string;
+    guidesLabel: string;
+    noResults: string;
+    examplesLabel: string;
+    examples: string[];
+  };
   categories: {
     eyebrow: string;
     title: string;
@@ -116,6 +126,16 @@ const COPY: Record<AppLocale, LandingCopy> = {
         { label: "Fast & Secure", caption: "Works offline, stays private" },
       ],
     },
+    heroSearch: {
+      label: "Search all ChlatWork tools",
+      placeholder: "Try Wi-Fi QR, compress image, JSON, password...",
+      clear: "Clear search",
+      toolsLabel: "Tool",
+      guidesLabel: "Guide",
+      noResults: "No matching tools or guides found.",
+      examplesLabel: "Popular:",
+      examples: ["Wi-Fi QR", "compress image", "JSON", "password"],
+    },
     categories: {
       eyebrow: "Tool Categories",
       title: "Pick the right lane.",
@@ -177,6 +197,16 @@ const COPY: Record<AppLocale, LandingCopy> = {
         { label: "ប្រើលើ Browser បាន 100%", caption: "មិនចាំបាច់ដំឡើង" },
         { label: "លឿន និងសុវត្ថិភាព", caption: "ទិន្នន័យនៅលើឧបករណ៍របស់អ្នក" },
       ],
+    },
+    heroSearch: {
+      label: "ស្វែងរកឧបករណ៍ ChlatWork ទាំងអស់",
+      placeholder: "សាកល្បង Wi-Fi QR, បង្រួមរូបភាព, JSON, ពាក្យសម្ងាត់...",
+      clear: "សម្អាតការស្វែងរក",
+      toolsLabel: "ឧបករណ៍",
+      guidesLabel: "មេរៀន",
+      noResults: "រកមិនឃើញឧបករណ៍ ឬមេរៀនដែលត្រូវគ្នា។",
+      examplesLabel: "ពេញនិយម:",
+      examples: ["Wi-Fi QR", "បង្រួមរូបភាព", "JSON", "ពាក្យសម្ងាត់"],
     },
     categories: {
       eyebrow: "ប្រភេទឧបករណ៍",

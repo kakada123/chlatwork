@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HomeGlobalSearch from "./HomeGlobalSearch.vue";
 import type { LandingTool } from "~/data/tools";
 
 const props = defineProps<{
@@ -182,7 +183,9 @@ const stats = computed(() => [
           {{ copy.hero.description }}
         </p>
 
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <HomeGlobalSearch class="mt-8" :tools="tools" />
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
           <NuxtLink
             to="/tools"
             class="inline-flex h-12 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 px-7 text-sm font-bold text-white shadow-[0_18px_50px_rgba(59,130,246,0.34)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(168,85,247,0.4)] focus:outline-none focus:ring-2 focus:ring-cyan-200"
