@@ -1,3 +1,5 @@
+import { TOOL_GUIDE_PATHS } from "./app/data/tool-guide-routes";
+
 const nodeEnv =
   (
     globalThis as typeof globalThis & {
@@ -40,6 +42,7 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
+    urls: TOOL_GUIDE_PATHS,
   },
   css: ["~/assets/css/main.css"],
 

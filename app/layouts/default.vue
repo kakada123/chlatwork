@@ -6,6 +6,10 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import {
+  findToolGuideRouteByPath,
+  getToolGuideRoute,
+} from "~/data/tool-guide-routes";
 
 const toolNavSearch = ref("");
 const {
@@ -35,12 +39,34 @@ const route = useRoute();
 // The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
 const isToolsIndexPage = computed(() => route.path === "/tools");
 const isPortfolioPage = computed(() => route.path === "/portfolio");
+const isToolGuidePage = computed(() =>
+  Boolean(findToolGuideRouteByPath(route.path)),
+);
+const currentToolGuide = computed(() => {
+  const currentTool = ENABLED_TOOLS.find((tool) => tool.route === route.path);
+
+  if (!currentTool) {
+    return null;
+  }
+
+  const guideRoute = getToolGuideRoute(currentTool.key);
+
+  if (!guideRoute) {
+    return null;
+  }
+
+  return {
+    path: guideRoute.path,
+    tool: currentTool,
+  };
+});
 const isLandingPage = computed(
   () =>
     route.path === "/" ||
     route.path === "/km" ||
     isToolsIndexPage.value ||
-    isPortfolioPage.value,
+    isPortfolioPage.value ||
+    isToolGuidePage.value,
 );
 const layoutGridClass = computed(() =>
   isLandingPage.value
@@ -344,6 +370,35 @@ onBeforeUnmount(() => {
               </span>
               {{ copy.nav.allTools }}
             </NuxtLink>
+
+            <NuxtLink
+              v-if="currentToolGuide"
+              :to="currentToolGuide.path"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-sky-800 hover:bg-sky-50"
+              @click="closeMenu"
+            >
+              <span
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700"
+                aria-hidden="true"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 4h10l4 4v12H5V4Z" />
+                  <path d="M14 4v5h5" />
+                  <path d="M8 13h8" />
+                  <path d="M8 16h6" />
+                </svg>
+              </span>
+              Guide: {{ currentToolGuide.tool.name }}
+            </NuxtLink>
           </nav>
 
           <div class="mt-4 px-3">
@@ -468,6 +523,34 @@ onBeforeUnmount(() => {
                 </svg>
               </span>
               <span>{{ copy.nav.allTools }}</span>
+            </NuxtLink>
+
+            <NuxtLink
+              v-if="currentToolGuide"
+              :to="currentToolGuide.path"
+              class="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100 dark:border-cyan-300/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
+            >
+              <span
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sky-700 shadow-sm dark:bg-white/10 dark:text-cyan-200"
+                aria-hidden="true"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 4h10l4 4v12H5V4Z" />
+                  <path d="M14 4v5h5" />
+                  <path d="M8 13h8" />
+                  <path d="M8 16h6" />
+                </svg>
+              </span>
+              <span class="truncate">Guide: {{ currentToolGuide.tool.name }}</span>
             </NuxtLink>
 
             <div class="px-3 py-2">

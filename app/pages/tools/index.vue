@@ -5,6 +5,7 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import { TOOL_GUIDES } from "~/data/tool-guides";
 
 const { categoryLabel, copy, lineHeightForText, localizeTool } = useLanguage();
 const toolSearch = ref("");
@@ -18,6 +19,7 @@ const filteredTools = computed(() =>
 );
 const groupedTools = computed(() => groupTools(filteredTools.value));
 const filteredToolCount = computed(() => filteredTools.value.length);
+const guideCards = TOOL_GUIDES;
 const pageEl = ref<HTMLElement | null>(null);
 
 useLandingReveal(pageEl);
@@ -118,6 +120,74 @@ function groupTools(tools: ToolDef[]) {
       class="rounded-[22px] border border-dashed border-slate-200/80 bg-white/75 p-6 text-center text-sm text-slate-500 shadow-lg shadow-sky-100/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:text-white/55"
     >
       {{ copy.toolsPage.emptyState }}
+    </section>
+
+    <section class="space-y-3" data-reveal>
+      <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 class="text-2xl font-black text-slate-950 dark:text-white">
+            Learn how to use our tools
+          </h2>
+          <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-white/65">
+            Beginner-friendly guides with examples, tips, and direct links to
+            each ChlatWork tool.
+          </p>
+        </div>
+        <p class="text-xs font-semibold uppercase text-slate-400">
+          {{ guideCards.length }} guides
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <NuxtLink
+          v-for="(guide, guideIndex) in guideCards"
+          :key="guide.slug"
+          :to="guide.path"
+          class="group rounded-[22px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/70 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.13] dark:focus:ring-cyan-200/70"
+          data-reveal
+          :style="{ '--reveal-delay': `${guideIndex * 35}ms` }"
+        >
+          <div class="flex items-start gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 dark:ring-white/10"
+              :class="guide.iconClass"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  v-for="path in guide.iconPaths"
+                  :key="path"
+                  :d="path"
+                />
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <h3
+                class="line-clamp-2 text-sm font-black leading-5 text-slate-950 dark:text-white"
+              >
+                {{ guide.heroTitle }}
+              </h3>
+              <p class="mt-2 line-clamp-3 text-xs leading-5 text-slate-600 dark:text-white/60">
+                {{ guide.metaDescription }}
+              </p>
+            </div>
+          </div>
+          <span
+            class="mt-4 inline-flex text-xs font-bold text-sky-700 transition group-hover:translate-x-1 dark:text-cyan-300"
+          >
+            Read guide
+          </span>
+        </NuxtLink>
+      </div>
     </section>
 
     <section
