@@ -1,3 +1,10 @@
+import lzString from "lz-string";
+
+const {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} = lzString;
+
 export type PaybackCurrency = "USD" | "KHR";
 
 export type PaybackPerson = {
@@ -36,6 +43,13 @@ export type PaybackSharePayload = {
   krm?: PaybackKhrRemainderMode;
   krp?: string;
 };
+
+type PaybackCompactSharePayload = [
+  text: string,
+  currency?: PaybackCurrency | "",
+  khrRemainderMode?: PaybackKhrRemainderMode | "",
+  khrRemainderPayer?: string,
+];
 
 export function createEmptyPaybackRow(): PaybackInputRow {
   return { name: "", amount: "" };
@@ -355,18 +369,20 @@ Reak: 0
 Rotha: 38$`;
 }
 
-function encodeBase64Url(value: string): string {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
+function buildCompactPaybackRaw(value: string): string {
+  const input = value.trim();
 
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
+  if (!input) {
+    return "";
   }
 
-  return btoa(binary)
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
+  try {
+    return parsePaybackLines(input)
+      .map((entry) => `${entry.name}:${entry.paid}`)
+      .join("\n");
+  } catch {
+    return input;
+  }
 }
 
 function decodeBase64Url(value: string): string {
@@ -383,11 +399,47 @@ function decodeBase64Url(value: string): string {
 export function buildPaybackSharePayload(
   payload: PaybackSharePayload,
 ): string {
-  return encodeBase64Url(JSON.stringify(payload));
+  const compactPayload: PaybackCompactSharePayload = [
+    buildCompactPaybackRaw(payload.t ?? ""),
+  ];
+
+  if (payload.c && payload.c !== "USD") {
+    compactPayload[1] = payload.c;
+  }
+
+  if (payload.c === "KHR" && payload.krm === "ASSIGN_TO_PERSON") {
+    compactPayload[2] = payload.krm;
+    compactPayload[3] = payload.krp;
+  }
+
+  return compressToEncodedURIComponent(JSON.stringify(compactPayload));
 }
 
 export function parsePaybackSharePayload(
   payload: string,
 ): PaybackSharePayload {
+  const json = decompressFromEncodedURIComponent(payload);
+
+  if (json) {
+    const parsedPayload = JSON.parse(json) as
+      | PaybackSharePayload
+      | PaybackCompactSharePayload;
+
+    if (Array.isArray(parsedPayload)) {
+      const [text, currency, khrRemainderMode, khrRemainderPayer] =
+        parsedPayload;
+
+      return {
+        t: text,
+        c: currency || "USD",
+        krm: khrRemainderMode || "LEFTOVER_ONLY",
+        krp: khrRemainderPayer,
+      };
+    }
+
+    return parsedPayload;
+  }
+
+  // Keep old shared links working after moving new links to compressed payloads.
   return JSON.parse(decodeBase64Url(payload)) as PaybackSharePayload;
 }

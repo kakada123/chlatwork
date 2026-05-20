@@ -38,6 +38,7 @@
 import type {
   PaybackCurrency,
   PaybackKhrRemainderMode,
+  PaybackSharePayload,
 } from "~/lib/payback-calculator";
 import {
   buildPaybackKhrRemainderMeta,
@@ -61,6 +62,15 @@ import {
 
 const route = useRoute();
 const router = useRouter();
+
+type PaybackShortLinkResponse = {
+  id: string;
+  expiresInSeconds: number;
+};
+
+type PaybackStoredShareResponse = {
+  payload: string;
+};
 
 useSeoMeta({
   title: "PayBack Calculator | ChlatWork",
@@ -295,6 +305,28 @@ async function copyResult() {
   flashCopied();
 }
 
+function applyPaybackSharePayload(payload: PaybackSharePayload) {
+  if (payload.c) {
+    currency.value = payload.c;
+  }
+
+  if (payload.t !== undefined) {
+    raw.value = payload.t;
+  }
+
+  if (payload.krm) {
+    khrRemainderMode.value = payload.krm;
+  }
+
+  if (payload.krp) {
+    khrRemainderPayer.value = payload.krp;
+  }
+}
+
+function buildInlineShareUrl(payload: string) {
+  return `${window.location.origin}${route.path}?p=${encodeURIComponent(payload)}`;
+}
+
 async function shareLink() {
   const s = buildPaybackSharePayload({
     c: currency.value,
@@ -303,38 +335,55 @@ async function shareLink() {
     krp: khrRemainderPayer.value,
   });
 
-  await router.replace({ query: { s } });
+  let url = buildInlineShareUrl(s);
 
-  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
+  try {
+    const response = await $fetch<PaybackShortLinkResponse>(
+      "/api/payback-share",
+      {
+        method: "POST",
+        body: { payload: s },
+      },
+    );
+
+    if (response.id) {
+      await router.replace({ query: { id: response.id } });
+      url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
+    }
+  } catch {
+    // Keep sharing usable in local/dev environments where Upstash is not configured.
+    await router.replace({ query: { p: s } });
+  }
+
   await navigator.clipboard.writeText(url);
   flashShareCopied();
 }
 
-onMounted(() => {
-  const s = route.query.s;
+onMounted(async () => {
+  const id = route.query.id;
+
+  if (typeof id === "string" && id.trim()) {
+    try {
+      const response = await $fetch<PaybackStoredShareResponse>(
+        `/api/payback-share/${encodeURIComponent(id.trim())}`,
+      );
+
+      applyPaybackSharePayload(parsePaybackSharePayload(response.payload));
+    } catch {
+      // ignore invalid or expired stored links
+    }
+
+    return;
+  }
+
+  const s = route.query.p ?? route.query.s;
 
   if (typeof s !== "string" || !s.trim()) {
     return;
   }
 
   try {
-    const payload = parsePaybackSharePayload(s.trim());
-
-    if (payload.c) {
-      currency.value = payload.c;
-    }
-
-    if (payload.t !== undefined) {
-      raw.value = payload.t;
-    }
-
-    if (payload.krm) {
-      khrRemainderMode.value = payload.krm;
-    }
-
-    if (payload.krp) {
-      khrRemainderPayer.value = payload.krp;
-    }
+    applyPaybackSharePayload(parsePaybackSharePayload(s.trim()));
   } catch {
     // ignore invalid payload
   }
