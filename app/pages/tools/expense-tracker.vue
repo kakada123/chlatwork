@@ -215,7 +215,46 @@ function applyRaw() {
   }
 }
 
+function applyExpenseExample(exampleCurrency = currency.value) {
+  const example = getExpenseExampleState();
+  currency.value = exampleCurrency;
+  rows.value = example.rows;
+  budget.value = example.budget;
+  rangeMode.value = example.rangeMode;
+  raw.value = example.raw;
+  rawError.value = "";
+}
+
+function isExpenseExampleState() {
+  const example = getExpenseExampleState();
+
+  return (
+    rangeMode.value === example.rangeMode &&
+    raw.value === example.raw &&
+    JSON.stringify(budget.value) === JSON.stringify(example.budget) &&
+    JSON.stringify(rows.value) === JSON.stringify(example.rows)
+  );
+}
+
+function buildExampleShareUrl() {
+  const query =
+    currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
+
+  return `${window.location.origin}${route.path}${query}`;
+}
+
 async function shareLink() {
+  if (isExpenseExampleState()) {
+    const query =
+      currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
+    const url = buildExampleShareUrl();
+
+    await router.replace({ query });
+    await navigator.clipboard.writeText(url);
+    flashShareCopied();
+    return;
+  }
+
   const s = buildExpenseSharePayload({
     c: currency.value,
     r: rangeMode.value,
@@ -273,12 +312,7 @@ async function copySummary() {
 }
 
 function loadExample() {
-  const example = getExpenseExampleState();
-  rows.value = example.rows;
-  budget.value = example.budget;
-  rangeMode.value = example.rangeMode;
-  raw.value = example.raw;
-  rawError.value = "";
+  applyExpenseExample();
 }
 
 function reset() {
@@ -316,6 +350,11 @@ function buildInlineShareUrl(payload: string) {
 }
 
 onMounted(async () => {
+  if (route.query.example === "1") {
+    applyExpenseExample(route.query.c === "KHR" ? "KHR" : "USD");
+    return;
+  }
+
   const id = route.query.id;
 
   if (typeof id === "string" && id.trim()) {

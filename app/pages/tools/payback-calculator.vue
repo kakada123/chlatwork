@@ -258,6 +258,14 @@ function loadExample() {
   raw.value = getPaybackExampleRaw(currency.value);
 }
 
+function loadExampleForCurrency(nextCurrency: PaybackCurrency) {
+  currency.value = nextCurrency;
+  khrRemainderMode.value = "LEFTOVER_ONLY";
+  khrRemainderPayer.value = "";
+  syncError.value = "";
+  raw.value = getPaybackExampleRaw(nextCurrency);
+}
+
 function reset() {
   raw.value = "";
   syncError.value = "";
@@ -327,7 +335,46 @@ function buildInlineShareUrl(payload: string) {
   return `${window.location.origin}${route.path}?p=${encodeURIComponent(payload)}`;
 }
 
+function isPaybackExampleState() {
+  if (currency.value === "KHR" && khrRemainderMode.value !== "LEFTOVER_ONLY") {
+    return false;
+  }
+
+  return (
+    buildPaybackSharePayload({
+      c: currency.value,
+      t: raw.value,
+      krm: khrRemainderMode.value,
+      krp: khrRemainderPayer.value,
+    }) ===
+    buildPaybackSharePayload({
+      c: currency.value,
+      t: getPaybackExampleRaw(currency.value),
+      krm: "LEFTOVER_ONLY",
+      krp: "",
+    })
+  );
+}
+
+function buildExampleShareUrl() {
+  const query =
+    currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
+
+  return `${window.location.origin}${route.path}${query}`;
+}
+
 async function shareLink() {
+  if (isPaybackExampleState()) {
+    const query =
+      currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
+    const url = buildExampleShareUrl();
+
+    await router.replace({ query });
+    await navigator.clipboard.writeText(url);
+    flashShareCopied();
+    return;
+  }
+
   const s = buildPaybackSharePayload({
     c: currency.value,
     t: raw.value,
@@ -360,6 +407,11 @@ async function shareLink() {
 }
 
 onMounted(async () => {
+  if (route.query.example === "1") {
+    loadExampleForCurrency(route.query.c === "KHR" ? "KHR" : "USD");
+    return;
+  }
+
   const id = route.query.id;
 
   if (typeof id === "string" && id.trim()) {
