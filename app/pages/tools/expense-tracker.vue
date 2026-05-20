@@ -46,6 +46,7 @@ import type {
   ExpenseCurrency,
   ExpenseRangeMode,
   ExpenseRow,
+  ExpenseTrackerSharePayload,
 } from "~/lib/expense-tracker";
 import {
   buildExpenseBreakdown,
@@ -73,6 +74,15 @@ import {
 
 const route = useRoute();
 const router = useRouter();
+
+type ExpenseShortLinkResponse = {
+  id: string;
+  expiresInSeconds: number;
+};
+
+type ExpenseStoredShareResponse = {
+  payload: string;
+};
 
 useSeoMeta({
   title: "Expense Tracker | ChlatWork",
@@ -214,9 +224,26 @@ async function shareLink() {
     rows: rows.value,
   });
 
-  await router.replace({ query: { s } });
+  let url = buildInlineShareUrl(s);
 
-  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
+  try {
+    const response = await $fetch<ExpenseShortLinkResponse>(
+      "/api/expense-share",
+      {
+        method: "POST",
+        body: { payload: s },
+      },
+    );
+
+    if (response.id) {
+      await router.replace({ query: { id: response.id } });
+      url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
+    }
+  } catch {
+    // Keep sharing usable in local/dev environments where Upstash is not configured.
+    await router.replace({ query: { s } });
+  }
+
   await navigator.clipboard.writeText(url);
   flashShareCopied();
 }
@@ -262,34 +289,56 @@ function reset() {
   rows.value = createDefaultExpenseRows();
 }
 
-onMounted(() => {
+function applyExpenseSharePayload(payload: ExpenseTrackerSharePayload) {
+  if (payload.c) {
+    currency.value = payload.c;
+  }
+
+  if (payload.r) {
+    rangeMode.value = payload.r;
+  }
+
+  if (payload.b) {
+    budget.value = payload.b;
+  }
+
+  if (typeof payload.t === "string") {
+    raw.value = payload.t;
+  }
+
+  if (Array.isArray(payload.rows)) {
+    rows.value = payload.rows as ExpenseRow[];
+  }
+}
+
+function buildInlineShareUrl(payload: string) {
+  return `${window.location.origin}${route.path}?s=${encodeURIComponent(payload)}`;
+}
+
+onMounted(async () => {
+  const id = route.query.id;
+
+  if (typeof id === "string" && id.trim()) {
+    try {
+      const response = await $fetch<ExpenseStoredShareResponse>(
+        `/api/expense-share/${encodeURIComponent(id.trim())}`,
+      );
+
+      applyExpenseSharePayload(parseExpenseSharePayload(response.payload));
+    } catch {
+      // ignore invalid or expired stored links
+    }
+
+    return;
+  }
+
   const s = route.query.s;
   if (typeof s !== "string" || !s.trim()) {
     return;
   }
 
   try {
-    const payload = parseExpenseSharePayload(s.trim());
-
-    if (payload.c) {
-      currency.value = payload.c;
-    }
-
-    if (payload.r) {
-      rangeMode.value = payload.r;
-    }
-
-    if (payload.b) {
-      budget.value = payload.b;
-    }
-
-    if (typeof payload.t === "string") {
-      raw.value = payload.t;
-    }
-
-    if (Array.isArray(payload.rows)) {
-      rows.value = payload.rows as ExpenseRow[];
-    }
+    applyExpenseSharePayload(parseExpenseSharePayload(s.trim()));
   } catch {
     // ignore invalid payload
   }
