@@ -1,5 +1,7 @@
+import { PDF_TOOLS } from "~/data/pdf-tools";
+
 export type ToolStatus = "stable" | "beta" | "alpha" | "soon";
-export type ToolCategory = "Utilities" | "Developer Tools";
+export type ToolCategory = "Utilities" | "PDF Tools" | "Developer Tools";
 
 export type ToolDef = {
   key: string;
@@ -41,6 +43,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Convert JPG, PNG, and WebP images into one clean PDF file instantly.",
   },
+  ...PDF_TOOLS,
   {
     key: "qr",
     name: "QR Generator",
@@ -277,6 +280,67 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M8 16.5h4",
     "M13 12l3 3-3 3",
   ],
+  "jpg-to-pdf": [
+    "M4 5h16v14H4V5Z",
+    "M8 14l2.4-2.4 2.1 2.1 2.8-3.2L18 14",
+    "M8 9h.01",
+    "M6 20h12",
+  ],
+  "pdf-to-jpg": [
+    "M6 3.5h9l3.5 3.5V20.5H6V3.5Z",
+    "M15 3.5v4h4",
+    "M8 13h8",
+    "M8 16h4",
+    "M13 12l3 3-3 3",
+  ],
+  "merge-pdf": [
+    "M8 4h9v13H8V4Z",
+    "M5 7h9v13H5V7Z",
+    "M11 11h6",
+    "M14 8v6",
+  ],
+  "split-pdf": [
+    "M6 3.5h12v17H6V3.5Z",
+    "M12 4v16",
+    "M9 9h1",
+    "M14 15h1",
+  ],
+  "compress-pdf": [
+    "M6 3.5h12v17H6V3.5Z",
+    "M9 8h6",
+    "M8 14h8",
+    "M10 11l2 2 2-2",
+  ],
+  "remove-pdf-pages": [
+    "M7 4h10v16H7V4Z",
+    "M9 8h6",
+    "M10 12l4 4",
+    "M14 12l-4 4",
+  ],
+  "reorder-pdf-pages": [
+    "M8 4h10v13H8V4Z",
+    "M5 7h10v13H5V7Z",
+    "M9 11h4",
+    "M9 15h3",
+  ],
+  "html-to-pdf": [
+    "M6 3.5h12v17H6V3.5Z",
+    "M9 9l-2 3 2 3",
+    "M15 9l2 3-2 3",
+    "M11 16l2-8",
+  ],
+  "text-to-pdf": [
+    "M6 3.5h12v17H6V3.5Z",
+    "M8 8h8",
+    "M8 12h8",
+    "M8 16h5",
+  ],
+  "invoice-to-pdf": [
+    "M6 3h12v18l-3-1.5L12 21l-3-1.5L6 21V3Z",
+    "M9 8h6",
+    "M9 12h6",
+    "M9 16h3",
+  ],
   "lucky-draw": [
     "M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.3 7.2 18l.9-5.4-3.9-3.8 5.4-.8L12 3Z",
     "M19 21l-3-3",
@@ -356,6 +420,16 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
     "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
   "image-to-pdf":
     "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
+  "jpg-to-pdf": "bg-orange-50 text-orange-700 group-hover:bg-orange-500 group-hover:text-white",
+  "pdf-to-jpg": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
+  "merge-pdf": "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
+  "split-pdf": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
+  "compress-pdf": "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
+  "remove-pdf-pages": "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
+  "reorder-pdf-pages": "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
+  "html-to-pdf": "bg-zinc-100 text-zinc-700 group-hover:bg-zinc-800 group-hover:text-white",
+  "text-to-pdf": "bg-lime-50 text-lime-700 group-hover:bg-lime-600 group-hover:text-white",
+  "invoice-to-pdf": "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
   "lucky-draw": "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
   "text-to-voice": "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
   base64: "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",

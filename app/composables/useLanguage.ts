@@ -227,10 +227,12 @@ const COPY: Record<AppLocale, LandingCopy> = {
 const CATEGORY_TRANSLATIONS: Record<AppLocale, Record<ToolCategory, string>> = {
   en: {
     Utilities: "Utilities",
+    "PDF Tools": "PDF Tools",
     "Developer Tools": "Developer Tools",
   },
   km: {
     Utilities: "ឧបករណ៍ប្រើប្រាស់",
+    "PDF Tools": "ឧបករណ៍ PDF",
     "Developer Tools": "ឧបករណ៍អ្នកអភិវឌ្ឍន៍",
   },
 };
@@ -242,12 +244,16 @@ const CATEGORY_DESCRIPTION_TRANSLATIONS: Record<
   en: {
     Utilities:
       "Daily helpers for calculations, QR codes, expenses, compression, and quick office tasks.",
+    "PDF Tools":
+      "Private browser-side converters for merging, splitting, compressing, and creating PDF files.",
     "Developer Tools":
       "Focused local-first utilities for encoding, validation, tokens, timestamps, regex, and hashes.",
   },
   km: {
     Utilities:
       "ជំនួយប្រចាំថ្ងៃសម្រាប់គណនា បង្កើត QR តាមដានចំណាយ បង្រួមរូបភាព និងការងារការិយាល័យរហ័ស។",
+    "PDF Tools":
+      "ឧបករណ៍ PDF ដំណើរការនៅក្នុង browser សម្រាប់បញ្ចូល បំបែក បង្រួម និងបង្កើតឯកសារ PDF។",
     "Developer Tools":
       "ឧបករណ៍សម្រាប់អ្នកអភិវឌ្ឍន៍ ដូចជា encode, validate, token, timestamp, regex និង hash។",
   },

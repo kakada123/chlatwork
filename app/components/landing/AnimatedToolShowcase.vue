@@ -3,6 +3,7 @@ import type { LandingTool } from "~/data/tools";
 
 const props = defineProps<{
   utilityTools: LandingTool[];
+  pdfTools: LandingTool[];
   developerTools: LandingTool[];
 }>();
 
@@ -23,6 +24,7 @@ const PINNED_SCROLL_TRACK_RATIO = 0.34;
 
 const showcaseTools = computed(() => [
   ...props.utilityTools,
+  ...props.pdfTools,
   ...props.developerTools,
 ]);
 const activeTool = computed(
@@ -157,8 +159,8 @@ onBeforeUnmount(() => {
 
         <div class="lg:justify-self-end">
           <p class="max-w-xl text-sm leading-6 text-slate-600 dark:text-white/[0.58]">
-            Utilities and developer helpers move through a focused rail, with
-            each card getting a clear moment as it comes into view.
+            Utilities, PDF tools, and developer helpers move through a focused
+            rail, with each card getting a clear moment as it comes into view.
           </p>
           <div class="mt-5 h-1.5 overflow-hidden rounded-full bg-sky-100 dark:bg-white/10">
             <div

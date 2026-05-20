@@ -9,6 +9,7 @@ import {
   DEVELOPER_TOOLS,
   LANDING_CATEGORIES,
   LANDING_TOOLS,
+  PDF_LANDING_TOOLS,
   UTILITY_TOOLS,
 } from "~/data/tools";
 
@@ -18,6 +19,7 @@ const landingCategories = computed(() =>
   LANDING_CATEGORIES.map(localizeCategory),
 );
 const utilityTools = computed(() => UTILITY_TOOLS.map(localizeTool));
+const pdfTools = computed(() => PDF_LANDING_TOOLS.map(localizeTool));
 const developerTools = computed(() => DEVELOPER_TOOLS.map(localizeTool));
 </script>
 
@@ -29,6 +31,7 @@ const developerTools = computed(() => DEVELOPER_TOOLS.map(localizeTool));
     <ToolCategorySection :categories="landingCategories" />
     <AnimatedToolShowcase
       :utility-tools="utilityTools"
+      :pdf-tools="pdfTools"
       :developer-tools="developerTools"
     />
     <StickyToolPreview :tools="landingTools" />

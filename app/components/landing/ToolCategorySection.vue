@@ -22,7 +22,7 @@ useLandingReveal(sectionEl);
         </h2>
       </div>
 
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid gap-5 lg:grid-cols-3">
         <NuxtLink
           v-for="(category, index) in props.categories"
           :key="category.name"

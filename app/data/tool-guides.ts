@@ -27,6 +27,21 @@ type ToolGuideContent = {
   applicationCategory: "UtilitiesApplication" | "DeveloperApplication";
 };
 
+type PdfGuideOptions = {
+  toolName: string;
+  metaTitle: string;
+  metaDescription: string;
+  heroTitle: string;
+  heroDescription: string;
+  ctaLabel: string;
+  primaryUse: string;
+  inputLabel: string;
+  outputLabel: string;
+  extraStep: string;
+  limitation: string;
+  keywords: string[];
+};
+
 export type ToolGuide = ToolGuideContent & {
   slug: string;
   path: string;
@@ -34,6 +49,76 @@ export type ToolGuide = ToolGuideContent & {
   iconPaths: string[];
   iconClass: string;
 };
+
+function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
+  return {
+    metaTitle: options.metaTitle,
+    metaDescription: options.metaDescription,
+    heroTitle: options.heroTitle,
+    heroDescription: options.heroDescription,
+    ctaLabel: options.ctaLabel,
+    whatIs: [
+      `${options.toolName} is a browser-based PDF tool for ${options.primaryUse}. It is designed for quick document work without setting up desktop PDF software.`,
+      "The tool follows ChlatWork's privacy-first flow: files stay on your device and are processed locally in your browser whenever the browser can safely handle the job.",
+    ],
+    whyUse: [
+      "It avoids uploading private documents to a remote PDF service.",
+      "It works well for quick office, school, shop, and freelance document tasks.",
+      "It keeps the workflow simple: choose input, set options, generate, and download.",
+      "It is mobile responsive, so it can help when you only have a phone or tablet.",
+      "It is useful when you need a fast PDF result without installing another app.",
+    ],
+    steps: [
+      `Open ${options.toolName} from the ChlatWork PDF tools page.`,
+      `Prepare your ${options.inputLabel}.`,
+      options.extraStep,
+      "Click the main action button and wait while the browser processes the document locally.",
+      `Download the ${options.outputLabel} and check it before sharing or uploading elsewhere.`,
+    ],
+    useCases: [
+      "A small business prepares a document before sending it to a customer.",
+      "A student edits PDF pages before submitting school or university work.",
+      "An office worker prepares a cleaner file for email, chat, or printing.",
+      "A freelancer converts client material into a format that is easier to share.",
+      "A shop owner creates or adjusts a PDF from a phone without opening desktop software.",
+    ],
+    tips: [
+      "Use clear file names before downloading so the result is easy to find later.",
+      "Preview the result before sending it to customers, school, or government forms.",
+      "For very large PDFs, close other heavy browser tabs before processing.",
+      "Keep a backup of the original file until you confirm the new PDF is correct.",
+      options.limitation,
+    ],
+    faqs: [
+      {
+        question: `Does ${options.toolName} upload my file?`,
+        answer:
+          "No. This tool is designed to process files in your browser, so your file stays on your device.",
+      },
+      {
+        question: "Is this tool free?",
+        answer: "Yes. You can use the ChlatWork PDF tool directly in your browser.",
+      },
+      {
+        question: "Will it work with large files?",
+        answer:
+          "It depends on your browser and device memory. Smaller files are usually faster and more reliable.",
+      },
+      {
+        question: "Will the original file be changed?",
+        answer:
+          "No. The tool creates a new output file and leaves your original file untouched.",
+      },
+      {
+        question: "What should I check before sharing the result?",
+        answer:
+          "Open the downloaded file and confirm page order, layout, and content before sending it.",
+      },
+    ],
+    keywords: options.keywords,
+    applicationCategory: "UtilitiesApplication",
+  };
+}
 
 const RAW_GUIDES: Record<string, ToolGuideContent> = {
   "payback-calculator": {
@@ -264,6 +349,176 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
+  "jpg-to-pdf": createPdfGuide({
+    toolName: "JPG to PDF",
+    metaTitle: "How to Convert JPG to PDF Online | ChlatWork",
+    metaDescription:
+      "Learn how to convert JPG, PNG, and WebP images into one PDF locally in your browser.",
+    heroTitle: "How to Convert JPG Images Into a PDF",
+    heroDescription:
+      "Turn photos, scans, receipts, and screenshots into one downloadable PDF without uploading files.",
+    ctaLabel: "Convert JPG to PDF",
+    primaryUse: "turning image files into a single PDF document",
+    inputLabel: "JPG, PNG, or WebP images",
+    outputLabel: "generated PDF",
+    extraStep: "Arrange the images in the order you want them to appear in the PDF.",
+    limitation:
+      "If the source images are very large, resize or compress them first for a smaller PDF.",
+    keywords: ["JPG to PDF", "convert image to PDF", "PNG to PDF", "browser PDF converter"],
+  }),
+  "pdf-to-jpg": createPdfGuide({
+    toolName: "PDF to JPG",
+    metaTitle: "How to Convert PDF to JPG Online | ChlatWork",
+    metaDescription:
+      "Learn how to render PDF pages as JPG images locally in your browser without uploading the PDF.",
+    heroTitle: "How to Convert PDF Pages to JPG Images",
+    heroDescription:
+      "Render PDF pages into image files that are easy to share, preview, or upload to image-only forms.",
+    ctaLabel: "Convert PDF to JPG",
+    primaryUse: "rendering PDF pages into downloadable JPG images",
+    inputLabel: "PDF file",
+    outputLabel: "JPG page images",
+    extraStep: "Choose a render quality and scale that fits your file size and sharpness needs.",
+    limitation:
+      "ZIP download is not included yet, so download each rendered JPG page individually.",
+    keywords: ["PDF to JPG", "convert PDF to image", "PDF page image", "browser PDF renderer"],
+  }),
+  "merge-pdf": createPdfGuide({
+    toolName: "Merge PDF",
+    metaTitle: "How to Merge PDF Files Online | ChlatWork",
+    metaDescription:
+      "Learn how to combine multiple PDF files into one ordered PDF in your browser.",
+    heroTitle: "How to Merge Multiple PDF Files",
+    heroDescription:
+      "Combine separate PDF documents into one clean file with the order you choose.",
+    ctaLabel: "Merge PDFs",
+    primaryUse: "combining multiple PDF files into one PDF",
+    inputLabel: "two or more PDF files",
+    outputLabel: "merged PDF",
+    extraStep: "Use the file order controls to place the PDFs in the correct sequence.",
+    limitation:
+      "Interactive form behavior can vary because the tool copies page content into a new PDF.",
+    keywords: ["merge PDF", "combine PDF files", "join PDF online", "browser PDF merge"],
+  }),
+  "split-pdf": createPdfGuide({
+    toolName: "Split PDF",
+    metaTitle: "How to Split a PDF Online | ChlatWork",
+    metaDescription:
+      "Learn how to split a PDF by page ranges like 1-3, 5, 8-10 using a local browser tool.",
+    heroTitle: "How to Split a PDF by Page Range",
+    heroDescription:
+      "Extract only the PDF pages you need and download them as a new PDF file.",
+    ctaLabel: "Split PDF",
+    primaryUse: "extracting selected pages from a PDF",
+    inputLabel: "PDF file and page range",
+    outputLabel: "split PDF",
+    extraStep: "Enter pages to keep, such as 1-3, 5, 8-10.",
+    limitation:
+      "Page numbers start at 1, so check the page count shown by the tool before generating.",
+    keywords: ["split PDF", "extract PDF pages", "PDF page range", "browser PDF splitter"],
+  }),
+  "compress-pdf": createPdfGuide({
+    toolName: "Compress PDF",
+    metaTitle: "How to Compress a PDF Online | ChlatWork",
+    metaDescription:
+      "Learn what browser-side PDF compression can safely do and how to rebuild a PDF locally.",
+    heroTitle: "How to Compress a PDF in Your Browser",
+    heroDescription:
+      "Rebuild a PDF locally and remove safe metadata where possible without uploading the file.",
+    ctaLabel: "Compress PDF",
+    primaryUse: "rebuilding a PDF to reduce safe overhead where possible",
+    inputLabel: "PDF file",
+    outputLabel: "compressed PDF",
+    extraStep: "Review the original and output file sizes after processing.",
+    limitation:
+      "Compression depends on PDF content and may not shrink files that are already optimized.",
+    keywords: ["compress PDF", "reduce PDF size", "PDF optimizer", "browser PDF compression"],
+  }),
+  "remove-pdf-pages": createPdfGuide({
+    toolName: "PDF Page Remover",
+    metaTitle: "How to Remove Pages from a PDF Online | ChlatWork",
+    metaDescription:
+      "Learn how to remove pages from a PDF using ranges like 2, 5-7 and download a new copy.",
+    heroTitle: "How to Remove Pages from a PDF",
+    heroDescription:
+      "Delete unwanted PDF pages and create a clean copy while keeping the original file unchanged.",
+    ctaLabel: "Remove PDF Pages",
+    primaryUse: "removing unwanted pages from a PDF",
+    inputLabel: "PDF file and pages to remove",
+    outputLabel: "PDF with pages removed",
+    extraStep: "Enter pages to remove, such as 2, 5-7.",
+    limitation:
+      "You must keep at least one page, so the tool will reject ranges that remove every page.",
+    keywords: ["remove PDF pages", "delete PDF pages", "PDF page remover", "edit PDF pages"],
+  }),
+  "reorder-pdf-pages": createPdfGuide({
+    toolName: "PDF Page Reorder",
+    metaTitle: "How to Reorder PDF Pages Online | ChlatWork",
+    metaDescription:
+      "Learn how to reorder PDF pages using a custom order like 3,1,2,4 in your browser.",
+    heroTitle: "How to Reorder PDF Pages",
+    heroDescription:
+      "Create a new PDF with pages arranged in the exact order you need.",
+    ctaLabel: "Reorder PDF Pages",
+    primaryUse: "creating a new PDF with pages in a custom order",
+    inputLabel: "PDF file and custom page order",
+    outputLabel: "reordered PDF",
+    extraStep: "Enter the new order, such as 3,1,2,4.",
+    limitation:
+      "Each page can appear only once in the custom order to avoid accidental duplicates.",
+    keywords: ["reorder PDF pages", "arrange PDF pages", "move PDF pages", "PDF page order"],
+  }),
+  "html-to-pdf": createPdfGuide({
+    toolName: "HTML to PDF",
+    metaTitle: "How to Convert HTML to PDF Online | ChlatWork",
+    metaDescription:
+      "Learn how to convert simple printable HTML into a PDF locally in your browser.",
+    heroTitle: "How to Convert HTML Into a PDF",
+    heroDescription:
+      "Paste simple HTML, preview it, and generate a printable PDF without a backend upload.",
+    ctaLabel: "Convert HTML to PDF",
+    primaryUse: "turning simple HTML content into a printable PDF",
+    inputLabel: "HTML content",
+    outputLabel: "HTML PDF",
+    extraStep: "Preview the rendered HTML and adjust simple styles before generating.",
+    limitation:
+      "Complex scripts, remote assets, and advanced CSS may not render exactly like a full browser print engine.",
+    keywords: ["HTML to PDF", "convert HTML to PDF", "print HTML PDF", "browser HTML renderer"],
+  }),
+  "text-to-pdf": createPdfGuide({
+    toolName: "Text to PDF",
+    metaTitle: "How to Convert Text to PDF Online | ChlatWork",
+    metaDescription:
+      "Learn how to create a simple PDF from plain text with font size, page size, and margin options.",
+    heroTitle: "How to Convert Plain Text Into a PDF",
+    heroDescription:
+      "Turn notes, drafts, instructions, or plain content into a clean downloadable PDF.",
+    ctaLabel: "Convert Text to PDF",
+    primaryUse: "creating simple PDF documents from plain text",
+    inputLabel: "plain text",
+    outputLabel: "text PDF",
+    extraStep: "Choose font size, page size, and margin before generating the PDF.",
+    limitation:
+      "This tool is for plain text; use HTML to PDF when you need basic formatting.",
+    keywords: ["text to PDF", "plain text PDF", "create PDF from text", "browser PDF writer"],
+  }),
+  "invoice-to-pdf": createPdfGuide({
+    toolName: "Invoice to PDF",
+    metaTitle: "How to Create an Invoice PDF for Free | ChlatWork",
+    metaDescription:
+      "Learn how to fill a simple invoice form and generate a clean PDF invoice in your browser.",
+    heroTitle: "How to Create a Simple Invoice PDF",
+    heroDescription:
+      "Enter company, customer, items, discount, tax, and notes, then download a professional invoice PDF.",
+    ctaLabel: "Create Invoice PDF",
+    primaryUse: "generating a clean invoice PDF from a simple form",
+    inputLabel: "invoice details and item rows",
+    outputLabel: "invoice PDF",
+    extraStep: "Add line items, discount, tax, and notes before generating the invoice.",
+    limitation:
+      "The invoice template is intentionally simple, so review totals and notes before sending it to a customer.",
+    keywords: ["invoice PDF generator", "create invoice PDF", "free invoice tool", "browser invoice PDF"],
+  }),
   qr: {
     metaTitle: "How to Generate a QR Code for Free | ChlatWork",
     metaDescription:

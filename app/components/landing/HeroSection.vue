@@ -18,12 +18,12 @@ type OrbitLayout = {
 
 const featuredToolKeys = [
   "qr",
-  "image-to-pdf",
+  "jpg-to-pdf",
   "image-compress",
+  "merge-pdf",
   "payback-calculator",
   "text-to-voice",
   "json-formatter",
-  "jwt-decoder",
   "wifi-qr",
 ];
 
