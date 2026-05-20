@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { BarcodeFormat } from "~/lib/barcode-generator";
+import {
+  hasNonAsciiBarcodeCharacters,
+  type BarcodeFormat,
+} from "~/lib/barcode-generator";
 
 defineProps<{
   generated: boolean;
@@ -17,6 +20,8 @@ const format = defineModel<BarcodeFormat>("format", { required: true });
 const height = defineModel<number>("height", { required: true });
 const width = defineModel<number>("width", { required: true });
 const displayValue = defineModel<boolean>("displayValue", { required: true });
+
+const hasUnicodeInput = computed(() => hasNonAsciiBarcodeCharacters(value.value));
 </script>
 
 <template>
@@ -68,10 +73,41 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
         <p v-if="error" class="text-sm text-red-600">
           {{ error }}
         </p>
+
+        <div
+          v-if="hasUnicodeInput"
+          class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+        >
+          For Khmer language, QR Code is recommended. Standard barcodes support
+          only numbers and basic English characters.
+          <NuxtLink to="/tools/qr" class="font-semibold underline">
+            Open QR Generator
+          </NuxtLink>
+        </div>
       </div>
 
       <div class="space-y-3">
         <h3 class="text-sm font-semibold">Options</h3>
+
+        <div
+          class="grid gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600 sm:grid-cols-2"
+        >
+          <div>
+            <p class="font-semibold text-gray-900">Barcode generator</p>
+            <ul class="mt-2 list-disc space-y-1 pl-4">
+              <li>Numbers and basic English only</li>
+              <li>Good for product codes, SKU, POS item code</li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="font-semibold text-gray-900">QR code generator</p>
+            <ul class="mt-2 list-disc space-y-1 pl-4">
+              <li>Supports Khmer, emoji, links, and long text</li>
+              <li>Good for Khmer content</li>
+            </ul>
+          </div>
+        </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
           <div>
@@ -134,7 +170,7 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
 
         <p class="text-xs text-gray-500">
           Tip: Use <b>EAN13</b> for retail codes (12 digits recommended;
-          checksum auto). Use <b>CODE128</b> for any text/number.
+          checksum auto). Use <b>CODE128</b> for ASCII text or numbers.
         </p>
       </div>
     </div>

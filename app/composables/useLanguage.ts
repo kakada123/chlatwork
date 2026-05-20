@@ -287,7 +287,7 @@ const TOOL_TRANSLATIONS: Record<
     },
     barcode: {
       name: "បង្កើត Barcode",
-      description: "បង្កើត barcode ភ្លាមៗពីអត្ថបទ ឬលេខ។",
+      description: "បង្កើត barcode ភ្លាមៗពីលេខ ឬអក្សរអង់គ្លេសមូលដ្ឋាន។",
     },
     "image-compress": {
       name: "បង្រួមរូបភាព",

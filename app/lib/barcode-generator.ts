@@ -29,10 +29,18 @@ export function normalizeBarcodeValue(
   const raw = value.trim();
 
   if (format === "EAN13" || format === "UPC") {
+    if (hasNonAsciiBarcodeCharacters(raw)) {
+      return raw;
+    }
+
     return raw.replace(/\D/g, "");
   }
 
   return raw;
+}
+
+export function hasNonAsciiBarcodeCharacters(value: string): boolean {
+  return /[^\x00-\x7F]/.test(value);
 }
 
 export function validateBarcodeValue(
@@ -41,6 +49,16 @@ export function validateBarcodeValue(
 ): string | null {
   if (!value) {
     return "Please enter a value.";
+  }
+
+  // These 1D barcode formats are scanner code standards, not Unicode text
+  // containers. Khmer and other non-ASCII text should be shared as a QR code.
+  if (hasNonAsciiBarcodeCharacters(value)) {
+    return "For Khmer language, QR Code is recommended. Standard barcodes support only numbers and basic English characters.";
+  }
+
+  if (!/^[\x20-\x7E]+$/.test(value)) {
+    return "Barcode value must use printable ASCII characters.";
   }
 
   if (format === "EAN13") {

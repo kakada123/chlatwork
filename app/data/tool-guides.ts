@@ -816,13 +816,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
   barcode: {
     metaTitle: "How to Generate a Barcode for Free | ChlatWork",
     metaDescription:
-      "Generate CODE128, EAN13, UPC, and CODE39 barcodes from text or numbers and download them as SVG.",
+      "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters and download them as SVG.",
     heroTitle: "How to Generate a Barcode for Free",
     heroDescription:
       "Create a barcode for labels, inventory, product codes, or testing, then download a clean SVG file.",
     ctaLabel: "Generate Barcode",
     whatIs: [
-      "The Barcode Generator creates barcode graphics from text or numbers. It supports common barcode formats such as CODE128, EAN13, UPC, and CODE39.",
+      "The Barcode Generator creates barcode graphics from numbers and basic English characters. It supports common barcode formats such as CODE128, EAN13, UPC, and CODE39.",
       "It is useful for labels, internal stock codes, sample product tags, testing scanner workflows, and simple retail preparation.",
     ],
     whyUse: [
@@ -868,7 +868,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       {
         question: "Why does my barcode not generate?",
         answer:
-          "Some formats require a specific number format or length. Try CODE128 if you need a more flexible option.",
+          "Some formats require a specific number format or length. These 1D barcode formats also do not support Khmer or other Unicode text; use QR Generator for Khmer text.",
       },
       {
         question: "Can it create official retail barcodes?",

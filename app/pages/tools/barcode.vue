@@ -3,7 +3,8 @@
     <div>
       <h1 class="text-xl font-bold">Barcode Generator</h1>
       <p class="text-sm text-gray-500">
-        Generate barcodes (CODE128, EAN13, UPC, CODE39) and download as SVG.
+        Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic
+        English characters.
       </p>
     </div>
 
@@ -42,9 +43,10 @@ import {
 useSeoMeta({
   title: "Barcode Generator — ChlatWork",
   description:
-    "Generate barcodes (CODE128, EAN13, UPC, CODE39) and download as SVG.",
+    "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters and download as SVG.",
   ogTitle: "Barcode Generator — ChlatWork",
-  ogDescription: "Generate barcodes instantly and download as SVG.",
+  ogDescription:
+    "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters and download as SVG.",
 });
 
 type JsBarcodeFn = (element: Element, text: string, options?: any) => void;

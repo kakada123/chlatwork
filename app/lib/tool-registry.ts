@@ -87,7 +87,8 @@ export const TOOLS: ToolDef[] = [
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Generate barcodes instantly from text or numbers.",
+    description:
+      "Generate barcodes instantly from numbers and basic English characters.",
   },
   {
     key: "expense-tracker",
