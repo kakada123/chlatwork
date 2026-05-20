@@ -17,6 +17,40 @@ export function daysBetween(a: Date, b: Date): number {
   return Math.round(ms / (24 * 60 * 60 * 1000));
 }
 
+export type CalendarDuration = {
+  years: number;
+  months: number;
+  days: number;
+};
+
+export function calendarDurationBetween(a: Date, b: Date): CalendarDuration {
+  const start = a <= b ? a : b;
+  const end = a <= b ? b : a;
+
+  let years = end.getFullYear() - start.getFullYear();
+  let yearAnchor = addYearsSafe(start, years);
+
+  if (yearAnchor > end) {
+    years -= 1;
+    yearAnchor = addYearsSafe(start, years);
+  }
+
+  let months = 0;
+
+  // Walk whole months from the year anchor so month-end dates stay intuitive.
+  while (months < 12 && addMonthsSafe(yearAnchor, months + 1) <= end) {
+    months += 1;
+  }
+
+  const monthAnchor = addMonthsSafe(yearAnchor, months);
+
+  return {
+    years,
+    months,
+    days: daysBetween(monthAnchor, end),
+  };
+}
+
 export function addMonthsSafe(date: Date, months: number): Date {
   const d = new Date(date);
   const day = d.getDate();

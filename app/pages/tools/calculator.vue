@@ -1,8 +1,10 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 text-slate-950 dark:text-white">
     <div>
-      <h1 class="text-lg font-bold">Date Calculator</h1>
-      <p class="text-sm text-gray-500">
+      <h1 class="text-lg font-bold text-slate-950 dark:text-white">
+        Date Calculator
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-white/60">
         Add/subtract dates, find differences, and count workdays (Mon–Fri).
       </p>
     </div>
@@ -13,11 +15,11 @@
         v-for="t in tabs"
         :key="t.key"
         @click="tab = t.key"
-        class="rounded-xl px-3 py-2 text-sm font-semibold border"
+        class="rounded-xl border px-3 py-2 text-sm font-semibold transition"
         :class="
           tab === t.key
-            ? 'bg-gray-900 text-white border-gray-900'
-            : 'bg-white hover:bg-gray-50'
+            ? 'border-slate-950 bg-slate-950 text-white dark:border-cyan-200 dark:bg-cyan-200 dark:text-slate-950'
+            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.11] dark:hover:text-white'
         "
       >
         {{ t.label }}
@@ -27,33 +29,35 @@
     <!-- 1) Add/Subtract -->
     <section
       v-if="tab === 'add'"
-      class="rounded-2xl border bg-white p-4 shadow-sm space-y-4"
+      class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold">Add / Subtract</h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
+        Add / Subtract
+      </h2>
 
       <div class="grid gap-3 md:grid-cols-3">
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             Base date
           </label>
-          <input
+          <ModernDateInput
             v-model="add.base"
-            type="date"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1"
+            aria-label="Choose base date"
           />
         </div>
 
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             Operation
           </label>
           <select
             v-model="add.op"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
             <option value="plus">+</option>
             <option value="minus">-</option>
@@ -62,7 +66,7 @@
 
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             Amount
           </label>
@@ -70,7 +74,7 @@
             v-model.number="add.amount"
             type="number"
             min="0"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:placeholder:text-white/35 dark:focus:ring-cyan-200/15"
             placeholder="e.g. 10"
           />
         </div>
@@ -79,13 +83,13 @@
       <div class="grid gap-3 md:grid-cols-2">
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             Unit
           </label>
           <select
             v-model="add.unit"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
             <option value="days">Days</option>
             <option value="weeks">Weeks</option>
@@ -97,13 +101,13 @@
         <div class="flex items-end gap-2">
           <button
             @click="computeAdd()"
-            class="w-full rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+            class="w-full rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
           >
             Calculate
           </button>
           <button
             @click="resetAdd()"
-            class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+            class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
           >
             Clear
           </button>
@@ -120,34 +124,36 @@
     <!-- 2) Difference -->
     <section
       v-if="tab === 'diff'"
-      class="rounded-2xl border bg-white p-4 shadow-sm space-y-4"
+      class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold">Difference between 2 dates</h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
+        Difference between 2 dates
+      </h2>
 
       <div class="grid gap-3 md:grid-cols-2">
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             From
           </label>
-          <input
+          <ModernDateInput
             v-model="diff.from"
-            type="date"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1"
+            aria-label="Choose difference start date"
           />
         </div>
 
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             To
           </label>
-          <input
+          <ModernDateInput
             v-model="diff.to"
-            type="date"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1"
+            aria-label="Choose difference end date"
           />
         </div>
       </div>
@@ -155,13 +161,13 @@
       <div class="flex gap-2">
         <button
           @click="computeDiff()"
-          class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+          class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
         >
           Calculate
         </button>
         <button
           @click="resetDiff()"
-          class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+          class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
         >
           Clear
         </button>
@@ -177,34 +183,36 @@
     <!-- 3) Workdays -->
     <section
       v-if="tab === 'workdays'"
-      class="rounded-2xl border bg-white p-4 shadow-sm space-y-4"
+      class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold">Workdays (Mon–Fri) between 2 dates</h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
+        Workdays (Mon–Fri) between 2 dates
+      </h2>
 
       <div class="grid gap-3 md:grid-cols-2">
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             From
           </label>
-          <input
+          <ModernDateInput
             v-model="work.from"
-            type="date"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1"
+            aria-label="Choose workdays start date"
           />
         </div>
 
         <div>
           <label
-            class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+            class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
           >
             To
           </label>
-          <input
+          <ModernDateInput
             v-model="work.to"
-            type="date"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1"
+            aria-label="Choose workdays end date"
           />
         </div>
       </div>
@@ -212,13 +220,13 @@
       <div class="flex gap-2">
         <button
           @click="computeWorkdays()"
-          class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+          class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
         >
           Calculate
         </button>
         <button
           @click="resetWork()"
-          class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+          class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
         >
           Clear
         </button>
@@ -230,7 +238,7 @@
         @copy="copyText(work.resultText)"
       />
 
-      <p class="text-xs text-gray-500">
+      <p class="text-xs text-slate-500 dark:text-white/50">
         Note: Excludes weekends only. Public holidays can be added later.
       </p>
     </section>
@@ -245,6 +253,7 @@ import {
   parseDateInput,
   formatDate,
   daysBetween,
+  calendarDurationBetween,
   addMonthsSafe,
   addYearsSafe,
   isWeekend,
@@ -341,12 +350,38 @@ const diff = reactive({
   error: "",
 });
 
+function formatDurationPart(value: number, unit: string) {
+  return `${value} ${unit}${value === 1 ? "" : "s"}`;
+}
+
+function formatDurationText(duration: {
+  years: number;
+  months: number;
+  days: number;
+}) {
+  const parts = [
+    duration.years ? formatDurationPart(duration.years, "year") : "",
+    duration.months ? formatDurationPart(duration.months, "month") : "",
+    duration.days ? formatDurationPart(duration.days, "day") : "",
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(", ") : "0 days";
+}
+
+function formatWeeksText(weeks: number, days: number) {
+  const weekText = formatDurationPart(weeks, "week");
+  if (!days) return weekText;
+
+  return `${weekText} and ${formatDurationPart(days, "day")}`;
+}
+
 function computeDiff() {
   diff.error = "";
   diff.resultText = "";
 
   const from = parseDateInput(diff.from);
   const to = parseDateInput(diff.to);
+
   if (!from || !to) {
     diff.error = "Please select both dates.";
     return;
@@ -354,18 +389,25 @@ function computeDiff() {
 
   const d = daysBetween(from, to);
   const abs = Math.abs(d);
+
   const weeks = Math.floor(abs / 7);
   const remDays = abs % 7;
 
-  const monthsApprox = abs / 30.4375;
-  const yearsApprox = abs / 365.25;
+  const calendar = calendarDurationBetween(from, to);
+  const calendarText = formatDurationText(calendar);
+
+  const totalDaysText = new Intl.NumberFormat("en-US").format(abs);
+
+  const totalMonths = calendar.years * 12 + calendar.months;
+  const monthText = `${formatDurationPart(totalMonths, "month")} and ${formatDurationPart(calendar.days, "day")}`;
 
   diff.resultText =
-    `Days: ${d}\n` +
-    `Absolute: ${abs} days (${weeks} weeks ${remDays} days)\n` +
-    `Approx: ${monthsApprox.toFixed(2)} months, ${yearsApprox.toFixed(
-      2
-    )} years`;
+    `Duration\n` +
+    `${calendarText}\n\n` +
+    `That is ${totalDaysText} days total\n\n` +
+    `Also equal to\n` +
+    `${formatWeeksText(weeks, remDays)}\n` +
+    `${monthText}`;
 }
 
 function resetDiff() {

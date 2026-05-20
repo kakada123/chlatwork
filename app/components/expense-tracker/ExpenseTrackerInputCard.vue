@@ -111,10 +111,10 @@ function removeRow(index: number) {
 
             <div>
               <div class="mb-1 text-xs text-gray-500">Date</div>
-              <input
+              <ModernDateInput
                 v-model="row.date"
-                type="date"
-                class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                size="sm"
+                :aria-label="`Choose date for row ${index + 1}`"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ function removeRow(index: number) {
       </div>
     </div>
 
-    <div class="hidden overflow-hidden rounded-xl border md:block">
+    <div class="hidden overflow-visible rounded-xl border md:block">
       <table class="w-full table-fixed text-sm">
         <thead class="bg-gray-50">
           <tr>
@@ -212,10 +212,9 @@ function removeRow(index: number) {
             </td>
 
             <td class="p-2">
-              <input
+              <ModernDateInput
                 v-model="row.date"
-                type="date"
-                class="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                :aria-label="`Choose date for row ${index + 1}`"
               />
             </td>
 

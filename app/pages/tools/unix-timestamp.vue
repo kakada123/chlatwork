@@ -63,10 +63,11 @@
 
         <div class="space-y-3 rounded-lg border border-gray-200 p-3">
           <h2 class="text-sm font-semibold text-gray-900">Date to timestamp</h2>
-          <input
+          <ModernDateInput
             v-model="dateInput"
             type="datetime-local"
-            class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            size="sm"
+            aria-label="Choose date and time"
           />
           <button
             type="button"
