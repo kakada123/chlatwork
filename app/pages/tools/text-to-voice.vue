@@ -94,7 +94,7 @@
             <select
               id="engine-select"
               v-model="engine"
-              class="h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option value="online">Online Khmer audio</option>
               <option value="browser">Browser voice</option>
@@ -111,7 +111,7 @@
             <select
               id="online-voice-select"
               v-model="onlineVoice"
-              class="h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option
                 v-for="voice in onlineVoiceOptions"
@@ -133,7 +133,7 @@
             <select
               id="voice-select"
               v-model="selectedVoiceURI"
-              class="h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option value="">Browser default Khmer voice</option>
               <option

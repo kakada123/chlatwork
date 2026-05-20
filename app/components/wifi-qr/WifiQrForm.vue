@@ -48,7 +48,7 @@ const enHeadline = defineModel<string>("enHeadline", {
       <label class="text-sm font-medium">Wi-Fi Name (SSID)</label>
       <input
         v-model="ssid"
-        class="mt-1 w-full rounded-xl border px-3 py-2"
+        class="mt-1 h-11 w-full rounded-xl border px-3"
         placeholder="e.g. ChlatCafe"
       />
     </div>
@@ -58,7 +58,7 @@ const enHeadline = defineModel<string>("enHeadline", {
         <label class="text-sm font-medium">Security</label>
         <select
           v-model="security"
-          class="mt-1 w-full rounded-xl border px-3 py-2"
+          class="mt-1 h-11 w-full rounded-xl border px-3"
         >
           <option value="WPA">WPA / WPA2</option>
           <option value="WEP">WEP</option>
@@ -71,7 +71,7 @@ const enHeadline = defineModel<string>("enHeadline", {
         <input
           v-model="password"
           :disabled="security === 'nopass'"
-          class="mt-1 w-full rounded-xl border px-3 py-2 disabled:bg-gray-100"
+          class="mt-1 h-11 w-full rounded-xl border px-3 disabled:bg-gray-100"
           placeholder="e.g. 12345678"
         />
       </div>
@@ -96,7 +96,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">Shop name (optional)</label>
           <input
             v-model="shopName"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
             placeholder="e.g. ChlatCafe"
           />
         </div>
@@ -105,7 +105,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">Tagline (optional)</label>
           <input
             v-model="tagline"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
             placeholder="e.g. Thanks for visiting!"
           />
         </div>
@@ -116,7 +116,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">Style</label>
           <select
             v-model="theme"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
           >
             <option value="cute">Cute</option>
             <option value="modern">Modern</option>
@@ -128,7 +128,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">Poster size</label>
           <select
             v-model="posterSize"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
           >
             <option value="A5">A5</option>
             <option value="A4">A4</option>
@@ -157,7 +157,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">Khmer headline</label>
           <input
             v-model="khmerHeadline"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
           />
         </div>
 
@@ -165,7 +165,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           <label class="text-sm font-medium">English headline</label>
           <input
             v-model="enHeadline"
-            class="mt-1 w-full rounded-xl border px-3 py-2"
+            class="mt-1 h-11 w-full rounded-xl border px-3"
           />
         </div>
       </div>

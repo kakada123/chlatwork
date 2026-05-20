@@ -129,7 +129,7 @@ function openTopResult() {
           ref="searchInput"
           v-model="globalSearch"
           type="search"
-          class="h-14 w-full bg-transparent pl-14 pr-14 text-base font-semibold text-slate-950 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-white/35"
+          class="h-11 w-full bg-transparent pl-14 pr-14 text-base font-semibold text-slate-950 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-white/35"
           :placeholder="copy.heroSearch.placeholder"
           @keydown.enter.prevent="openTopResult"
           @keydown.esc="clearSearch"

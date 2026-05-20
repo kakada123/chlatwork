@@ -12,7 +12,7 @@
         <label class="block text-sm font-semibold text-gray-900">Timezone</label>
         <select
           v-model="timeZone"
-          class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+          class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
         >
           <option v-for="zone in timeZoneOptions" :key="zone" :value="zone">
             {{ zone }}
@@ -25,20 +25,20 @@
           <h2 class="text-sm font-semibold text-gray-900">Timestamp to date</h2>
           <input
             v-model="timestampInput"
-            class="h-10 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             placeholder="1715000000 or 1715000000000"
           />
           <div class="flex flex-wrap gap-2">
             <button
               type="button"
-              class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
+              class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="convertTimestamp"
             >
               Convert
             </button>
             <button
               type="button"
-              class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              class="h-11 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="useNow"
             >
               Use now
@@ -71,7 +71,7 @@
           />
           <button
             type="button"
-            class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
+            class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="convertDate"
           >
             Convert

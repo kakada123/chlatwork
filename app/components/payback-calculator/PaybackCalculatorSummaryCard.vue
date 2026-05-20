@@ -141,7 +141,7 @@ function fmt(value: number) {
 
         <select
           v-model="khrRemainderMode"
-          class="w-full rounded-lg border bg-white px-3 py-2 text-sm"
+          class="h-11 w-full rounded-lg border bg-white px-3 text-sm"
         >
           <option value="LEFTOVER_ONLY">Keep leftover separate</option>
           <option value="ASSIGN_TO_PERSON">Assign leftover to one person</option>
@@ -155,7 +155,7 @@ function fmt(value: number) {
 
         <select
           v-model="khrRemainderPayer"
-          class="w-full rounded-lg border bg-white px-3 py-2 text-sm"
+          class="h-11 w-full rounded-lg border bg-white px-3 text-sm"
         >
           <option
             v-for="option in props.uniqueNames"

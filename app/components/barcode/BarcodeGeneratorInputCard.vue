@@ -34,7 +34,7 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
         <input
           v-model="value"
           type="text"
-          class="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+          class="h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
           placeholder="e.g. 8851234567890"
         />
 
@@ -83,7 +83,7 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
 
             <select
               v-model="format"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option value="CODE128">CODE128</option>
               <option value="EAN13">EAN13</option>
@@ -104,7 +104,7 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
               type="number"
               min="20"
               max="200"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             />
           </div>
 
@@ -120,7 +120,7 @@ const displayValue = defineModel<boolean>("displayValue", { required: true });
               type="number"
               min="1"
               max="5"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             />
           </div>
 

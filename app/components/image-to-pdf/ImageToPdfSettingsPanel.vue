@@ -7,7 +7,7 @@
       <select
         :id="fieldId('page-size')"
         v-model="pageSize"
-        class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+        class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
         <option v-for="option in PAGE_SIZE_OPTIONS" :key="option.value" :value="option.value">
           {{ option.label }}
@@ -22,7 +22,7 @@
       <select
         :id="fieldId('orientation')"
         v-model="orientation"
-        class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+        class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
         <option
           v-for="option in ORIENTATION_OPTIONS"
@@ -41,7 +41,7 @@
       <select
         :id="fieldId('margin')"
         v-model="margin"
-        class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+        class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
         <option v-for="option in MARGIN_OPTIONS" :key="option.value" :value="option.value">
           {{ option.label }}
@@ -56,7 +56,7 @@
       <select
         :id="fieldId('images-per-page')"
         v-model="imagesPerPage"
-        class="mt-2 h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+        class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
       >
         <option
           v-for="option in IMAGES_PER_PAGE_OPTIONS"

@@ -57,7 +57,7 @@
           </label>
           <select
             v-model="add.op"
-            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
+            class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
             <option value="plus">+</option>
             <option value="minus">-</option>
@@ -74,7 +74,7 @@
             v-model.number="add.amount"
             type="number"
             min="0"
-            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:placeholder:text-white/35 dark:focus:ring-cyan-200/15"
+            class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:placeholder:text-white/35 dark:focus:ring-cyan-200/15"
             placeholder="e.g. 10"
           />
         </div>
@@ -89,7 +89,7 @@
           </label>
           <select
             v-model="add.unit"
-            class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
+            class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
             <option value="days">Days</option>
             <option value="weeks">Weeks</option>
@@ -101,13 +101,13 @@
         <div class="flex items-end gap-2">
           <button
             @click="computeAdd()"
-            class="w-full rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
+            class="h-11 w-full rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
           >
             Calculate
           </button>
           <button
             @click="resetAdd()"
-            class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
+            class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
           >
             Clear
           </button>
@@ -161,13 +161,13 @@
       <div class="flex gap-2">
         <button
           @click="computeDiff()"
-          class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
+          class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
         >
           Calculate
         </button>
         <button
           @click="resetDiff()"
-          class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
+          class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
         >
           Clear
         </button>
@@ -220,13 +220,13 @@
       <div class="flex gap-2">
         <button
           @click="computeWorkdays()"
-          class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
+          class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
         >
           Calculate
         </button>
         <button
           @click="resetWork()"
-          class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
+          class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
         >
           Clear
         </button>

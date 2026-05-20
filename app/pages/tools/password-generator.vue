@@ -26,7 +26,7 @@
               type="number"
               min="8"
               max="256"
-              class="mt-2 h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-2 h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             />
           </div>
 

@@ -14,7 +14,7 @@
             <label class="block text-sm font-semibold text-gray-900">Pattern</label>
             <input
               v-model="pattern"
-              class="mt-2 h-10 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-2 h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
               placeholder="\\b\\w+@\\w+\\.\\w+\\b"
             />
           </div>

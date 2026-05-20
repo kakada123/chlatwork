@@ -55,12 +55,12 @@ function removeRow(index: number) {
       <h2 class="font-semibold">Input</h2>
 
       <div class="flex items-center gap-2">
-        <select v-model="currency" class="rounded-lg border px-2 py-1 text-sm">
+        <select v-model="currency" class="h-11 rounded-lg border px-3 text-sm">
           <option value="USD">USD</option>
           <option value="KHR">KHR</option>
         </select>
 
-        <select v-model="rangeMode" class="rounded-lg border px-2 py-1 text-sm">
+        <select v-model="rangeMode" class="h-11 rounded-lg border px-3 text-sm">
           <option value="all">All</option>
           <option value="month">This month</option>
           <option value="week">Last 7 days</option>
@@ -102,7 +102,7 @@ function removeRow(index: number) {
               <div class="mb-1 text-xs text-gray-500">Type</div>
               <select
                 v-model="row.type"
-                class="h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
               >
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
@@ -123,7 +123,7 @@ function removeRow(index: number) {
             <div class="mb-1 text-xs text-gray-500">Category</div>
             <select
               v-model="row.category"
-              class="h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+              class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
             >
               <option
                 v-for="category in presetCategoriesForRow(row)"
@@ -138,7 +138,7 @@ function removeRow(index: number) {
             <input
               v-if="row.category === '__custom__'"
               v-model.trim="row.customCategory"
-              class="mt-2 h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+              class="mt-2 h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
               placeholder="Type category..."
             />
           </div>
@@ -147,7 +147,7 @@ function removeRow(index: number) {
             <div class="mb-1 text-xs text-gray-500">Note</div>
             <input
               v-model.trim="row.note"
-              class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+              class="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
               placeholder="Optional note..."
             />
           </div>
@@ -157,7 +157,7 @@ function removeRow(index: number) {
             <input
               v-model.trim="row.amount"
               inputmode="decimal"
-              class="h-10 w-full rounded-lg border px-3 text-right text-sm outline-none focus:ring-2 focus:ring-black/10"
+              class="h-11 w-full rounded-lg border px-3 text-right text-sm outline-none focus:ring-2 focus:ring-black/10"
               placeholder="0"
             />
           </div>

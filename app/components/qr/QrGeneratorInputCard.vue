@@ -85,7 +85,7 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
               type="number"
               min="160"
               max="1024"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             />
           </div>
 
@@ -100,7 +100,7 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
               type="number"
               min="0"
               max="10"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             />
           </div>
 
@@ -112,7 +112,7 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
             </label>
             <select
               v-model="ecLevel"
-              class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+              class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option value="L">L (7%)</option>
               <option value="M">M (15%)</option>

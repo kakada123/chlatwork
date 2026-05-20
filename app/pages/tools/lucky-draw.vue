@@ -83,7 +83,7 @@
                   <input
                     :ref="(element) => setNameInputRef(element, index)"
                     v-model.trim="row.name"
-                    class="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                    class="h-11 w-full rounded-lg border px-3 outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="e.g. Kakada Ngen"
                     :disabled="isSpinning"
                   />

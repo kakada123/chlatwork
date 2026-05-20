@@ -58,7 +58,7 @@ function removeRow(index: number) {
   <div class="rounded-xl border bg-white p-4">
     <div class="mb-2 flex items-center justify-between">
       <h2 class="font-semibold">Input</h2>
-      <select v-model="currency" class="rounded-lg border px-2 py-1 text-sm">
+      <select v-model="currency" class="h-11 rounded-lg border px-3 text-sm">
         <option value="USD">USD</option>
         <option value="KHR">KHR</option>
       </select>
@@ -84,7 +84,7 @@ function removeRow(index: number) {
               <input
                 :ref="(element) => setNameInputRef(element, index)"
                 v-model.trim="row.name"
-                class="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10"
+                class="h-11 w-full rounded-lg border px-3 outline-none focus:ring-2 focus:ring-black/10"
                 placeholder="e.g. Mina"
               />
             </td>
@@ -93,7 +93,7 @@ function removeRow(index: number) {
               <input
                 v-model.trim="row.amount"
                 inputmode="decimal"
-                class="w-full rounded-lg border px-3 py-2 text-right outline-none focus:ring-2 focus:ring-black/10"
+                class="h-11 w-full rounded-lg border px-3 text-right outline-none focus:ring-2 focus:ring-black/10"
                 placeholder="e.g. 5"
               />
             </td>

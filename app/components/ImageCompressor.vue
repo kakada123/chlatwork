@@ -125,7 +125,7 @@
           </label>
           <select
             v-model="opts.format"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
           >
             <option value="image/webp">WebP (smallest)</option>
             <option value="image/jpeg">JPEG</option>
@@ -191,7 +191,7 @@
             v-model.number="opts.maxWidth"
             type="number"
             min="0"
-            class="mt-1 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+            class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             placeholder="e.g. 1280"
           />
         </div>

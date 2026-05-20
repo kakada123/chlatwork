@@ -396,13 +396,13 @@ onBeforeUnmount(() => {
                 id="mobile-tool-nav-search"
                 v-model="toolNavSearch"
                 type="search"
-                class="h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+                class="h-11 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
                 :placeholder="copy.nav.searchTools"
               />
               <button
                 v-if="toolNavSearch"
                 type="button"
-                class="h-10 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                class="h-11 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                 @click="toolNavSearch = ''"
               >
                 {{ copy.nav.clear }}
@@ -547,7 +547,7 @@ onBeforeUnmount(() => {
                 id="tool-nav-search"
                 v-model="toolNavSearch"
                 type="search"
-                class="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+                class="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
                 :placeholder="copy.nav.searchTools"
               />
             </div>

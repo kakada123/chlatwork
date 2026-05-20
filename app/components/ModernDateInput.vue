@@ -35,7 +35,7 @@ const props = withDefaults(
     type: "date",
     size: "md",
     ariaLabel: "Choose date",
-    minYear: 1970,
+    minYear: 1900,
     maxYear: 2100,
   },
 );
@@ -48,7 +48,7 @@ const activeMonth = ref(
 const timeValue = ref(parseValueTime(value.value));
 
 const inputSizeClass = computed(() =>
-  props.size === "sm" ? "h-10 rounded-lg text-sm" : "h-11 rounded-xl text-sm",
+  props.size === "sm" ? "h-11 rounded-lg text-sm" : "h-11 rounded-xl text-sm",
 );
 
 const monthOptions = computed(() =>
@@ -286,7 +286,7 @@ function toDateValue(date: Date) {
           <select
             v-model.number="activeMonthIndex"
             aria-label="Select month"
-            class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
+            class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option
               v-for="month in monthOptions"
@@ -300,7 +300,7 @@ function toDateValue(date: Date) {
           <select
             v-model.number="activeYear"
             aria-label="Select year"
-            class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
+            class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option v-for="year in yearOptions" :key="year" :value="year">
               {{ year }}
@@ -311,7 +311,7 @@ function toDateValue(date: Date) {
         <div class="flex items-center gap-1">
           <button
             type="button"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
             aria-label="Previous month"
             @click="moveMonth(-1)"
           >
@@ -319,7 +319,7 @@ function toDateValue(date: Date) {
           </button>
           <button
             type="button"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
             aria-label="Next month"
             @click="moveMonth(1)"
           >
@@ -373,7 +373,7 @@ function toDateValue(date: Date) {
         <input
           v-model="timeValue"
           type="time"
-          class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:ring-cyan-200/15"
+          class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:ring-cyan-200/15"
           @change="updateTime"
         />
       </div>

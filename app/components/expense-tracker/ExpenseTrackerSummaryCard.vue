@@ -102,7 +102,7 @@ function fmt(value: number) {
         <div class="flex items-center justify-between gap-2">
           <h3 class="font-semibold">Budget</h3>
 
-          <select v-model="budget.period" class="rounded-lg border px-2 py-1 text-sm">
+          <select v-model="budget.period" class="h-11 rounded-lg border px-3 text-sm">
             <option value="monthly">Monthly</option>
             <option value="weekly">Weekly</option>
           </select>
@@ -114,7 +114,7 @@ function fmt(value: number) {
             <input
               v-model.trim="budget.amount"
               inputmode="decimal"
-              class="h-12 w-full rounded-lg border px-4 text-base outline-none focus:ring-2 focus:ring-black/10"
+              class="h-11 w-full rounded-lg border px-4 text-base outline-none focus:ring-2 focus:ring-black/10"
               placeholder="e.g. 200"
             />
           </div>
@@ -122,7 +122,7 @@ function fmt(value: number) {
           <div>
             <div class="mb-1 text-xs text-gray-500">Remaining</div>
             <div
-              class="flex h-12 w-full items-center rounded-lg border px-4 font-semibold"
+              class="flex h-11 w-full items-center rounded-lg border px-4 font-semibold"
               :class="props.budgetStatus.bg"
             >
               {{ fmt(props.budgetRemaining) }}
