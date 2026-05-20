@@ -54,6 +54,10 @@ export default defineNuxtConfig({
         { name: "color-scheme", content: "dark light" },
         { name: "theme-color", content: "#1c1c1e" },
         { name: "description", content: "Smart tools for everyday work." },
+        {
+          name: "google-adsense-account",
+          content: "ca-pub-4280865455316436",
+        },
 
         // Open Graph (FB / Zalo / Telegram previews)
         { property: "og:site_name", content: "ChlatWork" },
