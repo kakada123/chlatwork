@@ -243,8 +243,16 @@ function buildExampleShareUrl() {
   return `${window.location.origin}${route.path}${query}`;
 }
 
+function getCurrentShareId() {
+  const id = route.query.id;
+
+  return typeof id === "string" && id.trim() ? id.trim() : "";
+}
+
 async function shareLink() {
-  if (isExpenseExampleState()) {
+  const currentShareId = getCurrentShareId();
+
+  if (!currentShareId && isExpenseExampleState()) {
     const query =
       currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
     const url = buildExampleShareUrl();
@@ -270,7 +278,7 @@ async function shareLink() {
       "/api/expense-share",
       {
         method: "POST",
-        body: { payload: s },
+        body: currentShareId ? { id: currentShareId, payload: s } : { payload: s },
       },
     );
 
