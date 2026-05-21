@@ -4,7 +4,11 @@
   >
     <p class="font-semibold">Files stay on your device and are processed locally in your browser.</p>
     <p class="mt-1 text-xs opacity-80">
-      Your files are processed in your browser. No upload needed.
+      {{ LOCAL_PROCESSING_PRIVACY_NOTE }}
     </p>
   </div>
 </template>
+
+<script setup lang="ts">
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+</script>

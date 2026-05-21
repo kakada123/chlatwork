@@ -32,6 +32,7 @@ type LandingCopy = {
     about: string;
     privacy: string;
     cookies: string;
+    cookieSettings: string;
     terms: string;
     disclaimer: string;
     contact: string;
@@ -108,6 +109,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
       about: "About",
       privacy: "Privacy Policy",
       cookies: "Cookie Policy",
+      cookieSettings: "Cookie Settings",
       terms: "Terms",
       disclaimer: "Disclaimer",
       contact: "Contact",
@@ -180,6 +182,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
       about: "អំពីយើង",
       privacy: "គោលការណ៍ឯកជនភាព",
       cookies: "គោលការណ៍ Cookie",
+      cookieSettings: "កំណត់ Cookie",
       terms: "លក្ខខណ្ឌ",
       disclaimer: "ការបដិសេធទំនួលខុសត្រូវ",
       contact: "ទំនាក់ទំនង",

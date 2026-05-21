@@ -1,4 +1,5 @@
 import type { ToolDef } from "~/lib/tool-registry";
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 export type PdfToolKey =
   | "jpg-to-pdf"
@@ -72,7 +73,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "JPG to PDF Converter Online",
     metaDescription:
       "Convert JPG, JPEG, PNG, and WebP images into one PDF online. Reorder images and download a private browser-generated PDF.",
-    privacyNote: "Your images are processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Convert to PDF",
     emptyState: "Drop JPG, PNG, or WebP images here to create one PDF.",
     accept: "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp",
@@ -106,7 +107,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "PDF to JPG Converter Online",
     metaDescription:
       "Convert PDF pages to JPG images in your browser. Download each rendered page without uploading your PDF.",
-    privacyNote: "Your PDF is rendered in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Convert to JPG",
     emptyState: "Drop one PDF here to render each page as a JPG image.",
     accept: "application/pdf,.pdf",
@@ -142,7 +143,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Merge PDF Files Online",
     metaDescription:
       "Merge multiple PDF files online in your browser. Reorder files and download one combined PDF without uploading.",
-    privacyNote: "Your PDFs are processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Merge PDFs",
     emptyState: "Drop two or more PDFs here to combine them.",
     accept: "application/pdf,.pdf",
@@ -177,7 +178,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Split PDF Online",
     metaDescription:
       "Split a PDF by page range online. Enter ranges like 1-3, 5, 8-10 and download a new local PDF.",
-    privacyNote: "Your PDF is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Create Split PDF",
     emptyState: "Drop one PDF here, then choose the pages to keep.",
     accept: "application/pdf,.pdf",
@@ -211,7 +212,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Compress PDF Online",
     metaDescription:
       "Compress PDF online in your browser by safely rebuilding the file. Results depend on source PDF content.",
-    privacyNote: "Your PDF is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Compress PDF",
     emptyState: "Drop one PDF here to rebuild it locally.",
     accept: "application/pdf,.pdf",
@@ -247,7 +248,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Remove Pages from PDF Online",
     metaDescription:
       "Remove pages from a PDF online in your browser. Enter pages like 2, 5-7 and download a clean copy.",
-    privacyNote: "Your PDF is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Remove Pages",
     emptyState: "Drop one PDF here, then enter pages to remove.",
     accept: "application/pdf,.pdf",
@@ -281,7 +282,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Reorder PDF Pages Online",
     metaDescription:
       "Reorder PDF pages online in your browser. Enter a custom page order like 3,1,2,4 and download a new PDF.",
-    privacyNote: "Your PDF is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Reorder PDF",
     emptyState: "Drop one PDF here, then enter the new page order.",
     accept: "application/pdf,.pdf",
@@ -315,7 +316,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "HTML to PDF Converter",
     metaDescription:
       "Convert simple HTML to PDF online in your browser with a live preview and private local rendering.",
-    privacyNote: "Your HTML is rendered in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Convert HTML to PDF",
     emptyState: "Write or paste HTML to generate a PDF.",
     accept: "",
@@ -350,7 +351,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Text to PDF Converter",
     metaDescription:
       "Convert plain text to PDF online. Set font size, page size, and margins, then download a browser-generated PDF.",
-    privacyNote: "Your text is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Convert Text to PDF",
     emptyState: "Type or paste text to create a PDF.",
     accept: "",
@@ -384,7 +385,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     metaTitle: "Free Invoice PDF Generator",
     metaDescription:
       "Create a simple invoice PDF in your browser. Add company, customer, items, tax, notes, and download instantly.",
-    privacyNote: "Your invoice data is processed in your browser. No upload needed.",
+    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
     actionLabel: "Generate Invoice PDF",
     emptyState: "Fill the invoice form to generate a professional PDF.",
     accept: "",

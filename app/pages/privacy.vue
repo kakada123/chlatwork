@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+
 useSeoMeta({
   title: "Privacy Policy — ChlatWork",
   description: "How ChlatWork handles data, cookies, advertising, and privacy.",
@@ -20,9 +22,8 @@ useSeoMeta({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Local processing</h2>
       <p class="text-gray-700">
-        Many tools on ChlatWork run directly in your browser. For these tools,
-        your files and inputs are processed locally on your device and are not
-        uploaded to our servers.
+        Many tools on ChlatWork run directly in your browser.
+        {{ LOCAL_PROCESSING_PRIVACY_NOTE }}
       </p>
     </section>
 

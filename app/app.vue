@@ -1,13 +1,11 @@
 <template>
-  <Analytics />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <CookieConsent />
 </template>
 
 <script setup lang="ts">
-import { Analytics } from "@vercel/analytics/nuxt";
-
 const { copy, isKhmer, locale } = useLanguage();
 const { isDark } = useColorMode();
 const siteUrl = "https://chlatwork.com";

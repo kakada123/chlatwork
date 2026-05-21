@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+
 useSeoMeta({
   title: "About — ChlatWork",
   description: "Learn what ChlatWork is and why it exists.",
@@ -29,9 +31,8 @@ useSeoMeta({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Privacy-first approach</h2>
       <p class="text-gray-700">
-        Many ChlatWork tools are designed to run directly in your browser. When
-        a tool can work locally, your files stay on your device and are not
-        uploaded to a server.
+        Many ChlatWork tools are designed to run directly in your browser.
+        {{ LOCAL_PROCESSING_PRIVACY_NOTE }}
       </p>
       <p class="text-gray-700">
         Some tools may require a server (for example: link shortening). In those

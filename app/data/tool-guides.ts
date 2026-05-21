@@ -4,6 +4,7 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 import { getToolGuideRoute } from "./tool-guide-routes";
 
 export type ToolGuideFaq = {
@@ -59,7 +60,7 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
     ctaLabel: options.ctaLabel,
     whatIs: [
       `${options.toolName} is a browser-based PDF tool for ${options.primaryUse}. It is designed for quick document work without setting up desktop PDF software.`,
-      "The tool follows ChlatWork's privacy-first flow: files stay on your device and are processed locally in your browser whenever the browser can safely handle the job.",
+      LOCAL_PROCESSING_PRIVACY_NOTE,
     ],
     whyUse: [
       "It avoids uploading private documents to a remote PDF service.",
@@ -241,8 +242,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     faqs: [
       {
         question: "Are my images uploaded to ChlatWork?",
-        answer:
-          "No. The compressor is designed to run in your browser, so the image can be processed locally on your device.",
+        answer: LOCAL_PROCESSING_PRIVACY_NOTE,
       },
       {
         question: "Which image formats can I compress?",

@@ -86,11 +86,6 @@ export default defineNuxtConfig({
         {
           children: colorModeScript,
         },
-        {
-          async: true,
-          src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4280865455316436",
-          crossorigin: "anonymous",
-        },
       ],
     },
   },

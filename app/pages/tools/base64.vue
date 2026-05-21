@@ -139,7 +139,7 @@
                   {{
                     fileName
                       ? `${fileName} - ${fileSize}`
-                      : "Read locally in your browser. Nothing is uploaded."
+                      : LOCAL_PROCESSING_PRIVACY_NOTE
                   }}
                 </span>
               </span>
@@ -176,6 +176,7 @@
 <script setup lang="ts">
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeBase64ToUtf8, encodeUtf8ToBase64 } from "~/lib/developer-tools";
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 useSeoMeta({
   title: "Base64 Encoder / Decoder - ChlatWork",

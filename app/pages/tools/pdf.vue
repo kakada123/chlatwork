@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { PDF_TOOLS } from "~/data/pdf-tools";
+import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 import { TOOL_ICON_CLASSES } from "~/lib/tool-registry";
 
 useSeoMeta({
@@ -54,7 +55,7 @@ useHead({
     >
       <p class="font-semibold">Privacy-first PDF processing</p>
       <p class="mt-1 text-xs opacity-80">
-        Files stay on your device and are processed locally in your browser. No upload needed.
+        {{ LOCAL_PROCESSING_PRIVACY_NOTE }}
       </p>
     </section>
 
