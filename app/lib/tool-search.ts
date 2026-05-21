@@ -11,7 +11,7 @@ const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   "image-to-pdf": ["jpg to pdf", "png to pdf", "photo to pdf"],
   qr: ["qr code", "qrcode", "scan code"],
   "wifi-qr": ["wifi qr", "wifi qr code", "wifi password", "wireless qr"],
-  "text-to-voice": ["text to speech", "tts", "khmer voice"],
+  "text-to-voice": ["text to speech", "tts", "khmer voice", "english voice"],
   calculator: ["date calculator", "date time converter", "quick math"],
   barcode: ["bar code", "product code"],
   "expense-tracker": ["budget tracker", "spending tracker"],

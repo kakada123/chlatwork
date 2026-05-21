@@ -69,7 +69,8 @@ export const TOOLS: ToolDef[] = [
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Read Khmer text aloud with the ChlatWork audio API.",
+    description:
+      "Read Khmer or English text aloud with automatic language detection.",
   },
   {
     key: "calculator",

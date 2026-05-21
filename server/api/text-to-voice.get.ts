@@ -1,8 +1,9 @@
 const MAX_AUDIO_SECONDS = 10;
 const GOOGLE_TTS_TEXT_LIMIT = 180;
 const KHMER_GRAPHEMES_PER_SECOND = 12;
-const SUPPORTED_LANGUAGES = new Set(["km"]);
+const SUPPORTED_LANGUAGES = new Set(["km", "en"]);
 
+type TextLanguage = "km" | "en";
 type VoiceProvider = "google" | "narakeet";
 
 const VOICES: Record<
@@ -16,6 +17,10 @@ const VOICES: Record<
 > = {
   "khmer-default": {
     fileName: "khmer-default",
+    provider: "google",
+  },
+  "english-default": {
+    fileName: "english-default",
     provider: "google",
   },
   "khmer-male-graham": {
@@ -39,8 +44,8 @@ const VOICES: Record<
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const text = String(query.text ?? "").replace(/\s+/g, " ").trim();
-  const lang = String(query.lang ?? "km").toLowerCase();
-  const voice = String(query.voice ?? "khmer-default").toLowerCase();
+  const lang = normalizeLanguage(query.lang ?? "km");
+  const voice = String(query.voice ?? "auto").toLowerCase();
   const download = String(query.download ?? "") === "1";
 
   if (!text) {
@@ -50,19 +55,26 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (!SUPPORTED_LANGUAGES.has(lang)) {
+  if (!lang || !SUPPORTED_LANGUAGES.has(lang)) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Only Khmer text-to-voice is supported.",
+      statusMessage: "Only Khmer and English text-to-voice are supported.",
     });
   }
 
-  const selectedVoice = VOICES[voice];
+  const selectedVoice = resolveVoice(voice, lang);
 
   if (!selectedVoice) {
     throw createError({
       statusCode: 400,
-      statusMessage: "The selected Khmer voice is not supported.",
+      statusMessage: "The selected voice is not supported.",
+    });
+  }
+
+  if (selectedVoice.provider === "narakeet" && lang !== "km") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Narakeet voices are currently available for Khmer text only.",
     });
   }
 
@@ -75,7 +87,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: `Text is estimated at ${estimatedAudioSeconds}s. Limit is ${MAX_AUDIO_SECONDS}s for Narakeet voices.`,
       });
     }
-  } else if (countGraphemes(text) > GOOGLE_TTS_TEXT_LIMIT) {
+  } else if (countGraphemes(text, lang) > GOOGLE_TTS_TEXT_LIMIT) {
     throw createError({
       statusCode: 413,
       statusMessage: `Text must be ${GOOGLE_TTS_TEXT_LIMIT} characters or fewer for Google voice.`,
@@ -100,6 +112,28 @@ export default defineEventHandler(async (event) => {
     },
   });
 });
+
+function normalizeLanguage(value: unknown): TextLanguage | null {
+  const language = String(value ?? "").toLowerCase();
+
+  if (language.startsWith("km")) {
+    return "km";
+  }
+
+  if (language.startsWith("en")) {
+    return "en";
+  }
+
+  return null;
+}
+
+function resolveVoice(voice: string, lang: TextLanguage) {
+  if (voice === "auto") {
+    return VOICES[lang === "km" ? "khmer-default" : "english-default"];
+  }
+
+  return VOICES[voice] ?? null;
+}
 
 async function synthesizeWithGoogle(text: string, lang: string) {
   const upstreamUrl = new URL("https://translate.google.com/translate_tts");
@@ -195,7 +229,7 @@ async function normalizeAudioResponse(upstreamResponse: Response) {
     const errorDetail = await readUpstreamError(upstreamResponse);
     throw createError({
       statusCode: 502,
-      statusMessage: errorDetail || "Unable to generate Khmer audio.",
+      statusMessage: errorDetail || "Unable to generate audio.",
     });
   }
 
@@ -228,11 +262,11 @@ async function readUpstreamError(upstreamResponse: Response) {
   }
 }
 
-function countGraphemes(value: string) {
+function countGraphemes(value: string, lang: TextLanguage = "km") {
   const Segmenter = (Intl as any).Segmenter;
 
   if (Segmenter) {
-    const segmenter = new Segmenter("km", { granularity: "grapheme" });
+    const segmenter = new Segmenter(lang, { granularity: "grapheme" });
     return Array.from(segmenter.segment(value)).length;
   }
 

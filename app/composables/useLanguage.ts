@@ -303,7 +303,7 @@ const TOOL_TRANSLATIONS: Record<
     },
     "text-to-voice": {
       name: "អត្ថបទទៅជាសំឡេង",
-      description: "អានអត្ថបទខ្មែរជាសំឡេងតាម ChlatWork audio API។",
+      description: "អានអត្ថបទខ្មែរ ឬអង់គ្លេសជាសំឡេងដោយស្វ័យប្រវត្តិ។",
     },
     base64: {
       name: "Base64 Encoder / Decoder",

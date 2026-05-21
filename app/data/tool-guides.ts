@@ -667,28 +667,29 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     applicationCategory: "UtilitiesApplication",
   },
   "text-to-voice": {
-    metaTitle: "How to Convert Khmer Text to Voice | ChlatWork",
+    metaTitle: "How to Convert Khmer and English Text to Voice | ChlatWork",
     metaDescription:
-      "Read Khmer text aloud with ChlatWork Text to Voice using online Khmer audio or browser voice controls.",
-    heroTitle: "How to Convert Khmer Text to Voice",
+      "Read Khmer or English text aloud with ChlatWork Text to Voice using automatic language detection, online audio, or browser voice controls.",
+    heroTitle: "How to Convert Khmer and English Text to Voice",
     heroDescription:
-      "Paste Khmer text, choose an audio engine, adjust voice settings, and listen or download speech when supported.",
+      "Paste Khmer or English text, choose an audio engine, adjust voice settings, and listen or download speech when supported.",
     ctaLabel: "Open Text to Voice",
     whatIs: [
-      "Text to Voice is a reading tool that turns typed Khmer text into audio. It supports an online Khmer audio mode and a browser voice mode when the device has compatible voices.",
+      "Text to Voice is a reading tool that turns typed Khmer or English text into audio. It detects the language automatically before using online audio or browser voice mode.",
       "It is helpful for checking announcements, learning pronunciation, preparing short audio messages, or making text easier to review by listening.",
     ],
     whyUse: [
-      "It focuses on Khmer text instead of assuming English-only speech.",
+      "It supports Khmer and English without making you choose the language manually.",
       "It gives simple controls for speed, pitch, and volume where the engine supports them.",
       "It can help staff review written notices before sending them to customers.",
       "It supports listening without setting up a full audio editing workflow.",
-      "It is useful for learners, content creators, and teams preparing short Khmer scripts.",
+      "It is useful for learners, content creators, and teams preparing short Khmer or English scripts.",
     ],
     steps: [
       "Open the ChlatWork Text to Voice tool.",
-      "Paste or type your Khmer text into the text box.",
-      "Choose online Khmer audio or browser voice depending on what works best on your device.",
+      "Paste or type Khmer or English text into the text box.",
+      "Let the tool detect the language automatically.",
+      "Choose online audio or browser voice depending on what works best on your device.",
       "Select a voice option if more than one is available.",
       "Adjust speed, pitch, or volume when needed.",
       "Click Speak to listen, pause or stop playback, and download MP3 if the selected mode supports it.",
@@ -699,19 +700,20 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A content creator previews narration for a short video.",
       "A customer support team prepares a clear Khmer announcement for repeated use.",
       "A learner compares typed Khmer text with audio playback for pronunciation practice.",
+      "A support team listens to English service copy before publishing it.",
     ],
     tips: [
       "Keep sentences short when testing a new voice.",
       "Add punctuation so the voice has natural pauses.",
-      "Use browser voice mode for local playback when your device has a good Khmer voice.",
-      "Use online mode when browser Khmer voices are missing or weak.",
+      "Use browser voice mode for local playback when your device has a good matching voice.",
+      "Use online mode when browser voices are missing or weak.",
       "Review downloaded audio before using it in public content.",
     ],
     faqs: [
       {
         question: "Does every browser have Khmer voices?",
         answer:
-          "No. Browser voice support depends on the operating system and installed voices. Online mode is available for Khmer-focused playback.",
+          "No. Browser voice support depends on the operating system and installed voices. Online mode can help when local Khmer or English voices are missing.",
       },
       {
         question: "Can I download the audio?",
@@ -726,7 +728,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       {
         question: "Can I use English text too?",
         answer:
-          "The tool is built around Khmer support, but browser voice mode may read other languages if your device provides those voices.",
+          "Yes. The tool detects English text automatically and can use online English audio or a matching browser voice.",
       },
       {
         question: "How do I make the voice sound more natural?",
@@ -736,9 +738,10 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     keywords: [
       "Khmer text to voice",
+      "English text to voice",
       "Cambodian text to speech",
       "Khmer TTS",
-      "download Khmer audio",
+      "download text to voice audio",
     ],
     applicationCategory: "UtilitiesApplication",
   },
