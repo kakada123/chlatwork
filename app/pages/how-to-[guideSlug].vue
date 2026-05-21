@@ -56,7 +56,7 @@ useHead(() => {
     script: [
       {
         type: "application/ld+json",
-        innerHTML: JSON.stringify({
+        children: JSON.stringify({
           "@context": "https://schema.org",
           "@graph": [
             {

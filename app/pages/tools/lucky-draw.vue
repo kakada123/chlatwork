@@ -363,6 +363,7 @@ John Smith"
 
 <script setup lang="ts">
 import type { ComponentPublicInstance } from "vue";
+import { secureRandomInt } from "~/lib/secure-random";
 
 type InputRow = {
   name: string;
@@ -1016,7 +1017,7 @@ async function runLuckyDraw() {
 
   if (runId !== spinRunId || !isSpinning.value) return;
 
-  const winnerIndex = Math.floor(Math.random() * people.length);
+  const winnerIndex = secureRandomInt(people.length);
   const winnerName = people[winnerIndex];
 
   const startRotation = wheelRotation.value;

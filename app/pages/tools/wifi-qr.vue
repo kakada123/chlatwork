@@ -173,9 +173,8 @@ const exportPosterPng = async () => {
     a.href = dataUrl;
     a.download = posterFileName.value;
     a.click();
-  } catch (err) {
-    console.error(err);
-    alert("Export failed. Check console for details.");
+  } catch {
+    alert("Export failed. Please try again.");
   }
 };
 

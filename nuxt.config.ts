@@ -33,6 +33,16 @@ const colorModeScript = `
 })();
 `;
 
+const securityHeaders = {
+  "Permissions-Policy":
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), clipboard-read=(), clipboard-write=(self)",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Strict-Transport-Security": "max-age=31536000",
+  "X-Content-Type-Options": "nosniff",
+  "X-DNS-Prefetch-Control": "on",
+  "X-Frame-Options": "DENY",
+};
+
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
@@ -45,6 +55,11 @@ export default defineNuxtConfig({
     urls: TOOL_GUIDE_PATHS,
   },
   css: ["~/assets/css/main.css"],
+  routeRules: {
+    "/**": {
+      headers: securityHeaders,
+    },
+  },
 
   app: {
     head: {

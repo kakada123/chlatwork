@@ -1,3 +1,6 @@
+import { isExtremeImageResolution } from "~/lib/file-validation";
+import { sanitizeHtml } from "~/lib/sanitize-html";
+
 export type PdfPageSizeOption = "a4" | "letter";
 
 export type PdfGeneratedFile = {
@@ -142,6 +145,13 @@ async function loadImageElement(file: File) {
 
 async function imageFileToJpegBytes(file: File, quality = 0.92) {
   const image = await loadImageElement(file);
+
+  if (isExtremeImageResolution(image.naturalWidth, image.naturalHeight)) {
+    throw new Error(
+      "This image resolution is too large to process safely in the browser. Try resizing it first.",
+    );
+  }
+
   const maxCanvasSide = 2400;
   const scale = Math.min(
     1,
@@ -382,7 +392,7 @@ export async function htmlToPdf(html: string) {
   container.style.color = "#111827";
   container.style.fontFamily = "Arial, sans-serif";
   container.style.lineHeight = "1.55";
-  container.innerHTML = html;
+  container.innerHTML = sanitizeHtml(html);
   document.body.appendChild(container);
 
   try {

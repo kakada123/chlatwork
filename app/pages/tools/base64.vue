@@ -176,6 +176,7 @@
 <script setup lang="ts">
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeBase64ToUtf8, encodeUtf8ToBase64 } from "~/lib/developer-tools";
+import { formatFileLimit } from "~/lib/file-validation";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 useSeoMeta({
@@ -202,6 +203,7 @@ const fileName = ref("");
 const fileSize = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
+const MAX_BASE64_FILE_SIZE = 20 * 1024 * 1024;
 
 function switchMode(nextMode: TabKey) {
   mode.value = nextMode;
@@ -265,6 +267,17 @@ function handleDrop(event: DragEvent) {
 function readFileAsBase64(file: File) {
   error.value = "";
   result.value = "";
+
+  if (file.size > MAX_BASE64_FILE_SIZE) {
+    fileName.value = "";
+    fileSize.value = "";
+    error.value = `Choose a file ${formatFileLimit(MAX_BASE64_FILE_SIZE)} or smaller to keep browser memory safe.`;
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+    return;
+  }
+
   fileName.value = file.name;
   fileSize.value = `${(file.size / 1024).toFixed(1)} KB`;
 

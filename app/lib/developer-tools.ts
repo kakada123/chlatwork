@@ -1,3 +1,5 @@
+import { fillSecureRandomBytes, secureRandomInt } from "~/lib/secure-random";
+
 export type JsonFormatResult = {
   output: string;
   error: string;
@@ -194,7 +196,7 @@ export function generateUuidV4() {
   }
 
   const bytes = new Uint8Array(16);
-  fillRandomBytes(bytes);
+  fillSecureRandomBytes(bytes);
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
@@ -227,41 +229,19 @@ export function generatePassword(options: {
   }
 
   const length = Math.max(4, Math.min(256, Math.trunc(options.length)));
-  const required = pools.map((pool) => pool[randomInt(pool.length)]);
+  const required = pools.map((pool) => pool[secureRandomInt(pool.length)]);
   const all = pools.join("");
 
   while (required.length < length) {
-    required.push(all[randomInt(all.length)]);
+    required.push(all[secureRandomInt(all.length)]);
   }
 
   for (let i = required.length - 1; i > 0; i -= 1) {
-    const j = randomInt(i + 1);
+    const j = secureRandomInt(i + 1);
     [required[i], required[j]] = [required[j], required[i]];
   }
 
   return required.join("");
-}
-
-function fillRandomBytes(bytes: Uint8Array) {
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    crypto.getRandomValues(bytes);
-    return;
-  }
-
-  for (let i = 0; i < bytes.length; i += 1) {
-    bytes[i] = Math.floor(Math.random() * 256);
-  }
-}
-
-function randomInt(max: number) {
-  const bytes = new Uint32Array(1);
-
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    crypto.getRandomValues(bytes);
-    return bytes[0] % max;
-  }
-
-  return Math.floor(Math.random() * max);
 }
 
 export function parseTimestampInput(value: string) {

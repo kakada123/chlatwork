@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import WifiQrPoster from "~/components/wifi-qr/WifiQrPoster.vue";
+import { sanitizeSvg } from "~/lib/sanitize-html";
 import type {
   Security,
   PrintTheme,
@@ -24,6 +25,7 @@ const props = defineProps<{
 }>();
 
 const posterComp = ref<InstanceType<typeof WifiQrPoster> | null>(null);
+const sanitizedQrSvg = computed(() => sanitizeSvg(props.qrSvg));
 
 defineExpose({
   getPosterEl: () => posterComp.value?.getEl?.() ?? null,
@@ -61,7 +63,7 @@ defineExpose({
     >
       <div v-if="props.qrSvg">
         <div
-          v-html="props.qrSvg"
+          v-html="sanitizedQrSvg"
           class="[&>svg]:w-[260px] [&>svg]:h-[260px]"
         ></div>
 

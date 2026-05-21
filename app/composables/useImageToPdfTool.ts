@@ -1,3 +1,13 @@
+import {
+  EXTENDED_IMAGE_EXTENSIONS,
+  EXTENDED_IMAGE_MIME_TYPES,
+  MAX_IMAGE_BATCH_FILES,
+  MAX_IMAGE_FILE_SIZE,
+  isExtremeImageResolution,
+  validateFiles,
+} from "~/lib/file-validation";
+import { secureRandomId } from "~/lib/secure-random";
+
 export type PdfPageSize = "A4" | "Letter" | "Auto";
 export type PdfOrientation = "portrait" | "landscape";
 export type PdfMargin = "none" | "small" | "medium";
@@ -46,20 +56,11 @@ export const IMAGES_PER_PAGE_OPTIONS: Array<{ value: PdfImagesPerPage; label: st
 ];
 
 const SUPPORTED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
+  ...EXTENDED_IMAGE_MIME_TYPES,
 ]);
 
 const SUPPORTED_IMAGE_EXTENSIONS = new Set([
-  "jpg",
-  "jpeg",
-  "png",
-  "webp",
-  "heic",
-  "heif",
+  ...EXTENDED_IMAGE_EXTENSIONS,
 ]);
 
 const HEIC_IMAGE_TYPES = new Set(["image/heic", "image/heif"]);
@@ -145,14 +146,11 @@ export function useImageToPdfTool() {
   }
 
   function createImageId() {
-    return (
-      globalThis.crypto?.randomUUID?.() ??
-      `image-${Date.now()}-${Math.random().toString(16).slice(2)}`
-    );
+    return secureRandomId("image");
   }
 
   function createPageId() {
-    return `page-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    return secureRandomId("page");
   }
 
   function isSupportedImage(file: File) {
@@ -224,31 +222,44 @@ export function useImageToPdfTool() {
   }
 
   async function addFiles(files: File[]) {
-    const hasHeicFile = files.some((file) => {
+    const { acceptedFiles, errors } = validateFiles(files, {
+      allowedExtensions: EXTENDED_IMAGE_EXTENSIONS,
+      allowedMimeTypes: EXTENDED_IMAGE_MIME_TYPES,
+      currentFileCount: imageCount.value,
+      label: "image",
+      maxFileSize: MAX_IMAGE_FILE_SIZE,
+      maxFiles: MAX_IMAGE_BATCH_FILES,
+    });
+
+    error.value = errors[0] ?? "";
+
+    if (!acceptedFiles.length) {
+      return;
+    }
+
+    const hasHeicFile = acceptedFiles.some((file) => {
       const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
       return HEIC_IMAGE_TYPES.has(file.type) || extension === "heic" || extension === "heif";
     });
 
     isPreparingFiles.value = hasHeicFile;
 
-    const acceptedFiles = await Promise.all(files.map((file) => normalizeUploadFile(file)));
-    const normalizedFiles = acceptedFiles.filter((file): file is File => Boolean(file));
-    const rejectedFiles = files.filter((file) => !isSupportedImage(file));
+    try {
+      const normalizedFiles = (
+        await Promise.all(acceptedFiles.map((file) => normalizeUploadFile(file)))
+      ).filter((file): file is File => Boolean(file));
 
-    if (rejectedFiles.length > 0) {
-      error.value = `Unsupported file type: ${rejectedFiles[0].name}. Use JPG, PNG, WebP, or HEIC.`;
-    } else {
-      error.value = "";
-    }
+      if (!normalizedFiles.length) {
+        return;
+      }
 
-    if (!normalizedFiles.length) {
+      const nextImages = normalizedFiles.map((file) => createImageItem(file));
+      regroupPages([...flattenPages(), ...nextImages]);
+    } catch (caught: any) {
+      error.value = caught?.message ?? "Unable to prepare these images.";
+    } finally {
       isPreparingFiles.value = false;
-      return;
     }
-
-    const nextImages = normalizedFiles.map((file) => createImageItem(file));
-    regroupPages([...flattenPages(), ...nextImages]);
-    isPreparingFiles.value = false;
   }
 
   function getGlobalImageIndex(pageIndex: number, imageIndex: number) {
@@ -339,6 +350,13 @@ export function useImageToPdfTool() {
 
   async function fileToJpegDataUrl(file: File): Promise<PdfImageData> {
     const image = await loadImageFromFile(file);
+
+    if (isExtremeImageResolution(image.naturalWidth, image.naturalHeight)) {
+      throw new Error(
+        "One image resolution is too large to process safely in the browser. Try resizing it first.",
+      );
+    }
+
     const maxCanvasSide = 2400;
     const scale = Math.min(
       1,

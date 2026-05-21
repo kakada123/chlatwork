@@ -379,6 +379,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref } from "vue";
 import { createStoredZip, type ZipEntryInput } from "~/lib/browser-zip";
+import {
+  BROWSER_IMAGE_EXTENSIONS,
+  BROWSER_IMAGE_MIME_TYPES,
+  MAX_IMAGE_FILE_SIZE,
+  isExtremeImageResolution,
+  validateFiles,
+} from "~/lib/file-validation";
+import { secureRandomId } from "~/lib/secure-random";
 
 type OutputFormat = "image/webp" | "image/jpeg" | "image/png";
 type PickerMode = "replace" | "append";
@@ -476,9 +484,19 @@ function onDrop(event: DragEvent) {
 function applyPickedFiles(files: File[], mode: PickerMode) {
   error.value = "";
 
-  const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+  const { acceptedFiles: imageFiles, errors } = validateFiles(files, {
+    allowedExtensions: BROWSER_IMAGE_EXTENSIONS,
+    allowedMimeTypes: BROWSER_IMAGE_MIME_TYPES,
+    currentFileCount: mode === "replace" ? 0 : items.value.length,
+    label: "image",
+    maxFileSize: MAX_IMAGE_FILE_SIZE,
+    maxFiles: maxBatchSize,
+  });
+
+  error.value = errors[0] ?? "";
+
   if (!imageFiles.length) {
-    error.value = "Please choose browser-readable image files.";
+    error.value = error.value || "Please choose browser-readable image files.";
     return;
   }
 
@@ -517,7 +535,7 @@ function applyPickedFiles(files: File[], mode: PickerMode) {
 
 function createImageItem(file: File): ImageItem {
   return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    id: secureRandomId("image"),
     file,
     srcUrl: URL.createObjectURL(file),
     outUrl: "",
@@ -610,6 +628,14 @@ async function compressItem(item: ImageItem) {
 
   try {
     const img = await loadImage(item.srcUrl);
+
+    if (isExtremeImageResolution(img.naturalWidth || img.width, img.naturalHeight || img.height)) {
+      item.status = "skipped";
+      item.message =
+        "Skipped because this image resolution is too large to process safely in the browser.";
+      return;
+    }
+
     const { canvas, ctx } = createCanvasForImage(img, opts.maxWidth);
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);

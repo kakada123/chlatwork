@@ -14,6 +14,19 @@ import PdfToolPageLayout from "~/components/pdf-tools/PdfToolPageLayout.vue";
 import PrivacyNotice from "~/components/pdf-tools/PrivacyNotice.vue";
 import SeoFaq from "~/components/pdf-tools/SeoFaq.vue";
 import {
+  MAX_IMAGE_BATCH_FILES,
+  MAX_IMAGE_FILE_SIZE,
+  MAX_MERGE_PDF_FILES,
+  MAX_PDF_FILE_SIZE,
+  MAX_PDF_PAGE_COUNT,
+  PDF_EXTENSIONS,
+  PDF_IMAGE_EXTENSIONS,
+  PDF_IMAGE_MIME_TYPES,
+  PDF_MIME_TYPES,
+  validateFiles,
+} from "~/lib/file-validation";
+import { sanitizeHtml } from "~/lib/sanitize-html";
+import {
   buildPdfFileName,
   compressPdf,
   createPdfFromImages,
@@ -68,6 +81,7 @@ const htmlInput = ref(`<h1>Document title</h1>
   <li>Files stay on your device.</li>
   <li>The PDF is generated in your browser.</li>
 </ul>`);
+const sanitizedHtmlPreview = computed(() => sanitizeHtml(htmlInput.value));
 const invoice = reactive({
   companyName: "ChlatWork",
   customerName: "Customer Name",
@@ -137,7 +151,15 @@ watch(
     }
 
     try {
-      pageCount.value = await getPdfPageCount(nextFiles[0]);
+      const nextPageCount = await getPdfPageCount(nextFiles[0]);
+
+      if (nextPageCount > MAX_PDF_PAGE_COUNT) {
+        files.value = [];
+        error.value = `This PDF has more than ${MAX_PDF_PAGE_COUNT} pages. Use a smaller PDF to keep processing safe in the browser.`;
+        return;
+      }
+
+      pageCount.value = nextPageCount;
 
       if (props.toolKey === "reorder-pdf-pages" && pageCount.value) {
         pageOrder.value = Array.from(
@@ -154,6 +176,7 @@ watch(
 
 onBeforeUnmount(() => {
   clearResults();
+  files.value = [];
 });
 
 function isSinglePdfTool(key: PdfToolKey) {
@@ -166,29 +189,24 @@ function isSinglePdfTool(key: PdfToolKey) {
   ].includes(key);
 }
 
-function isAcceptedFile(file: File) {
-  if (tool.value.accept.includes("application/pdf")) {
-    return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-  }
-
-  if (tool.value.accept.includes("image/")) {
-    return (
-      ["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-      /\.(jpe?g|png|webp)$/i.test(file.name)
-    );
-  }
-
-  return false;
-}
-
 function addFiles(nextFiles: File[]) {
-  const acceptedFiles = nextFiles.filter(isAcceptedFile);
+  const allowsImages = tool.value.accept.includes("image/");
+  const maxFiles =
+    props.toolKey === "merge-pdf"
+      ? MAX_MERGE_PDF_FILES
+      : allowsImages
+        ? MAX_IMAGE_BATCH_FILES
+        : 1;
+  const { acceptedFiles, errors } = validateFiles(nextFiles, {
+    allowedExtensions: allowsImages ? PDF_IMAGE_EXTENSIONS : PDF_EXTENSIONS,
+    allowedMimeTypes: allowsImages ? PDF_IMAGE_MIME_TYPES : PDF_MIME_TYPES,
+    currentFileCount: tool.value.multiple ? files.value.length : 0,
+    label: allowsImages ? "image" : "PDF",
+    maxFileSize: allowsImages ? MAX_IMAGE_FILE_SIZE : MAX_PDF_FILE_SIZE,
+    maxFiles,
+  });
 
-  if (acceptedFiles.length !== nextFiles.length) {
-    error.value = "Some files were skipped because this tool does not support that file type.";
-  } else {
-    error.value = "";
-  }
+  error.value = errors[0] ?? "";
 
   if (!acceptedFiles.length) {
     return;
@@ -447,10 +465,19 @@ function removeInvoiceItem(index: number) {
             </div>
             <div>
               <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Preview</h3>
-              <div
-                class="mt-2 min-h-[320px] overflow-auto rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 dark:border-white/10"
-                v-html="htmlInput"
-              />
+              <ClientOnly>
+                <div
+                  class="mt-2 min-h-[320px] overflow-auto rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 dark:border-white/10"
+                  v-html="sanitizedHtmlPreview"
+                />
+                <template #fallback>
+                  <div
+                    class="mt-2 min-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-white p-4 font-mono text-sm text-slate-900 dark:border-white/10"
+                  >
+                    {{ htmlInput }}
+                  </div>
+                </template>
+              </ClientOnly>
             </div>
           </div>
 

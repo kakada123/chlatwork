@@ -110,7 +110,7 @@ function generate() {
   }
 
   try {
-    svgEl.innerHTML = "";
+    svgEl.textContent = "";
 
     JsBarcode.value(svgEl, normalizedValue, {
       format: state.format,
@@ -133,7 +133,7 @@ function clearAll() {
 
   const svgEl = getSvgEl();
   if (svgEl) {
-    svgEl.innerHTML = "";
+    svgEl.textContent = "";
   }
 }
 

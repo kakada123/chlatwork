@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { sanitizeSvg } from "~/lib/sanitize-html";
 import type {
   Security,
   PrintTheme,
@@ -22,6 +23,7 @@ const props = defineProps<{
 }>();
 
 const el = ref<HTMLElement | null>(null);
+const sanitizedQrSvg = computed(() => sanitizeSvg(props.qrSvg));
 
 defineExpose({
   getEl: () => el.value,
@@ -80,7 +82,7 @@ const posterBarClass = computed(() => {
           <div class="qr-frame rounded-2xl border bg-white p-2">
             <div
               v-if="props.qrSvg"
-              v-html="props.qrSvg"
+              v-html="sanitizedQrSvg"
               class="[&>svg]:w-[240px] [&>svg]:h-[240px]"
             ></div>
 
