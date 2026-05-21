@@ -1,46 +1,61 @@
 <script setup lang="ts">
 useSeoMeta({
   title: "Contact — ChlatWork",
-  description: "Get support or send feedback for ChlatWork.",
+  description:
+    "Contact ChlatWork for tool feedback, bug reports, privacy questions, and practical feature requests.",
 });
 
-const email = "kakada127@gmail.com"; // change to your real email
+const email = "kakada127@gmail.com";
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-[1440px]6">
+  <main class="mx-auto w-full max-w-[1440px] space-y-8">
     <header class="space-y-2">
       <h1 class="text-2xl font-bold">Contact</h1>
-      <p class="text-gray-600">
-        Found a bug, have feedback, or want to suggest a tool? Reach out
-        anytime.
+      <p class="max-w-3xl text-gray-600 dark:text-white/70">
+        Use this page for ChlatWork feedback, bug reports, privacy questions,
+        and practical tool ideas. Clear reports help us find the right page,
+        reproduce the issue, and improve the tool faster.
       </p>
     </header>
 
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Email</h2>
-      <p class="text-gray-700">
+      <p class="text-gray-700 dark:text-white/75">
         You can contact us at:
         <a
           :href="`mailto:${email}`"
-          class="font-semibold text-gray-900 underline"
+          class="font-semibold text-gray-900 underline dark:text-white"
         >
           {{ email }}
         </a>
       </p>
-      <p class="text-sm text-gray-500">
-        Please include the tool name and a short description of the issue (and a
-        screenshot if possible).
+      <p class="max-w-3xl text-sm text-gray-500 dark:text-white/55">
+        Please include the tool name, the page URL, your browser or device, what
+        you expected to happen, and what happened instead. Screenshots are
+        helpful when the issue is visual.
       </p>
     </section>
 
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">What we can help with</h2>
-      <ul class="list-disc pl-5 text-gray-700 space-y-1">
-        <li>Bug reports and tool issues</li>
-        <li>Feature requests and new tool ideas</li>
-        <li>Privacy and policy questions</li>
+      <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
+        <li>Bug reports and broken tool behavior.</li>
+        <li>
+          Feature requests for PDF, QR, image, utility, and developer tools.
+        </li>
+        <li>Privacy, cookie, advertising, and data-handling questions.</li>
+        <li>Corrections for guide pages, tool descriptions, or examples.</li>
       </ul>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Before sending private data</h2>
+      <p class="max-w-3xl text-gray-700 dark:text-white/75">
+        Do not email passwords, private keys, payment details, identity
+        documents, or confidential customer files. If a tool output looks wrong,
+        describe the steps and use sample data where possible.
+      </p>
     </section>
   </main>
 </template>

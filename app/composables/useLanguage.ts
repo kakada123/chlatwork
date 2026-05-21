@@ -113,7 +113,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
       terms: "Terms",
       disclaimer: "Disclaimer",
       contact: "Contact",
-      coffee: "Buy me a coffee ☕🤣",
+      coffee: "Support ChlatWork",
     },
     hero: {
       titleStart: "Simple tools that get things",
@@ -186,7 +186,7 @@ const COPY: Record<AppLocale, LandingCopy> = {
       terms: "លក្ខខណ្ឌ",
       disclaimer: "ការបដិសេធទំនួលខុសត្រូវ",
       contact: "ទំនាក់ទំនង",
-      coffee: "ប៉ាវកាហ្វេញុំ ☕🤣",
+      coffee: "គាំទ្រ ChlatWork",
     },
     hero: {
       titleStart: "ឧបករណ៍សាមញ្ញៗ សម្រាប់ធ្វើការងារ",

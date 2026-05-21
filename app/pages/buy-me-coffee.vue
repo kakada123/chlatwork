@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const title = "Buy me a coffee — ChlatWork";
-const description = "Support ChlatWork via KHQR (ABA/Bakong).";
+const title = "Support ChlatWork";
+const description =
+  "Support the ChlatWork tool project through KHQR, ABA, or Bakong.";
 
 useSeoMeta({
   title,
@@ -35,24 +36,35 @@ const showToast = (message: string) => {
 const copyLink = async () => {
   if (!process.client) return;
   await navigator.clipboard.writeText(`${location.origin}/buy-me-coffee`);
-  showToast("Link copied ✅");
+  showToast("Link copied");
 };
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1440px]">
-    <!-- Header (same as tools) -->
-    <div class="flex items-center gap-3 pb-6">
+  <main class="mx-auto w-full max-w-[1440px] space-y-6">
+    <header class="flex items-center gap-3">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold">Buy me a coffee ☕️🤣</h1>
-        <p class="text-sm text-gray-500 truncate">
-          Scan with ABA / Bakong / any KHQR app.
+        <h1 class="text-xl font-bold">Support ChlatWork</h1>
+        <p class="max-w-2xl text-sm text-gray-500 dark:text-white/55">
+          ChlatWork is a small independent tool project. Support helps cover
+          hosting, testing, and maintenance for free browser tools.
         </p>
       </div>
-    </div>
+    </header>
 
-    <!-- ✅ One “grid/card” only -->
-    <div class="bg-white rounded-2xl shadow p-6 space-y-5">
+    <section
+      class="space-y-5 rounded-2xl bg-white p-6 shadow dark:bg-white/[0.07]"
+      aria-labelledby="support-qr-title"
+    >
+      <div class="space-y-1">
+        <h2 id="support-qr-title" class="text-lg font-semibold">
+          KHQR payment
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-white/55">
+          Scan with ABA, Bakong, or any KHQR-compatible banking app.
+        </p>
+      </div>
+
       <div class="flex justify-center">
         <img
           :src="qrSrc"
@@ -79,12 +91,14 @@ const copyLink = async () => {
         </button>
       </div>
 
-      <div class="rounded-xl bg-gray-100 p-4 text-sm text-gray-700">
-        If the scan doesn’t work, try increasing screen brightness 😅
+      <div
+        class="rounded-xl bg-gray-100 p-4 text-sm text-gray-700 dark:bg-white/[0.08] dark:text-white/70"
+      >
+        If the scan does not work, increase screen brightness or open the QR
+        image directly before scanning.
       </div>
-    </div>
+    </section>
 
-    <!-- Toast -->
     <Transition name="fade">
       <div
         v-if="toast.show"
@@ -93,7 +107,7 @@ const copyLink = async () => {
         {{ toast.message }}
       </div>
     </Transition>
-  </div>
+  </main>
 </template>
 
 <style scoped>
