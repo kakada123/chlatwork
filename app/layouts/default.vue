@@ -10,7 +10,7 @@ import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
-import { COOKIE_CONSENT_OPEN_EVENT } from "~/lib/cookie-consent";
+import { reopenCookieNotice } from "~/lib/cookie-notice";
 import { filterTools } from "~/lib/tool-search";
 
 const toolNavSearch = ref("");
@@ -89,14 +89,6 @@ function groupTools(tools: ToolDef[]) {
     category,
     tools: items,
   }));
-}
-
-function openCookieSettings() {
-  if (!process.client) {
-    return;
-  }
-
-  window.dispatchEvent(new Event(COOKIE_CONSENT_OPEN_EVENT));
 }
 
 // ✅ mobile drawer state
@@ -641,9 +633,9 @@ onBeforeUnmount(() => {
           <button
             type="button"
             class="hover:text-gray-900"
-            @click="openCookieSettings"
+            @click="reopenCookieNotice"
           >
-            {{ copy.footer.cookieSettings }}
+            {{ copy.footer.cookieNotice }}
           </button>
           <NuxtLink to="/terms" class="hover:text-gray-900">
             {{ copy.footer.terms }}
