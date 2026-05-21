@@ -52,7 +52,7 @@ defineEmits<{
         <span v-if="allowReorder" class="flex shrink-0 gap-1">
           <button
             type="button"
-            class="h-9 rounded-lg border px-2 text-xs font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-white/10 dark:hover:bg-white/10"
+            class="h-9 rounded-lg border px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-40 dark:border-white/10 dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white"
             :disabled="index === 0"
             @click="$emit('move', index, -1)"
           >
@@ -60,7 +60,7 @@ defineEmits<{
           </button>
           <button
             type="button"
-            class="h-9 rounded-lg border px-2 text-xs font-semibold hover:bg-slate-50 disabled:opacity-40 dark:border-white/10 dark:hover:bg-white/10"
+            class="h-9 rounded-lg border px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-40 dark:border-white/10 dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white"
             :disabled="index === files.length - 1"
             @click="$emit('move', index, 1)"
           >

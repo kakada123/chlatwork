@@ -85,7 +85,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <button
         type="button"
-        class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-white dark:text-gray-950 dark:hover:bg-white/90 dark:disabled:bg-white/20 dark:disabled:text-white/40"
+        class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 hover:text-white disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white dark:disabled:bg-white/20 dark:disabled:text-white/40"
         :disabled="!canConvert"
         @click="$emit('convert')"
       >

@@ -2,15 +2,15 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">Image to PDF Converter</h1>
-      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-white/60">
         Convert JPG, PNG, WebP, and HEIC images into one clean PDF file instantly.
       </p>
-      <p class="mt-2 text-xs font-medium text-gray-400">
+      <p class="mt-2 text-xs font-medium text-gray-400 dark:text-white/45">
         Drag images inside the preview to change PDF order.
       </p>
     </div>
 
-    <section class="rounded-xl border bg-white p-4 shadow-sm">
+    <section class="rounded-xl border bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
       <div class="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_320px]">
         <div class="space-y-4">
           <ImageToPdfUploadCard

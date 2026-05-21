@@ -516,7 +516,7 @@ function removeInvoiceItem(index: number) {
                 <input v-model="item.description" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Item description" />
                 <input v-model.number="item.quantity" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Qty" />
                 <input v-model.number="item.price" type="number" min="0" step="0.01" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Price" />
-                <button type="button" class="h-11 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700" @click="removeInvoiceItem(index)">
+                <button type="button" class="h-11 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200 dark:hover:bg-red-400/15" @click="removeInvoiceItem(index)">
                   Remove
                 </button>
               </div>
@@ -545,7 +545,7 @@ function removeInvoiceItem(index: number) {
         <div class="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            class="h-11 rounded-xl bg-slate-950 px-5 text-sm font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 dark:bg-white dark:text-slate-950 dark:disabled:bg-white/20 dark:disabled:text-white/40"
+            class="h-11 rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-slate-800 hover:text-white disabled:cursor-not-allowed disabled:bg-slate-300 dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-slate-800 dark:hover:text-white dark:disabled:bg-white/20 dark:disabled:text-white/40"
             :disabled="!canProcess"
             @click="processTool"
           >

@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-sm font-semibold text-gray-900">PDF preview</h2>
-      <span class="text-xs text-gray-500">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">PDF preview</h2>
+      <span class="text-xs text-gray-500 dark:text-white/55">
         {{ pageCount }} page{{ pageCount === 1 ? "" : "s" }} total
       </span>
     </div>
@@ -11,13 +11,13 @@
       <div class="space-y-5">
         <article v-for="(page, pageIndex) in pages" :key="page.id" class="space-y-2">
           <div
-            class="overflow-hidden rounded-[1.5rem] border border-gray-200 bg-white p-3 shadow-sm"
+            class="overflow-hidden rounded-[1.5rem] border border-gray-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
             :style="pageAspectStyle"
           >
             <div class="flex h-full min-h-0 flex-col gap-3">
               <div class="flex items-center justify-between gap-3 px-1">
-                <p class="text-sm font-semibold text-gray-900">Page {{ pageIndex + 1 }}</p>
-                <p class="text-xs text-gray-500">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Page {{ pageIndex + 1 }}</p>
+                <p class="text-xs text-gray-500 dark:text-white/55">
                   {{ page.images.length }} of
                   {{ imagesPerPage }}
                   image{{ imagesPerPage === 1 ? "" : "s" }}
@@ -25,7 +25,7 @@
               </div>
 
               <div
-                class="flex-1 min-h-0 rounded-[1.25rem] border border-dashed border-gray-200 bg-gray-50/70 p-3"
+                class="min-h-0 flex-1 rounded-[1.25rem] border border-dashed border-gray-200 bg-gray-50/70 p-3 dark:border-white/10 dark:bg-black/20"
               >
                 <Draggable
                   v-model="page.images"
@@ -44,14 +44,14 @@
                 >
                   <template #item="{ element: image, index }">
                     <article
-                      class="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border bg-white transition duration-200"
+                      class="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border bg-white transition duration-200 dark:bg-white/[0.06]"
                       :class="
                         isSorting
-                          ? 'border-gray-300 shadow-lg shadow-gray-900/10'
-                          : 'border-gray-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md'
+                          ? 'border-gray-300 shadow-lg shadow-gray-900/10 dark:border-white/30 dark:shadow-black/25'
+                          : 'border-gray-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-white/10 dark:hover:border-white/25 dark:hover:bg-white/[0.08]'
                       "
                     >
-                      <div class="relative flex-1 min-h-0 bg-gray-50">
+                      <div class="relative min-h-0 flex-1 bg-gray-50 dark:bg-black/20">
                         <img
                           :src="image.previewUrl"
                           :alt="image.name"
@@ -60,7 +60,7 @@
 
                         <button
                           type="button"
-                          class="drag-handle absolute right-2 top-2 inline-flex h-10 w-10 cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-600 shadow-sm backdrop-blur transition hover:border-gray-300 hover:bg-white hover:text-gray-900 active:cursor-grabbing"
+                          class="drag-handle absolute right-2 top-2 inline-flex h-10 w-10 cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-600 shadow-sm backdrop-blur transition hover:border-gray-300 hover:bg-white hover:text-gray-900 active:cursor-grabbing dark:border-white/10 dark:bg-gray-950/90 dark:text-white/75 dark:hover:border-white/25 dark:hover:bg-gray-800 dark:hover:text-white"
                           aria-label="Drag to reorder"
                           title="Drag to reorder"
                         >
@@ -84,12 +84,12 @@
                         </button>
                       </div>
 
-                      <div class="space-y-2 border-t border-gray-100 p-3">
+                      <div class="space-y-2 border-t border-gray-100 p-3 dark:border-white/10">
                         <div class="min-w-0">
-                          <p class="truncate text-sm font-semibold text-gray-900">
+                          <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
                             {{ index + 1 }}. {{ image.name }}
                           </p>
-                          <p class="text-xs text-gray-500">
+                          <p class="text-xs text-gray-500 dark:text-white/55">
                             {{ image.sizeLabel }}
                           </p>
                         </div>
@@ -97,7 +97,7 @@
                         <div class="flex flex-wrap gap-2">
                           <button
                             type="button"
-                            class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
                             :disabled="isFirstImage(pageIndex, index)"
                             @click="$emit('move-image', pageIndex, index, -1)"
                           >
@@ -105,7 +105,7 @@
                           </button>
                           <button
                             type="button"
-                            class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
                             :disabled="isLastImage(pageIndex, index)"
                             @click="$emit('move-image', pageIndex, index, 1)"
                           >
@@ -113,7 +113,7 @@
                           </button>
                           <button
                             type="button"
-                            class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                            class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200 dark:hover:bg-red-400/15"
                             @click="$emit('remove-image', pageIndex, index)"
                           >
                             Remove
@@ -132,7 +132,7 @@
                   <div
                     v-for="slot in emptySlotCount(page.images.length)"
                     :key="slot"
-                    class="flex min-h-[120px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white/60 text-[11px] font-medium text-gray-400"
+                    class="flex min-h-[120px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white/60 text-[11px] font-medium text-gray-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/35"
                   >
                     Empty slot
                   </div>
@@ -142,12 +142,12 @@
           </div>
 
           <div class="flex items-center justify-between gap-3 px-2">
-            <p class="text-center text-xs text-gray-500">
+            <p class="text-center text-xs text-gray-500 dark:text-white/55">
               PDF page {{ pageIndex + 1 }}
             </p>
             <p
               v-if="emptySlotCount(page.images.length) > 0"
-              class="rounded-full border border-dashed border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-medium text-gray-400"
+              class="rounded-full border border-dashed border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-medium text-gray-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/40"
             >
               {{ emptySlotCount(page.images.length) }} empty slot{{
                 emptySlotCount(page.images.length) === 1 ? "" : "s"

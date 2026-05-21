@@ -40,7 +40,7 @@ const props = defineProps<{
 
         <button
           type="button"
-          class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+          class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 hover:text-white dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-slate-800 dark:hover:text-white"
           @click="downloadBlob(result.blob, result.name)"
         >
           Download
