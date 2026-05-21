@@ -109,7 +109,7 @@
 
         <div class="flex flex-wrap gap-2">
           <button
-            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-950"
+            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 hover:text-white disabled:opacity-50 dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white"
             :disabled="loading || !hasFiles"
             @click="compressAll"
           >
@@ -222,7 +222,7 @@
         <div class="flex flex-wrap gap-2">
           <button
             v-if="activeItem.status === 'done'"
-            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950"
+            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white"
             @click="downloadItem(activeItem)"
           >
             Download selected
@@ -348,7 +348,7 @@
               <button
                 v-if="item.status === 'done'"
                 type="button"
-                class="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950"
+                class="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-gray-800 hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white"
                 @click="downloadItem(item)"
               >
                 Download
