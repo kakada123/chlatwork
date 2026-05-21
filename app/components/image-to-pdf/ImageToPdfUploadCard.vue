@@ -13,8 +13,8 @@
       class="group block cursor-pointer rounded-xl border-2 border-dashed p-5 transition"
       :class="
         isDraggingUpload
-          ? 'border-gray-900 bg-gray-50'
-          : 'border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50'
+          ? 'border-gray-900 bg-gray-50 dark:border-cyan-300 dark:bg-cyan-300/10'
+          : 'border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.06] dark:hover:border-cyan-300/50 dark:hover:bg-white/[0.10]'
       "
       @click.prevent="openPicker"
       @dragenter.prevent="isDraggingUpload = true"
@@ -24,7 +24,7 @@
     >
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
         <span
-          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-white text-gray-700 shadow-sm transition group-hover:shadow"
+          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-white text-gray-700 shadow-sm transition group-hover:shadow dark:border-white/10 dark:bg-white/10 dark:text-white"
           aria-hidden="true"
         >
           <svg
@@ -56,7 +56,7 @@
         </span>
 
         <span class="min-w-0 flex-1">
-          <span class="block text-sm font-semibold text-gray-900">
+          <span class="block text-sm font-semibold text-gray-900 dark:text-white">
             {{
               isPreparingFiles
                 ? "Converting HEIC..."
@@ -65,7 +65,7 @@
                   : "Choose or drop images"
             }}
           </span>
-          <span class="mt-1 block text-xs text-gray-500">
+          <span class="mt-1 block text-xs text-gray-500 dark:text-white/55">
             {{
               isPreparingFiles
                 ? "Please wait while we prepare your files locally."
@@ -75,7 +75,7 @@
         </span>
 
         <span
-          class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800"
+          class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800 group-hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-gray-800 dark:group-hover:text-white"
         >
           {{ isPreparingFiles ? "Processing..." : imageCount > 0 ? "Add more" : "Choose files" }}
         </span>
@@ -85,7 +85,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <button
         type="button"
-        class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+        class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-white dark:text-gray-950 dark:hover:bg-white/90 dark:disabled:bg-white/20 dark:disabled:text-white/40"
         :disabled="!canConvert"
         @click="$emit('convert')"
       >
@@ -93,26 +93,31 @@
       </button>
       <button
         type="button"
-        class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10]"
         @click="$emit('clear')"
       >
         Clear
       </button>
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-gray-500 dark:text-white/55">
         {{ imageCount }} image{{ imageCount === 1 ? "" : "s" }} selected
       </p>
     </div>
 
     <p
       v-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+      class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200"
     >
       {{ error }}
     </p>
 
-    <div v-if="imageCount === 0" class="rounded-xl border bg-gray-50 p-5">
-      <h2 class="text-sm font-semibold text-gray-900">Empty state</h2>
-      <p class="mt-1 text-sm text-gray-500">
+    <div
+      v-if="imageCount === 0"
+      class="rounded-xl border bg-gray-50 p-5 dark:border-white/10 dark:bg-white/[0.04]"
+    >
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
+        Empty state
+      </h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-white/55">
         Upload multiple images, then arrange them inside the PDF page preview.
       </p>
     </div>

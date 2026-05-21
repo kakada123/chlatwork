@@ -96,7 +96,7 @@ function handleDrop(event: DragEvent) {
       </span>
 
       <span
-        class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+        class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 group-hover:text-white dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-slate-800 dark:group-hover:text-white"
       >
         Choose files
       </span>
