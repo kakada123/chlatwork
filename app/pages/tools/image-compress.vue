@@ -2,10 +2,10 @@
 useSeoMeta({
   title: "Image Compressor — ChlatWork",
   description:
-    "Compress images instantly without uploading. Reduce file size while keeping quality.",
+    "Batch compress images instantly without uploading. Reduce file size while keeping quality.",
   ogTitle: "Image Compressor — ChlatWork",
   ogDescription:
-    "Compress images instantly without uploading — fast, private, and secure.",
+    "Batch compress images instantly without uploading - fast, private, and secure.",
 });
 </script>
 

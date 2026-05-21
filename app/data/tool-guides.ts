@@ -201,13 +201,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
   "image-compress": {
     metaTitle: "How to Compress Images Without Uploading | ChlatWork",
     metaDescription:
-      "Compress JPG, PNG, and WebP images in your browser without uploading them to a server.",
+      "Batch compress JPG, PNG, and WebP images in your browser without uploading them to a server.",
     heroTitle: "How to Compress an Image Without Uploading It",
     heroDescription:
       "Reduce image size before sending, posting, or uploading, while keeping the file private on your own device.",
     ctaLabel: "Compress Image",
     whatIs: [
-      "The Image Compressor is a browser-based image tool that reduces file size for common web images. You choose an image, adjust compression settings, and download a smaller copy.",
+      "The Image Compressor is a browser-based image tool that reduces file size for common web images. You can choose one image or a batch, adjust compression settings, and download smaller copies.",
       "Because the work happens in the browser, it is a practical choice for documents, product photos, and social posts that do not need to leave your device just to become smaller.",
     ],
     whyUse: [
@@ -216,14 +216,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "It is useful when a government, bank, school, or marketplace form has a file-size limit.",
       "It lets small businesses prepare product photos before posting online.",
       "It saves mobile data when images need to be sent from a phone hotspot or slow connection.",
+      "It can compress multiple product photos, menu images, or screenshots in one batch.",
     ],
     steps: [
       "Open the ChlatWork Image Compressor.",
-      "Choose the image file you want to reduce.",
+      "Choose one image or multiple images you want to reduce.",
       "Adjust the quality or size options if you need a specific output.",
-      "Click Compress and wait for the preview result.",
+      "Click Compress and wait for the batch results.",
       "Compare the original and compressed sizes before downloading.",
-      "Download the compressed file and use that copy for upload, chat, or web publishing.",
+      "Download one compressed file or download all compressed files for upload, chat, or web publishing.",
     ],
     useCases: [
       "A shop owner in Cambodia compresses product photos before posting them on Facebook Marketplace.",
