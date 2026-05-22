@@ -73,7 +73,7 @@ function removeRow(index: number) {
       <button
         v-for="category in expenseCategories"
         :key="category"
-        class="rounded-full border bg-white px-2.5 py-1 text-xs hover:bg-gray-50 active:scale-[0.99]"
+        class="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700 transition hover:bg-gray-50 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
         type="button"
         @click="quickAdd(category)"
       >
@@ -81,7 +81,7 @@ function removeRow(index: number) {
       </button>
 
       <button
-        class="rounded-full border bg-white px-2.5 py-1 text-xs hover:bg-gray-50 active:scale-[0.99]"
+        class="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700 transition hover:bg-gray-50 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
         type="button"
         title="Add income row"
         @click="quickAddIncome"
@@ -165,7 +165,7 @@ function removeRow(index: number) {
 
         <div class="mt-3 flex justify-end">
           <button
-            class="rounded-lg border px-3 py-2 text-sm hover:bg-gray-100"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
             type="button"
             @click="removeRow(index)"
           >
@@ -261,7 +261,7 @@ function removeRow(index: number) {
             <td class="p-2 pr-3">
               <div class="flex justify-end">
                 <button
-                  class="h-11 w-11 rounded-lg border text-base leading-none hover:bg-gray-100"
+                  class="h-11 w-11 rounded-lg border border-gray-200 text-base leading-none text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                   type="button"
                   :aria-label="`Remove row ${index + 1}`"
                   @click="removeRow(index)"
@@ -283,7 +283,7 @@ function removeRow(index: number) {
 
     <div class="mt-3 grid grid-cols-3 gap-2">
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white dark:focus-visible:ring-cyan-200/15"
         type="button"
         @click="addRow"
       >
@@ -292,7 +292,7 @@ function removeRow(index: number) {
       </button>
 
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-3 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-3 text-sm font-medium text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100 dark:focus-visible:ring-cyan-200/15"
         type="button"
         @click="emit('load-example')"
       >
@@ -300,7 +300,7 @@ function removeRow(index: number) {
       </button>
 
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100 active:scale-[0.99]"
+        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40 disabled:active:scale-100 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white dark:focus-visible:ring-cyan-200/15"
         type="button"
         :disabled="!canCopy"
         @click="emit('copy-summary')"
@@ -349,7 +349,7 @@ function removeRow(index: number) {
 
       <div class="mt-2 flex gap-2">
         <button
-          class="rounded-lg border bg-white px-4 py-2 hover:bg-gray-100"
+          class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
           type="button"
           @click="emit('apply-raw')"
         >

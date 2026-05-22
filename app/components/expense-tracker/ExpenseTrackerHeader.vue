@@ -15,14 +15,14 @@ const emit = defineEmits<{
   >
     <div>
       <h1 class="text-xl font-bold leading-tight">Expense Tracker</h1>
-      <p class="mt-2 max-w-xl text-gray-600">
+      <p class="mt-2 max-w-xl text-gray-600 dark:text-white/60">
         Track your spending with budget + insights. No signup, just vibes.
       </p>
     </div>
 
     <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
       <button
-        class="w-full rounded-lg border bg-white px-4 py-2 hover:bg-gray-100 sm:w-auto"
+        class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white sm:w-auto"
         type="button"
         @click="emit('reset')"
       >
@@ -30,7 +30,7 @@ const emit = defineEmits<{
       </button>
 
       <button
-        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 text-white hover:opacity-90 sm:w-auto"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 text-white transition hover:opacity-90 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100 sm:w-auto"
         type="button"
         :aria-label="shareCopied ? 'Link copied' : 'Share link'"
         @click="emit('share')"

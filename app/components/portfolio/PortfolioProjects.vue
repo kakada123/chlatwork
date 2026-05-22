@@ -12,7 +12,7 @@
         </div>
         <a
           href="#contact"
-          class="inline-flex h-11 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-5 text-sm font-bold text-slate-900 shadow-sm shadow-sky-100/60 transition hover:-translate-y-0.5 hover:bg-white dark:border-white/14 dark:bg-white/[0.07] dark:text-white/90 dark:shadow-none dark:hover:bg-white/[0.12]"
+          class="inline-flex h-11 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-5 text-sm font-bold text-slate-900 shadow-sm shadow-sky-100/60 transition hover:-translate-y-0.5 hover:bg-white dark:border-white/[0.14] dark:bg-white/[0.07] dark:text-white/90 dark:shadow-none dark:hover:bg-white/[0.12]"
         >
           Discuss a project
         </a>

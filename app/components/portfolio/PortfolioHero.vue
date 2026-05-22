@@ -36,14 +36,14 @@
           </a>
           <a
             href="#contact"
-            class="inline-flex h-12 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-7 text-sm font-bold text-slate-900 shadow-[0_16px_40px_rgba(14,165,233,0.13),inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/14 dark:bg-white/[0.07] dark:text-white/90 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.10)] dark:hover:bg-white/[0.12] dark:focus:ring-white/50"
+            class="inline-flex h-12 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-7 text-sm font-bold text-slate-900 shadow-[0_16px_40px_rgba(14,165,233,0.13),inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/[0.14] dark:bg-white/[0.07] dark:text-white/90 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.10)] dark:hover:bg-white/[0.12] dark:focus:ring-white/50"
           >
             Contact Me
           </a>
           <a
             :href="profile.cvPath"
             download
-            class="inline-flex h-12 items-center justify-center rounded-2xl border border-cyan-200/80 bg-cyan-50/80 px-7 text-sm font-bold text-cyan-800 transition hover:-translate-y-0.5 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300 dark:border-cyan-200/25 dark:bg-cyan-200/10 dark:text-cyan-100 dark:hover:bg-cyan-200/16 dark:focus:ring-cyan-200"
+            class="inline-flex h-12 items-center justify-center rounded-2xl border border-cyan-200/80 bg-cyan-50/80 px-7 text-sm font-bold text-cyan-800 transition hover:-translate-y-0.5 hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300 dark:border-cyan-200/25 dark:bg-cyan-200/10 dark:text-cyan-100 dark:hover:bg-cyan-200/[0.16] dark:focus:ring-cyan-200"
           >
             Download CV
           </a>
@@ -52,7 +52,7 @@
 
       <div data-reveal="right" class="lg:justify-self-end">
         <div
-          class="overflow-hidden rounded-[2rem] border border-sky-100/90 bg-white/[0.78] shadow-[0_34px_110px_rgba(14,165,233,0.17),inset_0_1px_0_rgba(255,255,255,0.78)] backdrop-blur-xl dark:border-white/12 dark:bg-white/[0.07] dark:shadow-[0_34px_110px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.10)]"
+          class="overflow-hidden rounded-[2rem] border border-sky-100/90 bg-white/[0.78] shadow-[0_34px_110px_rgba(14,165,233,0.17),inset_0_1px_0_rgba(255,255,255,0.78)] backdrop-blur-xl dark:border-white/[0.12] dark:bg-white/[0.07] dark:shadow-[0_34px_110px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.10)]"
         >
           <div class="flex items-center gap-2 border-b border-sky-100/90 px-5 py-4 dark:border-white/10">
             <span class="h-3 w-3 rounded-full bg-rose-400" />
