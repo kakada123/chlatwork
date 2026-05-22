@@ -37,6 +37,11 @@ export type InvoicePdfInput = {
 
 const A4 = { width: 595.28, height: 841.89 };
 const LETTER = { width: 612, height: 792 };
+const HTML_TO_PDF_PAGE = {
+  width: 794,
+  minHeight: 1123,
+  padding: 48,
+};
 
 export function formatFileSize(bytes: number) {
   if (bytes < 1024) {
@@ -377,29 +382,64 @@ async function imageDataUrlToSize(dataUrl: string) {
   });
 }
 
+async function waitForHtmlRenderFrame() {
+  if (document.fonts?.ready) {
+    await document.fonts.ready.catch(() => undefined);
+  }
+
+  await new Promise<void>((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+  );
+}
+
+function createHtmlPdfRenderNode(html: string) {
+  const wrapper = document.createElement("div");
+  const container = document.createElement("article");
+
+  Object.assign(wrapper.style, {
+    position: "fixed",
+    left: "0",
+    top: "0",
+    width: `${HTML_TO_PDF_PAGE.width}px`,
+    overflow: "hidden",
+    pointerEvents: "none",
+    transform: "translateX(-120vw)",
+    zIndex: "-1",
+  });
+
+  Object.assign(container.style, {
+    boxSizing: "border-box",
+    width: `${HTML_TO_PDF_PAGE.width}px`,
+    minHeight: `${HTML_TO_PDF_PAGE.minHeight}px`,
+    padding: `${HTML_TO_PDF_PAGE.padding}px`,
+    backgroundColor: "#ffffff",
+    color: "#111827",
+    fontFamily: "Arial, sans-serif",
+    lineHeight: "1.55",
+  });
+
+  container.innerHTML = sanitizeHtml(html);
+  wrapper.appendChild(container);
+  document.body.appendChild(wrapper);
+
+  return { container, wrapper };
+}
+
 export async function htmlToPdf(html: string) {
   const { jsPDF } = await import("jspdf");
   const { toJpeg } = await import("html-to-image");
-  const container = document.createElement("article");
-
-  container.style.position = "fixed";
-  container.style.left = "-10000px";
-  container.style.top = "0";
-  container.style.width = "794px";
-  container.style.minHeight = "1123px";
-  container.style.padding = "48px";
-  container.style.background = "#ffffff";
-  container.style.color = "#111827";
-  container.style.fontFamily = "Arial, sans-serif";
-  container.style.lineHeight = "1.55";
-  container.innerHTML = sanitizeHtml(html);
-  document.body.appendChild(container);
+  const { container, wrapper } = createHtmlPdfRenderNode(html);
 
   try {
+    // html-to-image clones computed styles, so the captured node must stay on-canvas.
+    await waitForHtmlRenderFrame();
+
     const dataUrl = await toJpeg(container, {
       quality: 0.95,
       pixelRatio: 2,
       backgroundColor: "#ffffff",
+      width: HTML_TO_PDF_PAGE.width,
+      height: Math.max(HTML_TO_PDF_PAGE.minHeight, container.scrollHeight),
     });
     const imageSize = await imageDataUrlToSize(dataUrl);
     const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
@@ -413,7 +453,7 @@ export async function htmlToPdf(html: string) {
 
     return doc.output("blob");
   } finally {
-    container.remove();
+    wrapper.remove();
   }
 }
 

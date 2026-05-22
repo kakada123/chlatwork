@@ -55,11 +55,20 @@
     </section>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
-      <h2 class="mb-3 text-sm font-semibold text-gray-900">Highlighted matches</h2>
-      <pre class="min-h-32 whitespace-pre-wrap break-words rounded-lg bg-gray-50 p-3 font-mono text-sm"
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <h2 class="text-sm font-semibold text-gray-900">Match preview</h2>
+        <span
+          v-if="matches.length"
+          class="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100"
+        >
+          {{ matches.length }} {{ matches.length === 1 ? "match" : "matches" }}
+        </span>
+      </div>
+      <pre
+        class="min-h-32 whitespace-pre-wrap break-words rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-sm leading-6 text-slate-700 dark:border-white/10 dark:bg-slate-950/40 dark:text-white/70"
         ><template v-for="(segment, index) in highlightedSegments" :key="index"><mark
           v-if="segment.match"
-          class="rounded bg-yellow-200 px-0.5 text-gray-950"
+          class="rounded-md bg-cyan-100 px-1 py-0.5 font-semibold text-cyan-950 ring-1 ring-inset ring-cyan-300/60 dark:bg-cyan-300/20 dark:text-cyan-50 dark:ring-cyan-300/40"
           >{{ segment.text }}</mark
         ><span v-else>{{ segment.text }}</span></template></pre>
       <p v-if="!matches.length" class="mt-3 text-sm text-gray-500">

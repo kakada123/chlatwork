@@ -467,12 +467,12 @@ function removeInvoiceItem(index: number) {
               <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Preview</h3>
               <ClientOnly>
                 <div
-                  class="mt-2 min-h-[320px] overflow-auto rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-900 dark:border-white/10"
+                  class="mt-2 min-h-[320px] overflow-auto rounded-xl border border-slate-200 bg-[#ffffff] p-4 text-sm leading-6 text-[#111827] shadow-inner shadow-slate-200/50 dark:border-white/10 dark:bg-[#ffffff] dark:text-[#111827] dark:shadow-black/20"
                   v-html="sanitizedHtmlPreview"
                 />
                 <template #fallback>
                   <div
-                    class="mt-2 min-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-white p-4 font-mono text-sm text-slate-900 dark:border-white/10"
+                    class="mt-2 min-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-[#ffffff] p-4 font-mono text-sm leading-6 text-[#111827] shadow-inner shadow-slate-200/50 dark:border-white/10 dark:bg-[#ffffff] dark:text-[#111827] dark:shadow-black/20"
                   >
                     {{ htmlInput }}
                   </div>
