@@ -19,7 +19,7 @@
           class="group rounded-2xl border border-sky-100/90 bg-white/75 p-5 shadow-sm shadow-sky-100/70 backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white hover:shadow-[0_24px_70px_rgba(14,165,233,0.18)] dark:border-white/10 dark:bg-white/[0.06] dark:shadow-none dark:hover:border-white/20 dark:hover:bg-white/[0.09] dark:hover:shadow-[0_24px_70px_rgba(0,0,0,0.28)]"
         >
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/25 transition group-hover:scale-105"
+            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/25 transition group-hover:scale-105 dark:text-white dark:shadow-black/40"
             :class="group.accent"
           >
             <PortfolioIcon

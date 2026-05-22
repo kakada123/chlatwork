@@ -37,7 +37,6 @@ export const portfolioProfile = {
   title: "Backend & Full-Stack Developer",
   tagline:
     "I build real-world business systems, POS applications, APIs, dashboards, and automation tools.",
-  cvPath: "/kakada-ngen-cv.txt",
 };
 
 export const portfolioMetrics = [
