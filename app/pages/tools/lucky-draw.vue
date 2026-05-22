@@ -84,7 +84,7 @@
                     :ref="(element) => setNameInputRef(element, index)"
                     v-model.trim="row.name"
                     class="h-11 w-full rounded-lg border px-3 outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
-                    placeholder="e.g. Kakada Ngen"
+                    :placeholder="`Participant ${index + 1}`"
                     :disabled="isSpinning"
                   />
                 </td>
@@ -149,10 +149,10 @@
             class="mt-2 h-40 w-full rounded-xl border p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
             :disabled="isSpinning"
             placeholder="Example:
-Kakada Ngen
-Mina Sok
-Sreynea Chhun
-John Smith"
+Vann Mey
+Sokha Lim
+Sophea Kim
+Nita Phan"
           />
         </details>
 
@@ -722,12 +722,12 @@ function applyRawToRows() {
 
 function loadExample() {
   rows.value = [
-    { name: "Kakada Ngen" },
-    { name: "Mina Sok" },
-    { name: "Sreynea Chhun" },
-    { name: "John Smith" },
+    { name: "Vann Mey" },
+    { name: "Sokha Lim" },
+    { name: "Sophea Kim" },
+    { name: "Nita Phan" },
     { name: "Rotha Chan" },
-    { name: "Minea Chea" },
+    { name: "Vichea Long" },
   ];
   raw.value = rows.value.map((row) => row.name).join("\n");
   error.value = "";
