@@ -653,11 +653,11 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- The footer keeps trust and policy links visible on every public page. -->
-    <footer class="site-footer mt-0 border-t py-8">
+    <footer class="site-footer mt-0 border-t border-slate-200/70 py-8 dark:border-white/10">
       <div
-        class="mx-auto flex max-w-[1440px] flex-col gap-5 px-3 text-sm sm:px-4 lg:flex-row lg:items-start lg:justify-between"
+        class="mx-auto grid max-w-[1440px] gap-8 px-3 text-sm sm:px-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
       >
-        <div class="max-w-xl space-y-2">
+        <div class="max-w-xl space-y-3">
           <p class="text-base font-black text-slate-950 dark:text-white">
             ChlatWork
           </p>
@@ -665,46 +665,66 @@ onBeforeUnmount(() => {
             ChlatWork provides simple online tools for documents, images, QR
             codes, barcodes, dates, and productivity.
           </p>
+          <p class="text-xs text-gray-400 dark:text-white/40">
+            © 2026 ChlatWork. Simple tools for everyday work.
+          </p>
         </div>
 
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
-          <nav class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500 dark:text-white/55">
-            <NuxtLink to="/about" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.about }}
-            </NuxtLink>
-            <NuxtLink to="/contact" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.contact }}
-            </NuxtLink>
-            <NuxtLink to="/privacy-policy" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.privacy }}
-            </NuxtLink>
-            <NuxtLink to="/terms" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.terms }}
-            </NuxtLink>
-            <a href="/sitemap.xml" class="hover:text-gray-900 dark:hover:text-white">
-              Sitemap
-            </a>
-            <NuxtLink to="/cookies" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.cookies }}
-            </NuxtLink>
-            <button
-              type="button"
-              class="hover:text-gray-900 dark:hover:text-white"
-              @click="openPrivacyCookieSettings"
-            >
-              {{ copy.footer.cookieNotice }}
-            </button>
-            <NuxtLink to="/disclaimer" class="hover:text-gray-900 dark:hover:text-white">
-              {{ copy.footer.disclaimer }}
-            </NuxtLink>
+        <div class="grid gap-6 sm:grid-cols-3">
+          <nav class="space-y-3" aria-label="Footer site links">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+              Site
+            </p>
+            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
+              <NuxtLink to="/about" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.about }}
+              </NuxtLink>
+              <NuxtLink to="/contact" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.contact }}
+              </NuxtLink>
+              <a href="/sitemap.xml" class="hover:text-gray-900 dark:hover:text-white">
+                Sitemap
+              </a>
+            </div>
           </nav>
 
-          <NuxtLink
-            to="/buy-me-coffee"
-            class="inline-flex items-center justify-center rounded-full border border-sky-100 bg-white/70 px-4 py-2 font-medium text-gray-700 shadow-sm shadow-sky-100/70 hover:bg-white hover:text-gray-900 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:shadow-none dark:hover:bg-white/[0.12] dark:hover:text-white"
-          >
-            {{ copy.footer.coffee }}
-          </NuxtLink>
+          <nav class="space-y-3" aria-label="Footer policy links">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+              Policies
+            </p>
+            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
+              <NuxtLink to="/privacy-policy" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.privacy }}
+              </NuxtLink>
+              <NuxtLink to="/terms" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.terms }}
+              </NuxtLink>
+              <NuxtLink to="/cookies" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.cookies }}
+              </NuxtLink>
+              <NuxtLink to="/disclaimer" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.disclaimer }}
+              </NuxtLink>
+            </div>
+          </nav>
+
+          <div class="space-y-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+              Support
+            </p>
+            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
+              <button
+                type="button"
+                class="text-left hover:text-gray-900 dark:hover:text-white"
+                @click="openPrivacyCookieSettings"
+              >
+                {{ copy.footer.cookieNotice }}
+              </button>
+              <NuxtLink to="/buy-me-coffee" class="hover:text-gray-900 dark:hover:text-white">
+                {{ copy.footer.coffee }}
+              </NuxtLink>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
