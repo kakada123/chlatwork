@@ -122,7 +122,7 @@ const stats = computed(() => [
     accent: "from-sky-400 to-violet-500",
   },
   {
-    label: copy.value.hero.stats[1]?.label ?? "100% Browser Friendly",
+    label: copy.value.hero.stats[1]?.label ?? "Browser-based",
     caption: copy.value.hero.stats[1]?.caption ?? "No installation required",
     paths: [
       "M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4Z",
@@ -131,8 +131,8 @@ const stats = computed(() => [
     accent: "from-violet-400 to-cyan-400",
   },
   {
-    label: copy.value.hero.stats[2]?.label ?? "Fast & Secure",
-    caption: copy.value.hero.stats[2]?.caption ?? "Works offline, stays private",
+    label: copy.value.hero.stats[2]?.label ?? "Privacy-friendly",
+    caption: copy.value.hero.stats[2]?.caption ?? "Local processing where possible",
     paths: ["M13 2 4 14h7l-1 8 9-12h-7l1-8Z"],
     accent: "from-amber-300 to-orange-500",
   },

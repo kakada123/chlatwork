@@ -1,8 +1,22 @@
 <script setup lang="ts">
+const title = "Contact ChlatWork";
+const description =
+  "Contact ChlatWork to report bugs, request tools, share feedback, or ask privacy and cookie questions.";
+
 useSeoMeta({
-  title: "Contact — ChlatWork",
-  description:
-    "Contact ChlatWork for tool feedback, bug reports, privacy questions, and practical feature requests.",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/contact",
+  twitterCard: "summary_large_image",
+  twitterTitle: title,
+  twitterDescription: description,
+});
+
+useHead({
+  link: [{ rel: "canonical", href: "https://chlatwork.com/contact" }],
 });
 
 const email = "kakada127@gmail.com";

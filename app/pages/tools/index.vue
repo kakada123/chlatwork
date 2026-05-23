@@ -7,6 +7,10 @@ import {
 } from "~/lib/tool-registry";
 import { filterTools } from "~/lib/tool-search";
 import { TOOL_GUIDES } from "~/data/tool-guides";
+import {
+  TOOL_DIRECTORY_CATEGORIES,
+  getToolsForDirectoryCategory,
+} from "~/data/tool-categories";
 
 const { categoryLabel, copy, lineHeightForText, localizeTool } = useLanguage();
 const toolSearch = ref("");
@@ -22,12 +26,25 @@ const groupedTools = computed(() => groupTools(filteredTools.value));
 const filteredToolCount = computed(() => filteredTools.value.length);
 const isToolSearchActive = computed(() => toolSearch.value.trim().length > 0);
 const guideCards = TOOL_GUIDES;
+const directoryCategories = computed(() =>
+  TOOL_DIRECTORY_CATEGORIES.map((category) => ({
+    ...category,
+    count: getToolsForDirectoryCategory(category).length,
+  })),
+);
 const pageEl = ref<HTMLElement | null>(null);
 
 useLandingReveal(pageEl);
 useSeoMeta({
   title: computed(() => copy.value.toolsPage.metaTitle),
   description: computed(() => copy.value.toolsPage.metaDescription),
+  ogTitle: computed(() => copy.value.toolsPage.metaTitle),
+  ogDescription: computed(() => copy.value.toolsPage.metaDescription),
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/tools",
+  twitterCard: "summary_large_image",
+  twitterTitle: computed(() => copy.value.toolsPage.metaTitle),
+  twitterDescription: computed(() => copy.value.toolsPage.metaDescription),
 });
 
 function clearToolSearch() {
@@ -115,6 +132,49 @@ function groupTools(tools: ToolDef[]) {
       class="rounded-[22px] border border-dashed border-slate-200/80 bg-white/75 p-6 text-center text-sm text-slate-500 shadow-lg shadow-sky-100/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:text-white/55"
     >
       {{ copy.toolsPage.emptyState }}
+    </section>
+
+    <section v-if="!isToolSearchActive" class="space-y-3" data-reveal>
+      <div>
+        <h2 class="text-2xl font-black text-slate-950 dark:text-white">
+          Tool categories
+        </h2>
+        <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-white/65">
+          Browse by task type when you know the kind of work you need to finish.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <NuxtLink
+          v-for="(category, categoryIndex) in directoryCategories"
+          :key="category.key"
+          :to="category.path"
+          class="group rounded-[22px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/70 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.13]"
+          data-reveal
+          :style="{ '--reveal-delay': `${categoryIndex * 45}ms` }"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-base font-black text-slate-950 dark:text-white">
+                {{ category.shortTitle }}
+              </h3>
+              <p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-white/60">
+                {{ category.description }}
+              </p>
+            </div>
+            <span
+              class="shrink-0 rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-bold text-slate-600 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/60"
+            >
+              {{ category.count }}
+            </span>
+          </div>
+          <span
+            class="mt-4 inline-flex text-xs font-bold text-sky-700 transition group-hover:translate-x-1 dark:text-cyan-300"
+          >
+            Browse category
+          </span>
+        </NuxtLink>
+      </div>
     </section>
 
     <section v-if="!isToolSearchActive" class="space-y-3" data-reveal>

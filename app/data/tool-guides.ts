@@ -1771,3 +1771,11 @@ export function findToolGuideByPath(path: string) {
   const slug = path.replace(/^\/+|\/+$/g, "");
   return TOOL_GUIDES_BY_SLUG.get(slug) ?? null;
 }
+
+export function findToolGuideByToolRoute(route: string) {
+  const normalizedRoute = route.endsWith("/") ? route.slice(0, -1) : route;
+
+  return (
+    TOOL_GUIDES.find((guide) => guide.tool.route === normalizedRoute) ?? null
+  );
+}

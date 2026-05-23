@@ -31,7 +31,7 @@ export const TOOLS: ToolDef[] = [
     status: "stable",
     category: "Utilities",
     description:
-      "Batch compress images instantly without uploading - fast, private, and secure.",
+      "Batch compress images instantly without uploading to a conversion server.",
   },
   {
     key: "image-to-pdf",

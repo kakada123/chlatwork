@@ -81,15 +81,16 @@ const COPY: Record<AppLocale, LandingCopy> = {
   en: {
     metaTitle: "ChlatWork - Simple tools that get things done",
     metaDescription:
-      "Fast, clean, and practical tools for daily work, developers, and creators.",
-    tagline: "Simple tools that get things done.",
+      "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+    tagline: "Free online tools for everyday work.",
     toolsPage: {
-      metaTitle: "Tools - ChlatWork",
+      metaTitle: "Free Online Tools - ChlatWork",
       metaDescription:
-        "Explore privacy-friendly utilities and developer tools.",
+        "Browse ChlatWork tools for PDF files, images, QR codes, barcodes, dates, calculators, productivity, and developer workflows.",
       eyebrow: "Tools",
-      title: "Browse tools",
-      description: "Pick a tool and get things done.",
+      title: "Browse free online tools",
+      description:
+        "Choose a focused ChlatWork tool for documents, images, QR codes, barcodes, dates, calculators, productivity, or developer tasks.",
       searchPlaceholder: "Search by tool name, category, or task",
       emptyState: "No tools found.",
     },
@@ -110,22 +111,22 @@ const COPY: Record<AppLocale, LandingCopy> = {
       privacy: "Privacy Policy",
       cookies: "Cookie Policy",
       cookieNotice: "Cookie Notice",
-      terms: "Terms",
+      terms: "Terms of Use",
       disclaimer: "Disclaimer",
       contact: "Contact",
       coffee: "Support ChlatWork",
     },
     hero: {
-      titleStart: "Simple tools that get things",
-      titleAccent: "done.",
+      titleStart: "Free online tools for",
+      titleAccent: "everyday work.",
       description:
-        "Fast, clean, and practical tools for daily work, developers, and creators.",
+        "ChlatWork provides simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
       primaryAction: "Explore Tools",
-      secondaryAction: "Developer Tools",
+      secondaryAction: "View Categories",
       stats: [
         { label: "Tools", caption: "And counting" },
-        { label: "100% Browser Friendly", caption: "No installation required" },
-        { label: "Fast & Secure", caption: "Works offline, stays private" },
+        { label: "Browser-based", caption: "No unnecessary signup" },
+        { label: "Privacy-friendly", caption: "Local processing where possible" },
       ],
     },
     heroSearch: {
@@ -140,14 +141,14 @@ const COPY: Record<AppLocale, LandingCopy> = {
     },
     categories: {
       eyebrow: "Tool Categories",
-      title: "Pick the right lane.",
+      title: "Choose the right tool category.",
       toolsLabel: "tools",
       explore: "Explore",
     },
     cta: {
-      title: "Pick a tool and get things done.",
+      title: "Simple tools, useful results.",
       description:
-        "Every tool is built to stay fast, focused, and easy to return to when work gets busy.",
+        "Open a tool, complete the task, and keep moving without installing extra software or creating an account for basic work.",
       primaryAction: "View All Tools",
       secondaryAction: "Request a Tool",
     },
@@ -156,13 +157,14 @@ const COPY: Record<AppLocale, LandingCopy> = {
     metaTitle: "ChlatWork - ឧបករណ៍ងាយស្រួលសម្រាប់ការងារប្រចាំថ្ងៃ",
     metaDescription:
       "ឧបករណ៍លឿន ស្អាត និងងាយប្រើ សម្រាប់ការងារ អ្នកអភិវឌ្ឍន៍ និងអ្នកបង្កើតមាតិកា។",
-    tagline: "ឧបករណ៍ងាយស្រួលសម្រាប់ធ្វើការងារឲ្យរួចរាល់។",
+    tagline: "ឧបករណ៍អនឡាញឥតគិតថ្លៃសម្រាប់ការងារប្រចាំថ្ងៃ។",
     toolsPage: {
       metaTitle: "ឧបករណ៍ - ChlatWork",
       metaDescription: "ស្វែងរកឧបករណ៍ និង developer tools ដែលផ្តោតលើភាពឯកជន។",
       eyebrow: "ឧបករណ៍",
-      title: "មើលឧបករណ៍",
-      description: "ជ្រើសរើសឧបករណ៍មួយ ហើយធ្វើការងារឲ្យរួចរាល់។",
+      title: "មើលឧបករណ៍អនឡាញឥតគិតថ្លៃ",
+      description:
+        "ជ្រើសរើសឧបករណ៍ ChlatWork សម្រាប់ PDF រូបភាព QR barcode កាលបរិច្ឆេទ ការគណនា និងការងារប្រចាំថ្ងៃ។",
       searchPlaceholder: "ស្វែងរកតាមឈ្មោះ ប្រភេទ ឬការងារ",
       emptyState: "រកមិនឃើញឧបករណ៍។",
     },
@@ -183,22 +185,22 @@ const COPY: Record<AppLocale, LandingCopy> = {
       privacy: "គោលការណ៍ឯកជនភាព",
       cookies: "គោលការណ៍ Cookie",
       cookieNotice: "សេចក្តីជូនដំណឹង Cookie",
-      terms: "លក្ខខណ្ឌ",
+      terms: "លក្ខខណ្ឌប្រើប្រាស់",
       disclaimer: "ការបដិសេធទំនួលខុសត្រូវ",
       contact: "ទំនាក់ទំនង",
       coffee: "គាំទ្រ ChlatWork",
     },
     hero: {
-      titleStart: "ឧបករណ៍សាមញ្ញៗ សម្រាប់ធ្វើការងារ",
-      titleAccent: "ឲ្យរួចរាល់។",
+      titleStart: "ឧបករណ៍អនឡាញឥតគិតថ្លៃ",
+      titleAccent: "សម្រាប់ការងារប្រចាំថ្ងៃ។",
       description:
-        "ឧបករណ៍លឿន ស្អាត និងអនុវត្តបានពិត សម្រាប់ការងារប្រចាំថ្ងៃ អ្នកអភិវឌ្ឍន៍ និងអ្នកបង្កើតមាតិកា។",
+        "ChlatWork ផ្តល់ឧបករណ៍ browser-based សាមញ្ញៗសម្រាប់ឯកសារ រូបភាព QR barcode កាលបរិច្ឆេទ ការគណនា និង productivity។",
       primaryAction: "មើលឧបករណ៍",
-      secondaryAction: "ឧបករណ៍អ្នកអភិវឌ្ឍន៍",
+      secondaryAction: "មើលប្រភេទ",
       stats: [
         { label: "ឧបករណ៍", caption: "នឹងបន្ថែមបន្តទៀត" },
-        { label: "ប្រើលើ Browser បាន 100%", caption: "មិនចាំបាច់ដំឡើង" },
-        { label: "លឿន និងសុវត្ថិភាព", caption: "ទិន្នន័យនៅលើឧបករណ៍របស់អ្នក" },
+        { label: "Browser-based", caption: "មិនចាំបាច់បង្កើតគណនីសម្រាប់ការងារមូលដ្ឋាន" },
+        { label: "គិតពីភាពឯកជន", caption: "ដំណើរការលើឧបករណ៍អ្នកនៅពេលអាចធ្វើបាន" },
       ],
     },
     heroSearch: {
@@ -213,21 +215,24 @@ const COPY: Record<AppLocale, LandingCopy> = {
     },
     categories: {
       eyebrow: "ប្រភេទឧបករណ៍",
-      title: "ជ្រើសរើសឧបករណ៍ដែលត្រូវការ។",
+      title: "ជ្រើសរើសប្រភេទឧបករណ៍ដែលត្រូវការ។",
       toolsLabel: "ឧបករណ៍",
       explore: "មើល",
     },
     cta: {
-      title: "ជ្រើសរើសឧបករណ៍ ហើយធ្វើការងារឲ្យរួច។",
+      title: "ឧបករណ៍សាមញ្ញៗ សម្រាប់លទ្ធផលមានប្រយោជន៍។",
       description:
-        "ឧបករណ៍នីមួយៗត្រូវបានបង្កើតឲ្យលឿន ច្បាស់ និងងាយត្រឡប់មកប្រើម្ដងទៀតពេលការងាររវល់។",
+        "បើកឧបករណ៍ ធ្វើការងារឲ្យរួច ហើយបន្តទៅការងារផ្សេង ដោយមិនចាំបាច់ដំឡើងកម្មវិធីធំៗ។",
       primaryAction: "មើលឧបករណ៍ទាំងអស់",
       secondaryAction: "ស្នើសុំឧបករណ៍",
     },
   },
 };
 
-const CATEGORY_TRANSLATIONS: Record<AppLocale, Record<ToolCategory, string>> = {
+const TOOL_CATEGORY_TRANSLATIONS: Record<
+  AppLocale,
+  Record<ToolCategory, string>
+> = {
   en: {
     Utilities: "Utilities",
     "PDF Tools": "PDF Tools",
@@ -240,25 +245,35 @@ const CATEGORY_TRANSLATIONS: Record<AppLocale, Record<ToolCategory, string>> = {
   },
 };
 
-const CATEGORY_DESCRIPTION_TRANSLATIONS: Record<
-  AppLocale,
-  Record<ToolCategory, string>
-> = {
-  en: {
-    Utilities:
-      "Daily helpers for calculations, QR codes, expenses, compression, and quick office tasks.",
-    "PDF Tools":
-      "Private browser-side converters for merging, splitting, compressing, and creating PDF files.",
-    "Developer Tools":
-      "Focused local-first utilities for encoding, validation, tokens, timestamps, regex, and hashes.",
-  },
+const DIRECTORY_CATEGORY_TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
+  en: {},
   km: {
-    Utilities:
-      "ជំនួយប្រចាំថ្ងៃសម្រាប់គណនា បង្កើត QR តាមដានចំណាយ បង្រួមរូបភាព និងការងារការិយាល័យរហ័ស។",
-    "PDF Tools":
-      "ឧបករណ៍ PDF ដំណើរការនៅក្នុង browser សម្រាប់បញ្ចូល បំបែក បង្រួម និងបង្កើតឯកសារ PDF។",
-    "Developer Tools":
-      "ឧបករណ៍សម្រាប់អ្នកអភិវឌ្ឍន៍ ដូចជា encode, validate, token, timestamp, regex និង hash។",
+    pdf: "ឧបករណ៍ PDF",
+    image: "ឧបករណ៍រូបភាព",
+    "qr-barcode": "QR និង Barcode",
+    "date-time": "កាលបរិច្ឆេទ និងពេលវេលា",
+    calculators: "ឧបករណ៍គណនា",
+    productivity: "ឧបករណ៍ Productivity",
+  },
+};
+
+const DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS: Record<
+  AppLocale,
+  Record<string, string>
+> = {
+  en: {},
+  km: {
+    pdf: "ឧបករណ៍សម្រាប់បម្លែង បញ្ចូល បំបែក បង្រួម និងបង្កើតឯកសារ PDF នៅក្នុង browser។",
+    image:
+      "ឧបករណ៍សម្រាប់បង្រួមរូបភាព និងបម្លែងរូបភាពទៅជាឯកសារ PDF សម្រាប់ផ្ញើ ឬ upload។",
+    "qr-barcode":
+      "បង្កើត QR code, Wi-Fi QR poster និង barcode សម្រាប់ហាង ការិយាល័យ ព្រឹត្តិការណ៍ និងការធ្វើតេស្ត។",
+    "date-time":
+      "គណនាថ្ងៃ បម្លែង Unix timestamp និងពន្យល់ cron schedule សម្រាប់ការរៀបចំការងារ។",
+    calculators:
+      "ជំនួយសម្រាប់គណនាកាលបរិច្ឆេទ ចែកចំណាយជាក្រុម និងតាមដានចំណាយប្រចាំថ្ងៃ។",
+    productivity:
+      "ឧបករណ៍តូចៗសម្រាប់ lucky draw អានអត្ថបទជាសំឡេង បង្កើតពាក្យសម្ងាត់ និងការងារការិយាល័យរហ័ស។",
   },
 };
 
@@ -422,15 +437,17 @@ export function useLanguage() {
     category: LandingToolCategory,
   ): LandingToolCategory => ({
     ...category,
-    name: CATEGORY_TRANSLATIONS[locale.value][category.name],
+    name:
+      DIRECTORY_CATEGORY_TRANSLATIONS[locale.value][category.key] ??
+      category.name,
     description:
-      CATEGORY_DESCRIPTION_TRANSLATIONS[locale.value][category.name] ??
+      DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS[locale.value][category.key] ??
       category.description,
     tools: category.tools.map(localizeTool),
   });
 
   const categoryLabel = (category: ToolCategory) =>
-    CATEGORY_TRANSLATIONS[locale.value][category];
+    TOOL_CATEGORY_TRANSLATIONS[locale.value][category];
 
   const fontFamilyForText = (value: string) =>
     containsKhmerContent(value) ? KHMER_FONT_STACK : ENGLISH_FONT_STACK;

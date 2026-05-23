@@ -4,6 +4,7 @@ import {
   getPdfRelatedTools,
   type PdfToolKey,
 } from "~/data/pdf-tools";
+import { findToolGuideByToolRoute } from "~/data/tool-guides";
 import ModernDateInput from "~/components/ModernDateInput.vue";
 import PageRangeInput from "~/components/pdf-tools/PageRangeInput.vue";
 import PdfFileDropzone from "~/components/pdf-tools/PdfFileDropzone.vue";
@@ -59,7 +60,10 @@ type ResultItem = {
 
 const toolKey = computed(() => props.toolKey);
 const tool = computed(() => PDF_TOOL_BY_KEY[props.toolKey]);
+const guide = computed(() => findToolGuideByToolRoute(tool.value.route));
 const relatedTools = computed(() => getPdfRelatedTools(tool.value));
+const toolFaq = computed(() => guide.value?.faqs.slice(0, 5) ?? tool.value.faq);
+const toolUseCases = computed(() => guide.value?.useCases.slice(0, 4) ?? []);
 const files = ref<File[]>([]);
 const results = ref<ResultItem[]>([]);
 const error = ref("");
@@ -132,14 +136,31 @@ useSeoMeta({
   twitterDescription: computed(() => tool.value.metaDescription),
 });
 
-useHead({
-  link: computed(() => [
+useHead(() => ({
+  link: [
     {
       rel: "canonical",
       href: `https://chlatwork.com${tool.value.route}`,
     },
-  ]),
-});
+  ],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: toolFaq.value.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      }),
+    },
+  ],
+}));
 
 watch(
   () => files.value,
@@ -618,6 +639,10 @@ function removeInvoiceItem(index: number) {
 
     <PdfResultDownload :results="results" />
     <PdfRelatedTools :tools="relatedTools" />
-    <SeoFaq :how-it-works="tool.howItWorks" :faq="tool.faq" />
+    <SeoFaq
+      :how-it-works="tool.howItWorks"
+      :use-cases="toolUseCases"
+      :faq="toolFaq"
+    />
   </PdfToolPageLayout>
 </template>

@@ -1,4 +1,4 @@
-import { TOOL_GUIDE_PATHS } from "./app/data/tool-guide-routes";
+import { PUBLIC_SITEMAP_PATHS } from "./app/data/site-routes";
 
 const nodeEnv =
   (
@@ -52,7 +52,8 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
-    urls: TOOL_GUIDE_PATHS,
+    urls: PUBLIC_SITEMAP_PATHS,
+    exclude: ["/privacy"],
   },
   css: ["~/assets/css/main.css"],
   routeRules: {
@@ -68,10 +69,14 @@ export default defineNuxtConfig({
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "color-scheme", content: "dark light" },
         { name: "theme-color", content: "#1c1c1e" },
-        { name: "description", content: "Smart tools for everyday work." },
+        {
+          name: "description",
+          content:
+            "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+        },
         {
           name: "google-adsense-account",
-          content: "ca-pub-4280865455316436",
+          content: "ca-pub-3732801458368248",
         },
 
         // Open Graph (FB / Zalo / Telegram previews)
@@ -80,7 +85,8 @@ export default defineNuxtConfig({
         { property: "og:title", content: "ChlatWork" },
         {
           property: "og:description",
-          content: "Smart tools for everyday work.",
+          content:
+            "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
         },
 
         // Twitter
@@ -88,7 +94,8 @@ export default defineNuxtConfig({
         { name: "twitter:title", content: "ChlatWork" },
         {
           name: "twitter:description",
-          content: "Smart tools for everyday work.",
+          content:
+            "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
         },
       ],
       link: [
@@ -103,7 +110,7 @@ export default defineNuxtConfig({
         },
         {
           async: true,
-          src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4280865455316436",
+          src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3732801458368248",
           crossorigin: "anonymous",
         },
       ],

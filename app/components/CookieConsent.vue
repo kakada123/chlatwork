@@ -10,7 +10,7 @@
         <p class="min-w-0 flex-1 text-xs leading-5 text-slate-600 dark:text-white/70 sm:text-sm">
           ChlatWork uses cookies to improve your experience, analyze traffic, and support free tools with ads.
           <NuxtLink
-            to="/privacy"
+            to="/privacy-policy"
             class="whitespace-nowrap font-semibold text-slate-900 underline underline-offset-2 dark:text-white"
           >
             Privacy Policy

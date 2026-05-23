@@ -1,7 +1,22 @@
 <script setup lang="ts">
+const title = "Cookie Policy - ChlatWork";
+const description =
+  "How ChlatWork uses cookies, local storage, analytics, advertising cookies, and similar technologies.";
+
 useSeoMeta({
-  title: "Cookie Policy — ChlatWork",
-  description: "How ChlatWork uses cookies and similar technologies.",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/cookies",
+  twitterCard: "summary_large_image",
+  twitterTitle: title,
+  twitterDescription: description,
+});
+
+useHead({
+  link: [{ rel: "canonical", href: "https://chlatwork.com/cookies" }],
 });
 </script>
 

@@ -1,8 +1,22 @@
 <script setup lang="ts">
+const title = "Disclaimer - ChlatWork";
+const description =
+  "Important information about checking ChlatWork tool outputs, browser processing, no-warranty limits, and professional-use responsibility.";
+
 useSeoMeta({
-  title: "Disclaimer — ChlatWork",
-  description:
-    "Important information about checking ChlatWork tool outputs, browser processing, and professional-use limits.",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/disclaimer",
+  twitterCard: "summary_large_image",
+  twitterTitle: title,
+  twitterDescription: description,
+});
+
+useHead({
+  link: [{ rel: "canonical", href: "https://chlatwork.com/disclaimer" }],
 });
 </script>
 
@@ -52,7 +66,7 @@ useSeoMeta({
       <p class="text-gray-700 dark:text-white/75">
         For details, please review our
         <NuxtLink
-          to="/privacy"
+          to="/privacy-policy"
           class="font-medium text-gray-900 underline dark:text-white"
         >
           Privacy Policy </NuxtLink

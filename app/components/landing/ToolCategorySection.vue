@@ -11,7 +11,7 @@ useLandingReveal(sectionEl);
 </script>
 
 <template>
-  <section ref="sectionEl" class="px-5 py-16 sm:px-8 lg:px-12">
+  <section id="categories" ref="sectionEl" class="px-5 py-16 sm:px-8 lg:px-12">
     <div class="mx-auto max-w-7xl">
       <div class="mb-8 max-w-2xl" data-reveal>
         <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">

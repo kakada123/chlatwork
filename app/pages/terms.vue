@@ -1,22 +1,36 @@
 <script setup lang="ts">
+const title = "Terms of Use - ChlatWork";
+const description =
+  "Terms for using ChlatWork online tools, guide pages, generated outputs, advertising, and browser-based workflows.";
+
 useSeoMeta({
-  title: "Terms of Service — ChlatWork",
-  description:
-    "Terms for using ChlatWork browser tools, guide pages, advertising, and generated outputs.",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/terms",
+  twitterCard: "summary_large_image",
+  twitterTitle: title,
+  twitterDescription: description,
+});
+
+useHead({
+  link: [{ rel: "canonical", href: "https://chlatwork.com/terms" }],
 });
 </script>
 
 <template>
   <main class="mx-auto w-full max-w-[1440px] space-y-8">
     <header class="space-y-2">
-      <h1 class="text-2xl font-bold">Terms of Service</h1>
+      <h1 class="text-2xl font-bold">Terms of Use</h1>
       <p class="max-w-3xl text-gray-600 dark:text-white/70">
         By using ChlatWork, you agree to these terms. The site provides browser
         tools and guide pages for practical work, but you remain responsible for
         checking results before using them.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: May 21, 2026
+        Last updated: May 23, 2026
       </p>
     </header>
 
@@ -33,6 +47,16 @@ useSeoMeta({
         <li>No automated scraping that impacts performance.</li>
         <li>No use of the tools to mislead users, customers, or third parties.</li>
       </ul>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Prohibited usage</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        You must not use ChlatWork to create, process, share, or support
+        illegal, harmful, deceptive, abusive, or infringing content. You also
+        must not use the site in a way that damages service availability,
+        interferes with other users, or violates advertising network rules.
+      </p>
     </section>
 
     <section class="space-y-3">
@@ -58,6 +82,20 @@ useSeoMeta({
     </section>
 
     <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Intellectual property</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        ChlatWork owns or licenses the site design, text, source code,
+        branding, and original guide content. You keep responsibility for the
+        files, text, images, links, codes, and other input you bring to the
+        tools.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Tool outputs are provided for your use, but you are responsible for
+        making sure your input and output do not violate someone else's rights.
+      </p>
+    </section>
+
+    <section class="space-y-3">
       <h2 class="text-lg font-semibold">Advertising</h2>
       <p class="text-gray-700 dark:text-white/75">
         ChlatWork may display ads from Google AdSense or other advertising
@@ -68,7 +106,7 @@ useSeoMeta({
       <p class="text-gray-700 dark:text-white/75">
         Advertising and cookie practices are described in our
         <NuxtLink
-          to="/privacy"
+          to="/privacy-policy"
           class="font-medium text-gray-900 underline dark:text-white"
         >
           Privacy Policy
@@ -84,7 +122,7 @@ useSeoMeta({
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">Disclaimer</h2>
+      <h2 class="text-lg font-semibold">No warranty and limitation of liability</h2>
       <p class="text-gray-700 dark:text-white/75">
         ChlatWork is provided without warranties of any kind. To the maximum
         extent permitted by law, we are not liable for any damages or losses
@@ -99,6 +137,19 @@ useSeoMeta({
           Disclaimer
         </NuxtLink>
         for more detail.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Contact</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        If you have questions about these terms, contact us through the
+        <NuxtLink
+          to="/contact"
+          class="font-medium text-gray-900 underline dark:text-white"
+        >
+          Contact page </NuxtLink
+        >.
       </p>
     </section>
   </main>

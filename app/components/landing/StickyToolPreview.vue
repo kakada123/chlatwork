@@ -15,17 +15,17 @@ useLandingReveal(sectionEl);
       <div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
         <div data-reveal>
           <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-            Sticky Preview
+            Featured tools
           </p>
           <h2 class="mt-4 text-3xl font-black text-slate-950 dark:text-white sm:text-5xl">
-            A focused workspace for practical tasks.
+            Start with the tools people use most.
           </h2>
         </div>
 
         <div data-reveal="right">
           <p class="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-white/60">
-            ChlatWork keeps the interface quiet and the actions direct. Open a
-            tool, finish the job, move on.
+            Generate QR codes, compress images, convert PDF files, settle shared
+            expenses, and use developer helpers from one clean workspace.
           </p>
           <NuxtLink
             to="/tools"

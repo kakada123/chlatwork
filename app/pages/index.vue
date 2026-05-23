@@ -1,11 +1,17 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: "ChlatWork - Simple PDF, Utility, and Developer Tools",
+  title: "Free Online Tools for Everyday Work - ChlatWork",
   description:
-    "Fast, clean, and practical PDF tools, daily utilities, and developer helpers for work, creators, and quick browser tasks.",
-  ogTitle: "ChlatWork - Simple PDF, Utility, and Developer Tools",
+    "ChlatWork provides free online tools for documents, images, QR codes, barcodes, dates, calculators, productivity, and developer tasks.",
+  ogTitle: "Free Online Tools for Everyday Work - ChlatWork",
   ogDescription:
-    "Fast, clean, and practical PDF tools, daily utilities, and developer helpers for work, creators, and quick browser tasks.",
+    "Simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+  ogType: "website",
+  ogUrl: "https://chlatwork.com",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Free Online Tools for Everyday Work - ChlatWork",
+  twitterDescription:
+    "Simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
 });
 </script>
 

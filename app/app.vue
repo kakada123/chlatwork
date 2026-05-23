@@ -78,10 +78,26 @@ useHead(() => ({
       type: "application/ld+json",
       children: JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "Organization",
-        name: "ChlatWork",
-        url: siteUrl,
-        logo: `${siteUrl}/logo.png`,
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": `${siteUrl}#organization`,
+            name: "ChlatWork",
+            url: siteUrl,
+            logo: `${siteUrl}/logo.png`,
+          },
+          {
+            "@type": "WebSite",
+            "@id": `${siteUrl}#website`,
+            name: "ChlatWork",
+            url: siteUrl,
+            publisher: {
+              "@id": `${siteUrl}#organization`,
+            },
+            description:
+              "ChlatWork provides simple online tools for documents, images, QR codes, barcodes, dates, and productivity.",
+          },
+        ],
       }),
     },
   ],

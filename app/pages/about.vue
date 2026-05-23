@@ -1,10 +1,24 @@
 <script setup lang="ts">
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
+const title = "About ChlatWork - Simple Online Tools";
+const description =
+  "Learn what ChlatWork is, who it is for, and how its simple privacy-friendly browser tools help with documents, images, QR codes, barcodes, dates, and productivity.";
+
 useSeoMeta({
-  title: "About — ChlatWork",
-  description:
-    "Learn what ChlatWork is, how its browser tools work, and why the site focuses on practical daily utilities.",
+  title,
+  description,
+  ogTitle: title,
+  ogDescription: description,
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/about",
+  twitterCard: "summary_large_image",
+  twitterTitle: title,
+  twitterDescription: description,
+});
+
+useHead({
+  link: [{ rel: "canonical", href: "https://chlatwork.com/about" }],
 });
 </script>
 
@@ -23,6 +37,16 @@ useSeoMeta({
         where to click next.
       </p>
     </header>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Who ChlatWork is for</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        ChlatWork is for students, office teams, developers, freelancers, shop
+        owners, support staff, and anyone who needs a quick tool for a practical
+        task. The site is built for repeat use: open a page, finish the work,
+        and come back when the next small task appears.
+      </p>
+    </section>
 
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">What you can do here</h2>
@@ -73,7 +97,7 @@ useSeoMeta({
         In those cases, the site aims to process only what is needed for the
         feature and explains the behavior in the
         <NuxtLink
-          to="/privacy"
+          to="/privacy-policy"
           class="font-medium text-gray-900 underline dark:text-white"
         >
           Privacy Policy </NuxtLink

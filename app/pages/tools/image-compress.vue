@@ -5,7 +5,7 @@ useSeoMeta({
     "Batch compress images instantly without uploading. Reduce file size while keeping quality.",
   ogTitle: "Image Compressor — ChlatWork",
   ogDescription:
-    "Batch compress images instantly without uploading - fast, private, and secure.",
+    "Batch compress images instantly in your browser where possible.",
 });
 </script>
 

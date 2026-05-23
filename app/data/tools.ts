@@ -4,6 +4,10 @@ import {
   TOOL_ICON_PATHS,
   type ToolCategory,
 } from "~/lib/tool-registry";
+import {
+  TOOL_DIRECTORY_CATEGORIES,
+  getToolsForDirectoryCategory,
+} from "~/data/tool-categories";
 
 export type LandingTool = {
   key: string;
@@ -17,7 +21,8 @@ export type LandingTool = {
 };
 
 export type LandingToolCategory = {
-  name: ToolCategory;
+  key: string;
+  name: string;
   count: number;
   description: string;
   route: string;
@@ -58,30 +63,6 @@ const TOOL_ACCENTS: Record<string, string> = {
   "hash-generator": "from-zinc-300 to-stone-500",
 };
 
-const CATEGORY_META: Record<
-  ToolCategory,
-  Pick<LandingToolCategory, "description" | "route" | "accent">
-> = {
-  Utilities: {
-    description:
-      "Daily helpers for calculations, QR codes, expenses, compression, and quick office tasks.",
-    route: "/tools",
-    accent: "from-teal-300 via-cyan-300 to-blue-400",
-  },
-  "Developer Tools": {
-    description:
-      "Focused local-first utilities for encoding, validation, tokens, timestamps, regex, and hashes.",
-    route: "/tools",
-    accent: "from-violet-300 via-fuchsia-300 to-rose-400",
-  },
-  "PDF Tools": {
-    description:
-      "Private browser-side converters for merging, splitting, compressing, and creating PDF files.",
-    route: "/tools/pdf",
-    accent: "from-orange-300 via-rose-300 to-red-400",
-  },
-};
-
 export const LANDING_TOOLS: LandingTool[] = ENABLED_TOOLS.map((tool) => ({
   key: tool.key,
   name: tool.name,
@@ -93,20 +74,25 @@ export const LANDING_TOOLS: LandingTool[] = ENABLED_TOOLS.map((tool) => ({
   accent: TOOL_ACCENTS[tool.key] ?? "from-gray-300 to-gray-500",
 }));
 
-export const LANDING_CATEGORIES: LandingToolCategory[] = (
-  ["Utilities", "PDF Tools", "Developer Tools"] satisfies ToolCategory[]
-).map((category) => {
-  const tools = LANDING_TOOLS.filter((tool) => tool.category === category);
+export const LANDING_CATEGORIES: LandingToolCategory[] =
+  TOOL_DIRECTORY_CATEGORIES.map((category) => {
+    const categoryTools = getToolsForDirectoryCategory(category);
+    const tools = categoryTools
+      .map((categoryTool) =>
+        LANDING_TOOLS.find((tool) => tool.key === categoryTool.key),
+      )
+      .filter((tool): tool is LandingTool => Boolean(tool));
 
-  return {
-    name: category,
-    count: tools.length,
-    description: CATEGORY_META[category].description,
-    route: CATEGORY_META[category].route,
-    accent: CATEGORY_META[category].accent,
-    tools,
-  };
-});
+    return {
+      key: category.key,
+      name: category.shortTitle,
+      count: tools.length,
+      description: category.description,
+      route: category.path,
+      accent: category.accent,
+      tools,
+    };
+  });
 
 export const UTILITY_TOOLS = LANDING_TOOLS.filter(
   (tool) => tool.category === "Utilities",

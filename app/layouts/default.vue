@@ -6,10 +6,12 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
+import { findToolGuideByToolRoute } from "~/data/tool-guides";
 import { reopenCookieNotice } from "~/lib/cookie-notice";
 import { filterTools } from "~/lib/tool-search";
 
@@ -58,10 +60,14 @@ const currentToolGuide = computed(() => {
   }
 
   return {
+    guide: findToolGuideByToolRoute(currentTool.route),
     path: guideRoute.path,
     tool: currentTool,
   };
 });
+const shouldShowToolPageDetails = computed(
+  () => currentToolGuide.value?.tool.category !== "PDF Tools",
+);
 const isLandingPage = computed(
   () =>
     route.path === "/" ||
@@ -157,6 +163,18 @@ onBeforeUnmount(() => {
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
           >
             {{ copy.nav.tools }}
+          </NuxtLink>
+          <NuxtLink
+            to="/about"
+            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+          >
+            About
+          </NuxtLink>
+          <NuxtLink
+            to="/contact"
+            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+          >
+            Contact
           </NuxtLink>
         </nav>
 
@@ -356,6 +374,22 @@ onBeforeUnmount(() => {
                 </svg>
               </span>
               {{ copy.nav.allTools }}
+            </NuxtLink>
+
+            <NuxtLink
+              to="/about"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              @click="closeMenu"
+            >
+              About
+            </NuxtLink>
+
+            <NuxtLink
+              to="/contact"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              @click="closeMenu"
+            >
+              Contact
             </NuxtLink>
 
             <NuxtLink
@@ -610,51 +644,68 @@ onBeforeUnmount(() => {
         <!-- Page content -->
         <main class="min-w-0">
           <slot />
+          <ToolPageDetails
+            v-if="currentToolGuide?.guide && shouldShowToolPageDetails"
+            :guide="currentToolGuide.guide"
+          />
         </main>
       </div>
     </div>
 
-    <!-- ✅ Footer now sticks to bottom -->
-    <footer class="site-footer mt-0 border-t py-6">
+    <!-- The footer keeps trust and policy links visible on every public page. -->
+    <footer class="site-footer mt-0 border-t py-8">
       <div
-        class="mx-auto max-w-[1440px] px-3 text-sm sm:px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        class="mx-auto flex max-w-[1440px] flex-col gap-5 px-3 text-sm sm:px-4 lg:flex-row lg:items-start lg:justify-between"
       >
-        <!-- Left links -->
-        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500">
-          <NuxtLink to="/about" class="hover:text-gray-900">
-            {{ copy.footer.about }}
-          </NuxtLink>
-          <NuxtLink to="/privacy" class="hover:text-gray-900"
-            >{{ copy.footer.privacy }}</NuxtLink
-          >
-          <NuxtLink to="/cookies" class="hover:text-gray-900"
-            >{{ copy.footer.cookies }}</NuxtLink
-          >
-          <button
-            type="button"
-            class="hover:text-gray-900"
-            @click="reopenCookieNotice"
-          >
-            {{ copy.footer.cookieNotice }}
-          </button>
-          <NuxtLink to="/terms" class="hover:text-gray-900">
-            {{ copy.footer.terms }}
-          </NuxtLink>
-          <NuxtLink to="/disclaimer" class="hover:text-gray-900"
-            >{{ copy.footer.disclaimer }}</NuxtLink
-          >
-          <NuxtLink to="/contact" class="hover:text-gray-900">
-            {{ copy.footer.contact }}
-          </NuxtLink>
+        <div class="max-w-xl space-y-2">
+          <p class="text-base font-black text-slate-950 dark:text-white">
+            ChlatWork
+          </p>
+          <p class="leading-6 text-gray-500 dark:text-white/60">
+            ChlatWork provides simple online tools for documents, images, QR
+            codes, barcodes, dates, and productivity.
+          </p>
         </div>
 
-        <!-- Right CTA -->
-        <NuxtLink
-          to="/buy-me-coffee"
-          class="inline-flex items-center justify-center rounded-full border border-sky-100 bg-white/70 px-4 py-2 font-medium text-gray-700 shadow-sm shadow-sky-100/70 hover:bg-white hover:text-gray-900 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:shadow-none dark:hover:bg-white/[0.12] dark:hover:text-white"
-        >
-          {{ copy.footer.coffee }}
-        </NuxtLink>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
+          <nav class="flex flex-wrap items-center gap-x-5 gap-y-2 text-gray-500 dark:text-white/55">
+            <NuxtLink to="/about" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.about }}
+            </NuxtLink>
+            <NuxtLink to="/contact" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.contact }}
+            </NuxtLink>
+            <NuxtLink to="/privacy-policy" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.privacy }}
+            </NuxtLink>
+            <NuxtLink to="/terms" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.terms }}
+            </NuxtLink>
+            <a href="/sitemap.xml" class="hover:text-gray-900 dark:hover:text-white">
+              Sitemap
+            </a>
+            <NuxtLink to="/cookies" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.cookies }}
+            </NuxtLink>
+            <button
+              type="button"
+              class="hover:text-gray-900 dark:hover:text-white"
+              @click="reopenCookieNotice"
+            >
+              {{ copy.footer.cookieNotice }}
+            </button>
+            <NuxtLink to="/disclaimer" class="hover:text-gray-900 dark:hover:text-white">
+              {{ copy.footer.disclaimer }}
+            </NuxtLink>
+          </nav>
+
+          <NuxtLink
+            to="/buy-me-coffee"
+            class="inline-flex items-center justify-center rounded-full border border-sky-100 bg-white/70 px-4 py-2 font-medium text-gray-700 shadow-sm shadow-sky-100/70 hover:bg-white hover:text-gray-900 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:shadow-none dark:hover:bg-white/[0.12] dark:hover:text-white"
+          >
+            {{ copy.footer.coffee }}
+          </NuxtLink>
+        </div>
       </div>
     </footer>
   </div>

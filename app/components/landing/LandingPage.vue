@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import AnimatedToolShowcase from "./AnimatedToolShowcase.vue";
 import HeroSection from "./HeroSection.vue";
+import LandingFaq from "./LandingFaq.vue";
 import LandingCTA from "./LandingCTA.vue";
+import LandingWhyUse from "./LandingWhyUse.vue";
 import StickyToolPreview from "./StickyToolPreview.vue";
 import ToolCategorySection from "./ToolCategorySection.vue";
 
@@ -29,12 +31,14 @@ const developerTools = computed(() => DEVELOPER_TOOLS.map(localizeTool));
   >
     <HeroSection :tools="landingTools" />
     <ToolCategorySection :categories="landingCategories" />
+    <LandingWhyUse />
     <AnimatedToolShowcase
       :utility-tools="utilityTools"
       :pdf-tools="pdfTools"
       :developer-tools="developerTools"
     />
     <StickyToolPreview :tools="landingTools" />
+    <LandingFaq />
     <LandingCTA />
   </div>
 </template>

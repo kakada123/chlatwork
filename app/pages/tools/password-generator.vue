@@ -80,7 +80,7 @@ useSeoMeta({
   description:
     "Generate strong random passwords with customizable length, symbols, numbers, and letter options.",
   ogTitle: "Password Generator - ChlatWork",
-  ogDescription: "Generate secure random passwords in your browser.",
+  ogDescription: "Generate strong random passwords in your browser.",
 });
 
 type PasswordOptionKey = "lowercase" | "uppercase" | "numbers" | "symbols";
