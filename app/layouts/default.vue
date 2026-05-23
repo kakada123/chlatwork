@@ -12,7 +12,7 @@ import {
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
 import { findToolGuideByToolRoute } from "~/data/tool-guides";
-import { reopenCookieNotice } from "~/lib/cookie-notice";
+import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools } from "~/lib/tool-search";
 
 const toolNavSearch = ref("");
@@ -690,7 +690,7 @@ onBeforeUnmount(() => {
             <button
               type="button"
               class="hover:text-gray-900 dark:hover:text-white"
-              @click="reopenCookieNotice"
+              @click="openPrivacyCookieSettings"
             >
               {{ copy.footer.cookieNotice }}
             </button>
