@@ -1,7 +1,8 @@
 <template>
   <div class="mx-auto w-full max-w-[1440px]">
     <ExpenseTrackerHeader
-      :share-copied="shareCopied"
+      :share-state="shareState"
+      :share-url="lastShareUrl"
       @reset="reset"
       @share="shareLink"
     />
@@ -84,6 +85,8 @@ type ExpenseStoredShareResponse = {
   payload: string;
 };
 
+type ExpenseShareState = "idle" | "busy" | "copied" | "shared" | "ready";
+
 useSeoMeta({
   title: "Expense Tracker | ChlatWork",
   description:
@@ -104,7 +107,8 @@ useHead({
 });
 
 const copied = ref(false);
-const shareCopied = ref(false);
+const shareState = ref<ExpenseShareState>("idle");
+const lastShareUrl = ref("");
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
@@ -128,14 +132,23 @@ function flashCopied(ms = 1500) {
   }, ms);
 }
 
-function flashShareCopied(ms = 1500) {
-  shareCopied.value = true;
+function clearShareTimer() {
   if (shareTimer) {
     clearTimeout(shareTimer);
+    shareTimer = null;
+  }
+}
+
+function setShareState(state: ExpenseShareState, ms = 0) {
+  clearShareTimer();
+  shareState.value = state;
+
+  if (!ms) {
+    return;
   }
 
   shareTimer = setTimeout(() => {
-    shareCopied.value = false;
+    shareState.value = "idle";
     shareTimer = null;
   }, ms);
 }
@@ -243,13 +256,102 @@ function buildExampleShareUrl() {
   return `${window.location.origin}${route.path}${query}`;
 }
 
+function replaceShareQuery(query: Record<string, string | undefined>) {
+  void router.replace({ query }).catch(() => {});
+}
+
 function getCurrentShareId() {
   const id = route.query.id;
 
   return typeof id === "string" && id.trim() ? id.trim() : "";
 }
 
+function shouldUseNativeShare() {
+  if (typeof navigator.share !== "function") {
+    return false;
+  }
+
+  return (
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia?.("(pointer: coarse)").matches === true
+  );
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+function copyTextWithSelection(value: string) {
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.opacity = "0";
+
+  document.body.appendChild(textarea);
+  textarea.focus({ preventScroll: true });
+  textarea.select();
+  textarea.setSelectionRange(0, value.length);
+
+  try {
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
+  }
+}
+
+async function copyShareUrl(url: string) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(url);
+      return true;
+    } catch {
+      // Mobile browsers can reject async clipboard writes after API/link work.
+    }
+  }
+
+  return copyTextWithSelection(url);
+}
+
+async function shareUrlOnDevice(url: string): Promise<ExpenseShareState> {
+  if (shouldUseNativeShare()) {
+    try {
+      await navigator.share({
+        title: "Expense Tracker | ChlatWork",
+        text: "Open this Expense Tracker share link.",
+        url,
+      });
+      return "shared";
+    } catch (error) {
+      if (isAbortError(error)) {
+        return "idle";
+      }
+    }
+  }
+
+  return (await copyShareUrl(url)) ? "copied" : "ready";
+}
+
+function showShareResult(state: ExpenseShareState) {
+  if (state === "ready") {
+    setShareState("ready");
+    return;
+  }
+
+  setShareState(state, state === "idle" ? 0 : 1500);
+}
+
 async function shareLink() {
+  if (shareState.value === "busy") {
+    return;
+  }
+
+  setShareState("busy");
+  lastShareUrl.value = "";
+
   const currentShareId = getCurrentShareId();
 
   if (!currentShareId && isExpenseExampleState()) {
@@ -257,9 +359,9 @@ async function shareLink() {
       currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
     const url = buildExampleShareUrl();
 
-    await router.replace({ query });
-    await navigator.clipboard.writeText(url);
-    flashShareCopied();
+    lastShareUrl.value = url;
+    replaceShareQuery(query);
+    showShareResult(await shareUrlOnDevice(url));
     return;
   }
 
@@ -283,16 +385,16 @@ async function shareLink() {
     );
 
     if (response.id) {
-      await router.replace({ query: { id: response.id } });
+      replaceShareQuery({ id: response.id });
       url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
     }
   } catch {
     // Keep sharing usable in local/dev environments where Upstash is not configured.
-    await router.replace({ query: { s } });
+    replaceShareQuery({ s });
   }
 
-  await navigator.clipboard.writeText(url);
-  flashShareCopied();
+  lastShareUrl.value = url;
+  showShareResult(await shareUrlOnDevice(url));
 }
 
 async function copySummary() {
@@ -397,7 +499,7 @@ onBeforeUnmount(() => {
   }
 
   if (shareTimer) {
-    clearTimeout(shareTimer);
+    clearShareTimer();
   }
 });
 </script>

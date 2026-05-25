@@ -46,6 +46,9 @@ const securityHeaders = {
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
+  devServer: {
+    port: 3001,
+  },
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
   },
