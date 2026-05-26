@@ -3,6 +3,7 @@ export type ColorMode = "light" | "dark";
 const STORAGE_KEY = "chlatwork-color-mode";
 const LIGHT_THEME_COLOR = "#f9fafb";
 const DARK_THEME_COLOR = "#1c1c1e";
+const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
 
 function isColorMode(value: string | null): value is ColorMode {
   return value === "light" || value === "dark";
@@ -19,6 +20,14 @@ function getStoredColorMode(): ColorMode | null {
   } catch {
     return null;
   }
+}
+
+function getSystemColorMode(): ColorMode {
+  if (!import.meta.client || !window.matchMedia) {
+    return "dark";
+  }
+
+  return window.matchMedia(DARK_MODE_QUERY).matches ? "dark" : "light";
 }
 
 function applyColorMode(mode: ColorMode) {
@@ -49,8 +58,6 @@ export function useColorMode() {
   );
 
   const setColorMode = (mode: ColorMode) => {
-    colorMode.value = mode;
-
     if (import.meta.client) {
       try {
         window.localStorage.setItem(STORAGE_KEY, mode);
@@ -59,18 +66,47 @@ export function useColorMode() {
       }
     }
 
-    applyColorMode(mode);
+    syncColorMode(mode);
   };
 
   const toggleColorMode = () => {
     setColorMode(isDark.value ? "light" : "dark");
   };
 
-  onMounted(() => {
-    const initialMode = getStoredColorMode() ?? "dark";
+  const syncColorMode = (mode: ColorMode) => {
+    colorMode.value = mode;
+    applyColorMode(mode);
+  };
 
-    colorMode.value = initialMode;
-    applyColorMode(initialMode);
+  let stopWatchingSystemColorMode: (() => void) | null = null;
+
+  onMounted(() => {
+    const initialMode = getStoredColorMode() ?? getSystemColorMode();
+
+    syncColorMode(initialMode);
+
+    if (!window.matchMedia) {
+      return;
+    }
+
+    const systemColorMode = window.matchMedia(DARK_MODE_QUERY);
+    const syncSystemColorMode = (event: MediaQueryListEvent) => {
+      // Manual selection wins; OS changes apply only while the user has no saved preference.
+      if (getStoredColorMode()) {
+        return;
+      }
+
+      syncColorMode(event.matches ? "dark" : "light");
+    };
+
+    systemColorMode.addEventListener("change", syncSystemColorMode);
+    stopWatchingSystemColorMode = () => {
+      systemColorMode.removeEventListener("change", syncSystemColorMode);
+    };
+  });
+
+  onBeforeUnmount(() => {
+    stopWatchingSystemColorMode?.();
   });
 
   return {
