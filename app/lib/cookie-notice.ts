@@ -1,5 +1,6 @@
 export const COOKIE_NOTICE_STORAGE_KEY = "chlatwork_cookie_notice_closed";
 export const COOKIE_NOTICE_OPEN_EVENT = "chlatwork:open-cookie-notice";
+export const COOKIE_SETTINGS_OPEN_EVENT = "chlatwork:open-cookie-settings";
 
 type GoogleFundingChoices = {
   callbackQueue?: Array<() => void>;
@@ -37,6 +38,14 @@ export function reopenCookieNotice() {
   window.dispatchEvent(new Event(COOKIE_NOTICE_OPEN_EVENT));
 }
 
+export function openLocalCookieSettings() {
+  if (!process.client) {
+    return;
+  }
+
+  window.dispatchEvent(new Event(COOKIE_SETTINGS_OPEN_EVENT));
+}
+
 export function openPrivacyCookieSettings() {
   if (!process.client) {
     return false;
@@ -52,7 +61,7 @@ export function openPrivacyCookieSettings() {
     return true;
   }
 
-  reopenCookieNotice();
+  openLocalCookieSettings();
 
   return false;
 }
