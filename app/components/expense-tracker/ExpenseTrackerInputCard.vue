@@ -78,16 +78,16 @@ function removeRow(index: number) {
 
 <template>
   <div class="rounded-xl border bg-white p-4">
-    <div class="mb-2 flex items-center justify-between">
+    <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <h2 class="font-semibold">Input</h2>
 
-      <div class="flex items-center gap-2">
-        <select v-model="currency" class="h-11 rounded-lg border px-3 text-sm">
+      <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+        <select v-model="currency" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
           <option value="USD">USD</option>
           <option value="KHR">KHR</option>
         </select>
 
-        <select v-model="rangeMode" class="h-11 rounded-lg border px-3 text-sm">
+        <select v-model="rangeMode" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
           <option value="all">All</option>
           <option value="month">This month</option>
           <option value="week">Last 7 days</option>
@@ -175,7 +175,7 @@ function removeRow(index: number) {
         class="rounded-xl border p-3"
       >
         <div class="grid grid-cols-1 gap-2">
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <div class="mb-1 text-xs text-gray-500">Type</div>
               <select

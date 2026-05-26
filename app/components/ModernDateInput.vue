@@ -232,7 +232,7 @@ function toDateValue(date: Date) {
 </script>
 
 <template>
-  <div ref="rootRef" v-bind="$attrs" class="relative w-full">
+  <div ref="rootRef" v-bind="$attrs" class="relative w-full min-w-0">
     <button
       type="button"
       :aria-label="props.ariaLabel"
@@ -244,7 +244,7 @@ function toDateValue(date: Date) {
       @click.stop="openCalendar"
     >
       <span
-        class="truncate"
+        class="min-w-0 truncate"
         :class="displayValue ? '' : 'text-slate-400 dark:text-white/45'"
       >
         {{
@@ -278,11 +278,11 @@ function toDateValue(date: Date) {
 
     <div
       v-if="isOpen"
-      class="absolute left-0 z-40 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
+      class="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:z-40 sm:mt-2 sm:max-h-none sm:w-[min(22rem,calc(100vw-2rem))] sm:overflow-visible dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
       @click.stop
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <div class="grid flex-1 grid-cols-2 gap-2">
+      <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="grid w-full grid-cols-2 gap-2 sm:flex-1">
           <select
             v-model.number="activeMonthIndex"
             aria-label="Select month"
@@ -308,7 +308,7 @@ function toDateValue(date: Date) {
           </select>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center justify-end gap-1">
           <button
             type="button"
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"

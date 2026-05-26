@@ -98,7 +98,7 @@ function openTopResult() {
 </script>
 
 <template>
-  <div class="max-w-xl">
+  <div class="w-full min-w-0 max-w-xl">
     <label
       for="home-global-search"
       class="mb-2 block text-sm font-bold text-slate-900 dark:text-white"
@@ -112,7 +112,7 @@ function openTopResult() {
       <div class="relative">
         <svg
           viewBox="0 0 24 24"
-          class="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-sky-600 dark:text-cyan-300"
+          class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-sky-600 dark:text-cyan-300 sm:left-5"
           fill="none"
           stroke="currentColor"
           stroke-width="1.9"
@@ -129,7 +129,7 @@ function openTopResult() {
           ref="searchInput"
           v-model="globalSearch"
           type="search"
-          class="h-11 w-full bg-transparent pl-14 pr-14 text-base font-semibold text-slate-950 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-white/35"
+          class="h-11 w-full min-w-0 bg-transparent pl-12 pr-12 text-sm font-semibold text-slate-950 outline-none placeholder:text-slate-400 sm:pl-14 sm:pr-14 sm:text-base dark:text-white dark:placeholder:text-white/35"
           :placeholder="copy.heroSearch.placeholder"
           @keydown.enter.prevent="openTopResult"
           @keydown.esc="clearSearch"
@@ -139,7 +139,7 @@ function openTopResult() {
         <button
           v-if="globalSearch"
           type="button"
-          class="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white dark:focus:ring-cyan-200"
+          class="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-300 sm:right-3 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white dark:focus:ring-cyan-200"
           :aria-label="copy.heroSearch.clear"
           @click="clearSearch"
         >
@@ -168,10 +168,10 @@ function openTopResult() {
             v-for="result in visibleResults"
             :key="result.key"
             :to="result.path"
-            class="group flex items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 dark:hover:bg-white/10 dark:focus:ring-cyan-200"
+            class="group flex min-w-0 items-center gap-2 rounded-2xl px-2.5 py-2.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 sm:gap-3 sm:px-3 dark:hover:bg-white/10 dark:focus:ring-cyan-200"
           >
             <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 sm:h-11 sm:w-11 dark:ring-white/10"
               :class="result.iconClass"
               aria-hidden="true"
             >
@@ -194,9 +194,9 @@ function openTopResult() {
 
             <span class="min-w-0 flex-1">
               <span
-                class="flex items-center gap-2 text-sm font-black text-slate-950 dark:text-white"
+                class="flex min-w-0 flex-col items-start gap-1 text-sm font-black text-slate-950 sm:flex-row sm:items-center sm:gap-2 dark:text-white"
               >
-                <span class="truncate">{{ result.title }}</span>
+                <span class="max-w-full truncate">{{ result.title }}</span>
                 <span
                   class="shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold uppercase text-sky-700 dark:bg-cyan-300/15 dark:text-cyan-200"
                 >
@@ -243,7 +243,7 @@ function openTopResult() {
         v-for="example in copy.heroSearch.examples"
         :key="example"
         type="button"
-        class="rounded-full border border-sky-100 bg-white/70 px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm shadow-sky-100/40 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/65 dark:shadow-black/20 dark:hover:bg-white/[0.11] dark:hover:text-white dark:focus:ring-cyan-200"
+        class="max-w-full truncate rounded-full border border-sky-100 bg-white/70 px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm shadow-sky-100/40 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/65 dark:shadow-black/20 dark:hover:bg-white/[0.11] dark:hover:text-white dark:focus:ring-cyan-200"
         @click="searchExample(example)"
       >
         {{ example }}

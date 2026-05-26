@@ -108,7 +108,7 @@ function groupTools(tools: ToolDef[]) {
           ref="toolSearchInput"
           v-model="toolSearch"
           type="search"
-          class="h-11 w-full rounded-xl border border-slate-200/80 bg-white/90 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-2 focus:ring-sky-200/60 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/40"
+          class="h-11 min-w-0 flex-1 rounded-xl border border-slate-200/80 bg-white/90 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-2 focus:ring-sky-200/60 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:placeholder:text-white/35 dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/40"
           :placeholder="copy.nav.searchTools"
           @search="handleToolSearchEvent"
         />
