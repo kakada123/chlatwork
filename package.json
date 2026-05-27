@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "deploy:dev": "npx vercel",
+    "deploy:prod": "npx vercel --prod",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
