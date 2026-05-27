@@ -1,0 +1,69 @@
+@baseUrl = http://localhost:4001/api
+@authToken = paste-access-token-from-telegram-login
+@recordId = replace-with-created-record-id
+@month = 2026-05
+@telegramId = 123456789
+@telegramFirstName = Telegram
+@telegramAuthDate = {{$timestamp}}
+@telegramHash = paste-telegram-widget-hash
+
+### Health check
+GET {{baseUrl}}/health
+
+### Current profile from HttpOnly session cookie
+GET {{baseUrl}}/auth/me
+
+### Logout current session cookie
+POST {{baseUrl}}/auth/logout
+
+### Login with Telegram
+# This payload must come from the official Telegram Login Widget.
+POST {{baseUrl}}/auth/telegram
+Content-Type: application/json
+
+{
+  "id": {{telegramId}},
+  "first_name": "{{telegramFirstName}}",
+  "username": "telegram_user",
+  "auth_date": {{telegramAuthDate}},
+  "hash": "{{telegramHash}}"
+}
+
+### Confirm save expense tracker
+POST {{baseUrl}}/expense-trackers
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "currency": "USD",
+  "rangeMode": "month",
+  "budget": {
+    "period": "monthly",
+    "amount": "200"
+  },
+  "rawText": "2026-05-26, expense, Food, lunch, 4.50",
+  "rows": [
+    {
+      "type": "expense",
+      "date": "2026-05-26",
+      "category": "Food",
+      "note": "lunch",
+      "amount": "4.50"
+    },
+    {
+      "type": "income",
+      "date": "2026-05-26",
+      "category": "Salary",
+      "note": "weekly pay",
+      "amount": "100.00"
+    }
+  ]
+}
+
+### Get confirmed expense tracker by ID
+GET {{baseUrl}}/expense-trackers/{{recordId}}
+Authorization: Bearer {{authToken}}
+
+### List confirmed expense trackers by saved month
+GET {{baseUrl}}/expense-trackers?month={{month}}
+Authorization: Bearer {{authToken}}

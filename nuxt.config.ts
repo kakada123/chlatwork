@@ -61,6 +61,13 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
+    public: {
+      expenseTrackerApiBaseUrl:
+        nodeEnv.NUXT_PUBLIC_EXPENSE_TRACKER_API_BASE_URL ||
+        "http://localhost:4001/api",
+      expenseTrackerTelegramBotUsername:
+        nodeEnv.NUXT_PUBLIC_TELEGRAM_BOT_USERNAME || "",
+    },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
