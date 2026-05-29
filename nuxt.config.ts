@@ -62,7 +62,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
   },
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
     urls: PUBLIC_SITEMAP_PATHS,
