@@ -53,6 +53,11 @@ const securityHeaders = {
   "X-Frame-Options": "DENY",
 };
 
+const apiHeaders = {
+  ...securityHeaders,
+  "X-Robots-Tag": "noindex, nofollow",
+};
+
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
@@ -65,12 +70,24 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
+    // Keep sitemap discovery explicit so redirect-only and catch-all pages do not leak into Google.
+    excludeAppSources: ["nuxt:pages"],
     urls: PUBLIC_SITEMAP_PATHS,
     exclude: ["/privacy"],
   },
   css: ["~/assets/css/main.css"],
   routeRules: {
     "/**": {
+      headers: securityHeaders,
+    },
+    "/api/**": {
+      headers: apiHeaders,
+    },
+    "/privacy": {
+      redirect: {
+        to: "/privacy-policy",
+        statusCode: 301,
+      },
       headers: securityHeaders,
     },
   },
