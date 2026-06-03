@@ -39,7 +39,6 @@ const TOOL_ACCENTS: Record<string, string> = {
   barcode: "from-slate-300 to-zinc-500",
   "image-compress": "from-violet-400 to-indigo-300",
   "image-to-pdf": "from-orange-300 to-rose-400",
-  "jpg-to-pdf": "from-orange-300 to-red-400",
   "pdf-to-jpg": "from-sky-300 to-cyan-400",
   "merge-pdf": "from-emerald-300 to-teal-500",
   "split-pdf": "from-cyan-300 to-blue-500",

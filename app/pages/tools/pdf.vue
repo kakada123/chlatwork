@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import { PDF_TOOLS } from "~/data/pdf-tools";
+import {
+  TOOL_DIRECTORY_CATEGORIES,
+  getToolsForDirectoryCategory,
+} from "~/data/tool-categories";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
-import { TOOL_ICON_CLASSES } from "~/lib/tool-registry";
+import { TOOL_ICON_CLASSES, TOOL_ICON_PATHS } from "~/lib/tool-registry";
+
+const pdfCategory = TOOL_DIRECTORY_CATEGORIES.find(
+  (category) => category.key === "pdf",
+);
+const pdfTools = pdfCategory ? getToolsForDirectoryCategory(pdfCategory) : [];
 
 useSeoMeta({
   title: "PDF Tools Online - ChlatWork",
@@ -61,7 +69,7 @@ useHead({
 
     <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <NuxtLink
-        v-for="tool in PDF_TOOLS"
+        v-for="tool in pdfTools"
         :key="tool.key"
         :to="tool.route"
         class="group flex h-full flex-col rounded-[22px] border border-white/80 bg-white/75 p-4 text-left shadow-lg shadow-sky-100/80 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.09] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.14]"
@@ -69,7 +77,7 @@ useHead({
         <div class="flex items-start gap-3">
           <span
             class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 dark:ring-white/10"
-            :class="TOOL_ICON_CLASSES[tool.key]"
+            :class="TOOL_ICON_CLASSES[tool.key] ?? TOOL_ICON_CLASSES.calculator"
             aria-hidden="true"
           >
             <svg
@@ -82,7 +90,11 @@ useHead({
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path v-for="path in tool.iconPaths" :key="path" :d="path" />
+              <path
+                v-for="path in TOOL_ICON_PATHS[tool.key] ?? TOOL_ICON_PATHS.calculator"
+                :key="path"
+                :d="path"
+              />
             </svg>
           </span>
 

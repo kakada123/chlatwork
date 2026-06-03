@@ -8,7 +8,6 @@ const GUIDE_SLUGS = [
   ["payback-calculator", "how-to-split-group-expenses"],
   ["image-compress", "how-to-compress-image-without-upload"],
   ["image-to-pdf", "how-to-convert-images-to-pdf"],
-  ["jpg-to-pdf", "how-to-convert-jpg-to-pdf"],
   ["pdf-to-jpg", "how-to-convert-pdf-to-jpg"],
   ["merge-pdf", "how-to-merge-pdf-files"],
   ["split-pdf", "how-to-split-pdf-online"],

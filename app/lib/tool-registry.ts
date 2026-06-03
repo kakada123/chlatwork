@@ -282,12 +282,6 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M8 16.5h4",
     "M13 12l3 3-3 3",
   ],
-  "jpg-to-pdf": [
-    "M4 5h16v14H4V5Z",
-    "M8 14l2.4-2.4 2.1 2.1 2.8-3.2L18 14",
-    "M8 9h.01",
-    "M6 20h12",
-  ],
   "pdf-to-jpg": [
     "M6 3.5h9l3.5 3.5V20.5H6V3.5Z",
     "M15 3.5v4h4",
@@ -422,7 +416,6 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
     "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
   "image-to-pdf":
     "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
-  "jpg-to-pdf": "bg-orange-50 text-orange-700 group-hover:bg-orange-500 group-hover:text-white",
   "pdf-to-jpg": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
   "merge-pdf": "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
   "split-pdf": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",

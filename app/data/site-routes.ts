@@ -23,7 +23,6 @@ export const TOOL_PAGE_PATHS = [
   "/tools/payback-calculator",
   "/tools/image-compress",
   "/tools/image-to-pdf",
-  "/tools/jpg-to-pdf",
   "/tools/pdf-to-jpg",
   "/tools/merge-pdf",
   "/tools/split-pdf",

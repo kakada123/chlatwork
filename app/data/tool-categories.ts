@@ -33,7 +33,6 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "Use ChlatWork PDF tools for quick document work such as creating PDFs from images, merging files, removing pages, and preparing simple invoices.",
     accent: "from-orange-300 via-rose-300 to-red-400",
     toolKeys: [
-      "jpg-to-pdf",
       "image-to-pdf",
       "pdf-to-jpg",
       "merge-pdf",
@@ -57,7 +56,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     intro:
       "Prepare screenshots, scans, product photos, and document images without opening heavy desktop software.",
     accent: "from-violet-300 via-sky-300 to-cyan-400",
-    toolKeys: ["image-compress", "image-to-pdf", "jpg-to-pdf", "pdf-to-jpg"],
+    toolKeys: ["image-compress", "image-to-pdf", "pdf-to-jpg"],
   },
   {
     key: "qr-barcode",

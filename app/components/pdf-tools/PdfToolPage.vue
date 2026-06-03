@@ -15,14 +15,10 @@ import PdfToolPageLayout from "~/components/pdf-tools/PdfToolPageLayout.vue";
 import PrivacyNotice from "~/components/pdf-tools/PrivacyNotice.vue";
 import SeoFaq from "~/components/pdf-tools/SeoFaq.vue";
 import {
-  MAX_IMAGE_BATCH_FILES,
-  MAX_IMAGE_FILE_SIZE,
   MAX_MERGE_PDF_FILES,
   MAX_PDF_FILE_SIZE,
   MAX_PDF_PAGE_COUNT,
   PDF_EXTENSIONS,
-  PDF_IMAGE_EXTENSIONS,
-  PDF_IMAGE_MIME_TYPES,
   PDF_MIME_TYPES,
   validateFiles,
 } from "~/lib/file-validation";
@@ -30,7 +26,6 @@ import { sanitizeHtml } from "~/lib/sanitize-html";
 import {
   buildPdfFileName,
   compressPdf,
-  createPdfFromImages,
   extractPdfPages,
   formatFileSize,
   getPdfPageCount,
@@ -211,19 +206,16 @@ function isSinglePdfTool(key: PdfToolKey) {
 }
 
 function addFiles(nextFiles: File[]) {
-  const allowsImages = tool.value.accept.includes("image/");
   const maxFiles =
     props.toolKey === "merge-pdf"
       ? MAX_MERGE_PDF_FILES
-      : allowsImages
-        ? MAX_IMAGE_BATCH_FILES
-        : 1;
+      : 1;
   const { acceptedFiles, errors } = validateFiles(nextFiles, {
-    allowedExtensions: allowsImages ? PDF_IMAGE_EXTENSIONS : PDF_EXTENSIONS,
-    allowedMimeTypes: allowsImages ? PDF_IMAGE_MIME_TYPES : PDF_MIME_TYPES,
+    allowedExtensions: PDF_EXTENSIONS,
+    allowedMimeTypes: PDF_MIME_TYPES,
     currentFileCount: tool.value.multiple ? files.value.length : 0,
-    label: allowsImages ? "image" : "PDF",
-    maxFileSize: allowsImages ? MAX_IMAGE_FILE_SIZE : MAX_PDF_FILE_SIZE,
+    label: "PDF",
+    maxFileSize: MAX_PDF_FILE_SIZE,
     maxFiles,
   });
 
@@ -295,12 +287,6 @@ async function processTool() {
 
   try {
     switch (props.toolKey) {
-      case "jpg-to-pdf": {
-        const blob = await createPdfFromImages(files.value);
-        setResults([{ blob, name: buildPdfFileName("jpg-to-pdf") }]);
-        break;
-      }
-
       case "pdf-to-jpg": {
         const jpgs = await renderPdfToJpgs(files.value[0], jpgQuality.value, jpgScale.value);
         setResults(jpgs);

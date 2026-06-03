@@ -350,23 +350,6 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
-  "jpg-to-pdf": createPdfGuide({
-    toolName: "JPG to PDF",
-    metaTitle: "How to Convert JPG to PDF Online | ChlatWork",
-    metaDescription:
-      "Learn how to convert JPG, PNG, and WebP images into one PDF locally in your browser.",
-    heroTitle: "How to Convert JPG Images Into a PDF",
-    heroDescription:
-      "Turn photos, scans, receipts, and screenshots into one downloadable PDF without uploading files.",
-    ctaLabel: "Convert JPG to PDF",
-    primaryUse: "turning image files into a single PDF document",
-    inputLabel: "JPG, PNG, or WebP images",
-    outputLabel: "generated PDF",
-    extraStep: "Arrange the images in the order you want them to appear in the PDF.",
-    limitation:
-      "If the source images are very large, resize or compress them first for a smaller PDF.",
-    keywords: ["JPG to PDF", "convert image to PDF", "PNG to PDF", "browser PDF converter"],
-  }),
   "pdf-to-jpg": createPdfGuide({
     toolName: "PDF to JPG",
     metaTitle: "How to Convert PDF to JPG Online | ChlatWork",

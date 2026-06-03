@@ -2,7 +2,6 @@ import type { ToolDef } from "~/lib/tool-registry";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 export type PdfToolKey =
-  | "jpg-to-pdf"
   | "pdf-to-jpg"
   | "merge-pdf"
   | "split-pdf"
@@ -63,40 +62,6 @@ const INVOICE_ICON_PATHS = [
 
 export const PDF_TOOLS: PdfToolDef[] = [
   {
-    key: "jpg-to-pdf",
-    name: "JPG to PDF",
-    route: "/tools/jpg-to-pdf",
-    enabled: true,
-    status: "stable",
-    category: "PDF Tools",
-    description: "Convert JPG, PNG, and WebP images into one PDF file.",
-    metaTitle: "JPG to PDF Converter Online",
-    metaDescription:
-      "Convert JPG, JPEG, PNG, and WebP images into one PDF online. Reorder images and download a private browser-generated PDF.",
-    privacyNote: LOCAL_PROCESSING_PRIVACY_NOTE,
-    actionLabel: "Convert to PDF",
-    emptyState: "Drop JPG, PNG, or WebP images here to create one PDF.",
-    accept: "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp",
-    multiple: true,
-    iconPaths: IMAGE_ICON_PATHS,
-    faq: [
-      {
-        question: "Are my images uploaded?",
-        answer: "No. The images stay on your device and the PDF is generated in your browser.",
-      },
-      {
-        question: "Can I change image order?",
-        answer: "Yes. Use the up and down controls in the selected file list before converting.",
-      },
-    ],
-    howItWorks: [
-      "Choose JPG, PNG, or WebP images.",
-      "Arrange the file order.",
-      "Generate and download one PDF file.",
-    ],
-    related: ["merge-pdf", "compress-pdf", "pdf-to-jpg"],
-  },
-  {
     key: "pdf-to-jpg",
     name: "PDF to JPG",
     route: "/tools/pdf-to-jpg",
@@ -130,7 +95,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
       "Render each page locally with PDF.js.",
       "Download the JPG page images you need.",
     ],
-    related: ["jpg-to-pdf", "split-pdf", "compress-pdf"],
+    related: ["merge-pdf", "split-pdf", "compress-pdf"],
   },
   {
     key: "merge-pdf",
@@ -338,7 +303,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
       "Check the preview.",
       "Render the preview into a PDF.",
     ],
-    related: ["text-to-pdf", "invoice-to-pdf", "jpg-to-pdf"],
+    related: ["text-to-pdf", "invoice-to-pdf", "compress-pdf"],
   },
   {
     key: "text-to-pdf",
@@ -372,7 +337,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
       "Choose layout options.",
       "Download the generated PDF.",
     ],
-    related: ["html-to-pdf", "invoice-to-pdf", "jpg-to-pdf"],
+    related: ["html-to-pdf", "invoice-to-pdf", "compress-pdf"],
   },
   {
     key: "invoice-to-pdf",
