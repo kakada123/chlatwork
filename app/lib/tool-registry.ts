@@ -39,7 +39,7 @@ export const TOOLS: ToolDef[] = [
     route: "/tools/image-to-pdf",
     enabled: true,
     status: "stable",
-    category: "Utilities",
+    category: "PDF Tools",
     description:
       "Convert JPG, PNG, and WebP images into one clean PDF file instantly.",
   },
