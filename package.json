@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "codex:safe:on": "./scripts/codex-mode-on.sh",
+    "codex:safe:off": "./scripts/codex-mode-off.sh",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
