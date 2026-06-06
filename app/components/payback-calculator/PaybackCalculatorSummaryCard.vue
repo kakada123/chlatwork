@@ -6,10 +6,6 @@ import type {
   PaybackPerson,
   PaybackSettlement,
 } from "~/lib/payback-calculator";
-import {
-  formatPaybackAmount,
-  formatPaybackExactKhr,
-} from "~/lib/payback-calculator";
 
 const props = defineProps<{
   currency: PaybackCurrency;
@@ -33,36 +29,48 @@ const showKhrRemainder = computed(
   () => props.currency === "KHR" && props.khrRemainder.leftover > 0,
 );
 
-function fmt(value: number) {
-  return formatPaybackAmount(value, props.currency);
+function balanceClass(value: number) {
+  if (value > 0) {
+    return "money-value-positive";
+  }
+
+  if (value < 0) {
+    return "money-value-negative";
+  }
+
+  return "money-value-neutral";
 }
 </script>
 
 <template>
-  <div class="rounded-xl border bg-white p-4">
+  <div class="money-summary-surface min-w-0 rounded-xl border p-4">
     <h2 class="mb-3 font-semibold">Summary</h2>
 
     <div class="grid grid-cols-3 gap-3">
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">People</div>
+      <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
+        <div class="money-summary-muted text-xs">People</div>
         <div class="text-lg font-bold">{{ props.people.length }}</div>
       </div>
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Total</div>
-        <div class="text-lg font-bold">{{ fmt(props.total) }}</div>
+      <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
+        <div class="money-summary-muted text-xs">Total</div>
+        <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
+          <MoneyAmount :value="props.total" :currency="props.currency" />
+        </div>
       </div>
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Average</div>
-        <div class="text-lg font-bold">{{ fmt(props.avg) }}</div>
+      <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
+        <div class="money-summary-muted text-xs">Average</div>
+        <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
+          <MoneyAmount :value="props.avg" :currency="props.currency" />
+        </div>
       </div>
     </div>
 
     <div class="mt-4">
       <h3 class="mb-2 font-semibold">Balances</h3>
 
-      <div class="overflow-auto rounded-xl border">
+      <div class="money-summary-card overflow-auto rounded-xl border">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50">
+          <thead class="money-summary-card-muted">
             <tr>
               <th class="p-2 text-left">Name</th>
               <th class="p-2 text-right">Paid</th>
@@ -75,22 +83,30 @@ function fmt(value: number) {
               :key="person.name"
               class="border-t"
             >
-              <td class="p-2 font-medium">{{ person.name }}</td>
-              <td class="p-2 text-right">{{ fmt(person.paid) }}</td>
-              <td class="p-2 text-right">
+              <td class="min-w-0 p-2 font-medium">
+                <span class="block max-w-[10rem] truncate sm:max-w-none">
+                  {{ person.name }}
+                </span>
+              </td>
+              <td class="max-w-[9rem] p-2 text-right sm:max-w-none">
+                <MoneyAmount :value="person.paid" :currency="props.currency" />
+              </td>
+              <td class="max-w-[9rem] p-2 text-right sm:max-w-none">
                 <span
                   class="font-semibold"
-                  :class="
-                    person.balance >= 0 ? 'text-green-700' : 'text-red-700'
-                  "
+                  :class="balanceClass(person.balance)"
                 >
-                  {{ person.balance >= 0 ? "+" : "" }}{{ fmt(person.balance) }}
+                  <MoneyAmount
+                    :value="person.balance"
+                    :currency="props.currency"
+                    show-positive-sign
+                  />
                 </span>
               </td>
             </tr>
 
             <tr v-if="props.people.length === 0">
-              <td class="p-3 text-gray-500" colspan="3">No data yet.</td>
+              <td class="money-summary-muted p-3" colspan="3">No data yet.</td>
             </tr>
           </tbody>
         </table>
@@ -100,7 +116,7 @@ function fmt(value: number) {
     <div class="mt-4">
       <h3 class="mb-2 font-semibold">Who pays who</h3>
 
-      <div v-if="props.settlements.length === 0" class="text-sm text-gray-500">
+      <div v-if="props.settlements.length === 0" class="money-summary-muted text-sm">
         Add input to see settlements.
       </div>
 
@@ -108,28 +124,36 @@ function fmt(value: number) {
         <li
           v-for="(settlement, index) in props.settlements"
           :key="`${settlement.from}-${settlement.to}-${index}`"
-          class="flex items-center justify-between gap-3 rounded-xl border bg-gray-50 p-3"
+          class="money-summary-card-muted flex min-w-0 items-center justify-between gap-3 rounded-xl border p-3"
         >
-          <div class="text-sm">
+          <div class="min-w-0 truncate text-sm">
             <span class="font-semibold">{{ settlement.from }}</span>
-            <span class="text-gray-500"> → </span>
+            <span class="money-summary-muted"> → </span>
             <span class="font-semibold">{{ settlement.to }}</span>
           </div>
-          <div class="font-bold">{{ fmt(settlement.amount) }}</div>
+          <div class="min-w-0 max-w-[45%] shrink-0 truncate text-right font-bold">
+            <MoneyAmount
+              :value="settlement.amount"
+              :currency="props.currency"
+            />
+          </div>
         </li>
       </ul>
     </div>
 
     <div
       v-if="showKhrRemainder"
-      class="mt-4 space-y-3 rounded-xl border bg-gray-50 p-3"
+      class="money-summary-card-muted mt-4 space-y-3 rounded-xl border p-3"
     >
       <div>
         <h3 class="font-semibold">KHR rounding remainder</h3>
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="money-summary-body mt-1 text-sm">
           Remaining amount that cannot be evenly split by 100៛:
           <span class="font-semibold">
-            {{ formatPaybackExactKhr(props.khrRemainder.leftover) }}
+            <MoneyAmount
+              :value="props.khrRemainder.leftover"
+              currency="KHR"
+            />
           </span>
         </p>
       </div>
@@ -141,7 +165,7 @@ function fmt(value: number) {
 
         <select
           v-model="khrRemainderMode"
-          class="h-11 w-full rounded-lg border bg-white px-3 text-sm"
+          class="money-summary-control h-11 w-full rounded-lg border px-3 text-sm"
         >
           <option value="LEFTOVER_ONLY">Keep leftover separate</option>
           <option value="ASSIGN_TO_PERSON">Assign leftover to one person</option>
@@ -155,7 +179,7 @@ function fmt(value: number) {
 
         <select
           v-model="khrRemainderPayer"
-          class="h-11 w-full rounded-lg border bg-white px-3 text-sm"
+          class="money-summary-control h-11 w-full rounded-lg border px-3 text-sm"
         >
           <option
             v-for="option in props.uniqueNames"
@@ -167,12 +191,12 @@ function fmt(value: number) {
         </select>
       </div>
 
-      <p class="text-xs text-gray-500">
+      <p class="money-summary-muted text-xs">
         This only affects the small KHR remainder after rounding to 100៛.
       </p>
     </div>
 
-    <p class="mt-4 text-xs text-gray-500">
+    <p class="money-summary-muted mt-4 text-xs">
       Tip: rows like <span class="font-mono">Name + Amount</span> are easier.
       Paste mode still supports <span class="font-mono">Name: 10$</span> or
       <span class="font-mono">Name 10</span>.

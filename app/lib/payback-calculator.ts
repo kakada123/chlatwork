@@ -1,22 +1,35 @@
 import lzString from "lz-string";
+import type { MoneyCurrency } from "./money.ts";
+import {
+  divideMoneyCents,
+  formatMoneyAmount,
+  moneyCentsToNumber,
+  moneyNumberToCents,
+  parseMoneyInputToCents,
+  roundKhrDownCents,
+  roundMoney,
+} from "./money.ts";
 
 const {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } = lzString;
 
-export type PaybackCurrency = "USD" | "KHR";
+export type PaybackCurrency = MoneyCurrency;
 
 export type PaybackPerson = {
   name: string;
   paid: number;
+  paidCents?: bigint;
   balance: number;
+  balanceCents?: bigint;
 };
 
 export type PaybackSettlement = {
   from: string;
   to: string;
   amount: number;
+  amountCents?: bigint;
 };
 
 export type PaybackInputRow = {
@@ -27,13 +40,16 @@ export type PaybackInputRow = {
 export type PaybackEntry = {
   name: string;
   paid: number;
+  paidCents?: bigint;
 };
 
 export type PaybackKhrRemainderMode = "LEFTOVER_ONLY" | "ASSIGN_TO_PERSON";
 
 export type PaybackKhrRemainderMeta = {
   baseShare: number;
+  baseShareCents?: bigint;
   leftover: number;
+  leftoverCents?: bigint;
   assignedTo: string | null;
 };
 
@@ -51,6 +67,40 @@ type PaybackCompactSharePayload = [
   khrRemainderPayer?: string,
 ];
 
+function compareCentsDesc(left: bigint, right: bigint): number {
+  if (left === right) {
+    return 0;
+  }
+
+  return right > left ? 1 : -1;
+}
+
+function getPaybackEntryCents(entry: PaybackEntry): bigint {
+  return entry.paidCents ?? moneyNumberToCents(entry.paid);
+}
+
+function getPaybackPersonPaidCents(person: PaybackPerson): bigint {
+  return person.paidCents ?? moneyNumberToCents(person.paid);
+}
+
+function getPaybackPersonBalanceCents(person: PaybackPerson): bigint {
+  return person.balanceCents ?? moneyNumberToCents(person.balance);
+}
+
+function sumPaybackEntryCents(entries: PaybackEntry[]): bigint {
+  return entries.reduce((sum, entry) => sum + getPaybackEntryCents(entry), 0n);
+}
+
+function getKhrRemainderBaseShareCents(
+  meta: PaybackKhrRemainderMeta,
+): bigint {
+  return meta.baseShareCents ?? moneyNumberToCents(meta.baseShare);
+}
+
+function getKhrRemainderLeftoverCents(meta: PaybackKhrRemainderMeta): bigint {
+  return meta.leftoverCents ?? moneyNumberToCents(meta.leftover);
+}
+
 export function createEmptyPaybackRow(): PaybackInputRow {
   return { name: "", amount: "" };
 }
@@ -62,46 +112,26 @@ export function createPaybackRows(count = 1): PaybackInputRow[] {
 export function createEmptyPaybackKhrRemainder(): PaybackKhrRemainderMeta {
   return {
     baseShare: 0,
+    baseShareCents: 0n,
     leftover: 0,
+    leftoverCents: 0n,
     assignedTo: null,
   };
 }
 
 export function roundPayback(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function roundKhrDown(value: number): number {
-  return Math.floor(value / 100) * 100;
+  return roundMoney(value);
 }
 
 export function formatPaybackAmount(
   value: number,
   currency: PaybackCurrency,
 ): string {
-  const sign = value < 0 ? "-" : "";
-  const absoluteValue = Math.abs(value);
-
-  if (currency === "KHR") {
-    const roundedValue = roundKhrDown(absoluteValue);
-    return `${sign}${roundedValue.toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}៛`;
-  }
-
-  return `${sign}$${absoluteValue.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return formatMoneyAmount(value, currency);
 }
 
 export function formatPaybackExactKhr(value: number): string {
-  const sign = value < 0 ? "-" : "";
-  const absoluteValue = Math.abs(value);
-
-  return `${sign}${absoluteValue.toLocaleString("en-US", {
-    maximumFractionDigits: 2,
-  })}៛`;
+  return formatMoneyAmount(value, "KHR");
 }
 
 export function hasPaybackInput(rows: PaybackInputRow[]): boolean {
@@ -110,15 +140,12 @@ export function hasPaybackInput(rows: PaybackInputRow[]): boolean {
   );
 }
 
-function parsePaybackAmount(value: string, errorPrefix: string): number {
-  const cleanedValue = value.replace(/\$/g, "").replace(/៛/g, "");
-  const amount = Number(cleanedValue);
-
-  if (Number.isNaN(amount)) {
+function parsePaybackAmountToCents(value: string, errorPrefix: string): bigint {
+  try {
+    return parseMoneyInputToCents(value, { allowZero: true });
+  } catch {
     throw new Error(errorPrefix);
   }
-
-  return amount;
 }
 
 export function parsePaybackLines(input: string): PaybackEntry[] {
@@ -130,25 +157,29 @@ export function parsePaybackLines(input: string): PaybackEntry[] {
   const entries: PaybackEntry[] = [];
 
   for (const line of lines) {
-    const cleanedLine = line.replace(/\$/g, "").replace(/៛/g, "");
-    const match = cleanedLine.match(/^(.+?)[\s:=-]+(-?\d+(\.\d+)?)\s*$/);
+    const match = line.match(
+      /^(.+?)(?:\s*[:=]\s*|\s+-\s+|\s+)([+-]?(?:[$៛,\d.\s])+)\s*$/,
+    );
 
     if (!match) {
       throw new Error(`Invalid line: "${line}"`);
     }
 
     const name = match[1].trim();
-    const paid = Number(match[2]);
+    const paidCents = parsePaybackAmountToCents(
+      match[2],
+      `Invalid amount in line: "${line}"`,
+    );
 
     if (!name) {
       throw new Error(`Missing name in line: "${line}"`);
     }
 
-    if (Number.isNaN(paid)) {
-      throw new Error(`Invalid amount in line: "${line}"`);
-    }
-
-    entries.push({ name, paid });
+    entries.push({
+      name,
+      paid: moneyCentsToNumber(paidCents),
+      paidCents,
+    });
   }
 
   return entries;
@@ -173,8 +204,16 @@ export function parsePaybackRows(rows: PaybackInputRow[]): PaybackEntry[] {
       throw new Error(`Missing amount for "${name}".`);
     }
 
-    const paid = parsePaybackAmount(amountRaw, `Invalid amount for "${name}".`);
-    entries.push({ name, paid });
+    const paidCents = parsePaybackAmountToCents(
+      amountRaw,
+      `Invalid amount for "${name}".`,
+    );
+
+    entries.push({
+      name,
+      paid: moneyCentsToNumber(paidCents),
+      paidCents,
+    });
   }
 
   return entries;
@@ -200,20 +239,24 @@ export function buildPaybackRowsFromRaw(input: string): PaybackInputRow[] {
   const entries = parsePaybackLines(input);
   const rows = entries.map((entry) => ({
     name: entry.name,
-    amount: String(entry.paid),
+    amount: String(moneyCentsToNumber(getPaybackEntryCents(entry))),
   }));
 
   return rows.length ? rows : createPaybackRows();
 }
 
 export function groupPaybackEntries(entries: PaybackEntry[]): PaybackEntry[] {
-  const totals = new Map<string, number>();
+  const totals = new Map<string, bigint>();
 
   for (const entry of entries) {
-    totals.set(entry.name, roundPayback((totals.get(entry.name) || 0) + entry.paid));
+    totals.set(entry.name, (totals.get(entry.name) ?? 0n) + getPaybackEntryCents(entry));
   }
 
-  return [...totals.entries()].map(([name, paid]) => ({ name, paid }));
+  return [...totals.entries()].map(([name, paidCents]) => ({
+    name,
+    paid: moneyCentsToNumber(paidCents),
+    paidCents,
+  }));
 }
 
 export function buildPaybackKhrRemainderMeta(
@@ -221,17 +264,17 @@ export function buildPaybackKhrRemainderMeta(
   mode: PaybackKhrRemainderMode,
   payer: string,
 ): PaybackKhrRemainderMeta {
-  const totalPaid = roundPayback(
-    entries.reduce((sum, person) => sum + person.paid, 0),
-  );
+  const totalPaidCents = sumPaybackEntryCents(entries);
   const peopleCount = entries.length;
 
   if (!peopleCount) {
     return createEmptyPaybackKhrRemainder();
   }
 
-  const baseShare = Math.floor(totalPaid / peopleCount / 100) * 100;
-  const leftover = roundPayback(totalPaid - baseShare * peopleCount);
+  const baseShareCents = roundKhrDownCents(
+    divideMoneyCents(totalPaidCents, peopleCount),
+  );
+  const leftoverCents = totalPaidCents - baseShareCents * BigInt(peopleCount);
 
   if (mode === "ASSIGN_TO_PERSON") {
     const assignedTo =
@@ -240,15 +283,19 @@ export function buildPaybackKhrRemainderMeta(
       null;
 
     return {
-      baseShare,
-      leftover,
+      baseShare: moneyCentsToNumber(baseShareCents),
+      baseShareCents,
+      leftover: moneyCentsToNumber(leftoverCents),
+      leftoverCents,
       assignedTo,
     };
   }
 
   return {
-    baseShare,
-    leftover,
+    baseShare: moneyCentsToNumber(baseShareCents),
+    baseShareCents,
+    leftover: moneyCentsToNumber(leftoverCents),
+    leftoverCents,
     assignedTo: null,
   };
 }
@@ -259,26 +306,35 @@ function buildKhrBalances(
   payer: string,
 ): PaybackPerson[] {
   const meta = buildPaybackKhrRemainderMeta(entries, mode, payer);
+  const baseShareCents = getKhrRemainderBaseShareCents(meta);
+  const leftoverCents = getKhrRemainderLeftoverCents(meta);
 
   return entries
     .map((person) => {
-      let targetShare = meta.baseShare;
+      let targetShareCents = baseShareCents;
 
       if (
         mode === "ASSIGN_TO_PERSON" &&
-        meta.leftover > 0 &&
+        leftoverCents > 0n &&
         meta.assignedTo === person.name
       ) {
-        targetShare = roundPayback(targetShare + meta.leftover);
+        targetShareCents += leftoverCents;
       }
+
+      const paidCents = getPaybackEntryCents(person);
+      const balanceCents = paidCents - targetShareCents;
 
       return {
         name: person.name,
-        paid: person.paid,
-        balance: roundPayback(person.paid - targetShare),
+        paid: moneyCentsToNumber(paidCents),
+        paidCents,
+        balance: moneyCentsToNumber(balanceCents),
+        balanceCents,
       };
     })
-    .sort((a, b) => b.paid - a.paid);
+    .sort((a, b) =>
+      compareCentsDesc(getPaybackPersonPaidCents(a), getPaybackPersonPaidCents(b)),
+    );
 }
 
 export function buildPaybackPeople(
@@ -291,32 +347,51 @@ export function buildPaybackPeople(
     return buildKhrBalances(entries, mode, payer);
   }
 
-  const totalPaid = roundPayback(
-    entries.reduce((sum, person) => sum + person.paid, 0),
-  );
-  const averagePaid = entries.length ? roundPayback(totalPaid / entries.length) : 0;
+  const totalPaidCents = sumPaybackEntryCents(entries);
+  const averagePaidCents = entries.length
+    ? divideMoneyCents(totalPaidCents, entries.length)
+    : 0n;
 
   return entries
-    .map((person) => ({
-      name: person.name,
-      paid: person.paid,
-      balance: roundPayback(person.paid - averagePaid),
-    }))
-    .sort((a, b) => b.paid - a.paid);
+    .map((person) => {
+      const paidCents = getPaybackEntryCents(person);
+      const balanceCents = paidCents - averagePaidCents;
+
+      return {
+        name: person.name,
+        paid: moneyCentsToNumber(paidCents),
+        paidCents,
+        balance: moneyCentsToNumber(balanceCents),
+        balanceCents,
+      };
+    })
+    .sort((a, b) =>
+      compareCentsDesc(getPaybackPersonPaidCents(a), getPaybackPersonPaidCents(b)),
+    );
 }
 
 export function computePaybackSettlements(
   people: PaybackPerson[],
 ): PaybackSettlement[] {
   const debtors = people
-    .filter((person) => person.balance < 0)
-    .map((person) => ({ ...person, balance: roundPayback(Math.abs(person.balance)) }))
-    .sort((a, b) => b.balance - a.balance);
+    .map((person) => ({
+      name: person.name,
+      balanceCents: getPaybackPersonBalanceCents(person),
+    }))
+    .filter((person) => person.balanceCents < 0n)
+    .map((person) => ({
+      name: person.name,
+      balanceCents: -person.balanceCents,
+    }))
+    .sort((a, b) => compareCentsDesc(a.balanceCents, b.balanceCents));
 
   const creditors = people
-    .filter((person) => person.balance > 0)
-    .map((person) => ({ ...person, balance: roundPayback(person.balance) }))
-    .sort((a, b) => b.balance - a.balance);
+    .map((person) => ({
+      name: person.name,
+      balanceCents: getPaybackPersonBalanceCents(person),
+    }))
+    .filter((person) => person.balanceCents > 0n)
+    .sort((a, b) => compareCentsDesc(a.balanceCents, b.balanceCents));
 
   const settlements: PaybackSettlement[] = [];
   let debtorIndex = 0;
@@ -326,29 +401,49 @@ export function computePaybackSettlements(
     const debtor = debtors[debtorIndex];
     const creditor = creditors[creditorIndex];
 
-    const amount = roundPayback(Math.min(debtor.balance, creditor.balance));
+    const amountCents =
+      debtor.balanceCents < creditor.balanceCents
+        ? debtor.balanceCents
+        : creditor.balanceCents;
 
-    if (amount > 0) {
+    if (amountCents > 0n) {
       settlements.push({
         from: debtor.name,
         to: creditor.name,
-        amount,
+        amount: moneyCentsToNumber(amountCents),
+        amountCents,
       });
 
-      debtor.balance = roundPayback(debtor.balance - amount);
-      creditor.balance = roundPayback(creditor.balance - amount);
+      debtor.balanceCents -= amountCents;
+      creditor.balanceCents -= amountCents;
     }
 
-    if (debtor.balance <= 0.009) {
+    if (debtor.balanceCents <= 0n) {
       debtorIndex += 1;
     }
 
-    if (creditor.balance <= 0.009) {
+    if (creditor.balanceCents <= 0n) {
       creditorIndex += 1;
     }
   }
 
   return settlements;
+}
+
+export function getPaybackTotal(people: PaybackPerson[]): number {
+  return moneyCentsToNumber(
+    people.reduce((sum, person) => sum + getPaybackPersonPaidCents(person), 0n),
+  );
+}
+
+export function getPaybackAverage(people: PaybackPerson[]): number {
+  if (!people.length) {
+    return 0;
+  }
+
+  return moneyCentsToNumber(
+    divideMoneyCents(moneyNumberToCents(getPaybackTotal(people)), people.length),
+  );
 }
 
 export function getPaybackExampleRaw(currency: PaybackCurrency): string {

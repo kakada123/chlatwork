@@ -183,7 +183,7 @@ const budgetPercent = computed(() =>
   getBudgetPercent(totalSpent.value, budgetValue.value),
 );
 const budgetStatus = computed(() =>
-  getBudgetStatus(budgetValue.value, budgetRemaining.value),
+  getBudgetStatus(budgetValue.value, totalSpent.value),
 );
 const categoryBreakdown = computed(() =>
   buildExpenseBreakdown(filteredExpenses.value, totalSpent.value),

@@ -53,12 +53,13 @@ import {
   createPaybackRows,
   formatPaybackAmount,
   formatPaybackExactKhr,
+  getPaybackAverage,
   getPaybackExampleRaw,
+  getPaybackTotal,
   groupPaybackEntries,
   hasPaybackInput,
   parsePaybackRows,
   parsePaybackSharePayload,
-  roundPayback,
 } from "~/lib/payback-calculator";
 
 const route = useRoute();
@@ -212,13 +213,8 @@ const people = computed(() =>
   ),
 );
 
-const total = computed(() =>
-  roundPayback(people.value.reduce((sum, person) => sum + person.paid, 0)),
-);
-
-const avg = computed(() =>
-  people.value.length ? roundPayback(total.value / people.value.length) : 0,
-);
+const total = computed(() => getPaybackTotal(people.value));
+const avg = computed(() => getPaybackAverage(people.value));
 
 const settlements = computed(() => computePaybackSettlements(people.value));
 

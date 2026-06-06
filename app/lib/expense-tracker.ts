@@ -1,11 +1,24 @@
 import lzString from "lz-string";
+import type { MoneyAmountDisplay, MoneyCurrency } from "./money.ts";
+import {
+  MAX_MONEY_AMOUNT,
+  MAX_MONEY_AMOUNT_CENTS,
+  divideMoneyCents,
+  formatMoneyAmount,
+  formatMoneyAmountDisplay,
+  moneyCentsToNumber,
+  moneyNumberToCents,
+  parseMoneyInput,
+  parseMoneyInputToCents,
+  roundMoney,
+} from "./money.ts";
 
 const {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } = lzString;
 
-export type ExpenseCurrency = "USD" | "KHR";
+export type ExpenseCurrency = MoneyCurrency;
 export type MoneyType = "expense" | "income";
 export type ExpenseRangeMode = "all" | "month" | "week" | "today";
 
@@ -27,6 +40,7 @@ export type Budget = {
 export type Breakdown = {
   category: string;
   total: number;
+  totalCents?: bigint;
   percent: number;
 };
 
@@ -35,6 +49,7 @@ export type ExpenseItem = {
   category: string;
   note: string;
   amount: number;
+  amountCents?: bigint;
   type: MoneyType;
 };
 
@@ -43,6 +58,13 @@ export type ExpenseBudgetStatus = {
   text: string;
   bg: string;
   bar: string;
+};
+
+export type ExpenseAmountDisplay = MoneyAmountDisplay;
+
+export type ExpenseInsight = {
+  text: string;
+  title?: string;
 };
 
 export type ExpenseTrackerSharePayload = {
@@ -86,8 +108,21 @@ export const incomeCategories = [
   "Other",
 ] as const;
 
+export const MAX_EXPENSE_AMOUNT_CENTS = MAX_MONEY_AMOUNT_CENTS;
+export const MAX_EXPENSE_AMOUNT = MAX_MONEY_AMOUNT;
+
+export const parseExpenseAmountToCents = parseMoneyInputToCents;
+
+function getExpenseItemCents(item: ExpenseItem): bigint {
+  return item.amountCents ?? moneyNumberToCents(item.amount);
+}
+
+function sumCents(items: ExpenseItem[]): bigint {
+  return items.reduce((sum, item) => sum + getExpenseItemCents(item), 0n);
+}
+
 export function roundExpense(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+  return roundMoney(value);
 }
 
 export function todayISO(now = new Date()): string {
@@ -105,7 +140,9 @@ export function startOfMonthISO(now = new Date()): string {
 }
 
 export function isoToDate(value: string): Date | null {
-  const [year, month, day] = (value || "").split("-").map((segment) => Number(segment));
+  const [year, month, day] = (value || "")
+    .split("-")
+    .map((segment) => Number(segment));
   if (!year || !month || !day) {
     return null;
   }
@@ -117,27 +154,18 @@ export function formatExpenseAmount(
   value: number,
   currency: ExpenseCurrency,
 ): string {
-  const sign = value < 0 ? "-" : "";
-  const absoluteValue = Math.abs(value);
+  return formatMoneyAmount(value, currency);
+}
 
-  if (currency === "KHR") {
-    return `${sign}${absoluteValue.toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}៛`;
-  }
-
-  return `${sign}$${absoluteValue.toFixed(2)}`;
+export function formatExpenseAmountDisplay(
+  value: number,
+  currency: ExpenseCurrency,
+): ExpenseAmountDisplay {
+  return formatMoneyAmountDisplay(value, currency);
 }
 
 export function parseExpenseAmount(input: string): number {
-  const cleaned = (input ?? "").trim().replace(/\$/g, "").replace(/៛/g, "");
-  const value = Number(cleaned);
-
-  if (Number.isNaN(value)) {
-    throw new Error("Invalid amount.");
-  }
-
-  return value;
+  return parseMoneyInput(input);
 }
 
 export function createExpenseRow(
@@ -292,11 +320,14 @@ export function collectExpenseItems(
     }
 
     try {
+      const amountCents = parseExpenseAmountToCents(amountRaw);
+
       parsedItems.push({
         date,
         category,
         note,
-        amount: roundExpense(parseExpenseAmount(amountRaw)),
+        amount: moneyCentsToNumber(amountCents),
+        amountCents,
         type,
       });
     } catch (caughtError: any) {
@@ -311,18 +342,14 @@ export function collectExpenseItems(
 }
 
 export function getTotalSpent(items: ExpenseItem[]): number {
-  return roundExpense(
-    items
-      .filter((item) => item.type !== "income")
-      .reduce((sum, item) => sum + item.amount, 0),
+  return moneyCentsToNumber(
+    sumCents(items.filter((item) => item.type !== "income")),
   );
 }
 
 export function getTotalIncome(items: ExpenseItem[]): number {
-  return roundExpense(
-    items
-      .filter((item) => item.type === "income")
-      .reduce((sum, item) => sum + item.amount, 0),
+  return moneyCentsToNumber(
+    sumCents(items.filter((item) => item.type === "income")),
   );
 }
 
@@ -330,7 +357,9 @@ export function getNetBalance(
   totalIncome: number,
   totalSpent: number,
 ): number {
-  return roundExpense(totalIncome - totalSpent);
+  return moneyCentsToNumber(
+    moneyNumberToCents(totalIncome) - moneyNumberToCents(totalSpent),
+  );
 }
 
 export function getExpenseDateSpanDays(items: ExpenseItem[]): number {
@@ -366,7 +395,9 @@ export function getExpenseDailyAverage(
     return 0;
   }
 
-  return roundExpense(totalSpent / dateSpanDays);
+  return moneyCentsToNumber(
+    divideMoneyCents(moneyNumberToCents(totalSpent), dateSpanDays),
+  );
 }
 
 export function getBudgetValue(budget: Budget): number {
@@ -386,7 +417,9 @@ export function getBudgetRemaining(
   budgetValue: number,
   totalSpent: number,
 ): number {
-  return roundExpense(budgetValue - totalSpent);
+  return moneyCentsToNumber(
+    moneyNumberToCents(budgetValue) - moneyNumberToCents(totalSpent),
+  );
 }
 
 export function getBudgetPercent(
@@ -397,12 +430,19 @@ export function getBudgetPercent(
     return 0;
   }
 
-  return Math.round((totalSpent / budgetValue) * 100);
+  const spentCents = moneyNumberToCents(totalSpent);
+  const budgetCents = moneyNumberToCents(budgetValue);
+
+  if (budgetCents <= 0n) {
+    return 0;
+  }
+
+  return Number((spentCents * 100n + budgetCents / 2n) / budgetCents);
 }
 
 export function getBudgetStatus(
   budgetValue: number,
-  budgetRemaining: number,
+  totalSpent: number,
 ): ExpenseBudgetStatus {
   if (!budgetValue) {
     return {
@@ -413,9 +453,12 @@ export function getBudgetStatus(
     };
   }
 
+  const budgetCents = moneyNumberToCents(budgetValue);
+  const spentCents = moneyNumberToCents(totalSpent);
+  const budgetRemaining = moneyCentsToNumber(budgetCents - spentCents);
   const ratio = budgetRemaining / budgetValue;
 
-  if (budgetRemaining < 0) {
+  if (spentCents > budgetCents) {
     return {
       label: "Over budget 💀",
       text: "expense-budget-text-danger",
@@ -460,22 +503,31 @@ export function buildExpenseBreakdown(
   }
 
   const totals = new Map<string, number>();
+  const totalsCents = new Map<string, bigint>();
   for (const item of expenseOnly) {
-    totals.set(
-      item.category,
-      roundExpense((totals.get(item.category) || 0) + item.amount),
-    );
+    const nextTotal =
+      (totalsCents.get(item.category) ?? 0n) + getExpenseItemCents(item);
+    totalsCents.set(item.category, nextTotal);
+    totals.set(item.category, moneyCentsToNumber(nextTotal));
   }
 
-  const safeTotal = totalSpent || 1;
+  const totalSpentCents = moneyNumberToCents(totalSpent);
+  const safeTotalCents = totalSpentCents || 1n;
 
   return [...totals.entries()]
     .map(([category, total]) => ({
       category,
       total,
-      percent: (total / safeTotal) * 100,
+      totalCents: totalsCents.get(category),
+      percent:
+        Number(((totalsCents.get(category) ?? 0n) * 10_000n) / safeTotalCents) /
+        100,
     }))
-    .sort((left, right) => right.total - left.total);
+    .sort((left, right) => {
+      const leftCents = left.totalCents ?? moneyNumberToCents(left.total);
+      const rightCents = right.totalCents ?? moneyNumberToCents(right.total);
+      return leftCents === rightCents ? 0 : rightCents > leftCents ? 1 : -1;
+    });
 }
 
 export function getTopExpenseItems(
@@ -484,7 +536,11 @@ export function getTopExpenseItems(
 ): ExpenseItem[] {
   return [...items]
     .filter((item) => item.type !== "income")
-    .sort((left, right) => right.amount - left.amount)
+    .sort((left, right) => {
+      const leftCents = getExpenseItemCents(left);
+      const rightCents = getExpenseItemCents(right);
+      return leftCents === rightCents ? 0 : rightCents > leftCents ? 1 : -1;
+    })
     .slice(0, limit);
 }
 
@@ -499,47 +555,66 @@ export function buildExpenseInsights(input: {
   budgetValue: number;
   budgetRemaining: number;
   dailyAvg: number;
-}): string[] {
+}): ExpenseInsight[] {
   if (!input.items.length) {
     return [];
   }
 
-  const format = (value: number) => formatExpenseAmount(value, input.currency);
-  const messages: string[] = [];
+  const format = (value: number) =>
+    formatExpenseAmountDisplay(value, input.currency);
+  const messages: ExpenseInsight[] = [];
+  const addMoneyMessage = (label: string, value: number) => {
+    const amount = format(value);
+    messages.push({
+      text: `${label}: ${amount.value}.`,
+      title: amount.full,
+    });
+  };
 
-  if (input.totalIncome > 0) messages.push(`Income: ${format(input.totalIncome)}.`);
-  if (input.totalSpent > 0) messages.push(`Spent: ${format(input.totalSpent)}.`);
+  if (input.totalIncome > 0) addMoneyMessage("Income", input.totalIncome);
+  if (input.totalSpent > 0) addMoneyMessage("Spent", input.totalSpent);
   if (input.totalIncome > 0 || input.totalSpent > 0) {
-    messages.push(`Net: ${format(input.netBalance)}.`);
+    addMoneyMessage("Net", input.netBalance);
   }
 
   const biggestCategory = input.categoryBreakdown[0];
   if (biggestCategory) {
-    messages.push(
-      `Biggest expense: ${biggestCategory.category} (${Math.round(biggestCategory.percent)}%).`,
-    );
+    messages.push({
+      text: `Biggest expense: ${biggestCategory.category} (${Math.round(biggestCategory.percent)}%).`,
+    });
   }
 
   const topExpense = input.topExpenses[0];
   if (topExpense) {
-    messages.push(`Top expense: ${topExpense.category} — ${format(topExpense.amount)}.`);
+    const amount = format(topExpense.amount);
+    messages.push({
+      text: `Top expense: ${topExpense.category} — ${amount.value}.`,
+      title: amount.full,
+    });
   }
 
   if (input.budgetValue) {
     if (input.budgetRemaining < 0) {
-      messages.push(
-        `You exceeded your budget by ${format(Math.abs(input.budgetRemaining))}.`,
-      );
+      const amount = format(Math.abs(input.budgetRemaining));
+      messages.push({
+        text: `You exceeded your budget by ${amount.value}.`,
+        title: amount.full,
+      });
     } else {
-      messages.push(`Remaining budget: ${format(input.budgetRemaining)}.`);
+      addMoneyMessage("Remaining budget", input.budgetRemaining);
     }
 
     if (input.dailyAvg > 0 && input.budgetRemaining > 0) {
-      const daysLeft = Math.floor(input.budgetRemaining / input.dailyAvg);
-      messages.push(`At this pace, budget lasts about ${daysLeft} day(s).`);
+      const daysLeft = Number(
+        moneyNumberToCents(input.budgetRemaining) /
+          moneyNumberToCents(input.dailyAvg),
+      );
+      messages.push({
+        text: `At this pace, budget lasts about ${daysLeft} day(s).`,
+      });
     }
   } else {
-    messages.push("Set a budget to unlock the spicy warnings 😄");
+    messages.push({ text: "Set a budget to unlock the spicy warnings 😄" });
   }
 
   return messages;

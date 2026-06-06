@@ -4,9 +4,9 @@ import type {
   Budget,
   ExpenseBudgetStatus,
   ExpenseCurrency,
+  ExpenseInsight,
   ExpenseItem,
 } from "~/lib/expense-tracker";
-import { formatExpenseAmount } from "~/lib/expense-tracker";
 
 const props = defineProps<{
   currency: ExpenseCurrency;
@@ -20,27 +20,23 @@ const props = defineProps<{
   budgetRemaining: number;
   budgetPercent: number;
   budgetStatus: ExpenseBudgetStatus;
-  insights: string[];
+  insights: ExpenseInsight[];
   categoryBreakdown: Breakdown[];
   topExpenses: ExpenseItem[];
 }>();
 
 const budget = defineModel<Budget>("budget", { required: true });
 
-function fmt(value: number) {
-  return formatExpenseAmount(value, props.currency);
-}
-
 function balanceClass(value: number) {
   if (value > 0) {
-    return "expense-summary-value-positive";
+    return "money-value-positive";
   }
 
   if (value < 0) {
-    return "expense-summary-value-negative";
+    return "money-value-negative";
   }
 
-  return "expense-summary-value-neutral";
+  return "money-value-neutral";
 }
 </script>
 
@@ -78,38 +74,55 @@ function balanceClass(value: number) {
     </div>
 
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="expense-summary-card-muted rounded-xl border p-3">
+      <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="expense-summary-muted text-xs">Items</div>
-        <div class="text-lg font-bold">{{ props.itemsCount }}</div>
+        <div class="min-w-0 truncate text-lg font-bold">{{ props.itemsCount }}</div>
       </div>
 
-      <div class="expense-summary-card-muted rounded-xl border p-3">
+      <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="expense-summary-muted text-xs">Income</div>
-        <div class="text-lg font-bold">{{ fmt(props.totalIncome) }}</div>
+        <div
+          class="min-w-0 truncate text-lg font-bold leading-tight sm:text-xl"
+        >
+          <MoneyAmount :value="props.totalIncome" :currency="props.currency" />
+        </div>
       </div>
 
-      <div class="expense-summary-card-muted rounded-xl border p-3">
+      <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="expense-summary-muted text-xs">Spent</div>
-        <div class="text-lg font-bold">{{ fmt(props.totalSpent) }}</div>
+        <div
+          class="min-w-0 truncate text-lg font-bold leading-tight sm:text-xl"
+        >
+          <MoneyAmount :value="props.totalSpent" :currency="props.currency" />
+        </div>
       </div>
 
-      <div class="expense-summary-card-muted rounded-xl border p-3">
+      <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="expense-summary-muted text-xs">Net</div>
-        <div class="text-lg font-bold" :class="balanceClass(props.netBalance)">
-          {{ fmt(props.netBalance) }}
+        <div
+          class="min-w-0 truncate text-lg font-bold leading-tight sm:text-xl"
+          :class="balanceClass(props.netBalance)"
+        >
+          <MoneyAmount :value="props.netBalance" :currency="props.currency" />
         </div>
         <div class="mt-1">
           <span
-            class="expense-summary-pill inline-flex items-center rounded-full border px-2 py-0.5 text-xs"
+            class="expense-summary-pill inline-flex max-w-full items-center rounded-full border px-2 py-0.5 text-xs"
           >
-            Daily avg (spent): {{ fmt(props.dailyAvg) }}
+            <span class="min-w-0 truncate">
+              Daily avg (spent):
+              <MoneyAmount
+                :value="props.dailyAvg"
+                :currency="props.currency"
+              />
+            </span>
           </span>
         </div>
       </div>
     </div>
 
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <div class="expense-summary-card rounded-xl border p-3">
+      <div class="expense-summary-card min-w-0 rounded-xl border p-3">
         <div class="flex items-center justify-between gap-2">
           <h3 class="font-semibold">Budget</h3>
 
@@ -123,7 +136,7 @@ function balanceClass(value: number) {
         </div>
 
         <div class="mt-2 grid grid-cols-2 gap-2">
-          <div>
+          <div class="min-w-0">
             <div class="expense-summary-muted mb-1 text-xs">Budget amount</div>
             <input
               v-model.trim="budget.amount"
@@ -133,14 +146,19 @@ function balanceClass(value: number) {
             />
           </div>
 
-          <div>
+          <div class="min-w-0">
             <div class="expense-summary-muted mb-1 text-xs">Remaining</div>
             <div
-              class="expense-summary-remaining flex h-11 w-full items-center rounded-lg border px-4 font-semibold"
+              class="expense-summary-remaining flex h-11 w-full min-w-0 items-center gap-2 rounded-lg border px-4 font-semibold"
               :class="props.budgetStatus.bg"
             >
-              {{ fmt(props.budgetRemaining) }}
-              <span class="ml-2 text-xs font-medium" :class="props.budgetStatus.text">
+              <span class="min-w-0 truncate">
+                <MoneyAmount
+                  :value="props.budgetRemaining"
+                  :currency="props.currency"
+                />
+              </span>
+              <span class="shrink-0 text-xs font-medium" :class="props.budgetStatus.text">
                 {{ props.budgetStatus.label }}
               </span>
             </div>
@@ -168,11 +186,16 @@ function balanceClass(value: number) {
         </div>
       </div>
 
-      <div class="expense-summary-card-muted rounded-xl border p-3">
+      <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <h3 class="mb-1 font-semibold">Insights</h3>
         <ul class="expense-summary-body list-disc space-y-1 pl-5 text-sm">
-          <li v-for="(message, index) in props.insights" :key="index">
-            {{ message }}
+          <li
+            v-for="(message, index) in props.insights"
+            :key="index"
+            class="break-words"
+            :title="message.title"
+          >
+            {{ message.text }}
           </li>
           <li v-if="props.insights.length === 0" class="expense-summary-muted">
             No insights yet.
@@ -205,7 +228,12 @@ function balanceClass(value: number) {
               class="border-t"
             >
               <td class="p-2 font-medium">{{ category.category }}</td>
-              <td class="p-2 text-right">{{ fmt(category.total) }}</td>
+              <td class="max-w-[9rem] p-2 text-right sm:max-w-none">
+                <MoneyAmount
+                  :value="category.total"
+                  :currency="props.currency"
+                />
+              </td>
               <td class="p-2 text-right">{{ category.percent.toFixed(0) }}%</td>
             </tr>
 
@@ -227,12 +255,16 @@ function balanceClass(value: number) {
           class="expense-summary-card-muted flex items-center justify-between gap-3 rounded-xl border p-3"
         >
           <div class="min-w-0 text-sm">
-            <div class="font-semibold">{{ item.category }}</div>
+            <div class="truncate font-semibold">{{ item.category }}</div>
             <div class="expense-summary-muted truncate text-xs">
               {{ item.date }} • {{ item.note || "—" }}
             </div>
           </div>
-          <div class="shrink-0 font-bold">{{ fmt(item.amount) }}</div>
+          <div
+            class="min-w-0 max-w-[45%] shrink-0 truncate text-right font-bold"
+          >
+            <MoneyAmount :value="item.amount" :currency="props.currency" />
+          </div>
         </li>
       </ul>
 

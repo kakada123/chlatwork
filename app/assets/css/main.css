@@ -333,6 +333,90 @@ html.dark .theme-toggle:hover {
   color: #fff;
 }
 
+.money-amount {
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.money-amount-wrap {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.money-value-positive {
+  color: var(--app-color-success-text);
+}
+
+.money-value-negative {
+  color: var(--app-color-danger-text);
+}
+
+.money-value-neutral {
+  color: var(--app-color-neutral-status-text);
+}
+
+.money-summary-surface,
+.money-summary-card {
+  background-color: var(--app-color-card-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+}
+
+html .money-summary-surface.border,
+html .money-summary-surface .border,
+html .money-summary-surface .border-t,
+html .money-summary-surface .border-b {
+  border-color: var(--app-color-border);
+}
+
+.money-summary-card-muted {
+  background-color: var(--app-color-card-muted-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+}
+
+.money-summary-muted {
+  color: var(--app-color-muted-text);
+}
+
+.money-summary-body {
+  color: var(--app-color-text);
+}
+
+.money-summary-surface .money-summary-control {
+  background-color: var(--app-color-control-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+  outline: none;
+}
+
+.money-summary-surface .money-summary-control:hover {
+  border-color: var(--app-color-border-strong);
+}
+
+.money-summary-surface .money-summary-control:focus,
+.money-summary-surface .money-summary-control:focus-visible {
+  border-color: var(--app-color-focus-border);
+  box-shadow: 0 0 0 2px var(--app-color-focus-ring);
+}
+
+.money-summary-surface .money-summary-control:disabled {
+  background-color: var(--app-color-disabled-bg);
+  color: var(--app-color-muted-text);
+  opacity: 1;
+}
+
+.money-summary-surface .money-summary-control option {
+  background-color: var(--app-color-control-bg);
+  color: var(--app-color-text);
+}
+
 .expense-summary-surface,
 .expense-summary-card {
   background-color: var(--app-color-card-bg);
