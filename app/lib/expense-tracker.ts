@@ -407,9 +407,9 @@ export function getBudgetStatus(
   if (!budgetValue) {
     return {
       label: "Set budget",
-      text: "text-gray-600",
-      bg: "bg-white",
-      bar: "bg-gray-300",
+      text: "expense-budget-text-neutral",
+      bg: "expense-budget-status-neutral",
+      bar: "expense-progress-bar-neutral",
     };
   }
 
@@ -418,35 +418,35 @@ export function getBudgetStatus(
   if (budgetRemaining < 0) {
     return {
       label: "Over budget 💀",
-      text: "text-red-700",
-      bg: "bg-red-50 border-red-200",
-      bar: "bg-red-500",
+      text: "expense-budget-text-danger",
+      bg: "expense-budget-status-danger",
+      bar: "expense-progress-bar-danger",
     };
   }
 
   if (ratio <= 0.1) {
     return {
       label: "Bro stop 😭",
-      text: "text-red-700",
-      bg: "bg-red-50 border-red-200",
-      bar: "bg-red-500",
+      text: "expense-budget-text-danger",
+      bg: "expense-budget-status-danger",
+      bar: "expense-progress-bar-danger",
     };
   }
 
   if (ratio <= 0.3) {
     return {
       label: "Careful 🟡",
-      text: "text-yellow-700",
-      bg: "bg-yellow-50 border-yellow-200",
-      bar: "bg-yellow-500",
+      text: "expense-budget-text-warning",
+      bg: "expense-budget-status-warning",
+      bar: "expense-progress-bar-warning",
     };
   }
 
   return {
     label: "Safe ✅",
-    text: "text-green-700",
-    bg: "bg-green-50 border-green-200",
-    bar: "bg-green-500",
+    text: "expense-budget-text-success",
+    bg: "expense-budget-status-success",
+    bar: "expense-progress-bar-success",
   };
 }
 

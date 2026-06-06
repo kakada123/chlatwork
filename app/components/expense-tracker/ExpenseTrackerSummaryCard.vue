@@ -30,66 +30,77 @@ const budget = defineModel<Budget>("budget", { required: true });
 function fmt(value: number) {
   return formatExpenseAmount(value, props.currency);
 }
+
+function balanceClass(value: number) {
+  if (value > 0) {
+    return "expense-summary-value-positive";
+  }
+
+  if (value < 0) {
+    return "expense-summary-value-negative";
+  }
+
+  return "expense-summary-value-neutral";
+}
 </script>
 
 <template>
-  <div class="rounded-xl border bg-white p-4">
+  <div class="expense-summary-surface rounded-xl border p-4">
     <div class="mb-2 flex items-center justify-between gap-3">
       <h2 class="font-semibold">Summary</h2>
 
       <div class="flex flex-wrap justify-end gap-2">
         <span
-          class="inline-flex items-center rounded-full border bg-white px-2.5 py-1 text-xs"
+          class="expense-summary-pill inline-flex items-center rounded-full border px-2.5 py-1 text-xs"
         >
           Range:
-          <span class="ml-1 font-mono">{{ props.rangeLabel }}</span>
+          <span class="expense-summary-pill-value ml-1 font-mono">
+            {{ props.rangeLabel }}
+          </span>
         </span>
 
         <span
-          class="inline-flex items-center rounded-full border bg-white px-2.5 py-1 text-xs"
+          class="expense-summary-pill inline-flex items-center rounded-full border px-2.5 py-1 text-xs"
         >
           Top expense:
-          <span class="ml-1 font-semibold">
+          <span class="expense-summary-pill-value ml-1 font-semibold">
             {{ props.categoryBreakdown[0]?.category ?? "—" }}
           </span>
         </span>
 
         <span
-          class="inline-flex items-center rounded-full px-2.5 py-1 text-xs"
-          :class="props.budgetValue ? props.budgetStatus.bg : 'bg-white'"
+          class="expense-summary-status inline-flex items-center rounded-full border px-2.5 py-1 text-xs"
+          :class="props.budgetStatus.bg"
         >
-          {{ props.budgetValue ? props.budgetStatus.label : "Set budget" }}
+          {{ props.budgetStatus.label }}
         </span>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Items</div>
+      <div class="expense-summary-card-muted rounded-xl border p-3">
+        <div class="expense-summary-muted text-xs">Items</div>
         <div class="text-lg font-bold">{{ props.itemsCount }}</div>
       </div>
 
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Income</div>
+      <div class="expense-summary-card-muted rounded-xl border p-3">
+        <div class="expense-summary-muted text-xs">Income</div>
         <div class="text-lg font-bold">{{ fmt(props.totalIncome) }}</div>
       </div>
 
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Spent</div>
+      <div class="expense-summary-card-muted rounded-xl border p-3">
+        <div class="expense-summary-muted text-xs">Spent</div>
         <div class="text-lg font-bold">{{ fmt(props.totalSpent) }}</div>
       </div>
 
-      <div class="rounded-xl border bg-gray-50 p-3">
-        <div class="text-xs text-gray-500">Net</div>
-        <div
-          class="text-lg font-bold"
-          :class="props.netBalance >= 0 ? 'text-green-700' : 'text-red-700'"
-        >
+      <div class="expense-summary-card-muted rounded-xl border p-3">
+        <div class="expense-summary-muted text-xs">Net</div>
+        <div class="text-lg font-bold" :class="balanceClass(props.netBalance)">
           {{ fmt(props.netBalance) }}
         </div>
         <div class="mt-1">
           <span
-            class="inline-flex items-center rounded-full border bg-white px-2 py-0.5 text-xs"
+            class="expense-summary-pill inline-flex items-center rounded-full border px-2 py-0.5 text-xs"
           >
             Daily avg (spent): {{ fmt(props.dailyAvg) }}
           </span>
@@ -98,11 +109,14 @@ function fmt(value: number) {
     </div>
 
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border p-3">
+      <div class="expense-summary-card rounded-xl border p-3">
         <div class="flex items-center justify-between gap-2">
           <h3 class="font-semibold">Budget</h3>
 
-          <select v-model="budget.period" class="h-11 rounded-lg border px-3 text-sm">
+          <select
+            v-model="budget.period"
+            class="expense-summary-control h-11 rounded-lg border px-3 text-sm"
+          >
             <option value="monthly">Monthly</option>
             <option value="weekly">Weekly</option>
           </select>
@@ -110,19 +124,19 @@ function fmt(value: number) {
 
         <div class="mt-2 grid grid-cols-2 gap-2">
           <div>
-            <div class="mb-1 text-xs text-gray-500">Budget amount</div>
+            <div class="expense-summary-muted mb-1 text-xs">Budget amount</div>
             <input
               v-model.trim="budget.amount"
               inputmode="decimal"
-              class="h-11 w-full rounded-lg border px-4 text-base outline-none focus:ring-2 focus:ring-black/10"
+              class="expense-summary-control h-11 w-full rounded-lg border px-4 text-base"
               placeholder="e.g. 200"
             />
           </div>
 
           <div>
-            <div class="mb-1 text-xs text-gray-500">Remaining</div>
+            <div class="expense-summary-muted mb-1 text-xs">Remaining</div>
             <div
-              class="flex h-11 w-full items-center rounded-lg border px-4 font-semibold"
+              class="expense-summary-remaining flex h-11 w-full items-center rounded-lg border px-4 font-semibold"
               :class="props.budgetStatus.bg"
             >
               {{ fmt(props.budgetRemaining) }}
@@ -134,12 +148,12 @@ function fmt(value: number) {
         </div>
 
         <div class="mt-3">
-          <div class="mb-1 flex justify-between text-xs text-gray-500">
+          <div class="expense-summary-muted mb-1 flex justify-between text-xs">
             <span>Spent</span>
             <span>{{ props.budgetPercent }}%</span>
           </div>
 
-          <div class="h-2 overflow-hidden rounded-full border bg-gray-100">
+          <div class="expense-summary-progress-track h-2 overflow-hidden rounded-full border">
             <div
               class="h-2 rounded-full"
               :class="props.budgetStatus.bar"
@@ -147,20 +161,20 @@ function fmt(value: number) {
             />
           </div>
 
-          <p class="mt-2 text-xs text-gray-500">
+          <p class="expense-summary-muted mt-2 text-xs">
             Budget uses the selected range:
             <span class="font-mono">{{ props.rangeLabel }}</span>.
           </p>
         </div>
       </div>
 
-      <div class="rounded-xl border bg-gray-50 p-3">
+      <div class="expense-summary-card-muted rounded-xl border p-3">
         <h3 class="mb-1 font-semibold">Insights</h3>
-        <ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">
+        <ul class="expense-summary-body list-disc space-y-1 pl-5 text-sm">
           <li v-for="(message, index) in props.insights" :key="index">
             {{ message }}
           </li>
-          <li v-if="props.insights.length === 0" class="text-gray-500">
+          <li v-if="props.insights.length === 0" class="expense-summary-muted">
             No insights yet.
           </li>
         </ul>
@@ -170,14 +184,14 @@ function fmt(value: number) {
     <div class="mt-4">
       <div class="mb-2 flex items-center justify-between">
         <h3 class="font-semibold">Expense breakdown</h3>
-        <span class="text-xs text-gray-500">
+        <span class="expense-summary-muted text-xs">
           {{ props.categoryBreakdown.length ? "Top first" : "" }}
         </span>
       </div>
 
-      <div class="overflow-auto rounded-xl border">
+      <div class="expense-summary-card overflow-auto rounded-xl border">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50">
+          <thead class="expense-summary-card-muted">
             <tr>
               <th class="p-2 text-left">Category</th>
               <th class="p-2 text-right">Total</th>
@@ -196,7 +210,7 @@ function fmt(value: number) {
             </tr>
 
             <tr v-if="props.categoryBreakdown.length === 0">
-              <td class="p-3 text-gray-500" colspan="3">No data yet.</td>
+              <td class="expense-summary-muted p-3" colspan="3">No data yet.</td>
             </tr>
           </tbody>
         </table>
@@ -210,11 +224,11 @@ function fmt(value: number) {
         <li
           v-for="(item, index) in props.topExpenses"
           :key="`${item.date}-${item.category}-${index}`"
-          class="flex items-center justify-between gap-3 rounded-xl border bg-gray-50 p-3"
+          class="expense-summary-card-muted flex items-center justify-between gap-3 rounded-xl border p-3"
         >
           <div class="min-w-0 text-sm">
             <div class="font-semibold">{{ item.category }}</div>
-            <div class="truncate text-xs text-gray-500">
+            <div class="expense-summary-muted truncate text-xs">
               {{ item.date }} • {{ item.note || "—" }}
             </div>
           </div>
@@ -222,12 +236,12 @@ function fmt(value: number) {
         </li>
       </ul>
 
-      <div v-else class="text-sm text-gray-500">
+      <div v-else class="expense-summary-muted text-sm">
         Add expenses to see top spending.
       </div>
     </div>
 
-    <p class="mt-4 text-xs text-gray-500">
+    <p class="expense-summary-muted mt-4 text-xs">
       Tip: keep categories consistent (Food vs food). Your future self will
       thank you 😄
     </p>

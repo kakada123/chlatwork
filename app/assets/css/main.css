@@ -17,6 +17,33 @@
     "-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui",
     "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif",
     "Segoe UI Emoji", "Segoe UI Symbol";
+  --app-color-page-bg: #f8fbff;
+  --app-color-text: #111827;
+  --app-color-card-bg: #ffffff;
+  --app-color-card-muted-bg: #f1f5f9;
+  --app-color-control-bg: #ffffff;
+  --app-color-muted-text: #475569;
+  --app-color-border: rgb(203 213 225 / 0.95);
+  --app-color-border-strong: rgb(148 163 184 / 0.95);
+  --app-color-focus-border: #0ea5e9;
+  --app-color-focus-ring: rgb(14 165 233 / 0.18);
+  --app-color-progress-track: #e2e8f0;
+  --app-color-disabled-bg: #e2e8f0;
+  --app-color-neutral-status-bg: #f8fafc;
+  --app-color-neutral-status-text: #334155;
+  --app-color-neutral-status-bar: #64748b;
+  --app-color-success-bg: #dcfce7;
+  --app-color-success-text: #166534;
+  --app-color-success-border: #86efac;
+  --app-color-success-bar: #16a34a;
+  --app-color-warning-bg: #fef3c7;
+  --app-color-warning-text: #92400e;
+  --app-color-warning-border: #fcd34d;
+  --app-color-warning-bar: #d97706;
+  --app-color-danger-bg: #fee2e2;
+  --app-color-danger-text: #991b1b;
+  --app-color-danger-border: #fca5a5;
+  --app-color-danger-bar: #dc2626;
 }
 
 html[data-locale="km"] {
@@ -27,13 +54,13 @@ html[data-locale="km"] {
 }
 
 html {
-  background: #f8fbff;
+  background: var(--app-color-page-bg);
   scroll-behavior: smooth;
 }
 
 body {
-  background: #f8fbff;
-  color: #111827;
+  background: var(--app-color-page-bg);
+  color: var(--app-color-text);
   font-family: var(--app-font);
 }
 
@@ -101,12 +128,39 @@ select {
 
 html.dark {
   color-scheme: dark;
-  background: #020712;
+  --app-color-page-bg: #020712;
+  --app-color-text: #f5f5f7;
+  --app-color-card-bg: #2c2c2e;
+  --app-color-card-muted-bg: #1c1c1e;
+  --app-color-control-bg: #2c2c2e;
+  --app-color-muted-text: #d1d1d6;
+  --app-color-border: rgb(84 84 88 / 0.72);
+  --app-color-border-strong: rgb(142 142 147 / 0.78);
+  --app-color-focus-border: #67e8f9;
+  --app-color-focus-ring: rgb(103 232 249 / 0.2);
+  --app-color-progress-track: #3a3a3c;
+  --app-color-disabled-bg: #3a3a3c;
+  --app-color-neutral-status-bg: rgb(255 255 255 / 0.07);
+  --app-color-neutral-status-text: #e5e5ea;
+  --app-color-neutral-status-bar: #8e8e93;
+  --app-color-success-bg: rgb(34 197 94 / 0.16);
+  --app-color-success-text: #86efac;
+  --app-color-success-border: rgb(134 239 172 / 0.42);
+  --app-color-success-bar: #22c55e;
+  --app-color-warning-bg: rgb(234 179 8 / 0.18);
+  --app-color-warning-text: #fde68a;
+  --app-color-warning-border: rgb(253 230 138 / 0.44);
+  --app-color-warning-bar: #facc15;
+  --app-color-danger-bg: rgb(248 113 113 / 0.16);
+  --app-color-danger-text: #fca5a5;
+  --app-color-danger-border: rgb(252 165 165 / 0.46);
+  --app-color-danger-bar: #f87171;
+  background: var(--app-color-page-bg);
 }
 
 html.dark body {
-  background: #020712;
-  color: #f5f5f7;
+  background: var(--app-color-page-bg);
+  color: var(--app-color-text);
 }
 
 .site-header {
@@ -277,6 +331,150 @@ html.dark .theme-toggle {
 html.dark .theme-toggle:hover {
   background-color: rgb(255 255 255 / 0.12);
   color: #fff;
+}
+
+.expense-summary-surface,
+.expense-summary-card {
+  background-color: var(--app-color-card-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+}
+
+html .expense-summary-surface.border,
+html .expense-summary-surface .border,
+html .expense-summary-surface .border-t,
+html .expense-summary-surface .border-b {
+  border-color: var(--app-color-border);
+}
+
+.expense-summary-card-muted {
+  background-color: var(--app-color-card-muted-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+}
+
+.expense-summary-pill,
+.expense-summary-status,
+.expense-summary-remaining {
+  background-color: var(--app-color-neutral-status-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-neutral-status-text);
+}
+
+.expense-summary-pill-value {
+  color: var(--app-color-text);
+}
+
+.expense-summary-muted {
+  color: var(--app-color-muted-text);
+}
+
+.expense-summary-body {
+  color: var(--app-color-text);
+}
+
+.expense-summary-surface .expense-summary-control {
+  background-color: var(--app-color-control-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-text);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.expense-summary-surface .expense-summary-control:hover {
+  border-color: var(--app-color-border-strong);
+}
+
+.expense-summary-surface .expense-summary-control:focus,
+.expense-summary-surface .expense-summary-control:focus-visible {
+  border-color: var(--app-color-focus-border);
+  box-shadow: 0 0 0 2px var(--app-color-focus-ring);
+  outline: none;
+}
+
+.expense-summary-surface .expense-summary-control:disabled {
+  background-color: var(--app-color-disabled-bg);
+  color: var(--app-color-muted-text);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.expense-summary-surface .expense-summary-control::placeholder {
+  color: var(--app-color-muted-text);
+}
+
+.expense-summary-surface .expense-summary-control option {
+  background-color: var(--app-color-control-bg);
+  color: var(--app-color-text);
+}
+
+.expense-summary-progress-track {
+  background-color: var(--app-color-progress-track);
+  border-color: var(--app-color-border);
+}
+
+.expense-summary-value-positive,
+.expense-budget-text-success {
+  color: var(--app-color-success-text);
+}
+
+.expense-summary-value-negative,
+.expense-budget-text-danger {
+  color: var(--app-color-danger-text);
+}
+
+.expense-summary-value-neutral,
+.expense-budget-text-neutral {
+  color: var(--app-color-neutral-status-text);
+}
+
+.expense-budget-text-warning {
+  color: var(--app-color-warning-text);
+}
+
+.expense-budget-status-neutral,
+html .expense-summary-surface .expense-budget-status-neutral {
+  background-color: var(--app-color-neutral-status-bg);
+  border-color: var(--app-color-border);
+  color: var(--app-color-neutral-status-text);
+}
+
+.expense-budget-status-success,
+html .expense-summary-surface .expense-budget-status-success {
+  background-color: var(--app-color-success-bg);
+  border-color: var(--app-color-success-border);
+  color: var(--app-color-success-text);
+}
+
+.expense-budget-status-warning,
+html .expense-summary-surface .expense-budget-status-warning {
+  background-color: var(--app-color-warning-bg);
+  border-color: var(--app-color-warning-border);
+  color: var(--app-color-warning-text);
+}
+
+.expense-budget-status-danger,
+html .expense-summary-surface .expense-budget-status-danger {
+  background-color: var(--app-color-danger-bg);
+  border-color: var(--app-color-danger-border);
+  color: var(--app-color-danger-text);
+}
+
+.expense-progress-bar-neutral {
+  background-color: var(--app-color-neutral-status-bar);
+}
+
+.expense-progress-bar-success {
+  background-color: var(--app-color-success-bar);
+}
+
+.expense-progress-bar-warning {
+  background-color: var(--app-color-warning-bar);
+}
+
+.expense-progress-bar-danger {
+  background-color: var(--app-color-danger-bar);
 }
 
 [data-reveal] {
