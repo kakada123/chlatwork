@@ -24,6 +24,10 @@ const isShareConfirmed = computed(() =>
   ["copied", "shared", "ready"].includes(props.shareState),
 );
 
+const isInlineShareUrl = computed(() =>
+  props.shareUrl.includes("?p="),
+);
+
 function selectShareUrl(event: FocusEvent) {
   const input = event.target as HTMLInputElement | null;
   input?.select();
@@ -89,7 +93,7 @@ function selectShareUrl(event: FocusEvent) {
         </button>
       </div>
 
-      <div v-if="shareState === 'ready' && shareUrl" class="w-full sm:max-w-xs">
+      <div v-if="shareUrl" class="w-full sm:max-w-xs">
         <label class="sr-only" for="payback-share-url">
           PayBack Calculator share URL
         </label>
@@ -101,7 +105,15 @@ function selectShareUrl(event: FocusEvent) {
           @focus="selectShareUrl"
         />
         <p class="mt-1 text-xs text-gray-500">
-          Your browser blocked auto-copy. Tap the field to select the link.
+          <span v-if="isInlineShareUrl">
+            Short links are unavailable here, so this is the full share link.
+          </span>
+          <span v-else-if="shareState === 'ready'">
+            Your browser blocked auto-copy. Tap the field to select the link.
+          </span>
+          <span v-else>
+            The share link stays visible so you can copy it again if needed.
+          </span>
         </p>
       </div>
     </div>
