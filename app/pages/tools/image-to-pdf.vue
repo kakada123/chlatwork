@@ -70,13 +70,18 @@
         </div>
       </div>
     </section>
+
+    <ToolPageDetails
+      v-if="toolGuide"
+      :guide="toolGuide"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  useImageToPdfTool,
-} from "~/composables/useImageToPdfTool";
+import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
+import { useImageToPdfTool } from "~/composables/useImageToPdfTool";
+import { findToolGuideByToolRoute } from "~/data/tool-guides";
 
 const {
   pages,
@@ -105,6 +110,7 @@ const {
   convertToPdf,
   handlePageDragEnd,
 } = useImageToPdfTool();
+const toolGuide = findToolGuideByToolRoute("/tools/image-to-pdf");
 
 useSeoMeta({
   title: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
