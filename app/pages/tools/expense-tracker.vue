@@ -375,6 +375,17 @@ async function shareLink() {
 
   let url = buildInlineShareUrl(s);
 
+  // Native share and clipboard writes need the click's transient activation, so do
+  // the reliable inline share before any optional short-link network request.
+  lastShareUrl.value = url;
+  replaceShareQuery({ s });
+  const initialShareState = await shareUrlOnDevice(url);
+  showShareResult(initialShareState);
+
+  if (initialShareState === "idle") {
+    return;
+  }
+
   try {
     const response = await $fetch<ExpenseShortLinkResponse>(
       "/api/expense-share",
@@ -387,14 +398,11 @@ async function shareLink() {
     if (response.id) {
       replaceShareQuery({ id: response.id });
       url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
+      lastShareUrl.value = url;
     }
   } catch {
-    // Keep sharing usable in local/dev environments where Upstash is not configured.
-    replaceShareQuery({ s });
+    // The already-shared inline link keeps sharing usable when short links are unavailable.
   }
-
-  lastShareUrl.value = url;
-  showShareResult(await shareUrlOnDevice(url));
 }
 
 async function copySummary() {

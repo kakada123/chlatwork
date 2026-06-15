@@ -26,10 +26,23 @@ function getUpstashRestConfig() {
   };
 }
 
+function isPlaceholderUpstashValue(value: string) {
+  return (
+    value.includes("example.invalid") ||
+    value.startsWith("dummy_") ||
+    value.includes("dummy")
+  );
+}
+
 export function isUpstashRedisConfigured() {
   const config = getUpstashRestConfig();
 
-  return Boolean(config.url && config.token);
+  return Boolean(
+    config.url &&
+      config.token &&
+      !isPlaceholderUpstashValue(config.url) &&
+      !isPlaceholderUpstashValue(config.token),
+  );
 }
 
 export async function runUpstashPipeline<T = unknown>(
@@ -37,7 +50,7 @@ export async function runUpstashPipeline<T = unknown>(
 ): Promise<Array<UpstashPipelineResult<T>>> {
   const config = getUpstashRestConfig();
 
-  if (!config.url || !config.token) {
+  if (!isUpstashRedisConfigured()) {
     throw createError({
       statusCode: 503,
       statusMessage: "Short link storage is not configured.",
