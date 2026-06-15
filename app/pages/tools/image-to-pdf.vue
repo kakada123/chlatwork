@@ -107,18 +107,18 @@ const {
 } = useImageToPdfTool();
 
 useSeoMeta({
-  title: "Image to PDF Converter - Convert JPG, PNG, WebP to PDF Online",
+  title: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
   description:
-    "Convert multiple images to one PDF file online. Upload JPG, PNG, or WebP images, reorder them, choose page size, and download a clean PDF instantly.",
-  ogTitle: "Image to PDF Converter - Convert JPG, PNG, WebP to PDF Online",
+    "Convert JPG, PNG, WebP, and HEIC images into one PDF. Reorder pages, choose page size and margins, then download locally.",
+  ogTitle: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
   ogDescription:
-    "Convert multiple images to one PDF file online. Upload JPG, PNG, or WebP images, reorder them, choose page size, and download a clean PDF instantly.",
+    "Create one clean PDF from photos, scans, receipts, screenshots, or product images directly in your browser.",
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/image-to-pdf",
   twitterCard: "summary_large_image",
-  twitterTitle: "Image to PDF Converter - Convert JPG, PNG, WebP to PDF Online",
+  twitterTitle: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
   twitterDescription:
-    "Convert multiple images to one PDF file online. Upload JPG, PNG, or WebP images, reorder them, choose page size, and download a clean PDF instantly.",
+    "Convert images into one ordered PDF with page size, orientation, and margin controls.",
 });
 
 useHead({

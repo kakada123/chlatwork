@@ -41,12 +41,18 @@ import {
 } from "~/lib/barcode-generator";
 
 useSeoMeta({
-  title: "Barcode Generator — ChlatWork",
+  title: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
   description:
-    "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters and download as SVG.",
-  ogTitle: "Barcode Generator — ChlatWork",
+    "Create CODE128, EAN13, UPC, and CODE39 barcodes from numbers or basic English characters and download a sharp SVG.",
+  ogTitle: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
   ogDescription:
-    "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters and download as SVG.",
+    "Generate printable barcode SVG files for labels, stock codes, POS testing, and product workflows.",
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/tools/barcode",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
+  twitterDescription:
+    "Create CODE128, EAN13, UPC, and CODE39 barcode SVG files in your browser.",
 });
 
 type JsBarcodeFn = (element: Element, text: string, options?: any) => void;

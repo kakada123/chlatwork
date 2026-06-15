@@ -393,17 +393,17 @@ const route = useRoute();
 const router = useRouter();
 
 useSeoMeta({
-  title: "Lucky Draw Wheel | ChlatWork",
+  title: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
   description:
-    "Add participants and spin a colorful lucky draw wheel instantly.",
-  ogTitle: "Lucky Draw Wheel | ChlatWork",
+    "Add participants, paste a list, spin the lucky draw wheel, and pick random winners for giveaways, events, classes, or team activities.",
+  ogTitle: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
   ogDescription:
-    "Add participants and spin a colorful lucky draw wheel instantly.",
+    "Pick random winners with a visual lucky draw wheel for shop giveaways, events, classrooms, and staff activities.",
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: "Lucky Draw Wheel | ChlatWork",
+  twitterTitle: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
   twitterDescription:
-    "Add participants and spin a colorful lucky draw wheel instantly.",
+    "Add names, spin the wheel, and pick random winners in your browser.",
 });
 
 useHead({

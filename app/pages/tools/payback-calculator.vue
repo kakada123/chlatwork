@@ -77,17 +77,17 @@ type PaybackStoredShareResponse = {
 type PaybackShareState = "idle" | "busy" | "copied" | "shared" | "ready";
 
 useSeoMeta({
-  title: "PayBack Calculator | ChlatWork",
+  title: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
   description:
-    "Split group spending and calculate who pays who. Paste names + amounts and get minimal payback transfers instantly.",
-  ogTitle: "PayBack Calculator | ChlatWork",
+    "Split group expenses in USD or KHR, calculate who pays whom, handle Khmer riel rounding, and share the result when needed.",
+  ogTitle: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
   ogDescription:
-    "Split group spending and calculate who pays who. Minimal transfers, instant results.",
+    "Calculate clear payback transfers for restaurant bills, trips, office spending, and shared purchases.",
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: "PayBack Calculator | ChlatWork",
+  twitterTitle: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
   twitterDescription:
-    "Split group spending and calculate who pays who. Minimal transfers, instant results.",
+    "Split group expenses and calculate who pays whom with USD and KHR support.",
 });
 
 useHead({

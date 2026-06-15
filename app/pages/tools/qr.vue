@@ -39,10 +39,18 @@ import {
 } from "~/lib/qr-generator";
 
 useSeoMeta({
-  title: "QR Generator — ChlatWork",
-  description: "Generate QR codes for text/URL and download as PNG.",
-  ogTitle: "QR Generator — ChlatWork",
-  ogDescription: "Generate QR codes instantly and download as PNG.",
+  title: "QR Code Generator Online - Free PNG Download | ChlatWork",
+  description:
+    "Generate a QR code for URLs, menus, Telegram links, forms, or plain text and download it as a PNG in your browser.",
+  ogTitle: "QR Code Generator Online - Free PNG Download | ChlatWork",
+  ogDescription:
+    "Create QR codes for menus, links, forms, and notes, then download a PNG you can test and print.",
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/tools/qr",
+  twitterCard: "summary_large_image",
+  twitterTitle: "QR Code Generator Online - Free PNG Download | ChlatWork",
+  twitterDescription:
+    "Generate QR codes for URLs, menus, Telegram links, forms, or plain text in your browser.",
 });
 
 type QRCodeLib = typeof import("qrcode");

@@ -34,7 +34,9 @@ useHead({
       <p class="max-w-3xl text-gray-600 dark:text-white/70">
         The goal is simple: each page should help you complete one real task
         without installing heavy software, creating an account, or guessing
-        where to click next.
+        where to click next. The site gives extra attention to workflows common
+        for Cambodian and Khmer users, such as Khmer text handling, Telegram
+        sharing, restaurant menus, QR codes, and USD/KHR money tasks.
       </p>
     </header>
 
@@ -45,6 +47,23 @@ useHead({
         owners, support staff, and anyone who needs a quick tool for a practical
         task. The site is built for repeat use: open a page, finish the work,
         and come back when the next small task appears.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Why Cambodia and Khmer workflows matter</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        Many generic tool websites work technically but ignore local details:
+        Khmer text readability, mixed Khmer-English content, Telegram sharing,
+        USD and KHR amounts, QR menus for restaurants, and small-business
+        document workflows. ChlatWork is built to make those everyday tasks
+        feel normal, not like edge cases.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        That does not mean every tool forces a Cambodia example. A hash
+        generator should stay technical, while tools such as QR codes, PayBack,
+        Wi-Fi posters, Text to Voice, and Khmer Unicode cleanup should reflect
+        how people actually work here.
       </p>
     </section>
 
@@ -66,7 +85,8 @@ useHead({
         </li>
         <li>
           Split shared expenses, track personal spending, run simple lucky
-          draws, and convert Khmer or English text to voice.
+          draws, clean Khmer Unicode text, and convert Khmer or English text to
+          voice.
         </li>
       </ul>
     </section>
@@ -109,7 +129,9 @@ useHead({
       <h2 class="text-lg font-semibold">Why ChlatWork exists</h2>
       <p class="text-gray-700 dark:text-white/75">
         “Chlat” means smart—so ChlatWork means smart work. The goal is simple:
-        provide tools that are easy to use, fast, and reliable.
+        provide tools that are easy to use, fast, reliable, and practical for
+        the kinds of documents, links, labels, dates, and text that people deal
+        with every day.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         The site is updated as new practical needs appear. If a tool is unclear,

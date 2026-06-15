@@ -1,3 +1,4 @@
+import { STARTER_GUIDE_PATHS } from "./guides";
 import { TOOL_GUIDE_PATHS } from "./tool-guide-routes";
 
 export const TRUST_PAGE_PATHS = [
@@ -35,6 +36,7 @@ export const TOOL_PAGE_PATHS = [
   "/tools/qr",
   "/tools/wifi-qr",
   "/tools/text-to-voice",
+  "/tools/khmer-unicode-fixer",
   "/tools/calculator",
   "/tools/barcode",
   "/tools/expense-tracker",
@@ -55,9 +57,10 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/",
   "/km",
   "/portfolio",
-  "/buy-me-coffee",
   ...TRUST_PAGE_PATHS,
+  "/guides",
   ...TOOL_CATEGORY_PATHS,
   ...TOOL_PAGE_PATHS,
+  ...STARTER_GUIDE_PATHS,
   ...TOOL_GUIDE_PATHS,
 ];

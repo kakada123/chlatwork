@@ -191,6 +191,12 @@ function groupTools(tools: ToolDef[]) {
         <p class="text-xs font-semibold uppercase text-slate-400">
           {{ guideCards.length }} guides
         </p>
+        <NuxtLink
+          to="/guides"
+          class="text-sm font-bold text-sky-700 transition hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
+        >
+          Starter guides
+        </NuxtLink>
       </div>
 
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

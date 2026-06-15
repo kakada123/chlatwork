@@ -11,6 +11,7 @@ import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
+import { findStarterGuideByPath } from "~/data/guides";
 import { findToolGuideByToolRoute } from "~/data/tool-guides";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools } from "~/lib/tool-search";
@@ -46,6 +47,9 @@ const isPortfolioPage = computed(() => route.path === "/portfolio");
 const isToolGuidePage = computed(() =>
   Boolean(findToolGuideRouteByPath(route.path)),
 );
+const isStarterGuidePage = computed(
+  () => route.path === "/guides" || Boolean(findStarterGuideByPath(route.path)),
+);
 const currentToolGuide = computed(() => {
   const currentTool = ENABLED_TOOLS.find((tool) => tool.route === route.path);
 
@@ -74,7 +78,8 @@ const isLandingPage = computed(
     route.path === "/km" ||
     isToolsIndexPage.value ||
     isPortfolioPage.value ||
-    isToolGuidePage.value,
+    isToolGuidePage.value ||
+    isStarterGuidePage.value,
 );
 const layoutGridClass = computed(() =>
   isLandingPage.value
@@ -163,6 +168,12 @@ onBeforeUnmount(() => {
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
           >
             {{ copy.nav.tools }}
+          </NuxtLink>
+          <NuxtLink
+            to="/guides"
+            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+          >
+            Guides
           </NuxtLink>
           <NuxtLink
             to="/about"
@@ -382,6 +393,14 @@ onBeforeUnmount(() => {
               @click="closeMenu"
             >
               About
+            </NuxtLink>
+
+            <NuxtLink
+              to="/guides"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              @click="closeMenu"
+            >
+              Guides
             </NuxtLink>
 
             <NuxtLink
@@ -681,6 +700,9 @@ onBeforeUnmount(() => {
               </NuxtLink>
               <NuxtLink to="/contact" class="hover:text-gray-900 dark:hover:text-white">
                 {{ copy.footer.contact }}
+              </NuxtLink>
+              <NuxtLink to="/guides" class="hover:text-gray-900 dark:hover:text-white">
+                Guides
               </NuxtLink>
               <a href="/sitemap.xml" class="hover:text-gray-900 dark:hover:text-white">
                 Sitemap

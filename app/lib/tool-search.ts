@@ -12,6 +12,12 @@ const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   qr: ["qr code", "qrcode", "scan code"],
   "wifi-qr": ["wifi qr", "wifi qr code", "wifi password", "wireless qr"],
   "text-to-voice": ["text to speech", "tts", "khmer voice", "english voice"],
+  "khmer-unicode-fixer": [
+    "khmer unicode",
+    "fix khmer text",
+    "clean khmer",
+    "khmer copy paste",
+  ],
   calculator: ["date calculator", "date time converter", "quick math"],
   barcode: ["bar code", "product code"],
   "expense-tracker": ["budget tracker", "spending tracker"],

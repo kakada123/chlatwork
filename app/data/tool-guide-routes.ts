@@ -20,6 +20,7 @@ const GUIDE_SLUGS = [
   ["qr", "how-to-generate-qr-code"],
   ["wifi-qr", "how-to-create-wifi-qr-code"],
   ["text-to-voice", "how-to-convert-khmer-text-to-voice"],
+  ["khmer-unicode-fixer", "how-to-use-khmer-unicode-fixer"],
   ["calculator", "how-to-use-date-calculator-online"],
   ["barcode", "how-to-generate-barcode-free"],
   ["expense-tracker", "how-to-track-expenses-online"],

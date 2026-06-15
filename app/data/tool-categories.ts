@@ -113,6 +113,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "expense-tracker",
       "lucky-draw",
       "text-to-voice",
+      "khmer-unicode-fixer",
       "password-generator",
     ],
   },

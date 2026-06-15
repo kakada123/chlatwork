@@ -23,6 +23,7 @@ type ToolGuideContent = {
   steps: string[];
   useCases: string[];
   tips: string[];
+  privacy?: string[];
   faqs: ToolGuideFaq[];
   keywords: string[];
   applicationCategory: "UtilitiesApplication" | "DeveloperApplication";
@@ -88,6 +89,11 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
       "Preview the result before sending it to customers, school, or government forms.",
       "For very large PDFs, close other heavy browser tabs before processing.",
       "Keep a backup of the original file until you confirm the new PDF is correct.",
+      options.limitation,
+    ],
+    privacy: [
+      `${options.toolName} reads your ${options.inputLabel} in the browser and creates the ${options.outputLabel} locally.`,
+      "The selected file is not intentionally uploaded to ChlatWork for this PDF workflow.",
       options.limitation,
     ],
     faqs: [
@@ -162,6 +168,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Round only at the final payment step, not while entering receipts.",
       "Keep receipts or screenshots for larger amounts.",
       "Share the final result before collecting money so people can confirm it.",
+    ],
+    privacy: [
+      "Normal PayBack calculations run in your browser from the names and amounts you enter.",
+      "If you create a share link, ChlatWork first tries to store a compressed payload with the PayBack share API so the URL stays short.",
+      "Stored PayBack share links expire after 90 days in the current implementation. Use short names or sample labels if the group data is sensitive.",
     ],
     faqs: [
       {
@@ -314,6 +325,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use portrait orientation for documents and landscape for wide screenshots.",
       "Put cover pages or important pages first before generating the PDF.",
       "Compress large photos first if the final PDF must stay under an upload limit.",
+    ],
+    privacy: [
+      "Selected images are prepared, previewed, reordered, and converted in your browser.",
+      "HEIC files are converted to JPEG in the browser before the PDF is generated.",
+      "The tool creates temporary local preview URLs and clears them when you remove files or leave the page.",
     ],
     faqs: [
       {
@@ -544,6 +560,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Print a test copy and scan it from the expected viewing distance.",
       "Update the destination page instead of reprinting the QR code when possible.",
     ],
+    privacy: [
+      "The QR text is rendered to a canvas in your browser with the QR code library.",
+      "Generating and downloading the PNG does not call a ChlatWork API.",
+      "Anyone who scans the final QR code can see or open whatever text or link you encoded, so check the destination before printing.",
+    ],
     faqs: [
       {
         question: "What can I put inside a QR code?",
@@ -729,6 +750,87 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
+  "khmer-unicode-fixer": {
+    metaTitle: "How to Use Khmer Unicode Fixer | ChlatWork",
+    metaDescription:
+      "Use ChlatWork Khmer Unicode Fixer to normalize copied Khmer text, spacing, invisible marks, and Khmer or Latin digits.",
+    heroTitle: "How to Use Khmer Unicode Fixer",
+    heroDescription:
+      "Clean Khmer text copied from PDFs, websites, chats, and documents so it is easier to read, paste, and reuse.",
+    ctaLabel: "Open Khmer Unicode Fixer",
+    whatIs: [
+      "The Khmer Unicode Fixer cleans text that is already Khmer Unicode but has messy spacing, invisible characters, mixed digit styles, or normalization issues after copying from another source.",
+      "It is not a legacy-font converter for Limon, ABC, or other old font encodings. If the text is not real Khmer Unicode characters, the tool explains that limitation instead of pretending to convert it.",
+    ],
+    whyUse: [
+      "It helps make copied Khmer text easier to paste into documents, captions, Telegram messages, forms, and CMS fields.",
+      "It removes common hidden characters that can break search, line wrapping, or copy/paste behavior.",
+      "It can normalize text before publishing bilingual Khmer and English content.",
+      "It supports optional Khmer digit and Latin digit conversion for practical local workflows.",
+      "It keeps the process simple without installing a desktop text utility.",
+    ],
+    steps: [
+      "Open the Khmer Unicode Fixer tool.",
+      "Paste Khmer text copied from a PDF, website, chat, document, or old note.",
+      "Choose whether to normalize Unicode, clean invisible characters, normalize spacing, and convert digits.",
+      "Review the cleaned output and the change summary.",
+      "Copy the fixed text into your document, CMS, Telegram post, or form.",
+      "If the output still looks wrong, check whether the original text came from a legacy Khmer font instead of Unicode.",
+    ],
+    useCases: [
+      "A content editor cleans Khmer copy before adding it to a restaurant menu page.",
+      "A shop owner fixes copied Khmer text before posting a Telegram promotion.",
+      "A support team removes hidden spacing from Khmer instructions before sending them to customers.",
+      "A developer normalizes Khmer sample text before using it in UI testing.",
+      "A student cleans Khmer paragraphs copied from a PDF before editing them in a document.",
+    ],
+    tips: [
+      "Keep a copy of the original text until you confirm the cleaned version is correct.",
+      "Use Khmer digit conversion only when the target document expects Khmer numerals.",
+      "If every Khmer word appears as Latin symbols, the source may be a legacy font that this tool does not convert.",
+      "Review line breaks after cleaning because copied PDF text can split sentences in awkward places.",
+      "For public content, paste the fixed text into the final app and check it on mobile too.",
+    ],
+    privacy: [
+      "The fixer processes pasted text in your browser and does not call a ChlatWork API.",
+      "Copying the result uses your browser clipboard only after you press the copy button.",
+      "Avoid pasting private identity numbers, passwords, or confidential customer data into any online tool.",
+    ],
+    faqs: [
+      {
+        question: "Can this convert Limon or ABC legacy Khmer fonts to Unicode?",
+        answer:
+          "No. This tool cleans text that is already Khmer Unicode. Legacy font conversion needs a separate mapping because the plain copied characters are different.",
+      },
+      {
+        question: "Why does copied Khmer text contain invisible characters?",
+        answer:
+          "PDFs, websites, editors, and chat apps can insert zero-width or non-breaking characters during copy and paste.",
+      },
+      {
+        question: "Will the meaning of my text change?",
+        answer:
+          "The tool is designed for cleanup, not rewriting. You should still review the output before publishing.",
+      },
+      {
+        question: "Can I convert Khmer digits to Latin digits?",
+        answer:
+          "Yes. You can choose Khmer-to-Latin or Latin-to-Khmer digit conversion from the options.",
+      },
+      {
+        question: "Is the pasted text uploaded?",
+        answer:
+          "No. The cleanup runs in your browser and the tool does not send the text to a ChlatWork API.",
+      },
+    ],
+    keywords: [
+      "Khmer Unicode fixer",
+      "fix Khmer text",
+      "clean Khmer Unicode",
+      "Khmer copy paste fix",
+    ],
+    applicationCategory: "UtilitiesApplication",
+  },
   calculator: {
     metaTitle: "How to Use a Date Calculator Online | ChlatWork",
     metaDescription:
@@ -769,6 +871,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use the date difference mode when checking contract periods.",
       "Write down the starting date so teammates can reproduce the result.",
       "Check timezone-sensitive deadlines separately if an exact time also matters.",
+    ],
+    privacy: [
+      "Date calculations run in your browser from the dates and numbers you enter.",
+      "The tool does not send selected dates or calculation results to a ChlatWork API.",
+      "For legal, finance, or HR deadlines, confirm the result against your official policy before relying on it.",
     ],
     faqs: [
       {
@@ -840,6 +947,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Print at a readable size with enough quiet space around the barcode.",
       "Avoid stretching the barcode image after downloading.",
       "Test with the same scanner or phone app your team will use.",
+    ],
+    privacy: [
+      "The barcode is generated as SVG in your browser with the selected format and value.",
+      "Generating and downloading the SVG does not call a ChlatWork API.",
+      "Barcodes are machine-readable labels, so avoid encoding private data on labels that customers or visitors can scan.",
     ],
     faqs: [
       {
@@ -982,6 +1094,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Announce the rules before spinning.",
       "Keep a screenshot or copy of the winner list for transparency.",
       "Test the draw before going live in front of customers.",
+    ],
+    privacy: [
+      "Participant parsing, random winner selection, wheel animation, and fullscreen mode run in your browser.",
+      "The share button stores the participant list in the page URL query so another person can open the same list.",
+      "Do not put phone numbers, private customer details, or sensitive staff data in a public draw link.",
     ],
     faqs: [
       {

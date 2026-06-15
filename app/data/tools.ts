@@ -50,6 +50,7 @@ const TOOL_ACCENTS: Record<string, string> = {
   "invoice-to-pdf": "from-rose-300 to-pink-500",
   "lucky-draw": "from-fuchsia-400 to-pink-300",
   "text-to-voice": "from-teal-300 to-emerald-400",
+  "khmer-unicode-fixer": "from-emerald-300 to-cyan-400",
   base64: "from-indigo-400 to-blue-300",
   "json-formatter": "from-emerald-400 to-teal-300",
   "jwt-decoder": "from-amber-300 to-yellow-500",

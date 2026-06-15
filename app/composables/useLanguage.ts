@@ -284,8 +284,8 @@ const TOOL_TRANSLATIONS: Record<
   en: {},
   km: {
     calculator: {
-      name: "ម៉ាស៊ីនគិតលេខ",
-      description: "គណនារហ័សជាមួយប្រវត្តិ។",
+      name: "គណនាកាលបរិច្ឆេទ",
+      description: "បូក ដក និងប្រៀបធៀបកាលបរិច្ឆេទសម្រាប់ការងារ។",
     },
     qr: {
       name: "បង្កើត QR",
@@ -322,6 +322,10 @@ const TOOL_TRANSLATIONS: Record<
     "text-to-voice": {
       name: "អត្ថបទទៅជាសំឡេង",
       description: "អានអត្ថបទខ្មែរ ឬអង់គ្លេសជាសំឡេងដោយស្វ័យប្រវត្តិ។",
+    },
+    "khmer-unicode-fixer": {
+      name: "កែអត្ថបទ Khmer Unicode",
+      description: "សម្អាត និង normalize អត្ថបទខ្មែរដែលបានចម្លង។",
     },
     base64: {
       name: "Base64 Encoder / Decoder",

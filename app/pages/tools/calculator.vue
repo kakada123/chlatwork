@@ -261,12 +261,18 @@ import {
 
 // ✅ SEO for this page
 useSeoMeta({
-  title: "Date Calculator — ChlatWork",
+  title: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
   description:
-    "Add or subtract dates, calculate the difference between two dates, and count workdays (Mon–Fri).",
-  ogTitle: "Date Calculator — ChlatWork",
+    "Add or subtract days, weeks, months, and years, compare two dates, and count Monday to Friday workdays online.",
+  ogTitle: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
   ogDescription:
-    "Add/subtract dates, find differences, and count workdays (Mon–Fri).",
+    "Calculate future dates, past dates, date differences, and weekday-only workday counts.",
+  ogType: "website",
+  ogUrl: "https://chlatwork.com/tools/calculator",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
+  twitterDescription:
+    "Add or subtract dates, compare two dates, and count Monday to Friday workdays.",
 });
 
 const tabs = [

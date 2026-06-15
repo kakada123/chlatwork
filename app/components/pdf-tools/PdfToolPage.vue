@@ -13,7 +13,7 @@ import PdfRelatedTools from "~/components/pdf-tools/PdfRelatedTools.vue";
 import PdfResultDownload from "~/components/pdf-tools/PdfResultDownload.vue";
 import PdfToolPageLayout from "~/components/pdf-tools/PdfToolPageLayout.vue";
 import PrivacyNotice from "~/components/pdf-tools/PrivacyNotice.vue";
-import SeoFaq from "~/components/pdf-tools/SeoFaq.vue";
+import ToolContentLayout from "~/components/tools/ToolContentLayout.vue";
 import {
   MAX_MERGE_PDF_FILES,
   MAX_PDF_FILE_SIZE,
@@ -58,7 +58,6 @@ const tool = computed(() => PDF_TOOL_BY_KEY[props.toolKey]);
 const guide = computed(() => findToolGuideByToolRoute(tool.value.route));
 const relatedTools = computed(() => getPdfRelatedTools(tool.value));
 const toolFaq = computed(() => guide.value?.faqs.slice(0, 5) ?? tool.value.faq);
-const toolUseCases = computed(() => guide.value?.useCases.slice(0, 4) ?? []);
 const files = ref<File[]>([]);
 const results = ref<ResultItem[]>([]);
 const error = ref("");
@@ -625,10 +624,10 @@ function removeInvoiceItem(index: number) {
 
     <PdfResultDownload :results="results" />
     <PdfRelatedTools :tools="relatedTools" />
-    <SeoFaq
-      :how-it-works="tool.howItWorks"
-      :use-cases="toolUseCases"
-      :faq="toolFaq"
+    <ToolContentLayout
+      v-if="guide"
+      :guide="guide"
+      :show-related="false"
     />
   </PdfToolPageLayout>
 </template>

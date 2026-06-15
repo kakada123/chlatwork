@@ -46,12 +46,13 @@ export const TOOLS: ToolDef[] = [
   ...PDF_TOOLS,
   {
     key: "qr",
-    name: "QR Generator",
+    name: "QR Code Generator",
     route: "/tools/qr",
     enabled: true,
     status: "stable",
     category: "Utilities",
-    description: "Generate QR for text/URL.",
+    description:
+      "Generate QR codes for links, menus, forms, Telegram links, and text.",
   },
   {
     key: "wifi-qr",
@@ -73,8 +74,18 @@ export const TOOLS: ToolDef[] = [
       "Read Khmer or English text aloud with automatic language detection.",
   },
   {
+    key: "khmer-unicode-fixer",
+    name: "Khmer Unicode Fixer",
+    route: "/tools/khmer-unicode-fixer",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Clean and normalize copied Khmer Unicode text for documents, posts, and forms.",
+  },
+  {
     key: "calculator",
-    name: "Calculator",
+    name: "Date Calculator",
     route: "/tools/calculator",
     enabled: true,
     status: "stable",
@@ -89,7 +100,7 @@ export const TOOLS: ToolDef[] = [
     status: "stable",
     category: "Utilities",
     description:
-      "Generate barcodes instantly from numbers and basic English characters.",
+      "Generate CODE128, EAN13, UPC, and CODE39 barcodes as sharp SVG files.",
   },
   {
     key: "expense-tracker",
@@ -102,13 +113,13 @@ export const TOOLS: ToolDef[] = [
   },
   {
     key: "lucky-draw",
-    name: "Lucky Draw",
+    name: "Random Winner Picker",
     route: "/tools/lucky-draw",
     enabled: true,
     status: "stable",
     category: "Utilities",
     description:
-      "Add participants and randomly draw one or more winners instantly.",
+      "Add participants, spin a lucky draw wheel, and pick random winners.",
   },
   {
     key: "json-formatter",
@@ -348,6 +359,13 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M16 9.5a4 4 0 0 1 0 5",
     "M18.5 7a7.5 7.5 0 0 1 0 10",
   ],
+  "khmer-unicode-fixer": [
+    "M6 3.5h12v17H6V3.5Z",
+    "M8.5 8h7",
+    "M8.5 12h7",
+    "M8.5 16h4",
+    "M15 15l1.5 1.5L20 13",
+  ],
   base64: ["M7 7h4a3 3 0 0 1 0 6H7V7Z", "M7 13h5a3 3 0 0 1 0 6H7v-6Z", "M17 7v12"],
   "json-formatter": [
     "M8 6H6a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2 2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h2",
@@ -427,6 +445,8 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
   "invoice-to-pdf": "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
   "lucky-draw": "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
   "text-to-voice": "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
+  "khmer-unicode-fixer":
+    "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
   base64: "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
   "json-formatter":
     "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
