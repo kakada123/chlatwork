@@ -83,6 +83,13 @@ export default defineNuxtConfig({
     "/api/**": {
       headers: apiHeaders,
     },
+    "/km": {
+      redirect: {
+        to: "/",
+        statusCode: 302,
+      },
+      headers: securityHeaders,
+    },
     "/tools/jpg-to-pdf": {
       redirect: {
         to: "/tools/image-to-pdf",

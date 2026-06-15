@@ -3,6 +3,9 @@ import type { ToolCategory } from "~/lib/tool-registry";
 
 export type AppLocale = "en" | "km";
 
+// Keep the unfinished Khmer shell dormant until every public tool page has complete localization.
+const ENABLE_KHMER_LOCALIZATION = false;
+
 type LandingCopy = {
   metaTitle: string;
   metaDescription: string;
@@ -372,6 +375,10 @@ const TOOL_TRANSLATIONS: Record<
 };
 
 function getInitialLocale(routePath: string): AppLocale {
+  if (!ENABLE_KHMER_LOCALIZATION) {
+    return "en";
+  }
+
   return routePath === "/km" || routePath.startsWith("/km/") ? "km" : "en";
 }
 
@@ -394,13 +401,16 @@ export function useLanguage() {
     sameSite: "lax",
   });
   const currentLocale = computed<AppLocale>(() =>
-    locale.value === "km" ? "km" : "en",
+    ENABLE_KHMER_LOCALIZATION && locale.value === "km" ? "km" : "en",
   );
 
   watch(
     () => route.path,
     (path) => {
-      if (path === "/km" || path.startsWith("/km/")) {
+      if (
+        ENABLE_KHMER_LOCALIZATION &&
+        (path === "/km" || path.startsWith("/km/"))
+      ) {
         locale.value = "km";
       }
     },
@@ -418,6 +428,10 @@ export function useLanguage() {
   );
 
   const switchLanguage = () => {
+    if (!ENABLE_KHMER_LOCALIZATION) {
+      return;
+    }
+
     const targetLocale = nextLocale.value;
     const targetPath = targetLocale === "km" ? "/km" : "/";
 
@@ -434,7 +448,7 @@ export function useLanguage() {
     tool: T,
   ): T => ({
     ...tool,
-    ...(TOOL_TRANSLATIONS[locale.value][tool.key] ?? {}),
+    ...(TOOL_TRANSLATIONS[currentLocale.value][tool.key] ?? {}),
   });
 
   const localizeCategory = (
@@ -442,16 +456,18 @@ export function useLanguage() {
   ): LandingToolCategory => ({
     ...category,
     name:
-      DIRECTORY_CATEGORY_TRANSLATIONS[locale.value][category.key] ??
+      DIRECTORY_CATEGORY_TRANSLATIONS[currentLocale.value][category.key] ??
       category.name,
     description:
-      DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS[locale.value][category.key] ??
+      DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS[currentLocale.value][
+        category.key
+      ] ??
       category.description,
     tools: category.tools.map(localizeTool),
   });
 
   const categoryLabel = (category: ToolCategory) =>
-    TOOL_CATEGORY_TRANSLATIONS[locale.value][category];
+    TOOL_CATEGORY_TRANSLATIONS[currentLocale.value][category];
 
   const fontFamilyForText = (value: string) =>
     containsKhmerContent(value) ? KHMER_FONT_STACK : ENGLISH_FONT_STACK;

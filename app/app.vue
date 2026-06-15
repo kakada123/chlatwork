@@ -9,13 +9,14 @@
 <script setup lang="ts">
 import { Analytics } from "@vercel/analytics/nuxt";
 
-const { copy, locale } = useLanguage();
+const { copy, isKhmer } = useLanguage();
 const { isDark } = useColorMode();
 const route = useRoute();
 const siteUrl = "https://chlatwork.com";
 const ogImage = `${siteUrl}/og-home.png`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
+const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
 const themeColor = computed(() => (isDark.value ? "#1c1c1e" : "#f9fafb"));
 const canonicalUrl = computed(() => {
   const path = route.path === "/" ? "" : route.path.replace(/\/$/, "");
@@ -41,10 +42,10 @@ useSeoMeta({
 
 useHead(() => ({
   htmlAttrs: {
-    lang: locale.value,
+    lang: htmlLocale.value,
     class: isDark.value ? "dark" : "",
     style: `color-scheme: ${isDark.value ? "dark" : "light"};`,
-    "data-locale": locale.value,
+    "data-locale": htmlLocale.value,
     "data-theme": isDark.value ? "dark" : "light",
   },
   link: [
@@ -52,20 +53,6 @@ useHead(() => ({
       rel: "canonical",
       href: canonicalUrl.value,
     },
-    ...(route.path === "/" || route.path === "/km"
-      ? [
-          {
-            rel: "alternate",
-            hreflang: "en",
-            href: siteUrl,
-          },
-          {
-            rel: "alternate",
-            hreflang: "km",
-            href: `${siteUrl}/km`,
-          },
-        ]
-      : []),
   ],
   meta: [
     {

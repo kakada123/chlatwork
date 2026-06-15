@@ -113,10 +113,6 @@ select {
   }
 }
 
-.language-toggle {
-  font-family: var(--app-font);
-}
-
 .sidebar-scrollbar-hidden {
   scrollbar-width: none;
   -ms-overflow-style: none;

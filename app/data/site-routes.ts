@@ -55,7 +55,6 @@ export const TOOL_PAGE_PATHS = [
 
 export const PUBLIC_SITEMAP_PATHS = [
   "/",
-  "/km",
   "/portfolio",
   ...TRUST_PAGE_PATHS,
   "/guides",

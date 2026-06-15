@@ -21,14 +21,8 @@ const {
   categoryLabel,
   copy,
   homePath,
-  languageLabel,
-  fontFamilyForText,
   localizeTool,
-  switchLanguage,
 } = useLanguage();
-const languageToggleFontFamily = computed(() =>
-  fontFamilyForText(languageLabel.value),
-);
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const filteredEnabledTools = computed(() =>
   filterTools(localizedEnabledTools.value, toolNavSearch.value),
@@ -75,7 +69,6 @@ const shouldShowToolPageDetails = computed(
 const isLandingPage = computed(
   () =>
     route.path === "/" ||
-    route.path === "/km" ||
     isToolsIndexPage.value ||
     isPortfolioPage.value ||
     isToolGuidePage.value ||
@@ -190,17 +183,6 @@ onBeforeUnmount(() => {
         </nav>
 
         <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="language-toggle inline-flex h-10 items-center justify-center rounded-xl border border-sky-200/80 bg-white/75 px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.07] dark:text-white/75 dark:hover:bg-white/[0.12] dark:hover:text-white"
-            :style="{ fontFamily: languageToggleFontFamily }"
-            :aria-label="languageLabel"
-            :title="languageLabel"
-            @click="switchLanguage"
-          >
-            {{ languageLabel }}
-          </button>
-
           <button
             type="button"
             class="theme-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition"
