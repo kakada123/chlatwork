@@ -59,10 +59,7 @@ function parseDecimalStringToCents(value: string): bigint {
 }
 
 function normalizeMoneyString(value: string): string {
-  return value
-    .trim()
-    .replace(/[$៛,]/g, "")
-    .replace(/\s+/g, "");
+  return value.trim().replace(/[$៛,]/g, "").replace(/\s+/g, "");
 }
 
 function parseMoneyStringToCents(value: string): bigint | null {
@@ -73,9 +70,10 @@ function parseMoneyStringToCents(value: string): bigint | null {
   }
 
   const sign = cleaned.startsWith("-") ? -1n : 1n;
-  const unsigned = cleaned.startsWith("-") || cleaned.startsWith("+")
-    ? cleaned.slice(1)
-    : cleaned;
+  const unsigned =
+    cleaned.startsWith("-") || cleaned.startsWith("+")
+      ? cleaned.slice(1)
+      : cleaned;
 
   if (!/^(?:\d+\.?\d*|\.\d+)$/.test(unsigned)) {
     return null;
@@ -148,7 +146,10 @@ export function parseMoneyInputToCents(
   return cents;
 }
 
-export function parseMoneyInput(input: string, options?: MoneyInputOptions): number {
+export function parseMoneyInput(
+  input: string,
+  options?: MoneyInputOptions,
+): number {
   return moneyCentsToNumber(parseMoneyInputToCents(input, options));
 }
 
@@ -157,15 +158,22 @@ export function roundMoney(value: unknown): number {
 }
 
 export function addMoney(valueA: unknown, valueB: unknown): number {
-  return moneyCentsToNumber(moneyNumberToCents(valueA) + moneyNumberToCents(valueB));
+  return moneyCentsToNumber(
+    moneyNumberToCents(valueA) + moneyNumberToCents(valueB),
+  );
 }
 
 export function subtractMoney(valueA: unknown, valueB: unknown): number {
-  return moneyCentsToNumber(moneyNumberToCents(valueA) - moneyNumberToCents(valueB));
+  return moneyCentsToNumber(
+    moneyNumberToCents(valueA) - moneyNumberToCents(valueB),
+  );
 }
 
-export function sumMoneyCents(values: Array<unknown>): bigint {
-  return values.reduce((sum, value) => sum + moneyNumberToCents(value), 0n);
+export function sumMoneyCents(values: readonly unknown[]): bigint {
+  return values.reduce<bigint>(
+    (sum, value) => sum + moneyNumberToCents(value),
+    0n,
+  );
 }
 
 export function divideMoneyCents(cents: bigint, divisor: number): bigint {

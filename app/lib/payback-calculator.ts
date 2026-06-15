@@ -1,8 +1,5 @@
-import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent,
-} from "lz-string";
-import type { MoneyCurrency } from "./money";
+import lzString from "lz-string";
+import type { MoneyCurrency } from "./money.ts";
 import {
   divideMoneyCents,
   formatMoneyAmount,
@@ -12,6 +9,9 @@ import {
   roundKhrDownCents,
   roundMoney,
 } from "./money";
+
+const { compressToEncodedURIComponent, decompressFromEncodedURIComponent } =
+  lzString;
 
 export type PaybackCurrency = MoneyCurrency;
 
@@ -467,12 +467,12 @@ export function getPaybackAverage(people: PaybackPerson[]): number {
     return 0;
   }
 
-  const totalPaidCents = people.reduce(
-    (sum, person) => sum + getPaybackPersonPaidCents(person),
-    0n,
+  return moneyCentsToNumber(
+    divideMoneyCents(
+      moneyNumberToCents(getPaybackTotal(people)),
+      people.length,
+    ),
   );
-
-  return moneyCentsToNumber(divideMoneyCents(totalPaidCents, people.length));
 }
 
 export function getPaybackExampleRaw(currency: PaybackCurrency): string {
@@ -537,60 +537,29 @@ export function buildPaybackSharePayload(payload: PaybackSharePayload): string {
   return compressToEncodedURIComponent(JSON.stringify(compactPayload));
 }
 
-function isPaybackCurrency(value: unknown): value is PaybackCurrency {
-  return value === "USD" || value === "KHR";
-}
-
-function isPaybackKhrRemainderMode(
-  value: unknown,
-): value is PaybackKhrRemainderMode {
-  return value === "LEFTOVER_ONLY" || value === "ASSIGN_TO_PERSON";
-}
-
-function normalizePaybackSharePayload(value: unknown): PaybackSharePayload {
-  if (Array.isArray(value)) {
-    const [text, currency, khrRemainderMode, khrRemainderPayer] = value;
-
-    return {
-      t: typeof text === "string" ? text : "",
-      c: isPaybackCurrency(currency) ? currency : "USD",
-      krm: isPaybackKhrRemainderMode(khrRemainderMode)
-        ? khrRemainderMode
-        : "LEFTOVER_ONLY",
-      krp:
-        typeof khrRemainderPayer === "string" ? khrRemainderPayer : undefined,
-    };
-  }
-
-  if (!value || typeof value !== "object") {
-    throw new Error("Invalid payback share payload.");
-  }
-
-  const record = value as Record<string, unknown>;
-
-  return {
-    c: isPaybackCurrency(record.c) ? record.c : "USD",
-    t: typeof record.t === "string" ? record.t : "",
-    krm: isPaybackKhrRemainderMode(record.krm) ? record.krm : "LEFTOVER_ONLY",
-    krp: typeof record.krp === "string" ? record.krp : undefined,
-  };
-}
-
 export function parsePaybackSharePayload(payload: string): PaybackSharePayload {
-  const normalizedPayload = payload.trim();
+  const json = decompressFromEncodedURIComponent(payload);
 
-  if (!normalizedPayload) {
-    throw new Error("Missing payback share payload.");
-  }
+  if (json) {
+    const parsedPayload = JSON.parse(json) as
+      | PaybackSharePayload
+      | PaybackCompactSharePayload;
 
-  const compressedJson = decompressFromEncodedURIComponent(normalizedPayload);
+    if (Array.isArray(parsedPayload)) {
+      const [text, currency, khrRemainderMode, khrRemainderPayer] =
+        parsedPayload;
 
-  if (compressedJson !== null) {
-    return normalizePaybackSharePayload(JSON.parse(compressedJson));
+      return {
+        t: text,
+        c: currency || "USD",
+        krm: khrRemainderMode || "LEFTOVER_ONLY",
+        krp: khrRemainderPayer,
+      };
+    }
+
+    return parsedPayload;
   }
 
   // Keep old shared links working after moving new links to compressed payloads.
-  return normalizePaybackSharePayload(
-    JSON.parse(decodeBase64Url(normalizedPayload)),
-  );
+  return JSON.parse(decodeBase64Url(payload)) as PaybackSharePayload;
 }
