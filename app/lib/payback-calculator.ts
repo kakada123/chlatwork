@@ -1,5 +1,8 @@
-import lzString from "lz-string";
-import type { MoneyCurrency } from "./money.ts";
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from "lz-string";
+import type { MoneyCurrency } from "./money";
 import {
   divideMoneyCents,
   formatMoneyAmount,
@@ -8,12 +11,7 @@ import {
   parseMoneyInputToCents,
   roundKhrDownCents,
   roundMoney,
-} from "./money.ts";
-
-const {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent,
-} = lzString;
+} from "./money";
 
 export type PaybackCurrency = MoneyCurrency;
 
@@ -91,9 +89,7 @@ function sumPaybackEntryCents(entries: PaybackEntry[]): bigint {
   return entries.reduce((sum, entry) => sum + getPaybackEntryCents(entry), 0n);
 }
 
-function getKhrRemainderBaseShareCents(
-  meta: PaybackKhrRemainderMeta,
-): bigint {
+function getKhrRemainderBaseShareCents(meta: PaybackKhrRemainderMeta): bigint {
   return meta.baseShareCents ?? moneyNumberToCents(meta.baseShare);
 }
 
@@ -150,9 +146,9 @@ function parsePaybackAmountToCents(value: string, errorPrefix: string): bigint {
 
 export function parsePaybackLines(input: string): PaybackEntry[] {
   const lines = input
-    .split("\n")
+    .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter(Boolean);
+    .filter((line): line is string => line.length > 0);
 
   const entries: PaybackEntry[] = [];
 
@@ -165,15 +161,23 @@ export function parsePaybackLines(input: string): PaybackEntry[] {
       throw new Error(`Invalid line: "${line}"`);
     }
 
-    const name = match[1].trim();
-    const paidCents = parsePaybackAmountToCents(
-      match[2],
-      `Invalid amount in line: "${line}"`,
-    );
+    const rawName = match[1];
+    const rawAmount = match[2];
+
+    if (rawName === undefined || rawAmount === undefined) {
+      throw new Error(`Invalid line format: "${line}"`);
+    }
+
+    const name = rawName.trim();
 
     if (!name) {
       throw new Error(`Missing name in line: "${line}"`);
     }
+
+    const paidCents = parsePaybackAmountToCents(
+      rawAmount,
+      `Invalid amount in line: "${line}"`,
+    );
 
     entries.push({
       name,
@@ -249,7 +253,10 @@ export function groupPaybackEntries(entries: PaybackEntry[]): PaybackEntry[] {
   const totals = new Map<string, bigint>();
 
   for (const entry of entries) {
-    totals.set(entry.name, (totals.get(entry.name) ?? 0n) + getPaybackEntryCents(entry));
+    totals.set(
+      entry.name,
+      (totals.get(entry.name) ?? 0n) + getPaybackEntryCents(entry),
+    );
   }
 
   return [...totals.entries()].map(([name, paidCents]) => ({
@@ -333,7 +340,10 @@ function buildKhrBalances(
       };
     })
     .sort((a, b) =>
-      compareCentsDesc(getPaybackPersonPaidCents(a), getPaybackPersonPaidCents(b)),
+      compareCentsDesc(
+        getPaybackPersonPaidCents(a),
+        getPaybackPersonPaidCents(b),
+      ),
     );
 }
 
@@ -366,14 +376,22 @@ export function buildPaybackPeople(
       };
     })
     .sort((a, b) =>
-      compareCentsDesc(getPaybackPersonPaidCents(a), getPaybackPersonPaidCents(b)),
+      compareCentsDesc(
+        getPaybackPersonPaidCents(a),
+        getPaybackPersonPaidCents(b),
+      ),
     );
 }
 
 export function computePaybackSettlements(
   people: PaybackPerson[],
 ): PaybackSettlement[] {
-  const debtors = people
+  type BalanceEntry = {
+    name: string;
+    balanceCents: bigint;
+  };
+
+  const debtors: BalanceEntry[] = people
     .map((person) => ({
       name: person.name,
       balanceCents: getPaybackPersonBalanceCents(person),
@@ -385,7 +403,7 @@ export function computePaybackSettlements(
     }))
     .sort((a, b) => compareCentsDesc(a.balanceCents, b.balanceCents));
 
-  const creditors = people
+  const creditors: BalanceEntry[] = people
     .map((person) => ({
       name: person.name,
       balanceCents: getPaybackPersonBalanceCents(person),
@@ -394,6 +412,7 @@ export function computePaybackSettlements(
     .sort((a, b) => compareCentsDesc(a.balanceCents, b.balanceCents));
 
   const settlements: PaybackSettlement[] = [];
+
   let debtorIndex = 0;
   let creditorIndex = 0;
 
@@ -401,28 +420,35 @@ export function computePaybackSettlements(
     const debtor = debtors[debtorIndex];
     const creditor = creditors[creditorIndex];
 
+    // Required when noUncheckedIndexedAccess is enabled.
+    if (!debtor || !creditor) {
+      break;
+    }
+
     const amountCents =
       debtor.balanceCents < creditor.balanceCents
         ? debtor.balanceCents
         : creditor.balanceCents;
 
-    if (amountCents > 0n) {
-      settlements.push({
-        from: debtor.name,
-        to: creditor.name,
-        amount: moneyCentsToNumber(amountCents),
-        amountCents,
-      });
-
-      debtor.balanceCents -= amountCents;
-      creditor.balanceCents -= amountCents;
+    if (amountCents <= 0n) {
+      break;
     }
 
-    if (debtor.balanceCents <= 0n) {
+    settlements.push({
+      from: debtor.name,
+      to: creditor.name,
+      amount: moneyCentsToNumber(amountCents),
+      amountCents,
+    });
+
+    debtor.balanceCents -= amountCents;
+    creditor.balanceCents -= amountCents;
+
+    if (debtor.balanceCents === 0n) {
       debtorIndex += 1;
     }
 
-    if (creditor.balanceCents <= 0n) {
+    if (creditor.balanceCents === 0n) {
       creditorIndex += 1;
     }
   }
@@ -441,9 +467,12 @@ export function getPaybackAverage(people: PaybackPerson[]): number {
     return 0;
   }
 
-  return moneyCentsToNumber(
-    divideMoneyCents(moneyNumberToCents(getPaybackTotal(people)), people.length),
+  const totalPaidCents = people.reduce(
+    (sum, person) => sum + getPaybackPersonPaidCents(person),
+    0n,
   );
+
+  return moneyCentsToNumber(divideMoneyCents(totalPaidCents, people.length));
 }
 
 export function getPaybackExampleRaw(currency: PaybackCurrency): string {
@@ -491,9 +520,7 @@ function decodeBase64Url(value: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-export function buildPaybackSharePayload(
-  payload: PaybackSharePayload,
-): string {
+export function buildPaybackSharePayload(payload: PaybackSharePayload): string {
   const compactPayload: PaybackCompactSharePayload = [
     buildCompactPaybackRaw(payload.t ?? ""),
   ];
@@ -510,31 +537,60 @@ export function buildPaybackSharePayload(
   return compressToEncodedURIComponent(JSON.stringify(compactPayload));
 }
 
-export function parsePaybackSharePayload(
-  payload: string,
-): PaybackSharePayload {
-  const json = decompressFromEncodedURIComponent(payload);
+function isPaybackCurrency(value: unknown): value is PaybackCurrency {
+  return value === "USD" || value === "KHR";
+}
 
-  if (json) {
-    const parsedPayload = JSON.parse(json) as
-      | PaybackSharePayload
-      | PaybackCompactSharePayload;
+function isPaybackKhrRemainderMode(
+  value: unknown,
+): value is PaybackKhrRemainderMode {
+  return value === "LEFTOVER_ONLY" || value === "ASSIGN_TO_PERSON";
+}
 
-    if (Array.isArray(parsedPayload)) {
-      const [text, currency, khrRemainderMode, khrRemainderPayer] =
-        parsedPayload;
+function normalizePaybackSharePayload(value: unknown): PaybackSharePayload {
+  if (Array.isArray(value)) {
+    const [text, currency, khrRemainderMode, khrRemainderPayer] = value;
 
-      return {
-        t: text,
-        c: currency || "USD",
-        krm: khrRemainderMode || "LEFTOVER_ONLY",
-        krp: khrRemainderPayer,
-      };
-    }
+    return {
+      t: typeof text === "string" ? text : "",
+      c: isPaybackCurrency(currency) ? currency : "USD",
+      krm: isPaybackKhrRemainderMode(khrRemainderMode)
+        ? khrRemainderMode
+        : "LEFTOVER_ONLY",
+      krp:
+        typeof khrRemainderPayer === "string" ? khrRemainderPayer : undefined,
+    };
+  }
 
-    return parsedPayload;
+  if (!value || typeof value !== "object") {
+    throw new Error("Invalid payback share payload.");
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    c: isPaybackCurrency(record.c) ? record.c : "USD",
+    t: typeof record.t === "string" ? record.t : "",
+    krm: isPaybackKhrRemainderMode(record.krm) ? record.krm : "LEFTOVER_ONLY",
+    krp: typeof record.krp === "string" ? record.krp : undefined,
+  };
+}
+
+export function parsePaybackSharePayload(payload: string): PaybackSharePayload {
+  const normalizedPayload = payload.trim();
+
+  if (!normalizedPayload) {
+    throw new Error("Missing payback share payload.");
+  }
+
+  const compressedJson = decompressFromEncodedURIComponent(normalizedPayload);
+
+  if (compressedJson !== null) {
+    return normalizePaybackSharePayload(JSON.parse(compressedJson));
   }
 
   // Keep old shared links working after moving new links to compressed payloads.
-  return JSON.parse(decodeBase64Url(payload)) as PaybackSharePayload;
+  return normalizePaybackSharePayload(
+    JSON.parse(decodeBase64Url(normalizedPayload)),
+  );
 }

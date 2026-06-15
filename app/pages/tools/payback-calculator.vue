@@ -36,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import type { LocationQueryRaw } from "vue-router";
 import type {
   PaybackCurrency,
   PaybackKhrRemainderMode,
@@ -76,6 +77,12 @@ type PaybackStoredShareResponse = {
 
 type PaybackShareState = "idle" | "busy" | "copied" | "shared" | "ready";
 
+type PaybackShareTarget = {
+  url: string;
+  query: LocationQueryRaw;
+  payload?: string;
+};
+
 useSeoMeta({
   title: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
   description:
@@ -113,8 +120,27 @@ const raw = ref("");
 const rows = ref(createPaybackRows());
 const syncError = ref("");
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function getQueryString(value: unknown): string | null {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return (
+      value.find((item): item is string => typeof item === "string") ?? null
+    );
+  }
+
+  return null;
+}
+
 function flashCopied(ms = 1500) {
   copied.value = true;
+
   if (copiedTimer) {
     clearTimeout(copiedTimer);
   }
@@ -126,10 +152,12 @@ function flashCopied(ms = 1500) {
 }
 
 function clearShareTimer() {
-  if (shareTimer) {
-    clearTimeout(shareTimer);
-    shareTimer = null;
+  if (!shareTimer) {
+    return;
   }
+
+  clearTimeout(shareTimer);
+  shareTimer = null;
 }
 
 function setShareState(state: PaybackShareState, ms = 0) {
@@ -146,6 +174,15 @@ function setShareState(state: PaybackShareState, ms = 0) {
   }, ms);
 }
 
+function showShareResult(state: PaybackShareState) {
+  if (state === "ready") {
+    setShareState("ready");
+    return;
+  }
+
+  setShareState(state, state === "idle" ? 0 : 1500);
+}
+
 function fmt(value: number) {
   return formatPaybackAmount(value, currency.value);
 }
@@ -160,8 +197,8 @@ function syncRowsFromRaw() {
 
   try {
     rows.value = buildPaybackRowsFromRaw(raw.value);
-  } catch (error: any) {
-    syncError.value = error?.message || "Invalid paste input";
+  } catch (error: unknown) {
+    syncError.value = getErrorMessage(error, "Invalid paste input");
   }
 }
 
@@ -171,11 +208,11 @@ const parsedRowsState = computed(() => {
       entries: parsePaybackRows(rows.value),
       error: "",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       entries: [],
       error: hasPaybackInput(rows.value)
-        ? error?.message || "Invalid input"
+        ? getErrorMessage(error, "Invalid input")
         : "",
     };
   }
@@ -192,13 +229,15 @@ const uniqueNames = computed(() =>
 watch(
   uniqueNames,
   (names) => {
-    if (!names.length) {
+    const firstName = names[0];
+
+    if (firstName === undefined) {
       khrRemainderPayer.value = "";
       return;
     }
 
     if (!names.includes(khrRemainderPayer.value)) {
-      khrRemainderPayer.value = names[0];
+      khrRemainderPayer.value = firstName;
     }
   },
   { immediate: true },
@@ -215,7 +254,6 @@ const people = computed(() =>
 
 const total = computed(() => getPaybackTotal(people.value));
 const avg = computed(() => getPaybackAverage(people.value));
-
 const settlements = computed(() => computePaybackSettlements(people.value));
 
 const khrRemainder = computed(() => {
@@ -275,12 +313,59 @@ function loadExampleForCurrency(nextCurrency: PaybackCurrency) {
   raw.value = getPaybackExampleRaw(nextCurrency);
 }
 
+function replaceShareQuery(query: LocationQueryRaw) {
+  void router.replace({ query }).catch(() => undefined);
+}
+
 function reset() {
   raw.value = "";
   syncError.value = "";
   rows.value = createPaybackRows();
   khrRemainderMode.value = "LEFTOVER_ONLY";
   khrRemainderPayer.value = "";
+  lastShareUrl.value = "";
+  setShareState("idle");
+  replaceShareQuery({});
+}
+
+function copyTextWithSelection(value: string): boolean {
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.left = "-9999px";
+  textarea.style.opacity = "0";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, value.length);
+
+  try {
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
+  }
+}
+
+async function copyText(value: string): Promise<boolean> {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  if (window.isSecureContext && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      // Fall back for browsers that reject Clipboard API access.
+    }
+  }
+
+  return copyTextWithSelection(value);
 }
 
 async function copyResult() {
@@ -318,140 +403,146 @@ async function copyResult() {
     );
   }
 
-  await navigator.clipboard.writeText(lines.join("\n"));
-  flashCopied();
+  if (await copyText(lines.join("\n"))) {
+    flashCopied();
+  }
 }
 
 function applyPaybackSharePayload(payload: PaybackSharePayload) {
-  if (payload.c) {
-    currency.value = payload.c;
-  }
-
-  if (payload.t !== undefined) {
-    raw.value = payload.t;
-  }
-
-  if (payload.krm) {
-    khrRemainderMode.value = payload.krm;
-  }
-
-  if (payload.krp) {
-    khrRemainderPayer.value = payload.krp;
-  }
+  currency.value = payload.c ?? "USD";
+  raw.value = payload.t ?? "";
+  khrRemainderMode.value = payload.krm ?? "LEFTOVER_ONLY";
+  khrRemainderPayer.value = payload.krp ?? "";
 }
 
-function buildInlineShareUrl(payload: string) {
-  return `${window.location.origin}${route.path}?p=${encodeURIComponent(payload)}`;
+function buildUrl(query: Record<string, string>): string {
+  const url = new URL(route.path, window.location.origin);
+
+  for (const [key, value] of Object.entries(query)) {
+    url.searchParams.set(key, value);
+  }
+
+  return url.toString();
 }
 
-function isPaybackExampleState() {
+function buildInlineShareUrl(payload: string): string {
+  return buildUrl({ p: payload });
+}
+
+function isPaybackExampleState(): boolean {
   if (currency.value === "KHR" && khrRemainderMode.value !== "LEFTOVER_ONLY") {
     return false;
   }
 
-  return (
-    buildPaybackSharePayload({
-      c: currency.value,
-      t: raw.value,
-      krm: khrRemainderMode.value,
-      krp: khrRemainderPayer.value,
-    }) ===
-    buildPaybackSharePayload({
-      c: currency.value,
-      t: getPaybackExampleRaw(currency.value),
-      krm: "LEFTOVER_ONLY",
-      krp: "",
-    })
-  );
+  const currentPayload = buildPaybackSharePayload({
+    c: currency.value,
+    t: raw.value,
+    krm: khrRemainderMode.value,
+    krp: khrRemainderPayer.value,
+  });
+
+  const examplePayload = buildPaybackSharePayload({
+    c: currency.value,
+    t: getPaybackExampleRaw(currency.value),
+    krm: "LEFTOVER_ONLY",
+    krp: "",
+  });
+
+  return currentPayload === examplePayload;
 }
 
-function buildExampleShareUrl() {
-  const query =
-    currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
+function buildShareTarget(): PaybackShareTarget {
+  if (isPaybackExampleState()) {
+    const query: LocationQueryRaw =
+      currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
 
-  return `${window.location.origin}${route.path}${query}`;
+    return {
+      url: buildUrl(
+        currency.value === "KHR"
+          ? { example: "1", c: "KHR" }
+          : { example: "1" },
+      ),
+      query,
+    };
+  }
+
+  const payload = buildPaybackSharePayload({
+    c: currency.value,
+    t: raw.value,
+    krm: khrRemainderMode.value,
+    krp: khrRemainderPayer.value,
+  });
+
+  return {
+    url: buildInlineShareUrl(payload),
+    query: { p: payload },
+    payload,
+  };
 }
 
-function replaceShareQuery(query: Record<string, string | undefined>) {
-  void router.replace({ query }).catch(() => {});
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
 }
 
-function shouldUseNativeShare() {
+function canUseNativeShare(data: ShareData): boolean {
   if (typeof navigator.share !== "function") {
     return false;
   }
 
-  return (
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia?.("(pointer: coarse)").matches === true
-  );
-}
-
-function isAbortError(error: unknown) {
-  return error instanceof Error && error.name === "AbortError";
-}
-
-function copyTextWithSelection(value: string) {
-  const textarea = document.createElement("textarea");
-  textarea.value = value;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.top = "-9999px";
-  textarea.style.opacity = "0";
-
-  document.body.appendChild(textarea);
-  textarea.focus({ preventScroll: true });
-  textarea.select();
-  textarea.setSelectionRange(0, value.length);
+  if (typeof navigator.canShare !== "function") {
+    return true;
+  }
 
   try {
-    return document.execCommand("copy");
+    return navigator.canShare(data);
   } catch {
     return false;
-  } finally {
-    textarea.remove();
   }
-}
-
-async function copyShareUrl(url: string) {
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(url);
-      return true;
-    } catch {
-      // Mobile browsers can reject async clipboard writes after API/link work.
-    }
-  }
-
-  return copyTextWithSelection(url);
 }
 
 async function shareUrlOnDevice(url: string): Promise<PaybackShareState> {
-  if (shouldUseNativeShare()) {
+  const shareData: ShareData = {
+    title: "PayBack Calculator | ChlatWork",
+    text: "Open this PayBack Calculator share link.",
+    url,
+  };
+
+  if (canUseNativeShare(shareData)) {
     try {
-      await navigator.share({
-        title: "PayBack Calculator | ChlatWork",
-        text: "Open this PayBack Calculator share link.",
-        url,
-      });
+      await navigator.share(shareData);
       return "shared";
-    } catch (error) {
+    } catch (error: unknown) {
       if (isAbortError(error)) {
         return "idle";
       }
+
+      // Continue to clipboard fallback when native sharing fails.
     }
   }
 
-  return (await copyShareUrl(url)) ? "copied" : "ready";
+  return (await copyText(url)) ? "copied" : "ready";
 }
 
-function showShareResult(state: PaybackShareState) {
-  if (state === "ready") {
-    setShareState("ready");
-    return;
-  }
+async function createShortShareLink(payload: string): Promise<void> {
+  try {
+    const response = await $fetch<PaybackShortLinkResponse>(
+      "/api/payback-share",
+      {
+        method: "POST",
+        body: { payload },
+      },
+    );
 
-  setShareState(state, state === "idle" ? 0 : 1500);
+    if (!response.id) {
+      return;
+    }
+
+    const shortUrl = buildUrl({ id: response.id });
+    lastShareUrl.value = shortUrl;
+    replaceShareQuery({ id: response.id });
+  } catch {
+    // The inline share URL remains valid when short-link creation fails.
+  }
 }
 
 async function shareLink() {
@@ -460,100 +551,72 @@ async function shareLink() {
   }
 
   setShareState("busy");
-  lastShareUrl.value = "";
 
-  if (isPaybackExampleState()) {
-    const query =
-      currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
-    const url = buildExampleShareUrl();
+  const target = buildShareTarget();
+  lastShareUrl.value = target.url;
 
-    lastShareUrl.value = url;
-    replaceShareQuery(query);
-    showShareResult(await shareUrlOnDevice(url));
+  // Keep this as the first awaited browser operation. Native share and clipboard
+  // require the original button click's transient user activation.
+  const result = await shareUrlOnDevice(target.url);
+
+  if (result === "idle") {
+    showShareResult("idle");
     return;
   }
 
-  const s = buildPaybackSharePayload({
-    c: currency.value,
-    t: raw.value,
-    krm: khrRemainderMode.value,
-    krp: khrRemainderPayer.value,
-  });
+  replaceShareQuery(target.query);
+  showShareResult(result);
 
-  let url = buildInlineShareUrl(s);
-
-  // Native share and clipboard writes need the click's transient activation, so do
-  // the reliable inline share before any optional short-link network request.
-  lastShareUrl.value = url;
-  replaceShareQuery({ p: s });
-  const initialShareState = await shareUrlOnDevice(url);
-  showShareResult(initialShareState);
-
-  if (initialShareState === "idle") {
-    return;
-  }
-
-  try {
-    const response = await $fetch<PaybackShortLinkResponse>(
-      "/api/payback-share",
-      {
-        method: "POST",
-        body: { payload: s },
-      },
-    );
-
-    if (response.id) {
-      replaceShareQuery({ id: response.id });
-      url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
-      lastShareUrl.value = url;
-    }
-  } catch {
-    // The already-shared inline link keeps sharing usable when short links are unavailable.
+  if (target.payload) {
+    await createShortShareLink(target.payload);
   }
 }
 
 onMounted(async () => {
-  if (route.query.example === "1") {
-    loadExampleForCurrency(route.query.c === "KHR" ? "KHR" : "USD");
+  if (getQueryString(route.query.example) === "1") {
+    loadExampleForCurrency(
+      getQueryString(route.query.c) === "KHR" ? "KHR" : "USD",
+    );
     return;
   }
 
-  const id = route.query.id;
+  const id = getQueryString(route.query.id)?.trim();
 
-  if (typeof id === "string" && id.trim()) {
+  if (id) {
     try {
       const response = await $fetch<PaybackStoredShareResponse>(
-        `/api/payback-share/${encodeURIComponent(id.trim())}`,
+        `/api/payback-share/${encodeURIComponent(id)}`,
       );
 
       applyPaybackSharePayload(parsePaybackSharePayload(response.payload));
     } catch {
-      // ignore invalid or expired stored links
+      // Ignore invalid or expired stored links.
     }
 
     return;
   }
 
-  const s = route.query.p ?? route.query.s;
+  const payload =
+    getQueryString(route.query.p)?.trim() ||
+    getQueryString(route.query.s)?.trim();
 
-  if (typeof s !== "string" || !s.trim()) {
+  if (!payload) {
     return;
   }
 
   try {
-    applyPaybackSharePayload(parsePaybackSharePayload(s.trim()));
+    applyPaybackSharePayload(parsePaybackSharePayload(payload));
   } catch {
-    // ignore invalid payload
+    // Ignore invalid shared payloads.
   }
 });
 
 onBeforeUnmount(() => {
   if (copiedTimer) {
     clearTimeout(copiedTimer);
+    copiedTimer = null;
   }
 
-  if (shareTimer) {
-    clearShareTimer();
-  }
+  clearShareTimer();
 });
 </script>
