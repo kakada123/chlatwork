@@ -236,6 +236,12 @@ const error = computed(() => syncError.value || parsedRowsState.value.error);
 
 let syncing = false;
 
+function releaseSyncLock() {
+  void nextTick(() => {
+    syncing = false;
+  });
+}
+
 watch(
   rows,
   () => {
@@ -246,7 +252,7 @@ watch(
     syncing = true;
     syncError.value = "";
     raw.value = buildPaybackRawFromRows(rows.value);
-    syncing = false;
+    releaseSyncLock();
   },
   { deep: true },
 );
@@ -260,7 +266,7 @@ watch(
 
     syncing = true;
     syncRowsFromRaw();
-    syncing = false;
+    releaseSyncLock();
   },
   { immediate: true },
 );

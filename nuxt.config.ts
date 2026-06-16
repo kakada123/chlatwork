@@ -61,6 +61,12 @@ const apiHeaders = {
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
+  hooks: {
+    "prepare:types"(options) {
+      options.tsConfig.compilerOptions ||= {};
+      options.tsConfig.compilerOptions.allowImportingTsExtensions = true;
+    },
+  },
   devServer: {
     port: 3001,
   },

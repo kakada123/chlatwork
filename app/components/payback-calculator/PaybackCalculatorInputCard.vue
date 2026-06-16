@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ComponentPublicInstance } from "vue";
 import type {
   PaybackCurrency,
   PaybackInputRow,
@@ -17,9 +18,17 @@ const emit = defineEmits<{
   (e: "sync-rows-from-raw"): void;
 }>();
 
-const currency = defineModel<PaybackCurrency>("currency", { required: true });
-const rows = defineModel<PaybackInputRow[]>("rows", { required: true });
-const raw = defineModel<string>("raw", { required: true });
+const currency = defineModel<PaybackCurrency>("currency", {
+  required: true,
+});
+
+const rows = defineModel<PaybackInputRow[]>("rows", {
+  required: true,
+});
+
+const raw = defineModel<string>("raw", {
+  required: true,
+});
 
 const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
 
@@ -27,17 +36,30 @@ onBeforeUpdate(() => {
   nameInputRefs.value = [];
 });
 
-function setNameInputRef(element: Element | null, index: number) {
+function setNameInputRef(
+  element: Element | ComponentPublicInstance | null,
+  index: number,
+) {
   nameInputRefs.value[index] = element as HTMLInputElement | null;
 }
 
 async function focusRowNameInput(index: number) {
   await nextTick();
-  await new Promise((resolve) => requestAnimationFrame(resolve));
+
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
 
   const input = nameInputRefs.value[index];
-  input?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  input?.focus({ preventScroll: true });
+
+  input?.scrollIntoView({
+    block: "nearest",
+    inline: "nearest",
+  });
+
+  input?.focus({
+    preventScroll: true,
+  });
 }
 
 async function addRow() {
@@ -45,19 +67,71 @@ async function addRow() {
   const newRowIndex = nextRows.length - 1;
 
   rows.value = nextRows;
+
   await focusRowNameInput(newRowIndex);
 }
 
 function removeRow(index: number) {
   rows.value = rows.value.filter((_, rowIndex) => rowIndex !== index);
+
   nameInputRefs.value.splice(index, 1);
 }
+
+/**
+ * Keep the amount as a string while the user is typing.
+ *
+ * Valid temporary USD values:
+ * "", ".", "0.", "5.", "5.2", "5.25"
+ *
+ * KHR accepts whole numbers only.
+ */
+function updateAmount(row: PaybackInputRow, event: Event) {
+  const input = event.target as HTMLInputElement;
+
+  let value = input.value.replace(/,/g, ".").replace(/[^\d.]/g, "");
+
+  if (currency.value === "KHR") {
+    value = value.replace(/\D/g, "");
+  } else {
+    const firstDecimalIndex = value.indexOf(".");
+
+    if (firstDecimalIndex !== -1) {
+      const integerPart = value.slice(0, firstDecimalIndex);
+      const decimalPart = value
+        .slice(firstDecimalIndex + 1)
+        .replace(/\./g, "")
+        .slice(0, 2);
+
+      value = `${integerPart}.${decimalPart}`;
+    }
+  }
+
+  row.amount = value;
+
+  // Keep the native input value synchronized when invalid
+  // characters or extra decimals were removed.
+  if (input.value !== value) {
+    input.value = value;
+  }
+}
+
+watch(currency, (nextCurrency) => {
+  if (nextCurrency !== "KHR") {
+    return;
+  }
+
+  rows.value.forEach((row) => {
+    const amount = String(row.amount ?? "");
+    row.amount = amount.split(/[.,]/)[0]?.replace(/\D/g, "") ?? "";
+  });
+});
 </script>
 
 <template>
   <div class="rounded-xl border bg-white p-4">
     <div class="mb-2 flex items-center justify-between">
       <h2 class="font-semibold">Input</h2>
+
       <select v-model="currency" class="h-11 rounded-lg border px-3 text-sm">
         <option value="USD">USD</option>
         <option value="KHR">KHR</option>
@@ -69,7 +143,9 @@ function removeRow(index: number) {
         <thead class="bg-gray-50">
           <tr>
             <th class="w-[55%] p-2 text-left">Name</th>
+
             <th class="w-[35%] p-2 text-right">Amount</th>
+
             <th class="w-[10%] p-2"></th>
           </tr>
         </thead>
@@ -84,6 +160,8 @@ function removeRow(index: number) {
               <input
                 :ref="(element) => setNameInputRef(element, index)"
                 v-model.trim="row.name"
+                type="text"
+                autocomplete="off"
                 class="h-11 w-full rounded-lg border px-3 outline-none focus:ring-2 focus:ring-black/10"
                 placeholder="e.g. Mina"
               />
@@ -91,10 +169,13 @@ function removeRow(index: number) {
 
             <td class="p-2">
               <input
-                v-model.trim="row.amount"
+                :value="row.amount"
+                type="text"
                 inputmode="decimal"
-                class="h-11 w-full rounded-lg border px-3 text-right outline-none focus:ring-2 focus:ring-black/10"
+                autocomplete="off"
+                class="h-11 w-full rounded-lg border px-3 text-right tabular-nums outline-none focus:ring-2 focus:ring-black/10"
                 :placeholder="currency === 'USD' ? 'e.g. 5.25' : 'e.g. 5000'"
+                @input="updateAmount(row, $event)"
               />
             </td>
 
@@ -114,6 +195,7 @@ function removeRow(index: number) {
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
+                  aria-hidden="true"
                 >
                   <path d="M18 6 6 18" />
                   <path d="m6 6 12 12" />
@@ -151,7 +233,8 @@ function removeRow(index: number) {
           <path d="M12 5v14" />
           <path d="M5 12h14" />
         </svg>
-        <span class="truncate">Add row</span>
+
+        <span class="truncate"> Add row </span>
       </button>
 
       <button
@@ -170,16 +253,19 @@ function removeRow(index: number) {
           stroke-linejoin="round"
           aria-hidden="true"
         >
-          <path d="M4 19.5V5a2 2 0 0 1 2-2h8.5L20 8.5V19a2 2 0 0 1-2 2H5.5A1.5 1.5 0 0 1 4 19.5Z" />
+          <path
+            d="M4 19.5V5a2 2 0 0 1 2-2h8.5L20 8.5V19a2 2 0 0 1-2 2H5.5A1.5 1.5 0 0 1 4 19.5Z"
+          />
           <path d="M14 3v6h6" />
           <path d="M8 13h8" />
           <path d="M8 17h5" />
         </svg>
-        <span class="truncate">Load example</span>
+
+        <span class="truncate"> Load example </span>
       </button>
 
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100 active:scale-[0.99]"
+        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100"
         type="button"
         :disabled="!props.canCopy"
         @click="emit('copy-result')"
@@ -189,17 +275,20 @@ function removeRow(index: number) {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           class="h-4 w-4"
+          aria-hidden="true"
         >
           <path
             fill="currentColor"
             d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"
           />
         </svg>
+
         <svg
           v-else
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           class="h-4 w-4"
+          aria-hidden="true"
         >
           <path
             fill="currentColor"
@@ -207,7 +296,9 @@ function removeRow(index: number) {
           />
         </svg>
 
-        <span class="truncate">{{ props.copied ? "Copied" : "Copy" }}</span>
+        <span class="truncate">
+          {{ props.copied ? "Copied" : "Copy" }}
+        </span>
       </button>
     </div>
 
@@ -247,10 +338,13 @@ Jompa: 38$"
           >
             <path d="M8 4h8" />
             <path d="M9 2h6v4H9z" />
-            <path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <path
+              d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+            />
             <path d="m9 14 2 2 4-4" />
           </svg>
-          <span>Apply paste to rows</span>
+
+          <span> Apply paste to rows </span>
         </button>
       </div>
     </details>
