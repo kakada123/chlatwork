@@ -8,7 +8,7 @@ import {
   parseMoneyInputToCents,
   roundKhrDownCents,
   roundMoney,
-} from "./money";
+} from "./money.ts";
 
 const { compressToEncodedURIComponent, decompressFromEncodedURIComponent } =
   lzString;
@@ -347,25 +347,26 @@ function buildKhrBalances(
     );
 }
 
-export function buildPaybackPeople(
-  entries: PaybackEntry[],
-  currency: PaybackCurrency,
-  mode: PaybackKhrRemainderMode,
-  payer: string,
-): PaybackPerson[] {
-  if (currency === "KHR") {
-    return buildKhrBalances(entries, mode, payer);
+function buildUsdBalances(entries: PaybackEntry[]): PaybackPerson[] {
+  const totalPaidCents = sumPaybackEntryCents(entries);
+  const peopleCount = entries.length;
+
+  if (!peopleCount) {
+    return [];
   }
 
-  const totalPaidCents = sumPaybackEntryCents(entries);
-  const averagePaidCents = entries.length
-    ? divideMoneyCents(totalPaidCents, entries.length)
-    : 0n;
+  const peopleCountBigInt = BigInt(peopleCount);
+  const baseShareCents = totalPaidCents / peopleCountBigInt;
+  const leftoverCents = totalPaidCents % peopleCountBigInt;
 
   return entries
-    .map((person) => {
+    .map((person, index) => {
+      // USD cannot split below one cent, so spread extra cents in input order
+      // instead of rounding every person to the same imbalanced share.
+      const targetShareCents =
+        baseShareCents + (BigInt(index) < leftoverCents ? 1n : 0n);
       const paidCents = getPaybackEntryCents(person);
-      const balanceCents = paidCents - averagePaidCents;
+      const balanceCents = paidCents - targetShareCents;
 
       return {
         name: person.name,
@@ -381,6 +382,19 @@ export function buildPaybackPeople(
         getPaybackPersonPaidCents(b),
       ),
     );
+}
+
+export function buildPaybackPeople(
+  entries: PaybackEntry[],
+  currency: PaybackCurrency,
+  mode: PaybackKhrRemainderMode,
+  payer: string,
+): PaybackPerson[] {
+  if (currency === "KHR") {
+    return buildKhrBalances(entries, mode, payer);
+  }
+
+  return buildUsdBalances(entries);
 }
 
 export function computePaybackSettlements(

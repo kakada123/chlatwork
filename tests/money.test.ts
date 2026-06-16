@@ -109,6 +109,40 @@ test("payback totals, averages, and settlements use cent-safe decimal math", () 
   assert.equal(formatPaybackAmount(getPaybackTotal(people), "USD"), "$0.30");
 });
 
+test("payback USD settlement distributes cents without losing the decimal remainder", () => {
+  const people = buildPaybackPeople(
+    groupPaybackEntries(
+      parsePaybackRows([
+        { name: "A", amount: "10.00" },
+        { name: "B", amount: "0" },
+        { name: "C", amount: "0" },
+      ]),
+    ),
+    "USD",
+    "LEFTOVER_ONLY",
+    "",
+  );
+  const settlements = computePaybackSettlements(people);
+  const totalBalanceCents = people.reduce(
+    (sum, person) => sum + (person.balanceCents ?? 0n),
+    0n,
+  );
+
+  assert.equal(totalBalanceCents, 0n);
+  assert.deepEqual(
+    settlements.map((settlement) => [
+      settlement.from,
+      settlement.to,
+      settlement.amount,
+      settlement.amountCents,
+    ]),
+    [
+      ["B", "A", 3.33, 333n],
+      ["C", "A", 3.33, 333n],
+    ],
+  );
+});
+
 test("payback KHR remainder and huge totals stay deterministic", () => {
   const entries = groupPaybackEntries(
     parsePaybackRows([

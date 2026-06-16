@@ -94,7 +94,7 @@ function removeRow(index: number) {
                 v-model.trim="row.amount"
                 inputmode="decimal"
                 class="h-11 w-full rounded-lg border px-3 text-right outline-none focus:ring-2 focus:ring-black/10"
-                placeholder="e.g. 5"
+                :placeholder="currency === 'USD' ? 'e.g. 5.25' : 'e.g. 5000'"
               />
             </td>
 
