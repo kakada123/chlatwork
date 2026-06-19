@@ -33,16 +33,6 @@ const colorModeScript = `
 })();
 `;
 
-const googleAnalyticsId = "G-V6HHF1TMXW";
-
-const googleAnalyticsScript = `
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag("js", new Date());
-
-gtag("config", "${googleAnalyticsId}");
-`;
-
 const securityHeaders = {
   "Permissions-Policy":
     "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), clipboard-read=(), clipboard-write=(self)",
@@ -72,6 +62,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
+    public: {
+      gaMeasurementId: "",
+    },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
   sitemap: {
@@ -164,13 +157,6 @@ export default defineNuxtConfig({
       script: [
         {
           children: colorModeScript,
-        },
-        {
-          async: true,
-          src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
-        },
-        {
-          children: googleAnalyticsScript,
         },
         {
           async: true,
