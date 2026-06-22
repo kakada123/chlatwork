@@ -30,25 +30,17 @@ const { lineHeightForText } = useLanguage();
   >
     <div class="flex items-start gap-3">
       <span
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-lg shadow-slate-200/70 transition dark:!bg-transparent dark:bg-gradient-to-br dark:!text-white dark:shadow-black/25 dark:group-hover:!bg-transparent"
-        :class="[props.tool.iconClass, props.tool.accent]"
+        class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-lg shadow-slate-200/70 ring-1 ring-black/5 transition group-hover:scale-105 dark:bg-white/[0.08] dark:shadow-black/25 dark:ring-white/10"
         aria-hidden="true"
       >
-        <svg
-          viewBox="0 0 24 24"
-          class="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            v-for="path in props.tool.iconPaths"
-            :key="path"
-            :d="path"
-          />
-        </svg>
+        <img
+          :src="props.tool.iconPath"
+          alt=""
+          aria-hidden="true"
+          class="h-12 w-12 rounded-xl object-contain"
+          loading="lazy"
+          decoding="async"
+        />
       </span>
 
       <div class="min-w-0">

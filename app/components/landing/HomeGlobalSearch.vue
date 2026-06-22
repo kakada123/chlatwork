@@ -12,6 +12,7 @@ type SearchResult = {
   title: string;
   description: string;
   path: string;
+  iconPath?: string;
   iconPaths: string[];
   iconClass: string;
   label: string;
@@ -30,6 +31,7 @@ const toolResults = computed<SearchResult[]>(() =>
       title: tool.name,
       description: tool.description,
       path: tool.route,
+      iconPath: tool.iconPath,
       iconPaths: tool.iconPaths,
       iconClass: tool.iconClass,
       label: copy.value.heroSearch.toolsLabel,
@@ -83,11 +85,6 @@ function handleNativeSearch(event: Event) {
   }
 }
 
-function searchExample(example: string) {
-  globalSearch.value = example;
-  searchInput.value?.focus();
-}
-
 function openTopResult() {
   if (!topResult.value) {
     return;
@@ -98,7 +95,7 @@ function openTopResult() {
 </script>
 
 <template>
-  <div class="w-full min-w-0 max-w-xl">
+  <div class="w-full min-w-0 text-left">
     <label
       for="home-global-search"
       class="mb-2 block text-sm font-bold text-slate-900 dark:text-white"
@@ -129,7 +126,7 @@ function openTopResult() {
           ref="searchInput"
           v-model="globalSearch"
           type="search"
-          class="h-11 w-full min-w-0 bg-transparent pl-12 pr-12 text-sm font-semibold text-slate-950 outline-none placeholder:text-slate-400 sm:pl-14 sm:pr-14 sm:text-base dark:text-white dark:placeholder:text-white/35"
+          class="h-12 w-full min-w-0 bg-transparent pl-12 pr-12 text-sm font-semibold text-slate-950 outline-none placeholder:text-slate-400 sm:pl-14 sm:pr-14 sm:text-base dark:text-white dark:placeholder:text-white/35"
           :placeholder="copy.heroSearch.placeholder"
           @keydown.enter.prevent="openTopResult"
           @keydown.esc="clearSearch"
@@ -172,10 +169,23 @@ function openTopResult() {
           >
             <span
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 sm:h-11 sm:w-11 dark:ring-white/10"
-              :class="result.iconClass"
+              :class="
+                result.iconPath
+                  ? 'bg-white/80 dark:bg-white/[0.08]'
+                  : result.iconClass
+              "
               aria-hidden="true"
             >
+              <img
+                v-if="result.iconPath"
+                :src="result.iconPath"
+                alt=""
+                aria-hidden="true"
+                class="h-9 w-9 rounded-xl object-contain sm:h-10 sm:w-10"
+                decoding="async"
+              />
               <svg
+                v-else
                 viewBox="0 0 24 24"
                 class="h-5 w-5"
                 fill="none"
@@ -233,21 +243,6 @@ function openTopResult() {
           {{ copy.heroSearch.noResults }}
         </p>
       </div>
-    </div>
-
-    <div class="mt-3 flex flex-wrap items-center gap-2">
-      <span class="text-xs font-semibold text-slate-500 dark:text-white/50">
-        {{ copy.heroSearch.examplesLabel }}
-      </span>
-      <button
-        v-for="example in copy.heroSearch.examples"
-        :key="example"
-        type="button"
-        class="max-w-full truncate rounded-full border border-sky-100 bg-white/70 px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm shadow-sky-100/40 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/65 dark:shadow-black/20 dark:hover:bg-white/[0.11] dark:hover:text-white dark:focus:ring-cyan-200"
-        @click="searchExample(example)"
-      >
-        {{ example }}
-      </button>
     </div>
   </div>
 </template>

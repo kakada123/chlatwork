@@ -42,15 +42,8 @@ type LandingCopy = {
     coffee: string;
   };
   hero: {
-    titleStart: string;
-    titleAccent: string;
+    title: string;
     description: string;
-    primaryAction: string;
-    secondaryAction: string;
-    stats: Array<{
-      label: string;
-      caption: string;
-    }>;
   };
   heroSearch: {
     label: string;
@@ -59,8 +52,6 @@ type LandingCopy = {
     toolsLabel: string;
     guidesLabel: string;
     noResults: string;
-    examplesLabel: string;
-    examples: string[];
   };
   categories: {
     eyebrow: string;
@@ -82,9 +73,9 @@ const KHMER_FONT_STACK = `"Hanuman", ${ENGLISH_FONT_STACK}`;
 
 const COPY: Record<AppLocale, LandingCopy> = {
   en: {
-    metaTitle: "ChlatWork - Simple tools that get things done",
+    metaTitle: "Free Online Tools for Everyday Work - ChlatWork",
     metaDescription:
-      "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+      "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
     tagline: "Free online tools for everyday work.",
     toolsPage: {
       metaTitle: "Free Online Tools - ChlatWork",
@@ -120,39 +111,29 @@ const COPY: Record<AppLocale, LandingCopy> = {
       coffee: "Support ChlatWork",
     },
     hero: {
-      titleStart: "Free online tools for",
-      titleAccent: "everyday work.",
+      title: "What do you want to do today?",
       description:
-        "ChlatWork provides simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
-      primaryAction: "Explore Tools",
-      secondaryAction: "View Categories",
-      stats: [
-        { label: "Tools", caption: "And counting" },
-        { label: "Browser-based", caption: "No unnecessary signup" },
-        { label: "Privacy-friendly", caption: "Local processing where possible" },
-      ],
+        "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
     },
     heroSearch: {
       label: "Search all ChlatWork tools",
-      placeholder: "Try Wi-Fi QR, compress image, JSON, password...",
+      placeholder: "Search PDF, image, QR, JSON, password...",
       clear: "Clear search",
       toolsLabel: "Tool",
       guidesLabel: "Guide",
       noResults: "No matching tools or guides found.",
-      examplesLabel: "Popular:",
-      examples: ["Wi-Fi QR", "compress image", "JSON", "password"],
     },
     categories: {
       eyebrow: "Tool Categories",
-      title: "Choose the right tool category.",
+      title: "Browse by category.",
       toolsLabel: "tools",
       explore: "Explore",
     },
     cta: {
-      title: "Simple tools, useful results.",
+      title: "Need the full tool list?",
       description:
-        "Open a tool, complete the task, and keep moving without installing extra software or creating an account for basic work.",
-      primaryAction: "View All Tools",
+        "The homepage keeps things simple. Visit the tools directory when you want to browse every ChlatWork tool by category.",
+      primaryAction: "Browse All Tools",
       secondaryAction: "Request a Tool",
     },
   },
@@ -194,17 +175,9 @@ const COPY: Record<AppLocale, LandingCopy> = {
       coffee: "គាំទ្រ ChlatWork",
     },
     hero: {
-      titleStart: "ឧបករណ៍អនឡាញឥតគិតថ្លៃ",
-      titleAccent: "សម្រាប់ការងារប្រចាំថ្ងៃ។",
+      title: "ថ្ងៃនេះអ្នកចង់ធ្វើអ្វី?",
       description:
-        "ChlatWork ផ្តល់ឧបករណ៍ browser-based សាមញ្ញៗសម្រាប់ឯកសារ រូបភាព QR barcode កាលបរិច្ឆេទ ការគណនា និង productivity។",
-      primaryAction: "មើលឧបករណ៍",
-      secondaryAction: "មើលប្រភេទ",
-      stats: [
-        { label: "ឧបករណ៍", caption: "នឹងបន្ថែមបន្តទៀត" },
-        { label: "Browser-based", caption: "មិនចាំបាច់បង្កើតគណនីសម្រាប់ការងារមូលដ្ឋាន" },
-        { label: "គិតពីភាពឯកជន", caption: "ដំណើរការលើឧបករណ៍អ្នកនៅពេលអាចធ្វើបាន" },
-      ],
+        "ស្វែងរកឧបករណ៍ឥតគិតថ្លៃសម្រាប់ PDF រូបភាព QR code ការគណនា អត្ថបទខ្មែរ និង developer tasks។",
     },
     heroSearch: {
       label: "ស្វែងរកឧបករណ៍ ChlatWork ទាំងអស់",
@@ -213,19 +186,17 @@ const COPY: Record<AppLocale, LandingCopy> = {
       toolsLabel: "ឧបករណ៍",
       guidesLabel: "មេរៀន",
       noResults: "រកមិនឃើញឧបករណ៍ ឬមេរៀនដែលត្រូវគ្នា។",
-      examplesLabel: "ពេញនិយម:",
-      examples: ["Wi-Fi QR", "បង្រួមរូបភាព", "JSON", "ពាក្យសម្ងាត់"],
     },
     categories: {
       eyebrow: "ប្រភេទឧបករណ៍",
-      title: "ជ្រើសរើសប្រភេទឧបករណ៍ដែលត្រូវការ។",
+      title: "មើលតាមប្រភេទ។",
       toolsLabel: "ឧបករណ៍",
       explore: "មើល",
     },
     cta: {
-      title: "ឧបករណ៍សាមញ្ញៗ សម្រាប់លទ្ធផលមានប្រយោជន៍។",
+      title: "ចង់មើលឧបករណ៍ទាំងអស់?",
       description:
-        "បើកឧបករណ៍ ធ្វើការងារឲ្យរួច ហើយបន្តទៅការងារផ្សេង ដោយមិនចាំបាច់ដំឡើងកម្មវិធីធំៗ។",
+        "ទំព័រដើមបង្ហាញតែឧបករណ៍សំខាន់ៗ។ ទៅទំព័រ tools ដើម្បីមើលឧបករណ៍ ChlatWork ទាំងអស់តាមប្រភេទ។",
       primaryAction: "មើលឧបករណ៍ទាំងអស់",
       secondaryAction: "ស្នើសុំឧបករណ៍",
     },

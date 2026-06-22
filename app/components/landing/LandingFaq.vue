@@ -4,7 +4,7 @@ const { isKhmer } = useLanguage();
 const siteUrl = "https://chlatwork.com";
 const pageUrl = computed(() => `${siteUrl}${route.path === "/" ? "" : route.path}`);
 const heading = computed(() =>
-  isKhmer.value ? "សំណួរអំពី ChlatWork" : "Questions about ChlatWork",
+  isKhmer.value ? "សំណួរអំពី ChlatWork" : "Frequently asked questions",
 );
 const faqs = computed(() =>
   isKhmer.value
@@ -12,7 +12,7 @@ const faqs = computed(() =>
         {
           question: "ChlatWork ជាអ្វី?",
           answer:
-            "ChlatWork គឺជាសំណុំឧបករណ៍អនឡាញសាមញ្ញៗសម្រាប់ឯកសារ រូបភាព QR code barcode កាលបរិច្ឆេទ ការគណនា productivity និងការងារ developer។",
+            "ChlatWork គឺជាគេហទំព័រ free online tools សម្រាប់ PDF រូបភាព QR code ការគណនា Khmer tools និង developer tools។",
         },
         {
           question: "ឧបករណ៍ប្រើឥតគិតថ្លៃមែនទេ?",
@@ -22,7 +22,7 @@ const faqs = computed(() =>
         {
           question: "ឯកសារត្រូវ upload ទៅ server ទេ?",
           answer:
-            "ឧបករណ៍ជាច្រើនដំណើរការឯកសារនៅក្នុង browser របស់អ្នកនៅពេលអាចធ្វើបាន។ មុខងារខ្លះអាចប្រើ server នៅពេល browser-only មិនអាចធ្វើបានល្អ។",
+            "ឧបករណ៍ជាច្រើនដំណើរការឯកសារនៅក្នុង browser នៅពេលអាចធ្វើបាន។ មុខងារខ្លះអាចប្រើ server ប្រសិនបើចាំបាច់។",
         },
         {
           question: "ត្រូវបង្កើតគណនីទេ?",
@@ -39,7 +39,7 @@ const faqs = computed(() =>
         {
           question: "What is ChlatWork?",
           answer:
-            "ChlatWork is a collection of simple online tools for documents, images, QR codes, barcodes, dates, calculators, productivity, and developer tasks.",
+            "ChlatWork is a free online tools website for PDFs, images, QR codes, calculators, Khmer tools, and developer tools.",
         },
         {
           question: "Are the tools free to use?",
@@ -49,7 +49,7 @@ const faqs = computed(() =>
         {
           question: "Do files upload to a server?",
           answer:
-            "Many tools process files in your browser where possible. Some features may use a server when browser-only processing is not practical.",
+            "Many tools process files in your browser where possible. Some features may use a server only when needed.",
         },
         {
           question: "Do I need to create an account?",
@@ -87,22 +87,22 @@ useHead(() => ({
 </script>
 
 <template>
-  <section class="px-5 py-14 sm:px-8 lg:px-12" id="faq">
+  <section class="px-5 pb-12 pt-8 sm:px-8 lg:px-12" id="faq">
     <div class="mx-auto max-w-7xl">
       <div class="max-w-2xl">
         <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
           FAQ
         </p>
-        <h2 class="mt-3 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
+        <h2 class="mt-2 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">
           {{ heading }}
         </h2>
       </div>
 
-      <div class="mt-8 grid gap-3 md:grid-cols-2">
+      <div class="mt-5 grid gap-3 md:grid-cols-2">
         <details
           v-for="faq in faqs"
           :key="faq.question"
-          class="rounded-[18px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
+          class="rounded-[18px] border border-white/80 bg-white/75 p-3 shadow-lg shadow-sky-100/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
         >
           <summary class="cursor-pointer text-sm font-black text-slate-950 dark:text-white">
             {{ faq.question }}

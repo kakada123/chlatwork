@@ -15,6 +15,7 @@ export type LandingTool = {
   route: string;
   category: ToolCategory;
   description: string;
+  iconPath: string;
   iconPaths: string[];
   iconClass: string;
   accent: string;
@@ -26,8 +27,55 @@ export type LandingToolCategory = {
   count: number;
   description: string;
   route: string;
+  iconPath: string;
   accent: string;
   tools: LandingTool[];
+};
+
+const ICON_BASE_PATH = "/assets/icons";
+
+export const TOOL_ICON_IMAGE_PATHS: Record<string, string> = {
+  qr: `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
+  "wifi-qr": `${ICON_BASE_PATH}/tools/tool-wifi-qr-generator.png`,
+  barcode: `${ICON_BASE_PATH}/tools/tool-barcode-generator.png`,
+  "image-compress": `${ICON_BASE_PATH}/tools/tool-image-compressor.png`,
+  "image-to-pdf": `${ICON_BASE_PATH}/tools/tool-image-to-pdf.png`,
+  "pdf-to-jpg": `${ICON_BASE_PATH}/tools/tool-pdf-to-jpg.png`,
+  "merge-pdf": `${ICON_BASE_PATH}/tools/tool-merge-pdf.png`,
+  "split-pdf": `${ICON_BASE_PATH}/tools/tool-split-pdf.png`,
+  "compress-pdf": `${ICON_BASE_PATH}/tools/tool-compress-pdf.png`,
+  "remove-pdf-pages": `${ICON_BASE_PATH}/tools/tool-pdf-page-remover.png`,
+  "reorder-pdf-pages": `${ICON_BASE_PATH}/tools/tool-pdf-page-reorder.png`,
+  "html-to-pdf": `${ICON_BASE_PATH}/tools/tool-html-to-pdf.png`,
+  "text-to-pdf": `${ICON_BASE_PATH}/tools/tool-text-to-pdf.png`,
+  "invoice-to-pdf": `${ICON_BASE_PATH}/tools/tool-invoice-to-pdf.png`,
+  calculator: `${ICON_BASE_PATH}/tools/tool-date-calculator.png`,
+  "unix-timestamp": `${ICON_BASE_PATH}/tools/tool-unix-timestamp-converter.png`,
+  "cron-explainer": `${ICON_BASE_PATH}/tools/tool-cron-expression-explainer.png`,
+  "payback-calculator": `${ICON_BASE_PATH}/tools/tool-payback-calculator.png`,
+  "expense-tracker": `${ICON_BASE_PATH}/tools/tool-expense-tracker.png`,
+  "lucky-draw": `${ICON_BASE_PATH}/tools/tool-random-winner-picker.png`,
+  "text-to-voice": `${ICON_BASE_PATH}/tools/tool-text-to-voice.png`,
+  "khmer-unicode-fixer": `${ICON_BASE_PATH}/tools/tool-khmer-unicode-fixer.png`,
+  "password-generator": `${ICON_BASE_PATH}/tools/tool-password-generator.png`,
+  "json-formatter": `${ICON_BASE_PATH}/tools/tool-json-formatter.png`,
+  "jwt-decoder": `${ICON_BASE_PATH}/tools/tool-jwt-decoder.png`,
+  base64: `${ICON_BASE_PATH}/tools/tool-base64-encoder-decoder.png`,
+  "url-encoder": `${ICON_BASE_PATH}/tools/tool-url-encoder-decoder.png`,
+  "regex-tester": `${ICON_BASE_PATH}/tools/tool-regex-tester.png`,
+  "hash-generator": `${ICON_BASE_PATH}/tools/tool-hash-generator.png`,
+  "uuid-generator": `${ICON_BASE_PATH}/tools/tool-uuid-generator.png`,
+};
+
+export const CATEGORY_ICON_IMAGE_PATHS: Record<string, string> = {
+  pdf: `${ICON_BASE_PATH}/categories/category-pdf-tools.png`,
+  image: `${ICON_BASE_PATH}/categories/category-image-tools.png`,
+  "qr-barcode": `${ICON_BASE_PATH}/categories/category-qr-barcode.png`,
+  "date-time": `${ICON_BASE_PATH}/categories/category-date-time.png`,
+  calculators: `${ICON_BASE_PATH}/categories/category-calculators.png`,
+  productivity: `${ICON_BASE_PATH}/categories/category-productivity.png`,
+  "khmer-tools": `${ICON_BASE_PATH}/categories/category-khmer-tools.png`,
+  "developer-tools": `${ICON_BASE_PATH}/categories/category-developer-tools.png`,
 };
 
 const TOOL_ACCENTS: Record<string, string> = {
@@ -69,6 +117,9 @@ export const LANDING_TOOLS: LandingTool[] = ENABLED_TOOLS.map((tool) => ({
   route: tool.route,
   category: tool.category,
   description: tool.description,
+  iconPath:
+    TOOL_ICON_IMAGE_PATHS[tool.key] ??
+    `${ICON_BASE_PATH}/tools/tool-date-calculator.png`,
   iconPaths: TOOL_ICON_PATHS[tool.key] ?? TOOL_ICON_PATHS.calculator,
   iconClass: TOOL_ICON_CLASSES[tool.key] ?? TOOL_ICON_CLASSES.calculator,
   accent: TOOL_ACCENTS[tool.key] ?? "from-gray-300 to-gray-500",
@@ -89,6 +140,9 @@ export const LANDING_CATEGORIES: LandingToolCategory[] =
       count: tools.length,
       description: category.description,
       route: category.path,
+      iconPath:
+        CATEGORY_ICON_IMAGE_PATHS[category.key] ??
+        `${ICON_BASE_PATH}/categories/category-productivity.png`,
       accent: category.accent,
       tools,
     };

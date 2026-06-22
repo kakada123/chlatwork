@@ -2,16 +2,16 @@
 useSeoMeta({
   title: "Free Online Tools for Everyday Work - ChlatWork",
   description:
-    "ChlatWork provides free online tools for documents, images, QR codes, barcodes, dates, calculators, productivity, and developer tasks.",
+    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
   ogTitle: "Free Online Tools for Everyday Work - ChlatWork",
   ogDescription:
-    "Simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
   ogType: "website",
   ogUrl: "https://chlatwork.com",
   twitterCard: "summary_large_image",
   twitterTitle: "Free Online Tools for Everyday Work - ChlatWork",
   twitterDescription:
-    "Simple browser-based tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
+    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
 });
 </script>
 

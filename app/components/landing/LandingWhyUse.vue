@@ -4,89 +4,74 @@ useLandingReveal(sectionEl);
 const { isKhmer } = useLanguage();
 
 const heading = computed(() =>
-  isKhmer.value
-    ? "ឧបករណ៍មានប្រយោជន៍ ដោយមិនស្មុគស្មាញ។"
-    : "Useful tools without unnecessary friction.",
+  isKhmer.value ? "រៀបចំឲ្យប្រើបានលឿន។" : "Built for quick tasks.",
 );
-const eyebrow = computed(() =>
-  isKhmer.value ? "ហេតុអ្វីប្រើ ChlatWork?" : "Why use ChlatWork?",
-);
-const reasons = computed(() =>
+const benefits = computed(() =>
   isKhmer.value
     ? [
         {
-          title: "សាមញ្ញ និងលឿន",
-          description:
-            "ឧបករណ៍នីមួយៗផ្តោតលើការងារមួយច្បាស់ៗ ដើម្បីឲ្យអ្នកធ្វើការងារឲ្យរួចដោយមិនចាំបាច់រៀបចំច្រើន។",
+          title: "ចូលទៅឧបករណ៍ដោយផ្ទាល់",
+          description: "គ្រប់ card នាំទៅ tool route ដោយផ្ទាល់។",
         },
         {
-          title: "ប្រើបានលើទូរស័ព្ទ និងកុំព្យូទ័រ",
-          description:
-            "Layout ត្រូវបានរៀបចំសម្រាប់ទូរស័ព្ទ tablet laptop និងអេក្រង់ការិយាល័យ។",
+          title: "ស្រួលប្រើលើទូរស័ព្ទ",
+          description: "Search និង cards ត្រូវបានរៀបចំឲ្យឃើញលឿនលើអេក្រង់តូច។",
         },
         {
-          title: "គិតពីភាពឯកជន",
-          description:
-            "ឧបករណ៍ជាច្រើនដំណើរការឯកសារ ឬ input នៅក្នុង browser របស់អ្នកនៅពេលអាចធ្វើបាន។",
-        },
-        {
-          title: "មិនចាំបាច់ signup សម្រាប់ការងារមូលដ្ឋាន",
-          description:
-            "ឧបករណ៍មូលដ្ឋានអាចបើកប្រើបានភ្លាមៗ ដោយមិនបង្ខំឲ្យបង្កើតគណនី។",
+          title: "ដំណើរការក្នុង browser ពេលអាចធ្វើបាន",
+          description: "ឧបករណ៍ឯកសារ និងរូបភាពជាច្រើនកាត់បន្ថយការរៀបចំបន្ថែម។",
         },
       ]
     : [
         {
-          title: "Simple and fast",
-          description:
-            "Each tool focuses on one clear task so you can finish work without extra setup.",
+          title: "Direct tool access",
+          description: "Every card opens a real tool route without extra browsing.",
         },
         {
-          title: "Works on mobile and desktop",
-          description:
-            "Layouts are built for phones, tablets, laptops, and everyday office screens.",
+          title: "Mobile-first scanning",
+          description: "Search and tool cards stay near the top on small screens.",
         },
         {
-          title: "Privacy-friendly tools",
-          description:
-            "Many tools process files or input in your browser where possible, especially for common PDF and image tasks.",
-        },
-        {
-          title: "No unnecessary signup",
-          description:
-            "Basic tools are available directly, without forcing an account before simple work.",
+          title: "Browser-first workflows",
+          description: "Many document and image tasks run in the browser where practical.",
         },
       ],
 );
 </script>
 
 <template>
-  <section ref="sectionEl" class="px-5 py-14 sm:px-8 lg:px-12">
+  <section ref="sectionEl" class="px-5 py-8 sm:px-8 lg:px-12">
     <div class="mx-auto max-w-7xl">
-      <div class="max-w-2xl" data-reveal>
-        <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-          {{ eyebrow }}
-        </p>
-        <h2 class="mt-3 text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
-          {{ heading }}
-        </h2>
-      </div>
+      <div
+        class="relative overflow-hidden rounded-[20px] border border-sky-100/80 bg-sky-50/45 p-4 shadow-sm shadow-sky-100/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-black/20"
+        data-reveal
+      >
+        <div
+          class="absolute inset-0 bg-[linear-gradient(135deg,rgba(14,165,233,0.08),rgba(255,255,255,0.04),rgba(217,70,239,0.06))] opacity-80 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.08),rgba(255,255,255,0.03),rgba(217,70,239,0.08))]"
+          aria-hidden="true"
+        />
 
-      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article
-          v-for="(reason, index) in reasons"
-          :key="reason.title"
-          class="rounded-[22px] border border-white/80 bg-white/75 p-5 shadow-lg shadow-sky-100/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
-          data-reveal
-          :style="{ '--reveal-delay': `${index * 70}ms` }"
-        >
-          <h3 class="text-base font-black text-slate-950 dark:text-white">
-            {{ reason.title }}
-          </h3>
-          <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/62">
-            {{ reason.description }}
-          </p>
-        </article>
+        <div class="relative z-10 grid gap-4 lg:grid-cols-[0.55fr_1.45fr] lg:items-center">
+          <h2 class="text-lg font-black text-slate-950 dark:text-white sm:text-xl">
+            {{ heading }}
+          </h2>
+
+          <div class="grid gap-3 md:grid-cols-3">
+            <article
+              v-for="(benefit, index) in benefits"
+              :key="benefit.title"
+              class="rounded-2xl border border-sky-100/80 bg-white/45 p-3 shadow-sm shadow-sky-100/40 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-none"
+              :style="{ '--reveal-delay': `${index * 60}ms` }"
+            >
+              <h3 class="text-sm font-black text-slate-950 dark:text-white">
+                {{ benefit.title }}
+              </h3>
+              <p class="mt-1 text-xs leading-5 text-slate-600 dark:text-white/[0.62]">
+                {{ benefit.description }}
+              </p>
+            </article>
+          </div>
+        </div>
       </div>
     </div>
   </section>
