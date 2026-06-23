@@ -4,6 +4,7 @@ import {
   TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import { getToolIconImagePath } from "~/lib/icon-assets";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 import { getToolGuideRoute } from "./tool-guide-routes";
 
@@ -48,6 +49,7 @@ export type ToolGuide = ToolGuideContent & {
   slug: string;
   path: string;
   tool: ToolDef;
+  iconPath: string;
   iconPaths: string[];
   iconClass: string;
 };
@@ -1855,6 +1857,7 @@ function requireGuide(tool: ToolDef) {
     slug: route.slug,
     path: route.path,
     tool,
+    iconPath: getToolIconImagePath(tool.key),
     iconPaths: TOOL_ICON_PATHS[tool.key] ?? TOOL_ICON_PATHS.calculator,
     iconClass: TOOL_ICON_CLASSES[tool.key] ?? TOOL_ICON_CLASSES.calculator,
   };

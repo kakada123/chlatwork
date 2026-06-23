@@ -3,7 +3,7 @@ import {
   findToolDirectoryCategoryBySlug,
   getToolsForDirectoryCategory,
 } from "~/data/tool-categories";
-import { TOOL_ICON_CLASSES, TOOL_ICON_PATHS } from "~/lib/tool-registry";
+import { getToolIconImagePath } from "~/lib/icon-assets";
 
 const route = useRoute();
 const siteUrl = "https://chlatwork.com";
@@ -109,27 +109,17 @@ useHead(() => ({
       >
         <div class="flex items-start gap-3">
           <span
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 dark:ring-white/10"
-            :class="TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator"
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 dark:bg-white/[0.08] dark:ring-white/10"
             aria-hidden="true"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                v-for="path in TOOL_ICON_PATHS[tool.key] ||
-                TOOL_ICON_PATHS.calculator"
-                :key="path"
-                :d="path"
-              />
-            </svg>
+            <img
+              :src="getToolIconImagePath(tool.key)"
+              alt=""
+              aria-hidden="true"
+              class="h-11 w-11 rounded-xl object-contain"
+              loading="lazy"
+              decoding="async"
+            />
           </span>
 
           <div class="min-w-0">

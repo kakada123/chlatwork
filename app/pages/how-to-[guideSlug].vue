@@ -166,26 +166,16 @@ useHead(() => {
         >
           <div class="space-y-4">
             <span
-              class="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 dark:ring-white/10"
-              :class="guide.iconClass"
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-black/5 dark:bg-white/[0.08] dark:ring-white/10"
               aria-hidden="true"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  v-for="path in guide.iconPaths"
-                  :key="path"
-                  :d="path"
-                />
-              </svg>
+              <img
+                :src="guide.iconPath"
+                alt=""
+                aria-hidden="true"
+                class="h-12 w-12 rounded-xl object-contain"
+                decoding="async"
+              />
             </span>
             <div>
               <p class="text-xs font-semibold uppercase text-slate-400">

@@ -2,11 +2,10 @@
 import {
   ALL_TOOLS_ICON_PATHS,
   ENABLED_TOOLS,
-  TOOL_ICON_CLASSES,
-  TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
+import { getToolIconImagePath } from "~/lib/icon-assets";
 import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
@@ -31,8 +30,6 @@ const groupedEnabledTools = computed(() =>
   groupTools(filteredEnabledTools.value),
 );
 const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
-const toolIconPaths = TOOL_ICON_PATHS;
-const toolIconClass = TOOL_ICON_CLASSES;
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
 // The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
@@ -400,24 +397,16 @@ onBeforeUnmount(() => {
               @click="closeMenu"
             >
               <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5"
                 aria-hidden="true"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M5 4h10l4 4v12H5V4Z" />
-                  <path d="M14 4v5h5" />
-                  <path d="M8 13h8" />
-                  <path d="M8 16h6" />
-                </svg>
+                <img
+                  :src="getToolIconImagePath(currentToolGuide.tool.key)"
+                  alt=""
+                  aria-hidden="true"
+                  class="h-7 w-7 rounded-md object-contain"
+                  decoding="async"
+                />
               </span>
               Guide: {{ currentToolGuide.tool.name }}
             </NuxtLink>
@@ -474,27 +463,16 @@ onBeforeUnmount(() => {
                 @click="closeMenu"
               >
                 <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  :class="toolIconClass[t.key] || toolIconClass.calculator"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5"
                   aria-hidden="true"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      v-for="path in toolIconPaths[t.key] ||
-                      toolIconPaths.calculator"
-                      :key="path"
-                      :d="path"
-                    />
-                  </svg>
+                  <img
+                    :src="getToolIconImagePath(t.key)"
+                    alt=""
+                    aria-hidden="true"
+                    class="h-7 w-7 rounded-md object-contain"
+                    decoding="async"
+                  />
                 </span>
                 <span class="min-w-0 truncate">{{ t.name }}</span>
               </NuxtLink>
@@ -553,24 +531,16 @@ onBeforeUnmount(() => {
               class="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100 dark:border-cyan-300/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
             >
               <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sky-700 shadow-sm dark:bg-white/10 dark:text-cyan-200"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10"
                 aria-hidden="true"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M5 4h10l4 4v12H5V4Z" />
-                  <path d="M14 4v5h5" />
-                  <path d="M8 13h8" />
-                  <path d="M8 16h6" />
-                </svg>
+                <img
+                  :src="getToolIconImagePath(currentToolGuide.tool.key)"
+                  alt=""
+                  aria-hidden="true"
+                  class="h-7 w-7 rounded-md object-contain"
+                  decoding="async"
+                />
               </span>
               <span class="truncate">Guide: {{ currentToolGuide.tool.name }}</span>
             </NuxtLink>
@@ -614,27 +584,17 @@ onBeforeUnmount(() => {
                 active-class="bg-gray-900 text-white hover:bg-gray-900"
               >
                 <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  :class="toolIconClass[t.key] || toolIconClass.calculator"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10"
                   aria-hidden="true"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      v-for="path in toolIconPaths[t.key] ||
-                      toolIconPaths.calculator"
-                      :key="path"
-                      :d="path"
-                    />
-                  </svg>
+                  <img
+                    :src="getToolIconImagePath(t.key)"
+                    alt=""
+                    aria-hidden="true"
+                    class="h-7 w-7 rounded-md object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </span>
                 <span class="truncate">{{ t.name }}</span>
               </NuxtLink>

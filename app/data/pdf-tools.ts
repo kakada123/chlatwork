@@ -1,4 +1,5 @@
 import type { ToolDef } from "~/lib/tool-registry";
+import { getToolIconImagePath } from "~/lib/icon-assets";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 export type PdfToolKey =
@@ -26,6 +27,7 @@ export type PdfToolDef = ToolDef & {
   emptyState: string;
   accept: string;
   multiple: boolean;
+  iconPath: string;
   iconPaths: string[];
   faq: PdfToolFaq[];
   howItWorks: string[];
@@ -69,6 +71,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Render PDF pages into downloadable JPG images.",
+    iconPath: getToolIconImagePath("pdf-to-jpg"),
     metaTitle: "PDF to JPG Converter Online",
     metaDescription:
       "Convert PDF pages to JPG images in your browser. Download each rendered page without uploading your PDF.",
@@ -105,6 +108,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Combine multiple PDF files into one ordered PDF.",
+    iconPath: getToolIconImagePath("merge-pdf"),
     metaTitle: "Merge PDF Files Online - Combine PDFs Locally | ChlatWork",
     metaDescription:
       "Merge multiple PDF files in your browser, reorder them, and download one combined PDF for forms, records, or sharing.",
@@ -140,6 +144,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Extract selected page ranges into a new PDF.",
+    iconPath: getToolIconImagePath("split-pdf"),
     metaTitle: "Split PDF Online - Extract Page Ranges | ChlatWork",
     metaDescription:
       "Split a PDF by page range in your browser. Enter pages like 1-3, 5, 8-10 and download a new PDF with only those pages.",
@@ -174,6 +179,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "beta",
     category: "PDF Tools",
     description: "Rebuild a PDF locally and remove safe metadata where possible.",
+    iconPath: getToolIconImagePath("compress-pdf"),
     metaTitle: "Compress PDF Online - Rebuild PDF Locally | ChlatWork",
     metaDescription:
       "Compress a PDF in your browser by rebuilding the file and removing safe overhead where possible. Results depend on the source PDF.",
@@ -210,6 +216,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Remove selected pages from a PDF and download the result.",
+    iconPath: getToolIconImagePath("remove-pdf-pages"),
     metaTitle: "Remove Pages from PDF Online",
     metaDescription:
       "Remove pages from a PDF online in your browser. Enter pages like 2, 5-7 and download a clean copy.",
@@ -244,6 +251,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Create a new PDF with pages in a custom order.",
+    iconPath: getToolIconImagePath("reorder-pdf-pages"),
     metaTitle: "Reorder PDF Pages Online",
     metaDescription:
       "Reorder PDF pages online in your browser. Enter a custom page order like 3,1,2,4 and download a new PDF.",
@@ -278,6 +286,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "beta",
     category: "PDF Tools",
     description: "Render simple HTML into a printable PDF page.",
+    iconPath: getToolIconImagePath("html-to-pdf"),
     metaTitle: "HTML to PDF Converter",
     metaDescription:
       "Convert simple HTML to PDF online in your browser with a live preview and private local rendering.",
@@ -313,6 +322,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Convert plain text into a simple downloadable PDF.",
+    iconPath: getToolIconImagePath("text-to-pdf"),
     metaTitle: "Text to PDF Converter",
     metaDescription:
       "Convert plain text to PDF online. Set font size, page size, and margins, then download a browser-generated PDF.",
@@ -347,6 +357,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "stable",
     category: "PDF Tools",
     description: "Fill a simple invoice form and download a clean PDF.",
+    iconPath: getToolIconImagePath("invoice-to-pdf"),
     metaTitle: "Free Invoice PDF Generator",
     metaDescription:
       "Create a simple invoice PDF in your browser. Add company, customer, items, tax, notes, and download instantly.",

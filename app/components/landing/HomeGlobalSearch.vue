@@ -48,6 +48,7 @@ const guideResults = computed<SearchResult[]>(() =>
       title: guide.heroTitle,
       description: guide.metaDescription,
       path: guide.path,
+      iconPath: guide.iconPath,
       iconPaths: guide.iconPaths,
       iconClass: guide.iconClass,
       label: copy.value.heroSearch.guidesLabel,

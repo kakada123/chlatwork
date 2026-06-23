@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {
   ENABLED_TOOLS,
-  TOOL_ICON_CLASSES,
-  TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
+import {
+  getCategoryIconImagePath,
+  getToolIconImagePath,
+} from "~/lib/icon-assets";
 import { filterTools } from "~/lib/tool-search";
 import { TOOL_GUIDES } from "~/data/tool-guides";
 import {
@@ -30,6 +32,7 @@ const directoryCategories = computed(() =>
   TOOL_DIRECTORY_CATEGORIES.map((category) => ({
     ...category,
     count: getToolsForDirectoryCategory(category).length,
+    iconPath: getCategoryIconImagePath(category.key),
   })),
 );
 const pageEl = ref<HTMLElement | null>(null);
@@ -153,8 +156,21 @@ function groupTools(tools: ToolDef[]) {
           data-reveal
           :style="{ '--reveal-delay': `${categoryIndex * 45}ms` }"
         >
-          <div class="flex items-start justify-between gap-3">
-            <div>
+          <div class="flex items-start gap-3">
+            <span
+              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-black/5 dark:bg-white/[0.08] dark:ring-white/10"
+              aria-hidden="true"
+            >
+              <img
+                :src="category.iconPath"
+                alt=""
+                aria-hidden="true"
+                class="h-12 w-12 rounded-xl object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+            <div class="min-w-0 flex-1">
               <h3 class="text-base font-black text-slate-950 dark:text-white">
                 {{ category.shortTitle }}
               </h3>
@@ -210,26 +226,17 @@ function groupTools(tools: ToolDef[]) {
         >
           <div class="flex items-start gap-3">
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 dark:ring-white/10"
-              :class="guide.iconClass"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 dark:bg-white/[0.08] dark:ring-white/10"
               aria-hidden="true"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  v-for="path in guide.iconPaths"
-                  :key="path"
-                  :d="path"
-                />
-              </svg>
+              <img
+                :src="guide.iconPath"
+                alt=""
+                aria-hidden="true"
+                class="h-9 w-9 rounded-xl object-contain"
+                loading="lazy"
+                decoding="async"
+              />
             </span>
             <div class="min-w-0">
               <h3
@@ -282,29 +289,17 @@ function groupTools(tools: ToolDef[]) {
         >
           <div class="flex items-start gap-3">
             <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3 dark:ring-white/10"
-              :class="
-                TOOL_ICON_CLASSES[tool.key] || TOOL_ICON_CLASSES.calculator
-              "
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3 dark:bg-white/[0.08] dark:ring-white/10"
               aria-hidden="true"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  v-for="path in TOOL_ICON_PATHS[tool.key] ||
-                  TOOL_ICON_PATHS.calculator"
-                  :key="path"
-                  :d="path"
-                />
-              </svg>
+              <img
+                :src="getToolIconImagePath(tool.key)"
+                alt=""
+                aria-hidden="true"
+                class="h-11 w-11 rounded-xl object-contain"
+                loading="lazy"
+                decoding="async"
+              />
             </span>
 
             <div class="min-w-0">

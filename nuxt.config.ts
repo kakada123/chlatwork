@@ -63,7 +63,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
-      gaMeasurementId: "",
+      gaMeasurementId: nodeEnv.NUXT_PUBLIC_GA_MEASUREMENT_ID || "G-V6HHF1TMXW",
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
