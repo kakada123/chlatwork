@@ -85,7 +85,13 @@ type ExpenseStoredShareResponse = {
   payload: string;
 };
 
-type ExpenseShareState = "idle" | "busy" | "copied" | "shared" | "ready";
+type ExpenseShareState =
+  | "idle"
+  | "busy"
+  | "copied"
+  | "shared"
+  | "ready"
+  | "failed";
 
 useSeoMeta({
   title: "Expense Tracker | ChlatWork",
@@ -290,7 +296,13 @@ function copyTextWithSelection(value: string) {
   textarea.style.opacity = "0";
 
   document.body.appendChild(textarea);
-  textarea.focus({ preventScroll: true });
+
+  try {
+    textarea.focus({ preventScroll: true });
+  } catch {
+    textarea.focus();
+  }
+
   textarea.select();
   textarea.setSelectionRange(0, value.length);
 
@@ -303,17 +315,17 @@ function copyTextWithSelection(value: string) {
   }
 }
 
-async function copyShareUrl(url: string) {
+async function copyTextToClipboard(value: string) {
   if (navigator.clipboard?.writeText) {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(value);
       return true;
     } catch {
       // Mobile browsers can reject async clipboard writes after API/link work.
     }
   }
 
-  return copyTextWithSelection(url);
+  return copyTextWithSelection(value);
 }
 
 async function shareUrlOnDevice(url: string): Promise<ExpenseShareState> {
@@ -332,7 +344,7 @@ async function shareUrlOnDevice(url: string): Promise<ExpenseShareState> {
     }
   }
 
-  return (await copyShareUrl(url)) ? "copied" : "ready";
+  return (await copyTextToClipboard(url)) ? "copied" : "ready";
 }
 
 function showShareResult(state: ExpenseShareState) {
@@ -373,19 +385,6 @@ async function shareLink() {
     rows: rows.value,
   });
 
-  let url = buildInlineShareUrl(s);
-
-  // Native share and clipboard writes need the click's transient activation, so do
-  // the reliable inline share before any optional short-link network request.
-  lastShareUrl.value = url;
-  replaceShareQuery({ s });
-  const initialShareState = await shareUrlOnDevice(url);
-  showShareResult(initialShareState);
-
-  if (initialShareState === "idle") {
-    return;
-  }
-
   try {
     const response = await $fetch<ExpenseShortLinkResponse>(
       "/api/expense-share",
@@ -397,12 +396,18 @@ async function shareLink() {
 
     if (response.id) {
       replaceShareQuery({ id: response.id });
-      url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
+      const url = `${window.location.origin}${route.path}?id=${encodeURIComponent(
+        response.id,
+      )}`;
       lastShareUrl.value = url;
+      showShareResult(await shareUrlOnDevice(url));
+      return;
     }
   } catch {
-    // The already-shared inline link keeps sharing usable when short links are unavailable.
+    // Short-link storage is required here because long inline fallback URLs were removed.
   }
+
+  setShareState("failed", 2000);
 }
 
 async function copySummary() {
@@ -425,8 +430,9 @@ async function copySummary() {
     categoryBreakdown: categoryBreakdown.value,
   });
 
-  await navigator.clipboard.writeText(lines.join("\n"));
-  flashCopied();
+  if (await copyTextToClipboard(lines.join("\n"))) {
+    flashCopied();
+  }
 }
 
 function loadExample() {
@@ -461,10 +467,6 @@ function applyExpenseSharePayload(payload: ExpenseTrackerSharePayload) {
   if (Array.isArray(payload.rows)) {
     rows.value = payload.rows as ExpenseRow[];
   }
-}
-
-function buildInlineShareUrl(payload: string) {
-  return `${window.location.origin}${route.path}?s=${encodeURIComponent(payload)}`;
 }
 
 onMounted(async () => {

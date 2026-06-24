@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   buildExpenseBreakdown,
   buildExpenseInsights,
+  buildExpenseSharePayload,
   collectExpenseItems,
   formatExpenseAmount,
   formatExpenseAmountDisplay,
@@ -15,6 +16,7 @@ import {
   getNetBalance,
   getTotalIncome,
   getTotalSpent,
+  parseExpenseSharePayload,
   parseExpenseAmount,
   parseExpenseAmountToCents,
   type ExpenseRow,
@@ -120,6 +122,42 @@ test("breakdown, daily average, and insights share the same safe formatter", () 
   assert.equal(categoryBreakdown[0].percent, 100);
   assert.equal(insights[0].text, "Income: $3.33B.");
   assert.equal(insights[0].title, "$3,330,000,000.00");
+});
+
+test("expense tracker share payload preserves rows, range, and budget", () => {
+  const payload = buildExpenseSharePayload({
+    c: "USD",
+    r: "week",
+    b: { period: "weekly", amount: "75" },
+    t: "2026-06-24, Food, Lunch, 5.50",
+    rows: [
+      {
+        type: "expense",
+        date: "2026-06-24",
+        category: "Food",
+        note: "Lunch",
+        amount: "5.50",
+        showNote: true,
+      },
+    ],
+  });
+
+  assert.deepEqual(parseExpenseSharePayload(payload), {
+    c: "USD",
+    r: "week",
+    b: { period: "weekly", amount: "75" },
+    t: "2026-06-24, Food, Lunch, 5.50",
+    rows: [
+      {
+        type: "expense",
+        date: "2026-06-24",
+        category: "Food",
+        note: "Lunch",
+        amount: "5.50",
+        showNote: true,
+      },
+    ],
+  });
 });
 
 test("summary markup has mobile overflow guards for extreme values", () => {

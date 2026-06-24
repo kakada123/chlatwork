@@ -1,5 +1,11 @@
 <script setup lang="ts">
-type PaybackShareState = "idle" | "busy" | "copied" | "shared" | "ready";
+type PaybackShareState =
+  | "idle"
+  | "busy"
+  | "copied"
+  | "shared"
+  | "ready"
+  | "failed";
 
 const props = defineProps<{
   shareState: PaybackShareState;
@@ -16,16 +22,13 @@ const shareLabel = computed(() => {
   if (props.shareState === "copied") return "Link copied";
   if (props.shareState === "shared") return "Link shared";
   if (props.shareState === "ready") return "Link ready";
+  if (props.shareState === "failed") return "Link unavailable";
 
   return "Share link";
 });
 
 const isShareConfirmed = computed(() =>
   ["copied", "shared", "ready"].includes(props.shareState),
-);
-
-const isInlineShareUrl = computed(() =>
-  props.shareUrl.includes("?p="),
 );
 
 function selectShareUrl(event: FocusEvent) {
@@ -105,10 +108,7 @@ function selectShareUrl(event: FocusEvent) {
           @focus="selectShareUrl"
         />
         <p class="mt-1 text-xs text-gray-500">
-          <span v-if="isInlineShareUrl">
-            Short links are unavailable here, so this is the full share link.
-          </span>
-          <span v-else-if="shareState === 'ready'">
+          <span v-if="shareState === 'ready'">
             Your browser blocked auto-copy. Tap the field to select the link.
           </span>
           <span v-else>

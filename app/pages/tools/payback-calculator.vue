@@ -74,7 +74,13 @@ type PaybackStoredShareResponse = {
   payload: string;
 };
 
-type PaybackShareState = "idle" | "busy" | "copied" | "shared" | "ready";
+type PaybackShareState =
+  | "idle"
+  | "busy"
+  | "copied"
+  | "shared"
+  | "ready"
+  | "failed";
 
 useSeoMeta({
   title: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
@@ -235,11 +241,32 @@ const khrRemainder = computed(() => {
 const error = computed(() => syncError.value || parsedRowsState.value.error);
 
 let syncing = false;
+let routeHydrationReady = false;
 
 function releaseSyncLock() {
   void nextTick(() => {
     syncing = false;
   });
+}
+
+function applyRawInput(nextRaw: string) {
+  syncing = true;
+  syncError.value = "";
+  raw.value = nextRaw;
+
+  if (!nextRaw.trim()) {
+    rows.value = [createEmptyPaybackRow()];
+    releaseSyncLock();
+    return;
+  }
+
+  try {
+    rows.value = buildPaybackRowsFromRaw(nextRaw);
+  } catch (error: any) {
+    syncError.value = error?.message || "Invalid paste input";
+  } finally {
+    releaseSyncLock();
+  }
 }
 
 watch(
@@ -272,15 +299,14 @@ watch(
 );
 
 function loadExample() {
-  raw.value = getPaybackExampleRaw(currency.value);
+  applyRawInput(getPaybackExampleRaw(currency.value));
 }
 
 function loadExampleForCurrency(nextCurrency: PaybackCurrency) {
   currency.value = nextCurrency;
   khrRemainderMode.value = "LEFTOVER_ONLY";
   khrRemainderPayer.value = "";
-  syncError.value = "";
-  raw.value = getPaybackExampleRaw(nextCurrency);
+  applyRawInput(getPaybackExampleRaw(nextCurrency));
 }
 
 function reset() {
@@ -326,8 +352,9 @@ async function copyResult() {
     );
   }
 
-  await navigator.clipboard.writeText(lines.join("\n"));
-  flashCopied();
+  if (await copyTextToClipboard(lines.join("\n"))) {
+    flashCopied();
+  }
 }
 
 function applyPaybackSharePayload(payload: PaybackSharePayload) {
@@ -336,7 +363,7 @@ function applyPaybackSharePayload(payload: PaybackSharePayload) {
   }
 
   if (payload.t !== undefined) {
-    raw.value = payload.t;
+    applyRawInput(payload.t);
   }
 
   if (payload.krm) {
@@ -346,10 +373,6 @@ function applyPaybackSharePayload(payload: PaybackSharePayload) {
   if (payload.krp) {
     khrRemainderPayer.value = payload.krp;
   }
-}
-
-function buildInlineShareUrl(payload: string) {
-  return `${window.location.origin}${route.path}?p=${encodeURIComponent(payload)}`;
 }
 
 function isPaybackExampleState() {
@@ -383,6 +406,48 @@ function replaceShareQuery(query: Record<string, string | undefined>) {
   void router.replace({ query }).catch(() => {});
 }
 
+function getRouteQueryValue(value: unknown) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+async function hydratePaybackRouteQuery() {
+  if (getRouteQueryValue(route.query.example) === "1") {
+    loadExampleForCurrency(
+      getRouteQueryValue(route.query.c) === "KHR" ? "KHR" : "USD",
+    );
+    return;
+  }
+
+  const id = getRouteQueryValue(route.query.id);
+
+  if (typeof id === "string" && id.trim()) {
+    try {
+      const response = await $fetch<PaybackStoredShareResponse>(
+        `/api/payback-share/${encodeURIComponent(id.trim())}`,
+      );
+
+      applyPaybackSharePayload(parsePaybackSharePayload(response.payload));
+    } catch {
+      // ignore invalid or expired stored links
+    }
+
+    return;
+  }
+
+  const s =
+    getRouteQueryValue(route.query.p) ?? getRouteQueryValue(route.query.s);
+
+  if (typeof s !== "string" || !s.trim()) {
+    return;
+  }
+
+  try {
+    applyPaybackSharePayload(parsePaybackSharePayload(s.trim()));
+  } catch {
+    // ignore invalid payload
+  }
+}
+
 function shouldUseNativeShare() {
   if (typeof navigator.share !== "function") {
     return false;
@@ -407,7 +472,13 @@ function copyTextWithSelection(value: string) {
   textarea.style.opacity = "0";
 
   document.body.appendChild(textarea);
-  textarea.focus({ preventScroll: true });
+
+  try {
+    textarea.focus({ preventScroll: true });
+  } catch {
+    textarea.focus();
+  }
+
   textarea.select();
   textarea.setSelectionRange(0, value.length);
 
@@ -420,17 +491,17 @@ function copyTextWithSelection(value: string) {
   }
 }
 
-async function copyShareUrl(url: string) {
+async function copyTextToClipboard(value: string) {
   if (navigator.clipboard?.writeText) {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(value);
       return true;
     } catch {
       // Mobile browsers can reject async clipboard writes after API/link work.
     }
   }
 
-  return copyTextWithSelection(url);
+  return copyTextWithSelection(value);
 }
 
 async function shareUrlOnDevice(url: string): Promise<PaybackShareState> {
@@ -449,7 +520,7 @@ async function shareUrlOnDevice(url: string): Promise<PaybackShareState> {
     }
   }
 
-  return (await copyShareUrl(url)) ? "copied" : "ready";
+  return (await copyTextToClipboard(url)) ? "copied" : "ready";
 }
 
 function showShareResult(state: PaybackShareState) {
@@ -487,19 +558,6 @@ async function shareLink() {
     krp: khrRemainderPayer.value,
   });
 
-  let url = buildInlineShareUrl(s);
-
-  // Native share and clipboard writes need the click's transient activation, so do
-  // the reliable inline share before any optional short-link network request.
-  lastShareUrl.value = url;
-  replaceShareQuery({ p: s });
-  const initialShareState = await shareUrlOnDevice(url);
-  showShareResult(initialShareState);
-
-  if (initialShareState === "idle") {
-    return;
-  }
-
   try {
     const response = await $fetch<PaybackShortLinkResponse>(
       "/api/payback-share",
@@ -511,50 +569,45 @@ async function shareLink() {
 
     if (response.id) {
       replaceShareQuery({ id: response.id });
-      url = `${window.location.origin}${route.path}?id=${encodeURIComponent(response.id)}`;
+      const url = `${window.location.origin}${route.path}?id=${encodeURIComponent(
+        response.id,
+      )}`;
       lastShareUrl.value = url;
+      showShareResult(await shareUrlOnDevice(url));
+      return;
     }
   } catch {
-    // The already-shared inline link keeps sharing usable when short links are unavailable.
+    // Short-link storage is required here because long inline fallback URLs were removed.
   }
+
+  setShareState("failed", 2000);
 }
 
-onMounted(async () => {
-  if (route.query.example === "1") {
-    loadExampleForCurrency(route.query.c === "KHR" ? "KHR" : "USD");
-    return;
-  }
-
-  const id = route.query.id;
-
-  if (typeof id === "string" && id.trim()) {
-    try {
-      const response = await $fetch<PaybackStoredShareResponse>(
-        `/api/payback-share/${encodeURIComponent(id.trim())}`,
-      );
-
-      applyPaybackSharePayload(parsePaybackSharePayload(response.payload));
-    } catch {
-      // ignore invalid or expired stored links
+watch(
+  () => [
+    route.query.example,
+    route.query.c,
+    route.query.id,
+    route.query.p,
+    route.query.s,
+  ],
+  () => {
+    if (!routeHydrationReady) {
+      return;
     }
 
-    return;
-  }
+    void hydratePaybackRouteQuery();
+  },
+);
 
-  const s = route.query.p ?? route.query.s;
-
-  if (typeof s !== "string" || !s.trim()) {
-    return;
-  }
-
-  try {
-    applyPaybackSharePayload(parsePaybackSharePayload(s.trim()));
-  } catch {
-    // ignore invalid payload
-  }
+onMounted(() => {
+  routeHydrationReady = true;
+  void hydratePaybackRouteQuery();
 });
 
 onBeforeUnmount(() => {
+  routeHydrationReady = false;
+
   if (copiedTimer) {
     clearTimeout(copiedTimer);
   }

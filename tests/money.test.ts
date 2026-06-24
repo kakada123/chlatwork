@@ -9,6 +9,7 @@ import {
   parseMoneyInputToCents,
 } from "../app/lib/money.ts";
 import {
+  buildPaybackSharePayload,
   buildPaybackKhrRemainderMeta,
   buildPaybackPeople,
   computePaybackSettlements,
@@ -16,6 +17,7 @@ import {
   getPaybackAverage,
   getPaybackTotal,
   groupPaybackEntries,
+  parsePaybackSharePayload,
   parsePaybackRows,
 } from "../app/lib/payback-calculator.ts";
 
@@ -173,6 +175,22 @@ test("payback KHR remainder and huge totals stay deterministic", () => {
 
   assert.equal(getPaybackTotal(hugePeople), 3_330_000_000);
   assert.equal(formatMoneyAmountDisplay(getPaybackTotal(hugePeople), "USD").value, "$3.33B");
+});
+
+test("payback share payload round-trips compact shared links", () => {
+  const payload = buildPaybackSharePayload({
+    c: "KHR",
+    t: "Mina 5000\nRotha: 10000៛",
+    krm: "ASSIGN_TO_PERSON",
+    krp: "Mina",
+  });
+
+  assert.deepEqual(parsePaybackSharePayload(payload), {
+    c: "KHR",
+    t: "Mina:5000\nRotha:10000",
+    krm: "ASSIGN_TO_PERSON",
+    krp: "Mina",
+  });
 });
 
 test("money amount component and summary components include narrow-width overflow guards", () => {
