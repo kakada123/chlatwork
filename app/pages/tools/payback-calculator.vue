@@ -2,7 +2,6 @@
   <div class="mx-auto w-full max-w-[1440px]">
     <PaybackCalculatorHeader
       :share-state="shareState"
-      :share-url="lastShareUrl"
       @reset="reset"
       @share="shareLink"
     />
@@ -107,7 +106,6 @@ useHead({
 
 const copied = ref(false);
 const shareState = ref<PaybackShareState>("idle");
-const lastShareUrl = ref("");
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
@@ -538,14 +536,12 @@ async function shareLink() {
   }
 
   setShareState("busy");
-  lastShareUrl.value = "";
 
   if (isPaybackExampleState()) {
     const query =
       currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
     const url = buildExampleShareUrl();
 
-    lastShareUrl.value = url;
     replaceShareQuery(query);
     showShareResult(await shareUrlOnDevice(url));
     return;
@@ -572,7 +568,6 @@ async function shareLink() {
       const url = `${window.location.origin}${route.path}?id=${encodeURIComponent(
         response.id,
       )}`;
-      lastShareUrl.value = url;
       showShareResult(await shareUrlOnDevice(url));
       return;
     }

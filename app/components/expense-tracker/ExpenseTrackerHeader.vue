@@ -9,7 +9,6 @@ type ExpenseShareState =
 
 const props = defineProps<{
   shareState: ExpenseShareState;
-  shareUrl: string;
 }>();
 
 const emit = defineEmits<{
@@ -30,11 +29,6 @@ const shareLabel = computed(() => {
 const isShareConfirmed = computed(() =>
   ["copied", "shared", "ready"].includes(props.shareState),
 );
-
-function selectShareUrl(event: FocusEvent) {
-  const input = event.target as HTMLInputElement | null;
-  input?.select();
-}
 </script>
 
 <template>
@@ -95,26 +89,6 @@ function selectShareUrl(event: FocusEvent) {
         </button>
       </div>
 
-      <div v-if="shareUrl" class="w-full sm:max-w-xs">
-        <label class="sr-only" for="expense-share-url">
-          Expense Tracker share URL
-        </label>
-        <input
-          id="expense-share-url"
-          class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs text-gray-700 outline-none focus:ring-2 focus:ring-black/10 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:focus:ring-cyan-200/15"
-          readonly
-          :value="shareUrl"
-          @focus="selectShareUrl"
-        />
-        <p class="mt-1 text-xs text-gray-500 dark:text-white/50">
-          <span v-if="shareState === 'ready'">
-            Your browser blocked auto-copy. Tap the field to select the link.
-          </span>
-          <span v-else>
-            The share link stays visible so you can copy it again if needed.
-          </span>
-        </p>
-      </div>
     </div>
   </div>
 </template>
