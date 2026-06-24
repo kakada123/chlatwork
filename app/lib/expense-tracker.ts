@@ -75,6 +75,25 @@ export type ExpenseTrackerSharePayload = {
   rows?: ExpenseRow[];
 };
 
+type ExpenseCompactRow = [
+  type: MoneyType | "",
+  date: string,
+  category: string,
+  note: string,
+  amount: string,
+  customCategory?: string,
+  showNote?: 1,
+];
+
+type ExpenseCompactSharePayload = {
+  v: 1;
+  c?: ExpenseCurrency;
+  r?: ExpenseRangeMode;
+  b?: [period: Budget["period"], amount: string];
+  t?: string;
+  rs?: ExpenseCompactRow[];
+};
+
 export type ExpenseExampleState = {
   rows: ExpenseRow[];
   budget: Budget;
@@ -660,7 +679,9 @@ export function parseExpenseRaw(raw: string): ExpenseRow[] {
 export function buildExpenseSharePayload(
   payload: ExpenseTrackerSharePayload,
 ): string {
-  return compressToEncodedURIComponent(JSON.stringify(payload));
+  return compressToEncodedURIComponent(
+    JSON.stringify(buildCompactExpenseSharePayload(payload)),
+  );
 }
 
 export function parseExpenseSharePayload(
@@ -671,7 +692,118 @@ export function parseExpenseSharePayload(
     throw new Error("Invalid share payload");
   }
 
-  return JSON.parse(json) as ExpenseTrackerSharePayload;
+  const payload = JSON.parse(json) as
+    | ExpenseTrackerSharePayload
+    | ExpenseCompactSharePayload;
+
+  if (isExpenseCompactSharePayload(payload)) {
+    return parseCompactExpenseSharePayload(payload);
+  }
+
+  return payload;
+}
+
+function buildCompactExpenseSharePayload(
+  payload: ExpenseTrackerSharePayload,
+): ExpenseCompactSharePayload {
+  const compactPayload: ExpenseCompactSharePayload = { v: 1 };
+
+  if (payload.c) {
+    compactPayload.c = payload.c;
+  }
+
+  if (payload.r) {
+    compactPayload.r = payload.r;
+  }
+
+  if (payload.b) {
+    compactPayload.b = [payload.b.period, payload.b.amount];
+  }
+
+  if (payload.t !== undefined) {
+    compactPayload.t = payload.t;
+  }
+
+  if (Array.isArray(payload.rows)) {
+    compactPayload.rs = payload.rows.map(buildCompactExpenseRow);
+  }
+
+  return compactPayload;
+}
+
+function buildCompactExpenseRow(row: ExpenseRow): ExpenseCompactRow {
+  const compactRow: Array<string | 1> = [
+    row.type === "income" ? "income" : "",
+    row.date,
+    row.category,
+    row.note,
+    row.amount,
+  ];
+
+  if (row.customCategory || row.showNote) {
+    compactRow[5] = row.customCategory ?? "";
+  }
+
+  if (row.showNote) {
+    compactRow[6] = 1;
+  }
+
+  return compactRow as ExpenseCompactRow;
+}
+
+function isExpenseCompactSharePayload(
+  payload: ExpenseTrackerSharePayload | ExpenseCompactSharePayload,
+): payload is ExpenseCompactSharePayload {
+  return "v" in payload && payload.v === 1;
+}
+
+function parseCompactExpenseSharePayload(
+  payload: ExpenseCompactSharePayload,
+): ExpenseTrackerSharePayload {
+  return {
+    c: payload.c,
+    r: payload.r,
+    b: parseCompactExpenseBudget(payload.b),
+    t: payload.t,
+    rows: payload.rs?.map(parseCompactExpenseRow),
+  };
+}
+
+function parseCompactExpenseBudget(
+  budget: ExpenseCompactSharePayload["b"],
+): Budget | undefined {
+  if (!budget) {
+    return undefined;
+  }
+
+  const [period, amount] = budget;
+
+  if ((period !== "monthly" && period !== "weekly") || typeof amount !== "string") {
+    return undefined;
+  }
+
+  return { period, amount };
+}
+
+function parseCompactExpenseRow(row: ExpenseCompactRow): ExpenseRow {
+  const [type, date, category, note, amount, customCategory, showNote] = row;
+  const nextRow: ExpenseRow = {
+    type: type || "expense",
+    date,
+    category,
+    note,
+    amount,
+  };
+
+  if (customCategory) {
+    nextRow.customCategory = customCategory;
+  }
+
+  if (showNote === 1) {
+    nextRow.showNote = true;
+  }
+
+  return nextRow;
 }
 
 export function buildExpenseSummaryLines(input: {

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import lzString from "lz-string";
 import {
   buildExpenseBreakdown,
   buildExpenseInsights,
@@ -21,6 +22,8 @@ import {
   parseExpenseAmountToCents,
   type ExpenseRow,
 } from "../app/lib/expense-tracker.ts";
+
+const { compressToEncodedURIComponent } = lzString;
 
 function row(type: "expense" | "income", amount: string, category = "Food"): ExpenseRow {
   return {
@@ -125,7 +128,7 @@ test("breakdown, daily average, and insights share the same safe formatter", () 
 });
 
 test("expense tracker share payload preserves rows, range, and budget", () => {
-  const payload = buildExpenseSharePayload({
+  const shareState = {
     c: "USD",
     r: "week",
     b: { period: "weekly", amount: "75" },
@@ -140,7 +143,9 @@ test("expense tracker share payload preserves rows, range, and budget", () => {
         showNote: true,
       },
     ],
-  });
+  } as const;
+
+  const payload = buildExpenseSharePayload(shareState);
 
   assert.deepEqual(parseExpenseSharePayload(payload), {
     c: "USD",
@@ -158,6 +163,10 @@ test("expense tracker share payload preserves rows, range, and budget", () => {
       },
     ],
   });
+
+  const legacyPayload = compressToEncodedURIComponent(JSON.stringify(shareState));
+
+  assert.deepEqual(parseExpenseSharePayload(legacyPayload), shareState);
 });
 
 test("summary markup has mobile overflow guards for extreme values", () => {
