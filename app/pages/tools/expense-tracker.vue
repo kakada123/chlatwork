@@ -264,12 +264,6 @@ function replaceShareQuery(query: Record<string, string | undefined>) {
   void router.replace({ query }).catch(() => {});
 }
 
-function getCurrentShareId() {
-  const id = route.query.id;
-
-  return typeof id === "string" && id.trim() ? id.trim() : "";
-}
-
 function shouldUseNativeShare() {
   if (typeof navigator.share !== "function") {
     return false;
@@ -361,9 +355,7 @@ async function shareLink() {
 
   setShareState("busy");
 
-  const currentShareId = getCurrentShareId();
-
-  if (!currentShareId && isExpenseExampleState()) {
+  if (isExpenseExampleState()) {
     const query =
       currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
     const url = buildExampleShareUrl();
@@ -386,7 +378,7 @@ async function shareLink() {
       "/api/expense-share",
       {
         method: "POST",
-        body: currentShareId ? { id: currentShareId, payload: s } : { payload: s },
+        body: { payload: s },
       },
     );
 
