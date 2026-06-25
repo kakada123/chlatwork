@@ -10,6 +10,13 @@ export const TRUST_PAGE_PATHS = [
   "/disclaimer",
 ];
 
+export const SERVICE_PAGE_PATHS = [
+  "/pricing",
+  "/services/qr-menu",
+  "/services/invoice-generator",
+  "/services/custom-business-tool",
+];
+
 export const TOOL_CATEGORY_PATHS = [
   "/tools",
   "/tools/pdf",
@@ -57,6 +64,7 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/",
   "/portfolio",
   ...TRUST_PAGE_PATHS,
+  ...SERVICE_PAGE_PATHS,
   "/guides",
   ...TOOL_CATEGORY_PATHS,
   ...TOOL_PAGE_PATHS,

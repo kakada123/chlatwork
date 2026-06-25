@@ -35,6 +35,9 @@ const route = useRoute();
 // The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
 const isToolsIndexPage = computed(() => route.path === "/tools");
 const isPortfolioPage = computed(() => route.path === "/portfolio");
+const isBusinessPage = computed(
+  () => route.path === "/pricing" || route.path.startsWith("/services/"),
+);
 const isToolGuidePage = computed(() =>
   Boolean(findToolGuideRouteByPath(route.path)),
 );
@@ -68,6 +71,7 @@ const isLandingPage = computed(
     route.path === "/" ||
     isToolsIndexPage.value ||
     isPortfolioPage.value ||
+    isBusinessPage.value ||
     isToolGuidePage.value ||
     isStarterGuidePage.value,
 );
@@ -158,6 +162,12 @@ onBeforeUnmount(() => {
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
           >
             {{ copy.nav.tools }}
+          </NuxtLink>
+          <NuxtLink
+            to="/pricing"
+            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+          >
+            Pricing
           </NuxtLink>
           <NuxtLink
             to="/guides"
@@ -364,6 +374,14 @@ onBeforeUnmount(() => {
                 </svg>
               </span>
               {{ copy.nav.allTools }}
+            </NuxtLink>
+
+            <NuxtLink
+              to="/pricing"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              @click="closeMenu"
+            >
+              Pricing
             </NuxtLink>
 
             <NuxtLink

@@ -27,6 +27,8 @@
       :margin="state.margin"
       :ec-level="state.ecLevel"
     />
+
+    <BusinessCta service-slug="qr-menu" compact />
   </div>
 </template>
 
