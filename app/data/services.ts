@@ -8,6 +8,7 @@ export type BusinessService = {
   name: string;
   shortName: string;
   route: string;
+  demoRoute: string;
   eyebrow: string;
   title: string;
   description: string;
@@ -34,6 +35,7 @@ export const BUSINESS_SERVICES: BusinessService[] = [
     name: "QR Menu Website",
     shortName: "QR menu",
     route: "/services/qr-menu",
+    demoRoute: "/demos/cafe-menu",
     eyebrow: "For restaurants, cafes, and food stalls",
     title: "A simple QR menu website customers can open from any phone.",
     description:
@@ -73,6 +75,7 @@ export const BUSINESS_SERVICES: BusinessService[] = [
     name: "Invoice / Receipt Generator",
     shortName: "invoice generator",
     route: "/services/invoice-generator",
+    demoRoute: "/demos/invoice",
     eyebrow: "For shops, freelancers, and service teams",
     title: "A branded invoice or receipt generator for your business workflow.",
     description:
@@ -112,6 +115,7 @@ export const BUSINESS_SERVICES: BusinessService[] = [
     name: "Custom Business Tool",
     shortName: "custom tool",
     route: "/services/custom-business-tool",
+    demoRoute: "/demos/staff-card",
     eyebrow: "For small operational workflows",
     title: "A focused web tool for one real business task.",
     description:

@@ -36,7 +36,10 @@ const route = useRoute();
 const isToolsIndexPage = computed(() => route.path === "/tools");
 const isPortfolioPage = computed(() => route.path === "/portfolio");
 const isBusinessPage = computed(
-  () => route.path === "/pricing" || route.path.startsWith("/services/"),
+  () =>
+    route.path === "/pricing" ||
+    route.path.startsWith("/services/") ||
+    route.path.startsWith("/demos/"),
 );
 const isToolGuidePage = computed(() =>
   Boolean(findToolGuideRouteByPath(route.path)),

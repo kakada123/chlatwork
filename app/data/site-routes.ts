@@ -17,6 +17,12 @@ export const SERVICE_PAGE_PATHS = [
   "/services/custom-business-tool",
 ];
 
+export const DEMO_PAGE_PATHS = [
+  "/demos/cafe-menu",
+  "/demos/invoice",
+  "/demos/staff-card",
+];
+
 export const TOOL_CATEGORY_PATHS = [
   "/tools",
   "/tools/pdf",
@@ -65,6 +71,7 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/portfolio",
   ...TRUST_PAGE_PATHS,
   ...SERVICE_PAGE_PATHS,
+  ...DEMO_PAGE_PATHS,
   "/guides",
   ...TOOL_CATEGORY_PATHS,
   ...TOOL_PAGE_PATHS,
