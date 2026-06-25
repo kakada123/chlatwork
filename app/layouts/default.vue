@@ -167,12 +167,6 @@ onBeforeUnmount(() => {
             {{ copy.nav.tools }}
           </NuxtLink>
           <NuxtLink
-            to="/pricing"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-          >
-            Pricing
-          </NuxtLink>
-          <NuxtLink
             to="/guides"
             class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
           >
@@ -377,14 +371,6 @@ onBeforeUnmount(() => {
                 </svg>
               </span>
               {{ copy.nav.allTools }}
-            </NuxtLink>
-
-            <NuxtLink
-              to="/pricing"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              Pricing
             </NuxtLink>
 
             <NuxtLink
