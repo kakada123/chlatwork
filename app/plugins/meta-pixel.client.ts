@@ -6,6 +6,18 @@ const metaPixelScriptUrl = "https://connect.facebook.net/en_US/fbevents.js";
 const getPagePath = (fullPath?: string) =>
   fullPath || `${window.location.pathname}${window.location.search}`;
 
+const normalizePixelId = (value: unknown) => {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number" || typeof value === "bigint") {
+    return String(value).trim();
+  }
+
+  return "";
+};
+
 const installMetaPixelStub = () => {
   if (window.fbq) {
     return;
@@ -56,7 +68,7 @@ const ensureMetaPixelScript = () => {
 };
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const pixelId = useRuntimeConfig().public.metaPixelId?.trim();
+  const pixelId = normalizePixelId(useRuntimeConfig().public.metaPixelId);
 
   if (
     import.meta.dev ||
