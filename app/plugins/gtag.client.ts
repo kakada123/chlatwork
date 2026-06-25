@@ -35,7 +35,7 @@ const ensureGoogleTagScript = (measurementId: string) => {
   document.head.appendChild(script);
 };
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
   const measurementId = useRuntimeConfig().public.gaMeasurementId?.trim();
 
   if (
@@ -73,8 +73,10 @@ export default defineNuxtPlugin(() => {
     trackPageView(pagePath);
   };
 
-  nextTick(() => {
-    trackRoute(router.currentRoute.value.fullPath);
+  nuxtApp.hook("app:mounted", () => {
+    nextTick(() => {
+      trackRoute(router.currentRoute.value.fullPath);
+    });
   });
 
   router.afterEach((to) => {
