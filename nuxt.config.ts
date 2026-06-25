@@ -7,6 +7,8 @@ const nodeEnv =
     }
   ).process?.env ?? {};
 
+const metaPixelId = "1052678513753009";
+
 const colorModeScript = `
 (() => {
   const storageKey = "chlatwork-color-mode";
@@ -64,6 +66,7 @@ export default defineNuxtConfig({
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
       gaMeasurementId: nodeEnv.NUXT_PUBLIC_GA_MEASUREMENT_ID || "G-Y3CGX9GBQN",
+      metaPixelId,
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
@@ -171,6 +174,12 @@ export default defineNuxtConfig({
           async: true,
           src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3732801458368248",
           crossorigin: "anonymous",
+        },
+      ],
+      noscript: [
+        {
+          children: `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1" alt="" />`,
+          tagPosition: "bodyClose",
         },
       ],
     },
