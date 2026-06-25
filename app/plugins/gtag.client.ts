@@ -1,18 +1,38 @@
 import { nextTick } from "vue";
 
 const productionHostname = "chlatwork.com";
+const googleTagScriptUrl = (measurementId: string) =>
+  `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(
+    measurementId,
+  )}`;
 
 const getPagePath = (fullPath?: string) =>
   fullPath || `${window.location.pathname}${window.location.search}`;
 
-const trackPageView = (measurementId: string, fullPath?: string) => {
+const trackPageView = (fullPath?: string) => {
   const pagePath = getPagePath(fullPath);
 
-  window.gtag?.("config", measurementId, {
+  window.gtag?.("event", "page_view", {
     page_path: pagePath,
-    page_location: window.location.href,
+    page_location: `${window.location.origin}${pagePath}`,
     page_title: document.title,
   });
+};
+
+const ensureGoogleTagScript = (measurementId: string) => {
+  const scriptUrl = googleTagScriptUrl(measurementId);
+  const hasGoogleTagScript = Array.from(document.scripts).some(
+    (script) => script.src === scriptUrl,
+  );
+
+  if (hasGoogleTagScript) {
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = scriptUrl;
+  document.head.appendChild(script);
 };
 
 export default defineNuxtPlugin(() => {
@@ -33,14 +53,11 @@ export default defineNuxtPlugin(() => {
 
   window.gtag = window.gtag || pushToDataLayer;
 
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(
-    measurementId,
-  )}`;
-  document.head.appendChild(script);
-
+  ensureGoogleTagScript(measurementId);
   window.gtag("js", new Date());
+  window.gtag("config", measurementId, {
+    send_page_view: false,
+  });
 
   const router = useRouter();
   let lastTrackedPath = "";
@@ -53,10 +70,12 @@ export default defineNuxtPlugin(() => {
     }
 
     lastTrackedPath = pagePath;
-    trackPageView(measurementId, pagePath);
+    trackPageView(pagePath);
   };
 
-  trackRoute(router.currentRoute.value.fullPath);
+  nextTick(() => {
+    trackRoute(router.currentRoute.value.fullPath);
+  });
 
   router.afterEach((to) => {
     nextTick(() => {
