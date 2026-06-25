@@ -92,7 +92,7 @@ useHead({
 <template>
   <main class="mx-auto w-full max-w-[1180px] space-y-8">
     <section
-      class="grid gap-6 rounded-2xl border border-sky-100/90 bg-white/85 p-5 shadow-sm shadow-sky-100/80 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20 lg:grid-cols-[minmax(0,1fr)_420px] lg:p-8"
+      class="grid gap-6 rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm shadow-sky-100/80 dark:!border-slate-800 dark:!bg-slate-900 dark:shadow-black/20 lg:grid-cols-[minmax(0,1fr)_420px] lg:p-8"
     >
       <div class="space-y-5">
         <div class="space-y-3">
@@ -108,21 +108,21 @@ useHead({
           <h1 class="max-w-3xl text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl">
             A QR menu demo for a small Cambodian cafe.
           </h1>
-          <p class="max-w-3xl text-base leading-7 text-slate-600 dark:text-white/65">
+          <p class="max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
             This preview shows how a simple QR menu can look on a customer phone:
             brand area, Khmer and English product names, category sections, and
             clear prices for quick ordering.
           </p>
         </div>
 
-        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:!border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
           Demo only — customized for your business after order.
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row">
           <NuxtLink
             :to="service.route"
-            class="inline-flex h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
+            class="inline-flex h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
           >
             Order QR Menu
           </NuxtLink>
@@ -130,18 +130,18 @@ useHead({
             :href="TELEGRAM_CONTACT.href"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:hover:bg-white/[0.10]"
+            class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
           >
             Contact on Telegram
           </a>
         </div>
       </div>
 
-      <aside class="mx-auto w-full max-w-[390px] rounded-[28px] border border-slate-200 bg-slate-950 p-3 shadow-2xl shadow-slate-300/50 dark:border-white/10 dark:shadow-black/30">
-        <div class="overflow-hidden rounded-[22px] bg-[#fffaf0] text-slate-950">
-          <header class="bg-[linear-gradient(135deg,#0f766e,#14532d)] p-5 text-white">
+      <aside class="mx-auto w-full max-w-[390px] rounded-[28px] border border-slate-200 bg-slate-950 p-3 shadow-2xl shadow-slate-300/50 dark:!border-slate-800 dark:!bg-black dark:ring-1 dark:ring-slate-700 dark:shadow-black/40">
+        <div class="overflow-hidden rounded-[22px] bg-[#fffaf0] text-slate-950 dark:!bg-slate-900 dark:text-white">
+          <header class="bg-[linear-gradient(135deg,#0f766e,#14532d)] p-5 text-white dark:bg-[linear-gradient(135deg,#064e3b,#0f172a)]">
             <div class="flex items-center gap-3">
-              <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/95 text-lg font-black text-emerald-900 shadow-sm">
+              <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/95 text-lg font-black text-emerald-900 shadow-sm dark:!bg-emerald-100 dark:text-emerald-950">
                 SC
               </div>
               <div>
@@ -159,7 +159,7 @@ useHead({
               <span
                 v-for="category in menuCategories"
                 :key="category.name"
-                class="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-900"
+                class="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
               >
                 {{ category.name }} / {{ category.label }}
               </span>
@@ -170,11 +170,11 @@ useHead({
               :key="category.name"
               class="space-y-3"
             >
-              <div class="flex items-end justify-between border-b border-emerald-900/10 pb-2">
+              <div class="flex items-end justify-between border-b border-emerald-900/10 pb-2 dark:!border-slate-700">
                 <h2 class="text-base font-black">
                   {{ category.name }}
                 </h2>
-                <p class="text-sm font-semibold text-emerald-800">
+                <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                   {{ category.label }}
                 </p>
               </div>
@@ -182,23 +182,23 @@ useHead({
               <article
                 v-for="item in category.items"
                 :key="item.name"
-                class="rounded-2xl border border-emerald-900/10 bg-white p-3 shadow-sm"
+                class="rounded-2xl border border-emerald-900/10 bg-[#ffffff] p-3 shadow-sm dark:!border-slate-700 dark:!bg-slate-800"
               >
                 <div class="flex gap-3">
-                  <div class="h-16 w-16 shrink-0 rounded-2xl bg-[linear-gradient(135deg,#fde68a,#fb923c)]" />
+                  <div class="h-16 w-16 shrink-0 rounded-2xl bg-[linear-gradient(135deg,#fde68a,#fb923c)] dark:bg-[linear-gradient(135deg,#0f766e,#334155)]" />
                   <div class="min-w-0 flex-1">
                     <div class="flex items-start justify-between gap-3">
                       <div>
                         <h3 class="text-sm font-black">{{ item.name }}</h3>
-                        <p class="text-xs font-semibold text-emerald-800">
+                        <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                           {{ item.khmerName }}
                         </p>
                       </div>
-                      <p class="shrink-0 text-sm font-black text-emerald-900">
+                      <p class="shrink-0 text-sm font-black text-emerald-900 dark:text-emerald-200">
                         {{ item.price }}
                       </p>
                     </div>
-                    <p class="mt-2 text-xs leading-5 text-slate-500">
+                    <p class="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                       {{ item.description }}
                     </p>
                   </div>

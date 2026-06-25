@@ -35,7 +35,7 @@ const body = computed(
 
 <template>
   <section
-    class="mx-auto w-full max-w-[1180px] rounded-2xl border border-sky-200/80 bg-white/85 p-5 shadow-sm shadow-sky-100/70 dark:border-cyan-300/15 dark:bg-white/[0.07] dark:shadow-black/20"
+    class="mx-auto w-full max-w-[1180px] rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm shadow-sky-100/70 dark:!border-slate-800 dark:!bg-slate-900 dark:shadow-black/20"
     :class="compact ? 'space-y-4' : 'space-y-5 sm:p-6'"
     aria-label="Business service call to action"
   >
@@ -47,10 +47,10 @@ const body = computed(
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
           {{ heading }}
         </h2>
-        <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
+        <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
           {{ body }}
         </p>
-        <p class="text-sm font-semibold text-slate-800 dark:text-white/75">
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-300">
           {{ service.startingPrice }} - {{ service.priceNote }}
         </p>
       </div>
@@ -60,13 +60,13 @@ const body = computed(
           :href="TELEGRAM_CONTACT.href"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
+          class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
         >
           Message on Telegram
         </a>
         <NuxtLink
           :to="service.route"
-          class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:hover:bg-white/[0.10]"
+          class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-5 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
         >
           View service
         </NuxtLink>
