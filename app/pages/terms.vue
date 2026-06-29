@@ -2,6 +2,7 @@
 const title = "Terms of Use - ChlatWork";
 const description =
   "Terms for using ChlatWork online tools, guide pages, generated outputs, advertising, and browser-based workflows.";
+const reviewedAt = "2026-06-29";
 
 useSeoMeta({
   title,
@@ -17,6 +18,24 @@ useSeoMeta({
 
 useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/terms" }],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: title,
+        url: "https://chlatwork.com/terms",
+        description,
+        dateModified: reviewedAt,
+        publisher: {
+          "@type": "Organization",
+          name: "ChlatWork",
+          url: "https://chlatwork.com",
+        },
+      }),
+    },
+  ],
 });
 </script>
 
@@ -30,7 +49,7 @@ useHead({
         checking results before using them.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: May 23, 2026
+        Last updated: June 29, 2026
       </p>
     </header>
 

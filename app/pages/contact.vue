@@ -2,6 +2,7 @@
 const title = "Contact ChlatWork";
 const description =
   "Contact ChlatWork to report bugs, request tools, share feedback, or ask privacy and cookie questions.";
+const reviewedAt = "2026-06-29";
 
 useSeoMeta({
   title,
@@ -17,6 +18,24 @@ useSeoMeta({
 
 useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/contact" }],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: title,
+        url: "https://chlatwork.com/contact",
+        description,
+        dateModified: reviewedAt,
+        publisher: {
+          "@type": "Organization",
+          name: "ChlatWork",
+          url: "https://chlatwork.com",
+        },
+      }),
+    },
+  ],
 });
 
 const email = "kakada127@gmail.com";

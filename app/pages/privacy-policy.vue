@@ -5,6 +5,7 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "Privacy Policy - ChlatWork";
 const description =
   "How ChlatWork handles browser-based processing, data collection, cookies, analytics, ads, and third-party services.";
+const reviewedAt = "2026-06-29";
 
 useSeoMeta({
   title,
@@ -20,6 +21,24 @@ useSeoMeta({
 
 useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/privacy-policy" }],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: title,
+        url: "https://chlatwork.com/privacy-policy",
+        description,
+        dateModified: reviewedAt,
+        publisher: {
+          "@type": "Organization",
+          name: "ChlatWork",
+          url: "https://chlatwork.com",
+        },
+      }),
+    },
+  ],
 });
 </script>
 
@@ -33,7 +52,7 @@ useHead({
         analytics, advertising, third-party services, and your choices.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: May 23, 2026
+        Last updated: June 29, 2026
       </p>
     </header>
 

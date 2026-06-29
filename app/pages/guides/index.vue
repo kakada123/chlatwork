@@ -37,6 +37,13 @@ useHead({
         Short, practical guides for common workflows: QR sharing, barcode
         formats, PDF safety, PDF size reduction, and Khmer Unicode cleanup.
       </p>
+      <div
+        class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100/80"
+      >
+        Guides are reviewed against live tool behavior and updated when workflows,
+        browser behavior, or policy requirements change. Last editorial review:
+        June 29, 2026.
+      </div>
     </header>
 
     <section class="grid gap-4 sm:grid-cols-2">

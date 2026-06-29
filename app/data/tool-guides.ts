@@ -13,6 +13,13 @@ export type ToolGuideFaq = {
   answer: string;
 };
 
+export type ToolGuideExample = {
+  title: string;
+  scenario: string;
+  steps: string[];
+  result: string;
+};
+
 type ToolGuideContent = {
   metaTitle: string;
   metaDescription: string;
@@ -23,7 +30,10 @@ type ToolGuideContent = {
   whyUse: string[];
   steps: string[];
   useCases: string[];
+  practicalExamples?: ToolGuideExample[];
+  practicalExamplesKm?: ToolGuideExample[];
   tips: string[];
+  commonMistakes?: string[];
   privacy?: string[];
   faqs: ToolGuideFaq[];
   keywords: string[];
@@ -92,6 +102,12 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
       "For very large PDFs, close other heavy browser tabs before processing.",
       "Keep a backup of the original file until you confirm the new PDF is correct.",
       options.limitation,
+    ],
+    commonMistakes: [
+      "Uploading the wrong version of the file and replacing the wrong document.",
+      "Skipping the final preview and sharing a file with missing pages or bad layout.",
+      "Overwriting important originals instead of keeping a backup copy.",
+      "Ignoring upload size limits on destination systems until the last minute.",
     ],
     privacy: [
       `${options.toolName} reads your ${options.inputLabel} in the browser and creates the ${options.outputLabel} locally.`,
@@ -167,6 +183,68 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Roommates split electricity, water, internet, and grocery expenses at the end of the month.",
       "A volunteer group tracks shared event spending before collecting reimbursements.",
     ],
+    practicalExamples: [
+      {
+        title: "Weekend trip with mixed payers",
+        scenario:
+          "Five friends take a two-day trip. Different people pay fuel, hotel, and food in separate transactions.",
+        steps: [
+          "Add all five names first, then enter each expense with the real payer.",
+          "Keep all values in one currency and note any transfer fee separately.",
+          "Review the final settlement map and confirm amounts in group chat before payment.",
+        ],
+        result:
+          "The group gets one clear list of who pays whom, instead of arguing over receipt screenshots.",
+      },
+      {
+        title: "Office snack and supply reimbursements",
+        scenario:
+          "A small office buys snacks, printer paper, and drinking water during one week from different pockets.",
+        steps: [
+          "Enter each purchase at the end of day so receipts are not forgotten.",
+          "Tag optional notes for non-routine expenses for later manager review.",
+          "Use the generated summary when finance reimburses staff.",
+        ],
+        result:
+          "Reimbursements are faster because everyone can trace each expense line and final balance.",
+      },
+      {
+        title: "Shared apartment utility settlement",
+        scenario:
+          "Three roommates split electricity, water, internet, and one shared grocery run with different payers.",
+        steps: [
+          "Create one expense row per bill with the person who actually paid.",
+          "Add the grocery receipt as a shared item and include all roommates.",
+          "Check the final payback list before sending transfer requests.",
+        ],
+        result:
+          "Utility settlement becomes transparent and nobody pays twice for the same month.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "ចែកថ្លៃធ្វើដំណើរជាមួយមិត្តភក្តិ",
+        scenario:
+          "មិត្ត ៥ នាក់ទៅលេងខេត្ត ហើយម្នាក់ៗចេញលុយខុសគ្នា សម្រាប់សាំង អាហារ និងសណ្ឋាគារ។",
+        steps: [
+          "បញ្ចូលឈ្មោះអ្នកទាំងអស់ រួចបញ្ចូលចំណាយតាមអ្នកដែលបានបង់ពិតប្រាកដ។",
+          "ប្រើរូបិយប័ណ្ណតែមួយ និងកត់ថ្លៃផ្ទេរប្រាក់ដាច់ដោយឡែក។",
+          "ពិនិត្យលទ្ធផលចុងក្រោយជាក្រុម មុនផ្ទេរប្រាក់។",
+        ],
+        result: "គ្រប់គ្នាដឹងច្បាស់ថា ត្រូវបង់ឱ្យនរណា និងប៉ុន្មាន ដោយមិនច្រឡំ។",
+      },
+      {
+        title: "ចែកថ្លៃវិក្កយបត្រផ្ទះជួល",
+        scenario:
+          "អ្នករស់នៅរួម ៣ នាក់ត្រូវចែកថ្លៃភ្លើង ទឹក អ៊ីនធឺណិត និងទំនិញប្រើប្រាស់ប្រចាំខែ។",
+        steps: [
+          "បញ្ចូលវិក្កយបត្រនីមួយៗជាមួយអ្នកដែលបានបង់មុន។",
+          "បន្ថែមចំណាយផ្សារចូលរួមជាក្រុមសម្រាប់អ្នកទាំងអស់។",
+          "បញ្ជាក់លទ្ធផលម្តងចុងក្រោយ មុនស្នើឱ្យផ្ទេរ។",
+        ],
+        result: "ការចែកលុយប្រចាំខែមានតម្លាភាព និងបញ្ចៀសការបង់ស្ទួន។",
+      },
+    ],
     tips: [
       "Enter expenses as soon as possible so nobody forgets who paid.",
       "Use clear names that everyone in the group recognizes.",
@@ -174,6 +252,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "If people pay by different channels, account for bank transfer fees or exchange differences before collecting money.",
       "Keep receipts or screenshots for larger amounts.",
       "Share the final result before collecting money so people can confirm it.",
+    ],
+    commonMistakes: [
+      "Leaving a person out of one expense row, which shifts all balances.",
+      "Mixing USD and KHR without agreeing on exchange rate first.",
+      "Rounding each item instead of rounding only the final settlement.",
+      "Collecting money before everyone confirms the final list.",
+      "Using unclear nicknames so people cannot tell who should pay whom.",
     ],
     privacy: [
       "Normal PayBack calculations run in your browser from the names and amounts you enter.",
@@ -255,12 +340,81 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A support team sends smaller issue screenshots through Telegram or email.",
       "A restaurant prepares menu images that load faster on mobile data.",
     ],
+    practicalExamples: [
+      {
+        title: "Marketplace product upload limit",
+        scenario:
+          "A seller needs to upload 20 product photos, but each image is above platform size limits.",
+        steps: [
+          "Batch-select all photos and use medium quality compression first.",
+          "Check one zoomed product photo to ensure labels and details remain readable.",
+          "Download the compressed set and upload the accepted files to the listing.",
+        ],
+        result:
+          "All listing photos upload successfully while preserving enough visual quality for buyers.",
+      },
+      {
+        title: "School form with strict file cap",
+        scenario:
+          "A student must submit scanned pages under a small attachment limit.",
+        steps: [
+          "Compress each scanned page image before combining or uploading.",
+          "Compare text clarity on headings and signatures after compression.",
+          "Keep original scans until the submission is accepted.",
+        ],
+        result:
+          "The submission fits the file-size requirement without becoming unreadable.",
+      },
+      {
+        title: "Website performance cleanup",
+        scenario:
+          "A business landing page loads slowly because hero and gallery images are too large.",
+        steps: [
+          "Compress homepage and gallery images in one batch before deployment.",
+          "Keep quality slightly higher for hero banners than thumbnails.",
+          "Re-test page speed and visual clarity after replacing assets.",
+        ],
+        result:
+          "The page loads faster on mobile data while keeping product visuals acceptable.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "បង្ហោះរូបទំនិញឱ្យឆាប់ជាប់",
+        scenario:
+          "អ្នកលក់មានរូបទំនិញច្រើន តែទំហំឯកសារធំពេក មិនអាចបង្ហោះបាន។",
+        steps: [
+          "ជ្រើសរូបទាំងអស់ ហើយបង្រួមដោយកម្រិតគុណភាពមធ្យមជាមុន។",
+          "ពិនិត្យរូបគំរូមួយ ដើម្បីឱ្យអក្សរ និងពណ៌នៅតែច្បាស់។",
+          "ទាញយករូបដែលបានបង្រួម រួចបង្ហោះឡើងវិញ។",
+        ],
+        result: "រូបទំនិញអាចបង្ហោះបានរលូន ដោយគុណភាពមើលឃើញនៅល្អ។",
+      },
+      {
+        title: "កាត់ទំហំរូបសម្រាប់គេហទំព័រ",
+        scenario:
+          "ទំព័រលក់អនឡាញបើកយឺត ព្រោះរូប Banner និង Gallery ធំពេក។",
+        steps: [
+          "បង្រួមរូបទំព័រមុខ និងរូបក្នុង Gallery ជាក្រុម។",
+          "រក្សាគុណភាពខ្ពស់ជាងសម្រាប់រូបសំខាន់ៗ។",
+          "សាកល្បងល្បឿនទំព័រឡើងវិញបន្ទាប់ពីប្តូររូប។",
+        ],
+        result: "ទំព័របើកលឿនឡើងលើទូរស័ព្ទ ដោយរូបនៅតែសមរម្យសម្រាប់អតិថិជន។",
+      },
+    ],
     tips: [
       "Keep the original file until you confirm the compressed image still looks good.",
       "Use a lower quality setting for screenshots and a higher setting for photos with people or products.",
       "Resize very large camera photos before uploading them to a website.",
       "Check text-heavy images after compression so labels remain readable.",
       "Avoid recompressing the same image many times because quality can drop each round.",
+    ],
+    commonMistakes: [
+      "Compressing the same image repeatedly until text and logos become blurry.",
+      "Using very low quality for product photos where details matter.",
+      "Forgetting to compare before and after dimensions before upload.",
+      "Sending compressed files without checking whether orientation changed.",
+      "Deleting originals before confirming all uploads are accepted.",
     ],
     faqs: [
       {
@@ -330,12 +484,81 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "An office assistant combines ID photos, forms, and signed pages for internal processing.",
       "A seller turns product photos into a quick catalog for a customer.",
     ],
+    practicalExamples: [
+      {
+        title: "Monthly receipts in one file",
+        scenario:
+          "A shop owner has many receipt photos from Telegram and needs one clean PDF for bookkeeping.",
+        steps: [
+          "Add all receipt photos, then reorder by date before conversion.",
+          "Use portrait layout and small margins to keep text visible.",
+          "Generate the PDF and verify that each receipt is readable.",
+        ],
+        result:
+          "Bookkeeping receives one organized PDF instead of many scattered image files.",
+      },
+      {
+        title: "Client document packet",
+        scenario:
+          "A freelancer must send ID, signed page, and supporting screenshots as one attachment.",
+        steps: [
+          "Place the most important pages first in the image list.",
+          "Set consistent page size so the packet looks professional.",
+          "Download and quickly scan the final PDF before email sending.",
+        ],
+        result:
+          "The client gets a structured document packet that is easier to review and approve.",
+      },
+      {
+        title: "School assignment photo bundle",
+        scenario:
+          "A student captures assignment pages by phone and must submit a single PDF in order.",
+        steps: [
+          "Retake any blurred pages before adding files to the tool.",
+          "Arrange pages in assignment order and use A4 portrait settings.",
+          "Generate the PDF and verify page numbering before upload.",
+        ],
+        result:
+          "The teacher receives one complete, correctly ordered submission document.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "បង្កើត PDF ពីវិក្កយបត្រប្រចាំខែ",
+        scenario:
+          "ម្ចាស់ហាងមានរូបវិក្កយបត្រច្រើន ហើយចង់ផ្ញើជាឯកសារ PDF តែមួយ។",
+        steps: [
+          "បន្ថែមរូបទាំងអស់ ហើយរៀបតាមកាលបរិច្ឆេទ។",
+          "ជ្រើសទ្រង់ទ្រាយទំព័រសមស្រប ដើម្បីឱ្យអក្សរមើលឃើញច្បាស់។",
+          "បង្កើត PDF ហើយពិនិត្យម្តងមុនផ្ញើ។",
+        ],
+        result: "ទទួលបានឯកសារតែមួយ ស្អាត និងងាយរក្សាទុកសម្រាប់គណនេយ្យ។",
+      },
+      {
+        title: "បញ្ចូលរូបកិច្ចការសិស្សជាឯកសារតែមួយ",
+        scenario:
+          "សិស្សថតកិច្ចការជាច្រើនទំព័រ ហើយត្រូវដាក់ស្នើជា PDF តែមួយ។",
+        steps: [
+          "ពិនិត្យរូបមិនឱ្យព្រិល មុនបន្ថែមចូលឧបករណ៍។",
+          "រៀបលំដាប់ទំព័រត្រឹមត្រូវ ហើយជ្រើស A4 បញ្ឈរ។",
+          "ទាញយក PDF រួចពិនិត្យលំដាប់ទំព័រមុនបង្ហោះ។",
+        ],
+        result: "ការដាក់ស្នើមានរបៀបរៀបរយ និងបំពេញតាមលក្ខខណ្ឌគ្រូ។",
+      },
+    ],
     tips: [
       "Take photos in good light so the PDF stays readable.",
       "Crop or rotate images before converting if the source photo is messy.",
       "Use portrait orientation for documents and landscape for wide screenshots.",
       "Put cover pages or important pages first before generating the PDF.",
       "Compress large photos first if the final PDF must stay under an upload limit.",
+    ],
+    commonMistakes: [
+      "Leaving pages in the wrong order before converting to PDF.",
+      "Using dark or tilted photos that become unreadable in the final PDF.",
+      "Choosing landscape for portrait forms and cutting important content.",
+      "Combining too many huge photos and hitting upload limits later.",
+      "Skipping final review before sending to school, clients, or offices.",
     ],
     privacy: [
       "Selected images are prepared, previewed, reordered, and converted in your browser.",
@@ -399,51 +622,179 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "browser PDF renderer",
     ],
   }),
-  "merge-pdf": createPdfGuide({
-    toolName: "Merge PDF",
-    metaTitle: "How to Merge PDF Files Online | ChlatWork",
-    metaDescription:
-      "Learn how to combine multiple PDF files into one ordered PDF in your browser.",
-    heroTitle: "How to Merge Multiple PDF Files",
-    heroDescription:
-      "Combine separate PDF documents into one clean file with the order you choose.",
-    ctaLabel: "Merge PDFs",
-    primaryUse: "combining multiple PDF files into one PDF",
-    inputLabel: "two or more PDF files",
-    outputLabel: "merged PDF",
-    extraStep:
-      "Use the file order controls to place the PDFs in the correct sequence.",
-    limitation:
-      "Interactive form behavior can vary because the tool copies page content into a new PDF.",
-    keywords: [
-      "merge PDF",
-      "combine PDF files",
-      "join PDF online",
-      "browser PDF merge",
+  "merge-pdf": {
+    ...createPdfGuide({
+      toolName: "Merge PDF",
+      metaTitle: "How to Merge PDF Files Online | ChlatWork",
+      metaDescription:
+        "Learn how to combine multiple PDF files into one ordered PDF in your browser.",
+      heroTitle: "How to Merge Multiple PDF Files",
+      heroDescription:
+        "Combine separate PDF documents into one clean file with the order you choose.",
+      ctaLabel: "Merge PDFs",
+      primaryUse: "combining multiple PDF files into one PDF",
+      inputLabel: "two or more PDF files",
+      outputLabel: "merged PDF",
+      extraStep:
+        "Use the file order controls to place the PDFs in the correct sequence.",
+      limitation:
+        "Interactive form behavior can vary because the tool copies page content into a new PDF.",
+      keywords: [
+        "merge PDF",
+        "combine PDF files",
+        "join PDF online",
+        "browser PDF merge",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Client submission packet",
+        scenario:
+          "A freelancer needs one file containing proposal, signed agreement, and invoice.",
+        steps: [
+          "Upload three PDFs and order them as proposal, agreement, then invoice.",
+          "Generate the merged file and check page transitions.",
+          "Rename the file with project name and date before sending.",
+        ],
+        result:
+          "The client receives one professional, chronological document instead of multiple attachments.",
+      },
+      {
+        title: "Office report compilation",
+        scenario:
+          "An admin combines department reports into one monthly leadership document.",
+        steps: [
+          "Gather final PDFs from each department and verify versions.",
+          "Arrange sections in the agreed reporting order.",
+          "Merge and review the final page count before distribution.",
+        ],
+        result:
+          "Leadership gets one complete monthly report package that is easier to archive.",
+      },
+      {
+        title: "Application document consolidation",
+        scenario:
+          "A job applicant has CV, portfolio, and certificates as separate PDFs but needs one upload file.",
+        steps: [
+          "Place CV first, portfolio second, and certificates last.",
+          "Merge the files and confirm no pages are missing.",
+          "Use a clear filename before submitting on the job portal.",
+        ],
+        result:
+          "The application appears complete and organized in one easy-to-review document.",
+      },
     ],
-  }),
-  "split-pdf": createPdfGuide({
-    toolName: "Split PDF",
-    metaTitle: "How to Split a PDF Online | ChlatWork",
-    metaDescription:
-      "Learn how to split a PDF by page ranges like 1-3, 5, 8-10 using a local browser tool.",
-    heroTitle: "How to Split a PDF by Page Range",
-    heroDescription:
-      "Extract only the PDF pages you need and download them as a new PDF file.",
-    ctaLabel: "Split PDF",
-    primaryUse: "extracting selected pages from a PDF",
-    inputLabel: "PDF file and page range",
-    outputLabel: "split PDF",
-    extraStep: "Enter pages to keep, such as 1-3, 5, 8-10.",
-    limitation:
-      "Page numbers start at 1, so check the page count shown by the tool before generating.",
-    keywords: [
-      "split PDF",
-      "extract PDF pages",
-      "PDF page range",
-      "browser PDF splitter",
+    practicalExamplesKm: [
+      {
+        title: "រួមឯកសារសំណើអតិថិជន",
+        scenario:
+          "អ្នកឯករាជ្យចង់រួម Proposal, Agreement និង Invoice ជា PDF តែមួយ។",
+        steps: [
+          "បញ្ចូលឯកសារទាំងអស់ ហើយរៀបលំដាប់ឱ្យត្រឹមត្រូវ។",
+          "ចុច Merge ហើយពិនិត្យទំព័រចាប់ផ្តើមដល់ចុងក្រោយ។",
+          "ប្តូរឈ្មោះឯកសារតាមគម្រោង មុនផ្ញើអតិថិជន។",
+        ],
+        result: "អតិថិជនទទួលបានឯកសារតែមួយ មានរបៀបរៀបរយ និងងាយពិនិត្យ។",
+      },
+      {
+        title: "រួមរបាយការណ៍ការងារប្រចាំខែ",
+        scenario:
+          "Admin ត្រូវរួម PDF ពីផ្នែកផ្សេងៗ ដើម្បីផ្ញើជូនគ្រប់គ្រង។",
+        steps: [
+          "ប្រមូលឯកសារចុងក្រោយពីគ្រប់ផ្នែក។",
+          "រៀបលំដាប់តាមផែនការរបាយការណ៍។",
+          "Merge និងពិនិត្យចំនួនទំព័រមុនចែកចាយ។",
+        ],
+        result: "បានឯកសាររបាយការណ៍ពេញលេញមួយ ដែលងាយរក្សាទុក និងតាមដាន។",
+      },
     ],
-  }),
+  },
+  "split-pdf": {
+    ...createPdfGuide({
+      toolName: "Split PDF",
+      metaTitle: "How to Split a PDF Online | ChlatWork",
+      metaDescription:
+        "Learn how to split a PDF by page ranges like 1-3, 5, 8-10 using a local browser tool.",
+      heroTitle: "How to Split a PDF by Page Range",
+      heroDescription:
+        "Extract only the PDF pages you need and download them as a new PDF file.",
+      ctaLabel: "Split PDF",
+      primaryUse: "extracting selected pages from a PDF",
+      inputLabel: "PDF file and page range",
+      outputLabel: "split PDF",
+      extraStep: "Enter pages to keep, such as 1-3, 5, 8-10.",
+      limitation:
+        "Page numbers start at 1, so check the page count shown by the tool before generating.",
+      keywords: [
+        "split PDF",
+        "extract PDF pages",
+        "PDF page range",
+        "browser PDF splitter",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Extract signature pages only",
+        scenario:
+          "A long contract PDF has 40 pages, but only 2 signature pages are needed for quick review.",
+        steps: [
+          "Check page numbers in preview and enter only the signature ranges.",
+          "Generate a split copy with those pages.",
+          "Send the smaller file for approval.",
+        ],
+        result:
+          "Reviewers handle a lightweight file focused only on signing sections.",
+      },
+      {
+        title: "Assignment section extraction",
+        scenario:
+          "A student has a combined class PDF and needs only chapter 3 pages for submission.",
+        steps: [
+          "Identify the required page range from the full PDF.",
+          "Enter the exact range in split format.",
+          "Download and verify that no extra pages are included.",
+        ],
+        result:
+          "Submission stays compliant with teacher instructions and smaller upload size.",
+      },
+      {
+        title: "HR policy section sharing",
+        scenario:
+          "An HR team needs to send only leave-policy pages from a full employee handbook.",
+        steps: [
+          "Find exact leave-policy page numbers in the full handbook.",
+          "Split only those pages into a separate PDF.",
+          "Share the extracted file for onboarding instead of the full handbook.",
+        ],
+        result:
+          "New hires receive focused policy content with less reading friction.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "ដកទំព័រហត្ថលេខាចេញពីឯកសារធំ",
+        scenario:
+          "កិច្ចសន្យាមានទំព័រច្រើន ប៉ុន្តែត្រូវការតែទំព័រហត្ថលេខាសម្រាប់ពិនិត្យ។",
+        steps: [
+          "ពិនិត្យលេខទំព័រដែលត្រូវការ។",
+          "បញ្ចូល Range ទំព័រត្រឹមត្រូវក្នុងឧបករណ៍ Split។",
+          "ទាញយកឯកសារថ្មី និងផ្ញើសម្រាប់អនុម័ត។",
+        ],
+        result: "អ្នកពិនិត្យទទួលបានឯកសារខ្លី ងាយមើល និងសំខាន់តែចំណុចត្រូវការ។",
+      },
+      {
+        title: "បំបែកផ្នែកឯកសារសម្រាប់បណ្តុះបណ្តាល",
+        scenario:
+          "ក្រុម HR ចង់ផ្ញើតែផ្នែកច្បាប់ឈប់សម្រាកពី Handbook ទាំងមូល។",
+        steps: [
+          "កំណត់លេខទំព័រផ្នែកឈប់សម្រាក។",
+          "បំបែកទំព័រទាំងនោះជាឯកសារថ្មី។",
+          "ចែករំលែកឯកសារខ្លីនេះសម្រាប់ onboarding។",
+        ],
+        result: "បុគ្គលិកថ្មីអាចអានតែផ្នែកពាក់ព័ន្ធ ដោយមិនច្របូកច្របល់។",
+      },
+    ],
+  },
   "compress-pdf": createPdfGuide({
     toolName: "Compress PDF",
     metaTitle: "How to Compress a PDF Online | ChlatWork",
@@ -613,12 +964,81 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A teacher shares a class resource link without asking students to type it.",
       "A developer creates a quick QR code for a staging URL during testing.",
     ],
+    practicalExamples: [
+      {
+        title: "Table service menu access",
+        scenario:
+          "A cafe wants customers to open the current menu quickly without reprinting full paper menus.",
+        steps: [
+          "Create one QR code for the live menu URL.",
+          "Print and place the code on each table with enough white space around it.",
+          "Test scanning from seated distance on different phones.",
+        ],
+        result:
+          "Customers access the menu instantly, and staff can update menu content via the destination page.",
+      },
+      {
+        title: "Event check-in shortcut",
+        scenario:
+          "An organizer needs quick registration at entrance without manual URL typing.",
+        steps: [
+          "Generate a QR code linked to the registration form.",
+          "Place the printed code at gate and information desk.",
+          "Scan-test before event start and keep one backup print.",
+        ],
+        result:
+          "Check-in becomes faster with fewer queue delays and fewer broken link complaints.",
+      },
+      {
+        title: "Printed product guide shortcut",
+        scenario:
+          "A seller includes setup instructions online and wants buyers to access them from packaging.",
+        steps: [
+          "Generate a QR code pointing to the product guide page.",
+          "Print the code on packaging insert with short scan instructions.",
+          "Scan-test from different lighting conditions before mass printing.",
+        ],
+        result:
+          "Customers can open setup help instantly, reducing repetitive support messages.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "QR ម៉ឺនុយសម្រាប់តុភ្ញៀវ",
+        scenario:
+          "ហាងកាហ្វេចង់ឱ្យភ្ញៀវស្កេនមើលម៉ឺនុយបានភ្លាម ដោយមិនចាំបាច់វាយ URL។",
+        steps: [
+          "បង្កើត QR មួយសម្រាប់តំណម៉ឺនុយបច្ចុប្បន្ន។",
+          "បោះពុម្ពដាក់គ្រប់តុ និងទុកចន្លោះសស្អាតជុំវិញ QR។",
+          "សាកស្កេនលើទូរស័ព្ទមុនប្រើប្រាស់ពិត។",
+        ],
+        result: "ភ្ញៀវបើកម៉ឺនុយបានលឿន ហើយហាងអាចអាប់ដេតមាតិកាតាមតំណបាន។",
+      },
+      {
+        title: "QR ចូលរួមព្រឹត្តិការណ៍",
+        scenario:
+          "អ្នករៀបចំព្រឹត្តិការណ៍ត្រូវការចុះឈ្មោះឱ្យលឿននៅច្រកចូល។",
+        steps: [
+          "បង្កើត QR ទៅកាន់ Form ចុះឈ្មោះ។",
+          "ដាក់ស្លាក QR នៅច្រកចូល និងតុព័ត៌មាន។",
+          "សាកស្កេនជាមុន ហើយរៀបចំច្បាប់បម្រុង។",
+        ],
+        result: "កាត់បន្ថយជួររង់ចាំ និងធ្វើឱ្យការចុះឈ្មោះមានល្បឿនល្អ។",
+      },
+    ],
     tips: [
       "Use the full URL, including https, for website links.",
       "Leave enough white space around the QR code when printing.",
       "Avoid placing the code on a busy background.",
       "Print a test copy and scan it from the expected viewing distance.",
       "Update the destination page instead of reprinting the QR code when possible.",
+    ],
+    commonMistakes: [
+      "Encoding a broken URL or missing https in links.",
+      "Printing QR codes too small for normal phone cameras.",
+      "Placing codes on reflective or patterned backgrounds.",
+      "Changing the destination page without re-testing printed materials.",
+      "Publishing a code without scanning it on both iPhone and Android first.",
     ],
     privacy: [
       "The QR text is rendered to a canvas in your browser with the QR code library.",
@@ -855,6 +1275,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Review line breaks after cleaning because copied PDF text can split sentences in awkward places.",
       "For public content, paste the fixed text into the final app and check it on mobile too.",
     ],
+    commonMistakes: [
+      "Expecting legacy font text (Limon/ABC) to be auto-converted as real Unicode.",
+      "Cleaning text and publishing without checking line breaks on mobile.",
+      "Using Khmer digit conversion in documents that require Latin numerals.",
+      "Pasting confidential data into quick cleanup tests.",
+      "Replacing the original source before confirming the cleaned output.",
+    ],
     privacy: [
       "The fixer processes pasted text in your browser and does not call a ChlatWork API.",
       "Copying the result uses your browser clipboard only after you press the copy button.",
@@ -1010,12 +1437,81 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A seller prepares clean product-code labels for packaging.",
       "A training team creates sample barcodes for cashier practice.",
     ],
+    practicalExamples: [
+      {
+        title: "Internal SKU shelf labeling",
+        scenario:
+          "A small store tracks inventory with internal SKU values that are not official retail codes.",
+        steps: [
+          "Use CODE128 format for flexible alphanumeric SKU values.",
+          "Generate labels and print one sample sheet first.",
+          "Scan-test labels at shelf distance with the real POS scanner.",
+        ],
+        result:
+          "Inventory lookup becomes faster and manual typing mistakes drop in daily operations.",
+      },
+      {
+        title: "Warehouse receiving tests",
+        scenario:
+          "A dev team tests barcode scanning logic before integrating with live supplier codes.",
+        steps: [
+          "Generate multiple sample barcodes covering expected formats.",
+          "Run scan tests on mobile and handheld scanner devices.",
+          "Adjust format/print settings based on failed scan cases.",
+        ],
+        result:
+          "The receiving flow is validated early, reducing risk during production rollout.",
+      },
+      {
+        title: "Promotion sticker code set",
+        scenario:
+          "A store runs a short campaign and needs scannable codes for bundled promo products.",
+        steps: [
+          "Generate one barcode per promo SKU with consistent naming.",
+          "Print sample stickers and test scans at checkout speed.",
+          "Export final labels only after scanner validation passes.",
+        ],
+        result:
+          "Checkout remains smooth during promotions with fewer manual SKU entries.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "បង្កើត Barcode សម្រាប់ SKU ខាងក្នុង",
+        scenario:
+          "ហាងតូចមួយប្រើលេខ SKU ខាងក្នុង ហើយចង់ស្កេនបានលឿននៅធ្នើ។",
+        steps: [
+          "ជ្រើស CODE128 សម្រាប់កូដអក្សរ-លេខ។",
+          "បង្កើត barcode និងបោះពុម្ពសាកល្បងមួយសន្លឹកជាមុន។",
+          "សាកស្កេនជាមួយម៉ាស៊ីនពិត មុនបោះពុម្ពច្រើន។",
+        ],
+        result: "ការស្វែងរកទំនិញលឿនឡើង និងកាត់បន្ថយកំហុសវាយដៃ។",
+      },
+      {
+        title: "សាកល្បង Barcode សម្រាប់ប្រព័ន្ធឃ្លាំង",
+        scenario:
+          "ក្រុមអភិវឌ្ឍន៍ចង់សាក Flow ស្កេន មុនភ្ជាប់ទិន្នន័យផ្គត់ផ្គង់ពិត។",
+        steps: [
+          "បង្កើត barcode ជាច្រើន format តាមករណីត្រូវប្រើ។",
+          "សាកល្បងលើទូរស័ព្ទ និង scanner ចល័ត។",
+          "កែទ្រង់ទ្រាយបោះពុម្ពតាមករណីស្កេនមិនជាប់។",
+        ],
+        result: "Flow ទទួលទំនិញត្រូវបានពិនិត្យរួច មុនដាក់ប្រើក្នុងប្រព័ន្ធពិត។",
+      },
+    ],
     tips: [
       "Use EAN or UPC only when your code length matches the format rules.",
       "Use CODE128 for flexible internal codes.",
       "Print at a readable size with enough quiet space around the barcode.",
       "Avoid stretching the barcode image after downloading.",
       "Test with the same scanner or phone app your team will use.",
+    ],
+    commonMistakes: [
+      "Choosing EAN13 or UPC with the wrong number length.",
+      "Trying to encode Khmer or Unicode text in 1D barcode formats.",
+      "Stretching barcode graphics in design tools after export.",
+      "Printing on low-contrast labels that scanners cannot read.",
+      "Skipping scanner tests before bulk label printing.",
     ],
     privacy: [
       "The barcode is generated as SVG in your browser with the selected format and value.",
@@ -1092,6 +1588,68 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A freelancer watches daily food, fuel, coffee, and mobile data spending.",
       "A student compares weekly spending with a fixed allowance.",
     ],
+    practicalExamples: [
+      {
+        title: "Family monthly budget control",
+        scenario:
+          "A household wants to stop overspending on food delivery and transport.",
+        steps: [
+          "Set a monthly budget target and daily category entries.",
+          "Review category totals every weekend and adjust next-week spending.",
+          "Compare planned vs actual at month end.",
+        ],
+        result:
+          "The family identifies spending leaks early and keeps monthly costs within target range.",
+      },
+      {
+        title: "Small business petty cash monitoring",
+        scenario:
+          "A shop manager wants visibility into recurring small purchases that are hard to audit later.",
+        steps: [
+          "Record each petty cash item with category and short note.",
+          "Attach receipt references in notes for larger entries.",
+          "Use weekly summaries before reimbursement approval.",
+        ],
+        result:
+          "Petty cash discussions shift from guesswork to traceable category-based decisions.",
+      },
+      {
+        title: "Freelancer cash-flow awareness",
+        scenario:
+          "A freelancer wants to avoid end-of-month surprises by tracking daily work and living costs.",
+        steps: [
+          "Log every expense at day end with clear categories.",
+          "Review weekly totals against expected client payment dates.",
+          "Reduce optional spending when the month projects negative cash flow.",
+        ],
+        result:
+          "The freelancer makes earlier spending adjustments and keeps bills on schedule.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "គ្រប់គ្រងថវិកាគ្រួសារប្រចាំខែ",
+        scenario:
+          "គ្រួសារមួយចង់ដឹងច្បាស់ថាចំណាយច្រើនលើម្ហូប និងធ្វើដំណើរត្រង់ណា។",
+        steps: [
+          "កំណត់ថវិកាប្រចាំខែ ហើយកត់ចំណាយរៀងរាល់ថ្ងៃ។",
+          "ពិនិត្យតាម Category រៀងរាល់សប្តាហ៍។",
+          "ប្រៀបធៀបគម្រោងនិងចំណាយពិតនៅចុងខែ។",
+        ],
+        result: "គ្រួសារអាចកែសម្រួលការចំណាយបានទាន់ពេល និងកាត់បន្ថយការលើសថវិកា។",
+      },
+      {
+        title: "តាមដានប្រាក់ចំណាយហាងតូច",
+        scenario:
+          "អ្នកគ្រប់គ្រងហាងចង់ឃើញចំណាយតូចៗប្រចាំថ្ងៃ ដើម្បីត្រួតពិនិត្យ petty cash។",
+        steps: [
+          "កត់ទុករាល់ចំណាយជាមួយ Category និងកំណត់ចំណាំខ្លី។",
+          "ភ្ជាប់លេខវិក្កយបត្រសម្រាប់ចំណាយសំខាន់។",
+          "ប្រើសង្ខេបប្រចាំសប្តាហ៍ មុនអនុម័តសងប្រាក់។",
+        ],
+        result: "ការអនុម័តចំណាយមានភស្តុតាងច្បាស់ និងសម្រួលការគ្រប់គ្រងសាច់ប្រាក់។",
+      },
+    ],
     tips: [
       "Add expenses on the same day so the record stays accurate.",
       "Use consistent categories like food, transport, rent, supplies, and bills.",
@@ -1099,6 +1657,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Review the summary at the end of each week, not only at month end.",
       "If the data is used for reporting, reconcile totals with receipts or bank records.",
       "Set a realistic budget so the tracker becomes useful instead of stressful.",
+    ],
+    commonMistakes: [
+      "Entering expenses without category labels, making summaries less useful.",
+      "Updating entries late and forgetting cash payments.",
+      "Treating tracker totals as audited accounting records.",
+      "Using inconsistent currency labels in the same period.",
+      "Ignoring recurring expenses when setting monthly budget limits.",
     ],
     privacy: [
       "Expense entries and category calculations run in your browser for day-to-day use.",
@@ -1264,6 +1829,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Format first when debugging, then minify only when needed.",
       "Validate JSON before sending it to production APIs.",
     ],
+    commonMistakes: [
+      "Pasting JavaScript object literals and expecting strict JSON validation to pass.",
+      "Leaving trailing commas after the last key or array item.",
+      "Using single quotes in JSON keys or string values.",
+      "Formatting and sharing payloads without removing sensitive tokens.",
+      "Minifying invalid JSON before fixing syntax errors.",
+    ],
     faqs: [
       {
         question: "What does formatting JSON do?",
@@ -1340,6 +1912,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use backend verification for real security decisions.",
       "Mask sensitive claim values before sharing screenshots.",
     ],
+    commonMistakes: [
+      "Treating decoded payload values as verified/trusted identity.",
+      "Debugging with expired tokens and assuming auth guards are broken.",
+      "Sharing full production JWTs in screenshots or bug tickets.",
+      "Mixing seconds and milliseconds when checking exp and iat claims.",
+      "Ignoring issuer/audience mismatch while focusing only on role claim.",
+    ],
     faqs: [
       {
         question: "Does decoding a JWT verify it?",
@@ -1410,6 +1989,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use UTF-8 text when encoding normal language content.",
       "Do not treat Base64 as encryption; it is easy to decode.",
       "Avoid sharing decoded values if they contain credentials or personal data.",
+    ],
+    commonMistakes: [
+      "Sending data URL prefixes where the API expects raw Base64 only.",
+      "Treating Base64 as a security layer instead of plain encoding.",
+      "Uploading huge files as Base64 when multipart upload is required.",
+      "Using the wrong text encoding and getting unreadable output.",
+      "Posting decoded sensitive values in public debug channels.",
     ],
     faqs: [
       {
@@ -1485,6 +2071,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Watch for double encoding, where percent signs are encoded again.",
       "Keep parameter names clear so decoded query strings are easy to read.",
       "Use HTTPS links when sharing real customer or payment URLs.",
+    ],
+    commonMistakes: [
+      "Encoding the entire URL repeatedly and causing double-encoded links.",
+      "Decoding then editing parameters without re-encoding before use.",
+      "Sending plain spaces and symbols in query values.",
+      "Mixing encoded and unencoded fragments in one redirect value.",
+      "Sharing payment links without verifying final destination URL.",
     ],
     faqs: [
       {
@@ -1562,6 +2155,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use anchors when you need the entire input to match.",
       "Do not rely only on regex for security-sensitive validation.",
     ],
+    commonMistakes: [
+      "Testing regex with only one happy-path sample string.",
+      "Forgetting anchors and matching text fragments unintentionally.",
+      "Using greedy groups that swallow too much input.",
+      "Ignoring Unicode cases when validating Khmer-English mixed text.",
+      "Replacing full validation logic with one regex rule.",
+    ],
     faqs: [
       {
         question: "Which regex flavor does the tool use?",
@@ -1637,6 +2237,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use database-native UUID generation when available in production.",
       "Generate fresh IDs when repeating tests that require uniqueness.",
     ],
+    commonMistakes: [
+      "Reusing one UUID across many test rows and hiding uniqueness issues.",
+      "Treating UUIDs as secure authentication tokens.",
+      "Mixing uppercase/lowercase formatting in systems with strict comparisons.",
+      "Using fake UUID format strings that are not valid v4 values.",
+      "Copying UUIDs with hidden spaces/newlines from text editors.",
+    ],
     faqs: [
       {
         question: "What is a v4 UUID?",
@@ -1710,6 +2317,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "JWT exp and iat values are usually seconds, not milliseconds.",
       "JavaScript Date values often use milliseconds.",
       "When logs disagree, compare the same instant in UTC first.",
+    ],
+    commonMistakes: [
+      "Treating milliseconds timestamps as seconds and getting wrong dates.",
+      "Comparing local timezone output with UTC logs without conversion.",
+      "Assuming JWT exp values are milliseconds by default.",
+      "Copying timestamp values with comma separators from spreadsheets.",
+      "Ignoring daylight-saving behavior in regional schedule discussions.",
     ],
     faqs: [
       {
@@ -1787,6 +2401,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Document business meaning beside cron expressions in code.",
       "Use clear examples in pull requests so reviewers can verify intent.",
     ],
+    commonMistakes: [
+      "Deploying cron expressions without checking server timezone.",
+      "Using day-of-week and day-of-month rules incorrectly together.",
+      "Running heavy jobs every minute by mistake from bad wildcard usage.",
+      "Copying cron syntax between systems that use different field counts.",
+      "Skipping preview and discovering schedule issues only in production.",
+    ],
     faqs: [
       {
         question: "What does */5 * * * * mean?",
@@ -1861,6 +2482,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Remember that hashing is one-way for practical use, not decoding.",
       "Avoid pasting secrets unless you understand where the tool runs.",
       "For files, use a dedicated file checksum flow if exact file integrity matters.",
+    ],
+    commonMistakes: [
+      "Using MD5/SHA-1 for new security-sensitive password storage.",
+      "Comparing hashes generated from text with hidden newline differences.",
+      "Expecting hash outputs to be reversible like encryption.",
+      "Mixing file checksum workflows with plain text hash checks.",
+      "Sharing secret input text in screenshots when reporting hash mismatches.",
     ],
     faqs: [
       {

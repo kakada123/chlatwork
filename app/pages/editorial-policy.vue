@@ -2,6 +2,7 @@
 const title = "Editorial Policy - ChlatWork";
 const description =
   "How ChlatWork plans, writes, reviews, and updates tool guides, policy pages, and financial workflow content.";
+const reviewedAt = "2026-06-29";
 
 useSeoMeta({
   title,
@@ -17,6 +18,24 @@ useSeoMeta({
 
 useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/editorial-policy" }],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: title,
+        url: "https://chlatwork.com/editorial-policy",
+        description,
+        dateModified: reviewedAt,
+        publisher: {
+          "@type": "Organization",
+          name: "ChlatWork",
+          url: "https://chlatwork.com",
+        },
+      }),
+    },
+  ],
 });
 </script>
 

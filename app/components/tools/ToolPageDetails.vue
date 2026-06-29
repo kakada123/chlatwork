@@ -9,6 +9,7 @@ const props = defineProps<{
 const siteUrl = "https://chlatwork.com";
 const canonicalUrl = computed(() => `${siteUrl}${props.guide.tool.route}`);
 const faqs = computed(() => props.guide.faqs.slice(0, 6));
+const reviewDate = "2026-06-29";
 
 useHead(() => ({
   script: [
@@ -24,10 +25,32 @@ useHead(() => ({
             operatingSystem: "Any",
             url: canonicalUrl.value,
             description: props.guide.tool.description,
+            publisher: {
+              "@type": "Organization",
+              name: "ChlatWork",
+              url: siteUrl,
+            },
             offers: {
               "@type": "Offer",
               price: "0",
               priceCurrency: "USD",
+            },
+          },
+          {
+            "@type": "WebPage",
+            name: props.guide.heroTitle,
+            url: canonicalUrl.value,
+            description: props.guide.metaDescription,
+            dateModified: reviewDate,
+            isPartOf: {
+              "@type": "WebSite",
+              name: "ChlatWork",
+              url: siteUrl,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "ChlatWork",
+              url: siteUrl,
             },
           },
           {

@@ -35,6 +35,14 @@ const benefits = computed(() =>
           title: "Browser-first workflows",
           description: "Many document and image tasks run in the browser where practical.",
         },
+        {
+          title: "Practical guides with local examples",
+          description: "Guides focus on real Khmer-English and Cambodia workflow examples instead of generic filler text.",
+        },
+        {
+          title: "Reviewed and updated content",
+          description: "Policy and guide pages are updated when tool behavior or workflow requirements change.",
+        },
       ],
 );
 </script>
@@ -56,7 +64,7 @@ const benefits = computed(() =>
             {{ heading }}
           </h2>
 
-          <div class="grid gap-3 md:grid-cols-3">
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <article
               v-for="(benefit, index) in benefits"
               :key="benefit.title"
