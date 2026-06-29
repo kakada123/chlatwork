@@ -10,6 +10,15 @@ const siteUrl = "https://chlatwork.com";
 const canonicalUrl = computed(() => `${siteUrl}${props.guide.tool.route}`);
 const faqs = computed(() => props.guide.faqs.slice(0, 6));
 const reviewDate = "2026-06-29";
+const editorialAuthor = {
+  "@type": "Person",
+  name: "Kakada",
+};
+const editorialReviewer = {
+  "@type": "Organization",
+  name: "ChlatWork Editorial",
+  url: siteUrl,
+};
 
 useHead(() => ({
   script: [
@@ -25,6 +34,8 @@ useHead(() => ({
             operatingSystem: "Any",
             url: canonicalUrl.value,
             description: props.guide.tool.description,
+            author: editorialAuthor,
+            reviewedBy: editorialReviewer,
             publisher: {
               "@type": "Organization",
               name: "ChlatWork",
@@ -42,6 +53,8 @@ useHead(() => ({
             url: canonicalUrl.value,
             description: props.guide.metaDescription,
             dateModified: reviewDate,
+            author: editorialAuthor,
+            reviewedBy: editorialReviewer,
             isPartOf: {
               "@type": "WebSite",
               name: "ChlatWork",

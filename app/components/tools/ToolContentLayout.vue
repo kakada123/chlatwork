@@ -359,6 +359,9 @@ const outputChecklist = [
       <p class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75">
         Reviewed by ChlatWork editorial standards. Last reviewed: {{ reviewedDateLabel }}.
       </p>
+      <p class="mt-1 text-xs text-amber-900/80 dark:text-amber-100/75">
+        Author: Kakada. Reviewer: ChlatWork Editorial.
+      </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
         <NuxtLink
           to="/editorial-policy"
