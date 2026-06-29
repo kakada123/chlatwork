@@ -75,7 +75,9 @@ useHead({
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">Browser-based tools and local processing</h2>
+      <h2 class="text-lg font-semibold">
+        Browser-based tools and local processing
+      </h2>
       <p class="text-gray-700 dark:text-white/75">
         Many ChlatWork tools are designed to run directly in your browser,
         including common PDF, image, QR, barcode, calculator, and developer
@@ -151,8 +153,14 @@ useHead({
       <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
         <li>Vercel for hosting, deployment, and web analytics.</li>
         <li>Google AdSense or Google ad services for advertising.</li>
-        <li>Browser-side JavaScript libraries for PDF, image, QR, barcode, and utility processing.</li>
-        <li>API providers only where a specific feature cannot run fully in the browser.</li>
+        <li>
+          Browser-side JavaScript libraries for PDF, image, QR, barcode, and
+          utility processing.
+        </li>
+        <li>
+          API providers only where a specific feature cannot run fully in the
+          browser.
+        </li>
       </ul>
     </section>
 

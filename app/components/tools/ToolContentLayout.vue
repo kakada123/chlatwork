@@ -25,8 +25,10 @@ const whyUse = computed(() => props.guide.whyUse.slice(0, 6));
 const useCases = computed(() => props.guide.useCases.slice(0, 6));
 const practicalExamples = computed(() =>
   shouldUseKhmerExamples.value
-    ? (props.guide.practicalExamplesKm ?? props.guide.practicalExamples)?.slice(0, 3) ?? []
-    : props.guide.practicalExamples?.slice(0, 3) ?? [],
+    ? ((
+        props.guide.practicalExamplesKm ?? props.guide.practicalExamples
+      )?.slice(0, 3) ?? [])
+    : (props.guide.practicalExamples?.slice(0, 3) ?? []),
 );
 const tips = computed(() => props.guide.tips.slice(0, 6));
 const commonMistakes = computed(() =>
@@ -67,7 +69,9 @@ const relatedGuideLinks = computed(() => {
     ...relatedTools.value.map((tool) => tool.key),
     ...(GUIDE_FALLBACK_LINKS[toolKey] ?? []),
   ];
-  const uniqueKeys = [...new Set(candidateKeys)].filter((key) => key !== toolKey);
+  const uniqueKeys = [...new Set(candidateKeys)].filter(
+    (key) => key !== toolKey,
+  );
 
   return uniqueKeys
     .map((key) => {
@@ -92,7 +96,9 @@ const relatedGuideLinks = computed(() => {
     .slice(0, 4);
 });
 const practicalExamplesTitle = computed(() =>
-  shouldUseKhmerExamples.value ? "ឧទាហរណ៍ប្រើប្រាស់ជាក់ស្តែង" : "Practical examples",
+  shouldUseKhmerExamples.value
+    ? "ឧទាហរណ៍ប្រើប្រាស់ជាក់ស្តែង"
+    : "Practical examples",
 );
 const practicalResultPrefix = computed(() =>
   shouldUseKhmerExamples.value ? "លទ្ធផល៖" : "Result:",
@@ -280,7 +286,9 @@ const outputChecklist = [
           <h3 class="text-sm font-black text-indigo-950 dark:text-indigo-100">
             {{ example.title }}
           </h3>
-          <p class="text-sm leading-6 text-indigo-900/85 dark:text-indigo-100/80">
+          <p
+            class="text-sm leading-6 text-indigo-900/85 dark:text-indigo-100/80"
+          >
             {{ example.scenario }}
           </p>
           <ol class="space-y-2">
@@ -293,7 +301,9 @@ const outputChecklist = [
               <span>{{ step }}</span>
             </li>
           </ol>
-          <p class="text-xs font-semibold text-indigo-900/85 dark:text-indigo-100/80">
+          <p
+            class="text-xs font-semibold text-indigo-900/85 dark:text-indigo-100/80"
+          >
             {{ practicalResultPrefix }} {{ example.result }}
           </p>
         </article>
@@ -356,8 +366,11 @@ const outputChecklist = [
         or compliance-critical decisions, verify details with qualified
         professionals and confirm final outputs before use.
       </p>
-      <p class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75">
-        Reviewed by ChlatWork editorial standards. Last reviewed: {{ reviewedDateLabel }}.
+      <p
+        class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75"
+      >
+        Reviewed by ChlatWork editorial standards. Last reviewed:
+        {{ reviewedDateLabel }}.
       </p>
       <p class="mt-1 text-xs text-amber-900/80 dark:text-amber-100/75">
         Author: Kakada. Reviewer: ChlatWork Editorial.

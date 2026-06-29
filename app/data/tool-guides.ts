@@ -381,8 +381,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     practicalExamplesKm: [
       {
         title: "បង្ហោះរូបទំនិញឱ្យឆាប់ជាប់",
-        scenario:
-          "អ្នកលក់មានរូបទំនិញច្រើន តែទំហំឯកសារធំពេក មិនអាចបង្ហោះបាន។",
+        scenario: "អ្នកលក់មានរូបទំនិញច្រើន តែទំហំឯកសារធំពេក មិនអាចបង្ហោះបាន។",
         steps: [
           "ជ្រើសរូបទាំងអស់ ហើយបង្រួមដោយកម្រិតគុណភាពមធ្យមជាមុន។",
           "ពិនិត្យរូបគំរូមួយ ដើម្បីឱ្យអក្សរ និងពណ៌នៅតែច្បាស់។",
@@ -392,8 +391,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         title: "កាត់ទំហំរូបសម្រាប់គេហទំព័រ",
-        scenario:
-          "ទំព័រលក់អនឡាញបើកយឺត ព្រោះរូប Banner និង Gallery ធំពេក។",
+        scenario: "ទំព័រលក់អនឡាញបើកយឺត ព្រោះរូប Banner និង Gallery ធំពេក។",
         steps: [
           "បង្រួមរូបទំព័រមុខ និងរូបក្នុង Gallery ជាក្រុម។",
           "រក្សាគុណភាពខ្ពស់ជាងសម្រាប់រូបសំខាន់ៗ។",
@@ -525,8 +523,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     practicalExamplesKm: [
       {
         title: "បង្កើត PDF ពីវិក្កយបត្រប្រចាំខែ",
-        scenario:
-          "ម្ចាស់ហាងមានរូបវិក្កយបត្រច្រើន ហើយចង់ផ្ញើជាឯកសារ PDF តែមួយ។",
+        scenario: "ម្ចាស់ហាងមានរូបវិក្កយបត្រច្រើន ហើយចង់ផ្ញើជាឯកសារ PDF តែមួយ។",
         steps: [
           "បន្ថែមរូបទាំងអស់ ហើយរៀបតាមកាលបរិច្ឆេទ។",
           "ជ្រើសទ្រង់ទ្រាយទំព័រសមស្រប ដើម្បីឱ្យអក្សរមើលឃើញច្បាស់។",
@@ -536,8 +533,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         title: "បញ្ចូលរូបកិច្ចការសិស្សជាឯកសារតែមួយ",
-        scenario:
-          "សិស្សថតកិច្ចការជាច្រើនទំព័រ ហើយត្រូវដាក់ស្នើជា PDF តែមួយ។",
+        scenario: "សិស្សថតកិច្ចការជាច្រើនទំព័រ ហើយត្រូវដាក់ស្នើជា PDF តែមួយ។",
         steps: [
           "ពិនិត្យរូបមិនឱ្យព្រិល មុនបន្ថែមចូលឧបករណ៍។",
           "រៀបលំដាប់ទំព័រត្រឹមត្រូវ ហើយជ្រើស A4 បញ្ឈរ។",
@@ -599,29 +595,57 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
-  "pdf-to-jpg": createPdfGuide({
-    toolName: "PDF to JPG",
-    metaTitle: "How to Convert PDF to JPG Online | ChlatWork",
-    metaDescription:
-      "Learn how to render PDF pages as JPG images locally in your browser without uploading the PDF.",
-    heroTitle: "How to Convert PDF Pages to JPG Images",
-    heroDescription:
-      "Render PDF pages into image files that are easy to share, preview, or upload to image-only forms.",
-    ctaLabel: "Convert PDF to JPG",
-    primaryUse: "rendering PDF pages into downloadable JPG images",
-    inputLabel: "PDF file",
-    outputLabel: "JPG page images",
-    extraStep:
-      "Choose a render quality and scale that fits your file size and sharpness needs.",
-    limitation:
-      "ZIP download is not included yet, so download each rendered JPG page individually.",
-    keywords: [
-      "PDF to JPG",
-      "convert PDF to image",
-      "PDF page image",
-      "browser PDF renderer",
+  "pdf-to-jpg": {
+    ...createPdfGuide({
+      toolName: "PDF to JPG",
+      metaTitle: "How to Convert PDF to JPG Online | ChlatWork",
+      metaDescription:
+        "Learn how to render PDF pages as JPG images locally in your browser without uploading the PDF.",
+      heroTitle: "How to Convert PDF Pages to JPG Images",
+      heroDescription:
+        "Render PDF pages into image files that are easy to share, preview, or upload to image-only forms.",
+      ctaLabel: "Convert PDF to JPG",
+      primaryUse: "rendering PDF pages into downloadable JPG images",
+      inputLabel: "PDF file",
+      outputLabel: "JPG page images",
+      extraStep:
+        "Choose a render quality and scale that fits your file size and sharpness needs.",
+      limitation:
+        "ZIP download is not included yet, so download each rendered JPG page individually.",
+      keywords: [
+        "PDF to JPG",
+        "convert PDF to image",
+        "PDF page image",
+        "browser PDF renderer",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Share one brochure page on Telegram",
+        scenario:
+          "A sales team needs to share page 2 of a product brochure as an image in a chat group.",
+        steps: [
+          "Upload the brochure PDF and render pages at medium quality.",
+          "Download only the page image needed for the promotion post.",
+          "Verify text remains readable on mobile before sharing.",
+        ],
+        result:
+          "The team sends a lightweight image that previews directly in chat without forcing users to open a PDF app.",
+      },
+      {
+        title: "Extract visual proof for support ticket",
+        scenario:
+          "A support agent needs screenshot-style evidence from a customer PDF invoice.",
+        steps: [
+          "Convert the invoice PDF to JPG pages.",
+          "Download the page containing the disputed line item.",
+          "Attach the image to the support system with clear annotation.",
+        ],
+        result:
+          "Investigation is faster because reviewers can see the exact invoice section immediately.",
+      },
     ],
-  }),
+  },
   "merge-pdf": {
     ...createPdfGuide({
       toolName: "Merge PDF",
@@ -698,8 +722,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         title: "រួមរបាយការណ៍ការងារប្រចាំខែ",
-        scenario:
-          "Admin ត្រូវរួម PDF ពីផ្នែកផ្សេងៗ ដើម្បីផ្ញើជូនគ្រប់គ្រង។",
+        scenario: "Admin ត្រូវរួម PDF ពីផ្នែកផ្សេងៗ ដើម្បីផ្ញើជូនគ្រប់គ្រង។",
         steps: [
           "ប្រមូលឯកសារចុងក្រោយពីគ្រប់ផ្នែក។",
           "រៀបលំដាប់តាមផែនការរបាយការណ៍។",
@@ -784,8 +807,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         title: "បំបែកផ្នែកឯកសារសម្រាប់បណ្តុះបណ្តាល",
-        scenario:
-          "ក្រុម HR ចង់ផ្ញើតែផ្នែកច្បាប់ឈប់សម្រាកពី Handbook ទាំងមូល។",
+        scenario: "ក្រុម HR ចង់ផ្ញើតែផ្នែកច្បាប់ឈប់សម្រាកពី Handbook ទាំងមូល។",
         steps: [
           "កំណត់លេខទំព័រផ្នែកឈប់សម្រាក។",
           "បំបែកទំព័រទាំងនោះជាឯកសារថ្មី។",
@@ -795,141 +817,309 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
     ],
   },
-  "compress-pdf": createPdfGuide({
-    toolName: "Compress PDF",
-    metaTitle: "How to Compress a PDF Online | ChlatWork",
-    metaDescription:
-      "Learn what browser-side PDF compression can safely do and how to rebuild a PDF locally.",
-    heroTitle: "How to Compress a PDF in Your Browser",
-    heroDescription:
-      "Rebuild a PDF locally and remove safe metadata where possible without uploading the file.",
-    ctaLabel: "Compress PDF",
-    primaryUse: "rebuilding a PDF to reduce safe overhead where possible",
-    inputLabel: "PDF file",
-    outputLabel: "compressed PDF",
-    extraStep: "Review the original and output file sizes after processing.",
-    limitation:
-      "Compression depends on PDF content and may not shrink files that are already optimized.",
-    keywords: [
-      "compress PDF",
-      "reduce PDF size",
-      "PDF optimizer",
-      "browser PDF compression",
+  "compress-pdf": {
+    ...createPdfGuide({
+      toolName: "Compress PDF",
+      metaTitle: "How to Compress a PDF Online | ChlatWork",
+      metaDescription:
+        "Learn what browser-side PDF compression can safely do and how to rebuild a PDF locally.",
+      heroTitle: "How to Compress a PDF in Your Browser",
+      heroDescription:
+        "Rebuild a PDF locally and remove safe metadata where possible without uploading the file.",
+      ctaLabel: "Compress PDF",
+      primaryUse: "rebuilding a PDF to reduce safe overhead where possible",
+      inputLabel: "PDF file",
+      outputLabel: "compressed PDF",
+      extraStep: "Review the original and output file sizes after processing.",
+      limitation:
+        "Compression depends on PDF content and may not shrink files that are already optimized.",
+      keywords: [
+        "compress PDF",
+        "reduce PDF size",
+        "PDF optimizer",
+        "browser PDF compression",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Job application upload limit",
+        scenario:
+          "An applicant must submit a resume PDF under a strict portal size cap.",
+        steps: [
+          "Compress the resume PDF and compare before/after file size.",
+          "Open the compressed file to confirm fonts and alignment are intact.",
+          "Upload only after verifying the final file meets the portal limit.",
+        ],
+        result:
+          "The resume is accepted by the portal without sacrificing legibility.",
+      },
+      {
+        title: "Monthly report email attachment",
+        scenario:
+          "A manager needs to send a report PDF to many recipients with mailbox size restrictions.",
+        steps: [
+          "Compress the report and check charts remain readable.",
+          "Validate that page count and pagination remain unchanged.",
+          "Send the reduced file as the official version.",
+        ],
+        result:
+          "Email delivery succeeds more reliably and recipients open the file faster.",
+      },
     ],
-  }),
-  "remove-pdf-pages": createPdfGuide({
-    toolName: "PDF Page Remover",
-    metaTitle: "How to Remove Pages from a PDF Online | ChlatWork",
-    metaDescription:
-      "Learn how to remove pages from a PDF using ranges like 2, 5-7 and download a new copy.",
-    heroTitle: "How to Remove Pages from a PDF",
-    heroDescription:
-      "Delete unwanted PDF pages and create a clean copy while keeping the original file unchanged.",
-    ctaLabel: "Remove PDF Pages",
-    primaryUse: "removing unwanted pages from a PDF",
-    inputLabel: "PDF file and pages to remove",
-    outputLabel: "PDF with pages removed",
-    extraStep: "Enter pages to remove, such as 2, 5-7.",
-    limitation:
-      "You must keep at least one page, so the tool will reject ranges that remove every page.",
-    keywords: [
-      "remove PDF pages",
-      "delete PDF pages",
-      "PDF page remover",
-      "edit PDF pages",
+  },
+  "remove-pdf-pages": {
+    ...createPdfGuide({
+      toolName: "PDF Page Remover",
+      metaTitle: "How to Remove Pages from a PDF Online | ChlatWork",
+      metaDescription:
+        "Learn how to remove pages from a PDF using ranges like 2, 5-7 and download a new copy.",
+      heroTitle: "How to Remove Pages from a PDF",
+      heroDescription:
+        "Delete unwanted PDF pages and create a clean copy while keeping the original file unchanged.",
+      ctaLabel: "Remove PDF Pages",
+      primaryUse: "removing unwanted pages from a PDF",
+      inputLabel: "PDF file and pages to remove",
+      outputLabel: "PDF with pages removed",
+      extraStep: "Enter pages to remove, such as 2, 5-7.",
+      limitation:
+        "You must keep at least one page, so the tool will reject ranges that remove every page.",
+      keywords: [
+        "remove PDF pages",
+        "delete PDF pages",
+        "PDF page remover",
+        "edit PDF pages",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Trim appendix before client send",
+        scenario:
+          "A consultant must remove internal appendix pages before sharing a proposal PDF with a client.",
+        steps: [
+          "Identify appendix page numbers in the original document.",
+          "Remove those ranges and generate a clean external copy.",
+          "Review the final PDF to ensure references still make sense.",
+        ],
+        result:
+          "The client receives only relevant pages, reducing accidental disclosure of internal notes.",
+      },
+      {
+        title: "Delete blank scan pages",
+        scenario:
+          "A scanned form PDF includes many blank pages from feeder misalignment.",
+        steps: [
+          "Locate blank page numbers quickly from preview.",
+          "Remove all blank ranges in one pass.",
+          "Save the cleaned copy for archive and submission.",
+        ],
+        result:
+          "The final file is shorter, cleaner, and easier for reviewers to navigate.",
+      },
     ],
-  }),
-  "reorder-pdf-pages": createPdfGuide({
-    toolName: "PDF Page Reorder",
-    metaTitle: "How to Reorder PDF Pages Online | ChlatWork",
-    metaDescription:
-      "Learn how to reorder PDF pages using a custom order like 3,1,2,4 in your browser.",
-    heroTitle: "How to Reorder PDF Pages",
-    heroDescription:
-      "Create a new PDF with pages arranged in the exact order you need.",
-    ctaLabel: "Reorder PDF Pages",
-    primaryUse: "creating a new PDF with pages in a custom order",
-    inputLabel: "PDF file and custom page order",
-    outputLabel: "reordered PDF",
-    extraStep: "Enter the new order, such as 3,1,2,4.",
-    limitation:
-      "Each page can appear only once in the custom order to avoid accidental duplicates.",
-    keywords: [
-      "reorder PDF pages",
-      "arrange PDF pages",
-      "move PDF pages",
-      "PDF page order",
+  },
+  "reorder-pdf-pages": {
+    ...createPdfGuide({
+      toolName: "PDF Page Reorder",
+      metaTitle: "How to Reorder PDF Pages Online | ChlatWork",
+      metaDescription:
+        "Learn how to reorder PDF pages using a custom order like 3,1,2,4 in your browser.",
+      heroTitle: "How to Reorder PDF Pages",
+      heroDescription:
+        "Create a new PDF with pages arranged in the exact order you need.",
+      ctaLabel: "Reorder PDF Pages",
+      primaryUse: "creating a new PDF with pages in a custom order",
+      inputLabel: "PDF file and custom page order",
+      outputLabel: "reordered PDF",
+      extraStep: "Enter the new order, such as 3,1,2,4.",
+      limitation:
+        "Each page can appear only once in the custom order to avoid accidental duplicates.",
+      keywords: [
+        "reorder PDF pages",
+        "arrange PDF pages",
+        "move PDF pages",
+        "PDF page order",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Fix wrong scan order",
+        scenario:
+          "A scanned contract has signature pages in the middle due to scanner feeder order issues.",
+        steps: [
+          "Inspect current page sequence and note intended order.",
+          "Enter a corrected custom page order.",
+          "Generate and verify that clauses and signatures now align.",
+        ],
+        result:
+          "The contract becomes logically readable and acceptable for approval workflow.",
+      },
+      {
+        title: "Prepare training handout flow",
+        scenario:
+          "A trainer wants summary pages first and reference pages last in a PDF handout.",
+        steps: [
+          "Identify priority pages for session opening.",
+          "Reorder the document to match teaching sequence.",
+          "Export and share the new training copy.",
+        ],
+        result:
+          "Participants follow the session more easily because the handout now matches presentation flow.",
+      },
     ],
-  }),
-  "html-to-pdf": createPdfGuide({
-    toolName: "HTML to PDF",
-    metaTitle: "How to Convert HTML to PDF Online | ChlatWork",
-    metaDescription:
-      "Learn how to convert simple printable HTML into a PDF locally in your browser.",
-    heroTitle: "How to Convert HTML Into a PDF",
-    heroDescription:
-      "Paste simple HTML, preview it, and generate a printable PDF without a backend upload.",
-    ctaLabel: "Convert HTML to PDF",
-    primaryUse: "turning simple HTML content into a printable PDF",
-    inputLabel: "HTML content",
-    outputLabel: "HTML PDF",
-    extraStep:
-      "Preview the rendered HTML and adjust simple styles before generating.",
-    limitation:
-      "Complex scripts, remote assets, and advanced CSS may not render exactly like a full browser print engine.",
-    keywords: [
-      "HTML to PDF",
-      "convert HTML to PDF",
-      "print HTML PDF",
-      "browser HTML renderer",
+  },
+  "html-to-pdf": {
+    ...createPdfGuide({
+      toolName: "HTML to PDF",
+      metaTitle: "How to Convert HTML to PDF Online | ChlatWork",
+      metaDescription:
+        "Learn how to convert simple printable HTML into a PDF locally in your browser.",
+      heroTitle: "How to Convert HTML Into a PDF",
+      heroDescription:
+        "Paste simple HTML, preview it, and generate a printable PDF without a backend upload.",
+      ctaLabel: "Convert HTML to PDF",
+      primaryUse: "turning simple HTML content into a printable PDF",
+      inputLabel: "HTML content",
+      outputLabel: "HTML PDF",
+      extraStep:
+        "Preview the rendered HTML and adjust simple styles before generating.",
+      limitation:
+        "Complex scripts, remote assets, and advanced CSS may not render exactly like a full browser print engine.",
+      keywords: [
+        "HTML to PDF",
+        "convert HTML to PDF",
+        "print HTML PDF",
+        "browser HTML renderer",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Generate printable policy memo",
+        scenario:
+          "An operations manager drafts a styled HTML memo and needs a printable PDF for staff notice boards.",
+        steps: [
+          "Paste memo HTML with basic heading and list styles.",
+          "Preview layout and fix page-break-sensitive sections.",
+          "Export PDF and test print one copy before distribution.",
+        ],
+        result:
+          "The memo keeps consistent structure across devices and prints cleanly.",
+      },
+      {
+        title: "Template invoice preview export",
+        scenario:
+          "A developer validates a static invoice HTML template by exporting a PDF sample for stakeholder review.",
+        steps: [
+          "Insert sample invoice data in HTML template.",
+          "Preview for alignment issues and overflow text.",
+          "Convert to PDF and send for non-technical approval.",
+        ],
+        result:
+          "Stakeholders can review a realistic output format before engineering final integration.",
+      },
     ],
-  }),
-  "text-to-pdf": createPdfGuide({
-    toolName: "Text to PDF",
-    metaTitle: "How to Convert Text to PDF Online | ChlatWork",
-    metaDescription:
-      "Learn how to create a simple PDF from plain text with font size, page size, and margin options.",
-    heroTitle: "How to Convert Plain Text Into a PDF",
-    heroDescription:
-      "Turn notes, drafts, instructions, or plain content into a clean downloadable PDF.",
-    ctaLabel: "Convert Text to PDF",
-    primaryUse: "creating simple PDF documents from plain text",
-    inputLabel: "plain text",
-    outputLabel: "text PDF",
-    extraStep:
-      "Choose font size, page size, and margin before generating the PDF.",
-    limitation:
-      "This tool is for plain text; use HTML to PDF when you need basic formatting.",
-    keywords: [
-      "text to PDF",
-      "plain text PDF",
-      "create PDF from text",
-      "browser PDF writer",
+  },
+  "text-to-pdf": {
+    ...createPdfGuide({
+      toolName: "Text to PDF",
+      metaTitle: "How to Convert Text to PDF Online | ChlatWork",
+      metaDescription:
+        "Learn how to create a simple PDF from plain text with font size, page size, and margin options.",
+      heroTitle: "How to Convert Plain Text Into a PDF",
+      heroDescription:
+        "Turn notes, drafts, instructions, or plain content into a clean downloadable PDF.",
+      ctaLabel: "Convert Text to PDF",
+      primaryUse: "creating simple PDF documents from plain text",
+      inputLabel: "plain text",
+      outputLabel: "text PDF",
+      extraStep:
+        "Choose font size, page size, and margin before generating the PDF.",
+      limitation:
+        "This tool is for plain text; use HTML to PDF when you need basic formatting.",
+      keywords: [
+        "text to PDF",
+        "plain text PDF",
+        "create PDF from text",
+        "browser PDF writer",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Meeting minutes handoff",
+        scenario:
+          "A team lead has plain text meeting notes and needs a clean PDF for formal record sharing.",
+        steps: [
+          "Paste minutes text and review paragraph breaks.",
+          "Set readable font size and margin for printing.",
+          "Export PDF and send to participants as official notes.",
+        ],
+        result:
+          "The team gets a stable, printable record that looks consistent across devices.",
+      },
+      {
+        title: "Draft SOP distribution",
+        scenario:
+          "An operations assistant prepares plain-text procedure steps for new staff onboarding.",
+        steps: [
+          "Convert SOP text into PDF with simple formatting.",
+          "Check page flow so each section remains readable.",
+          "Share the PDF with HR for onboarding packs.",
+        ],
+        result:
+          "The SOP is easier to distribute and less likely to be edited accidentally.",
+      },
     ],
-  }),
-  "invoice-to-pdf": createPdfGuide({
-    toolName: "Invoice to PDF",
-    metaTitle: "How to Create an Invoice PDF for Free | ChlatWork",
-    metaDescription:
-      "Learn how to fill a simple invoice form and generate a clean PDF invoice in your browser.",
-    heroTitle: "How to Create a Simple Invoice PDF",
-    heroDescription:
-      "Enter company, customer, items, discount, tax, and notes, then download a professional invoice PDF.",
-    ctaLabel: "Create Invoice PDF",
-    primaryUse: "generating a clean invoice PDF from a simple form",
-    inputLabel: "invoice details and item rows",
-    outputLabel: "invoice PDF",
-    extraStep:
-      "Add line items, discount, tax, and notes before generating the invoice.",
-    limitation:
-      "The invoice template is intentionally simple, so review totals and notes before sending it to a customer.",
-    keywords: [
-      "invoice PDF generator",
-      "create invoice PDF",
-      "free invoice tool",
-      "browser invoice PDF",
+  },
+  "invoice-to-pdf": {
+    ...createPdfGuide({
+      toolName: "Invoice to PDF",
+      metaTitle: "How to Create an Invoice PDF for Free | ChlatWork",
+      metaDescription:
+        "Learn how to fill a simple invoice form and generate a clean PDF invoice in your browser.",
+      heroTitle: "How to Create a Simple Invoice PDF",
+      heroDescription:
+        "Enter company, customer, items, discount, tax, and notes, then download a professional invoice PDF.",
+      ctaLabel: "Create Invoice PDF",
+      primaryUse: "generating a clean invoice PDF from a simple form",
+      inputLabel: "invoice details and item rows",
+      outputLabel: "invoice PDF",
+      extraStep:
+        "Add line items, discount, tax, and notes before generating the invoice.",
+      limitation:
+        "The invoice template is intentionally simple, so review totals and notes before sending it to a customer.",
+      keywords: [
+        "invoice PDF generator",
+        "create invoice PDF",
+        "free invoice tool",
+        "browser invoice PDF",
+      ],
+    }),
+    practicalExamples: [
+      {
+        title: "Freelancer monthly billing",
+        scenario:
+          "A freelancer bills a recurring client for design and revision work each month.",
+        steps: [
+          "Fill customer details and invoice date.",
+          "Add line items for each service with clear descriptions.",
+          "Apply tax/discount rules and export finalized PDF.",
+        ],
+        result:
+          "The client receives a professional invoice with transparent totals and fewer payment questions.",
+      },
+      {
+        title: "Small shop custom order invoice",
+        scenario:
+          "A local shop needs same-day invoice PDFs for custom order pickups.",
+        steps: [
+          "Enter product quantities and unit prices from order sheet.",
+          "Include pickup note and payment due date.",
+          "Generate invoice PDF and send via Telegram.",
+        ],
+        result:
+          "Customers receive clear billing records quickly, improving trust and payment speed.",
+      },
     ],
-  }),
+  },
   qr: {
     metaTitle: "How to Generate a QR Code for Free | ChlatWork",
     metaDescription:
@@ -1016,8 +1206,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         title: "QR ចូលរួមព្រឹត្តិការណ៍",
-        scenario:
-          "អ្នករៀបចំព្រឹត្តិការណ៍ត្រូវការចុះឈ្មោះឱ្យលឿននៅច្រកចូល។",
+        scenario: "អ្នករៀបចំព្រឹត្តិការណ៍ត្រូវការចុះឈ្មោះឱ្យលឿននៅច្រកចូល។",
         steps: [
           "បង្កើត QR ទៅកាន់ Form ចុះឈ្មោះ។",
           "ដាក់ស្លាក QR នៅច្រកចូល និងតុព័ត៌មាន។",
@@ -1113,6 +1302,32 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A home user prints a small QR code for family guests instead of reading the password aloud.",
       "A school or training room shares a temporary Wi-Fi network with students during a workshop.",
     ],
+    practicalExamples: [
+      {
+        title: "Cafe guest Wi-Fi onboarding",
+        scenario:
+          "A cafe wants to reduce cashier interruptions from repeated Wi-Fi password requests.",
+        steps: [
+          "Create a Wi-Fi QR code for the guest network only.",
+          "Print and place the code near tables and cashier counter.",
+          "Test scan flow on both iPhone and Android before opening hours.",
+        ],
+        result:
+          "Guests connect faster and staff can focus more on service instead of repeating password instructions.",
+      },
+      {
+        title: "Meeting room visitor access",
+        scenario:
+          "An office hosts external partners and needs easy temporary Wi-Fi access in meeting rooms.",
+        steps: [
+          "Generate QR for visitor network with separate credentials.",
+          "Display poster in room and include fallback text for support.",
+          "Replace QR poster whenever guest password rotates.",
+        ],
+        result:
+          "Visitors join quickly while internal office network stays isolated.",
+      },
+    ],
     tips: [
       "Double-check capitalization in the network name and password.",
       "Do not print the password in plain text if you want visitors to scan only.",
@@ -1191,6 +1406,32 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A learner compares typed Khmer text with audio playback for pronunciation practice.",
       "A support team listens to English service copy before publishing it.",
     ],
+    practicalExamples: [
+      {
+        title: "Khmer announcement quality check",
+        scenario:
+          "A support team drafts a Khmer service announcement and wants to catch awkward phrasing before publishing.",
+        steps: [
+          "Paste the draft and let the tool detect Khmer automatically.",
+          "Listen in both online and browser voice modes.",
+          "Refine punctuation and sentence length where pronunciation sounds unnatural.",
+        ],
+        result:
+          "The final announcement sounds clearer and more natural to customers.",
+      },
+      {
+        title: "Bilingual script rehearsal",
+        scenario:
+          "A creator prepares short Khmer-English narration for a product demo reel.",
+        steps: [
+          "Split script sections by language to improve voice matching.",
+          "Adjust speed and pitch for each section.",
+          "Download approved clips and combine in video editor.",
+        ],
+        result:
+          "The creator gets consistent draft narration quickly without booking a studio session.",
+      },
+    ],
     tips: [
       "Keep sentences short when testing a new voice.",
       "Add punctuation so the voice has natural pauses.",
@@ -1267,6 +1508,32 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A support team removes hidden spacing from Khmer instructions before sending them to customers.",
       "A developer normalizes Khmer sample text before using it in UI testing.",
       "A student cleans Khmer paragraphs copied from a PDF before editing them in a document.",
+    ],
+    practicalExamples: [
+      {
+        title: "Telegram promo cleanup",
+        scenario:
+          "A shop copies Khmer text from a PDF flyer, but pasted content in Telegram looks broken and uneven.",
+        steps: [
+          "Paste source text into the fixer and enable spacing/invisible-character cleanup.",
+          "Review output line breaks and digit format.",
+          "Copy cleaned text into Telegram draft and preview on mobile.",
+        ],
+        result:
+          "The promotion message becomes readable and professional across chat devices.",
+      },
+      {
+        title: "Website content normalization",
+        scenario:
+          "A content editor merges Khmer paragraphs from multiple sources with inconsistent Unicode patterns.",
+        steps: [
+          "Run each paragraph through the fixer before CMS entry.",
+          "Keep digit style consistent with site language policy.",
+          "Validate final rendering on desktop and mobile pages.",
+        ],
+        result:
+          "Published pages have consistent Khmer rendering and fewer copy-paste defects.",
+      },
     ],
     tips: [
       "Keep a copy of the original text until you confirm the cleaned version is correct.",
@@ -1356,6 +1623,32 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A clinic estimates a follow-up date after a visit.",
       "A delivery team calculates the date after a promised lead time.",
       "A student checks how many days remain before an exam or submission deadline.",
+    ],
+    practicalExamples: [
+      {
+        title: "Invoice due-date planning",
+        scenario:
+          "A small business issues invoices with net-30 terms and wants consistent due-date communication.",
+        steps: [
+          "Select the invoice issue date as start date.",
+          "Add 30 days using calendar-day mode.",
+          "Share the resulting due date in invoice notes and reminders.",
+        ],
+        result:
+          "Finance and customers reference the same due date, reducing late-payment disputes.",
+      },
+      {
+        title: "Exam countdown planning",
+        scenario:
+          "A student prepares a revision plan for an exam scheduled next month.",
+        steps: [
+          "Use date difference to calculate remaining days.",
+          "Split study goals across weekly milestones.",
+          "Re-check remaining days each week to adjust plan.",
+        ],
+        result:
+          "The study plan stays realistic and deadline-aware instead of last-minute cramming.",
+      },
     ],
     tips: [
       "Confirm whether your business counts calendar days or working days.",
@@ -1478,8 +1771,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     practicalExamplesKm: [
       {
         title: "បង្កើត Barcode សម្រាប់ SKU ខាងក្នុង",
-        scenario:
-          "ហាងតូចមួយប្រើលេខ SKU ខាងក្នុង ហើយចង់ស្កេនបានលឿននៅធ្នើ។",
+        scenario: "ហាងតូចមួយប្រើលេខ SKU ខាងក្នុង ហើយចង់ស្កេនបានលឿននៅធ្នើ។",
         steps: [
           "ជ្រើស CODE128 សម្រាប់កូដអក្សរ-លេខ។",
           "បង្កើត barcode និងបោះពុម្ពសាកល្បងមួយសន្លឹកជាមុន។",
@@ -1647,7 +1939,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "ភ្ជាប់លេខវិក្កយបត្រសម្រាប់ចំណាយសំខាន់។",
           "ប្រើសង្ខេបប្រចាំសប្តាហ៍ មុនអនុម័តសងប្រាក់។",
         ],
-        result: "ការអនុម័តចំណាយមានភស្តុតាងច្បាស់ និងសម្រួលការគ្រប់គ្រងសាច់ប្រាក់។",
+        result:
+          "ការអនុម័តចំណាយមានភស្តុតាងច្បាស់ និងសម្រួលការគ្រប់គ្រងសាច់ប្រាក់។",
       },
     ],
     tips: [
@@ -1741,6 +2034,32 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "A company picks staff prizes during a year-end party.",
       "A cafe chooses a free-drink winner from loyalty-card customers.",
       "A small online seller draws winners during a livestream promotion.",
+    ],
+    practicalExamples: [
+      {
+        title: "Livestream giveaway transparency",
+        scenario:
+          "An online seller runs a live giveaway and needs visible, fair winner selection to avoid complaints.",
+        steps: [
+          "Import participant names from the final comment list.",
+          "Remove duplicate entries according to campaign rules.",
+          "Spin the wheel live and capture winner screenshot for proof post.",
+        ],
+        result:
+          "Audience trust improves because winner selection is visibly random and documented.",
+      },
+      {
+        title: "Classroom participation picker",
+        scenario:
+          "A teacher wants to choose presenters fairly from a full class roster.",
+        steps: [
+          "Add all student names once at session start.",
+          "Run one draw per activity round.",
+          "Record winners and remove selected names when repeats are not allowed.",
+        ],
+        result:
+          "Class participation feels fairer, and quieter students get equal selection chance.",
+      },
     ],
     tips: [
       "Clean the participant list before starting the draw.",
@@ -2617,8 +2936,9 @@ function requireGuide(tool: ToolDef) {
     path: route.path,
     tool,
     iconPath: getToolIconImagePath(tool.key),
-    iconPaths: TOOL_ICON_PATHS[tool.key] ?? TOOL_ICON_PATHS.calculator,
-    iconClass: TOOL_ICON_CLASSES[tool.key] ?? TOOL_ICON_CLASSES.calculator,
+    iconPaths: TOOL_ICON_PATHS[tool.key] ?? TOOL_ICON_PATHS.calculator ?? [],
+    iconClass:
+      TOOL_ICON_CLASSES[tool.key] ?? TOOL_ICON_CLASSES.calculator ?? "",
   };
 }
 

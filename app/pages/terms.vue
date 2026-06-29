@@ -64,7 +64,9 @@ useHead({
         <li>No illegal content or harmful activity.</li>
         <li>No attempts to bypass security or exploit vulnerabilities.</li>
         <li>No automated scraping that impacts performance.</li>
-        <li>No use of the tools to mislead users, customers, or third parties.</li>
+        <li>
+          No use of the tools to mislead users, customers, or third parties.
+        </li>
       </ul>
     </section>
 
@@ -103,10 +105,9 @@ useHead({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Intellectual property</h2>
       <p class="text-gray-700 dark:text-white/75">
-        ChlatWork owns or licenses the site design, text, source code,
-        branding, and original guide content. You keep responsibility for the
-        files, text, images, links, codes, and other input you bring to the
-        tools.
+        ChlatWork owns or licenses the site design, text, source code, branding,
+        and original guide content. You keep responsibility for the files, text,
+        images, links, codes, and other input you bring to the tools.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         Tool outputs are provided for your use, but you are responsible for
@@ -141,7 +142,9 @@ useHead({
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">No warranty and limitation of liability</h2>
+      <h2 class="text-lg font-semibold">
+        No warranty and limitation of liability
+      </h2>
       <p class="text-gray-700 dark:text-white/75">
         ChlatWork is provided without warranties of any kind. To the maximum
         extent permitted by law, we are not liable for any damages or losses

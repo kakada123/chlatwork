@@ -25,23 +25,28 @@ const benefits = computed(() =>
     : [
         {
           title: "Direct tool access",
-          description: "Every card opens a real tool route without extra browsing.",
+          description:
+            "Every card opens a real tool route without extra browsing.",
         },
         {
           title: "Mobile-first scanning",
-          description: "Search and tool cards stay near the top on small screens.",
+          description:
+            "Search and tool cards stay near the top on small screens.",
         },
         {
           title: "Browser-first workflows",
-          description: "Many document and image tasks run in the browser where practical.",
+          description:
+            "Many document and image tasks run in the browser where practical.",
         },
         {
           title: "Practical guides with local examples",
-          description: "Guides focus on real Khmer-English and Cambodia workflow examples instead of generic filler text.",
+          description:
+            "Guides focus on real Khmer-English and Cambodia workflow examples instead of generic filler text.",
         },
         {
           title: "Reviewed and updated content",
-          description: "Policy and guide pages are updated when tool behavior or workflow requirements change.",
+          description:
+            "Policy and guide pages are updated when tool behavior or workflow requirements change.",
         },
       ],
 );
@@ -59,8 +64,12 @@ const benefits = computed(() =>
           aria-hidden="true"
         />
 
-        <div class="relative z-10 grid gap-4 lg:grid-cols-[0.55fr_1.45fr] lg:items-center">
-          <h2 class="text-lg font-black text-slate-950 dark:text-white sm:text-xl">
+        <div
+          class="relative z-10 grid gap-4 lg:grid-cols-[0.55fr_1.45fr] lg:items-center"
+        >
+          <h2
+            class="text-lg font-black text-slate-950 dark:text-white sm:text-xl"
+          >
             {{ heading }}
           </h2>
 
@@ -74,7 +83,9 @@ const benefits = computed(() =>
               <h3 class="text-sm font-black text-slate-950 dark:text-white">
                 {{ benefit.title }}
               </h3>
-              <p class="mt-1 text-xs leading-5 text-slate-600 dark:text-white/[0.62]">
+              <p
+                class="mt-1 text-xs leading-5 text-slate-600 dark:text-white/[0.62]"
+              >
                 {{ benefit.description }}
               </p>
             </article>
