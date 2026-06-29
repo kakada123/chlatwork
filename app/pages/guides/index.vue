@@ -23,7 +23,9 @@ useHead({
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-[1180px] space-y-8 text-slate-950 dark:text-white">
+  <main
+    class="mx-auto w-full max-w-[1180px] space-y-8 text-slate-950 dark:text-white"
+  >
     <header class="space-y-3">
       <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
         Guides
@@ -32,9 +34,8 @@ useHead({
         Practical ChlatWork guides
       </h1>
       <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
-        Short, practical guides for common workflows: restaurant QR menus,
-        barcode formats, PDF safety, PDF size reduction, and Khmer Unicode
-        cleanup.
+        Short, practical guides for common workflows: QR sharing, barcode
+        formats, PDF safety, PDF size reduction, and Khmer Unicode cleanup.
       </p>
     </header>
 
@@ -45,10 +46,10 @@ useHead({
         :to="guide.path"
         class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.10]"
       >
-        <p class="text-xs font-bold uppercase text-slate-400">
-          Guide
-        </p>
-        <h2 class="mt-2 text-xl font-black group-hover:text-sky-700 dark:group-hover:text-cyan-200">
+        <p class="text-xs font-bold uppercase text-slate-400">Guide</p>
+        <h2
+          class="mt-2 text-xl font-black group-hover:text-sky-700 dark:group-hover:text-cyan-200"
+        >
           {{ guide.title }}
         </h2>
         <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/65">

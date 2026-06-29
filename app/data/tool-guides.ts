@@ -106,7 +106,8 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
       },
       {
         question: "Is this tool free?",
-        answer: "Yes. You can use the ChlatWork PDF tool directly in your browser.",
+        answer:
+          "Yes. You can use the ChlatWork PDF tool directly in your browser.",
       },
       {
         question: "Will it work with large files?",
@@ -141,6 +142,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     whatIs: [
       "The PayBack Calculator is a simple tool for settling shared spending. Instead of manually checking every receipt and doing the math in chat, you enter each payment and let the calculator show the cleanest payback plan.",
       "It is useful when one person paid for several people, when multiple people paid different amounts, or when a group wants a fair result after food, fuel, room booking, supplies, or team activity costs.",
+      "The calculator is for educational planning and practical coordination. It is not financial, tax, legal, or accounting advice.",
     ],
     whyUse: [
       "It reduces awkward money conversations by showing clear payback amounts.",
@@ -154,6 +156,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Add each person in the group, such as friends, staff, or family members.",
       "Enter each expense with the person who paid and the amount they covered.",
       "Review the summary to see the balance for every person.",
+      "Before sending money, confirm the final numbers, currency, and any transfer or exchange fees with the group.",
       "Use the payback result to tell each person exactly who to pay and how much.",
       "Copy the result into Telegram, Messenger, or your team chat if the group needs a record.",
     ],
@@ -168,6 +171,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Enter expenses as soon as possible so nobody forgets who paid.",
       "Use clear names that everyone in the group recognizes.",
       "Round only at the final payment step, not while entering receipts.",
+      "If people pay by different channels, account for bank transfer fees or exchange differences before collecting money.",
       "Keep receipts or screenshots for larger amounts.",
       "Share the final result before collecting money so people can confirm it.",
     ],
@@ -191,6 +195,11 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
         question: "Is this the same as a full accounting app?",
         answer:
           "No. It is intentionally simpler. It helps groups settle shared spending quickly without setting up accounts or categories.",
+      },
+      {
+        question: "Does this tool provide financial advice?",
+        answer:
+          "No. It provides a practical split calculation only. You should verify assumptions and final amounts before any real payment.",
       },
       {
         question: "Can I share the result with my group?",
@@ -356,8 +365,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is this free to use?",
-        answer:
-          "Yes. You can create image PDFs with ChlatWork for free.",
+        answer: "Yes. You can create image PDFs with ChlatWork for free.",
       },
     ],
     keywords: [
@@ -380,10 +388,16 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     primaryUse: "rendering PDF pages into downloadable JPG images",
     inputLabel: "PDF file",
     outputLabel: "JPG page images",
-    extraStep: "Choose a render quality and scale that fits your file size and sharpness needs.",
+    extraStep:
+      "Choose a render quality and scale that fits your file size and sharpness needs.",
     limitation:
       "ZIP download is not included yet, so download each rendered JPG page individually.",
-    keywords: ["PDF to JPG", "convert PDF to image", "PDF page image", "browser PDF renderer"],
+    keywords: [
+      "PDF to JPG",
+      "convert PDF to image",
+      "PDF page image",
+      "browser PDF renderer",
+    ],
   }),
   "merge-pdf": createPdfGuide({
     toolName: "Merge PDF",
@@ -397,10 +411,16 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     primaryUse: "combining multiple PDF files into one PDF",
     inputLabel: "two or more PDF files",
     outputLabel: "merged PDF",
-    extraStep: "Use the file order controls to place the PDFs in the correct sequence.",
+    extraStep:
+      "Use the file order controls to place the PDFs in the correct sequence.",
     limitation:
       "Interactive form behavior can vary because the tool copies page content into a new PDF.",
-    keywords: ["merge PDF", "combine PDF files", "join PDF online", "browser PDF merge"],
+    keywords: [
+      "merge PDF",
+      "combine PDF files",
+      "join PDF online",
+      "browser PDF merge",
+    ],
   }),
   "split-pdf": createPdfGuide({
     toolName: "Split PDF",
@@ -417,7 +437,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     extraStep: "Enter pages to keep, such as 1-3, 5, 8-10.",
     limitation:
       "Page numbers start at 1, so check the page count shown by the tool before generating.",
-    keywords: ["split PDF", "extract PDF pages", "PDF page range", "browser PDF splitter"],
+    keywords: [
+      "split PDF",
+      "extract PDF pages",
+      "PDF page range",
+      "browser PDF splitter",
+    ],
   }),
   "compress-pdf": createPdfGuide({
     toolName: "Compress PDF",
@@ -434,7 +459,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     extraStep: "Review the original and output file sizes after processing.",
     limitation:
       "Compression depends on PDF content and may not shrink files that are already optimized.",
-    keywords: ["compress PDF", "reduce PDF size", "PDF optimizer", "browser PDF compression"],
+    keywords: [
+      "compress PDF",
+      "reduce PDF size",
+      "PDF optimizer",
+      "browser PDF compression",
+    ],
   }),
   "remove-pdf-pages": createPdfGuide({
     toolName: "PDF Page Remover",
@@ -451,7 +481,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     extraStep: "Enter pages to remove, such as 2, 5-7.",
     limitation:
       "You must keep at least one page, so the tool will reject ranges that remove every page.",
-    keywords: ["remove PDF pages", "delete PDF pages", "PDF page remover", "edit PDF pages"],
+    keywords: [
+      "remove PDF pages",
+      "delete PDF pages",
+      "PDF page remover",
+      "edit PDF pages",
+    ],
   }),
   "reorder-pdf-pages": createPdfGuide({
     toolName: "PDF Page Reorder",
@@ -468,7 +503,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     extraStep: "Enter the new order, such as 3,1,2,4.",
     limitation:
       "Each page can appear only once in the custom order to avoid accidental duplicates.",
-    keywords: ["reorder PDF pages", "arrange PDF pages", "move PDF pages", "PDF page order"],
+    keywords: [
+      "reorder PDF pages",
+      "arrange PDF pages",
+      "move PDF pages",
+      "PDF page order",
+    ],
   }),
   "html-to-pdf": createPdfGuide({
     toolName: "HTML to PDF",
@@ -482,10 +522,16 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     primaryUse: "turning simple HTML content into a printable PDF",
     inputLabel: "HTML content",
     outputLabel: "HTML PDF",
-    extraStep: "Preview the rendered HTML and adjust simple styles before generating.",
+    extraStep:
+      "Preview the rendered HTML and adjust simple styles before generating.",
     limitation:
       "Complex scripts, remote assets, and advanced CSS may not render exactly like a full browser print engine.",
-    keywords: ["HTML to PDF", "convert HTML to PDF", "print HTML PDF", "browser HTML renderer"],
+    keywords: [
+      "HTML to PDF",
+      "convert HTML to PDF",
+      "print HTML PDF",
+      "browser HTML renderer",
+    ],
   }),
   "text-to-pdf": createPdfGuide({
     toolName: "Text to PDF",
@@ -499,10 +545,16 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     primaryUse: "creating simple PDF documents from plain text",
     inputLabel: "plain text",
     outputLabel: "text PDF",
-    extraStep: "Choose font size, page size, and margin before generating the PDF.",
+    extraStep:
+      "Choose font size, page size, and margin before generating the PDF.",
     limitation:
       "This tool is for plain text; use HTML to PDF when you need basic formatting.",
-    keywords: ["text to PDF", "plain text PDF", "create PDF from text", "browser PDF writer"],
+    keywords: [
+      "text to PDF",
+      "plain text PDF",
+      "create PDF from text",
+      "browser PDF writer",
+    ],
   }),
   "invoice-to-pdf": createPdfGuide({
     toolName: "Invoice to PDF",
@@ -516,10 +568,16 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     primaryUse: "generating a clean invoice PDF from a simple form",
     inputLabel: "invoice details and item rows",
     outputLabel: "invoice PDF",
-    extraStep: "Add line items, discount, tax, and notes before generating the invoice.",
+    extraStep:
+      "Add line items, discount, tax, and notes before generating the invoice.",
     limitation:
       "The invoice template is intentionally simple, so review totals and notes before sending it to a customer.",
-    keywords: ["invoice PDF generator", "create invoice PDF", "free invoice tool", "browser invoice PDF"],
+    keywords: [
+      "invoice PDF generator",
+      "create invoice PDF",
+      "free invoice tool",
+      "browser invoice PDF",
+    ],
   }),
   qr: {
     metaTitle: "How to Generate a QR Code for Free | ChlatWork",
@@ -590,11 +648,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is the QR Generator free?",
-        answer:
-          "Yes. ChlatWork lets you generate QR codes for free.",
+        answer: "Yes. ChlatWork lets you generate QR codes for free.",
       },
     ],
-    keywords: ["generate QR code", "free QR generator", "QR code PNG", "online QR tool"],
+    keywords: [
+      "generate QR code",
+      "free QR generator",
+      "QR code PNG",
+      "online QR tool",
+    ],
     applicationCategory: "UtilitiesApplication",
   },
   "wifi-qr": {
@@ -800,7 +862,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     faqs: [
       {
-        question: "Can this convert Limon or ABC legacy Khmer fonts to Unicode?",
+        question:
+          "Can this convert Limon or ABC legacy Khmer fonts to Unicode?",
         answer:
           "No. This tool cleans text that is already Khmer Unicode. Legacy font conversion needs a separate mapping because the plain copied characters are different.",
       },
@@ -902,11 +965,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is it free?",
-        answer:
-          "Yes. The ChlatWork Date Calculator is free to use online.",
+        answer: "Yes. The ChlatWork Date Calculator is free to use online.",
       },
     ],
-    keywords: ["date calculator", "add days to date", "date difference calculator", "deadline calculator"],
+    keywords: [
+      "date calculator",
+      "add days to date",
+      "date difference calculator",
+      "deadline calculator",
+    ],
     applicationCategory: "UtilitiesApplication",
   },
   barcode: {
@@ -978,11 +1045,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is the tool free?",
-        answer:
-          "Yes. ChlatWork Barcode Generator is free to use.",
+        answer: "Yes. ChlatWork Barcode Generator is free to use.",
       },
     ],
-    keywords: ["barcode generator", "generate barcode free", "CODE128 barcode", "EAN13 barcode"],
+    keywords: [
+      "barcode generator",
+      "generate barcode free",
+      "CODE128 barcode",
+      "EAN13 barcode",
+    ],
     applicationCategory: "UtilitiesApplication",
   },
   "expense-tracker": {
@@ -996,6 +1067,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     whatIs: [
       "The Expense Tracker helps you list spending, organize it by category, and review budget progress. It is built for quick daily tracking rather than complex accounting.",
       "It works well for personal budgets, family spending, small team petty cash, and simple project cost tracking.",
+      "The tracker is an educational money-planning tool and does not replace tax, legal, or professional accounting advice.",
     ],
     whyUse: [
       "It helps you see spending patterns instead of guessing.",
@@ -1010,6 +1082,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Add each expense with an amount, category, and optional note.",
       "Review the summary cards to see total spending and remaining budget.",
       "Check category breakdowns to find where money is going.",
+      "Validate important totals against your receipts, statements, or accounting process before making decisions.",
       "Copy or export the result when you need to share it with someone else.",
     ],
     useCases: [
@@ -1024,7 +1097,13 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Use consistent categories like food, transport, rent, supplies, and bills.",
       "Write short notes for unusual or one-time expenses.",
       "Review the summary at the end of each week, not only at month end.",
+      "If the data is used for reporting, reconcile totals with receipts or bank records.",
       "Set a realistic budget so the tracker becomes useful instead of stressful.",
+    ],
+    privacy: [
+      "Expense entries and category calculations run in your browser for day-to-day use.",
+      "When creating share links, avoid including sensitive personal details in notes or labels.",
+      "Before using shared results for formal reporting, validate totals with original receipts and statements.",
     ],
     faqs: [
       {
@@ -1033,14 +1112,18 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "No. It is a simple expense tracker for quick budgeting and insight, not a replacement for formal accounting software.",
       },
       {
+        question: "Can I rely on this for tax filing or audited reports?",
+        answer:
+          "Use it as a helper for daily tracking, then confirm numbers with your accounting records or advisor before filing or reporting.",
+      },
+      {
         question: "Can I use it for a small business?",
         answer:
           "Yes, for simple day-to-day expense visibility. For tax or formal reports, confirm records with your accounting process.",
       },
       {
         question: "Can I track categories?",
-        answer:
-          "Yes. Categories help you see where the money is going.",
+        answer: "Yes. Categories help you see where the money is going.",
       },
       {
         question: "Should I record every small expense?",
@@ -1049,11 +1132,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is it free?",
-        answer:
-          "Yes. The ChlatWork Expense Tracker is free to use.",
+        answer: "Yes. The ChlatWork Expense Tracker is free to use.",
       },
     ],
-    keywords: ["expense tracker", "track expenses online", "budget tracker", "Cambodia expense tracker"],
+    keywords: [
+      "expense tracker",
+      "track expenses online",
+      "budget tracker",
+      "Cambodia expense tracker",
+    ],
     applicationCategory: "UtilitiesApplication",
   },
   "lucky-draw": {
@@ -1125,11 +1212,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is the Lucky Draw free?",
-        answer:
-          "Yes. The ChlatWork Lucky Draw tool is free to use.",
+        answer: "Yes. The ChlatWork Lucky Draw tool is free to use.",
       },
     ],
-    keywords: ["lucky draw online", "random winner picker", "spin wheel giveaway", "Cambodia lucky draw"],
+    keywords: [
+      "lucky draw online",
+      "random winner picker",
+      "spin wheel giveaway",
+      "Cambodia lucky draw",
+    ],
     applicationCategory: "UtilitiesApplication",
   },
   "json-formatter": {
@@ -1200,7 +1291,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. It is useful for reading API responses, request bodies, and webhook payloads.",
       },
     ],
-    keywords: ["JSON formatter", "format JSON online", "JSON validator", "minify JSON"],
+    keywords: [
+      "JSON formatter",
+      "format JSON online",
+      "JSON validator",
+      "minify JSON",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "jwt-decoder": {
@@ -1318,8 +1414,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     faqs: [
       {
         question: "Is Base64 encryption?",
-        answer:
-          "No. Base64 is encoding, not encryption. Anyone can decode it.",
+        answer: "No. Base64 is encoding, not encryption. Anyone can decode it.",
       },
       {
         question: "Can I convert a file to Base64?",
@@ -1342,7 +1437,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "The tool is designed to read the chosen file locally in the browser.",
       },
     ],
-    keywords: ["Base64 encoder", "Base64 decoder", "file to Base64", "encode decode Base64"],
+    keywords: [
+      "Base64 encoder",
+      "Base64 decoder",
+      "file to Base64",
+      "encode decode Base64",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "url-encoder": {
@@ -1413,7 +1513,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. URL encoding is common for query parameters and callback URLs in web APIs.",
       },
     ],
-    keywords: ["URL encoder", "URL decoder", "encode query string", "decode URL online"],
+    keywords: [
+      "URL encoder",
+      "URL decoder",
+      "encode query string",
+      "decode URL online",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "regex-tester": {
@@ -1480,11 +1585,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Can I copy matches?",
-        answer:
-          "Yes. The tool includes copy support for matched output.",
+        answer: "Yes. The tool includes copy support for matched output.",
       },
     ],
-    keywords: ["regex tester", "test regular expression", "JavaScript regex", "regex match groups"],
+    keywords: [
+      "regex tester",
+      "test regular expression",
+      "JavaScript regex",
+      "regex match groups",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "uuid-generator": {
@@ -1541,8 +1650,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Can I generate many UUIDs at once?",
-        answer:
-          "Yes. Choose the quantity and generate a bulk list.",
+        answer: "Yes. Choose the quantity and generate a bulk list.",
       },
       {
         question: "Can I use UUIDs as secure tokens?",
@@ -1551,11 +1659,15 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       },
       {
         question: "Is the UUID Generator free?",
-        answer:
-          "Yes. It is free to use on ChlatWork.",
+        answer: "Yes. It is free to use on ChlatWork.",
       },
     ],
-    keywords: ["UUID generator", "generate UUID online", "v4 UUID", "bulk UUID generator"],
+    keywords: [
+      "UUID generator",
+      "generate UUID online",
+      "v4 UUID",
+      "bulk UUID generator",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "unix-timestamp": {
@@ -1626,7 +1738,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. JWT expiry values are commonly Unix timestamps in seconds.",
       },
     ],
-    keywords: ["Unix timestamp converter", "timestamp to date", "date to timestamp", "epoch converter"],
+    keywords: [
+      "Unix timestamp converter",
+      "timestamp to date",
+      "date to timestamp",
+      "epoch converter",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "cron-explainer": {
@@ -1673,8 +1790,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     faqs: [
       {
         question: "What does */5 * * * * mean?",
-        answer:
-          "It usually means every five minutes.",
+        answer: "It usually means every five minutes.",
       },
       {
         question: "Does cron include timezone?",
@@ -1697,7 +1813,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. A small schedule mistake can run jobs too often, too late, or on the wrong day.",
       },
     ],
-    keywords: ["cron expression explainer", "explain cron", "cron schedule", "next cron run"],
+    keywords: [
+      "cron expression explainer",
+      "explain cron",
+      "cron schedule",
+      "next cron run",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "hash-generator": {
@@ -1768,7 +1889,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. Extra spaces, line breaks, and capitalization all change the input and therefore the hash.",
       },
     ],
-    keywords: ["hash generator", "SHA-256 hash", "MD5 generator", "text hash online"],
+    keywords: [
+      "hash generator",
+      "SHA-256 hash",
+      "MD5 generator",
+      "text hash online",
+    ],
     applicationCategory: "DeveloperApplication",
   },
   "password-generator": {
@@ -1839,7 +1965,12 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "Yes. It is useful for business accounts, but store the password according to your company policy.",
       },
     ],
-    keywords: ["password generator", "generate strong password", "random password", "secure password tool"],
+    keywords: [
+      "password generator",
+      "generate strong password",
+      "random password",
+      "secure password tool",
+    ],
     applicationCategory: "DeveloperApplication",
   },
 };

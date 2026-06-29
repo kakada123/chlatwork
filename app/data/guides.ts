@@ -430,6 +430,333 @@ export const STARTER_GUIDES: StarterGuide[] = [
     ],
     keywords: ["fix Khmer Unicode", "Khmer text cleanup", "broken Khmer text", "Khmer Unicode spacing"],
   },
+  {
+    slug: "split-restaurant-bill-fairly",
+    path: "/guides/split-restaurant-bill-fairly",
+    title: "How to Split a Restaurant Bill Fairly",
+    metaTitle: "How to Split a Restaurant Bill Fairly | ChlatWork",
+    metaDescription:
+      "Split restaurant bills fairly with worked examples, service-charge edge cases, and practical payback checks before collecting money.",
+    summary:
+      "A step-by-step bill-splitting method for friends, teams, and events with uneven orders and mixed payments.",
+    primaryTool: {
+      label: "PayBack Calculator",
+      path: "/tools/payback-calculator",
+    },
+    relatedTools: [
+      { label: "Expense Tracker", path: "/tools/expense-tracker" },
+      { label: "Date Calculator", path: "/tools/calculator" },
+      { label: "QR Code Generator", path: "/tools/qr" },
+    ],
+    steps: [
+      "List all diners and confirm who actually joined the bill.",
+      "Enter each payment by payer name and exact amount from receipts.",
+      "Add service charge, VAT, and delivery fee as explicit line items so they are not forgotten.",
+      "Generate the settlement and check whether anyone was excluded or duplicated.",
+      "Share the final who-pays-who result in one message before collecting transfers.",
+      "Confirm each paid transfer and close the bill only after totals match.",
+    ],
+    examples: [
+      "Worked example: 5 people, total bill $86.40, one person paid card and one paid cash tip. The tool shows two transfers only after balancing both payments.",
+      "Edge case: two diners joined late and only shared drinks. Add separate entries so they do not subsidize full meal items.",
+      "Edge case: one person prepaid booking deposit days earlier. Include it as an expense row before final dinner rows.",
+    ],
+    sections: [
+      {
+        heading: "Use item logic before payment logic",
+        paragraphs: [
+          "Most bill conflicts happen because the group starts collecting money before agreeing on who consumed what. Confirm participant scope first, then calculate.",
+          "If items are strongly unequal, use weighted entries instead of equal split assumptions.",
+        ],
+      },
+      {
+        heading: "Handle service charges and tax correctly",
+        paragraphs: [
+          "Restaurant receipts can include service charge, VAT, or platform delivery fees. These amounts should be included in the final total before deciding transfers.",
+          "If a tip is voluntary and only one person offered it, agree on whether it is shared or personal before final settlement.",
+        ],
+        bullets: [
+          "Do not round each person early.",
+          "Round only the final transfer amount.",
+          "Keep a receipt screenshot until everyone confirms.",
+        ],
+      },
+      {
+        heading: "Finance safety checks",
+        paragraphs: [
+          "Before requesting payment, re-check payer names, currency, and transfer method. Cross-currency mistakes are common in mixed USD/KHR groups.",
+          "The calculator provides educational math support. Final payment responsibility remains with the group.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Should we split equally if people ordered different items?",
+        answer:
+          "Not always. Equal split is simple, but item-weighted split is fairer when orders are very different.",
+      },
+      {
+        question: "Who should cover transfer fees?",
+        answer:
+          "Agree before sending. Some groups share fees; others let the payer absorb them for convenience.",
+      },
+      {
+        question: "Can this replace accounting records?",
+        answer:
+          "No. It is a settlement helper, not formal accounting or tax documentation.",
+      },
+      {
+        question: "What if someone pays in KHR and others in USD?",
+        answer:
+          "Use one settlement currency and agree on the exchange rate before collecting transfers.",
+      },
+    ],
+    keywords: ["split restaurant bill", "fair bill split", "group dinner payback", "service charge split"],
+  },
+  {
+    slug: "monthly-budget-with-expense-tracker",
+    path: "/guides/monthly-budget-with-expense-tracker",
+    title: "How to Build a Monthly Budget That You Can Follow",
+    metaTitle: "How to Build a Monthly Budget That You Can Follow | ChlatWork",
+    metaDescription:
+      "Create a realistic monthly budget with categories, weekly review checkpoints, and edge-case handling for irregular spending.",
+    summary:
+      "A practical budgeting workflow using weekly check-ins, category controls, and corrective actions before overspending compounds.",
+    primaryTool: {
+      label: "Expense Tracker",
+      path: "/tools/expense-tracker",
+    },
+    relatedTools: [
+      { label: "PayBack Calculator", path: "/tools/payback-calculator" },
+      { label: "Date Calculator", path: "/tools/calculator" },
+      { label: "Text to PDF", path: "/tools/text-to-pdf" },
+    ],
+    steps: [
+      "Start with last month spending to set a realistic baseline.",
+      "Create fixed and variable categories, then set a total monthly budget.",
+      "Record each expense daily and keep notes for unusual items.",
+      "Review weekly: top categories, budget percent, and remaining amount.",
+      "Adjust discretionary categories when remaining budget drops faster than expected.",
+      "Close month with lessons learned and use them to set next month targets.",
+    ],
+    examples: [
+      "Worked example: monthly income $900, fixed costs $420, target savings $150, variable spending budget $330 spread across food, transport, and utilities.",
+      "Edge case: unexpected medical cost in week 2. Rebalance entertainment and shopping budgets instead of ignoring the overrun.",
+      "Edge case: one-time annual fee appears in one month. Mark it clearly so next month analysis is not distorted.",
+    ],
+    sections: [
+      {
+        heading: "Use categories that match real life",
+        paragraphs: [
+          "A budget fails when categories are too generic. Use labels that reflect actual decisions: groceries, dining out, ride-hailing, school, and utility bills.",
+          "Fewer useful categories outperform many vague categories you will stop maintaining.",
+        ],
+      },
+      {
+        heading: "Weekly review is the control point",
+        paragraphs: [
+          "Monthly budgets usually fail silently in week 1 and week 2. Weekly review exposes drift before it becomes a month-end shock.",
+          "Track both total spent and category concentration. A single category consuming too much early is the strongest warning signal.",
+        ],
+      },
+      {
+        heading: "YMYL caution",
+        paragraphs: [
+          "Expense Tracker outputs are planning aids and educational summaries. They are not investment, lending, tax, or legal recommendations.",
+          "For compliance or formal reporting, reconcile with receipts, statements, and your professional advisor.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "How many categories should I start with?",
+        answer:
+          "Start with 5 to 8 practical categories. Expand only when a category is too broad to manage.",
+      },
+      {
+        question: "Should savings be treated as an expense category?",
+        answer:
+          "Treat savings as a planned allocation first, then track actual transfers separately for accountability.",
+      },
+      {
+        question: "What if income is irregular?",
+        answer:
+          "Use a conservative baseline from your lower-income months and keep a buffer category.",
+      },
+      {
+        question: "Can this replace tax bookkeeping?",
+        answer:
+          "No. It helps planning and awareness, while formal bookkeeping requires your accounting process.",
+      },
+    ],
+    keywords: ["monthly budget guide", "expense tracker workflow", "weekly budget review", "personal finance planning"],
+  },
+  {
+    slug: "khr-usd-rounding-for-group-expenses",
+    path: "/guides/khr-usd-rounding-for-group-expenses",
+    title: "How to Handle KHR and USD Rounding in Group Expenses",
+    metaTitle: "How to Handle KHR and USD Rounding in Group Expenses | ChlatWork",
+    metaDescription:
+      "Avoid payout confusion in Cambodia by using one settlement currency, clear exchange-rate rules, and fair rounding for KHR/USD group expenses.",
+    summary:
+      "A Cambodia-focused settlement guide for mixed-currency groups, including leftover KHR handling and exchange-rate edge cases.",
+    primaryTool: {
+      label: "PayBack Calculator",
+      path: "/tools/payback-calculator",
+    },
+    relatedTools: [
+      { label: "Expense Tracker", path: "/tools/expense-tracker" },
+      { label: "QR Code Generator", path: "/tools/qr" },
+      { label: "Date Calculator", path: "/tools/calculator" },
+    ],
+    steps: [
+      "Choose one settlement currency before entering expenses.",
+      "Record each payer amount in the same unit for consistent math.",
+      "If KHR remainder appears, decide whether to keep leftover separate or assign it to one payer.",
+      "Publish the exchange-rate rule used for cross-currency reimbursement.",
+      "Share final transfers with currency labels to prevent wrong-bank transfer amounts.",
+      "Close settlement only after all participants confirm rate and rounding logic.",
+    ],
+    examples: [
+      "Worked example: total 407,500 KHR split by 3 people leaves a small remainder. Assigning remainder to one payer removes ambiguity.",
+      "Edge case: one person paid in USD card, others reimburse in KHR cash. Use one agreed rate from the same day.",
+      "Edge case: transfer minimum increment causes unavoidable rounding. Document who covers the final adjustment.",
+    ],
+    sections: [
+      {
+        heading: "Why rounding disputes happen",
+        paragraphs: [
+          "Rounding disputes usually come from hidden assumptions, not from complex math. If currency and rate rules are implicit, people calculate differently.",
+          "A clear shared rule is more important than chasing tiny precision in chat messages.",
+        ],
+      },
+      {
+        heading: "Set one exchange-rate rule",
+        paragraphs: [
+          "For mixed KHR/USD settlements, use one source and one timestamp for the exchange rate. Do not let each person use a different app rate.",
+          "If rate movement is significant, settle quickly or note rate lock date in the group message.",
+        ],
+        bullets: [
+          "State rate in the same message as payback result.",
+          "Avoid mixed rate sources in one settlement.",
+          "Note who absorbs final tiny rounding difference.",
+        ],
+      },
+      {
+        heading: "Operational checklist",
+        paragraphs: [
+          "Before sending money, verify payer account, currency, and method (cash, local bank, e-wallet).",
+          "This guide supports practical fairness but does not provide legal or tax advice.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Should we convert everything to USD first?",
+        answer:
+          "Only if the group agrees. The important point is one consistent settlement currency and one exchange-rate rule.",
+      },
+      {
+        question: "Who should take leftover KHR?",
+        answer:
+          "Choose a designated payer or keep it separate and document the rule before collecting transfers.",
+      },
+      {
+        question: "What if rates changed between payment and settlement?",
+        answer:
+          "Use a rate-lock policy agreed by the group, such as payment-date rate or settlement-date rate.",
+      },
+      {
+        question: "Does the tool guarantee financial correctness for all scenarios?",
+        answer:
+          "No. It helps calculation and communication; users remain responsible for final payment decisions.",
+      },
+    ],
+    keywords: ["KHR USD rounding", "Cambodia expense split", "exchange rate settlement", "group payback KHR"],
+  },
+  {
+    slug: "reimburse-office-petty-cash-cleanly",
+    path: "/guides/reimburse-office-petty-cash-cleanly",
+    title: "How to Reimburse Office Petty Cash Without Confusion",
+    metaTitle: "How to Reimburse Office Petty Cash Without Confusion | ChlatWork",
+    metaDescription:
+      "Track and reimburse office petty cash with clear approvals, receipt checks, and practical edge-case handling for missing or partial records.",
+    summary:
+      "A small-team reimbursement workflow with cleaner records, fewer disputes, and faster monthly close.",
+    primaryTool: {
+      label: "Expense Tracker",
+      path: "/tools/expense-tracker",
+    },
+    relatedTools: [
+      { label: "PayBack Calculator", path: "/tools/payback-calculator" },
+      { label: "Image to PDF Converter", path: "/tools/image-to-pdf" },
+      { label: "Merge PDF", path: "/tools/merge-pdf" },
+    ],
+    steps: [
+      "Define petty-cash categories and reimbursement approval thresholds.",
+      "Record each purchase with date, payer, amount, and purpose note.",
+      "Attach or snapshot receipts and mark missing receipts immediately.",
+      "Review weekly totals and approve eligible reimbursements.",
+      "Use payback or transfer summary to reimburse each payer clearly.",
+      "Archive monthly records with receipts for audit and handover continuity.",
+    ],
+    examples: [
+      "Worked example: office admin paid for printing, delivery, and supplies across 9 receipts, with one missing receipt flagged pending approval.",
+      "Edge case: duplicate entry from copied chat message. Reconcile by receipt ID before reimbursement.",
+      "Edge case: mixed personal and office purchase in one receipt. Reimburse only office lines with manager approval note.",
+    ],
+    sections: [
+      {
+        heading: "Set clear reimbursement rules",
+        paragraphs: [
+          "Without rules, reimbursement becomes personality-based and inconsistent. Define required fields, who approves, and when payouts happen.",
+          "Even a very small team benefits from one documented flow.",
+        ],
+        bullets: [
+          "Required: date, payer, amount, purpose.",
+          "Preferred: receipt image or reference code.",
+          "Escalation: missing receipt above threshold needs manager approval.",
+        ],
+      },
+      {
+        heading: "Handle missing or partial receipts",
+        paragraphs: [
+          "Do not silently reject missing receipts. Mark them as pending and request replacement evidence within a fixed deadline.",
+          "Partial reimbursement can be valid if only part of the receipt is clearly office-related.",
+        ],
+      },
+      {
+        heading: "Financial responsibility note",
+        paragraphs: [
+          "This workflow improves transparency and consistency but does not replace legal, tax, or audit requirements for your company.",
+          "For compliance-sensitive reporting, coordinate with your accountant or finance lead.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can we reimburse without receipts?",
+        answer:
+          "Only under a documented exception policy with manager approval, especially for higher amounts.",
+      },
+      {
+        question: "How often should petty cash be settled?",
+        answer:
+          "Weekly for active teams or at least monthly for lower-volume operations.",
+      },
+      {
+        question: "Who should approve reimbursements?",
+        answer:
+          "Assign one role (manager or finance owner) to keep decisions consistent and auditable.",
+      },
+      {
+        question: "Does this guide replace internal policy?",
+        answer:
+          "No. Use it as an operational template and align it with your organization rules.",
+      },
+    ],
+    keywords: ["petty cash reimbursement", "office expense reimbursement", "receipt workflow", "small team finance process"],
+  },
 ];
 
 export const STARTER_GUIDE_PATHS = STARTER_GUIDES.map((guide) => guide.path);

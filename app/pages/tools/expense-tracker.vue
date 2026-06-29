@@ -38,6 +38,44 @@
         :top-expenses="topExpenses"
       />
     </div>
+
+    <section
+      class="mt-6 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
+      aria-label="How we validate finance examples"
+    >
+      <h2 class="text-base font-black">How we validate finance examples</h2>
+      <p class="text-sm leading-6 text-amber-900/90 dark:text-amber-100/85">
+        Expense Tracker examples are checked against the summary formulas used
+        by this page. They are for planning and education, not accounting, tax,
+        or legal advice.
+      </p>
+      <ul
+        class="list-disc space-y-1 pl-5 text-sm leading-6 text-amber-900/90 dark:text-amber-100/85"
+      >
+        <li>
+          Published examples are reviewed for total spent, budget percent, and
+          remaining budget consistency.
+        </li>
+        <li>
+          Category breakdown percentages are rechecked against raw sample
+          entries.
+        </li>
+        <li>
+          For reporting, reconcile outputs with receipts, statements, or your
+          accounting records.
+        </li>
+        <li>
+          If a sample looks wrong, send the exact case through the Contact page.
+        </li>
+      </ul>
+      <div class="flex flex-wrap gap-3 text-sm font-semibold">
+        <NuxtLink to="/editorial-policy" class="underline">
+          Editorial policy
+        </NuxtLink>
+        <NuxtLink to="/disclaimer" class="underline">Disclaimer</NuxtLink>
+        <NuxtLink to="/contact" class="underline">Contact</NuxtLink>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -254,8 +292,7 @@ function isExpenseExampleState() {
 }
 
 function buildExampleShareUrl() {
-  const query =
-    currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
+  const query = currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
 
   return `${window.location.origin}${route.path}${query}`;
 }

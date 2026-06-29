@@ -13,7 +13,7 @@ const props = withDefaults(
     compact?: boolean;
   }>(),
   {
-    serviceSlug: "custom-business-tool",
+    serviceSlug: "invoice-generator",
     title: "",
     description: "",
     compact: false,
@@ -22,14 +22,12 @@ const props = withDefaults(
 
 const service = computed(() => BUSINESS_SERVICE_BY_SLUG[props.serviceSlug]);
 const heading = computed(
-  () =>
-    props.title ||
-    `Need a business-ready ${service.value.shortName}?`,
+  () => props.title || `Need a business-ready ${service.value.shortName}?`,
 );
 const body = computed(
   () =>
     props.description ||
-    `The free tool is useful for quick work. If you need branded setup, custom fields, or a workflow your team can reuse, message ChlatWork on Telegram first.`,
+    `The free tool is useful for quick work. If you need branded setup or a workflow your team can reuse, message ChlatWork on Telegram first.`,
 );
 </script>
 
@@ -47,7 +45,9 @@ const body = computed(
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
           {{ heading }}
         </h2>
-        <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <p
+          class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300"
+        >
           {{ body }}
         </p>
         <p class="text-sm font-semibold text-slate-800 dark:text-slate-300">

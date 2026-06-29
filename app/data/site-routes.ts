@@ -3,6 +3,7 @@ import { TOOL_GUIDE_PATHS } from "./tool-guide-routes";
 
 export const TRUST_PAGE_PATHS = [
   "/about",
+  "/editorial-policy",
   "/contact",
   "/privacy-policy",
   "/terms",
@@ -10,18 +11,9 @@ export const TRUST_PAGE_PATHS = [
   "/disclaimer",
 ];
 
-export const SERVICE_PAGE_PATHS = [
-  "/pricing",
-  "/services/qr-menu",
-  "/services/invoice-generator",
-  "/services/custom-business-tool",
-];
+export const SERVICE_PAGE_PATHS = ["/pricing", "/services/invoice-generator"];
 
-export const DEMO_PAGE_PATHS = [
-  "/demos/cafe-menu",
-  "/demos/invoice",
-  "/demos/staff-card",
-];
+export const DEMO_PAGE_PATHS: string[] = [];
 
 export const TOOL_CATEGORY_PATHS = [
   "/tools",

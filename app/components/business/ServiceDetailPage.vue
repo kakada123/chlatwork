@@ -30,7 +30,9 @@ const relatedServices = computed(() =>
             >
               View pricing
             </NuxtLink>
-            <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
+            <p
+              class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300"
+            >
               {{ service.eyebrow }}
             </p>
             <h1
@@ -38,7 +40,9 @@ const relatedServices = computed(() =>
             >
               {{ service.title }}
             </h1>
-            <p class="max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
+            <p
+              class="max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300"
+            >
               {{ service.description }}
             </p>
           </div>
@@ -65,12 +69,6 @@ const relatedServices = computed(() =>
             >
               Message on Telegram
             </a>
-            <NuxtLink
-              :to="service.demoRoute"
-              class="inline-flex h-12 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 px-6 text-sm font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-blue-900/50 dark:!bg-blue-950/30 dark:text-blue-300 dark:hover:!bg-blue-950/40"
-            >
-              View demo
-            </NuxtLink>
             <NuxtLink
               to="/pricing"
               class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
@@ -99,7 +97,9 @@ const relatedServices = computed(() =>
               <span>{{ highlight }}</span>
             </li>
           </ul>
-          <p class="mt-5 text-sm leading-6 text-green-900/75 dark:text-green-300">
+          <p
+            class="mt-5 text-sm leading-6 text-green-900/75 dark:text-green-300"
+          >
             No online checkout yet. Scope, delivery, and payment are confirmed
             manually on Telegram first.
           </p>
@@ -173,7 +173,7 @@ const relatedServices = computed(() =>
       </ol>
     </section>
 
-    <section class="space-y-3">
+    <section v-if="relatedServices.length > 0" class="space-y-3">
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
         Other ChlatWork services
       </h2>
@@ -187,7 +187,9 @@ const relatedServices = computed(() =>
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
             {{ relatedService.name }}
           </h3>
-          <p class="mt-2 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+          <p
+            class="mt-2 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400"
+          >
             {{ relatedService.description }}
           </p>
           <p class="mt-3 text-xs font-bold text-sky-700 dark:text-cyan-300">

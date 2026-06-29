@@ -16,12 +16,7 @@ import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools } from "~/lib/tool-search";
 
 const toolNavSearch = ref("");
-const {
-  categoryLabel,
-  copy,
-  homePath,
-  localizeTool,
-} = useLanguage();
+const { categoryLabel, copy, homePath, localizeTool } = useLanguage();
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const filteredEnabledTools = computed(() =>
   filterTools(localizedEnabledTools.value, toolNavSearch.value),
@@ -36,10 +31,7 @@ const route = useRoute();
 const isToolsIndexPage = computed(() => route.path === "/tools");
 const isPortfolioPage = computed(() => route.path === "/portfolio");
 const isBusinessPage = computed(
-  () =>
-    route.path === "/pricing" ||
-    route.path.startsWith("/services/") ||
-    route.path.startsWith("/demos/"),
+  () => route.path === "/pricing" || route.path.startsWith("/services/"),
 );
 const isToolGuidePage = computed(() =>
   Boolean(findToolGuideRouteByPath(route.path)),
@@ -549,7 +541,9 @@ onBeforeUnmount(() => {
                   decoding="async"
                 />
               </span>
-              <span class="truncate">Guide: {{ currentToolGuide.tool.name }}</span>
+              <span class="truncate"
+                >Guide: {{ currentToolGuide.tool.name }}</span
+              >
             </NuxtLink>
 
             <div class="px-3 py-2">
@@ -621,7 +615,9 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- The footer keeps trust and policy links visible on every public page. -->
-    <footer class="site-footer mt-0 border-t border-slate-200/70 py-8 dark:border-white/10">
+    <footer
+      class="site-footer mt-0 border-t border-slate-200/70 py-8 dark:border-white/10"
+    >
       <div
         class="mx-auto grid max-w-[1440px] gap-8 px-3 text-sm sm:px-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
       >
@@ -640,47 +636,83 @@ onBeforeUnmount(() => {
 
         <div class="grid gap-6 sm:grid-cols-3">
           <nav class="space-y-3" aria-label="Footer site links">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
+            >
               Site
             </p>
             <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
-              <NuxtLink to="/about" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/about"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.about }}
               </NuxtLink>
-              <NuxtLink to="/contact" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/contact"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.contact }}
               </NuxtLink>
-              <NuxtLink to="/guides" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/guides"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 Guides
               </NuxtLink>
-              <a href="/sitemap.xml" class="hover:text-gray-900 dark:hover:text-white">
+              <a
+                href="/sitemap.xml"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 Sitemap
               </a>
             </div>
           </nav>
 
           <nav class="space-y-3" aria-label="Footer policy links">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
+            >
               Policies
             </p>
             <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
-              <NuxtLink to="/privacy-policy" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/editorial-policy"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
+                Editorial policy
+              </NuxtLink>
+              <NuxtLink
+                to="/privacy-policy"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.privacy }}
               </NuxtLink>
-              <NuxtLink to="/terms" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/terms"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.terms }}
               </NuxtLink>
-              <NuxtLink to="/cookies" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/cookies"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.cookies }}
               </NuxtLink>
-              <NuxtLink to="/disclaimer" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/disclaimer"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.disclaimer }}
               </NuxtLink>
             </div>
           </nav>
 
           <div class="space-y-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
+            >
               Support
             </p>
             <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
@@ -691,7 +723,10 @@ onBeforeUnmount(() => {
               >
                 {{ copy.footer.cookieNotice }}
               </button>
-              <NuxtLink to="/buy-me-coffee" class="hover:text-gray-900 dark:hover:text-white">
+              <NuxtLink
+                to="/buy-me-coffee"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
                 {{ copy.footer.coffee }}
               </NuxtLink>
             </div>

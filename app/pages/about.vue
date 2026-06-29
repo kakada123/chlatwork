@@ -4,6 +4,8 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "About ChlatWork - Simple Online Tools";
 const description =
   "Learn what ChlatWork is, who it is for, and how its simple privacy-friendly browser tools help with documents, images, QR codes, barcodes, dates, and productivity.";
+const maintainerName = "Kakada";
+const maintainerEmail = "kakada127@gmail.com";
 
 useSeoMeta({
   title,
@@ -19,6 +21,37 @@ useSeoMeta({
 
 useHead({
   link: [{ rel: "canonical", href: "https://chlatwork.com/about" }],
+  script: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            name: "ChlatWork",
+            url: "https://chlatwork.com",
+            contactPoint: [
+              {
+                "@type": "ContactPoint",
+                contactType: "customer support",
+                email: maintainerEmail,
+              },
+            ],
+          },
+          {
+            "@type": "Person",
+            name: maintainerName,
+            email: maintainerEmail,
+            worksFor: {
+              "@type": "Organization",
+              name: "ChlatWork",
+            },
+          },
+        ],
+      }),
+    },
+  ],
 });
 </script>
 
@@ -38,7 +71,35 @@ useHead({
         for Cambodian and Khmer users, such as Khmer text handling, Telegram
         sharing, restaurant menus, QR codes, and USD/KHR money tasks.
       </p>
+      <p class="text-sm text-gray-500 dark:text-white/50">
+        Last updated: June 29, 2026
+      </p>
     </header>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Who runs ChlatWork</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        ChlatWork is maintained by {{ maintainerName }}, an independent builder
+        focused on practical web tooling for Cambodia and Khmer-English
+        workflows.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        For corrections, bug reports, or policy questions, you can use the
+        <NuxtLink
+          to="/contact"
+          class="font-medium text-gray-900 underline dark:text-white"
+        >
+          Contact page
+        </NuxtLink>
+        or email
+        <a
+          :href="`mailto:${maintainerEmail}`"
+          class="font-medium text-gray-900 underline dark:text-white"
+        >
+          {{ maintainerEmail }}</a
+        >.
+      </p>
+    </section>
 
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Who ChlatWork is for</h2>
@@ -51,13 +112,15 @@ useHead({
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">Why Cambodia and Khmer workflows matter</h2>
+      <h2 class="text-lg font-semibold">
+        Why Cambodia and Khmer workflows matter
+      </h2>
       <p class="text-gray-700 dark:text-white/75">
         Many generic tool websites work technically but ignore local details:
         Khmer text readability, mixed Khmer-English content, Telegram sharing,
-        USD and KHR amounts, QR menus for restaurants, and small-business
-        document workflows. ChlatWork is built to make those everyday tasks
-        feel normal, not like edge cases.
+        USD and KHR amounts, QR sharing links for restaurants, and
+        small-business document workflows. ChlatWork is built to make those
+        everyday tasks feel normal, not like edge cases.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         That does not mean every tool forces a Cambodia example. A hash
@@ -102,6 +165,16 @@ useHead({
       <p class="text-gray-700 dark:text-white/75">
         Each tool is paired with a guide page where helpful, so users and search
         crawlers can understand what the tool does before opening it.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Content quality and updates follow a documented
+        <NuxtLink
+          to="/editorial-policy"
+          class="font-medium text-gray-900 underline dark:text-white"
+        >
+          Editorial Policy
+        </NuxtLink>
+        with extra care for money-related pages.
       </p>
     </section>
 

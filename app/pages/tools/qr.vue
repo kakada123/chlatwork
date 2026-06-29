@@ -27,8 +27,6 @@
       :margin="state.margin"
       :ec-level="state.ecLevel"
     />
-
-    <BusinessCta service-slug="qr-menu" compact />
   </div>
 </template>
 
@@ -57,7 +55,9 @@ useSeoMeta({
 
 type QRCodeLib = typeof import("qrcode");
 
-const previewRef = ref<InstanceType<typeof QrGeneratorPreviewCard> | null>(null);
+const previewRef = ref<InstanceType<typeof QrGeneratorPreviewCard> | null>(
+  null,
+);
 const isMounted = ref(false);
 const QR = ref<QRCodeLib | null>(null);
 const state = reactive<QrGeneratorState>(createQrGeneratorState());

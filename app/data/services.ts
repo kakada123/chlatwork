@@ -1,14 +1,10 @@
-export type BusinessServiceSlug =
-  | "qr-menu"
-  | "invoice-generator"
-  | "custom-business-tool";
+export type BusinessServiceSlug = "invoice-generator";
 
 export type BusinessService = {
   slug: BusinessServiceSlug;
   name: string;
   shortName: string;
   route: string;
-  demoRoute: string;
   eyebrow: string;
   title: string;
   description: string;
@@ -31,51 +27,10 @@ export const TELEGRAM_CONTACT = {
 
 export const BUSINESS_SERVICES: BusinessService[] = [
   {
-    slug: "qr-menu",
-    name: "QR Menu Website",
-    shortName: "QR menu",
-    route: "/services/qr-menu",
-    demoRoute: "/demos/cafe-menu",
-    eyebrow: "For restaurants, cafes, and food stalls",
-    title: "A simple QR menu website customers can open from any phone.",
-    description:
-      "Get a clean mobile menu page, a scannable QR code, and a practical setup for table menus, takeaway counters, and Telegram sharing.",
-    metaTitle: "QR Menu Website Service | ChlatWork",
-    metaDescription:
-      "Launch a simple QR menu website for your restaurant, cafe, or food stall with a mobile menu page, QR code, and Telegram-first setup.",
-    startingPrice: "$49",
-    priceNote: "One-time setup for a starter menu page.",
-    deliveryTime: "2-4 days after content is ready",
-    highlights: [
-      "Mobile-friendly menu page",
-      "QR code ready for printing",
-      "Category sections for food and drinks",
-      "Telegram or contact button for orders",
-    ],
-    features: [
-      "One branded menu page with restaurant name, logo, and contact details.",
-      "Menu categories, item names, prices, short descriptions, and optional photos.",
-      "Downloadable QR code image for table tents, posters, and social posts.",
-      "Basic SEO and social preview text for sharing the menu link.",
-    ],
-    idealFor: [
-      "Restaurants that want to stop reprinting menus for every small update.",
-      "Cafes and food stalls that receive orders through Telegram.",
-      "Small teams that need a clean menu link before building a full ordering system.",
-    ],
-    process: [
-      "Send the menu content and brand details on Telegram.",
-      "Confirm the structure, language, and contact action.",
-      "Review the first version and request one small revision round.",
-      "Receive the live menu link and QR code image.",
-    ],
-  },
-  {
     slug: "invoice-generator",
     name: "Invoice / Receipt Generator",
     shortName: "invoice generator",
     route: "/services/invoice-generator",
-    demoRoute: "/demos/invoice",
     eyebrow: "For shops, freelancers, and service teams",
     title: "A branded invoice or receipt generator for your business workflow.",
     description:
@@ -108,46 +63,6 @@ export const BUSINESS_SERVICES: BusinessService[] = [
       "Confirm fields, calculation rules, and PDF wording.",
       "Test the generated PDF with sample customer data.",
       "Receive the tool link and a short usage checklist.",
-    ],
-  },
-  {
-    slug: "custom-business-tool",
-    name: "Custom Business Tool",
-    shortName: "custom tool",
-    route: "/services/custom-business-tool",
-    demoRoute: "/demos/staff-card",
-    eyebrow: "For small operational workflows",
-    title: "A focused web tool for one real business task.",
-    description:
-      "Build a small tool for data entry, calculation, PDF generation, internal tracking, reporting, or team handoff without starting a large software project.",
-    metaTitle: "Custom Business Tool Service | ChlatWork",
-    metaDescription:
-      "Request a small custom business web tool for calculations, PDF generation, data entry, reports, internal tracking, or workflow automation.",
-    startingPrice: "$149",
-    priceNote: "Final price depends on scope and integrations.",
-    deliveryTime: "Scope first, then timeline estimate",
-    highlights: [
-      "Built around one workflow",
-      "Simple admin-friendly UI",
-      "PDF, CSV, or link outputs",
-      "Scope confirmed before payment",
-    ],
-    features: [
-      "A practical web interface tailored to the specific task your team repeats.",
-      "Business rules, validation, and calculations based on real examples.",
-      "Exports such as PDF, CSV, share links, or copy-ready summaries when needed.",
-      "Clear handoff notes so the tool can be used without training-heavy setup.",
-    ],
-    idealFor: [
-      "Teams using spreadsheets for repetitive business rules.",
-      "Owners who need a small internal tool before investing in a full system.",
-      "Operations workflows involving documents, customer records, totals, or approvals.",
-    ],
-    process: [
-      "Describe the workflow and send sample inputs or screenshots on Telegram.",
-      "Confirm the smallest useful version and what is out of scope.",
-      "Build and review the first working version.",
-      "Ship the tool with notes for usage, updates, and future improvements.",
     ],
   },
 ];

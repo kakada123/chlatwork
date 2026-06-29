@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { BUSINESS_SERVICES, TELEGRAM_CONTACT } from "~/data/services";
 
-const title = "ChlatWork Pricing - QR Menus, Invoice Tools, Custom Tools";
+const title = "ChlatWork Pricing - Invoice Tools";
 const description =
-  "Simple starter pricing for ChlatWork business services: QR menu websites, invoice and receipt generators, and custom business tools. Message on Telegram first to confirm scope.";
+  "Simple starter pricing for ChlatWork business services with invoice and receipt generators. Message on Telegram first to confirm scope.";
 
 useSeoMeta({
   title,
@@ -35,7 +35,9 @@ useHead({
       >
         Small business tools with clear starter pricing.
       </h1>
-      <p class="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
+      <p
+        class="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300"
+      >
         Choose a starter service, send the details on Telegram, and confirm the
         scope before any payment. ChlatWork does not use online checkout for
         these services yet.
@@ -49,12 +51,6 @@ useHead({
         >
           Message on Telegram
         </a>
-        <NuxtLink
-          to="/services/custom-business-tool"
-          class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
-        >
-          Request a custom tool
-        </NuxtLink>
       </div>
     </header>
 
@@ -65,7 +61,9 @@ useHead({
         class="flex flex-col rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
         <div class="space-y-3">
-          <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
+          <p
+            class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300"
+          >
             {{ service.name }}
           </p>
           <h2 class="text-3xl font-black text-slate-950 dark:text-white">
@@ -103,12 +101,6 @@ useHead({
             Message on Telegram
           </a>
           <NuxtLink
-            :to="service.demoRoute"
-            class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-blue-100 bg-blue-50 px-5 text-sm font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-blue-900/50 dark:!bg-blue-950/30 dark:text-blue-300 dark:hover:!bg-blue-950/40"
-          >
-            View demo
-          </NuxtLink>
-          <NuxtLink
             :to="service.route"
             class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-5 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
           >
@@ -125,7 +117,9 @@ useHead({
         How pricing is confirmed
       </h2>
       <div class="mt-4 grid gap-3 md:grid-cols-3">
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70">
+        <div
+          class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
+        >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
             1. Send the workflow
           </h3>
@@ -134,7 +128,9 @@ useHead({
             Telegram.
           </p>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70">
+        <div
+          class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
+        >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
             2. Confirm the scope
           </h3>
@@ -143,7 +139,9 @@ useHead({
             final price.
           </p>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70">
+        <div
+          class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
+        >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
             3. Build and hand off
           </h3>

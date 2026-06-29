@@ -31,6 +31,44 @@
         :unique-names="uniqueNames"
       />
     </div>
+
+    <section
+      class="mt-6 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
+      aria-label="How we validate finance examples"
+    >
+      <h2 class="text-base font-black">How we validate finance examples</h2>
+      <p class="text-sm leading-6 text-amber-900/90 dark:text-amber-100/85">
+        PayBack examples are reviewed against the calculator logic and cent-safe
+        settlement rules before publication. They are educational examples only,
+        not financial advice.
+      </p>
+      <ul
+        class="list-disc space-y-1 pl-5 text-sm leading-6 text-amber-900/90 dark:text-amber-100/85"
+      >
+        <li>
+          All sample totals are re-checked for split accuracy and rounding
+          behavior.
+        </li>
+        <li>
+          KHR examples include leftover-handling notes and who covers any
+          remainder.
+        </li>
+        <li>
+          Before real transfers, confirm bank fees, exchange rates, and final
+          amounts with the group.
+        </li>
+        <li>
+          If you spot an issue, request a correction from the Contact page.
+        </li>
+      </ul>
+      <div class="flex flex-wrap gap-3 text-sm font-semibold">
+        <NuxtLink to="/editorial-policy" class="underline">
+          Editorial policy
+        </NuxtLink>
+        <NuxtLink to="/disclaimer" class="underline">Disclaimer</NuxtLink>
+        <NuxtLink to="/contact" class="underline">Contact</NuxtLink>
+      </div>
+    </section>
   </div>
 </template>
 
