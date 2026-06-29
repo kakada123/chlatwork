@@ -17,6 +17,43 @@ const size = defineModel<number>("size", { required: true });
 const margin = defineModel<number>("margin", { required: true });
 const ecLevel = defineModel<QrEcLevel>("ecLevel", { required: true });
 const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
+const currentItem = ref("");
+
+const items = computed<string[]>({
+  get() {
+    return text.value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  },
+  set(nextItems) {
+    text.value = nextItems.join("\n");
+  },
+});
+
+function addItem() {
+  const next = currentItem.value.trim();
+  if (!next) {
+    return;
+  }
+
+  items.value = [...items.value, next];
+  currentItem.value = "";
+}
+
+function removeItem(index: number) {
+  items.value = items.value.filter((_, currentIndex) => currentIndex !== index);
+}
+
+function handleGenerate() {
+  addItem();
+  emit("generate");
+}
+
+function handleClear() {
+  currentItem.value = "";
+  emit("clear");
+}
 </script>
 
 <template>
@@ -31,18 +68,41 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
           Text / URL
         </label>
 
-        <textarea
-          v-model="text"
-          rows="5"
-          class="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-          placeholder="e.g. https://chlatwork.com or any text…"
+        <input
+          v-model="currentItem"
+          type="text"
+          class="h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
+          placeholder="e.g. https://chlatwork.com"
+          @keydown.enter.prevent="handleGenerate"
         />
+
+        <div
+          v-if="items.length > 0"
+          class="max-h-40 space-y-2 overflow-auto rounded-xl border bg-gray-50 p-2"
+        >
+          <div
+            v-for="(item, index) in items"
+            :key="`${item}-${index}`"
+            class="flex items-center gap-2 rounded-lg border bg-white px-2 py-1.5"
+          >
+            <p class="flex-1 truncate text-xs text-gray-700">
+              {{ item }}
+            </p>
+            <button
+              type="button"
+              class="rounded-md px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+              @click="removeItem(index)"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
 
         <div class="flex gap-2">
           <button
             class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
             type="button"
-            @click="emit('generate')"
+            @click="handleGenerate"
           >
             Generate
           </button>
@@ -50,7 +110,7 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
           <button
             class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
             type="button"
-            @click="emit('clear')"
+            @click="handleClear"
           >
             Clear
           </button>
@@ -67,6 +127,10 @@ const autoGenerate = defineModel<boolean>("autoGenerate", { required: true });
 
         <p v-if="error" class="text-sm text-red-600">
           {{ error }}
+        </p>
+
+        <p class="text-xs text-gray-500">
+          Enter a value and click Generate to add it to the list.
         </p>
       </div>
 
