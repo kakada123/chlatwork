@@ -5,6 +5,13 @@ export type ImageCodeScanResult = {
   format: string;
 };
 
+export type ImageCodeScanRegion = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 const QR_DETECTOR_FORMATS = ["qr_code"];
 const BARCODE_DETECTOR_FORMATS = [
   "code_128",
@@ -76,7 +83,7 @@ function dedupeResults(results: ImageCodeScanResult[]) {
   });
 }
 
-function sourceToCanvas(source: ImageBitmapSource) {
+function sourceToCanvas(source: ImageBitmapSource, region?: ImageCodeScanRegion) {
   if (!import.meta.client) {
     return null;
   }
@@ -101,9 +108,28 @@ function sourceToCanvas(source: ImageBitmapSource) {
     return null;
   }
 
-  canvas.width = width;
-  canvas.height = height;
-  ctx.drawImage(source as CanvasImageSource, 0, 0, width, height);
+  const normalizedRegion = region
+    ? {
+        x: Math.min(Math.max(region.x, 0), 1),
+        y: Math.min(Math.max(region.y, 0), 1),
+        width: Math.min(Math.max(region.width, 0), 1),
+        height: Math.min(Math.max(region.height, 0), 1),
+      }
+    : null;
+
+  const sx = normalizedRegion ? Math.floor(width * normalizedRegion.x) : 0;
+  const sy = normalizedRegion ? Math.floor(height * normalizedRegion.y) : 0;
+  const sw = normalizedRegion ? Math.floor(width * normalizedRegion.width) : width;
+  const sh = normalizedRegion
+    ? Math.floor(height * normalizedRegion.height)
+    : height;
+
+  const safeSw = Math.max(1, Math.min(sw, width - sx));
+  const safeSh = Math.max(1, Math.min(sh, height - sy));
+
+  canvas.width = safeSw;
+  canvas.height = safeSh;
+  ctx.drawImage(source as CanvasImageSource, sx, sy, safeSw, safeSh, 0, 0, safeSw, safeSh);
   return { canvas, ctx, width, height };
 }
 
@@ -123,8 +149,9 @@ function zxingFormatToDetectorLike(
 async function detectWithZxing(
   source: ImageBitmapSource,
   mode: ImageCodeScanMode,
+  region?: ImageCodeScanRegion,
 ): Promise<ImageCodeScanResult[]> {
-  const canvasState = sourceToCanvas(source);
+  const canvasState = sourceToCanvas(source, region);
   if (!canvasState) {
     return [];
   }
@@ -189,10 +216,12 @@ async function detectWithZxing(
 async function detectFromSource(
   source: ImageBitmapSource,
   mode: ImageCodeScanMode,
+  region?: ImageCodeScanRegion,
 ) {
+  const detectorSource = region ? sourceToCanvas(source, region)?.canvas ?? source : source;
   const BarcodeDetector = getBarcodeDetectorCtor();
   if (!BarcodeDetector) {
-    return detectWithZxing(source, mode);
+    return detectWithZxing(source, mode, region);
   }
 
   const desiredFormats =
@@ -210,7 +239,7 @@ async function detectFromSource(
     ? new BarcodeDetector({ formats: supportedFormats })
     : new BarcodeDetector();
 
-  const detectedCodes = await detector.detect(source);
+  const detectedCodes = await detector.detect(detectorSource);
   const nativeResults = dedupeResults(
     detectedCodes
       .map((code) => ({
@@ -224,24 +253,26 @@ async function detectFromSource(
     return nativeResults;
   }
 
-  return detectWithZxing(source, mode);
+  return detectWithZxing(source, mode, region);
 }
 
 export async function scanImageFileForCodes(
   file: File,
   mode: ImageCodeScanMode,
+  region?: ImageCodeScanRegion,
 ): Promise<ImageCodeScanResult[]> {
   if (!import.meta.client) {
     throw new Error("Image scanning is only available in the browser.");
   }
 
   const image = await loadImageFromFile(file);
-  return detectFromSource(image, mode);
+  return detectFromSource(image, mode, region);
 }
 
 export async function scanVideoFrameForCodes(
   videoEl: HTMLVideoElement,
   mode: ImageCodeScanMode,
+  region?: ImageCodeScanRegion,
 ): Promise<ImageCodeScanResult[]> {
   if (!import.meta.client) {
     throw new Error("Camera scanning is only available in the browser.");
@@ -251,5 +282,5 @@ export async function scanVideoFrameForCodes(
     return [];
   }
 
-  return detectFromSource(videoEl, mode);
+  return detectFromSource(videoEl, mode, region);
 }

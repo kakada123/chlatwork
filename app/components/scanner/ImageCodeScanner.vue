@@ -9,6 +9,7 @@ import {
   scanImageFileForCodes,
   scanVideoFrameForCodes,
   type ImageCodeScanMode,
+  type ImageCodeScanRegion,
   type ImageCodeScanResult,
 } from "~/lib/image-code-scanner";
 
@@ -58,7 +59,6 @@ const error = ref("");
 const results = ref<ImageCodeScanResult[]>([]);
 const supportsNativeScanner = ref(false);
 const supportsCameraInput = ref(false);
-const isSecureCameraContext = ref(false);
 const activeMode = ref<"upload" | "camera">("upload");
 const isCameraRunning = ref(false);
 const cameraDevices = ref<MediaDeviceInfo[]>([]);
@@ -69,14 +69,8 @@ let lastScanAt = 0;
 
 onMounted(() => {
   supportsNativeScanner.value = Boolean((window as any).BarcodeDetector);
-  isSecureCameraContext.value =
-    typeof window !== "undefined" &&
-    (window.isSecureContext ||
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
   supportsCameraInput.value =
     typeof navigator !== "undefined" &&
-    isSecureCameraContext.value &&
     Boolean(navigator.mediaDevices?.getUserMedia);
   void refreshCameraDevices();
 });
@@ -209,13 +203,13 @@ function stopCamera() {
 }
 
 async function startCamera() {
-  if (!isSecureCameraContext.value) {
-    error.value = "Camera requires HTTPS (or localhost in development).";
-    return;
-  }
-
-  if (!supportsCameraInput.value) {
-    error.value = "Camera access is not available in this browser.";
+  if (
+    typeof navigator === "undefined" ||
+    !navigator.mediaDevices ||
+    typeof navigator.mediaDevices.getUserMedia !== "function"
+  ) {
+    error.value =
+      "Camera API is unavailable. Use HTTPS (or localhost) and a modern browser.";
     return;
   }
 
@@ -223,15 +217,55 @@ async function startCamera() {
   error.value = "";
   activeMode.value = "camera";
 
-  const constraints: MediaStreamConstraints = {
-    audio: false,
-    video: selectedCameraId.value
-      ? { deviceId: { exact: selectedCameraId.value } }
-      : { facingMode: { ideal: "environment" } },
-  };
+  const candidateConstraints: MediaStreamConstraints[] = [
+    {
+      audio: false,
+      video: selectedCameraId.value
+        ? { deviceId: { ideal: selectedCameraId.value } }
+        : { facingMode: { ideal: "environment" } },
+    },
+    {
+      audio: false,
+      video: { facingMode: { ideal: "environment" } },
+    },
+    {
+      audio: false,
+      video: true,
+    },
+  ];
+
+  let stream: MediaStream | null = null;
+  let lastError: unknown = null;
+
+  for (const constraints of candidateConstraints) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      break;
+    } catch (cameraError) {
+      lastError = cameraError;
+    }
+  }
+
+  if (!stream) {
+    const cameraError = lastError as DOMException | null;
+    if (cameraError?.name === "NotAllowedError") {
+      error.value =
+        "Camera permission was denied. Please allow camera access in your browser settings and try again.";
+    } else if (cameraError?.name === "NotFoundError") {
+      error.value =
+        "No camera was found on this device, or it is currently unavailable.";
+    } else if (cameraError?.name === "NotReadableError") {
+      error.value =
+        "Camera is being used by another app. Close other camera apps and try again.";
+    } else {
+      error.value =
+        "Unable to access camera. Please allow permission and check your browser settings.";
+    }
+    stopCamera();
+    return;
+  }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
     cameraStream.value = stream;
     isCameraRunning.value = true;
 
@@ -246,6 +280,13 @@ async function startCamera() {
     error.value =
       "Unable to access camera. Please allow permission and check your browser settings.";
     stopCamera();
+  }
+}
+
+async function activateCameraMode() {
+  activeMode.value = "camera";
+  if (!isCameraRunning.value) {
+    await startCamera();
   }
 }
 
@@ -267,6 +308,7 @@ function beginCameraScanLoop() {
         const scanned = await scanVideoFrameForCodes(
           cameraVideo.value,
           props.mode,
+          cameraScanRegion.value,
         );
         if (scanned.length > 0) {
           results.value = scanned;
@@ -328,6 +370,17 @@ function humanizeFormat(format: string) {
 
 const primaryResult = computed(() => results.value[0] ?? null);
 const multipleResults = computed(() => results.value.slice(1));
+const cameraScanRegion = computed<ImageCodeScanRegion>(() =>
+  props.mode === "qr"
+    ? { x: 0.2, y: 0.2, width: 0.6, height: 0.6 }
+    : { x: 0.1, y: 0.33, width: 0.8, height: 0.34 },
+);
+const cameraFrameStyle = computed(() => ({
+  left: `${cameraScanRegion.value.x * 100}%`,
+  top: `${cameraScanRegion.value.y * 100}%`,
+  width: `${cameraScanRegion.value.width * 100}%`,
+  height: `${cameraScanRegion.value.height * 100}%`,
+}));
 </script>
 
 <template>
@@ -383,8 +436,7 @@ const multipleResults = computed(() => results.value.slice(1));
                 ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950'
                 : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.12]'
             "
-            :disabled="!supportsCameraInput"
-            @click="activeMode = 'camera'"
+            @click="activateCameraMode"
           >
             Camera
           </button>
@@ -526,12 +578,8 @@ const multipleResults = computed(() => results.value.slice(1));
         v-if="activeMode === 'camera' && !supportsCameraInput"
         class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100"
       >
-        <span v-if="!isSecureCameraContext">
-          Camera needs HTTPS (or localhost in development).
-        </span>
-        <span v-else>
-          Camera access is not available in this browser context.
-        </span>
+        Camera is not available in this browser. Try latest Chrome/Safari on
+        HTTPS.
       </p>
 
       <div
@@ -543,7 +591,7 @@ const multipleResults = computed(() => results.value.slice(1));
             Preview
           </h3>
           <div
-            class="flex min-h-[280px] items-center justify-center rounded-[20px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]"
+            class="relative flex min-h-[280px] items-center justify-center overflow-hidden rounded-[20px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]"
           >
             <img
               v-if="activeMode === 'upload' && previewUrl"
@@ -557,12 +605,33 @@ const multipleResults = computed(() => results.value.slice(1));
             <video
               v-else
               ref="cameraVideo"
-              class="max-h-[420px] w-full rounded-xl bg-black object-contain"
+              class="max-h-[420px] w-full rounded-xl bg-black object-cover"
               autoplay
               muted
               playsinline
             />
+
+            <template v-if="activeMode === 'camera'">
+              <div class="pointer-events-none absolute inset-0 bg-black/30" />
+              <div
+                class="pointer-events-none absolute rounded-2xl border-2 border-white/85 shadow-[0_0_0_2000px_rgba(0,0,0,0.35)]"
+                :style="cameraFrameStyle"
+              >
+                <span class="absolute -left-1 -top-1 h-4 w-4 border-l-4 border-t-4 border-cyan-300" />
+                <span class="absolute -right-1 -top-1 h-4 w-4 border-r-4 border-t-4 border-cyan-300" />
+                <span class="absolute -bottom-1 -left-1 h-4 w-4 border-b-4 border-l-4 border-cyan-300" />
+                <span class="absolute -bottom-1 -right-1 h-4 w-4 border-b-4 border-r-4 border-cyan-300" />
+              </div>
+            </template>
           </div>
+
+          <p
+            v-if="activeMode === 'camera'"
+            class="text-xs text-slate-500 dark:text-white/55"
+          >
+            Place the {{ scannerCopy.formatLabel.toLowerCase() }} inside the
+            frame for faster detection.
+          </p>
         </div>
 
         <div class="space-y-3">
