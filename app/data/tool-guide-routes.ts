@@ -18,11 +18,13 @@ const GUIDE_SLUGS = [
   ["text-to-pdf", "how-to-convert-text-to-pdf"],
   ["invoice-to-pdf", "how-to-create-invoice-pdf"],
   ["qr", "how-to-generate-qr-code"],
+  ["scan-qr", "how-to-scan-qr-code-from-image"],
   ["wifi-qr", "how-to-create-wifi-qr-code"],
   ["text-to-voice", "how-to-convert-khmer-text-to-voice"],
   ["khmer-unicode-fixer", "how-to-use-khmer-unicode-fixer"],
   ["calculator", "how-to-use-date-calculator-online"],
   ["barcode", "how-to-generate-barcode-free"],
+  ["scan-barcode", "how-to-scan-barcode-from-image"],
   ["expense-tracker", "how-to-track-expenses-online"],
   ["lucky-draw", "how-to-run-lucky-draw-online"],
   ["json-formatter", "how-to-format-json-online"],
@@ -54,5 +56,7 @@ export function getToolGuideRoute(toolKey: string) {
 
 export function findToolGuideRouteByPath(path: string) {
   const normalizedPath = path.endsWith("/") ? path.slice(0, -1) : path;
-  return TOOL_GUIDE_ROUTES.find((route) => route.path === normalizedPath) ?? null;
+  return (
+    TOOL_GUIDE_ROUTES.find((route) => route.path === normalizedPath) ?? null
+  );
 }

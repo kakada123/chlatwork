@@ -55,6 +55,16 @@ export const TOOLS: ToolDef[] = [
       "Generate QR codes for links, menus, forms, Telegram links, and text.",
   },
   {
+    key: "scan-qr",
+    name: "QR Scanner",
+    route: "/tools/scan-qr",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Scan QR codes from uploaded images, screenshots, or photos locally in your browser.",
+  },
+  {
     key: "wifi-qr",
     name: "Wi-Fi QR Generator",
     route: "/tools/wifi-qr",
@@ -101,6 +111,16 @@ export const TOOLS: ToolDef[] = [
     category: "Utilities",
     description:
       "Generate CODE128, EAN13, UPC, and CODE39 barcodes as sharp SVG files.",
+  },
+  {
+    key: "scan-barcode",
+    name: "Barcode Scanner",
+    route: "/tools/scan-barcode",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Scan barcodes from uploaded images, labels, screenshots, or camera photos locally.",
   },
   {
     key: "expense-tracker",
@@ -209,7 +229,8 @@ export const TOOLS: ToolDef[] = [
     enabled: true,
     status: "stable",
     category: "Developer Tools",
-    description: "Generate strong passwords with length and character controls.",
+    description:
+      "Generate strong passwords with length and character controls.",
   },
 ];
 
@@ -233,6 +254,18 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M8.5 18h7",
   ],
   qr: [
+    "M4 4h6v6H4V4Z",
+    "M14 4h6v6h-6V4Z",
+    "M4 14h6v6H4v-6Z",
+    "M7 7h.01",
+    "M17 7h.01",
+    "M7 17h.01",
+    "M14 14h2v2",
+    "M19 14h1",
+    "M14 20h6",
+    "M18 18h2",
+  ],
+  "scan-qr": [
     "M4 4h6v6H4V4Z",
     "M14 4h6v6h-6V4Z",
     "M4 14h6v6H4v-6Z",
@@ -277,6 +310,14 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M17 5v14",
     "M20 5v14",
   ],
+  "scan-barcode": [
+    "M4 5v14",
+    "M7 5v14",
+    "M11 5v14",
+    "M13 5v14",
+    "M17 5v14",
+    "M20 5v14",
+  ],
   "image-compress": [
     "M4 5h16v14H4V5Z",
     "M8 11l3 3 2-2 4 4",
@@ -300,18 +341,8 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M8 16h4",
     "M13 12l3 3-3 3",
   ],
-  "merge-pdf": [
-    "M8 4h9v13H8V4Z",
-    "M5 7h9v13H5V7Z",
-    "M11 11h6",
-    "M14 8v6",
-  ],
-  "split-pdf": [
-    "M6 3.5h12v17H6V3.5Z",
-    "M12 4v16",
-    "M9 9h1",
-    "M14 15h1",
-  ],
+  "merge-pdf": ["M8 4h9v13H8V4Z", "M5 7h9v13H5V7Z", "M11 11h6", "M14 8v6"],
+  "split-pdf": ["M6 3.5h12v17H6V3.5Z", "M12 4v16", "M9 9h1", "M14 15h1"],
   "compress-pdf": [
     "M6 3.5h12v17H6V3.5Z",
     "M9 8h6",
@@ -336,12 +367,7 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M15 9l2 3-2 3",
     "M11 16l2-8",
   ],
-  "text-to-pdf": [
-    "M6 3.5h12v17H6V3.5Z",
-    "M8 8h8",
-    "M8 12h8",
-    "M8 16h5",
-  ],
+  "text-to-pdf": ["M6 3.5h12v17H6V3.5Z", "M8 8h8", "M8 12h8", "M8 16h5"],
   "invoice-to-pdf": [
     "M6 3h12v18l-3-1.5L12 21l-3-1.5L6 21V3Z",
     "M9 8h6",
@@ -366,7 +392,11 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M8.5 16h4",
     "M15 15l1.5 1.5L20 13",
   ],
-  base64: ["M7 7h4a3 3 0 0 1 0 6H7V7Z", "M7 13h5a3 3 0 0 1 0 6H7v-6Z", "M17 7v12"],
+  base64: [
+    "M7 7h4a3 3 0 0 1 0 6H7V7Z",
+    "M7 13h5a3 3 0 0 1 0 6H7v-6Z",
+    "M17 7v12",
+  ],
   "json-formatter": [
     "M8 6H6a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2 2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h2",
     "M16 6h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0-2 2v2a2 2 0 0 1-2 2h-2",
@@ -414,52 +444,71 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M12 12h.01",
     "M16 12h.01",
   ],
-  "hash-generator": [
-    "M10 3 8 21",
-    "M16 3l-2 18",
-    "M4 9h16",
-    "M3 15h16",
-  ],
+  "hash-generator": ["M10 3 8 21", "M16 3l-2 18", "M4 9h16", "M3 15h16"],
 };
 
 export const TOOL_ICON_CLASSES: Record<string, string> = {
-  calculator: "bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white",
+  calculator:
+    "bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white",
   qr: "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
-  "wifi-qr": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
+  "scan-qr":
+    "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
+  "wifi-qr":
+    "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
   "payback-calculator":
     "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
-  "expense-tracker": "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
-  barcode: "bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white",
+  "expense-tracker":
+    "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
+  barcode:
+    "bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white",
+  "scan-barcode":
+    "bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white",
   "image-compress":
     "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
   "image-to-pdf":
     "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
-  "pdf-to-jpg": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
-  "merge-pdf": "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
-  "split-pdf": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
-  "compress-pdf": "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
-  "remove-pdf-pages": "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
-  "reorder-pdf-pages": "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
-  "html-to-pdf": "bg-zinc-100 text-zinc-700 group-hover:bg-zinc-800 group-hover:text-white",
-  "text-to-pdf": "bg-lime-50 text-lime-700 group-hover:bg-lime-600 group-hover:text-white",
-  "invoice-to-pdf": "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
-  "lucky-draw": "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
-  "text-to-voice": "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
+  "pdf-to-jpg":
+    "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
+  "merge-pdf":
+    "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
+  "split-pdf":
+    "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
+  "compress-pdf":
+    "bg-violet-50 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
+  "remove-pdf-pages":
+    "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
+  "reorder-pdf-pages":
+    "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
+  "html-to-pdf":
+    "bg-zinc-100 text-zinc-700 group-hover:bg-zinc-800 group-hover:text-white",
+  "text-to-pdf":
+    "bg-lime-50 text-lime-700 group-hover:bg-lime-600 group-hover:text-white",
+  "invoice-to-pdf":
+    "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
+  "lucky-draw":
+    "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
+  "text-to-voice":
+    "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
   "khmer-unicode-fixer":
     "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
-  base64: "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
+  base64:
+    "bg-indigo-50 text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white",
   "json-formatter":
     "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
-  "jwt-decoder": "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
-  "url-encoder": "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
-  "uuid-generator": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
+  "jwt-decoder":
+    "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
+  "url-encoder":
+    "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
+  "uuid-generator":
+    "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
   "password-generator":
     "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
   "unix-timestamp":
     "bg-lime-50 text-lime-700 group-hover:bg-lime-600 group-hover:text-white",
   "cron-explainer":
     "bg-orange-50 text-orange-700 group-hover:bg-orange-500 group-hover:text-white",
-  "regex-tester": "bg-purple-50 text-purple-700 group-hover:bg-purple-600 group-hover:text-white",
+  "regex-tester":
+    "bg-purple-50 text-purple-700 group-hover:bg-purple-600 group-hover:text-white",
   "hash-generator":
     "bg-zinc-100 text-zinc-700 group-hover:bg-zinc-800 group-hover:text-white",
 };

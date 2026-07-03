@@ -10,6 +10,7 @@ const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   "image-compress": ["compress photo", "reduce image size", "image optimizer"],
   "image-to-pdf": ["jpg to pdf", "png to pdf", "photo to pdf"],
   qr: ["qr code", "qrcode", "scan code"],
+  "scan-qr": ["scan qr", "qr scanner", "read qr", "decode qr"],
   "wifi-qr": ["wifi qr", "wifi qr code", "wifi password", "wireless qr"],
   "text-to-voice": ["text to speech", "tts", "khmer voice", "english voice"],
   "khmer-unicode-fixer": [
@@ -20,6 +21,12 @@ const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
   ],
   calculator: ["date calculator", "date time converter", "quick math"],
   barcode: ["bar code", "product code"],
+  "scan-barcode": [
+    "scan barcode",
+    "barcode scanner",
+    "read barcode",
+    "decode barcode",
+  ],
   "expense-tracker": ["budget tracker", "spending tracker"],
   "lucky-draw": ["random winner", "raffle", "giveaway"],
   "json-formatter": ["json validator", "pretty json", "minify json"],

@@ -69,7 +69,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     intro:
       "Create scan-friendly codes for shops, offices, events, product labels, Wi-Fi access, and quick links.",
     accent: "from-emerald-300 via-cyan-300 to-sky-400",
-    toolKeys: ["qr", "wifi-qr", "barcode"],
+    toolKeys: ["qr", "scan-qr", "wifi-qr", "barcode", "scan-barcode"],
   },
   {
     key: "date-time",
@@ -123,9 +123,7 @@ const ENABLED_TOOL_BY_KEY = new Map(
   ENABLED_TOOLS.map((tool) => [tool.key, tool]),
 );
 
-export function getToolsForDirectoryCategory(
-  category: ToolDirectoryCategory,
-) {
+export function getToolsForDirectoryCategory(category: ToolDirectoryCategory) {
   return category.toolKeys
     .map((toolKey) => ENABLED_TOOL_BY_KEY.get(toolKey))
     .filter((tool): tool is ToolDef => Boolean(tool));

@@ -4,8 +4,10 @@ const DEFAULT_CATEGORY_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/categories/category-
 
 export const TOOL_ICON_IMAGE_PATHS: Record<string, string> = {
   qr: `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
+  "scan-qr": `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
   "wifi-qr": `${ICON_BASE_PATH}/tools/tool-wifi-qr-generator.png`,
   barcode: `${ICON_BASE_PATH}/tools/tool-barcode-generator.png`,
+  "scan-barcode": `${ICON_BASE_PATH}/tools/tool-barcode-generator.png`,
   "image-compress": `${ICON_BASE_PATH}/tools/tool-image-compressor.png`,
   "image-to-pdf": `${ICON_BASE_PATH}/tools/tool-image-to-pdf.png`,
   "pdf-to-jpg": `${ICON_BASE_PATH}/tools/tool-pdf-to-jpg.png`,
@@ -51,5 +53,7 @@ export function getToolIconImagePath(toolKey: string): string {
 }
 
 export function getCategoryIconImagePath(categoryKey: string): string {
-  return CATEGORY_ICON_IMAGE_PATHS[categoryKey] ?? DEFAULT_CATEGORY_ICON_IMAGE_PATH;
+  return (
+    CATEGORY_ICON_IMAGE_PATHS[categoryKey] ?? DEFAULT_CATEGORY_ICON_IMAGE_PATH
+  );
 }

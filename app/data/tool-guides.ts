@@ -1844,6 +1844,168 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
+  "scan-qr": {
+    metaTitle: "How to Scan a QR Code from an Image | ChlatWork",
+    metaDescription:
+      "Scan a QR code from an uploaded image, screenshot, or photo locally in your browser with ChlatWork QR Scanner.",
+    heroTitle: "How to Scan a QR Code from an Image",
+    heroDescription:
+      "Upload a screenshot or photo that contains a QR code and decode the link or text directly in your browser.",
+    ctaLabel: "Open QR Scanner",
+    whatIs: [
+      "The QR Scanner reads QR codes from uploaded images so you can decode a link or text without using a camera app or a separate mobile scanner.",
+      LOCAL_PROCESSING_PRIVACY_NOTE,
+    ],
+    whyUse: [
+      "It is useful when a QR code already exists in a screenshot, saved photo, or shared poster image.",
+      "It keeps the scan local in your browser instead of sending the image to a remote server.",
+      "It works well for support cases, saved receipts, menu screenshots, and shared documents.",
+      "It is faster than retyping long links from a picture.",
+      "It is mobile friendly, so you can test QR images from a phone or tablet.",
+    ],
+    steps: [
+      "Open the ChlatWork QR Scanner.",
+      "Choose or drop an image that clearly shows the QR code.",
+      "Wait for the browser to read the image and decode the result.",
+      "Copy the detected text or open the link if it is a URL.",
+      "Replace the image and scan again if the first file is not the one you need.",
+    ],
+    useCases: [
+      "A support team scans a screenshot of a payment QR sent by chat.",
+      "A cafe scans a saved menu poster before reusing the destination link.",
+      "A worker decodes a QR inside a photo that was forwarded in a group chat.",
+      "A student checks the link from a QR included in class notes or slides.",
+      "A seller verifies a QR on a product photo before printing new labels.",
+    ],
+    tips: [
+      "Use a clear image with the QR code filling most of the frame.",
+      "Avoid blurred or cropped photos because the scanner needs the full code pattern.",
+      "If the code is tiny, zoom in or crop the image before scanning.",
+      "Test the decoded link before sharing it further.",
+      "If an image contains multiple QR codes, scan one at a time for the cleanest result.",
+    ],
+    commonMistakes: [
+      "Uploading a blurry image where the QR squares are too soft to detect.",
+      "Cropping off part of the QR code and leaving the finder corners incomplete.",
+      "Scanning a decorated image where the code is too small or covered by graphics.",
+      "Assuming the first decoded link is correct without checking the destination.",
+    ],
+    privacy: [
+      "The QR Scanner reads the uploaded image in your browser and does not need a remote scan service.",
+      "The decoded text stays on your device unless you copy or share it yourself.",
+      "Always confirm the destination before opening a decoded link from an unknown image.",
+    ],
+    faqs: [
+      {
+        question: "Can I scan a QR code from a screenshot?",
+        answer:
+          "Yes. Screenshots, saved images, and photos all work as long as the QR code is clear enough for the browser to detect.",
+      },
+      {
+        question: "Do I need to upload the image to ChlatWork?",
+        answer:
+          "No. The scanner is designed to work in your browser, so the image is processed locally on your device.",
+      },
+      {
+        question: "What if the QR code is not found?",
+        answer:
+          "Try a clearer image, crop closer to the code, or make sure the picture is not blurry, rotated badly, or covered by design elements.",
+      },
+      {
+        question: "Can it decode links and text?",
+        answer:
+          "Yes. QR codes can contain links, plain text, and other short data, and the scanner will display the decoded value.",
+      },
+    ],
+    keywords: [
+      "qr scanner",
+      "scan qr from image",
+      "decode qr code",
+      "qr code reader online",
+    ],
+    applicationCategory: "UtilitiesApplication",
+  },
+  "scan-barcode": {
+    metaTitle: "How to Scan a Barcode from an Image | ChlatWork",
+    metaDescription:
+      "Scan a barcode from an uploaded image, label photo, or screenshot locally in your browser with ChlatWork Barcode Scanner.",
+    heroTitle: "How to Scan a Barcode from an Image",
+    heroDescription:
+      "Upload a photo or screenshot with a barcode and decode the value in your browser without sending the file to a server.",
+    ctaLabel: "Open Barcode Scanner",
+    whatIs: [
+      "The Barcode Scanner reads barcodes from images so you can recover a product code, SKU, or label value without typing it manually.",
+      LOCAL_PROCESSING_PRIVACY_NOTE,
+    ],
+    whyUse: [
+      "It is useful for label photos, package images, receipts, and screenshots.",
+      "It keeps the scan local in your browser, which is better for private or internal materials.",
+      "It helps when the barcode is already saved in a file or forwarded picture.",
+      "It reduces manual typing errors when you need the code exactly as printed.",
+      "It works well for quick testing during shop, warehouse, or POS workflows.",
+    ],
+    steps: [
+      "Open the ChlatWork Barcode Scanner.",
+      "Choose or drop an image that contains a clear barcode.",
+      "Wait for the browser to decode the code from the image.",
+      "Copy the decoded value and confirm it matches the label or product record.",
+      "Replace the image and scan again if you need a different file.",
+    ],
+    useCases: [
+      "A shop owner scans a product photo to recover a SKU.",
+      "A warehouse team reads a barcode from a saved receiving image.",
+      "A developer tests barcode capture from screenshots before wiring camera scanning.",
+      "A support agent checks a barcode inside a shared image from a customer.",
+      "A small business verifies a barcode before printing a batch of labels.",
+    ],
+    tips: [
+      "Use an image where the barcode is large and sharp.",
+      "Keep enough quiet space around the barcode so the detector can separate the bars from the background.",
+      "If a photo is skewed, crop and straighten it before scanning.",
+      "Check the decoded text against the expected product or SKU record.",
+      "Try a different image if the first photo is too blurry or reflective.",
+    ],
+    commonMistakes: [
+      "Uploading a blurry or compressed photo where the bars blend together.",
+      "Cropping too tightly and cutting off the barcode edges.",
+      "Scanning a decorative image where the barcode is too small to read.",
+      "Trusting the decoded value without confirming it against the source record.",
+    ],
+    privacy: [
+      "The Barcode Scanner reads the uploaded image in your browser and does not need a remote scan service.",
+      "The decoded value stays on your device unless you copy or share it yourself.",
+      "Use care when scanning labels that contain private or internal inventory data.",
+    ],
+    faqs: [
+      {
+        question: "Can I scan a barcode from a label photo?",
+        answer:
+          "Yes. Clear label photos, screenshots, and saved package images are all suitable if the barcode is visible and sharp.",
+      },
+      {
+        question: "Does the scanner upload my image?",
+        answer:
+          "No. The tool is designed to work locally in your browser, so the file is processed on your device.",
+      },
+      {
+        question: "What if no barcode is found?",
+        answer:
+          "Try a clearer image, crop closer to the code, or make sure the barcode is not blurred, rotated badly, or too small.",
+      },
+      {
+        question: "Can it decode product codes and SKUs?",
+        answer:
+          "Yes. It is meant for common barcode values such as product codes, internal SKUs, and label numbers.",
+      },
+    ],
+    keywords: [
+      "barcode scanner",
+      "scan barcode from image",
+      "decode barcode",
+      "barcode reader online",
+    ],
+    applicationCategory: "UtilitiesApplication",
+  },
   "expense-tracker": {
     metaTitle: "How to Track Expenses Online for Free | ChlatWork",
     metaDescription:
