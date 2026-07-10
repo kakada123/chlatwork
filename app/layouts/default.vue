@@ -806,7 +806,7 @@ onBeforeUnmount(() => {
                 :key="t.key"
                 :to="t.route"
                 class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-900 hover:bg-gray-100"
-                active-class="bg-gray-900 text-white hover:bg-gray-900"
+                active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
                 @click="closeMenu"
               >
                 <span
@@ -846,7 +846,7 @@ onBeforeUnmount(() => {
             <NuxtLink
               to="/tools"
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-              active-class="bg-gray-900 text-white hover:bg-gray-900"
+              active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
             >
               <span
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700"
@@ -940,7 +940,7 @@ onBeforeUnmount(() => {
                 :key="t.key"
                 :to="t.route"
                 class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-                active-class="bg-gray-900 text-white hover:bg-gray-900"
+                active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
               >
                 <span
                   class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/5 transition dark:ring-white/10"
