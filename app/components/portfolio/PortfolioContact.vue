@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-7xl">
       <div
         data-reveal
-        class="rounded-[2rem] border border-sky-100/90 bg-[linear-gradient(135deg,rgba(34,211,238,0.16),rgba(168,85,247,0.10)_48%,rgba(255,255,255,0.86))] p-6 shadow-[0_30px_100px_rgba(14,165,233,0.16)] backdrop-blur lg:p-8 dark:border-cyan-200/20 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.14),rgba(168,85,247,0.12)_48%,rgba(255,255,255,0.06))] dark:shadow-[0_30px_100px_rgba(14,165,233,0.12)]"
+        class="rounded-[2rem] border border-sky-100/90 p-6 shadow-[0_30px_100px_rgba(14,165,233,0.16)] backdrop-blur lg:p-8 dark:border-cyan-200/20 dark:shadow-[0_30px_100px_rgba(14,165,233,0.12)]"
       >
         <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>

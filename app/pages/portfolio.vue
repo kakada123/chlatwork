@@ -74,7 +74,7 @@ useHead({
 <template>
   <main
     ref="pageEl"
-    class="overflow-hidden bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.20),transparent_32%),radial-gradient(circle_at_85%_12%,rgba(217,70,239,0.14),transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef7ff_44%,#fff7fe_100%)] text-slate-950 dark:bg-[linear-gradient(180deg,#020712_0%,#07111f_42%,#020712_100%)] dark:text-white"
+    class="overflow-hidden text-slate-950 dark:text-white"
   >
     <PortfolioHero :profile="portfolioProfile" :metrics="portfolioMetrics" />
     <PortfolioAbout

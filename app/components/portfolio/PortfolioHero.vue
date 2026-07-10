@@ -3,15 +3,6 @@
     class="relative overflow-hidden px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
   >
     <div
-      class="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.055)_1px,transparent_1px)] bg-[size:48px_48px] opacity-45 dark:bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)] dark:opacity-35"
-      aria-hidden="true"
-    />
-    <div
-      class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent"
-      aria-hidden="true"
-    />
-
-    <div
       class="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center"
     >
       <div data-reveal>
@@ -30,7 +21,7 @@
         <div class="mt-9 flex flex-col gap-3 sm:flex-row">
           <a
             href="#projects"
-            class="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-blue-500 to-fuchsia-500 px-7 text-sm font-bold text-white shadow-[0_18px_50px_rgba(59,130,246,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_70px_rgba(168,85,247,0.36)] focus:outline-none focus:ring-2 focus:ring-cyan-200"
+            class="inline-flex h-12 items-center justify-center rounded-2xl bg-blue-500 px-7 text-sm font-bold text-white shadow-[0_18px_50px_rgba(59,130,246,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_70px_rgba(168,85,247,0.36)] focus:outline-none focus:ring-2 focus:ring-cyan-200"
           >
             View Projects
           </a>

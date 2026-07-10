@@ -11,8 +11,8 @@ useLandingReveal(sectionEl);
 </script>
 
 <template>
-  <section id="categories" ref="sectionEl" class="px-5 py-8 sm:px-8 lg:px-12">
-    <div class="mx-auto max-w-7xl">
+  <section id="categories" ref="sectionEl" class="py-8">
+    <div class="mx-auto w-full">
       <div
         class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"
         data-reveal
@@ -43,10 +43,6 @@ useLandingReveal(sectionEl);
           data-reveal
           :style="{ '--reveal-delay': `${index * 70}ms` }"
         >
-          <div
-            class="absolute inset-0 bg-[linear-gradient(135deg,rgba(14,165,233,0.10),rgba(255,255,255,0.12),rgba(217,70,239,0.08))] opacity-80 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.08),rgba(255,255,255,0.03),rgba(217,70,239,0.08))]"
-            aria-hidden="true"
-          />
           <div class="relative">
             <div class="flex items-start justify-between gap-4">
               <span

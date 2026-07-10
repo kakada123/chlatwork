@@ -105,7 +105,7 @@ function openTopResult() {
     </label>
 
     <div
-      class="overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-[0_20px_60px_rgba(14,165,233,0.18)] backdrop-blur-xl dark:border-white/12 dark:bg-white/[0.07] dark:shadow-black/25"
+      class="overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-[0_20px_60px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/12 dark:bg-white/[0.07] dark:shadow-black/25"
     >
       <div class="relative">
         <svg
@@ -195,11 +195,7 @@ function openTopResult() {
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path
-                  v-for="path in result.iconPaths"
-                  :key="path"
-                  :d="path"
-                />
+                <path v-for="path in result.iconPaths" :key="path" :d="path" />
               </svg>
             </span>
 

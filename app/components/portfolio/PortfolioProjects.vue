@@ -24,12 +24,11 @@
           :key="project.title"
           data-reveal
           :style="{ '--reveal-delay': `${index * 80}ms` }"
-          class="group rounded-3xl border border-sky-100/90 bg-[linear-gradient(145deg,rgba(255,255,255,0.92),rgba(240,249,255,0.72))] p-6 shadow-[0_18px_60px_rgba(14,165,233,0.12),inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_28px_90px_rgba(14,165,233,0.18)] dark:border-white/10 dark:bg-[linear-gradient(145deg,rgba(255,255,255,0.085),rgba(255,255,255,0.035))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-white/20 dark:hover:shadow-[0_28px_90px_rgba(0,0,0,0.34)]"
+          class="group rounded-3xl border border-sky-100/90 p-6 shadow-[0_18px_60px_rgba(14,165,233,0.12),inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_28px_90px_rgba(14,165,233,0.18)] dark:border-white/10 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] dark:hover:border-white/20 dark:hover:shadow-[0_28px_90px_rgba(0,0,0,0.34)]"
         >
           <div class="flex items-start justify-between gap-5">
             <div
-              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-slate-950 shadow-lg shadow-black/25 transition group-hover:scale-105 dark:text-white dark:shadow-black/40"
-              :class="project.accent"
+              class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-slate-950 shadow-lg shadow-black/25 transition group-hover:scale-105 dark:bg-white/10 dark:text-white dark:shadow-black/40"
             >
               <PortfolioIcon
                 :paths="project.icon.paths"

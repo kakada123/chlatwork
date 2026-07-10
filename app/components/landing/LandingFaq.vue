@@ -87,8 +87,8 @@ useHead(() => ({
 </script>
 
 <template>
-  <section class="px-5 pb-12 pt-8 sm:px-8 lg:px-12" id="faq">
-    <div class="mx-auto max-w-7xl">
+  <section class="pb-12 pt-8" id="faq">
+    <div class="mx-auto w-full">
       <div class="max-w-2xl">
         <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
           FAQ

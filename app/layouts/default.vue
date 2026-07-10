@@ -2,6 +2,8 @@
 import {
   ALL_TOOLS_ICON_PATHS,
   ENABLED_TOOLS,
+  TOOL_ICON_CLASSES,
+  TOOL_ICON_PATHS,
   type ToolDef,
 } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
@@ -10,14 +12,226 @@ import {
   findToolGuideRouteByPath,
   getToolGuideRoute,
 } from "~/data/tool-guide-routes";
-import { findStarterGuideByPath } from "~/data/guides";
-import { findToolGuideByToolRoute } from "~/data/tool-guides";
+import {
+  STARTER_GUIDES,
+  findStarterGuideByPath,
+  type StarterGuide,
+} from "~/data/guides";
+import {
+  TOOL_GUIDES,
+  findToolGuideByToolRoute,
+  type ToolGuide,
+} from "~/data/tool-guides";
+import { TOOL_DIRECTORY_CATEGORIES } from "~/data/tool-categories";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
-import { filterTools } from "~/lib/tool-search";
+import { filterTools, searchTextMatches } from "~/lib/tool-search";
+
+type HeaderSearchResult = {
+  key: string;
+  title: string;
+  description: string;
+  path: string;
+  label: string;
+  searchText: string;
+};
+
+const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
+  {
+    key: "page-home",
+    title: "Home",
+    description: "Explore ChlatWork tools, categories, and popular workflows.",
+    path: "/",
+    label: "Page",
+    searchText: "home ChlatWork online tools popular tools categories",
+  },
+  {
+    key: "page-tools",
+    title: "All Tools",
+    description: "Browse every available ChlatWork tool.",
+    path: "/tools",
+    label: "Page",
+    searchText: "all tools directory utilities pdf developer tools",
+  },
+  {
+    key: "page-guides",
+    title: "Guides",
+    description: "Browse practical guides for ChlatWork tools and workflows.",
+    path: "/guides",
+    label: "Page",
+    searchText: "guides tutorials help how to instructions",
+  },
+  {
+    key: "page-about",
+    title: "About ChlatWork",
+    description: "Learn about ChlatWork and its browser-based tools.",
+    path: "/about",
+    label: "Page",
+    searchText: "about ChlatWork company website mission",
+  },
+  {
+    key: "page-contact",
+    title: "Contact",
+    description: "Contact ChlatWork for questions, support, or services.",
+    path: "/contact",
+    label: "Page",
+    searchText: "contact support message Telegram email help",
+  },
+  {
+    key: "page-portfolio",
+    title: "Portfolio",
+    description: "View selected ChlatWork projects and capabilities.",
+    path: "/portfolio",
+    label: "Page",
+    searchText: "portfolio projects work experience skills",
+  },
+  {
+    key: "page-invoice-service",
+    title: "Invoice Generator Service",
+    description: "Learn about custom invoice generator services.",
+    path: "/services/invoice-generator",
+    label: "Service",
+    searchText: "service custom invoice generator business",
+  },
+  {
+    key: "page-pricing",
+    title: "Pricing",
+    description: "Review ChlatWork service pricing information.",
+    path: "/pricing",
+    label: "Page",
+    searchText: "pricing price cost service plans",
+  },
+  {
+    key: "page-editorial-policy",
+    title: "Editorial Policy",
+    description: "Read the standards used for ChlatWork content and guides.",
+    path: "/editorial-policy",
+    label: "Policy",
+    searchText: "editorial policy content standards review",
+  },
+  {
+    key: "page-privacy",
+    title: "Privacy Policy",
+    description: "Review how ChlatWork handles privacy and data.",
+    path: "/privacy-policy",
+    label: "Policy",
+    searchText: "privacy policy data processing personal information",
+  },
+  {
+    key: "page-terms",
+    title: "Terms",
+    description: "Read the terms for using ChlatWork.",
+    path: "/terms",
+    label: "Policy",
+    searchText: "terms conditions legal use",
+  },
+  {
+    key: "page-cookies",
+    title: "Cookie Policy",
+    description: "Review ChlatWork cookie and local-storage information.",
+    path: "/cookies",
+    label: "Policy",
+    searchText: "cookies cookie settings local storage analytics",
+  },
+  {
+    key: "page-disclaimer",
+    title: "Disclaimer",
+    description: "Read the ChlatWork website and tool disclaimer.",
+    path: "/disclaimer",
+    label: "Policy",
+    searchText: "disclaimer limitations legal information",
+  },
+  {
+    key: "page-buy-me-coffee",
+    title: "Buy Me a Coffee",
+    description: "Support the continued development of ChlatWork.",
+    path: "/buy-me-coffee",
+    label: "Page",
+    searchText: "support donate donation coffee",
+  },
+];
 
 const toolNavSearch = ref("");
-const { categoryLabel, copy, homePath, localizeTool } = useLanguage();
+const { categoryLabel, copy, homePath, isKhmer, localizeTool } = useLanguage();
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
+const headerToolSearch = ref("");
+const isHeaderSearchOpen = ref(false);
+const headerSearchInput = ref<HTMLInputElement | null>(null);
+const headerSearchButton = ref<HTMLButtonElement | null>(null);
+const headerSearchLabel = computed(() =>
+  isKhmer.value ? "ស្វែងរកក្នុង ChlatWork" : "Search ChlatWork",
+);
+const headerSearchResults = computed(() => {
+  const query = headerToolSearch.value.trim();
+
+  if (!query) {
+    return [];
+  }
+
+  const toolResults: HeaderSearchResult[] = filterTools(
+    localizedEnabledTools.value,
+    query,
+  ).map((tool) => ({
+    key: `tool-${tool.key}`,
+    title: tool.name,
+    description: tool.description,
+    path: tool.route,
+    label: categoryLabel(tool.category),
+    searchText: "",
+  }));
+  const toolGuideResults = TOOL_GUIDES.filter((guide) =>
+    searchTextMatches(getToolGuideSearchText(guide), query),
+  ).map((guide) => ({
+    key: `tool-guide-${guide.slug}`,
+    title: guide.heroTitle,
+    description: guide.metaDescription,
+    path: guide.path,
+    label: "Guide",
+    searchText: "",
+  }));
+  const starterGuideResults = STARTER_GUIDES.filter((guide) =>
+    searchTextMatches(getStarterGuideSearchText(guide), query),
+  ).map((guide) => ({
+    key: `starter-guide-${guide.slug}`,
+    title: guide.title,
+    description: guide.metaDescription,
+    path: guide.path,
+    label: "Guide",
+    searchText: "",
+  }));
+  const categoryResults = TOOL_DIRECTORY_CATEGORIES.filter((category) =>
+    searchTextMatches(
+      [
+        category.name,
+        category.title,
+        category.description,
+        category.intro,
+        ...category.toolKeys,
+      ].join(" "),
+      query,
+    ),
+  ).map((category) => ({
+    key: `category-${category.key}`,
+    title: category.title,
+    description: category.description,
+    path: category.path,
+    label: "Category",
+    searchText: "",
+  }));
+  const pageResults = SITE_SEARCH_PAGES.filter((page) =>
+    searchTextMatches(
+      [page.title, page.description, page.path, page.searchText].join(" "),
+      query,
+    ),
+  );
+
+  return [
+    ...toolResults,
+    ...toolGuideResults,
+    ...starterGuideResults,
+    ...categoryResults,
+    ...pageResults,
+  ].slice(0, 12);
+});
 const filteredEnabledTools = computed(() =>
   filterTools(localizedEnabledTools.value, toolNavSearch.value),
 );
@@ -39,6 +253,7 @@ const isToolGuidePage = computed(() =>
 const isStarterGuidePage = computed(
   () => route.path === "/guides" || Boolean(findStarterGuideByPath(route.path)),
 );
+const isContactPage = computed(() => route.path === "/contact");
 const currentToolGuide = computed(() => {
   const currentTool = ENABLED_TOOLS.find((tool) => tool.route === route.path);
 
@@ -68,13 +283,40 @@ const isLandingPage = computed(
     isPortfolioPage.value ||
     isBusinessPage.value ||
     isToolGuidePage.value ||
-    isStarterGuidePage.value,
+    isStarterGuidePage.value ||
+    isContactPage.value,
 );
 const layoutGridClass = computed(() =>
   isLandingPage.value
     ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
     : "mx-auto grid max-w-[1440px] items-start gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
 );
+
+function getToolGuideSearchText(guide: ToolGuide) {
+  return [
+    guide.heroTitle,
+    guide.metaTitle,
+    guide.metaDescription,
+    guide.tool.name,
+    guide.tool.description,
+    guide.tool.key,
+    guide.path,
+    ...guide.keywords,
+  ].join(" ");
+}
+
+function getStarterGuideSearchText(guide: StarterGuide) {
+  return [
+    guide.title,
+    guide.metaTitle,
+    guide.metaDescription,
+    guide.summary,
+    guide.primaryTool.label,
+    ...guide.relatedTools.map((tool) => tool.label),
+    ...guide.keywords,
+    guide.path,
+  ].join(" ");
+}
 
 function groupTools(tools: ToolDef[]) {
   const groups = new Map<ToolDef["category"], ToolDef[]>();
@@ -95,9 +337,52 @@ function groupTools(tools: ToolDef[]) {
 const isMenuOpen = ref(false);
 const closeMenu = () => (isMenuOpen.value = false);
 
+async function toggleHeaderSearch() {
+  isHeaderSearchOpen.value = !isHeaderSearchOpen.value;
+
+  if (isHeaderSearchOpen.value) {
+    await nextTick();
+    headerSearchInput.value?.focus();
+  }
+}
+
+function closeHeaderSearch(restoreFocus = false) {
+  isHeaderSearchOpen.value = false;
+  headerToolSearch.value = "";
+
+  if (restoreFocus) {
+    nextTick(() => headerSearchButton.value?.focus());
+  }
+}
+
+function handleHeaderSearchFocusout(event: FocusEvent) {
+  const searchContainer = event.currentTarget as HTMLElement;
+  const nextTarget = event.relatedTarget as Node | null;
+
+  if (nextTarget && searchContainer.contains(nextTarget)) {
+    return;
+  }
+
+  closeHeaderSearch();
+}
+
+function openFirstHeaderSearchResult() {
+  const firstResult = headerSearchResults.value[0];
+
+  if (!firstResult) {
+    return;
+  }
+
+  closeHeaderSearch();
+  navigateTo(firstResult.path);
+}
+
 watch(
   () => route.fullPath,
-  () => closeMenu(),
+  () => {
+    closeMenu();
+    closeHeaderSearch();
+  },
 );
 
 // ✅ lock background scroll when menu open
@@ -115,70 +400,140 @@ onBeforeUnmount(() => {
 <template>
   <!-- ✅ make whole page a flex column -->
   <div
-    class="flex min-h-screen flex-col bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.10),transparent_30%),radial-gradient(circle_at_85%_18%,rgba(217,70,239,0.08),transparent_28%),#f8fbff] text-gray-900 dark:bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.08),transparent_30%),radial-gradient(circle_at_85%_18%,rgba(217,70,239,0.08),transparent_28%),#020712] dark:text-white"
+    class="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-black dark:text-white"
   >
     <!-- Top Task Bar -->
     <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
       <div
         class="mx-auto flex max-w-[1440px] items-center justify-between px-3 py-3 sm:px-4"
       >
-        <!-- Brand -->
-        <NuxtLink
-          :to="homePath"
-          class="flex min-w-0 items-center gap-3"
-          @click="closeMenu"
-        >
-          <img
-            src="/assets/chlart-work-nav.png"
-            alt="ChlatWork"
-            class="h-9 w-9 shrink-0 rounded-xl object-contain"
-          />
-
-          <div class="min-w-0">
-            <p class="truncate text-sm font-semibold leading-tight">
-              ChlatWork
-            </p>
-            <p class="hidden truncate text-xs text-gray-500 sm:block">
-              {{ copy.tagline }}
-            </p>
-          </div>
-        </NuxtLink>
-
-        <!-- Desktop Navigation -->
-        <nav class="hidden items-center gap-2 text-sm sm:flex">
+        <div class="flex items-center gap-3">
+          <!-- Brand -->
           <NuxtLink
             :to="homePath"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
+            class="shrink-0 text-sm font-semibold leading-tight"
+            @click="closeMenu"
           >
-            {{ copy.nav.home }}
+            ChlatWork
           </NuxtLink>
-          <NuxtLink
-            to="/tools"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
-          >
-            {{ copy.nav.tools }}
-          </NuxtLink>
-          <NuxtLink
-            to="/guides"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-          >
-            Guides
-          </NuxtLink>
-          <NuxtLink
-            to="/about"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-          >
-            About
-          </NuxtLink>
-          <NuxtLink
-            to="/contact"
-            class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-          >
-            Contact
-          </NuxtLink>
-        </nav>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden items-center gap-2 text-sm sm:flex">
+            <NuxtLink
+              :to="homePath"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
+            >
+              {{ copy.nav.home }}
+            </NuxtLink>
+            <NuxtLink
+              to="/tools"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
+            >
+              {{ copy.nav.tools }}
+            </NuxtLink>
+            <NuxtLink
+              to="/guides"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              Guides
+            </NuxtLink>
+            <NuxtLink
+              to="/about"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              About
+            </NuxtLink>
+            <NuxtLink
+              to="/contact"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              Contact
+            </NuxtLink>
+          </nav>
+        </div>
 
         <div class="flex items-center gap-2">
+          <div
+            class="relative"
+            @focusout="handleHeaderSearchFocusout"
+          >
+            <button
+              ref="headerSearchButton"
+              type="button"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/15 bg-white text-slate-900 shadow-sm transition hover:bg-black hover:text-white dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10 dark:hover:text-white"
+              :aria-label="headerSearchLabel"
+              :title="headerSearchLabel"
+              aria-controls="header-tool-search"
+              :aria-expanded="isHeaderSearchOpen"
+              @click="toggleHeaderSearch"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </button>
+
+            <div
+              v-if="isHeaderSearchOpen"
+              id="header-tool-search"
+              class="absolute right-0 top-[calc(100%+0.75rem)] w-[calc(100vw-1.5rem)] max-w-sm overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl dark:border-white/15 dark:bg-black"
+              role="search"
+            >
+              <div class="border-b border-black/10 p-3 dark:border-white/10">
+                <label for="header-tool-search-input" class="sr-only">
+                  {{ headerSearchLabel }}
+                </label>
+                <input
+                  id="header-tool-search-input"
+                  ref="headerSearchInput"
+                  v-model="headerToolSearch"
+                  type="search"
+                  class="h-11 w-full rounded-xl border border-black/15 bg-white px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/15 dark:bg-white/10 dark:text-white dark:focus:ring-cyan-300"
+                  :placeholder="headerSearchLabel"
+                  @keydown.enter.prevent="openFirstHeaderSearchResult"
+                  @keydown.esc.prevent="closeHeaderSearch(true)"
+                />
+              </div>
+
+              <div
+                v-if="headerToolSearch.trim()"
+                class="max-h-80 overflow-y-auto p-2"
+              >
+                <NuxtLink
+                  v-for="result in headerSearchResults"
+                  :key="result.key"
+                  :to="result.path"
+                  class="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:hover:bg-white/10 dark:focus:ring-cyan-300"
+                  @click="closeHeaderSearch()"
+                >
+                  <span class="min-w-0 truncate font-semibold">
+                    {{ result.title }}
+                  </span>
+                  <span class="shrink-0 text-xs text-gray-500 dark:text-white/50">
+                    {{ result.label }}
+                  </span>
+                </NuxtLink>
+
+                <p
+                  v-if="headerSearchResults.length === 0"
+                  class="px-3 py-4 text-center text-sm text-gray-500 dark:text-white/50"
+                >
+                  {{ copy.nav.noToolsFound }}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <button
             type="button"
             class="theme-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition"
@@ -286,14 +641,7 @@ onBeforeUnmount(() => {
         <!-- ✅ Sticky header -->
         <div class="sticky top-0 z-10 border-b bg-white px-4 py-3">
           <div class="flex items-center justify-between">
-            <div class="flex min-w-0 items-center gap-3">
-              <img
-                src="/assets/chlart-work-nav.png"
-                alt="ChlatWork"
-                class="h-8 w-8 shrink-0 rounded-lg object-contain"
-              />
-              <p class="truncate text-sm font-semibold">ChlatWork</p>
-            </div>
+            <p class="truncate text-sm font-semibold">ChlatWork</p>
 
             <button
               class="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
@@ -530,16 +878,26 @@ onBeforeUnmount(() => {
               class="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100 dark:border-cyan-300/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
             >
               <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/5 transition dark:ring-white/10"
+                :class="TOOL_ICON_CLASSES[currentToolGuide.tool.key]"
                 aria-hidden="true"
               >
-                <img
-                  :src="getToolIconImagePath(currentToolGuide.tool.key)"
-                  alt=""
-                  aria-hidden="true"
-                  class="h-7 w-7 rounded-md object-contain"
-                  decoding="async"
-                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    v-for="path in TOOL_ICON_PATHS[currentToolGuide.tool.key] ?? ALL_TOOLS_ICON_PATHS"
+                    :key="path"
+                    :d="path"
+                  />
+                </svg>
               </span>
               <span class="truncate"
                 >Guide: {{ currentToolGuide.tool.name }}</span
@@ -585,17 +943,26 @@ onBeforeUnmount(() => {
                 active-class="bg-gray-900 text-white hover:bg-gray-900"
               >
                 <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/5 transition dark:ring-white/10"
+                  :class="TOOL_ICON_CLASSES[t.key]"
                   aria-hidden="true"
                 >
-                  <img
-                    :src="getToolIconImagePath(t.key)"
-                    alt=""
-                    aria-hidden="true"
-                    class="h-7 w-7 rounded-md object-contain"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      v-for="path in TOOL_ICON_PATHS[t.key] ?? ALL_TOOLS_ICON_PATHS"
+                      :key="path"
+                      :d="path"
+                    />
+                  </svg>
                 </span>
                 <span class="truncate">{{ t.name }}</span>
               </NuxtLink>

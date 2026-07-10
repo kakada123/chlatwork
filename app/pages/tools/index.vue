@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  ENABLED_TOOLS,
-  type ToolDef,
-} from "~/lib/tool-registry";
+import { ENABLED_TOOLS, type ToolDef } from "~/lib/tool-registry";
 import {
   getCategoryIconImagePath,
   getToolIconImagePath,
@@ -17,9 +14,7 @@ import {
 const { categoryLabel, copy, lineHeightForText, localizeTool } = useLanguage();
 const toolSearch = ref("");
 const toolSearchInput = ref<HTMLInputElement | null>(null);
-const localizedEnabledTools = computed(() =>
-  ENABLED_TOOLS.map(localizeTool),
-);
+const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 
 const filteredTools = computed(() =>
   filterTools(localizedEnabledTools.value, toolSearch.value),
@@ -80,14 +75,16 @@ function groupTools(tools: ToolDef[]) {
 </script>
 
 <template>
-  <main ref="pageEl" class="mx-auto w-full max-w-[1440px] space-y-10">
+  <main ref="pageEl" class="mx-auto w-full max-w-[1440px] space-y-6">
     <header class="space-y-2" data-reveal>
       <p
         class="text-xs font-semibold uppercase text-sky-600 dark:text-cyan-300"
       >
         {{ copy.toolsPage.eyebrow }}
       </p>
-      <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
+      <h1
+        class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl"
+      >
         {{ copy.toolsPage.title }}
       </h1>
       <p class="max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/65">
@@ -174,7 +171,9 @@ function groupTools(tools: ToolDef[]) {
               <h3 class="text-base font-black text-slate-950 dark:text-white">
                 {{ category.shortTitle }}
               </h3>
-              <p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-white/60">
+              <p
+                class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-white/60"
+              >
                 {{ category.description }}
               </p>
             </div>
@@ -193,8 +192,93 @@ function groupTools(tools: ToolDef[]) {
       </div>
     </section>
 
+    <section
+      v-for="(group, groupIndex) in groupedTools"
+      :key="group.category"
+      class="space-y-3"
+      data-reveal
+      :style="{ '--reveal-delay': `${groupIndex * 120}ms` }"
+    >
+      <div class="flex items-end justify-between gap-3">
+        <div>
+          <h2
+            class="text-sm font-semibold uppercase text-slate-500 dark:text-white/45"
+          >
+            {{ categoryLabel(group.category) }}
+          </h2>
+          <p class="mt-1 text-xs text-slate-400 dark:text-white/35">
+            {{ group.tools.length }} tools
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
+      >
+        <NuxtLink
+          v-for="(tool, toolIndex) in group.tools"
+          :key="tool.key"
+          :to="tool.route"
+          class="group flex h-full flex-col rounded-[22px] border border-white/80 bg-white/75 p-4 text-left shadow-lg shadow-sky-100/80 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.09] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.14] dark:focus:ring-cyan-200/70"
+          data-reveal
+          :style="{
+            '--reveal-delay': `${groupIndex * 120 + toolIndex * 60}ms`,
+          }"
+        >
+          <div class="flex items-start gap-3">
+            <span
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3 dark:bg-white/[0.08] dark:ring-white/10"
+              aria-hidden="true"
+            >
+              <img
+                :src="getToolIconImagePath(tool.key)"
+                alt=""
+                aria-hidden="true"
+                class="h-11 w-11 rounded-xl object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+
+            <div class="min-w-0">
+              <h3
+                :style="{ lineHeight: lineHeightForText(tool.name, 'heading') }"
+                class="text-base font-black text-slate-950 dark:text-white sm:truncate"
+              >
+                {{ tool.name }}
+              </h3>
+              <p
+                :style="{
+                  lineHeight: lineHeightForText(tool.description, 'body'),
+                }"
+                class="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-white/65"
+              >
+                {{ tool.description }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+            <span
+              class="rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm shadow-sky-100/40 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/60"
+            >
+              {{ tool.category }}
+            </span>
+
+            <span
+              class="text-sm font-semibold text-sky-700 transition duration-300 group-hover:translate-x-1 dark:text-cyan-300"
+            >
+              Open
+            </span>
+          </div>
+        </NuxtLink>
+      </div>
+    </section>
+
     <section v-if="!isToolSearchActive" class="space-y-3" data-reveal>
-      <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div
+        class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"
+      >
         <div>
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
             Learn how to use our tools
@@ -244,7 +328,9 @@ function groupTools(tools: ToolDef[]) {
               >
                 {{ guide.heroTitle }}
               </h3>
-              <p class="mt-2 line-clamp-3 text-xs leading-5 text-slate-600 dark:text-white/60">
+              <p
+                class="mt-2 line-clamp-3 text-xs leading-5 text-slate-600 dark:text-white/60"
+              >
                 {{ guide.metaDescription }}
               </p>
             </div>
@@ -254,83 +340,6 @@ function groupTools(tools: ToolDef[]) {
           >
             Read guide
           </span>
-        </NuxtLink>
-      </div>
-    </section>
-
-    <section
-      v-for="(group, groupIndex) in groupedTools"
-      :key="group.category"
-      class="space-y-3"
-      data-reveal
-      :style="{ '--reveal-delay': `${groupIndex * 120}ms` }"
-    >
-      <div class="flex items-end justify-between gap-3">
-        <div>
-          <h2
-            class="text-sm font-semibold uppercase text-slate-500 dark:text-white/45"
-          >
-            {{ categoryLabel(group.category) }}
-          </h2>
-          <p class="mt-1 text-xs text-slate-400 dark:text-white/35">
-            {{ group.tools.length }} tools
-          </p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        <NuxtLink
-          v-for="(tool, toolIndex) in group.tools"
-          :key="tool.key"
-          :to="tool.route"
-          class="group flex h-full flex-col rounded-[22px] border border-white/80 bg-white/75 p-4 text-left shadow-lg shadow-sky-100/80 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.09] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.14] dark:focus:ring-cyan-200/70"
-          data-reveal
-          :style="{ '--reveal-delay': `${groupIndex * 120 + toolIndex * 60}ms` }"
-        >
-          <div class="flex items-start gap-3">
-            <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3 dark:bg-white/[0.08] dark:ring-white/10"
-              aria-hidden="true"
-            >
-              <img
-                :src="getToolIconImagePath(tool.key)"
-                alt=""
-                aria-hidden="true"
-                class="h-11 w-11 rounded-xl object-contain"
-                loading="lazy"
-                decoding="async"
-              />
-            </span>
-
-            <div class="min-w-0">
-              <h3
-                :style="{ lineHeight: lineHeightForText(tool.name, 'heading') }"
-                class="text-base font-black text-slate-950 dark:text-white sm:truncate"
-              >
-                {{ tool.name }}
-              </h3>
-              <p
-                :style="{ lineHeight: lineHeightForText(tool.description, 'body') }"
-                class="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-white/65"
-              >
-                {{ tool.description }}
-              </p>
-            </div>
-          </div>
-
-          <div class="mt-auto flex items-center justify-between gap-3 pt-5">
-            <span
-              class="rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm shadow-sky-100/40 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/60"
-            >
-              {{ tool.category }}
-            </span>
-
-            <span
-              class="text-sm font-semibold text-sky-700 transition duration-300 group-hover:translate-x-1 dark:text-cyan-300"
-            >
-              Open
-            </span>
-          </div>
         </NuxtLink>
       </div>
     </section>

@@ -53,17 +53,12 @@ const benefits = computed(() =>
 </script>
 
 <template>
-  <section ref="sectionEl" class="px-5 py-8 sm:px-8 lg:px-12">
-    <div class="mx-auto max-w-7xl">
+  <section ref="sectionEl" class="py-8">
+    <div class="mx-auto w-full">
       <div
         class="relative overflow-hidden rounded-[20px] border border-sky-100/80 bg-sky-50/45 p-4 shadow-sm shadow-sky-100/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-black/20"
         data-reveal
       >
-        <div
-          class="absolute inset-0 bg-[linear-gradient(135deg,rgba(14,165,233,0.08),rgba(255,255,255,0.04),rgba(217,70,239,0.06))] opacity-80 dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.08),rgba(255,255,255,0.03),rgba(217,70,239,0.08))]"
-          aria-hidden="true"
-        />
-
         <div
           class="relative z-10 grid gap-4 lg:grid-cols-[0.55fr_1.45fr] lg:items-center"
         >

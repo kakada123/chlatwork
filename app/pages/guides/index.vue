@@ -24,7 +24,7 @@ useHead({
 
 <template>
   <main
-    class="mx-auto w-full max-w-[1180px] space-y-8 text-slate-950 dark:text-white"
+    class="mx-auto w-full max-w-[1440px] space-y-8 text-slate-950 dark:text-white"
   >
     <header class="space-y-3">
       <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">

@@ -385,24 +385,17 @@ const cameraFrameStyle = computed(() => ({
 
 <template>
   <div class="space-y-6">
-    <div class="space-y-1">
-      <p
-        class="text-xs font-semibold uppercase text-sky-600 dark:text-cyan-300"
-      >
-        Local scanner
-      </p>
-      <h1
-        class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl"
-      >
+    <div>
+      <h1 class="text-xl font-bold text-slate-950 dark:text-white">
         {{ scannerCopy.title }}
       </h1>
-      <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
+      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-white/60">
         {{ scannerCopy.intro }}
       </p>
     </div>
 
     <section
-      class="space-y-4 rounded-[22px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/80 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/20"
+      class="space-y-4 rounded-xl border bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="space-y-1">
@@ -420,7 +413,7 @@ const cameraFrameStyle = computed(() => ({
             class="rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
             :class="
               activeMode === 'upload'
-                ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950'
+                ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:!bg-white dark:text-slate-950'
                 : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.12]'
             "
             @click="activeMode = 'upload'"
@@ -433,7 +426,7 @@ const cameraFrameStyle = computed(() => ({
             class="rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
             :class="
               activeMode === 'camera'
-                ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950'
+                ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:!bg-white dark:text-slate-950'
                 : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.12]'
             "
             @click="activateCameraMode"
@@ -443,7 +436,7 @@ const cameraFrameStyle = computed(() => ({
 
           <button
             type="button"
-            class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+            class="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:!bg-white dark:text-slate-950 dark:hover:!bg-slate-100"
             :disabled="
               activeMode === 'upload'
                 ? !previewUrl || loading
@@ -555,7 +548,7 @@ const cameraFrameStyle = computed(() => ({
           </div>
 
           <span
-            class="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:group-hover:bg-slate-100"
+            class="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 dark:!bg-white dark:text-slate-950 dark:group-hover:!bg-slate-100"
           >
             Choose image
           </span>
@@ -713,7 +706,7 @@ const cameraFrameStyle = computed(() => ({
 
     <section
       v-if="multipleResults.length > 0"
-      class="space-y-4 rounded-[22px] border border-white/80 bg-white/75 p-4 shadow-lg shadow-sky-100/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/20"
+      class="space-y-4 rounded-xl border bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
@@ -753,7 +746,7 @@ const cameraFrameStyle = computed(() => ({
     </section>
 
     <section
-      class="rounded-[22px] border border-white/80 bg-gradient-to-br from-slate-950 to-slate-800 p-4 text-white shadow-lg shadow-slate-950/20 dark:border-white/10"
+      class="rounded-[22px] border border-white/80 bg-slate-950 p-4 text-white shadow-lg shadow-slate-950/20 dark:border-white/10"
     >
       <div class="grid gap-4 lg:grid-cols-2">
         <div>
