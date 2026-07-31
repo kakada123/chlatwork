@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Daily Briefing — July 31, 2026</title>
+  <description id="description">An editorial collage of AI infrastructure, software development, enterprise AI, Cambodia, and financial markets.</description>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset=".5" stop-color="#082f49"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset=".45" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="server" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="panel"><rect x="24" y="24" width="1152" height="582" rx="28"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#020617"/>
+  <g clip-path="url(#panel)">
+    <rect x="24" y="24" width="1152" height="582" fill="url(#background)"/>
+
+    <!-- AI infrastructure -->
+    <g transform="translate(24 24)">
+      <rect width="548" height="330" fill="#020617"/>
+      <path d="M0 70 274 0l274 70v260H0Z" fill="#071426"/>
+      <path d="M274 0v330M0 70h548" stroke="#164e63" stroke-width="2"/>
+      <g fill="url(#server)" stroke="#334155" stroke-width="2">
+        <rect x="34" y="80" width="72" height="226" rx="5"/>
+        <rect x="120" y="58" width="78" height="248" rx="5"/>
+        <rect x="214" y="40" width="82" height="266" rx="5"/>
+        <rect x="312" y="58" width="78" height="248" rx="5"/>
+        <rect x="404" y="80" width="72" height="226" rx="5"/>
+      </g>
+      <g fill="#22d3ee" filter="url(#glow)">
+        <circle cx="50" cy="100" r="3"/><circle cx="136" cy="80" r="3"/><circle cx="230" cy="64" r="3"/>
+        <circle cx="328" cy="80" r="3"/><circle cx="420" cy="100" r="3"/>
+      </g>
+      <g stroke="#0e7490" stroke-width="3" opacity=".8">
+        <path d="M48 122h44M48 146h44M48 170h44M48 194h44M48 218h44M48 242h44"/>
+        <path d="M136 104h46M136 130h46M136 156h46M136 182h46M136 208h46M136 234h46"/>
+        <path d="M230 90h50M230 118h50M230 146h50M230 174h50M230 202h50M230 230h50"/>
+        <path d="M328 104h46M328 130h46M328 156h46M328 182h46M328 208h46M328 234h46"/>
+        <path d="M420 122h42M420 146h42M420 170h42M420 194h42M420 218h42M420 242h42"/>
+      </g>
+      <text x="32" y="36" fill="#67e8f9" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2">AI INFRASTRUCTURE</text>
+    </g>
+
+    <!-- Cambodia technology ecosystem -->
+    <g transform="translate(572 24)">
+      <rect width="604" height="330" fill="url(#sunset)"/>
+      <circle cx="470" cy="72" r="38" fill="#fde68a" opacity=".75"/>
+      <path d="M0 250C110 222 190 244 282 228s190-6 322 20v82H0Z" fill="#082f49"/>
+      <path d="M0 276C130 260 222 286 324 266s180-4 280 18v46H0Z" fill="#0e7490" opacity=".45"/>
+      <g fill="#111827">
+        <rect x="66" y="154" width="70" height="112"/><rect x="150" y="124" width="54" height="142"/>
+        <rect x="216" y="166" width="82" height="100"/><rect x="314" y="104" width="66" height="162"/>
+        <rect x="394" y="142" width="96" height="124"/><rect x="506" y="178" width="58" height="88"/>
+      </g>
+      <g fill="#fde68a">
+        <path d="M168 124v-20h18v20M164 104h26l-13-25Z"/>
+        <path d="M333 104V78h26v26M328 78h36l-18-34Z"/>
+      </g>
+      <g fill="#fef3c7" opacity=".8">
+        <rect x="78" y="174" width="8" height="10"/><rect x="98" y="174" width="8" height="10"/>
+        <rect x="160" y="150" width="8" height="10"/><rect x="180" y="150" width="8" height="10"/>
+        <rect x="326" y="132" width="9" height="11"/><rect x="348" y="132" width="9" height="11"/>
+        <rect x="414" y="168" width="9" height="11"/><rect x="438" y="168" width="9" height="11"/>
+      </g>
+      <text x="34" y="38" fill="#fff7ed" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2">CAMBODIA DIGITAL ECONOMY</text>
+    </g>
+
+    <!-- Developer workflow -->
+    <g transform="translate(24 354)">
+      <rect width="384" height="252" fill="#0f172a"/>
+      <rect x="32" y="52" width="202" height="128" rx="8" fill="#020617" stroke="#334155" stroke-width="3"/>
+      <rect x="50" y="72" width="78" height="5" rx="2" fill="#22d3ee"/>
+      <rect x="50" y="91" width="148" height="5" rx="2" fill="#64748b"/>
+      <rect x="50" y="110" width="104" height="5" rx="2" fill="#818cf8"/>
+      <rect x="50" y="129" width="132" height="5" rx="2" fill="#64748b"/>
+      <rect x="50" y="148" width="92" height="5" rx="2" fill="#34d399"/>
+      <path d="M116 180h34l9 18H107Z" fill="#334155"/>
+      <circle cx="294" cy="116" r="48" fill="#164e63"/>
+      <circle cx="294" cy="98" r="20" fill="#cbd5e1"/>
+      <path d="M246 178c5-38 26-58 48-58s43 20 48 58Z" fill="#1e293b"/>
+      <text x="30" y="32" fill="#67e8f9" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">SOFTWARE DEVELOPMENT</text>
+    </g>
+
+    <!-- Enterprise AI -->
+    <g transform="translate(408 354)">
+      <rect width="384" height="252" fill="#082f49"/>
+      <rect x="116" y="34" width="152" height="100" rx="8" fill="#f8fafc"/>
+      <g stroke="#0e7490" stroke-width="2" fill="none">
+        <circle cx="192" cy="84" r="11"/><circle cx="154" cy="68" r="7"/><circle cx="230" cy="68" r="7"/>
+        <circle cx="163" cy="108" r="7"/><circle cx="221" cy="108" r="7"/>
+        <path d="m161 71 22 9m40-9-22 9m-33 24 17-13m31 13-17-13m-36-23 23 13m35-13-23 13"/>
+      </g>
+      <g fill="#0f172a">
+        <circle cx="96" cy="174" r="25"/><circle cx="160" cy="172" r="25"/>
+        <circle cx="224" cy="172" r="25"/><circle cx="288" cy="174" r="25"/>
+        <path d="M56 240c5-36 20-54 40-54s35 18 40 54ZM120 240c5-36 20-54 40-54s35 18 40 54Z"/>
+        <path d="M184 240c5-36 20-54 40-54s35 18 40 54ZM248 240c5-36 20-54 40-54s35 18 40 54Z"/>
+      </g>
+      <text x="28" y="28" fill="#a5f3fc" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">ENTERPRISE AI</text>
+    </g>
+
+    <!-- Markets -->
+    <g transform="translate(792 354)">
+      <rect width="384" height="252" fill="#020617"/>
+      <g stroke="#1e3a8a" stroke-width="1" opacity=".5">
+        <path d="M28 64h328M28 104h328M28 144h328M28 184h328M80 48v166M144 48v166M208 48v166M272 48v166M336 48v166"/>
+      </g>
+      <path d="M28 190 76 170l42 12 44-70 48 22 48-66 46 35 52-58" fill="none" stroke="url(#accent)" stroke-width="6" filter="url(#glow)"/>
+      <g fill="#22d3ee">
+        <circle cx="28" cy="190" r="5"/><circle cx="76" cy="170" r="5"/><circle cx="118" cy="182" r="5"/>
+        <circle cx="162" cy="112" r="5"/><circle cx="210" cy="134" r="5"/><circle cx="258" cy="68" r="5"/>
+        <circle cx="304" cy="103" r="5"/><circle cx="356" cy="45" r="5"/>
+      </g>
+      <text x="28" y="30" fill="#67e8f9" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">GLOBAL MARKETS</text>
+    </g>
+  </g>
+
+  <rect x="24" y="24" width="1152" height="582" rx="28" fill="none" stroke="#38bdf8" stroke-opacity=".35" stroke-width="2"/>
+  <g transform="translate(54 535)">
+    <rect width="1092" height="48" rx="16" fill="#020617" fill-opacity=".88"/>
+    <text x="20" y="31" fill="#f8fafc" font-family="Arial, sans-serif" font-size="23" font-weight="700">CHLATWORK DAILY BRIEFING</text>
+    <text x="1048" y="31" fill="#67e8f9" text-anchor="end" font-family="Arial, sans-serif" font-size="19" font-weight="700">JULY 31, 2026</text>
+  </g>
+</svg>

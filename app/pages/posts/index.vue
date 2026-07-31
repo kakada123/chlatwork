@@ -44,6 +44,15 @@ useHead({
         :to="post.path"
         class="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.10]"
       >
+        <img
+          :src="post.imagePath"
+          :alt="post.imageAlt"
+          class="mb-5 aspect-[1200/630] w-full rounded-2xl object-cover"
+          width="1200"
+          height="630"
+          loading="eager"
+          decoding="async"
+        />
         <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50">
           <time :datetime="post.publishedAt">{{ post.displayDate }}</time>
           <span aria-hidden="true">•</span>

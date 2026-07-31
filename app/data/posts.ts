@@ -18,6 +18,8 @@ export type EditorialPost = {
   displayDate: string;
   author: string;
   readingMinutes: number;
+  imagePath: string;
+  imageAlt: string;
   sections: PostSection[];
   developerWatch: string[];
   securityWatch: string[];
@@ -39,6 +41,9 @@ export const POSTS: EditorialPost[] = [
     displayDate: "July 31, 2026",
     author: "Kakada Ngen",
     readingMinutes: 6,
+    imagePath: "/images/posts/daily-briefing-2026-07-31.png",
+    imageAlt:
+      "Editorial collage showing AI data centers, software development, enterprise AI, Cambodia's digital economy, and global markets.",
     sections: [
       {
         number: 1,

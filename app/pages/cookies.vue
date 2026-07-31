@@ -96,6 +96,13 @@ useHead({
         reliability. Vercel Web Analytics is designed to store anonymized data
         and does not use cookies.
       </p>
+      <p class="text-gray-700 dark:text-white/75">
+        ChlatWork also installs the Google tag with Consent Mode. Analytics and
+        advertising storage are denied by default. The tag can receive a
+        consent-state signal without writing analytics or advertising cookies;
+        storage is enabled only after an integrated consent platform sends an
+        appropriate update.
+      </p>
     </section>
 
     <section class="space-y-3">

@@ -22,6 +22,10 @@ test("the July 31 daily briefing is the first published post", () => {
   assert.equal(post.developerWatch.length, 6);
   assert.equal(post.securityWatch.length, 5);
   assert.equal(post.keyTakeaways.length, 5);
+  assert.equal(
+    post.imagePath,
+    "/images/posts/daily-briefing-2026-07-31.png",
+  );
   assert.equal(findPostByPath(`${post.path}/`), post);
 });
 
@@ -41,4 +45,6 @@ test("post page provides canonical, article metadata, authorship, and disclosure
   assert.match(source, /datePublished/);
   assert.match(source, /EDITORIAL_AUTHOR/);
   assert.match(source, /Editorial note:/);
+  assert.match(source, /post\.value\.imagePath/);
+  assert.match(source, /currentPost\.imagePath/);
 });

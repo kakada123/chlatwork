@@ -8,6 +8,24 @@ const nodeEnv =
     }
   ).process?.env ?? {};
 
+const googleMeasurementId = "G-Y3CGX9GBQN";
+const isProduction = nodeEnv.NODE_ENV === "production";
+
+const googleTagConsentScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = window.gtag || gtag;
+gtag("consent", "default", {
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+  analytics_storage: "denied",
+  wait_for_update: 500
+});
+gtag("js", new Date());
+gtag("config", "${googleMeasurementId}", { send_page_view: false });
+`;
+
 const colorModeScript = `
 (() => {
   const storageKey = "chlatwork-color-mode";
@@ -78,6 +96,7 @@ export default defineNuxtConfig({
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
       adsenseClientId: "ca-pub-3732801458368248",
+      googleMeasurementId,
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
@@ -179,6 +198,20 @@ export default defineNuxtConfig({
         },
       ],
       script: [
+        ...(isProduction
+          ? [
+              {
+                key: "google-consent-default",
+                children: googleTagConsentScript,
+                tagPriority: "critical",
+              },
+              {
+                key: "google-tag",
+                async: true,
+                src: `https://www.googletagmanager.com/gtag/js?id=${googleMeasurementId}`,
+              },
+            ]
+          : []),
         {
           children: colorModeScript,
         },

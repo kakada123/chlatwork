@@ -8,6 +8,11 @@ const post = computed(() => findPostByPath(route.path));
 const canonicalUrl = computed(() =>
   post.value ? `${siteUrl}${post.value.path}` : `${siteUrl}/posts`,
 );
+const socialImageUrl = computed(() =>
+  post.value
+    ? `${siteUrl}${post.value.imagePath}?v=20260731-1`
+    : `${siteUrl}/og-home.png`,
+);
 
 watchEffect(() => {
   if (!post.value) {
@@ -25,11 +30,15 @@ useSeoMeta({
   ogDescription: computed(() => post.value?.description ?? ""),
   ogType: "article",
   ogUrl: canonicalUrl,
-  ogImage: `${siteUrl}/og-home.png`,
+  ogImage: socialImageUrl,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: computed(() => post.value?.imageAlt ?? "ChlatWork"),
   twitterCard: "summary_large_image",
   twitterTitle: computed(() => post.value?.title ?? "Post — ChlatWork"),
   twitterDescription: computed(() => post.value?.description ?? ""),
-  twitterImage: `${siteUrl}/og-home.png`,
+  twitterImage: socialImageUrl,
+  twitterImageAlt: computed(() => post.value?.imageAlt ?? "ChlatWork"),
 });
 
 useHead(() => {
@@ -52,6 +61,7 @@ useHead(() => {
           datePublished: currentPost.publishedAt,
           dateModified: currentPost.updatedAt,
           mainEntityOfPage: canonicalUrl.value,
+          image: `${siteUrl}${currentPost.imagePath}`,
           author: {
             "@type": "Person",
             name: EDITORIAL_AUTHOR.name,
@@ -106,20 +116,17 @@ useHead(() => {
         <span>{{ post.readingMinutes }} min read</span>
       </div>
 
-      <div class="overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-sky-950 to-cyan-800 p-7 text-white shadow-xl sm:p-10">
-        <div class="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-end">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">
-              AI • Software • Business • Cambodia • Markets
-            </p>
-            <p class="mt-4 max-w-2xl text-xl font-black leading-8 sm:text-3xl">
-              Infrastructure, engineering discipline, security, and measurable
-              value define today&apos;s AI landscape.
-            </p>
-          </div>
-          <span class="text-6xl" aria-hidden="true">📰</span>
-        </div>
-      </div>
+      <figure class="overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 shadow-xl dark:border-white/10">
+        <img
+          :src="post.imagePath"
+          :alt="post.imageAlt"
+          class="aspect-[1200/630] w-full object-cover"
+          width="1200"
+          height="630"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </figure>
     </header>
 
     <article class="space-y-10">

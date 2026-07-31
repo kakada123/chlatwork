@@ -9,6 +9,7 @@ type GoogleTagConfig = {
 type GoogleTagArguments =
   | ["js", Date]
   | ["config", string, GoogleTagConfig?]
+  | ["consent", "default" | "update", Record<string, unknown>]
   | ["event", string, Record<string, unknown>?]
   | ["set", Record<string, unknown>]
   | [string, ...unknown[]];

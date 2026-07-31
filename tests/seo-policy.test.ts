@@ -81,8 +81,9 @@ test("navigation does not recreate legacy guide URLs or unconsented trackers", (
 
   const nuxtConfig = readProjectFile("nuxt.config.ts");
   const adLoader = readProjectFile("app/composables/useAdSense.ts");
-  assert.doesNotMatch(nuxtConfig, /googletagmanager\.com/);
   assert.doesNotMatch(nuxtConfig, /connect\.facebook\.net|facebook\.com\/tr/);
+  assert.match(nuxtConfig, /analytics_storage: "denied"/);
+  assert.match(nuxtConfig, /ad_storage: "denied"/);
   assert.match(adLoader, /CERTIFIED_AD_CONSENT_READY_EVENT/);
   assert.match(adLoader, /getElementById\(ADSENSE_SCRIPT_ID\)/);
   assert.match(adLoader, /isMonetizableRoute/);
