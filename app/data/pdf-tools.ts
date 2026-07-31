@@ -18,6 +18,15 @@ export type PdfToolFaq = {
   answer: string;
 };
 
+export type ToolEvidence = {
+  testedInputExamples?: string[];
+  supportedFormats?: string[];
+  observedOutput?: string[];
+  knownFailureCases?: string[];
+  browserLimitations?: string[];
+  lastTested?: string;
+};
+
 export type PdfToolDef = ToolDef & {
   key: PdfToolKey;
   metaTitle: string;
@@ -32,6 +41,8 @@ export type PdfToolDef = ToolDef & {
   faq: PdfToolFaq[];
   howItWorks: string[];
   related: PdfToolKey[];
+  betaNotice?: string;
+  evidence?: ToolEvidence;
 };
 
 const PDF_ICON_PATHS = [
@@ -179,6 +190,17 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "beta",
     category: "PDF Tools",
     description: "Rebuild a PDF locally and remove safe metadata where possible.",
+    betaNotice:
+      "Beta: rebuilding may leave the file unchanged or make it larger. Compare the original and output sizes and inspect every page before using the result.",
+    evidence: {
+      knownFailureCases: [
+        "An already optimized PDF may not become smaller.",
+        "Rebuilding can produce an output larger than the source file.",
+      ],
+      browserLimitations: [
+        "Available device memory limits the size and complexity of PDFs that can be processed.",
+      ],
+    },
     iconPath: getToolIconImagePath("compress-pdf"),
     metaTitle: "Compress PDF Online - Rebuild PDF Locally | ChlatWork",
     metaDescription:
@@ -207,6 +229,8 @@ export const PDF_TOOLS: PdfToolDef[] = [
       "Compare original and output size before downloading.",
     ],
     related: ["merge-pdf", "split-pdf", "remove-pdf-pages"],
+    // TODO(content-evidence): Record first-hand results across representative
+    // scanned, image-heavy, form, and already-optimized PDFs before promotion.
   },
   {
     key: "remove-pdf-pages",
@@ -286,6 +310,17 @@ export const PDF_TOOLS: PdfToolDef[] = [
     status: "beta",
     category: "PDF Tools",
     description: "Render simple HTML into a printable PDF page.",
+    betaNotice:
+      "Beta: intended for simple printable HTML. External assets, scripts, advanced CSS, and exact browser-to-PDF layout matching are not guaranteed.",
+    evidence: {
+      knownFailureCases: [
+        "External assets and scripts are not guaranteed to appear in the PDF.",
+        "Advanced CSS may not match the browser preview in the generated output.",
+      ],
+      browserLimitations: [
+        "Rendering behavior can vary with browser layout and canvas support.",
+      ],
+    },
     iconPath: getToolIconImagePath("html-to-pdf"),
     metaTitle: "HTML to PDF Converter",
     metaDescription:
@@ -313,6 +348,8 @@ export const PDF_TOOLS: PdfToolDef[] = [
       "Render the preview into a PDF.",
     ],
     related: ["text-to-pdf", "invoice-to-pdf", "compress-pdf"],
+    // TODO(content-evidence): Record tested CSS features, external asset
+    // behavior, browser differences, and reproducible failure cases.
   },
   {
     key: "text-to-pdf",

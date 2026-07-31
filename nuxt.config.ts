@@ -76,7 +76,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
-    public: {},
+    public: {
+      adsenseClientId: "ca-pub-3732801458368248",
+    },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
   sitemap: {

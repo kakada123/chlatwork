@@ -670,6 +670,79 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
         "browser PDF merge",
       ],
     }),
+    whatIs: [
+      "Merge PDF combines the pages from two or more PDF files into one new document. Files are processed in the order shown in the tool, so the sequence you choose becomes the sequence in the downloaded PDF.",
+      "The merge happens in your browser with PDF page-copying software. ChlatWork does not intentionally send the selected documents to its server. The original PDFs stay unchanged because the tool creates a separate output file.",
+      "Merging is different from editing: it joins complete pages but does not rewrite text, repair damaged files, or preserve every interactive form behavior.",
+    ],
+    whyUse: [
+      "Send one ordered attachment instead of asking a recipient to open several files.",
+      "Keep related records together for a client handoff, application, archive, or monthly report.",
+      "Control document order before combining, including cover pages and supporting evidence.",
+      "Process confidential files locally instead of transferring them to an online conversion server.",
+      "Preserve the original source files while producing a separate combined copy.",
+    ],
+    steps: [
+      "Select at least two valid PDF files.",
+      "Read the displayed filenames and page counts to confirm you chose the final versions.",
+      "Move the files into the exact order the recipient should read them.",
+      "Start the merge and keep the browser tab open while pages are copied.",
+      "Download the new PDF with a descriptive filename.",
+      "Open the download and verify its total page count, first page, section boundaries, and final page.",
+    ],
+    useCases: [
+      "Combine a proposal, signed agreement, and invoice into one client packet.",
+      "Put a CV, portfolio, and certificates into one job-application upload.",
+      "Assemble departmental PDFs into a monthly management report.",
+      "Join scanned receipt batches into one bookkeeping record.",
+      "Attach a cover letter before an existing application or supporting document.",
+    ],
+    tips: [
+      "Rename source files with sequence numbers before selecting them when the order is complex.",
+      "Remove password protection in an authorized PDF application before merging; the browser tool cannot bypass encryption.",
+      "Check pages where one source file ends and the next begins because those transitions reveal ordering mistakes quickly.",
+      "Keep the originals until the recipient accepts the merged document.",
+      "If a destination has a file-size limit, check the merged size before starting the upload.",
+    ],
+    commonMistakes: [
+      "Selecting a draft and a final copy of the same document.",
+      "Assuming alphabetical filenames automatically produce the intended reading order.",
+      "Expecting editable form fields, scripts, bookmarks, or signatures to behave exactly like the originals.",
+      "Sending the result without checking the final page count and document boundaries.",
+    ],
+    privacy: [
+      "Selected PDFs are read and combined in the current browser session.",
+      "ChlatWork does not intentionally upload the PDF contents for this merge workflow.",
+      "Downloaded output remains on your device unless you choose to share it elsewhere.",
+      "Do not merge files you are not authorized to access or distribute.",
+    ],
+    faqs: [
+      {
+        question: "Does Merge PDF upload my documents?",
+        answer:
+          "No. The merge is designed to run in your browser and create the output locally.",
+      },
+      {
+        question: "Can I change the file order before merging?",
+        answer:
+          "Yes. Arrange the selected files in the order you want before starting the merge.",
+      },
+      {
+        question: "Are my original PDFs changed?",
+        answer:
+          "No. The tool creates a new combined PDF and leaves the selected source files untouched.",
+      },
+      {
+        question: "Will links, forms, or digital signatures still work?",
+        answer:
+          "Page appearance is the main goal. Interactive forms, scripts, bookmarks, links, and signature validation may not be preserved exactly after pages are copied.",
+      },
+      {
+        question: "Why can a large merge fail on my phone?",
+        answer:
+          "The browser must hold source and output data in device memory. Try fewer or smaller files, close other tabs, or use a device with more available memory.",
+      },
+    ],
     practicalExamples: [
       {
         title: "Client submission packet",
@@ -755,6 +828,79 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
         "browser PDF splitter",
       ],
     }),
+    whatIs: [
+      "Split PDF copies selected pages from one PDF into a new, smaller document. You choose pages with a range such as 1-3, 5, 8-10; the original file is not edited.",
+      "Page selection and output generation run in the browser. ChlatWork does not intentionally upload the selected PDF to its server for this workflow.",
+      "The tool extracts pages by their PDF page number, which may differ from a printed page number displayed inside a report or book.",
+    ],
+    whyUse: [
+      "Share only the pages a client, colleague, or reviewer actually needs.",
+      "Create a smaller attachment from a long handbook, scan, or report.",
+      "Separate a chapter, signed section, receipt, or certificate without installing desktop software.",
+      "Keep the full original intact while creating a purpose-specific copy.",
+      "Process sensitive documents locally in a supported browser.",
+    ],
+    steps: [
+      "Select the source PDF and wait for the tool to read its page count.",
+      "Identify pages using the PDF page positions shown by the tool, not only printed labels inside the document.",
+      "Enter individual pages and ranges, for example 1-3, 5, 8-10.",
+      "Review the normalized selection and correct duplicates, reversed ranges, or pages beyond the document length.",
+      "Generate and download the extracted PDF.",
+      "Open the result and verify its first page, last page, page count, and context before sharing.",
+    ],
+    useCases: [
+      "Extract signature pages from a contract for a focused approval review.",
+      "Share one policy section from a long employee handbook.",
+      "Separate a certificate or transcript page from a scanned application packet.",
+      "Create a short reading handout from an authorized course document.",
+      "Send only the relevant invoice or receipt pages to an accountant.",
+    ],
+    tips: [
+      "Write down the intended page numbers before entering a long mixed range.",
+      "Compare the tool's page count with the PDF viewer so printed and electronic numbering do not get confused.",
+      "Include context pages when an extracted table or paragraph depends on a heading from the previous page.",
+      "Use a filename that identifies the selected section instead of overwriting the original name.",
+      "Keep the full source document until the extracted copy has been accepted.",
+    ],
+    commonMistakes: [
+      "Using printed footer numbers when they do not match the PDF's actual page positions.",
+      "Leaving out a continuation page that makes the extracted section incomplete.",
+      "Entering a page number greater than the source document's page count.",
+      "Assuming extraction redacts information that is still visible on the selected pages.",
+    ],
+    privacy: [
+      "The source PDF is read in the current browser session and selected pages are copied locally.",
+      "ChlatWork does not intentionally upload the PDF contents for this split workflow.",
+      "Extraction is not redaction; review every selected page for confidential information before sharing.",
+      "The downloaded file remains on your device unless you send or upload it elsewhere.",
+    ],
+    faqs: [
+      {
+        question: "What page-range format can I use?",
+        answer:
+          "Use comma-separated pages and ranges such as 1-3, 5, 8-10. Page positions begin at 1.",
+      },
+      {
+        question: "Does splitting change my original PDF?",
+        answer:
+          "No. The tool creates a new PDF containing the selected pages and leaves the original unchanged.",
+      },
+      {
+        question: "Why do printed page numbers not match?",
+        answer:
+          "A document may have a cover or introduction without printed numbers. Use the page positions reported by the tool.",
+      },
+      {
+        question: "Does Split PDF upload the file?",
+        answer:
+          "No. The extraction is designed to run locally in your browser.",
+      },
+      {
+        question: "Does extracting pages remove confidential information?",
+        answer:
+          "Only unselected pages are excluded. Any sensitive content visible on selected pages remains and must be reviewed separately.",
+      },
+    ],
     practicalExamples: [
       {
         title: "Extract signature pages only",

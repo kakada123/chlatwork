@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ToolGuide } from "~/data/tool-guides";
 import { getRelatedToolsForToolKey } from "~/data/tool-categories";
+import { EDITORIAL_BYLINE } from "~/data/editorial-identity";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 const props = withDefaults(
@@ -313,11 +314,11 @@ const outputChecklist = [
       <p
         class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75"
       >
-        Reviewed by ChlatWork editorial standards. Last reviewed:
+        Checked against the ChlatWork editorial policy. Last updated:
         {{ reviewedDateLabel }}.
       </p>
       <p class="mt-1 text-xs text-amber-900/80 dark:text-amber-100/75">
-        Written and tested by Kakada Ngen.
+        {{ EDITORIAL_BYLINE }}.
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
         <NuxtLink

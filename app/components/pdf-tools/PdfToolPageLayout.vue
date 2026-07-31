@@ -23,6 +23,13 @@ defineProps<{
         <p class="max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/65">
           {{ tool.description }}
         </p>
+        <p
+          v-if="tool.status === 'beta' && tool.betaNotice"
+          class="max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium leading-6 text-amber-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
+          role="note"
+        >
+          {{ tool.betaNotice }}
+        </p>
       </div>
     </header>
 

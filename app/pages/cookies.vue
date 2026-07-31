@@ -31,7 +31,7 @@ useHead({
         technologies for functionality, analytics, security, and advertising.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: May 21, 2026
+        Last updated: July 31, 2026
       </p>
     </header>
 
@@ -157,6 +157,11 @@ useHead({
         Where those requirements apply, ChlatWork may use Google&apos;s certified
         consent management tools, non-personalized ads, limited ads, or other
         advertising platform settings.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        ChlatWork&apos;s code waits for a consent signal from a certified CMP
+        before loading AdSense. The informational ChlatWork notice is not a CMP
+        and closing it does not grant advertising consent.
       </p>
     </section>
 
