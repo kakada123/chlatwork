@@ -17,6 +17,7 @@ import {
   findToolGuideByToolRoute,
 } from "~/data/tool-guides";
 import { TOOL_DIRECTORY_CATEGORIES } from "~/data/tool-categories";
+import { POSTS } from "~/data/posts";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools, searchTextMatches } from "~/lib/tool-search";
 
@@ -53,6 +54,14 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
     path: "/guides",
     label: "Page",
     searchText: "guides tutorials help how to instructions",
+  },
+  {
+    key: "page-posts",
+    title: "Posts",
+    description: "Read ChlatWork technology and business briefings.",
+    path: "/posts",
+    label: "Page",
+    searchText: "posts news daily briefing AI technology business Cambodia markets",
   },
   {
     key: "page-about",
@@ -158,6 +167,28 @@ const headerSearchResults = computed(() => {
     label: "Guide",
     searchText: "",
   }));
+  const postResults = POSTS.filter((post) =>
+    searchTextMatches(
+      [
+        post.title,
+        post.description,
+        post.dek,
+        ...post.sections.flatMap((section) => [
+          section.category,
+          section.title,
+          ...section.paragraphs,
+        ]),
+      ].join(" "),
+      query,
+    ),
+  ).map((post) => ({
+    key: `post-${post.slug}`,
+    title: post.title,
+    description: post.description,
+    path: post.path,
+    label: "Post",
+    searchText: "",
+  }));
   const categoryResults = TOOL_DIRECTORY_CATEGORIES.filter((category) =>
     searchTextMatches(
       [
@@ -187,6 +218,7 @@ const headerSearchResults = computed(() => {
   return [
     ...toolResults,
     ...starterGuideResults,
+    ...postResults,
     ...categoryResults,
     ...pageResults,
   ].slice(0, 12);
@@ -208,6 +240,9 @@ const isBusinessPage = computed(
 );
 const isStarterGuidePage = computed(
   () => route.path === "/guides" || Boolean(findStarterGuideByPath(route.path)),
+);
+const isPostPage = computed(
+  () => route.path === "/posts" || route.path.startsWith("/posts/"),
 );
 const isContactPage = computed(() => route.path === "/contact");
 const currentToolGuide = computed(() => {
@@ -232,6 +267,7 @@ const isLandingPage = computed(
     isPortfolioPage.value ||
     isBusinessPage.value ||
     isStarterGuidePage.value ||
+    isPostPage.value ||
     isContactPage.value,
 );
 const layoutGridClass = computed(() =>
@@ -371,6 +407,12 @@ onBeforeUnmount(() => {
               class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
             >
               Guides
+            </NuxtLink>
+            <NuxtLink
+              to="/posts"
+              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              Posts
             </NuxtLink>
             <NuxtLink
               to="/about"
@@ -665,6 +707,14 @@ onBeforeUnmount(() => {
             </NuxtLink>
 
             <NuxtLink
+              to="/posts"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              @click="closeMenu"
+            >
+              Posts
+            </NuxtLink>
+
+            <NuxtLink
               to="/contact"
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
               @click="closeMenu"
@@ -909,6 +959,12 @@ onBeforeUnmount(() => {
                 class="hover:text-gray-900 dark:hover:text-white"
               >
                 Guides
+              </NuxtLink>
+              <NuxtLink
+                to="/posts"
+                class="hover:text-gray-900 dark:hover:text-white"
+              >
+                Posts
               </NuxtLink>
               <a
                 href="/sitemap.xml"

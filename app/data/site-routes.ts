@@ -1,4 +1,5 @@
 import { STARTER_GUIDE_PATHS } from "./guides.ts";
+import { POST_PATHS } from "./posts.ts";
 
 export const LEGAL_PAGE_PATHS = [
   "/privacy-policy",
@@ -16,6 +17,7 @@ export const PUBLIC_TRUST_PAGE_PATHS = [
 export const NAVIGATION_ONLY_PAGE_PATHS = [
   "/tools",
   "/guides",
+  "/posts",
   "/tools/pdf",
   "/tools/image",
   "/tools/qr-barcode",
@@ -111,6 +113,7 @@ export const NOINDEX_PAGE_PATHS = [
   ...NAVIGATION_ONLY_PAGE_PATHS,
   ...COMMERCIAL_PAGE_PATHS,
   ...LEGAL_PAGE_PATHS,
+  ...POST_PATHS,
 ];
 
 export const NO_ADS_PAGE_PATHS = [
