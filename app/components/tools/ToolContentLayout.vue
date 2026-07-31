@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { ToolGuide } from "~/data/tool-guides";
 import { getRelatedToolsForToolKey } from "~/data/tool-categories";
-import { getToolGuideRoute } from "~/data/tool-guide-routes";
-import { ENABLED_TOOLS } from "~/lib/tool-registry";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 
 const props = withDefaults(
@@ -52,49 +50,6 @@ const privacyNotes = computed(() =>
 const relatedTools = computed(() =>
   getRelatedToolsForToolKey(props.guide.tool.key, 4),
 );
-const GUIDE_FALLBACK_LINKS: Record<string, string[]> = {
-  qr: ["barcode"],
-  barcode: ["qr"],
-  "image-compress": ["image-to-pdf"],
-  "image-to-pdf": ["image-compress"],
-  "merge-pdf": ["split-pdf"],
-  "split-pdf": ["merge-pdf"],
-  "payback-calculator": ["expense-tracker"],
-  "expense-tracker": ["payback-calculator"],
-};
-
-const relatedGuideLinks = computed(() => {
-  const toolKey = props.guide.tool.key;
-  const candidateKeys = [
-    ...relatedTools.value.map((tool) => tool.key),
-    ...(GUIDE_FALLBACK_LINKS[toolKey] ?? []),
-  ];
-  const uniqueKeys = [...new Set(candidateKeys)].filter(
-    (key) => key !== toolKey,
-  );
-
-  return uniqueKeys
-    .map((key) => {
-      const route = getToolGuideRoute(key);
-      const tool =
-        relatedTools.value.find((item) => item.key === key) ??
-        ENABLED_TOOLS.find((item) => item.key === key);
-
-      if (!route || !tool) {
-        return null;
-      }
-
-      return {
-        key,
-        path: route.path,
-        name: tool.name,
-      };
-    })
-    .filter((entry): entry is { key: string; path: string; name: string } =>
-      Boolean(entry),
-    )
-    .slice(0, 4);
-});
 const practicalExamplesTitle = computed(() =>
   shouldUseKhmerExamples.value
     ? "ឧទាហរណ៍ប្រើប្រាស់ជាក់ស្តែង"
@@ -103,18 +58,7 @@ const practicalExamplesTitle = computed(() =>
 const practicalResultPrefix = computed(() =>
   shouldUseKhmerExamples.value ? "លទ្ធផល៖" : "Result:",
 );
-const relatedGuidesTitle = computed(() =>
-  shouldUseKhmerExamples.value ? "មេរៀនពាក់ព័ន្ធ" : "Related guides",
-);
-const relatedGuidesDescription = computed(() =>
-  shouldUseKhmerExamples.value
-    ? "អានមេរៀនពាក់ព័ន្ធ ដើម្បីបានលទ្ធផលការងារល្អ និងត្រឹមត្រូវជាងមុន។"
-    : "Read the matching how-to guides for similar tasks and better output quality.",
-);
-const guideChipSuffix = computed(() =>
-  shouldUseKhmerExamples.value ? "មេរៀន" : "guide",
-);
-const reviewedDateLabel = "June 29, 2026";
+const reviewedDateLabel = "July 31, 2026";
 const outputChecklist = [
   "Test at least one real sample before sharing or printing.",
   "Open the output on another device or app to confirm compatibility.",
@@ -373,7 +317,7 @@ const outputChecklist = [
         {{ reviewedDateLabel }}.
       </p>
       <p class="mt-1 text-xs text-amber-900/80 dark:text-amber-100/75">
-        Author: Kakada. Reviewer: ChlatWork Editorial.
+        Written and tested by Kakada Ngen.
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
         <NuxtLink
@@ -415,27 +359,6 @@ const outputChecklist = [
         </NuxtLink>
       </div>
 
-      <div
-        v-if="relatedGuideLinks.length > 0"
-        class="rounded-2xl border border-sky-200 bg-sky-50 p-4 dark:border-cyan-300/25 dark:bg-cyan-300/10"
-      >
-        <h3 class="text-sm font-black text-sky-900 dark:text-cyan-100">
-          {{ relatedGuidesTitle }}
-        </h3>
-        <p class="mt-1 text-xs leading-5 text-sky-800/90 dark:text-cyan-100/80">
-          {{ relatedGuidesDescription }}
-        </p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <NuxtLink
-            v-for="link in relatedGuideLinks"
-            :key="link.key"
-            :to="link.path"
-            class="rounded-full border border-sky-300/80 bg-white px-3 py-1.5 text-xs font-semibold text-sky-900 transition hover:bg-sky-100 dark:border-cyan-200/40 dark:bg-cyan-100/10 dark:text-cyan-100 dark:hover:bg-cyan-100/20"
-          >
-            {{ link.name }} {{ guideChipSuffix }}
-          </NuxtLink>
-        </div>
-      </div>
     </section>
   </section>
 </template>

@@ -9,18 +9,12 @@ import {
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import { getToolIconImagePath } from "~/lib/icon-assets";
 import {
-  findToolGuideRouteByPath,
-  getToolGuideRoute,
-} from "~/data/tool-guide-routes";
-import {
   STARTER_GUIDES,
   findStarterGuideByPath,
   type StarterGuide,
 } from "~/data/guides";
 import {
-  TOOL_GUIDES,
   findToolGuideByToolRoute,
-  type ToolGuide,
 } from "~/data/tool-guides";
 import { TOOL_DIRECTORY_CATEGORIES } from "~/data/tool-categories";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
@@ -178,16 +172,6 @@ const headerSearchResults = computed(() => {
     label: categoryLabel(tool.category),
     searchText: "",
   }));
-  const toolGuideResults = TOOL_GUIDES.filter((guide) =>
-    searchTextMatches(getToolGuideSearchText(guide), query),
-  ).map((guide) => ({
-    key: `tool-guide-${guide.slug}`,
-    title: guide.heroTitle,
-    description: guide.metaDescription,
-    path: guide.path,
-    label: "Guide",
-    searchText: "",
-  }));
   const starterGuideResults = STARTER_GUIDES.filter((guide) =>
     searchTextMatches(getStarterGuideSearchText(guide), query),
   ).map((guide) => ({
@@ -226,7 +210,6 @@ const headerSearchResults = computed(() => {
 
   return [
     ...toolResults,
-    ...toolGuideResults,
     ...starterGuideResults,
     ...categoryResults,
     ...pageResults,
@@ -247,9 +230,6 @@ const isPortfolioPage = computed(() => route.path === "/portfolio");
 const isBusinessPage = computed(
   () => route.path === "/pricing" || route.path.startsWith("/services/"),
 );
-const isToolGuidePage = computed(() =>
-  Boolean(findToolGuideRouteByPath(route.path)),
-);
 const isStarterGuidePage = computed(
   () => route.path === "/guides" || Boolean(findStarterGuideByPath(route.path)),
 );
@@ -261,15 +241,8 @@ const currentToolGuide = computed(() => {
     return null;
   }
 
-  const guideRoute = getToolGuideRoute(currentTool.key);
-
-  if (!guideRoute) {
-    return null;
-  }
-
   return {
     guide: findToolGuideByToolRoute(currentTool.route),
-    path: guideRoute.path,
     tool: currentTool,
   };
 });
@@ -282,7 +255,6 @@ const isLandingPage = computed(
     isToolsIndexPage.value ||
     isPortfolioPage.value ||
     isBusinessPage.value ||
-    isToolGuidePage.value ||
     isStarterGuidePage.value ||
     isContactPage.value,
 );
@@ -291,19 +263,6 @@ const layoutGridClass = computed(() =>
     ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
     : "mx-auto grid max-w-[1440px] items-start gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
 );
-
-function getToolGuideSearchText(guide: ToolGuide) {
-  return [
-    guide.heroTitle,
-    guide.metaTitle,
-    guide.metaDescription,
-    guide.tool.name,
-    guide.tool.description,
-    guide.tool.key,
-    guide.path,
-    ...guide.keywords,
-  ].join(" ");
-}
 
 function getStarterGuideSearchText(guide: StarterGuide) {
   return [
@@ -737,26 +696,6 @@ onBeforeUnmount(() => {
               Contact
             </NuxtLink>
 
-            <NuxtLink
-              v-if="currentToolGuide"
-              :to="currentToolGuide.path"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-sky-800 hover:bg-sky-50"
-              @click="closeMenu"
-            >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5"
-                aria-hidden="true"
-              >
-                <img
-                  :src="getToolIconImagePath(currentToolGuide.tool.key)"
-                  alt=""
-                  aria-hidden="true"
-                  class="h-7 w-7 rounded-md object-contain"
-                  decoding="async"
-                />
-              </span>
-              Guide: {{ currentToolGuide.tool.name }}
-            </NuxtLink>
           </nav>
 
           <div class="mt-4 px-3">
@@ -870,38 +809,6 @@ onBeforeUnmount(() => {
                 </svg>
               </span>
               <span>{{ copy.nav.allTools }}</span>
-            </NuxtLink>
-
-            <NuxtLink
-              v-if="currentToolGuide"
-              :to="currentToolGuide.path"
-              class="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100 dark:border-cyan-300/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
-            >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/5 transition dark:ring-white/10"
-                :class="TOOL_ICON_CLASSES[currentToolGuide.tool.key]"
-                aria-hidden="true"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    v-for="path in TOOL_ICON_PATHS[currentToolGuide.tool.key] ?? ALL_TOOLS_ICON_PATHS"
-                    :key="path"
-                    :d="path"
-                  />
-                </svg>
-              </span>
-              <span class="truncate"
-                >Guide: {{ currentToolGuide.tool.name }}</span
-              >
             </NuxtLink>
 
             <div class="px-3 py-2">

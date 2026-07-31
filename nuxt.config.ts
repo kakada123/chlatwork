@@ -1,4 +1,5 @@
 import { PUBLIC_SITEMAP_PATHS } from "./app/data/site-routes";
+import { TOOL_GUIDE_ROUTES } from "./app/data/tool-guide-routes";
 
 const nodeEnv =
   (
@@ -6,8 +7,6 @@ const nodeEnv =
       process?: { env?: Record<string, string | undefined> };
     }
   ).process?.env ?? {};
-
-const metaPixelId = "1052678513753009";
 
 const colorModeScript = `
 (() => {
@@ -50,6 +49,19 @@ const apiHeaders = {
   "X-Robots-Tag": "noindex, nofollow",
 };
 
+const legacyToolGuideRedirectRules = Object.fromEntries(
+  TOOL_GUIDE_ROUTES.map((route) => [
+    route.path,
+    {
+      redirect: {
+        to: route.toolPath,
+        statusCode: 301,
+      },
+      headers: securityHeaders,
+    },
+  ]),
+);
+
 export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: "2026-05-07",
@@ -64,10 +76,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
-    public: {
-      gaMeasurementId: nodeEnv.NUXT_PUBLIC_GA_MEASUREMENT_ID || "G-Y3CGX9GBQN",
-      metaPixelId,
-    },
+    public: {},
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
   sitemap: {
@@ -85,10 +94,11 @@ export default defineNuxtConfig({
     "/api/**": {
       headers: apiHeaders,
     },
+    ...legacyToolGuideRedirectRules,
     "/km": {
       redirect: {
         to: "/",
-        statusCode: 302,
+        statusCode: 301,
       },
       headers: securityHeaders,
     },
@@ -101,7 +111,7 @@ export default defineNuxtConfig({
     },
     "/how-to-convert-jpg-to-pdf": {
       redirect: {
-        to: "/how-to-convert-images-to-pdf",
+        to: "/tools/image-to-pdf",
         statusCode: 301,
       },
       headers: securityHeaders,
@@ -169,17 +179,6 @@ export default defineNuxtConfig({
       script: [
         {
           children: colorModeScript,
-        },
-        {
-          async: true,
-          src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3732801458368248",
-          crossorigin: "anonymous",
-        },
-      ],
-      noscript: [
-        {
-          children: `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1" alt="" />`,
-          tagPosition: "bodyClose",
         },
       ],
     },

@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { TOOL_GUIDES, type ToolGuide } from "~/data/tool-guides";
 import type { LandingTool } from "~/data/tools";
-import { filterTools, searchTextMatches } from "~/lib/tool-search";
+import { filterTools } from "~/lib/tool-search";
 
 const props = defineProps<{
   tools: LandingTool[];
@@ -38,40 +37,10 @@ const toolResults = computed<SearchResult[]>(() =>
     })),
 );
 
-const guideResults = computed<SearchResult[]>(() =>
-  TOOL_GUIDES.filter((guide) =>
-    searchTextMatches(getGuideSearchText(guide), globalSearch.value),
-  )
-    .slice(0, 4)
-    .map((guide) => ({
-      key: `guide-${guide.slug}`,
-      title: guide.heroTitle,
-      description: guide.metaDescription,
-      path: guide.path,
-      iconPath: guide.iconPath,
-      iconPaths: guide.iconPaths,
-      iconClass: guide.iconClass,
-      label: copy.value.heroSearch.guidesLabel,
-    })),
-);
-
 const visibleResults = computed(() =>
-  isSearchActive.value ? [...toolResults.value, ...guideResults.value] : [],
+  isSearchActive.value ? toolResults.value : [],
 );
 const topResult = computed(() => visibleResults.value[0] ?? null);
-
-function getGuideSearchText(guide: ToolGuide) {
-  return [
-    guide.heroTitle,
-    guide.metaTitle,
-    guide.metaDescription,
-    guide.tool.name,
-    guide.tool.description,
-    guide.tool.key,
-    guide.path,
-    ...guide.keywords,
-  ].join(" ");
-}
 
 function clearSearch() {
   globalSearch.value = "";

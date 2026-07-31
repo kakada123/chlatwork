@@ -1,5 +1,4 @@
 import { STARTER_GUIDE_PATHS } from "./guides";
-import { TOOL_GUIDE_PATHS } from "./tool-guide-routes";
 
 export const TRUST_PAGE_PATHS = [
   "/about",
@@ -10,10 +9,6 @@ export const TRUST_PAGE_PATHS = [
   "/cookies",
   "/disclaimer",
 ];
-
-export const SERVICE_PAGE_PATHS = ["/pricing", "/services/invoice-generator"];
-
-export const DEMO_PAGE_PATHS: string[] = [];
 
 export const TOOL_CATEGORY_PATHS = [
   "/tools",
@@ -74,30 +69,22 @@ export const FOCUSED_TOOL_PAGE_PATHS = [
   "/tools/calculator",
 ];
 
-export const FOCUSED_TOOL_GUIDE_PATHS = [
-  "/how-to-split-group-expenses",
-  "/how-to-track-expenses-online",
-  "/how-to-compress-image-without-upload",
-  "/how-to-convert-images-to-pdf",
-  "/how-to-merge-pdf-files",
-  "/how-to-split-pdf-online",
-  "/how-to-generate-qr-code",
-  "/how-to-generate-barcode-free",
-  "/how-to-create-wifi-qr-code",
-  "/how-to-use-khmer-unicode-fixer",
-  "/how-to-convert-khmer-text-to-voice",
-  "/how-to-use-date-calculator-online",
-];
-
+// This is an intentional index allowlist. Utility catalogs, service pages, beta
+// tools, and legacy generated guides remain accessible but are not submitted as
+// standalone search results until they have differentiated editorial value.
 export const PUBLIC_SITEMAP_PATHS = [
   "/",
-  "/portfolio",
   ...TRUST_PAGE_PATHS,
-  ...SERVICE_PAGE_PATHS,
-  ...DEMO_PAGE_PATHS,
+  "/tools",
   "/guides",
-  ...TOOL_CATEGORY_PATHS,
   ...FOCUSED_TOOL_PAGE_PATHS,
   ...STARTER_GUIDE_PATHS,
-  ...FOCUSED_TOOL_GUIDE_PATHS,
+];
+
+// Ads are limited to substantial editorial/tool pages. Trust, directory,
+// commercial, beta, and redirect-only pages intentionally do not load ad code.
+export const ADSENSE_ELIGIBLE_PATHS = [
+  "/",
+  ...FOCUSED_TOOL_PAGE_PATHS,
+  ...STARTER_GUIDE_PATHS,
 ];

@@ -8,6 +8,10 @@
 
 <script setup lang="ts">
 import { Analytics } from "@vercel/analytics/nuxt";
+import {
+  ADSENSE_ELIGIBLE_PATHS,
+  PUBLIC_SITEMAP_PATHS,
+} from "~/data/site-routes";
 
 const { copy, isKhmer } = useLanguage();
 const { isDark } = useColorMode();
@@ -18,6 +22,14 @@ const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
 const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
 const themeColor = computed(() => (isDark.value ? "#1c1c1e" : "#f9fafb"));
+const indexablePaths = new Set(PUBLIC_SITEMAP_PATHS);
+const adsenseEligiblePaths = new Set(ADSENSE_ELIGIBLE_PATHS);
+const normalizedPath = computed(() =>
+  route.path === "/" ? "/" : route.path.replace(/\/$/, ""),
+);
+const robotsContent = computed(() =>
+  indexablePaths.has(normalizedPath.value) ? "index, follow" : "noindex, follow",
+);
 const canonicalUrl = computed(() => {
   const path = route.path === "/" ? "" : route.path.replace(/\/$/, "");
 
@@ -38,6 +50,7 @@ useSeoMeta({
   twitterTitle: localizedTitle,
   twitterDescription: localizedDescription,
   twitterImage: ogImage,
+  robots: robotsContent,
 });
 
 useHead(() => ({
@@ -87,6 +100,16 @@ useHead(() => ({
         ],
       }),
     },
+    ...(adsenseEligiblePaths.has(normalizedPath.value)
+      ? [
+          {
+            key: "adsense",
+            async: true,
+            src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3732801458368248",
+            crossorigin: "anonymous",
+          },
+        ]
+      : []),
   ],
 }));
 </script>

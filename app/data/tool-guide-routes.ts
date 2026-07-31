@@ -2,6 +2,7 @@ export type ToolGuideRoute = {
   toolKey: string;
   slug: string;
   path: string;
+  toolPath: string;
 };
 
 const GUIDE_SLUGS = [
@@ -45,6 +46,7 @@ export const TOOL_GUIDE_ROUTES: ToolGuideRoute[] = GUIDE_SLUGS.map(
     toolKey,
     slug,
     path: `/${slug}`,
+    toolPath: `/tools/${toolKey}`,
   }),
 );
 
