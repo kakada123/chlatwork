@@ -89,6 +89,24 @@
             >
               {{ isDownloading ? "Downloading..." : "Download MP3" }}
             </button>
+            <button
+              v-if="engine === 'online'"
+              type="button"
+              class="h-10 rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-300"
+              :disabled="!canDownloadAlphabetZip"
+              @click="downloadAlphabetZip"
+            >
+              {{ isDownloadingAlphabetZip ? "Preparing ZIP..." : "Download A–Z in English & Nisa Khmer + 0–100 ZIP" }}
+            </button>
+            <button
+              v-if="engine === 'online'"
+              type="button"
+              class="h-10 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-800 hover:bg-blue-100 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-300"
+              :disabled="!canDownloadEnglishNumbersZip"
+              @click="downloadEnglishNumbersZip"
+            >
+              {{ isDownloadingEnglishNumbersZip ? "Preparing ZIP..." : "Download English 0–100 ZIP" }}
+            </button>
             <span
               v-else
               class="flex h-10 items-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-500"
@@ -229,6 +247,11 @@
 </template>
 
 <script setup lang="ts">
+import {
+  buildAlphabetVoiceEntries,
+  buildEnglishNumberVoiceEntries,
+} from "~/lib/alphabet-voice";
+
 useSeoMeta({
   title: "Text to Voice Khmer and English - ChlatWork",
   description:
@@ -295,12 +318,14 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const onlineVoice = ref<(typeof onlineVoiceOptions)[number]["key"]>("auto");
 const voices = ref<SpeechSynthesisVoice[]>([]);
 const selectedVoiceURI = ref("");
-const rate = ref(1);
+const rate = ref(1.5);
 const pitch = ref(1);
 const volume = ref(1);
 const isSpeaking = ref(false);
 const isPaused = ref(false);
 const isDownloading = ref(false);
+const isDownloadingAlphabetZip = ref(false);
+const isDownloadingEnglishNumbersZip = ref(false);
 const error = ref("");
 const onlineChunks = ref<string[]>([]);
 const onlineChunkIndex = ref(0);
@@ -359,7 +384,26 @@ const canSpeak = computed(() => {
   return hasText && hasEngine && !isOverDurationLimit.value;
 });
 const canDownload = computed(
-  () => engine.value === "online" && canSpeak.value && !isDownloading.value,
+  () =>
+    engine.value === "online" &&
+    canSpeak.value &&
+    !isDownloading.value &&
+    !isDownloadingAlphabetZip.value &&
+    !isDownloadingEnglishNumbersZip.value,
+);
+const canDownloadAlphabetZip = computed(
+  () =>
+    engine.value === "online" &&
+    !isDownloading.value &&
+    !isDownloadingAlphabetZip.value &&
+    !isDownloadingEnglishNumbersZip.value,
+);
+const canDownloadEnglishNumbersZip = computed(
+  () =>
+    engine.value === "online" &&
+    !isDownloading.value &&
+    !isDownloadingAlphabetZip.value &&
+    !isDownloadingEnglishNumbersZip.value,
 );
 const matchingBrowserVoices = computed(() =>
   voices.value.filter((voice) =>
@@ -416,6 +460,10 @@ const message = computed(() => {
     return engine.value === "online"
       ? `Playing ${detectedLanguageLabel.value} audio ${onlineChunkIndex.value + 1} of ${onlineChunks.value.length}.`
       : `Speaking ${detectedLanguageLabel.value} text...`;
+  }
+
+  if (isDownloadingAlphabetZip.value || isDownloadingEnglishNumbersZip.value) {
+    return `Preparing ZIP ${downloadProgress.value.current} of ${downloadProgress.value.total}.`;
   }
 
   if (isDownloading.value) {
@@ -771,6 +819,90 @@ async function downloadSpeech() {
   }
 }
 
+async function downloadAlphabetZip() {
+  if (engine.value !== "online") {
+    error.value = "Only ChlatWork API audio can be downloaded.";
+    return;
+  }
+
+  const entries = buildAlphabetVoiceEntries();
+
+  error.value = "";
+  isDownloadingAlphabetZip.value = true;
+  downloadProgress.value = { current: 0, total: entries.length };
+
+  try {
+    const files: ZipFile[] = [];
+
+    for (const entry of entries) {
+      const audioBlob = await fetchAudioBlobForLanguage(
+        entry.text,
+        entry.language,
+        entry.voice,
+        true,
+      );
+      files.push({
+        data: new Uint8Array(await audioBlob.arrayBuffer()),
+        name: `${entry.fileName}.mp3`,
+      });
+      downloadProgress.value.current += 1;
+    }
+
+    downloadBlob(
+      createStoredZip(files),
+      `voice-a-z-english-khmer-0-100-${formatDownloadDate(new Date())}.zip`,
+    );
+  } catch (caught: any) {
+    error.value =
+      caught?.message ||
+      "Unable to prepare the English and Khmer A–Z plus 0–100 voice ZIP.";
+  } finally {
+    isDownloadingAlphabetZip.value = false;
+    downloadProgress.value = { current: 0, total: 0 };
+  }
+}
+
+async function downloadEnglishNumbersZip() {
+  if (engine.value !== "online") {
+    error.value = "Only ChlatWork API audio can be downloaded.";
+    return;
+  }
+
+  const entries = buildEnglishNumberVoiceEntries();
+
+  error.value = "";
+  isDownloadingEnglishNumbersZip.value = true;
+  downloadProgress.value = { current: 0, total: entries.length };
+
+  try {
+    const files: ZipFile[] = [];
+
+    for (const entry of entries) {
+      const audioBlob = await fetchAudioBlobForLanguage(
+        entry.text,
+        entry.language,
+        entry.voice,
+        true,
+      );
+      files.push({
+        data: new Uint8Array(await audioBlob.arrayBuffer()),
+        name: `${entry.fileName}.mp3`,
+      });
+      downloadProgress.value.current += 1;
+    }
+
+    downloadBlob(
+      createStoredZip(files),
+      `voice-english-0-100-${formatDownloadDate(new Date())}.zip`,
+    );
+  } catch (caught: any) {
+    error.value = caught?.message || "Unable to prepare the English 0–100 voice ZIP.";
+  } finally {
+    isDownloadingEnglishNumbersZip.value = false;
+    downloadProgress.value = { current: 0, total: 0 };
+  }
+}
+
 function resetSpeechState() {
   isSpeaking.value = false;
   isPaused.value = false;
@@ -827,6 +959,26 @@ function buildOnlineTtsUrl(value: string, download = false) {
 
 async function fetchAudioBlob(value: string, download = false) {
   const response = await fetch(buildOnlineTtsUrl(value, download));
+  return readAudioBlobResponse(response);
+}
+
+async function fetchAudioBlobForLanguage(
+  value: string,
+  language: TextLanguage,
+  voice: (typeof onlineVoiceOptions)[number]["key"],
+  download = false,
+) {
+  const params = new URLSearchParams({ lang: language, text: value, voice });
+
+  if (download) {
+    params.set("download", "1");
+  }
+
+  const response = await fetch(`/api/text-to-voice?${params.toString()}`);
+  return readAudioBlobResponse(response);
+}
+
+async function readAudioBlobResponse(response: Response) {
   const contentType = response.headers.get("content-type") || "";
 
   if (!response.ok) {
@@ -838,6 +990,83 @@ async function fetchAudioBlob(value: string, download = false) {
   }
 
   return response.blob();
+}
+
+type ZipFile = { data: Uint8Array; name: string };
+
+function createStoredZip(files: ZipFile[]) {
+  const encoder = new TextEncoder();
+  const localParts: Uint8Array[] = [];
+  const centralParts: Uint8Array[] = [];
+  let localOffset = 0;
+
+  for (const file of files) {
+    const name = encoder.encode(file.name);
+    const checksum = crc32(file.data);
+    const localHeader = new Uint8Array(30 + name.length);
+    const localView = new DataView(localHeader.buffer);
+    localView.setUint32(0, 0x04034b50, true);
+    localView.setUint16(4, 20, true);
+    localView.setUint16(6, 0x0800, true);
+    localView.setUint32(14, checksum, true);
+    localView.setUint32(18, file.data.length, true);
+    localView.setUint32(22, file.data.length, true);
+    localView.setUint16(26, name.length, true);
+    localHeader.set(name, 30);
+    localParts.push(localHeader, file.data);
+
+    const centralHeader = new Uint8Array(46 + name.length);
+    const centralView = new DataView(centralHeader.buffer);
+    centralView.setUint32(0, 0x02014b50, true);
+    centralView.setUint16(4, 20, true);
+    centralView.setUint16(6, 20, true);
+    centralView.setUint16(8, 0x0800, true);
+    centralView.setUint32(16, checksum, true);
+    centralView.setUint32(20, file.data.length, true);
+    centralView.setUint32(24, file.data.length, true);
+    centralView.setUint16(28, name.length, true);
+    centralView.setUint32(42, localOffset, true);
+    centralHeader.set(name, 46);
+    centralParts.push(centralHeader);
+    localOffset += localHeader.length + file.data.length;
+  }
+
+  const centralSize = centralParts.reduce((size, part) => size + part.length, 0);
+  const endRecord = new Uint8Array(22);
+  const endView = new DataView(endRecord.buffer);
+  endView.setUint32(0, 0x06054b50, true);
+  endView.setUint16(8, files.length, true);
+  endView.setUint16(10, files.length, true);
+  endView.setUint32(12, centralSize, true);
+  endView.setUint32(16, localOffset, true);
+
+  return new Blob([...localParts, ...centralParts, endRecord], {
+    type: "application/zip",
+  });
+}
+
+function crc32(data: Uint8Array) {
+  let crc = 0xffffffff;
+
+  for (const byte of data) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function downloadBlob(blob: Blob, fileName: string) {
+  const downloadUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(downloadUrl);
 }
 
 function splitTextForOnlineTts(value: string) {
