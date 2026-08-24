@@ -1,0 +1,2 @@
+# The NestJS API deploys separately on Railway. Keep Nuxt's server/api routes included.
+/api/
