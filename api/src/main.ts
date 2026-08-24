@@ -20,7 +20,8 @@ async function bootstrap() {
   );
   app.enableShutdownHooks();
 
-  await app.listen(config.get<number>('PORT', 3002), '127.0.0.1');
+  // Railway and other container platforms route traffic through the container network.
+  await app.listen(config.get<number>('PORT', 3002), '0.0.0.0');
 }
 
 void bootstrap();

@@ -9,7 +9,7 @@ NestJS authentication and account-data service for ChlatWork. It accepts only Go
 3. From `api/`, run `npm install`, `npm run prisma:generate`, then `npm run dev`.
 4. Configure the Nuxt app with `NUXT_AUTH_API_BASE_URL=http://localhost:3002`.
 
-The API binds to `127.0.0.1:3002` by default. In production, place it behind HTTPS and a trusted reverse proxy; do not expose PostgreSQL publicly.
+The API binds to `0.0.0.0` using Railway's `PORT` value, with `3002` as the local fallback. Keep it behind HTTPS and a trusted platform proxy; do not expose PostgreSQL publicly.
 
 ## Endpoints
 

@@ -48,6 +48,14 @@ test("the ChlatWork Nest API owns Google and Telegram authentication", () => {
   assert.match(schema, /GOOGLE\s+TELEGRAM/);
 });
 
+test("the API accepts traffic from its container network", () => {
+  const main = readFileSync("api/src/main.ts", "utf8");
+
+  assert.match(main, /config\.get<number>\('PORT', 3002\)/);
+  assert.match(main, /app\.listen\([^;]+, '0\.0\.0\.0'\)/);
+  assert.doesNotMatch(main, /app\.listen\([^;]+, '127\.0\.0\.1'\)/);
+});
+
 test("expense data is user-owned PostgreSQL data, not an Upstash share payload", () => {
   const schema = readFileSync("api/prisma/schema.prisma", "utf8");
   const controller = readFileSync("api/src/expenses/expenses.controller.ts", "utf8");
