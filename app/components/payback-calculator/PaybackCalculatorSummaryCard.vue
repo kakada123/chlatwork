@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowRight, Check, LoaderCircle, Save } from "lucide-vue-next";
 import type {
   PaybackCurrency,
   PaybackKhrRemainderMeta,
@@ -15,7 +16,11 @@ const props = defineProps<{
   settlements: PaybackSettlement[];
   khrRemainder: PaybackKhrRemainderMeta;
   uniqueNames: string[];
+  canSave: boolean;
+  saveState: 'idle' | 'saving' | 'saved' | 'failed';
 }>();
+
+const emit = defineEmits<{ save: [] }>();
 
 const khrRemainderMode = defineModel<PaybackKhrRemainderMode>(
   "khrRemainderMode",
@@ -43,30 +48,51 @@ function balanceClass(value: number) {
 </script>
 
 <template>
-  <div class="money-summary-surface min-w-0 rounded-xl border p-4">
-    <h2 class="mb-3 font-semibold">Summary</h2>
+  <section class="payback-card money-summary-surface min-w-0 rounded-2xl border p-5 shadow-sm shadow-sky-100/60 sm:p-6">
+    <div class="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <h2 class="font-bold">Settlement</h2>
+        <p class="money-summary-muted mt-1 text-sm">Here’s the fairest way to balance the group.</p>
+      </div>
+      <button
+        type="button"
+        class="payback-secondary inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+        :disabled="!props.canSave || props.saveState === 'saving'"
+        @click="emit('save')"
+      >
+        <LoaderCircle v-if="props.saveState === 'saving'" class="h-4 w-4 animate-spin" aria-hidden="true" />
+        <Check v-else-if="props.saveState === 'saved'" class="h-4 w-4" aria-hidden="true" />
+        <Save v-else class="h-4 w-4" aria-hidden="true" />
+        <span class="hidden sm:inline">{{ props.saveState === 'saved' ? 'Saved' : 'Save history' }}</span>
+        <span class="sm:hidden">{{ props.saveState === 'saved' ? 'Saved' : 'Save' }}</span>
+      </button>
+    </div>
 
-    <div class="grid grid-cols-3 gap-3">
+    <p v-if="props.saveState === 'failed'" class="mb-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-200" role="alert">
+      Could not save this calculation. Please try again.
+    </p>
+
+    <div class="grid grid-cols-3 gap-3 sm:gap-4">
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
-        <div class="money-summary-muted text-xs">People</div>
+        <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">People</div>
         <div class="text-lg font-bold">{{ props.people.length }}</div>
       </div>
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
-        <div class="money-summary-muted text-xs">Total</div>
+        <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">Total paid</div>
         <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
           <MoneyAmount :value="props.total" :currency="props.currency" />
         </div>
       </div>
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
-        <div class="money-summary-muted text-xs">Average</div>
+        <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">Each share</div>
         <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
           <MoneyAmount :value="props.avg" :currency="props.currency" />
         </div>
       </div>
     </div>
 
-    <div class="mt-4">
-      <h3 class="mb-2 font-semibold">Balances</h3>
+    <div class="mt-6">
+      <h3 class="mb-3 text-sm font-bold">Payment breakdown</h3>
 
       <div class="money-summary-card overflow-auto rounded-xl border">
         <table class="w-full text-sm">
@@ -74,7 +100,7 @@ function balanceClass(value: number) {
             <tr>
               <th class="p-2 text-left">Name</th>
               <th class="p-2 text-right">Paid</th>
-              <th class="p-2 text-right">Balance</th>
+              <th class="p-2 text-right">Gets / owes</th>
             </tr>
           </thead>
           <tbody>
@@ -113,25 +139,31 @@ function balanceClass(value: number) {
       </div>
     </div>
 
-    <div class="mt-4">
-      <h3 class="mb-2 font-semibold">Who pays who</h3>
+    <div class="mt-6">
+      <h3 class="mb-3 text-sm font-bold">Payments to make</h3>
 
       <div v-if="props.settlements.length === 0" class="money-summary-muted text-sm">
-        Add input to see settlements.
+        Add at least two people and their amounts to see the payments.
       </div>
 
-      <ul v-else class="space-y-2">
+      <ul
+        v-else
+        class="money-summary-card divide-y overflow-hidden rounded-xl border"
+      >
         <li
           v-for="(settlement, index) in props.settlements"
           :key="`${settlement.from}-${settlement.to}-${index}`"
-          class="money-summary-card-muted flex min-w-0 items-center justify-between gap-3 rounded-xl border p-3"
+          class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:px-4"
         >
-          <div class="min-w-0 truncate text-sm">
-            <span class="font-semibold">{{ settlement.from }}</span>
-            <span class="money-summary-muted"> → </span>
-            <span class="font-semibold">{{ settlement.to }}</span>
+          <div class="flex min-w-0 items-center gap-2 text-sm">
+            <span class="min-w-0 truncate font-semibold">{{ settlement.from }}</span>
+            <ArrowRight
+              class="money-summary-muted h-4 w-4 shrink-0"
+              aria-label="pays"
+            />
+            <span class="min-w-0 truncate font-semibold">{{ settlement.to }}</span>
           </div>
-          <div class="min-w-0 max-w-[45%] shrink-0 truncate text-right font-bold">
+          <div class="shrink-0 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-right text-sm font-bold text-emerald-800 dark:bg-emerald-300/10 dark:text-emerald-200">
             <MoneyAmount
               :value="settlement.amount"
               :currency="props.currency"
@@ -143,7 +175,7 @@ function balanceClass(value: number) {
 
     <div
       v-if="showKhrRemainder"
-      class="money-summary-card-muted mt-4 space-y-3 rounded-xl border p-3"
+      class="money-summary-card-muted mt-6 space-y-4 rounded-xl border p-4"
     >
       <div>
         <h3 class="font-semibold">KHR rounding remainder</h3>
@@ -196,10 +228,5 @@ function balanceClass(value: number) {
       </p>
     </div>
 
-    <p class="money-summary-muted mt-4 text-xs">
-      Tip: rows like <span class="font-mono">Name + Amount</span> are easier.
-      Paste mode still supports <span class="font-mono">Name: 10$</span> or
-      <span class="font-mono">Name 10</span>.
-    </p>
-  </div>
+  </section>
 </template>

@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  GOOGLE
+  TELEGRAM
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ExpenseCurrency {
+  USD
+  KHR
+}
+
+enum ExpenseRangeMode {
+  ALL
+  MONTH
+  WEEK
+  TODAY
+}
+
+enum BudgetPeriod {
+  MONTHLY
+  WEEKLY
+}
+
+enum ExpenseEntryType {
+  EXPENSE
+  INCOME
+}
+
+enum PaybackRemainderMode {
+  LEFTOVER_ONLY
+  ASSIGN_TO_PERSON
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  email          String?         @unique
+  phone          String?
+  name           String?
+  avatarUrl      String?
+  role           UserRole        @default(USER)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  socialAccounts SocialAccount[]
+  refreshTokens  RefreshToken[]
+  expenseProfile ExpenseProfile?
+  expenseEntries ExpenseEntry[]
+  paybackProfile PaybackProfile?
+  paybackEntries PaybackEntry[]
+  paybackCalculations PaybackCalculation[]
+  toolUsageEvents ToolUsageEvent[]
+
+  @@map("users")
+}
+
+model ToolUsageEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toolKey   String   @db.VarChar(100)
+  event     String   @db.VarChar(20)
+  createdAt DateTime @default(now())
+
+  @@index([userId, toolKey, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("tool_usage_events")
+}
+
+model PaybackProfile {
+  userId          String               @id @db.Uuid
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency        ExpenseCurrency      @default(USD)
+  remainderMode   PaybackRemainderMode @default(LEFTOVER_ONLY)
+  remainderPayer  String               @default("") @db.VarChar(120)
+  rawInput        String               @default("")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@map("payback_profiles")
+}
+
+model PaybackEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position    Int
+  name        String   @db.VarChar(120)
+  amount      Decimal? @db.Decimal(20, 2)
+  amountInput String   @default("") @db.VarChar(64)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, position])
+  @@map("payback_entries")
+}
+
+model PaybackCalculation {
+  id              String                       @id @default(uuid()) @db.Uuid
+  userId          String                       @db.Uuid
+  user            User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency        ExpenseCurrency
+  remainderMode   PaybackRemainderMode
+  remainderPayer  String                       @default("") @db.VarChar(120)
+  total           Decimal                      @db.Decimal(20, 2)
+  participantCount Int
+  createdAt       DateTime                     @default(now())
+  entries         PaybackCalculationEntry[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("payback_calculations")
+}
+
+model PaybackCalculationEntry {
+  id            String             @id @default(uuid()) @db.Uuid
+  calculationId String             @db.Uuid
+  calculation   PaybackCalculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  position      Int
+  name          String             @db.VarChar(120)
+  amount        Decimal            @db.Decimal(20, 2)
+  amountInput   String             @db.VarChar(64)
+
+  @@unique([calculationId, position])
+  @@map("payback_calculation_entries")
+}
+
+model ExpenseProfile {
+  userId       String           @id @db.Uuid
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency     ExpenseCurrency  @default(USD)
+  rangeMode    ExpenseRangeMode @default(MONTH)
+  budgetPeriod BudgetPeriod     @default(MONTHLY)
+  budgetInput  String           @default("") @db.VarChar(64)
+  rawInput     String           @default("")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("expense_profiles")
+}
+
+model ExpenseEntry {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @db.Uuid
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position       Int
+  type           ExpenseEntryType
+  entryDate      DateTime?        @db.Date
+  category       String           @db.VarChar(120)
+  customCategory String?          @db.VarChar(120)
+  note           String           @db.VarChar(500)
+  showNote       Boolean          @default(false)
+  amount         Decimal?         @db.Decimal(20, 2)
+  amountInput    String           @default("") @db.VarChar(64)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, position])
+  @@index([userId, entryDate])
+  @@map("expense_entries")
+}
+
+model SocialAccount {
+  id              String       @id @default(uuid()) @db.Uuid
+  provider        AuthProvider
+  providerUserId  String
+  providerEmail   String?
+  userId          String       @db.Uuid
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("social_accounts")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  tokenHash  String    @unique
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}

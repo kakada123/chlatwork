@@ -2,10 +2,10 @@
 useSeoMeta({
   title: "Image Compressor — ChlatWork",
   description:
-    "Batch compress images instantly without uploading. Reduce file size while keeping quality.",
+    "Batch compress JPG, PNG, WebP, HEIC, and HEIF images without uploading. Reduce file size while keeping quality.",
   ogTitle: "Image Compressor — ChlatWork",
   ogDescription:
-    "Batch compress images instantly in your browser where possible.",
+    "Batch compress JPG, PNG, WebP, HEIC, and HEIF images in your browser.",
 });
 </script>
 

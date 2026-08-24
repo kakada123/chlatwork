@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from "vue";
+import { Plus, Trash2 } from "lucide-vue-next";
 import type {
   PaybackCurrency,
   PaybackInputRow,
@@ -128,25 +129,29 @@ watch(currency, (nextCurrency) => {
 </script>
 
 <template>
-  <div class="rounded-xl border bg-white p-4">
-    <div class="mb-2 flex items-center justify-between">
-      <h2 class="font-semibold">Input</h2>
+  <section class="payback-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-sky-100/60 sm:p-6 lg:h-full">
+    <div class="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <h2 class="font-bold text-slate-950 dark:text-white">Who paid?</h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-white/50">Enter each person’s total contribution.</p>
+      </div>
 
-      <select v-model="currency" class="h-11 rounded-lg border px-3 text-sm">
+      <label class="sr-only" for="payback-currency">Currency</label>
+      <select id="payback-currency" v-model="currency" class="payback-control h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none focus:border-sky-400 dark:text-white">
         <option value="USD">USD</option>
         <option value="KHR">KHR</option>
       </select>
     </div>
 
-    <div class="overflow-auto rounded-xl border">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50">
+    <div class="payback-panel overflow-hidden rounded-xl border border-slate-200">
+      <table class="w-full table-fixed text-sm">
+        <thead class="payback-subtle text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">
           <tr>
-            <th class="w-[55%] p-2 text-left">Name</th>
+            <th class="w-[48%] p-2 text-left sm:w-[55%]">Person</th>
 
-            <th class="w-[35%] p-2 text-right">Amount</th>
+            <th class="w-[38%] p-2 text-right sm:w-[35%]">Paid ({{ currency }})</th>
 
-            <th class="w-[10%] p-2"></th>
+            <th class="w-[14%] p-2 sm:w-[10%]"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
 
@@ -154,7 +159,7 @@ watch(currency, (nextCurrency) => {
           <tr
             v-for="(row, index) in rows"
             :key="index"
-            class="border-t align-top"
+            class="border-t border-slate-200 align-top dark:border-white/10"
           >
             <td class="p-2">
               <input
@@ -162,8 +167,8 @@ watch(currency, (nextCurrency) => {
                 v-model.trim="row.name"
                 type="text"
                 autocomplete="off"
-                class="h-11 w-full rounded-lg border px-3 outline-none focus:ring-2 focus:ring-black/10"
-                placeholder="e.g. Mina"
+                class="payback-control h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:text-white dark:placeholder:text-white/30"
+                placeholder="Name"
               />
             </td>
 
@@ -173,33 +178,21 @@ watch(currency, (nextCurrency) => {
                 type="text"
                 inputmode="decimal"
                 autocomplete="off"
-                class="h-11 w-full rounded-lg border px-3 text-right tabular-nums outline-none focus:ring-2 focus:ring-black/10"
-                :placeholder="currency === 'USD' ? 'e.g. 5.25' : 'e.g. 5000'"
+                class="payback-control h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-right tabular-nums text-slate-950 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:text-white dark:placeholder:text-white/30"
+                :placeholder="currency === 'USD' ? '0.00' : '0'"
                 @input="updateAmount(row, $event)"
               />
             </td>
 
             <td class="p-2 text-right">
               <button
-                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border hover:bg-gray-100"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-white/35 dark:hover:bg-red-400/10 dark:hover:text-red-300"
                 type="button"
+                :disabled="rows.length === 1"
                 :aria-label="`Remove row ${index + 1}`"
                 @click="removeRow(index)"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
+                <Trash2 class="h-4 w-4" aria-hidden="true" />
               </button>
             </td>
           </tr>
@@ -213,32 +206,17 @@ watch(currency, (nextCurrency) => {
       </table>
     </div>
 
-    <div class="mt-3 grid grid-cols-3 gap-2">
+    <div class="mt-4 grid gap-3 sm:grid-cols-3">
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 text-sm font-semibold text-white hover:bg-sky-800 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
         type="button"
         @click="addRow"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          class="h-4 w-4 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 5v14" />
-          <path d="M5 12h14" />
-        </svg>
-
-        <span class="truncate"> Add row </span>
+        <Plus class="h-4 w-4" aria-hidden="true" /> <span>Add person</span>
       </button>
 
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-black px-3 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99]"
+        class="payback-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-white/75"
         type="button"
         @click="emit('load-example')"
       >
@@ -261,11 +239,11 @@ watch(currency, (nextCurrency) => {
           <path d="M8 17h5" />
         </svg>
 
-        <span class="truncate"> Load example </span>
+        <span class="truncate">Try example</span>
       </button>
 
       <button
-        class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-white disabled:active:scale-100"
+        class="payback-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-white/75"
         type="button"
         :disabled="!props.canCopy"
         @click="emit('copy-result')"
@@ -297,19 +275,19 @@ watch(currency, (nextCurrency) => {
         </svg>
 
         <span class="truncate">
-          {{ props.copied ? "Copied" : "Copy" }}
+          {{ props.copied ? "Copied" : "Copy result" }}
         </span>
       </button>
     </div>
 
-    <details class="mt-4">
-      <summary class="cursor-pointer text-sm text-gray-600 hover:text-gray-900">
-        Paste mode (optional)
+    <details class="payback-subtle mt-4 rounded-xl p-4">
+      <summary class="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-950 dark:text-white/60 dark:hover:text-white">
+        Paste a list instead
       </summary>
 
       <textarea
         v-model="raw"
-        class="mt-2 h-40 w-full rounded-xl border p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-black/10"
+        class="mt-3 h-36 w-full rounded-xl border border-slate-200 bg-white p-3 font-mono text-sm text-slate-950 outline-none focus:border-sky-400 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
         placeholder="Example:
 Mina 5$
 Sreynea : 10$
@@ -344,13 +322,13 @@ Jompa: 38$"
             <path d="m9 14 2 2 4-4" />
           </svg>
 
-          <span> Apply paste to rows </span>
+          <span>Use this list</span>
         </button>
       </div>
     </details>
 
-    <p v-if="props.error" class="mt-3 text-sm text-red-600">
+    <p v-if="props.error" class="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-700 dark:bg-red-400/10 dark:text-red-200" role="alert">
       {{ props.error }}
     </p>
-  </div>
+  </section>
 </template>

@@ -1,12 +1,12 @@
 <template>
-  <div class="mx-auto w-full max-w-[1440px]">
+  <div class="w-full text-slate-950 dark:text-white">
     <PaybackCalculatorHeader
       :share-state="shareState"
       @reset="reset"
       @share="shareLink"
     />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
       <PaybackCalculatorInputCard
         v-model:currency="currency"
         v-model:rows="rows"
@@ -20,6 +20,8 @@
       />
 
       <PaybackCalculatorSummaryCard
+        v-if="user"
+        class="lg:h-full"
         v-model:khr-remainder-mode="khrRemainderMode"
         v-model:khr-remainder-payer="khrRemainderPayer"
         :currency="currency"
@@ -29,21 +31,38 @@
         :settlements="settlements"
         :khr-remainder="khrRemainder"
         :unique-names="uniqueNames"
+        :can-save="people.length >= 2 && total > 0"
+        :save-state="historySaveState"
+        @save="saveCalculationHistory"
       />
+      <AuthResultAuthGate v-else class="lg:h-full" @login="storeGuestDraft" />
     </div>
 
-    <section
-      class="mt-6 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
+    <p class="mt-4 text-right text-xs text-gray-500 dark:text-white/50" role="status">
+      {{ persistenceMessage }}
+    </p>
+
+    <PaybackCalculatorHistory
+      v-if="user"
+      :items="historyItems"
+      :loading="historyLoading"
+      :deleting-id="historyDeletingId"
+      @load="reopenCalculationHistory"
+      @remove="removeCalculationHistory"
+    />
+
+    <details
+      class="payback-card mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 dark:text-white sm:p-6"
       aria-label="How we validate finance examples"
     >
-      <h2 class="text-base font-black">How we validate finance examples</h2>
-      <p class="text-sm leading-6 text-amber-900/90 dark:text-amber-100/85">
+      <summary class="cursor-pointer text-sm font-bold">Accuracy and safety notes</summary>
+      <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/60">
         PayBack examples are reviewed against the calculator logic and cent-safe
         settlement rules before publication. They are educational examples only,
         not financial advice.
       </p>
       <ul
-        class="list-disc space-y-1 pl-5 text-sm leading-6 text-amber-900/90 dark:text-amber-100/85"
+        class="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600 dark:text-white/60"
       >
         <li>
           All sample totals are re-checked for split accuracy and rounding
@@ -61,14 +80,14 @@
           If you spot an issue, request a correction from the Contact page.
         </li>
       </ul>
-      <div class="flex flex-wrap gap-3 text-sm font-semibold">
+      <div class="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-sky-700 dark:text-cyan-300">
         <NuxtLink to="/editorial-policy" class="underline">
           Editorial policy
         </NuxtLink>
         <NuxtLink to="/disclaimer" class="underline">Disclaimer</NuxtLink>
         <NuxtLink to="/contact" class="underline">Contact</NuxtLink>
       </div>
-    </section>
+    </details>
   </div>
 </template>
 
@@ -78,6 +97,7 @@ import type {
   PaybackKhrRemainderMode,
   PaybackSharePayload,
 } from "~/lib/payback-calculator";
+import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import {
   buildPaybackKhrRemainderMeta,
   buildPaybackPeople,
@@ -102,14 +122,7 @@ import {
 const route = useRoute();
 const router = useRouter();
 
-type PaybackShortLinkResponse = {
-  id: string;
-  expiresInSeconds: number;
-};
-
-type PaybackStoredShareResponse = {
-  payload: string;
-};
+const { user, isReady: isAuthReady, fetchMe } = useAuth();
 
 type PaybackShareState =
   | "idle"
@@ -118,6 +131,14 @@ type PaybackShareState =
   | "shared"
   | "ready"
   | "failed";
+
+type PaybackStoredState = {
+  currency: PaybackCurrency;
+  remainderMode: PaybackKhrRemainderMode;
+  remainderPayer: string;
+  raw: string;
+  rows: Array<{ name: string; amount: string }>;
+};
 
 useSeoMeta({
   title: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
@@ -144,6 +165,22 @@ useHead({
 
 const copied = ref(false);
 const shareState = ref<PaybackShareState>("idle");
+const persistenceState = ref<"loading" | "saved" | "saving" | "failed" | "guest">("loading");
+const isHydrated = ref(false);
+const historyItems = ref<PaybackHistoryItem[]>([]);
+const historyLoading = ref(false);
+const historyDeletingId = ref("");
+const historySaveState = ref<'idle' | 'saving' | 'saved' | 'failed'>('idle');
+let historySaveTimer: ReturnType<typeof setTimeout> | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+const persistenceMessage = computed(() => {
+  if (persistenceState.value === "loading") return "Loading your saved PayBack data...";
+  if (persistenceState.value === "saving") return "Saving...";
+  if (persistenceState.value === "failed") return "Could not save changes.";
+  if (persistenceState.value === "guest") return "Sign in to save this data to your account.";
+  return "Saved securely to your account.";
+});
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
@@ -334,6 +371,48 @@ watch(
   { immediate: true },
 );
 
+watch(
+  [currency, khrRemainderMode, khrRemainderPayer, raw, rows],
+  () => {
+    if (!isHydrated.value || !user.value) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    persistenceState.value = "saving";
+    saveTimer = setTimeout(() => void savePaybackState(), 700);
+  },
+  { deep: true },
+);
+
+async function savePaybackState() {
+  try {
+    await $fetch("/api/payback/state", {
+      method: "PUT",
+      body: {
+        currency: currency.value,
+        remainderMode: khrRemainderMode.value,
+        remainderPayer: khrRemainderPayer.value,
+        raw: raw.value,
+        rows: rows.value.map((row) => ({
+          name: row.name ?? "",
+          amount: row.amount ?? "",
+        })),
+      },
+    });
+    persistenceState.value = "saved";
+  } catch {
+    persistenceState.value = "failed";
+  }
+}
+
+function storeGuestDraft() {
+  sessionStorage.setItem("chlatwork-payback-login-draft", JSON.stringify({
+    currency: currency.value,
+    remainderMode: khrRemainderMode.value,
+    remainderPayer: khrRemainderPayer.value,
+    raw: raw.value,
+    rows: rows.value,
+  }));
+}
+
 function loadExample() {
   applyRawInput(getPaybackExampleRaw(currency.value));
 }
@@ -351,6 +430,62 @@ function reset() {
   rows.value = createPaybackRows();
   khrRemainderMode.value = "LEFTOVER_ONLY";
   khrRemainderPayer.value = "";
+}
+
+async function loadCalculationHistory() {
+  if (!user.value) return;
+  historyLoading.value = true;
+  try {
+    historyItems.value = await $fetch<PaybackHistoryItem[]>('/api/payback/history');
+  } catch {
+    historyItems.value = [];
+  } finally {
+    historyLoading.value = false;
+  }
+}
+
+async function saveCalculationHistory() {
+  if (!user.value || people.value.length < 2 || total.value <= 0 || historySaveState.value === 'saving') return;
+  historySaveState.value = 'saving';
+  try {
+    await $fetch('/api/payback/history', {
+      method: 'POST',
+      body: {
+        currency: currency.value,
+        remainderMode: khrRemainderMode.value,
+        remainderPayer: khrRemainderPayer.value,
+        rows: rows.value.map((row) => ({ name: row.name ?? '', amount: row.amount ?? '' })),
+      },
+    });
+    historySaveState.value = 'saved';
+    await loadCalculationHistory();
+    if (historySaveTimer) clearTimeout(historySaveTimer);
+    historySaveTimer = setTimeout(() => { historySaveState.value = 'idle'; }, 1800);
+  } catch {
+    historySaveState.value = 'failed';
+  }
+}
+
+function reopenCalculationHistory(item: PaybackHistoryItem) {
+  syncing = true;
+  currency.value = item.currency;
+  khrRemainderMode.value = item.remainderMode;
+  khrRemainderPayer.value = item.remainderPayer;
+  rows.value = item.rows.map((row) => ({ ...row }));
+  raw.value = buildPaybackRawFromRows(rows.value);
+  releaseSyncLock();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function removeCalculationHistory(item: PaybackHistoryItem) {
+  if (!window.confirm('Delete this saved calculation? This cannot be undone.')) return;
+  historyDeletingId.value = item.id;
+  try {
+    await $fetch(`/api/payback/history/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+    historyItems.value = historyItems.value.filter((historyItem) => historyItem.id !== item.id);
+  } finally {
+    historyDeletingId.value = '';
+  }
 }
 
 async function copyResult() {
@@ -447,26 +582,37 @@ function getRouteQueryValue(value: unknown) {
 }
 
 async function hydratePaybackRouteQuery() {
+  if (!isAuthReady.value) await fetchMe();
+
+  if (user.value && !route.query.example && !route.query.p && !route.query.s) {
+    const draft = sessionStorage.getItem("chlatwork-payback-login-draft");
+    if (draft) {
+      try {
+        const saved = JSON.parse(draft) as PaybackStoredState;
+        syncing = true;
+        currency.value = saved.currency;
+        khrRemainderMode.value = saved.remainderMode;
+        khrRemainderPayer.value = saved.remainderPayer;
+        raw.value = saved.raw;
+        rows.value = saved.rows;
+        releaseSyncLock();
+        sessionStorage.removeItem("chlatwork-payback-login-draft");
+        persistenceState.value = "saving";
+        isHydrated.value = true;
+        await savePaybackState();
+        return;
+      } catch {
+        sessionStorage.removeItem("chlatwork-payback-login-draft");
+      }
+    }
+  }
+
   if (getRouteQueryValue(route.query.example) === "1") {
     loadExampleForCurrency(
       getRouteQueryValue(route.query.c) === "KHR" ? "KHR" : "USD",
     );
-    return;
-  }
-
-  const id = getRouteQueryValue(route.query.id);
-
-  if (typeof id === "string" && id.trim()) {
-    try {
-      const response = await $fetch<PaybackStoredShareResponse>(
-        `/api/payback-share/${encodeURIComponent(id.trim())}`,
-      );
-
-      applyPaybackSharePayload(parsePaybackSharePayload(response.payload));
-    } catch {
-      // ignore invalid or expired stored links
-    }
-
+    persistenceState.value = user.value ? "saved" : "guest";
+    isHydrated.value = true;
     return;
   }
 
@@ -474,6 +620,28 @@ async function hydratePaybackRouteQuery() {
     getRouteQueryValue(route.query.p) ?? getRouteQueryValue(route.query.s);
 
   if (typeof s !== "string" || !s.trim()) {
+    if (!user.value) {
+      persistenceState.value = "guest";
+      isHydrated.value = true;
+      return;
+    }
+    try {
+      const saved = await $fetch<PaybackStoredState | null>("/api/payback/state");
+      if (saved) {
+        syncing = true;
+        currency.value = saved.currency;
+        khrRemainderMode.value = saved.remainderMode;
+        khrRemainderPayer.value = saved.remainderPayer;
+        raw.value = saved.raw;
+        rows.value = saved.rows.length ? saved.rows : createPaybackRows();
+        releaseSyncLock();
+      }
+      persistenceState.value = "saved";
+    } catch {
+      persistenceState.value = "failed";
+    } finally {
+      isHydrated.value = true;
+    }
     return;
   }
 
@@ -482,6 +650,8 @@ async function hydratePaybackRouteQuery() {
   } catch {
     // ignore invalid payload
   }
+  persistenceState.value = user.value ? "saved" : "guest";
+  isHydrated.value = true;
 }
 
 function shouldUseNativeShare() {
@@ -592,35 +762,15 @@ async function shareLink() {
     krp: khrRemainderPayer.value,
   });
 
-  try {
-    const response = await $fetch<PaybackShortLinkResponse>(
-      "/api/payback-share",
-      {
-        method: "POST",
-        body: { payload: s },
-      },
-    );
-
-    if (response.id) {
-      replaceShareQuery({ id: response.id });
-      const url = `${window.location.origin}${route.path}?id=${encodeURIComponent(
-        response.id,
-      )}`;
-      showShareResult(await shareUrlOnDevice(url));
-      return;
-    }
-  } catch {
-    // Short-link storage is required here because long inline fallback URLs were removed.
-  }
-
-  setShareState("failed", 2000);
+  replaceShareQuery({ p: s });
+  const url = `${window.location.origin}${route.path}?p=${encodeURIComponent(s)}`;
+  showShareResult(await shareUrlOnDevice(url));
 }
 
 watch(
   () => [
     route.query.example,
     route.query.c,
-    route.query.id,
     route.query.p,
     route.query.s,
   ],
@@ -636,6 +786,12 @@ watch(
 onMounted(() => {
   routeHydrationReady = true;
   void hydratePaybackRouteQuery();
+  void loadCalculationHistory();
+});
+
+watch(user, (nextUser) => {
+  if (nextUser) void loadCalculationHistory();
+  else historyItems.value = [];
 });
 
 onBeforeUnmount(() => {
@@ -648,5 +804,8 @@ onBeforeUnmount(() => {
   if (shareTimer) {
     clearShareTimer();
   }
+
+  if (saveTimer) clearTimeout(saveTimer);
+  if (historySaveTimer) clearTimeout(historySaveTimer);
 });
 </script>

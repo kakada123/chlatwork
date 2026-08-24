@@ -15,7 +15,7 @@
       <input
         ref="fileInput"
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif,image/heic,image/heif"
         multiple
         class="sr-only"
         @change="onPick"
@@ -53,7 +53,7 @@
               {{
                 hasFiles
                   ? "Batch compress selected images with the same settings."
-                  : "PNG, JPG, WebP, and other browser-readable images."
+                  : "PNG, JPG, WebP, HEIC, and HEIF images."
               }}
             </p>
           </div>
@@ -250,10 +250,17 @@
             class="rounded-xl border bg-gray-50 p-3 dark:border-white/10 dark:bg-black/20"
           >
             <img
+              v-if="activeItem.isPrepared"
               :src="activeItem.srcUrl"
               :alt="`Original preview for ${activeItem.file.name}`"
               class="mx-auto max-h-[320px] rounded-lg border bg-white dark:border-white/10"
             />
+            <p
+              v-else
+              class="flex min-h-[180px] items-center justify-center text-center text-sm text-gray-500 dark:text-white/50"
+            >
+              HEIC preview will appear when compression starts.
+            </p>
           </div>
           <p class="truncate text-xs text-gray-500 dark:text-white/50">
             {{ activeItem.file.name }} - {{ formatBytes(activeItem.file.size) }}
@@ -382,6 +389,8 @@ import { createStoredZip, type ZipEntryInput } from "~/lib/browser-zip";
 import {
   BROWSER_IMAGE_EXTENSIONS,
   BROWSER_IMAGE_MIME_TYPES,
+  EXTENDED_IMAGE_EXTENSIONS,
+  EXTENDED_IMAGE_MIME_TYPES,
   MAX_IMAGE_FILE_SIZE,
   isExtremeImageResolution,
   validateFiles,
@@ -401,6 +410,8 @@ type ImageItem = {
   outBytes: number;
   status: ImageStatus;
   message: string;
+  isHeic: boolean;
+  isPrepared: boolean;
 };
 
 const maxBatchSize = 40;
@@ -485,8 +496,14 @@ function applyPickedFiles(files: File[], mode: PickerMode) {
   error.value = "";
 
   const { acceptedFiles: imageFiles, errors } = validateFiles(files, {
-    allowedExtensions: BROWSER_IMAGE_EXTENSIONS,
-    allowedMimeTypes: BROWSER_IMAGE_MIME_TYPES,
+    allowedExtensions: [
+      ...BROWSER_IMAGE_EXTENSIONS,
+      ...EXTENDED_IMAGE_EXTENSIONS,
+    ],
+    allowedMimeTypes: [
+      ...BROWSER_IMAGE_MIME_TYPES,
+      ...EXTENDED_IMAGE_MIME_TYPES,
+    ],
     currentFileCount: mode === "replace" ? 0 : items.value.length,
     label: "image",
     maxFileSize: MAX_IMAGE_FILE_SIZE,
@@ -496,7 +513,7 @@ function applyPickedFiles(files: File[], mode: PickerMode) {
   error.value = errors[0] ?? "";
 
   if (!imageFiles.length) {
-    error.value = error.value || "Please choose browser-readable image files.";
+    error.value = error.value || "Please choose PNG, JPG, WebP, HEIC, or HEIF images.";
     return;
   }
 
@@ -534,6 +551,8 @@ function applyPickedFiles(files: File[], mode: PickerMode) {
 }
 
 function createImageItem(file: File): ImageItem {
+  const isHeic = isHeicFile(file);
+
   return {
     id: secureRandomId("image"),
     file,
@@ -543,6 +562,8 @@ function createImageItem(file: File): ImageItem {
     outBytes: 0,
     status: "idle",
     message: "",
+    isHeic,
+    isPrepared: !isHeic,
   };
 }
 
@@ -627,6 +648,7 @@ async function compressItem(item: ImageItem) {
   item.message = "";
 
   try {
+    await prepareImageItem(item);
     const img = await loadImage(item.srcUrl);
 
     if (isExtremeImageResolution(img.naturalWidth || img.width, img.naturalHeight || img.height)) {
@@ -678,6 +700,32 @@ async function compressItem(item: ImageItem) {
   } catch (e: unknown) {
     item.status = "error";
     item.message = e instanceof Error ? e.message : "Failed to compress image.";
+  }
+}
+
+async function prepareImageItem(item: ImageItem) {
+  if (item.isPrepared) return;
+
+  try {
+    const heic2any = (await import("heic2any")).default as any;
+    const converted = await heic2any({
+      blob: item.file,
+      toType: "image/jpeg",
+      quality: 0.92,
+    });
+    const jpeg = Array.isArray(converted) ? converted[0] : converted;
+
+    if (!(jpeg instanceof Blob)) {
+      throw new Error("HEIC conversion returned no image.");
+    }
+
+    URL.revokeObjectURL(item.srcUrl);
+    item.srcUrl = URL.createObjectURL(jpeg);
+    item.isPrepared = true;
+  } catch {
+    throw new Error(
+      "Could not read this HEIC image. Try exporting it as JPEG from your photo app.",
+    );
   }
 }
 
@@ -779,6 +827,16 @@ function loadImage(url: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error("Could not load image."));
     img.src = url;
   });
+}
+
+function isHeicFile(file: File) {
+  const extension = inputExt(file.name);
+  return (
+    extension === "heic" ||
+    extension === "heif" ||
+    file.type === "image/heic" ||
+    file.type === "image/heif"
+  );
 }
 
 function createCanvasForImage(img: HTMLImageElement, maxWidth: number) {

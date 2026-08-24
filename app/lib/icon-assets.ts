@@ -46,6 +46,10 @@ export const CATEGORY_ICON_IMAGE_PATHS: Record<string, string> = {
   productivity: DEFAULT_CATEGORY_ICON_IMAGE_PATH,
   "khmer-tools": `${ICON_BASE_PATH}/categories/category-khmer-tools.png`,
   "developer-tools": `${ICON_BASE_PATH}/categories/category-developer-tools.png`,
+  "security-encoding": `${ICON_BASE_PATH}/tools/tool-password-generator.png`,
+  scanners: `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
+  generators: `${ICON_BASE_PATH}/tools/tool-barcode-generator.png`,
+  "file-conversion": `${ICON_BASE_PATH}/categories/category-pdf-tools.png`,
 };
 
 export function getToolIconImagePath(toolKey: string): string {

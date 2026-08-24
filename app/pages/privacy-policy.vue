@@ -5,7 +5,7 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "Privacy Policy - ChlatWork";
 const description =
   "How ChlatWork handles browser-based processing, data collection, cookies, analytics, ads, and third-party services.";
-const reviewedAt = "2026-06-29";
+const reviewedAt = "2026-08-21";
 
 useSeoMeta({
   title,
@@ -52,7 +52,7 @@ useHead({
         analytics, advertising, third-party services, and your choices.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: June 29, 2026
+        Last updated: August 21, 2026
       </p>
     </header>
 
@@ -70,7 +70,38 @@ useHead({
         send, such as your email address, message, screenshots, and bug details.
       </p>
       <p class="text-gray-700 dark:text-white/75">
+        If you sign in with Google or Telegram, we receive and store the account
+        identifier supplied by that provider and available profile information,
+        which may include your name, verified email address, profile image, and
+        username. We also store the provider linked to your ChlatWork account,
+        account status, role, and security session records. ChlatWork does not
+        receive or store your Google or Telegram password.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        While you are signed in, ChlatWork records the public identifier of each
+        tool page you open, the event type, and the time. This account-linked
+        history powers the Most used tools section in your profile. It does not
+        include tool inputs, generated content, filenames, or URL query values.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
         We do not sell personal information.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Accounts and authentication</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        Account information is used to create and secure your ChlatWork account,
+        keep you signed in, prevent abuse, authorize protected results, and
+        provide account-based features.
+        Access and refresh tokens are stored in secure HttpOnly cookies. Refresh
+        tokens are stored in the database only as one-way hashes and are rotated
+        when used.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Google and Telegram process the sign-in interaction under their own
+        privacy policies. ChlatWork validates the identity token returned by the
+        provider before creating a session.
       </p>
     </section>
 
@@ -91,6 +122,29 @@ useHead({
         is not practical, such as online text-to-voice generation or shared
         result links. In those cases, ChlatWork aims to process only what is
         needed to provide the feature.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Expense Tracker and PayBack data</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        When you use the signed-in Expense Tracker, ChlatWork stores your
+        currency, date range, budget settings, pasted input, and expense or
+        income entries. Entries may include dates, categories, custom
+        categories, notes, entry type, and amounts. This information is stored
+        in PostgreSQL and linked to your ChlatWork account so it can be restored
+        across sessions.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        When you use the signed-in PayBack Calculator, ChlatWork stores the
+        currency, participant names, entered amounts, pasted input, and KHR
+        remainder settings with your account so your work can be restored.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Share links encode their contents in the link itself and are not saved
+        as share records in ChlatWork&apos;s database. Anyone who receives such a
+        link can read its contents, so do not include secrets or highly
+        sensitive personal information.
       </p>
     </section>
 
@@ -153,6 +207,11 @@ useHead({
       <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
         <li>Vercel for hosting, deployment, and web analytics.</li>
         <li>Google AdSense or Google ad services for advertising.</li>
+        <li>Google Identity Services and Telegram for optional account login.</li>
+        <li>
+          PostgreSQL and the infrastructure provider hosting the database for
+          account, session, and shared-link records.
+        </li>
         <li>
           Browser-side JavaScript libraries for PDF, image, QR, barcode, and
           utility processing.
@@ -170,6 +229,11 @@ useHead({
         You can block or delete cookies and local storage through your browser
         settings. Some preferences, such as color mode, language, or cookie
         notice state, may reset if local storage is cleared.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        You may ask to access, correct, or delete your ChlatWork account data by
+        contacting us through the Contact page. We may need to verify that the
+        request belongs to the account holder before acting on it.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         You can manage personalized Google advertising in
@@ -214,8 +278,16 @@ useHead({
       <p class="text-gray-700 dark:text-white/75">
         For browser-only tools, ChlatWork does not receive the files or input,
         so there is no server copy to retain. For server-based features and
-        operational logs, we aim to retain data only as long as needed for the
-        feature, security, reliability, or legal requirements.
+        operational logs, we retain data only as long as needed for the feature,
+        security, reliability, or legal requirements. Refresh sessions expire
+        after 30 days unless revoked earlier. Expense Tracker records, PayBack
+        records, account records, and provider links remain while the account is
+        active. They may be retained afterward only where required for security, dispute
+        resolution, backups, or legal compliance.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Signed-in tool usage history remains with your account until you clear
+        it from your profile or the account is deleted.
       </p>
     </section>
 

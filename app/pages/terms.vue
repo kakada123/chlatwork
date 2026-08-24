@@ -2,7 +2,7 @@
 const title = "Terms of Use - ChlatWork";
 const description =
   "Terms for using ChlatWork online tools, guide pages, generated outputs, advertising, and browser-based workflows.";
-const reviewedAt = "2026-06-29";
+const reviewedAt = "2026-08-21";
 
 useSeoMeta({
   title,
@@ -49,7 +49,7 @@ useHead({
         checking results before using them.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: June 29, 2026
+        Last updated: August 21, 2026
       </p>
     </header>
 
@@ -68,6 +68,34 @@ useHead({
           No use of the tools to mislead users, customers, or third parties.
         </li>
       </ul>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Accounts</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        You may sign in using a supported Google or Telegram account. You are
+        responsible for maintaining control of that provider account and for
+        activity performed through your ChlatWork session. We may suspend an
+        account or revoke sessions when reasonably necessary to address abuse,
+        security risks, or violations of these terms.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        You may open tool pages and enter data without signing in. ChlatWork may
+        require authentication before displaying protected results or saving
+        account-owned data. Public informational, guide, contact, and policy
+        pages may remain available without signing in.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Shared links and stored content</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        Signed-in Expense Tracker and PayBack data is stored with your ChlatWork account.
+        PayBack and Expense Tracker share links encode their contents in the URL:
+        anyone who receives the link may view that content. Do not place secrets
+        or highly sensitive personal information in expense notes or shared
+        links. You remain responsible for the information you store or share.
+      </p>
     </section>
 
     <section class="space-y-3">

@@ -42,7 +42,7 @@ const email = "kakada127@gmail.com";
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-[1440px] space-y-8">
+  <main class="content-page mx-auto w-full max-w-[960px] space-y-5">
     <header class="space-y-2">
       <h1 class="text-2xl font-bold">Contact</h1>
       <p class="max-w-3xl text-gray-600 dark:text-white/70">

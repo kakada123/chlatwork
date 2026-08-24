@@ -6,7 +6,13 @@ export type ToolDirectoryCategoryKey =
   | "qr-barcode"
   | "date-time"
   | "calculators"
-  | "productivity";
+  | "productivity"
+  | "developer-tools"
+  | "security-encoding"
+  | "khmer-tools"
+  | "scanners"
+  | "generators"
+  | "file-conversion";
 
 export type ToolDirectoryCategory = {
   key: ToolDirectoryCategoryKey;
@@ -115,6 +121,115 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "text-to-voice",
       "khmer-unicode-fixer",
       "password-generator",
+    ],
+  },
+  {
+    key: "developer-tools",
+    name: "Developer Tools",
+    shortTitle: "Developer Tools",
+    path: "/tools/developer-tools",
+    title: "Developer Tools",
+    description:
+      "Format data, inspect tokens, test patterns, and handle common developer conversions directly in your browser.",
+    intro:
+      "Use focused browser-based helpers for JSON, JWTs, encoding, regular expressions, identifiers, timestamps, schedules, and hashes.",
+    accent: "from-cyan-300 via-sky-300 to-blue-500",
+    toolKeys: [
+      "json-formatter",
+      "jwt-decoder",
+      "base64",
+      "url-encoder",
+      "regex-tester",
+      "uuid-generator",
+      "unix-timestamp",
+      "cron-explainer",
+      "hash-generator",
+      "password-generator",
+    ],
+  },
+  {
+    key: "security-encoding",
+    name: "Security & Encoding Tools",
+    shortTitle: "Security & Encoding",
+    path: "/tools/security-encoding",
+    title: "Security & Encoding Tools",
+    description:
+      "Decode tokens, encode data, test patterns, generate hashes, and create strong passwords with local browser tools.",
+    intro:
+      "Inspect and transform common security-related formats without sending entered values to a command-execution service.",
+    accent: "from-rose-300 via-orange-300 to-amber-400",
+    toolKeys: [
+      "jwt-decoder",
+      "base64",
+      "url-encoder",
+      "regex-tester",
+      "hash-generator",
+      "password-generator",
+    ],
+  },
+  {
+    key: "khmer-tools",
+    name: "Khmer Tools",
+    shortTitle: "Khmer Tools",
+    path: "/tools/khmer-tools",
+    title: "Khmer Tools",
+    description:
+      "Fix Khmer Unicode text and listen to Khmer or English content directly from your browser.",
+    intro:
+      "Use lightweight language helpers for cleaning copied Khmer text and reading written content aloud.",
+    accent: "from-fuchsia-300 via-pink-300 to-rose-400",
+    toolKeys: ["khmer-unicode-fixer", "text-to-voice"],
+  },
+  {
+    key: "scanners",
+    name: "Scanner Tools",
+    shortTitle: "Scanners",
+    path: "/tools/scanners",
+    title: "QR & Barcode Scanner Tools",
+    description:
+      "Read QR codes and barcodes from screenshots, uploads, labels, and camera photos locally.",
+    intro:
+      "Extract encoded information from images without installing a dedicated desktop scanner application.",
+    accent: "from-emerald-300 via-teal-300 to-cyan-400",
+    toolKeys: ["scan-qr", "scan-barcode"],
+  },
+  {
+    key: "generators",
+    name: "Generator Tools",
+    shortTitle: "Generators",
+    path: "/tools/generators",
+    title: "Online Generator Tools",
+    description:
+      "Generate QR codes, barcodes, passwords, UUIDs, and hashes for everyday work and development.",
+    intro:
+      "Create frequently needed codes, identifiers, and secure values with simple browser-based controls.",
+    accent: "from-violet-300 via-fuchsia-300 to-pink-400",
+    toolKeys: [
+      "qr",
+      "wifi-qr",
+      "barcode",
+      "password-generator",
+      "uuid-generator",
+      "hash-generator",
+    ],
+  },
+  {
+    key: "file-conversion",
+    name: "File Conversion Tools",
+    shortTitle: "File Conversion",
+    path: "/tools/file-conversion",
+    title: "File Conversion Tools",
+    description:
+      "Convert images, PDFs, HTML, and text into practical file formats using focused browser tools.",
+    intro:
+      "Prepare common documents and images for sharing, archiving, upload, and everyday office workflows.",
+    accent: "from-blue-300 via-indigo-300 to-violet-400",
+    toolKeys: [
+      "image-to-pdf",
+      "pdf-to-jpg",
+      "html-to-pdf",
+      "text-to-pdf",
+      "invoice-to-pdf",
     ],
   },
 ];

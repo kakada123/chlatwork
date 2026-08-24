@@ -2,17 +2,14 @@
 import {
   ALL_TOOLS_ICON_PATHS,
   ENABLED_TOOLS,
-  TOOL_ICON_CLASSES,
-  TOOL_ICON_PATHS,
-  type ToolDef,
 } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
-import { getToolIconImagePath } from "~/lib/icon-assets";
+import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import {
   STARTER_GUIDES,
-  findStarterGuideByPath,
   type StarterGuide,
 } from "~/data/guides";
+import { DEVELOPER_GUIDES } from "~/data/developer-guides";
 import {
   findToolGuideByToolRoute,
 } from "~/data/tool-guides";
@@ -46,6 +43,22 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
     path: "/tools",
     label: "Page",
     searchText: "all tools directory utilities pdf developer tools",
+  },
+  {
+    key: "page-developer-commands",
+    title: "Developer Command Hub",
+    description: "Search, customize, and copy Docker, Git, NestJS, Linux, database, and framework commands.",
+    path: "/developer-commands",
+    label: "Developer",
+    searchText: "commands docker git nestjs npm pnpm yarn bun postgres redis linux nginx ssh network laravel vite typeorm pm2 github cli",
+  },
+  {
+    key: "page-developer-guides",
+    title: "Developer Guides",
+    description: "Production runbooks for Ubuntu, NestJS, Docker, AWS, PostgreSQL, Redis, Nginx, and SSL.",
+    path: "/developer-guides",
+    label: "Developer",
+    searchText: "deployment guides production ubuntu nestjs pm2 nginx ssl docker compose aws ec2 postgresql redis security",
   },
   {
     key: "page-guides",
@@ -129,7 +142,6 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
   },
 ];
 
-const toolNavSearch = ref("");
 const { categoryLabel, copy, homePath, isKhmer, localizeTool } = useLanguage();
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const headerToolSearch = ref("");
@@ -165,6 +177,19 @@ const headerSearchResults = computed(() => {
     description: guide.metaDescription,
     path: guide.path,
     label: "Guide",
+    searchText: "",
+  }));
+  const developerGuideResults = DEVELOPER_GUIDES.filter((guide) =>
+    searchTextMatches(
+      [guide.title, guide.summary, guide.metaDescription, ...guide.topics].join(" "),
+      query,
+    ),
+  ).map((guide) => ({
+    key: `developer-guide-${guide.slug}`,
+    title: guide.title,
+    description: guide.summary,
+    path: guide.path,
+    label: "Developer Guide",
     searchText: "",
   }));
   const postResults = POSTS.filter((post) =>
@@ -218,33 +243,40 @@ const headerSearchResults = computed(() => {
   return [
     ...toolResults,
     ...starterGuideResults,
+    ...developerGuideResults,
     ...postResults,
     ...categoryResults,
     ...pageResults,
   ].slice(0, 12);
 });
-const filteredEnabledTools = computed(() =>
-  filterTools(localizedEnabledTools.value, toolNavSearch.value),
-);
-const groupedEnabledTools = computed(() =>
-  groupTools(filteredEnabledTools.value),
-);
 const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
-// The tools index is a catalog page, so it gets the full-width layout instead of the shared sidebar.
-const isToolsIndexPage = computed(() => route.path === "/tools");
-const isPortfolioPage = computed(() => route.path === "/portfolio");
-const isBusinessPage = computed(
-  () => route.path === "/pricing" || route.path.startsWith("/services/"),
+const { user: authUser, isReady: isAuthReady, fetchMe: fetchAuthUser } = useAuth();
+const { recordToolOpen } = useToolUsage();
+const showHeaderLogin = ref(false);
+let lastTrackedToolPath = "";
+
+onMounted(() => {
+  if (!isAuthReady.value) void fetchAuthUser();
+});
+
+watch(
+  [() => route.path, isAuthReady, authUser],
+  ([path, ready, user]) => {
+    const tool = ENABLED_TOOLS.find((item) => item.route === path);
+
+    if (!tool) {
+      lastTrackedToolPath = "";
+      return;
+    }
+
+    if (!ready || !user || lastTrackedToolPath === path) return;
+    lastTrackedToolPath = path;
+    void recordToolOpen(tool.key);
+  },
+  { immediate: true },
 );
-const isStarterGuidePage = computed(
-  () => route.path === "/guides" || Boolean(findStarterGuideByPath(route.path)),
-);
-const isPostPage = computed(
-  () => route.path === "/posts" || route.path.startsWith("/posts/"),
-);
-const isContactPage = computed(() => route.path === "/contact");
 const currentToolGuide = computed(() => {
   const currentTool = ENABLED_TOOLS.find((tool) => tool.route === route.path);
 
@@ -260,22 +292,6 @@ const currentToolGuide = computed(() => {
 const shouldShowToolPageDetails = computed(
   () => currentToolGuide.value?.tool.category !== "PDF Tools",
 );
-const isLandingPage = computed(
-  () =>
-    route.path === "/" ||
-    isToolsIndexPage.value ||
-    isPortfolioPage.value ||
-    isBusinessPage.value ||
-    isStarterGuidePage.value ||
-    isPostPage.value ||
-    isContactPage.value,
-);
-const layoutGridClass = computed(() =>
-  isLandingPage.value
-    ? "mx-auto grid max-w-[1440px] gap-6 px-3 py-4 sm:px-4"
-    : "mx-auto grid max-w-[1440px] items-start gap-6 px-3 py-6 sm:px-4 md:grid-cols-[320px_1fr]",
-);
-
 function getStarterGuideSearchText(guide: StarterGuide) {
   return [
     guide.title,
@@ -287,21 +303,6 @@ function getStarterGuideSearchText(guide: StarterGuide) {
     ...guide.keywords,
     guide.path,
   ].join(" ");
-}
-
-function groupTools(tools: ToolDef[]) {
-  const groups = new Map<ToolDef["category"], ToolDef[]>();
-
-  for (const tool of tools) {
-    const current = groups.get(tool.category) ?? [];
-    current.push(tool);
-    groups.set(tool.category, current);
-  }
-
-  return Array.from(groups.entries()).map(([category, items]) => ({
-    category,
-    tools: items,
-  }));
 }
 
 // ✅ mobile drawer state
@@ -371,73 +372,59 @@ onBeforeUnmount(() => {
 <template>
   <!-- ✅ make whole page a flex column -->
   <div
-    class="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-black dark:text-white"
+    class="flex min-h-screen flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
   >
     <!-- Top Task Bar -->
     <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
       <div
-        class="mx-auto flex max-w-[1440px] items-center justify-between px-3 py-3 sm:px-4"
+        class="site-container flex items-center justify-between py-3"
       >
         <div class="flex items-center gap-3">
           <!-- Brand -->
           <NuxtLink
             :to="homePath"
-            class="shrink-0 text-sm font-semibold leading-tight"
+            class="shrink-0 text-lg font-semibold tracking-tight leading-tight"
             @click="closeMenu"
           >
             ChlatWork
           </NuxtLink>
 
           <!-- Desktop Navigation -->
-          <nav class="hidden items-center gap-2 text-sm sm:flex">
-            <NuxtLink
-              :to="homePath"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
-            >
-              {{ copy.nav.home }}
-            </NuxtLink>
+          <nav class="hidden items-center gap-1 text-sm sm:flex">
             <NuxtLink
               to="/tools"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path.startsWith('/tools') ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               {{ copy.nav.tools }}
             </NuxtLink>
             <NuxtLink
               to="/guides"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path.startsWith('/guides') || route.path.startsWith('/developer-guides') ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               Guides
             </NuxtLink>
             <NuxtLink
-              to="/posts"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-            >
-              Posts
-            </NuxtLink>
-            <NuxtLink
               to="/about"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path === '/about' ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               About
-            </NuxtLink>
-            <NuxtLink
-              to="/contact"
-              class="rounded-lg px-3 py-2 transition hover:bg-gray-100 dark:hover:bg-white/10"
-            >
-              Contact
             </NuxtLink>
           </nav>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <div
+            v-if="route.path !== '/'"
             class="relative"
             @focusout="handleHeaderSearchFocusout"
           >
             <button
               ref="headerSearchButton"
               type="button"
-              class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/15 bg-white text-slate-900 shadow-sm transition hover:bg-black hover:text-white dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10 dark:hover:text-white"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10 dark:hover:text-white"
               :aria-label="headerSearchLabel"
               :title="headerSearchLabel"
               aria-controls="header-tool-search"
@@ -463,7 +450,7 @@ onBeforeUnmount(() => {
             <div
               v-if="isHeaderSearchOpen"
               id="header-tool-search"
-              class="absolute right-0 top-[calc(100%+0.75rem)] w-[calc(100vw-1.5rem)] max-w-sm overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl dark:border-white/15 dark:bg-black"
+              class="fixed inset-x-3 top-[4.5rem] z-[60] w-auto max-w-none overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+0.75rem)] sm:w-[calc(100vw-1.5rem)] sm:max-w-sm dark:border-white/15 dark:bg-black"
               role="search"
             >
               <div class="border-b border-black/10 p-3 dark:border-white/10">
@@ -484,7 +471,7 @@ onBeforeUnmount(() => {
 
               <div
                 v-if="headerToolSearch.trim()"
-                class="max-h-80 overflow-y-auto p-2"
+                class="max-h-[calc(100dvh-10rem)] overflow-y-auto p-2 sm:max-h-80"
               >
                 <NuxtLink
                   v-for="result in headerSearchResults"
@@ -510,6 +497,33 @@ onBeforeUnmount(() => {
               </div>
             </div>
           </div>
+
+          <NuxtLink
+            v-if="authUser"
+            to="/account"
+            class="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10"
+            aria-label="Open account"
+            title="Account"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+            </svg>
+          </NuxtLink>
+
+          <button
+            v-else
+            type="button"
+            class="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10"
+            aria-label="Sign in"
+            title="Sign in"
+            @click="showHeaderLogin = true"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+            </svg>
+          </button>
 
           <button
             type="button"
@@ -663,7 +677,7 @@ onBeforeUnmount(() => {
 
             <NuxtLink
               to="/tools"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+              class="flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-bold text-sky-700 hover:bg-sky-100"
               @click="closeMenu"
             >
               <span
@@ -699,6 +713,33 @@ onBeforeUnmount(() => {
             </NuxtLink>
 
             <NuxtLink
+              v-if="authUser"
+              to="/account"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
+              @click="closeMenu"
+            >
+              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+                </svg>
+              </span>
+              Account
+            </NuxtLink>
+
+            <button
+              v-else
+              type="button"
+              class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
+              @click="closeMenu(); showHeaderLogin = true"
+            >
+              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></svg>
+              </span>
+              Sign in
+            </button>
+
+            <NuxtLink
               to="/guides"
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
               @click="closeMenu"
@@ -706,90 +747,7 @@ onBeforeUnmount(() => {
               Guides
             </NuxtLink>
 
-            <NuxtLink
-              to="/posts"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              Posts
-            </NuxtLink>
-
-            <NuxtLink
-              to="/contact"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              Contact
-            </NuxtLink>
-
           </nav>
-
-          <div class="mt-4 px-3">
-            <label for="mobile-tool-nav-search" class="sr-only">
-              {{ copy.nav.searchTools }}
-            </label>
-            <div class="flex gap-2">
-              <input
-                id="mobile-tool-nav-search"
-                v-model="toolNavSearch"
-                type="search"
-                class="h-11 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-                :placeholder="copy.nav.searchTools"
-              />
-              <button
-                v-if="toolNavSearch"
-                type="button"
-                class="h-11 shrink-0 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                @click="toolNavSearch = ''"
-              >
-                {{ copy.nav.clear }}
-              </button>
-            </div>
-          </div>
-
-          <p
-            v-if="filteredEnabledTools.length === 0"
-            class="px-3 py-4 text-sm text-gray-500"
-          >
-            {{ copy.nav.noToolsFound }}
-          </p>
-
-          <div
-            v-for="group in groupedEnabledTools"
-            :key="group.category"
-            class="mt-4"
-          >
-            <p
-              class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
-            >
-              {{ categoryLabel(group.category) }}
-            </p>
-
-            <nav class="space-y-1">
-              <NuxtLink
-                v-for="t in group.tools"
-                :key="t.key"
-                :to="t.route"
-                class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-900 hover:bg-gray-100"
-                active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
-                @click="closeMenu"
-              >
-                <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/80 shadow-sm ring-1 ring-black/5"
-                  aria-hidden="true"
-                >
-                  <img
-                    :src="getToolIconImagePath(t.key)"
-                    alt=""
-                    aria-hidden="true"
-                    class="h-7 w-7 rounded-md object-contain"
-                    decoding="async"
-                  />
-                </span>
-                <span class="min-w-0 truncate">{{ t.name }}</span>
-              </NuxtLink>
-            </nav>
-          </div>
         </div>
       </aside>
     </div>
@@ -797,114 +755,20 @@ onBeforeUnmount(() => {
     <!-- ✅ Content wrapper grows to push footer to bottom -->
     <div class="flex-1">
       <!-- Layout body -->
-      <div :class="layoutGridClass">
-        <!-- Desktop Sidebar -->
-        <aside
-          v-if="!isLandingPage"
-          class="sidebar-scrollbar-hidden hidden max-h-[calc(100dvh-8rem)] overflow-y-auto self-start rounded-2xl border border-white/80 bg-white/75 p-4 shadow-sm shadow-sky-100/80 backdrop-blur md:sticky md:top-24 md:block dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
-        >
-          <p class="mb-3 text-xs font-semibold uppercase text-gray-500">
-            {{ copy.nav.toolsHeading }}
-          </p>
-
-          <div class="space-y-1">
-            <NuxtLink
-              to="/tools"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-              active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
-            >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700"
-                aria-hidden="true"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    v-for="path in allToolsIconPaths"
-                    :key="path"
-                    :d="path"
-                  />
-                </svg>
-              </span>
-              <span>{{ copy.nav.allTools }}</span>
-            </NuxtLink>
-
-            <div class="px-3 py-2">
-              <label for="tool-nav-search" class="sr-only">
-                {{ copy.nav.searchTools }}
-              </label>
-              <input
-                id="tool-nav-search"
-                v-model="toolNavSearch"
-                type="search"
-                class="h-11 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-                :placeholder="copy.nav.searchTools"
-              />
-            </div>
-
-            <p
-              v-if="filteredEnabledTools.length === 0"
-              class="px-3 py-4 text-sm text-gray-500"
-            >
-              {{ copy.nav.noToolsFound }}
-            </p>
-
-            <div
-              v-for="group in groupedEnabledTools"
-              :key="group.category"
-              class="pt-3 first:pt-2"
-            >
-              <p
-                class="px-3 pb-2 text-[11px] font-semibold uppercase text-gray-500"
-              >
-                {{ categoryLabel(group.category) }}
-              </p>
-
-              <NuxtLink
-                v-for="t in group.tools"
-                :key="t.key"
-                :to="t.route"
-                class="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-gray-100"
-                active-class="bg-gray-900 text-white hover:bg-gray-900 dark:!bg-white dark:!text-slate-950 dark:hover:!bg-slate-100"
-              >
-                <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ring-1 ring-black/5 transition dark:ring-white/10"
-                  :class="TOOL_ICON_CLASSES[t.key]"
-                  aria-hidden="true"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      v-for="path in TOOL_ICON_PATHS[t.key] ?? ALL_TOOLS_ICON_PATHS"
-                      :key="path"
-                      :d="path"
-                    />
-                  </svg>
-                </span>
-                <span class="truncate">{{ t.name }}</span>
-              </NuxtLink>
-            </div>
+      <div class="site-container grid gap-6 py-5">
+        <!-- Page content stays focused; discovery remains in search and the tools directory. -->
+        <main class="site-content min-w-0">
+          <div
+            v-if="currentToolGuide?.tool"
+            class="mb-3 flex justify-end"
+            aria-label="Tool actions"
+          >
+            <ToolFavoriteButton
+              :tool-key="currentToolGuide.tool.key"
+              :tool-name="currentToolGuide.tool.name"
+              show-label
+            />
           </div>
-        </aside>
-
-        <!-- Page content -->
-        <main class="min-w-0">
           <slot />
           <ToolPageDetails
             v-if="currentToolGuide?.guide && shouldShowToolPageDetails"
@@ -914,12 +778,14 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+    <AuthLoginDialog :open="showHeaderLogin" @close="showHeaderLogin = false" />
+
     <!-- The footer keeps trust and policy links visible on every public page. -->
     <footer
       class="site-footer mt-0 border-t border-slate-200/70 py-8 dark:border-white/10"
     >
       <div
-        class="mx-auto grid max-w-[1440px] gap-8 px-3 text-sm sm:px-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
+        class="site-container grid gap-8 text-sm lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
       >
         <div class="max-w-xl space-y-3">
           <p class="text-base font-black text-slate-950 dark:text-white">

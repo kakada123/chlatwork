@@ -169,6 +169,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     steps: [
       "Open the PayBack Calculator from the ChlatWork tools page.",
+      "Sign in with Google or Telegram so the working data can be restored securely.",
       "Add each person in the group, such as friends, staff, or family members.",
       "Enter each expense with the person who paid and the amount they covered.",
       "Review the summary to see the balance for every person.",
@@ -261,9 +262,9 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Using unclear nicknames so people cannot tell who should pay whom.",
     ],
     privacy: [
-      "Normal PayBack calculations run in your browser from the names and amounts you enter.",
-      "If you create a share link, ChlatWork first tries to store a compressed payload with the PayBack share API so the URL stays short.",
-      "Stored PayBack share links expire after 90 days in the current implementation. Use short names or sample labels if the group data is sensitive.",
+      "Signed-in PayBack participant names, amounts, currency, pasted input, and KHR remainder settings are stored with your ChlatWork account in PostgreSQL.",
+      "Share links encode their contents in the URL and do not create separate database share records.",
+      "Use short names or sample labels when group data is sensitive, because anyone with a share link can read its contents.",
     ],
     faqs: [
       {
@@ -279,7 +280,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       {
         question: "Is this the same as a full accounting app?",
         answer:
-          "No. It is intentionally simpler. It helps groups settle shared spending quickly without setting up accounts or categories.",
+          "No. It is intentionally simpler. A ChlatWork account is required to protect and restore the group data, but the tool does not require accounting setup or categories.",
       },
       {
         question: "Does this tool provide financial advice?",
@@ -308,7 +309,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
   "image-compress": {
     metaTitle: "How to Compress Images Without Uploading | ChlatWork",
     metaDescription:
-      "Batch compress JPG, PNG, and WebP images in your browser without uploading them to a server.",
+      "Batch compress JPG, PNG, WebP, HEIC, and HEIF images in your browser without uploading them to a server.",
     heroTitle: "How to Compress an Image Without Uploading It",
     heroDescription:
       "Reduce image size before sending, posting, or uploading, while keeping the file private on your own device.",
@@ -422,7 +423,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       {
         question: "Which image formats can I compress?",
         answer:
-          "The tool is intended for common browser image formats such as JPG, PNG, and WebP.",
+          "The tool supports JPG, PNG, WebP, HEIC, and HEIF images. HEIC and HEIF photos are converted locally in your browser before compression.",
       },
       {
         question: "Will compression reduce quality?",
@@ -2174,6 +2175,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     steps: [
       "Open the Expense Tracker.",
+      "Sign in with Google or Telegram so your entries can be restored securely.",
       "Set a budget or tracking range if needed.",
       "Add each expense with an amount, category, and optional note.",
       "Review the summary cards to see total spending and remaining budget.",
@@ -2267,8 +2269,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Ignoring recurring expenses when setting monthly budget limits.",
     ],
     privacy: [
-      "Expense entries and category calculations run in your browser for day-to-day use.",
-      "When creating share links, avoid including sensitive personal details in notes or labels.",
+      "Signed-in expense entries, dates, categories, notes, amounts, budget settings, and pasted input are stored with your ChlatWork account in PostgreSQL.",
+      "Share links encode their contents in the URL instead of creating a separate database share record, so avoid sensitive personal details in notes or labels.",
       "Before using shared results for formal reporting, validate totals with original receipts and statements.",
     ],
     faqs: [

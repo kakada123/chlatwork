@@ -38,7 +38,7 @@ const colorModeScript = `
     const mode =
       storedMode === "light" || storedMode === "dark"
         ? storedMode
-        : "dark";
+        : "light";
     const isDark = mode === "dark";
 
     root.classList.toggle("dark", isDark);
@@ -93,10 +93,13 @@ export default defineNuxtConfig({
     port: 3001,
   },
   runtimeConfig: {
+    authApiBaseUrl: nodeEnv.NUXT_AUTH_API_BASE_URL || "",
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
       adsenseClientId: "ca-pub-3732801458368248",
+      googleClientId: nodeEnv.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       googleMeasurementId,
+      telegramClientId: nodeEnv.NUXT_PUBLIC_TELEGRAM_CLIENT_ID || "",
     },
   },
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],

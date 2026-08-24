@@ -13,7 +13,7 @@ import PdfRelatedTools from "~/components/pdf-tools/PdfRelatedTools.vue";
 import PdfResultDownload from "~/components/pdf-tools/PdfResultDownload.vue";
 import PdfToolPageLayout from "~/components/pdf-tools/PdfToolPageLayout.vue";
 import PrivacyNotice from "~/components/pdf-tools/PrivacyNotice.vue";
-import ToolContentLayout from "~/components/tools/ToolContentLayout.vue";
+import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import {
   MAX_MERGE_PDF_FILES,
   MAX_PDF_FILE_SIZE,
@@ -624,7 +624,7 @@ function removeInvoiceItem(index: number) {
 
     <PdfResultDownload :results="results" />
     <PdfRelatedTools :tools="relatedTools" />
-    <ToolContentLayout
+    <ToolPageDetails
       v-if="guide"
       :guide="guide"
       :show-related="false"

@@ -3,9 +3,6 @@ const route = useRoute();
 const { isKhmer } = useLanguage();
 const siteUrl = "https://chlatwork.com";
 const pageUrl = computed(() => `${siteUrl}${route.path === "/" ? "" : route.path}`);
-const heading = computed(() =>
-  isKhmer.value ? "សំណួរអំពី ChlatWork" : "Frequently asked questions",
-);
 const faqs = computed(() =>
   isKhmer.value
     ? [
@@ -29,11 +26,6 @@ const faqs = computed(() =>
           answer:
             "មិនចាំបាច់មានគណនីសម្រាប់ឧបករណ៍មូលដ្ឋានដែលមាននៅលើ ChlatWork ពេលនេះទេ។",
         },
-        {
-          question: "អាចស្នើសុំឧបករណ៍ថ្មីបានទេ?",
-          answer:
-            "បាន។ ប្រើទំព័រ Contact ដើម្បីរាយការណ៍ bug ស្នើសុំឧបករណ៍ ឬផ្ញើមតិយោបល់។",
-        },
       ]
     : [
         {
@@ -54,12 +46,7 @@ const faqs = computed(() =>
         {
           question: "Do I need to create an account?",
           answer:
-            "No account is required for the basic tools currently available on ChlatWork.",
-        },
-        {
-          question: "Can I request a new tool?",
-          answer:
-            "Yes. Use the Contact page to report bugs, request tools, or send practical feedback.",
+            "You can open a tool and enter data without an account. Sign in with Google or Telegram when you want to view protected results or save account-based data.",
         },
       ],
 );
@@ -87,29 +74,37 @@ useHead(() => ({
 </script>
 
 <template>
-  <section class="pb-12 pt-8" id="faq">
-    <div class="mx-auto w-full">
-      <div class="max-w-2xl">
-        <p class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-          FAQ
-        </p>
-        <h2 class="mt-2 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">
-          {{ heading }}
+  <section id="faq" class="pb-12 pt-8">
+    <div class="w-full">
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+          Common questions
         </h2>
       </div>
 
-      <div class="mt-5 grid gap-3 md:grid-cols-2">
+      <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04]">
         <details
           v-for="faq in faqs"
           :key="faq.question"
-          class="rounded-[18px] border border-white/80 bg-white/75 p-3 shadow-lg shadow-sky-100/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
+          class="group border-b border-slate-200 last:border-b-0 dark:border-white/10"
         >
-          <summary class="cursor-pointer text-sm font-black text-slate-950 dark:text-white">
-            {{ faq.question }}
+          <summary class="flex min-h-16 cursor-pointer list-none items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:hover:bg-white/[0.04] [&::-webkit-details-marker]:hidden sm:px-5">
+            <span class="min-w-0 flex-1 text-sm font-semibold text-slate-950 dark:text-white sm:text-base">
+              {{ faq.question }}
+            </span>
+            <span
+              aria-hidden="true"
+              class="relative grid size-8 shrink-0 place-items-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition-colors group-open:border-sky-200 group-open:bg-sky-50 group-open:text-sky-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:group-open:border-cyan-400/25 dark:group-open:bg-cyan-400/10 dark:group-open:text-cyan-300"
+            >
+              <span class="absolute h-px w-3 bg-current" />
+              <span class="absolute h-3 w-px bg-current transition-opacity group-open:opacity-0" />
+            </span>
           </summary>
-          <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/65">
-            {{ faq.answer }}
-          </p>
+          <div class="border-t border-slate-100 px-4 py-4 dark:border-white/[0.06] sm:px-5">
+            <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
+              {{ faq.answer }}
+            </p>
+          </div>
         </details>
       </div>
     </div>

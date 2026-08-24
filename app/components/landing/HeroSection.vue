@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HomeGlobalSearch from "./HomeGlobalSearch.vue";
+import HomeToolCard from "./HomeToolCard.vue";
 import type { LandingTool } from "~/data/tools";
 
 const props = defineProps<{
@@ -7,94 +8,64 @@ const props = defineProps<{
   popularTools: LandingTool[];
 }>();
 
-const { copy } = useLanguage();
-const visiblePopularTools = computed(() => props.popularTools.slice(0, 8));
+const { favoriteToolKeys, favoritesReady } = useToolFavorites();
+// The homepage is a starting point; the complete catalogue remains in the tools directory.
+const visiblePopularTools = computed(() => props.popularTools.slice(0, 6));
+const favoriteTools = computed(() =>
+  favoriteToolKeys.value
+    .map((key) => props.tools.find((tool) => tool.key === key))
+    .filter((tool): tool is LandingTool => Boolean(tool))
+    .slice(0, 3),
+);
 </script>
 
 <template>
-  <section class="text-slate-950 dark:text-white">
+  <section class="text-slate-950 dark:text-white" aria-labelledby="popular-tools-title">
     <div class="mx-auto">
-      <div class="max-w-4xl">
-        <h1
-          class="text-3xl font-black leading-tight text-slate-950 sm:text-4xl dark:text-white"
-        >
-          {{ copy.hero.title }}
-        </h1>
-        <p
-          class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base dark:text-slate-300"
-        >
-          {{ copy.hero.description }}
-        </p>
-
-        <HomeGlobalSearch class="mt-4 max-w-3xl" :tools="props.tools" />
+      <h1 class="sr-only">Free online tools for everyday work</h1>
+      <div class="mx-auto max-w-3xl">
+        <HomeGlobalSearch :tools="props.tools" />
       </div>
 
-      <div class="mt-4 flex items-center justify-between gap-3">
+      <section v-if="favoritesReady && favoriteTools.length" class="mt-10" aria-labelledby="your-tools-title">
+        <div class="flex items-center justify-between gap-3">
+          <h2 id="your-tools-title" class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+            Your tools
+          </h2>
+          <NuxtLink to="/account#favorite-tools" class="text-sm font-semibold text-sky-700 hover:text-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-300">
+            View in profile
+          </NuxtLink>
+        </div>
+        <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Your favorite tools">
+          <li v-for="tool in favoriteTools" :key="tool.key">
+            <HomeToolCard :tool="tool" />
+          </li>
+        </ul>
+      </section>
+
+      <div class="mt-10 flex items-center justify-between gap-3">
         <h2
-          class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300"
+          id="popular-tools-title"
+          class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white"
         >
-          Popular tools
+          Start with a popular tool
         </h2>
         <NuxtLink
           to="/tools"
-          class="text-sm font-bold text-sky-700 transition hover:text-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:text-cyan-300 dark:hover:text-cyan-100"
+          class="text-sm font-semibold text-sky-700 transition hover:text-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-300 dark:hover:text-cyan-100"
         >
-          Browse all
+          View all tools
         </NuxtLink>
       </div>
 
-      <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <NuxtLink
+      <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Popular tools">
+        <li
           v-for="tool in visiblePopularTools"
           :key="tool.key"
-          :to="tool.route"
-          class="group relative flex min-h-[116px] min-w-0 flex-col overflow-hidden rounded-[20px] border border-white/80 bg-white/75 p-3 shadow-lg shadow-sky-100/70 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.08] dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.13] dark:focus:ring-cyan-200/70"
-          :aria-label="`Open ${tool.name}`"
         >
-          <span class="relative z-10 flex min-w-0 items-start gap-2.5">
-            <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm shadow-slate-200/70 ring-1 ring-black/5 transition group-hover:scale-105 dark:bg-white/[0.08] dark:shadow-black/20 dark:ring-white/10"
-              aria-hidden="true"
-            >
-              <img
-                :src="tool.iconPath"
-                alt=""
-                aria-hidden="true"
-                class="h-11 w-11 rounded-lg object-contain"
-                decoding="async"
-              />
-            </span>
-
-            <span class="min-w-0 flex-1">
-              <span
-                class="block truncate text-sm font-black text-slate-950 dark:text-white"
-              >
-                {{ tool.name }}
-              </span>
-              <span
-                class="mt-1 line-clamp-2 block text-xs leading-5 text-slate-600 dark:text-white/[0.62]"
-              >
-                {{ tool.description }}
-              </span>
-            </span>
-          </span>
-
-          <span
-            class="relative z-10 mt-auto flex items-center justify-between gap-2 pt-2"
-          >
-            <span
-              class="truncate rounded-full border border-sky-100 bg-white/70 px-3 py-1 text-xs font-bold text-slate-600 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/60 dark:shadow-none"
-            >
-              {{ tool.category }}
-            </span>
-            <span
-              class="shrink-0 text-sm font-bold text-sky-700 transition group-hover:translate-x-1 dark:text-cyan-300"
-            >
-              Open
-            </span>
-          </span>
-        </NuxtLink>
-      </div>
+          <HomeToolCard :tool="tool" />
+        </li>
+      </ul>
     </div>
   </section>
 </template>

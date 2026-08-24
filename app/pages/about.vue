@@ -56,7 +56,7 @@ useHead({
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-[1440px] space-y-8">
+  <main class="content-page mx-auto w-full max-w-[960px] space-y-5">
     <header class="space-y-2">
       <h1 class="text-2xl font-bold">About ChlatWork</h1>
       <p class="max-w-3xl text-gray-600 dark:text-white/70">
@@ -66,13 +66,14 @@ useHead({
       </p>
       <p class="max-w-3xl text-gray-600 dark:text-white/70">
         The goal is simple: each page should help you complete one real task
-        without installing heavy software, creating an account, or guessing
-        where to click next. The site gives extra attention to workflows common
+        without installing heavy software or guessing where to click next.
+        A Google or Telegram login protects result access and account-owned
+        data while still letting you open a tool first. The site gives extra attention to workflows common
         for Cambodian and Khmer users, such as Khmer text handling, Telegram
         sharing, restaurant menus, QR codes, and USD/KHR money tasks.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: June 29, 2026
+        Last updated: August 21, 2026
       </p>
     </header>
 

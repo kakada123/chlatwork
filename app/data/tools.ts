@@ -32,8 +32,24 @@ export type LandingToolCategory = {
   description: string;
   route: string;
   iconPath: string;
+  iconPaths: string[];
   accent: string;
   tools: LandingTool[];
+};
+
+const CATEGORY_ICON_PATHS: Record<string, string[]> = {
+  pdf: ["M6 3h9l3 3v15H6V3Z", "M15 3v4h4", "M9 11h6", "M9 15h6"],
+  image: ["M4 5h16v14H4V5Z", "M7 15l3-3 2 2 3-4 3 5", "M8 9h.01"],
+  "qr-barcode": ["M4 4h6v6H4V4Z", "M14 4h6v6h-6V4Z", "M4 14h6v6H4v-6Z", "M14 14h2v2", "M19 14h1", "M14 20h6"],
+  "date-time": ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z", "M12 7v5l3 2"],
+  calculators: TOOL_ICON_PATHS.calculator,
+  productivity: ["M5 4h14v16H5V4Z", "M8 2v4", "M16 2v4", "M8 11h8", "M8 15h5"],
+  "developer-tools": ["M8 9l-3 3 3 3", "M16 9l3 3-3 3", "M14 5l-4 14"],
+  "security-encoding": TOOL_ICON_PATHS["password-generator"],
+  "khmer-tools": TOOL_ICON_PATHS["khmer-unicode-fixer"],
+  scanners: ["M4 8V4h4", "M16 4h4v4", "M20 16v4h-4", "M8 20H4v-4", "M7 12h10"],
+  generators: ["M12 3v18", "M3 12h18", "M5.6 5.6l12.8 12.8", "M18.4 5.6 5.6 18.4"],
+  "file-conversion": ["M7 3h8l3 3v15H7V3Z", "M15 3v4h4", "M10 12h7", "M14 9l3 3-3 3"],
 };
 
 const TOOL_ACCENTS: Record<string, string> = {
@@ -97,6 +113,7 @@ export const LANDING_CATEGORIES: LandingToolCategory[] =
       description: category.description,
       route: category.path,
       iconPath: getCategoryIconImagePath(category.key),
+      iconPaths: CATEGORY_ICON_PATHS[category.key] ?? CATEGORY_ICON_PATHS.productivity,
       accent: category.accent,
       tools,
     };

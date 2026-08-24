@@ -21,6 +21,7 @@
       />
 
       <ExpenseTrackerSummaryCard
+        v-if="user"
         v-model:budget="budget"
         :currency="currency"
         :range-label="rangeLabel"
@@ -37,7 +38,12 @@
         :category-breakdown="categoryBreakdown"
         :top-expenses="topExpenses"
       />
+      <AuthResultAuthGate v-else @login="storeGuestDraft" />
     </div>
+
+    <p class="mt-3 text-right text-xs text-gray-500 dark:text-white/50" role="status">
+      {{ persistenceMessage }}
+    </p>
 
     <section
       class="mt-6 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
@@ -113,14 +119,7 @@ import {
 const route = useRoute();
 const router = useRouter();
 
-type ExpenseShortLinkResponse = {
-  id: string;
-  expiresInSeconds: number;
-};
-
-type ExpenseStoredShareResponse = {
-  payload: string;
-};
+const { user, isReady: isAuthReady, fetchMe } = useAuth();
 
 type ExpenseShareState =
   | "idle"
@@ -130,13 +129,21 @@ type ExpenseShareState =
   | "ready"
   | "failed";
 
+type ExpenseStoredState = {
+  currency: ExpenseCurrency;
+  rangeMode: ExpenseRangeMode;
+  budget: { period: "monthly" | "weekly"; amount: string };
+  raw: string;
+  rows: ExpenseRow[];
+};
+
 useSeoMeta({
   title: "Expense Tracker | ChlatWork",
   description:
-    "Track your expenses with budget and insights. Simple, fast, no signup.",
+    "Track expenses with account-based PostgreSQL storage, budgets, and insights.",
   ogTitle: "Expense Tracker | ChlatWork",
   ogDescription:
-    "Track your expenses with budget and insights. Simple, fast, no signup.",
+    "Track expenses with account-based PostgreSQL storage, budgets, and insights.",
   ogType: "website",
   twitterCard: "summary_large_image",
   twitterTitle: "Expense Tracker | ChlatWork",
@@ -151,6 +158,17 @@ useHead({
 
 const copied = ref(false);
 const shareState = ref<ExpenseShareState>("idle");
+const persistenceState = ref<"loading" | "saved" | "saving" | "failed" | "guest">("loading");
+const isHydrated = ref(false);
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+const persistenceMessage = computed(() => {
+  if (persistenceState.value === "loading") return "Loading your saved expenses...";
+  if (persistenceState.value === "saving") return "Saving...";
+  if (persistenceState.value === "failed") return "Could not save changes.";
+  if (persistenceState.value === "guest") return "Sign in to save this data to your account.";
+  return "Saved securely to your account.";
+});
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let shareTimer: ReturnType<typeof setTimeout> | null = null;
@@ -255,6 +273,54 @@ watch(
   },
   { deep: true },
 );
+
+watch(
+  [currency, rangeMode, budget, rows, raw],
+  () => {
+    if (!isHydrated.value || !user.value) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    persistenceState.value = "saving";
+    saveTimer = setTimeout(() => void saveExpenseState(), 700);
+  },
+  { deep: true },
+);
+
+async function saveExpenseState() {
+  try {
+    await $fetch("/api/expenses/state", {
+      method: "PUT",
+      body: {
+        currency: currency.value,
+        rangeMode: rangeMode.value,
+        budgetPeriod: budget.value.period,
+        budgetAmount: budget.value.amount,
+        raw: raw.value,
+        rows: rows.value.map((row) => ({
+          type: row.type ?? "expense",
+          date: row.date ?? "",
+          category: row.category ?? "",
+          customCategory: row.customCategory,
+          note: row.note ?? "",
+          showNote: row.showNote ?? false,
+          amount: row.amount ?? "",
+        })),
+      },
+    });
+    persistenceState.value = "saved";
+  } catch {
+    persistenceState.value = "failed";
+  }
+}
+
+function storeGuestDraft() {
+  sessionStorage.setItem("chlatwork-expense-login-draft", JSON.stringify({
+    currency: currency.value,
+    rangeMode: rangeMode.value,
+    budget: budget.value,
+    raw: raw.value,
+    rows: rows.value,
+  }));
+}
 
 function applyRaw() {
   rawError.value = "";
@@ -410,28 +476,9 @@ async function shareLink() {
     rows: rows.value,
   });
 
-  try {
-    const response = await $fetch<ExpenseShortLinkResponse>(
-      "/api/expense-share",
-      {
-        method: "POST",
-        body: { payload: s },
-      },
-    );
-
-    if (response.id) {
-      replaceShareQuery({ id: response.id });
-      const url = `${window.location.origin}${route.path}?id=${encodeURIComponent(
-        response.id,
-      )}`;
-      showShareResult(await shareUrlOnDevice(url));
-      return;
-    }
-  } catch {
-    // Short-link storage is required here because long inline fallback URLs were removed.
-  }
-
-  setShareState("failed", 2000);
+  replaceShareQuery({ s });
+  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
+  showShareResult(await shareUrlOnDevice(url));
 }
 
 async function copySummary() {
@@ -494,36 +541,68 @@ function applyExpenseSharePayload(payload: ExpenseTrackerSharePayload) {
 }
 
 onMounted(async () => {
-  if (route.query.example === "1") {
-    applyExpenseExample(route.query.c === "KHR" ? "KHR" : "USD");
-    return;
+  if (!isAuthReady.value) await fetchMe();
+
+  if (user.value && !route.query.example && !route.query.s) {
+    const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
+    if (draft) {
+      try {
+        const saved = JSON.parse(draft) as ExpenseStoredState;
+        currency.value = saved.currency;
+        rangeMode.value = saved.rangeMode;
+        budget.value = saved.budget;
+        raw.value = saved.raw;
+        rows.value = saved.rows;
+        sessionStorage.removeItem("chlatwork-expense-login-draft");
+        persistenceState.value = "saving";
+        isHydrated.value = true;
+        await saveExpenseState();
+        return;
+      } catch {
+        sessionStorage.removeItem("chlatwork-expense-login-draft");
+      }
+    }
   }
 
-  const id = route.query.id;
-
-  if (typeof id === "string" && id.trim()) {
-    try {
-      const response = await $fetch<ExpenseStoredShareResponse>(
-        `/api/expense-share/${encodeURIComponent(id.trim())}`,
-      );
-
-      applyExpenseSharePayload(parseExpenseSharePayload(response.payload));
-    } catch {
-      // ignore invalid or expired stored links
-    }
-
+  if (route.query.example === "1") {
+    applyExpenseExample(route.query.c === "KHR" ? "KHR" : "USD");
+    persistenceState.value = user.value ? "saved" : "guest";
+    isHydrated.value = true;
     return;
   }
 
   const s = route.query.s;
-  if (typeof s !== "string" || !s.trim()) {
+  if (typeof s === "string" && s.trim()) {
+    try {
+      applyExpenseSharePayload(parseExpenseSharePayload(s.trim()));
+    } catch {
+      // Ignore malformed links; they must never overwrite stored account data.
+    }
+    persistenceState.value = user.value ? "saved" : "guest";
+    isHydrated.value = true;
+    return;
+  }
+
+  if (!user.value) {
+    persistenceState.value = "guest";
+    isHydrated.value = true;
     return;
   }
 
   try {
-    applyExpenseSharePayload(parseExpenseSharePayload(s.trim()));
+    const saved = await $fetch<ExpenseStoredState | null>("/api/expenses/state");
+    if (saved) {
+      currency.value = saved.currency;
+      rangeMode.value = saved.rangeMode;
+      budget.value = saved.budget;
+      raw.value = saved.raw;
+      rows.value = saved.rows.length ? saved.rows : createDefaultExpenseRows();
+    }
+    persistenceState.value = "saved";
   } catch {
-    // ignore invalid payload
+    persistenceState.value = "failed";
+  } finally {
+    isHydrated.value = true;
   }
 });
 
@@ -535,5 +614,7 @@ onBeforeUnmount(() => {
   if (shareTimer) {
     clearShareTimer();
   }
+
+  if (saveTimer) clearTimeout(saveTimer);
 });
 </script>

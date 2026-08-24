@@ -1,0 +1,28 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <clipPath id="left"><rect x="620" y="42" width="258" height="546" rx="24"/></clipPath>
+    <clipPath id="right"><rect x="884" y="42" width="274" height="546" rx="24"/></clipPath>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#6a3546" flood-opacity=".2"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#fff8f5"/>
+  <circle cx="105" cy="80" r="210" fill="#ffd9e1" opacity=".65"/>
+  <circle cx="1120" cy="590" r="260" fill="#ffe3c6" opacity=".5"/>
+  <rect x="42" y="42" width="1116" height="546" rx="30" fill="#fffdfb" stroke="#f1ccd5" stroke-width="2"/>
+  <text x="88" y="115" fill="#ff477e" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="3">OFFICIAL RELATIONSHIP REVIEW</text>
+  <text x="88" y="204" fill="#38272e" font-family="Georgia, serif" font-size="62">3 Months —</text>
+  <text x="88" y="282" fill="#ff477e" font-family="Georgia, serif" font-size="76" font-style="italic">Probation Passed!</text>
+  <line x1="88" y1="328" x2="535" y2="328" stroke="#efb7c5" stroke-width="2"/>
+  <text x="88" y="395" fill="#38272e" font-family="Georgia, serif" font-size="34">Ngen KaKada + Soem Daneth</text>
+  <text x="88" y="443" fill="#886b75" font-family="Arial, sans-serif" font-size="20" letter-spacing="2">27.05.2026  —  27.08.2026</text>
+  <text x="88" y="522" fill="#ff477e" font-family="Georgia, serif" font-size="28">Forever starts here ♥</text>
+  <g filter="url(#shadow)">
+    <rect x="620" y="42" width="258" height="546" rx="24" fill="#f4d8de"/>
+    <image x="620" y="42" width="258" height="546" preserveAspectRatio="xMidYMid slice" clip-path="url(#left)" xlink:href="/Users/kakada/code/projects/chlatwork/chlatwork_web/public/images/love/kakada.png"/>
+    <rect x="884" y="42" width="274" height="546" rx="24" fill="#f4d8de"/>
+    <image x="884" y="42" width="274" height="546" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="/Users/kakada/code/projects/chlatwork/chlatwork_web/public/images/love/daneth.jpg"/>
+  </g>
+  <circle cx="881" cy="315" r="36" fill="#ff477e" stroke="#fffdfb" stroke-width="8"/>
+  <text x="881" y="325" fill="white" text-anchor="middle" font-family="Georgia, serif" font-size="28">♥</text>
+</svg>

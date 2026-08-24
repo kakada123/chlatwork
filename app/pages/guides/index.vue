@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { STARTER_GUIDES } from "~/data/guides";
+import { BookOpen } from "lucide-vue-next";
 
 const title = "ChlatWork Guides - Practical Tool Workflows";
 const description =
@@ -23,27 +24,12 @@ useHead({
 </script>
 
 <template>
-  <main
-    class="mx-auto w-full max-w-[1440px] space-y-8 text-slate-950 dark:text-white"
-  >
-    <header class="space-y-3">
-      <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-        Guides
+  <main class="mx-auto w-full max-w-[1200px] space-y-8 text-slate-950 dark:text-white">
+    <header class="border-b border-slate-200 pb-5 dark:border-white/10">
+      <h1 class="text-3xl font-black sm:text-4xl">Guides</h1>
+      <p class="mt-2 text-xs text-slate-500 dark:text-white/50">
+        {{ STARTER_GUIDES.length }} practical workflows
       </p>
-      <h1 class="text-3xl font-black sm:text-4xl">
-        Practical ChlatWork guides
-      </h1>
-      <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
-        Short, practical guides for common workflows: QR sharing, barcode
-        formats, PDF safety, PDF size reduction, and Khmer Unicode cleanup.
-      </p>
-      <div
-        class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100/80"
-      >
-        Guides are reviewed against live tool behavior and updated when
-        workflows, browser behavior, or policy requirements change. Last
-        editorial review: June 29, 2026.
-      </div>
     </header>
 
     <section class="grid gap-4 sm:grid-cols-2">
@@ -51,23 +37,13 @@ useHead({
         v-for="guide in STARTER_GUIDES"
         :key="guide.slug"
         :to="guide.path"
-        class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.10]"
+        class="group flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]"
       >
-        <p class="text-xs font-bold uppercase text-slate-400">Guide</p>
-        <h2
-          class="mt-2 text-xl font-black group-hover:text-sky-700 dark:group-hover:text-cyan-200"
-        >
-          {{ guide.title }}
-        </h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/65">
-          {{ guide.summary }}
-        </p>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <span
-            class="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200"
-          >
-            {{ guide.primaryTool.label }}
-          </span>
+        <span class="tool-icon-tone tool-icon-tone-blue flex size-11 shrink-0 items-center justify-center rounded-xl" aria-hidden="true"><BookOpen class="size-6" /></span>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-sky-700 dark:text-cyan-300">{{ guide.primaryTool.label }}</p>
+          <h2 class="mt-1 text-lg font-semibold group-hover:text-sky-700 dark:group-hover:text-cyan-200">{{ guide.title }}</h2>
+          <p class="mt-2 line-clamp-2 text-sm leading-5 text-slate-600 dark:text-white/60">{{ guide.metaDescription }}</p>
         </div>
       </NuxtLink>
     </section>

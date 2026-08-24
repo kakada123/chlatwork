@@ -4,6 +4,7 @@
 .nuxt
 .nitro
 .cache
+.tmp-codex
 dist
 
 # Node dependencies
@@ -26,3 +27,4 @@ logs
 !.env.example
 .vercel
 .env*.local
+neaklork

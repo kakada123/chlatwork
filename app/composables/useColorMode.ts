@@ -23,11 +23,7 @@ function getStoredColorMode(): ColorMode | null {
 }
 
 function getSystemColorMode(): ColorMode {
-  if (!import.meta.client || !window.matchMedia) {
-    return "dark";
-  }
-
-  return window.matchMedia(DARK_MODE_QUERY).matches ? "dark" : "light";
+  return "light";
 }
 
 function applyColorMode(mode: ColorMode) {
@@ -48,7 +44,7 @@ function applyColorMode(mode: ColorMode) {
 }
 
 export function useColorMode() {
-  const colorMode = useState<ColorMode>("color-mode", () => "dark");
+  const colorMode = useState<ColorMode>("color-mode", () => "light");
   const isDark = computed(() => colorMode.value === "dark");
   const colorModeLabel = computed(() =>
     isDark.value ? "Dark mode" : "Light mode",

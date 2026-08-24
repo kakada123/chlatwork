@@ -31,7 +31,7 @@ useHead({
         technologies for functionality, analytics, security, and advertising.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: July 31, 2026
+        Last updated: August 21, 2026
       </p>
     </header>
 
@@ -72,7 +72,25 @@ useHead({
           <code>chlatwork_cookie_notice_closed</code>: remembers that you closed
           the cookie notice.
         </li>
+        <li>
+          <code>chlatwork_access_token</code>: an essential HttpOnly login cookie
+          that expires after approximately 15 minutes.
+        </li>
+        <li>
+          <code>chlatwork_refresh_token</code>: an essential HttpOnly session
+          cookie that expires after approximately 30 days and supports secure
+          session renewal.
+        </li>
+        <li>
+          Temporary HttpOnly Telegram state and PKCE cookies protect the login
+          callback and expire after approximately 10 minutes.
+        </li>
       </ul>
+      <p class="text-gray-700 dark:text-white/75">
+        Authentication cookies are strictly necessary when you choose to sign
+        in. They are not available to browser JavaScript and are not used for
+        advertising.
+      </p>
     </section>
 
     <section class="space-y-3">

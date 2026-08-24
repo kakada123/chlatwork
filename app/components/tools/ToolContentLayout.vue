@@ -3,6 +3,7 @@ import type { ToolGuide } from "~/data/tool-guides";
 import { getRelatedToolsForToolKey } from "~/data/tool-categories";
 import { EDITORIAL_BYLINE } from "~/data/editorial-identity";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -70,7 +71,7 @@ const outputChecklist = [
 
 <template>
   <section
-    class="mx-auto mt-8 w-full max-w-[1180px] space-y-6 text-slate-950 dark:text-white"
+    class="mx-auto mt-5 w-full max-w-[1180px] space-y-6 text-slate-950 dark:text-white"
     aria-label="Tool guide content"
   >
     <section
@@ -345,19 +346,17 @@ const outputChecklist = [
     <section v-if="showRelated" class="space-y-3">
       <h2 class="text-xl font-black">Related tools</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <NuxtLink
+        <div
           v-for="tool in relatedTools"
           :key="tool.key"
-          :to="tool.route"
-          class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.10]"
+          class="relative"
         >
-          <h3 class="text-sm font-black">{{ tool.name }}</h3>
-          <p
-            class="mt-2 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-white/55"
-          >
-            {{ tool.description }}
-          </p>
-        </NuxtLink>
+          <NuxtLink :to="tool.route" class="block h-full rounded-2xl border border-slate-200 bg-white p-4 pr-11 transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.10]">
+            <h3 class="text-sm font-black">{{ tool.name }}</h3>
+            <p class="mt-1 truncate text-xs text-slate-500 dark:text-white/55">{{ tool.category }}</p>
+          </NuxtLink>
+          <ToolFavoriteButton class="absolute right-2.5 top-2.5 z-10" :tool-key="tool.key" :tool-name="tool.name" />
+        </div>
       </div>
 
     </section>
