@@ -698,56 +698,6 @@ const enterLovePage = async () => {
           </article>
 
           <div class="moment-video-grid">
-          <article class="moment-video-card">
-            <video
-              controls
-              playsinline
-              preload="none"
-              poster="/images/love/moment/video-poster.svg"
-            >
-              <source
-                src="/images/love/moment/jenh-sweet-on-trend.MOV"
-              />
-              Your browser cannot play this QuickTime video.
-            </video>
-            <div>
-              <small>OUR SILLY SIDE</small>
-              <h3>Jenh sweet on trend</h3>
-              <p>A cute little trend, made sweeter because we did it together.</p>
-              <a
-                href="/images/love/moment/jenh-sweet-on-trend.MOV"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open video ↗
-              </a>
-            </div>
-          </article>
-          <article class="moment-video-card">
-            <video
-              controls
-              playsinline
-              preload="none"
-              poster="/images/love/moment/video-poster.svg"
-            >
-              <source
-                src="/images/love/moment/trip-near-phnom-penh.MOV"
-              />
-              Your browser cannot play this QuickTime video.
-            </video>
-            <div>
-              <small>A LITTLE ESCAPE TOGETHER</small>
-              <h3>Our trip near Phnom Penh</h3>
-              <p>Anywhere feels special when I get to explore it with you.</p>
-              <a
-                href="/images/love/moment/trip-near-phnom-penh.MOV"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open video ↗
-              </a>
-            </div>
-          </article>
           <article class="moment-video-card moment-video-card--featured">
             <video
               controls
@@ -796,26 +746,6 @@ const enterLovePage = async () => {
               :class="`moment-photo--${photo.orientation}`"
             />
           </div>
-          <video
-            class="kampot-video"
-            controls
-            playsinline
-            preload="none"
-            poster="/images/love/moment/video-poster.svg"
-          >
-            <source
-              src="/images/love/moment/trip-to-kampot/IMG_1798.MOV"
-            />
-            Your browser cannot play this QuickTime video.
-          </video>
-          <a
-            class="kampot-video-link"
-            href="/images/love/moment/trip-to-kampot/IMG_1798.MOV"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Open our Kampot video ↗
-          </a>
           <p>
             New places, happy faces, and another chapter I’m so glad we wrote
             together. Let’s take many more trips, na o sml. 🌿❤️
@@ -1993,8 +1923,7 @@ const enterLovePage = async () => {
 .moment-video-card--featured h3 {
   font-size: 25px;
 }
-.moment-video-card a,
-.kampot-video-link {
+.moment-video-card a {
   display: inline-block;
   margin-top: 10px;
   color: #ff477e;
@@ -2002,8 +1931,7 @@ const enterLovePage = async () => {
   font-weight: 800;
   text-decoration: none;
 }
-.moment-video-card a:hover,
-.kampot-video-link:hover { text-decoration: underline; }
+.moment-video-card a:hover { text-decoration: underline; }
 
 .kampot-memory {
   padding: clamp(18px, 4vw, 28px);
@@ -2042,15 +1970,6 @@ const enterLovePage = async () => {
 .kampot-photo-grid .moment-photo--landscape {
   grid-column: span 2;
 }
-.kampot-video {
-  width: 100%;
-  max-height: 390px;
-  display: block;
-  margin-top: 8px;
-  background: #111c17;
-  border-radius: 10px;
-}
-.kampot-video-link { color: #bfe5cf; }
 .kampot-memory > p {
   margin-top: 17px;
   color: #d8e8df;
