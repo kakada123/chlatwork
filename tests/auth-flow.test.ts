@@ -18,6 +18,15 @@ test("protected account route uses auth middleware", () => {
   assert.match(middleware, /redirect:\s*to\.fullPath/);
 });
 
+test("signed-in navigation displays the user avatar with an initials fallback", () => {
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+
+  assert.match(layout, /authUser\.avatarUrl && !headerAvatarFailed/);
+  assert.match(layout, /@error="handleHeaderAvatarError"/);
+  assert.match(layout, /authUserInitials/);
+  assert.match(layout, /referrerpolicy="no-referrer"/);
+});
+
 test("auth endpoints never return tokens to the browser", () => {
   for (const file of ["google.post.ts", "telegram.post.ts"]) {
     const source = readFileSync(`server/api/auth/${file}`, "utf8");

@@ -255,11 +255,40 @@ const route = useRoute();
 const { user: authUser, isReady: isAuthReady, fetchMe: fetchAuthUser } = useAuth();
 const { recordToolOpen } = useToolUsage();
 const showHeaderLogin = ref(false);
+const headerAvatarFailed = ref(false);
 let lastTrackedToolPath = "";
+
+const authUserInitials = computed(() => {
+  const source = authUser.value?.name
+    || authUser.value?.email
+    || authUser.value?.phone
+    || "U";
+
+  return source
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase() || "U";
+});
+
+function handleHeaderAvatarError() {
+  headerAvatarFailed.value = true;
+}
 
 onMounted(() => {
   if (!isAuthReady.value) void fetchAuthUser();
 });
+
+watch(
+  () => authUser.value?.avatarUrl,
+  () => {
+    // A later login may provide a different, valid profile image URL.
+    headerAvatarFailed.value = false;
+  },
+);
 
 watch(
   [() => route.path, isAuthReady, authUser],
@@ -501,14 +530,19 @@ onBeforeUnmount(() => {
           <NuxtLink
             v-if="authUser"
             to="/account"
-            class="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10"
+            class="hidden h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-sky-50 text-sm font-semibold text-sky-700 transition hover:border-sky-300 hover:bg-sky-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
             aria-label="Open account"
             title="Account"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-            </svg>
+            <img
+              v-if="authUser.avatarUrl && !headerAvatarFailed"
+              :src="authUser.avatarUrl"
+              alt=""
+              class="h-full w-full object-cover"
+              referrerpolicy="no-referrer"
+              @error="handleHeaderAvatarError"
+            />
+            <span v-else aria-hidden="true">{{ authUserInitials }}</span>
           </NuxtLink>
 
           <button
@@ -718,11 +752,16 @@ onBeforeUnmount(() => {
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
               @click="closeMenu"
             >
-              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-                </svg>
+              <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-sky-50 text-xs font-semibold text-sky-700" aria-hidden="true">
+                <img
+                  v-if="authUser.avatarUrl && !headerAvatarFailed"
+                  :src="authUser.avatarUrl"
+                  alt=""
+                  class="h-full w-full object-cover"
+                  referrerpolicy="no-referrer"
+                  @error="handleHeaderAvatarError"
+                />
+                <span v-else>{{ authUserInitials }}</span>
               </span>
               Account
             </NuxtLink>
