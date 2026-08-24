@@ -30,3 +30,12 @@ test("deployment configuration cannot fall back to the legacy Nuxt 2 builder", (
   assert.doesNotMatch(packageJson, /@nuxtjs\/vercel-builder/);
   assert.doesNotMatch(packageLock, /@nuxtjs\/vercel-builder/);
 });
+
+test("public pages use SSR instead of deploy-specific prerendered HTML", () => {
+  const nuxtConfig = readProjectFile("nuxt.config.ts");
+
+  // Keeping these pages in the SSR fallback prevents cached HTML from pointing
+  // at /_nuxt assets from a different deployment after an atomic promotion.
+  assert.match(nuxtConfig, /ssr: true/);
+  assert.doesNotMatch(nuxtConfig, /prerender\s*:/);
+});

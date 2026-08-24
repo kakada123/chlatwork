@@ -224,10 +224,5 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: "vercel",
-    prerender: {
-      crawlLinks: false,
-      // Pre-render submitted sitemap URLs so Google can fetch public SEO pages as static HTML.
-      routes: PUBLIC_SITEMAP_PATHS,
-    },
   },
 });
