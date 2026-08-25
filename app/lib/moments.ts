@@ -13,7 +13,8 @@ import type {
 
 export const MAX_MOMENT_PHOTOS = 10;
 export const MAX_MOMENT_SOURCE_BYTES = 20 * 1024 * 1024;
-export const MAX_MOMENT_UPLOAD_BYTES = 2 * 1024 * 1024;
+// Temporary higher ceiling while Moment media storage is being evaluated.
+export const MAX_MOMENT_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export function buildMomentTitle(
   recipientName: string,

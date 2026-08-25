@@ -220,7 +220,7 @@ function getPhotoPreparationError(error: unknown) {
     "Use a JPG, PNG, or WebP photo.": errorCopy.photoType,
     "Each original photo must be 20MB or smaller.": errorCopy.photoSourceSize,
     "This browser cannot prepare the photo.": errorCopy.photoBrowser,
-    "This photo is still over 2MB after compression. Try a smaller image.":
+    "This photo is still over 10MB after compression. Try a smaller image.":
       errorCopy.photoCompressedSize,
     "This photo could not be opened.": errorCopy.photoOpen,
     "This photo could not be compressed.": errorCopy.photoCompress,

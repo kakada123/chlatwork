@@ -193,7 +193,7 @@ async function submitRsvp() {
 }
 
 async function submitVote() {
-  if (props.preview || voteSaved.value || !voteChoice.value || voteSaving.value) return;
+  if (props.preview || !voteChoice.value || voteSaving.value) return;
   if (pollRequiresLogin.value) {
     if (!isReady.value) await fetchMe();
     if (!user.value) {
@@ -219,15 +219,8 @@ async function submitVote() {
       JSON.stringify({ optionId: voteChoice.value, voterName: pollRequiresName.value ? voterName.value : "" }),
     );
     voteSaved.value = true;
-  } catch (error) {
-    const status = (error as { statusCode?: number; response?: { status?: number } }).statusCode
-      ?? (error as { response?: { status?: number } }).response?.status;
-    if (status === 409) {
-      voteSaved.value = true;
-      voteError.value = "";
-    } else {
-      voteError.value = experienceCopy.value.voteError;
-    }
+  } catch {
+    voteError.value = experienceCopy.value.voteError;
   } finally {
     voteSaving.value = false;
   }
@@ -406,15 +399,15 @@ onBeforeUnmount(cancelHold);
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
       <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="submitVote">
         <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
-          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteSaved" required />
+          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview" required />
           <span class="poll-option-copy"><strong>{{ option.label }}</strong><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
           <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
           <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
             {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
           </span>
         </label>
-        <input v-if="!preview && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" :disabled="voteSaved" required :placeholder="experienceCopy.voterNameRequired" />
-        <button v-if="!preview && !voteSaved" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
+        <input v-if="!preview && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" required :placeholder="experienceCopy.voterNameRequired" />
+        <button v-if="!preview" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : voteSaved ? experienceCopy.updateVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
         <p v-if="!preview && voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
         <p v-if="!preview && voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
       </form>

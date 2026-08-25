@@ -31,7 +31,7 @@ export async function prepareMomentImage(file: File) {
       blob = await canvasToBlob(canvas, 0.68);
     if (blob.size > MAX_MOMENT_UPLOAD_BYTES) {
       throw new Error(
-        "This photo is still over 2MB after compression. Try a smaller image.",
+        "This photo is still over 10MB after compression. Try a smaller image.",
       );
     }
     const base =

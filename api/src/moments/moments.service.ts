@@ -28,7 +28,8 @@ import type { CurrentUser } from '../auth/types';
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
 const MAX_INVITATION_GUESTS = 500;
-export const MAX_MOMENT_IMAGE_BYTES = 2 * 1024 * 1024;
+// Temporary higher ceiling while Moment media storage is being evaluated.
+export const MAX_MOMENT_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export interface MomentUpload {
   buffer: Buffer;
@@ -161,7 +162,7 @@ export class MomentsService {
   async addMedia(userId: string, momentId: string, file?: MomentUpload) {
     if (!file) throw new BadRequestException('Choose an image to upload');
     if (file.size > MAX_MOMENT_IMAGE_BYTES) {
-      throw new BadRequestException('Each Moment image must be 2MB or smaller');
+      throw new BadRequestException('Each Moment image must be 10MB or smaller');
     }
 
     const mimeType = detectImageMime(file.buffer);
@@ -462,18 +463,12 @@ export class MomentsService {
     }
     const identityKey = identityMode === 'LOGIN_REQUIRED' ? `account:${user!.id}` : dto.responseToken!;
     const responseKey = createHash('sha256').update(identityKey).digest('hex');
-    try {
-      await this.prisma.momentVote.create({
-        // Anonymous polls intentionally discard names even if a modified client sends one.
-        data: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
-      });
-    } catch (error) {
-      // The database uniqueness constraint is the final protection against repeat and concurrent votes.
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('You have already voted in this poll');
-      }
-      throw error;
-    }
+    await this.prisma.momentVote.upsert({
+      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
+      // The stable identity key updates an existing choice without increasing participation.
+      create: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
+      update: { optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
+    });
     return this.getPollSummary(moment.id, poll.options, identityMode);
   }
 

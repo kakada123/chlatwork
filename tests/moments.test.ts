@@ -148,7 +148,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /experienceCopy\.voters/);
   assert.match(creator, /value="LOGIN_REQUIRED"/);
   assert.match(experience, /showVoteLogin/);
-  assert.match(experience, /:disabled="preview \|\| voteSaved"/);
+  assert.match(experience, /:disabled="preview"/);
   assert.match(experience, /<form class="poll-form" :class="\{ 'is-preview': preview \}"/);
   const voteService = readProjectFile("api/src/moments/moments.service.ts");
   const voteController = readProjectFile("api/src/moments/moments.controller.ts");
@@ -157,9 +157,8 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   const managerPage = readProjectFile("app/pages/moments/index.vue");
   assert.match(voteService, /`account:\$\{user!\.id\}`/);
   assert.match(voteService, /UnauthorizedException\('Log in to vote in this poll'\)/);
-  assert.match(voteService, /momentVote\.create/);
-  assert.match(voteService, /error\.code === 'P2002'/);
-  assert.doesNotMatch(voteService, /momentVote\.upsert/);
+  assert.match(voteService, /momentVote\.upsert/);
+  assert.match(voteService, /momentId_responseKey/);
   assert.match(voteController, /OptionalJwtAuthGuard/);
   assert.match(voteProxy, /requestOptionallyAuthenticatedApi/);
   assert.match(voteService, /pollSummary: await this\.getPollSummary/);
