@@ -181,6 +181,8 @@ test("published Moment surfaces are unlisted and validate image content", () => 
   assert.match(imagePreparation, /"image\/heic"/);
   assert.match(imagePreparation, /"image\/heif"/);
   assert.match(imagePreparation, /import\("heic2any"\)/);
+  assert.match(imagePreparation, /Preserve the actual bytes and MIME type/);
+  assert.match(imagePreparation, /new File\(\[blob\], `\$\{base\}\.\$\{extension\}`, \{ type: outputType \}\)/);
   assert.match(service, /MAX_ACTIVE_MOMENTS = 3/);
   assert.match(service, /randomBytes\(8\)/);
   assert.match(service, /where: \{ id: momentId, creatorId: userId \}/);

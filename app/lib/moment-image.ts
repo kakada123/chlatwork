@@ -57,7 +57,18 @@ export async function prepareMomentImage(file: File) {
     }
     const base =
       file.name.replace(/\.[^.]+$/, "").slice(0, 120) || "moment-photo";
-    return new File([blob], `${base}.webp`, { type: "image/webp" });
+    // Safari may fall back to JPEG or PNG when WebP canvas encoding is unavailable.
+    // Preserve the actual bytes and MIME type so backend signature validation agrees.
+    if (!["image/webp", "image/jpeg", "image/png"].includes(blob.type)) {
+      throw new Error("This photo could not be compressed.");
+    }
+    const outputType = blob.type;
+    const extension = outputType === "image/webp"
+      ? "webp"
+      : outputType === "image/png"
+        ? "png"
+        : "jpg";
+    return new File([blob], `${base}.${extension}`, { type: outputType });
   } finally {
     URL.revokeObjectURL(sourceUrl);
   }
