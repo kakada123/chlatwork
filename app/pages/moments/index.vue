@@ -1,32 +1,12 @@
 <script setup lang="ts">
-import {
-  CalendarClock,
-  ExternalLink,
-  Images,
-  Plus,
-  Trash2,
-} from "lucide-vue-next";
+import { Plus } from "lucide-vue-next";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
-import { getMomentOccasion } from "~/data/moments";
-import type { MomentOccasion, MomentTheme } from "~/types/moment";
+import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
+import type { MomentSummary } from "~/types/moment";
 
 definePageMeta({ middleware: "auth" });
 
-type MomentSummary = {
-  id: string;
-  slug: string;
-  recipientName: string;
-  occasion: MomentOccasion;
-  title: string;
-  theme: MomentTheme;
-  status: "DRAFT" | "PUBLISHED";
-  publishAt: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  _count: { media: number };
-};
-
-const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+const { copy, isKhmer, localizeMomentPath } = useMomentLanguage();
 const managerCopy = computed(() => copy.value.manager);
 
 useSeoMeta({
@@ -39,23 +19,6 @@ const { data, status, error } =
 const moments = computed(() => data.value ?? []);
 const deletingId = ref("");
 const deleteError = ref("");
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat(locale.value === "km" ? "km-KH" : undefined, {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
-function statusKind(moment: MomentSummary) {
-  if (moment.status === "DRAFT") return "draft";
-  if (moment.publishAt && new Date(moment.publishAt) > new Date())
-    return "scheduled";
-  return "published";
-}
-
-function statusLabel(moment: MomentSummary) {
-  return managerCopy.value[statusKind(moment)];
-}
 
 async function removeMoment(moment: MomentSummary) {
   if (!window.confirm(managerCopy.value.deleteConfirm(moment.title)))
@@ -151,66 +114,14 @@ async function removeMoment(moment: MomentSummary) {
       <li
         v-for="moment in moments"
         :key="moment.id"
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[.05]"
+        class="min-w-0"
       >
-        <div class="flex items-start justify-between gap-3">
-          <span class="text-3xl" aria-hidden="true">{{
-            getMomentOccasion(moment.occasion).emoji
-          }}</span>
-          <span
-            class="rounded-full px-2.5 py-1 text-xs font-bold"
-            :class="
-              statusKind(moment) === 'published'
-                ? 'bg-green-50 text-green-700 dark:bg-green-300/10 dark:text-green-300'
-                : 'bg-amber-50 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200'
-            "
-            >{{ statusLabel(moment) }}</span
-          >
-        </div>
-        <h2 class="mt-4 text-xl font-semibold">{{ moment.title }}</h2>
-        <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-          {{ managerCopy.forRecipient(moment.recipientName) }}
-        </p>
-        <div
-          class="mt-4 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-white/45"
-        >
-          <span class="inline-flex items-center gap-1"
-            ><Images class="h-3.5 w-3.5" />{{
-              managerCopy.photos(moment._count.media)
-            }}</span
-          >
-          <span class="inline-flex items-center gap-1"
-            ><CalendarClock class="h-3.5 w-3.5" />{{
-              formatDate(moment.createdAt)
-            }}</span
-          >
-        </div>
-        <div
-          class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10"
-        >
-          <NuxtLink
-            v-if="moment.status === 'PUBLISHED'"
-            :to="localizeMomentPath(`/m/${moment.slug}`)"
-            target="_blank"
-            class="inline-flex items-center gap-1.5 text-sm font-bold text-rose-600 hover:text-rose-800 dark:text-rose-300"
-            ><ExternalLink class="h-4 w-4" />{{ managerCopy.open }}</NuxtLink
-          >
-          <span v-else class="text-xs text-slate-400">{{
-            managerCopy.notShared
-          }}</span>
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-400/10"
-            :disabled="deletingId === moment.id"
-            @click="removeMoment(moment)"
-          >
-            <Trash2 class="h-4 w-4" />{{
-              deletingId === moment.id
-                ? managerCopy.deleting
-                : managerCopy.delete
-            }}
-          </button>
-        </div>
+        <MomentSummaryCard
+          :moment="moment"
+          deletable
+          :deleting="deletingId === moment.id"
+          @delete="removeMoment"
+        />
       </li>
     </ul>
   </div>

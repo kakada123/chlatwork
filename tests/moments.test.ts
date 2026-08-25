@@ -152,6 +152,31 @@ test("Khmer Moment detail applies Hanuman to nested text", () => {
   );
 });
 
+test("profile lists account-owned Moments with the shared summary card", () => {
+  const profile = readProjectFile("app/pages/account.vue");
+  const manager = readProjectFile("app/pages/moments/index.vue");
+  const card = readProjectFile(
+    "app/components/moments/MomentSummaryCard.vue",
+  );
+  const types = readProjectFile("app/types/moment.ts");
+
+  assert.match(profile, /useFetch<MomentSummary\[]>\("\/api\/moments\/mine"/);
+  assert.match(
+    profile,
+    /import MomentSummaryCard from "~\/components\/moments\/MomentSummaryCard\.vue"/,
+  );
+  assert.match(profile, /v-for="moment in moments"/);
+  assert.match(profile, /<MomentSummaryCard :moment="moment"/);
+  assert.doesNotMatch(profile, /moments\.slice/);
+  assert.match(
+    manager,
+    /import MomentSummaryCard from "~\/components\/moments\/MomentSummaryCard\.vue"/,
+  );
+  assert.match(manager, /<MomentSummaryCard[\s\S]*?deletable/);
+  assert.match(card, /emit\('delete', moment\)/);
+  assert.match(types, /export interface MomentSummary/);
+});
+
 test("Moment language stays scoped and follows shared links", () => {
   const creator = readProjectFile("app/components/moments/MomentCreator.vue");
   const viewer = readProjectFile("app/pages/m/[slug].vue");

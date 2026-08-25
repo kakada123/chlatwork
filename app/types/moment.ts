@@ -16,6 +16,20 @@ export type MomentTheme = "ROMANTIC" | "CUTE" | "MINIMAL" | "ELEGANT";
 export type MomentBlockType =
   "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET";
 
+export interface MomentSummary {
+  id: string;
+  slug: string;
+  recipientName: string;
+  occasion: MomentOccasion;
+  title: string;
+  theme: MomentTheme;
+  status: "DRAFT" | "PUBLISHED";
+  publishAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  _count: { media: number };
+}
+
 export interface MomentBlock {
   id: string;
   type: MomentBlockType;
