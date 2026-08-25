@@ -1052,63 +1052,149 @@ button:disabled {
     flex-direction: row;
   }
 }
-:global(.dark) .moments-creator {
+:global(html.dark .moments-creator) {
   color: #f5f5f7;
 }
-:global(.dark) .creator-header > p:last-child,
-:global(.dark) .step-copy {
+:global(html.dark .moments-creator .creator-header > p:last-child),
+:global(html.dark .moments-creator .step-copy) {
   color: #b8bdc7;
 }
-:global(.dark) .creator-card {
+:global(html.dark .moments-creator .stepper li:not(:first-child)::before) {
+  background: #30343b;
+}
+:global(
+  html.dark .moments-creator .stepper li.complete:not(:first-child)::before
+),
+:global(
+  html.dark .moments-creator .stepper li.active:not(:first-child)::before
+) {
+  background: #d13a67;
+}
+:global(html.dark .moments-creator .stepper span) {
+  border-color: #4b515c;
+  background: #111318;
+}
+:global(html.dark .moments-creator .stepper .active),
+:global(html.dark .moments-creator .stepper .complete) {
+  color: #ff8aab;
+}
+:global(html.dark .moments-creator .stepper .active span),
+:global(html.dark .moments-creator .stepper .complete span) {
+  border-color: #d13a67;
+  background: #d13a67;
+  color: white;
+}
+:global(html.dark .moments-creator .creator-card) {
   border-color: rgba(255, 255, 255, 0.13);
   background: #0d0f12;
   box-shadow: none;
 }
-:global(.dark) .field-label {
+:global(html.dark .moments-creator .field-label) {
   color: #e8e9ed;
 }
-:global(.dark) .field-input {
+:global(html.dark .moments-creator .field-input) {
   border-color: rgba(255, 255, 255, 0.15);
   background: #070809;
   color: white;
 }
-:global(.dark) .choice-card,
-:global(.dark) .theme-card {
+:global(html.dark .moments-creator .field-input:focus) {
+  border-color: #f08baa;
+  box-shadow: 0 0 0 3px rgba(240, 139, 170, 0.2);
+}
+:global(html.dark .moments-creator .field-label span),
+:global(html.dark .moments-creator .field-help),
+:global(html.dark .moments-creator .character-count),
+:global(html.dark .moments-creator .theme-card small),
+:global(html.dark .moments-creator .preview-heading p:last-child) {
+  color: #aeb4c0;
+}
+:global(html.dark .moments-creator .choice-card),
+:global(html.dark .moments-creator .theme-card) {
   border-color: rgba(255, 255, 255, 0.14);
+  background: #111318;
   color: #d7d9df;
 }
-:global(.dark) .choice-card.selected,
-:global(.dark) .theme-card.selected {
+:global(html.dark .moments-creator .choice-card:hover),
+:global(html.dark .moments-creator .choice-card:focus-within),
+:global(html.dark .moments-creator .choice-card.selected),
+:global(html.dark .moments-creator .theme-card:hover),
+:global(html.dark .moments-creator .theme-card:focus-within),
+:global(html.dark .moments-creator .theme-card.selected) {
   border-color: #f08baa;
   background: rgba(220, 79, 118, 0.12);
   color: #ffabc2;
 }
-:global(.dark) .drop-zone {
+:global(html.dark .moments-creator .drop-zone) {
   border-color: rgba(240, 139, 170, 0.5);
   background: rgba(220, 79, 118, 0.08);
+  color: #ff9fba;
 }
-:global(.dark) .secondary-button {
+:global(html.dark .moments-creator .drop-zone:hover:not(:disabled)),
+:global(html.dark .moments-creator .drop-zone:focus-visible) {
+  border-color: #f08baa;
+  background: rgba(220, 79, 118, 0.14);
+}
+:global(html.dark .moments-creator .drop-zone span) {
+  color: #cbb0b8;
+}
+:global(html.dark .moments-creator .selected-photos figcaption) {
+  background: rgba(7, 8, 9, 0.82);
+  color: white;
+}
+:global(html.dark .moments-creator .primary-button) {
+  background: #d13a67;
+}
+:global(html.dark .moments-creator .primary-button:hover:not(:disabled)) {
+  background: #bd3159;
+}
+:global(html.dark .moments-creator .secondary-button) {
   border-color: rgba(255, 255, 255, 0.15);
   background: #111318;
   color: white;
 }
-:global(.dark) .privacy-note {
+:global(html.dark .moments-creator .secondary-button:hover:not(:disabled)),
+:global(html.dark .moments-creator .secondary-button:focus-visible) {
+  border-color: #626975;
+  background: #1c2027;
+  color: white;
+}
+:global(html.dark .moments-creator .primary-button:focus-visible),
+:global(html.dark .moments-creator .preview-link:focus-visible) {
+  outline: 3px solid rgba(240, 139, 170, 0.48);
+  outline-offset: 3px;
+}
+:global(html.dark .moments-creator .privacy-note) {
   border-color: rgba(103, 232, 249, 0.25);
   background: rgba(34, 211, 238, 0.08);
   color: #a5f3fc;
 }
-:global(.dark) .privacy-note p {
+:global(html.dark .moments-creator .privacy-note p) {
   color: #a7cbd2;
 }
-:global(.dark) .form-actions {
+:global(html.dark .moments-creator .form-actions) {
   border-color: rgba(255, 255, 255, 0.1);
 }
-:global(.dark) .success-card {
+:global(html.dark .moments-creator .error-message) {
+  background: rgba(248, 113, 113, 0.12);
+  color: #ffb4c0;
+}
+:global(html.dark .moments-creator .success-card) {
   border-color: rgba(240, 139, 170, 0.25);
   background: linear-gradient(145deg, #111318, #1b1116);
 }
-:global(.dark) .share-panel {
+:global(html.dark .moments-creator .success-copy) {
+  color: #c2c7d2;
+}
+:global(html.dark .moments-creator .share-panel) {
   border-color: rgba(255, 255, 255, 0.12);
   background: #090a0c;
+}
+:global(html.dark .moments-creator .preview-link) {
+  color: #ff7fa4;
+}
+:global(html.dark .moments-creator .preview-link:hover) {
+  color: #ffb0c6;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 </style>

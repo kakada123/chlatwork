@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import {
   buildMomentTitle,
@@ -71,4 +71,37 @@ test("published Moment surfaces are unlisted and validate image content", () => 
   assert.match(sql, /^BEGIN;$/m);
   assert.match(sql, /^COMMIT;$/m);
   assert.doesNotMatch(sql, /DROP TABLE|TRUNCATE|DELETE FROM/);
+});
+
+test("Moment API routes share one dynamic segment", () => {
+  const projectFileExists = (path: string) =>
+    existsSync(new URL(`../${path}`, import.meta.url));
+
+  assert.equal(projectFileExists("server/api/moments/[slug].get.ts"), false);
+  assert.equal(
+    projectFileExists("server/api/moments/[id]/index.get.ts"),
+    true,
+  );
+  assert.equal(
+    projectFileExists("server/api/moments/[id]/media.post.ts"),
+    true,
+  );
+  assert.equal(
+    projectFileExists("server/api/moments/[id]/media/[mediaId].get.ts"),
+    true,
+  );
+});
+
+test("Moment creator keeps dark interaction states readable", () => {
+  const creator = readProjectFile(
+    "app/components/moments/MomentCreator.vue",
+  );
+
+  assert.doesNotMatch(creator, /:global\(\.dark\)/);
+  assert.match(
+    creator,
+    /html\.dark \.moments-creator \.secondary-button:hover:not\(:disabled\)/,
+  );
+  assert.match(creator, /html\.dark \.moments-creator \.success-copy/);
+  assert.match(creator, /html\.dark \.moments-creator \.preview-link:hover/);
 });

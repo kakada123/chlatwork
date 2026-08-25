@@ -2,11 +2,12 @@ import { createError } from "h3";
 import { apiBaseUrl } from "../../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
-  const slug = getRouterParam(event, "slug");
+  // Nitro requires one parameter name here; public GETs interpret the shared key as a slug.
+  const momentKey = getRouterParam(event, "id");
   const mediaId = getRouterParam(event, "mediaId");
   try {
     const response = await $fetch.raw<ArrayBuffer>(
-      `${apiBaseUrl(event)}/moments/${slug}/media/${mediaId}`,
+      `${apiBaseUrl(event)}/moments/${momentKey}/media/${mediaId}`,
       { responseType: "arrayBuffer" },
     );
     setResponseHeader(
