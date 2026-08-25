@@ -27,6 +27,8 @@ const draft: MomentDraft = {
   dressCode: "",
   eventSchedule: "",
   hostName: "",
+  pollQuestion: "",
+  pollOptions: ["", ""],
 };
 
 const readProjectFile = (path: string) =>
@@ -111,7 +113,35 @@ test("invitation Moments use only the event date", () => {
     invitationPreview.blocks.filter((block) => block.type === "COUNTER").length,
     0,
   );
-  assert.match(creator, /v-if="draft\.occasion !== 'INVITATION'"/);
+  assert.match(creator, /v-if="!\['INVITATION', 'VOTING'\]\.includes\(draft\.occasion\)"/);
+});
+
+test("voting Moments render a poll and allow photo-free publishing", () => {
+  const votingDraft: MomentDraft = {
+    ...draft,
+    occasion: "VOTING",
+    recipientName: "Lunch plan",
+    pollQuestion: "",
+    pollOptions: ["Khmer food", "Noodles", "BBQ"],
+  };
+  const preview = buildPreviewMoment(votingDraft, []);
+
+  assert.ok(preview.blocks.some((block) => block.type === "POLL"));
+  assert.equal(
+    preview.blocks.find((block) => block.type === "POLL")?.data.question,
+    "Lunch plan",
+  );
+  assert.equal(getMomentFormError(votingDraft, 0), "");
+  assert.equal(
+    getMomentFormError({ ...votingDraft, pollOptions: ["Same", "Same"] }, 0),
+    MOMENT_COPY.en.creator.errors.pollOptions,
+  );
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
+  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
+  assert.match(creator, /draft\.occasion === "VOTING" && step\.value === 1\s*\? 3/);
+  assert.match(experience, /v-if="photos\.length && !isVoting"/);
+  assert.match(experience, /v-else-if="!isVoting"\s+class="moment-section secret-section"/);
+  assert.match(experience, /<header v-if="!isVoting" class="moment-hero">/);
 });
 
 test("published Moment surfaces are unlisted and validate image content", () => {

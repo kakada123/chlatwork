@@ -1,4 +1,7 @@
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsIn,
   IsISO8601,
   IsOptional,
@@ -21,6 +24,7 @@ const OCCASIONS = [
   'HOLIDAY',
   'FAREWELL',
   'INVITATION',
+  'VOTING',
   'OTHER',
 ] as const;
 
@@ -98,4 +102,19 @@ export class CreateMomentDto {
   @IsString()
   @MaxLength(120)
   hostName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(240)
+  pollQuestion?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(2)
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  @MinLength(1, { each: true })
+  @MaxLength(120, { each: true })
+  pollOptions?: string[];
 }

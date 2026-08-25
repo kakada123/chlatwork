@@ -105,8 +105,19 @@ export function buildPreviewMoment(
           { id: "preview-rsvp", type: "RSVP" as const, position: 5, data: {} },
         ]
       : []),
+    ...(draft.occasion === "VOTING"
+      ? [{
+          id: "preview-poll",
+          type: "POLL" as const,
+          position: 2,
+          data: {
+            question: draft.recipientName,
+            options: draft.pollOptions.map((label, index) => ({ id: `option-${index + 1}`, label })),
+          },
+        }]
+      : []),
     { id: "preview-gallery", type: "GALLERY", position: 2, data: {} },
-    ...(draft.occasion !== "INVITATION" && draft.specialDate
+    ...(draft.occasion !== "INVITATION" && draft.occasion !== "VOTING" && draft.specialDate
       ? [
           {
             id: "preview-counter",
@@ -123,7 +134,7 @@ export function buildPreviewMoment(
       data: { message: draft.secretMessage },
     },
   ];
-  const media: MomentMedia[] = photoUrls.map((url, position) => ({
+  const media: MomentMedia[] = (draft.occasion === "VOTING" ? [] : photoUrls).map((url, position) => ({
     id: `preview-photo-${position}`,
     position,
     url,
@@ -151,10 +162,10 @@ export function getMomentFormError(
   if (!draft.title.trim()) return errors.title;
   if (!draft.message.trim()) return errors.message;
   if (!draft.secretMessage.trim()) return errors.secret;
-  if (photoCount < 1) return errors.photoRequired;
+  if (draft.occasion !== "VOTING" && photoCount < 1) return errors.photoRequired;
   if (photoCount > MAX_MOMENT_PHOTOS)
     return errors.tooManyPhotos(MAX_MOMENT_PHOTOS);
-  if (draft.specialDate && !isValidMomentDate(draft.specialDate))
+  if (!["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate && !isValidMomentDate(draft.specialDate))
     return errors.invalidDate;
   if (draft.occasion === "INVITATION") {
     if (!draft.hostName.trim()) return errors.hostName;
@@ -168,6 +179,11 @@ export function getMomentFormError(
         if (!['http:', 'https:'].includes(url.protocol)) return errors.mapUrl;
       } catch { return errors.mapUrl; }
     }
+  }
+  if (draft.occasion === "VOTING") {
+    if (!draft.recipientName.trim()) return errors.pollQuestion;
+    const options = new Set(draft.pollOptions.map((option) => option.trim()).filter(Boolean));
+    if (options.size < 2) return errors.pollOptions;
   }
   return "";
 }

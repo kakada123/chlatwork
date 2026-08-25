@@ -57,6 +57,7 @@ enum MomentOccasion {
   HOLIDAY
   FAREWELL
   INVITATION
+  VOTING
   OTHER
 }
 
@@ -86,6 +87,7 @@ enum MomentBlockType {
   LOCATION
   SCHEDULE
   RSVP
+  POLL
 }
 
 enum MomentRsvpChoice {
@@ -144,10 +146,26 @@ model Moment {
   media         MomentMedia[]
   rsvps         MomentRsvp[]
   invitationGuests MomentInvitationGuest[]
+  votes           MomentVote[]
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
   @@map("moments")
+}
+
+model MomentVote {
+  id          String   @id @default(uuid()) @db.Uuid
+  momentId    String   @map("moment_id") @db.Uuid
+  moment      Moment   @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  responseKey String   @map("response_key") @db.Char(64)
+  optionId    String   @map("option_id") @db.VarChar(40)
+  voterName   String?  @map("voter_name") @db.VarChar(80)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([momentId, responseKey])
+  @@index([momentId, optionId])
+  @@map("moment_votes")
 }
 
 model MomentRsvp {

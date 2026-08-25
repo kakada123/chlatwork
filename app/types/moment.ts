@@ -11,12 +11,13 @@ export type MomentOccasion =
   | "HOLIDAY"
   | "FAREWELL"
   | "INVITATION"
+  | "VOTING"
   | "OTHER";
 
 export type MomentTheme = "ROMANTIC" | "CUTE" | "MINIMAL" | "ELEGANT";
 export type MomentBlockType =
   | "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET"
-  | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP";
+  | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP" | "POLL";
 
 export type MomentRsvpChoice = "YES" | "MAYBE" | "NO";
 export type InvitationRecipientType = "INDIVIDUAL" | "COUPLE" | "FAMILY" | "GROUP";
@@ -59,7 +60,11 @@ export interface ReadyMoment {
   theme: MomentTheme;
   blocks: MomentBlock[];
   media: MomentMedia[];
+  pollSummary?: MomentPollSummary;
 }
+
+export interface MomentPollResult { optionId: string; label: string; votes: number }
+export interface MomentPollSummary { totalVotes: number; results: MomentPollResult[] }
 
 export interface LockedMoment {
   status: "locked";
@@ -109,4 +114,6 @@ export interface MomentDraft {
   dressCode: string;
   eventSchedule: string;
   hostName: string;
+  pollQuestion: string;
+  pollOptions: string[];
 }

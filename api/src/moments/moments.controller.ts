@@ -21,6 +21,7 @@ import type { CurrentUser } from '../auth/types';
 import { CreateMomentDto } from './dto/create-moment.dto';
 import { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
+import { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -136,5 +137,11 @@ export class MomentsController {
     @Body() dto: RespondMomentRsvpDto,
   ) {
     return this.moments.respondToInvitation(slug, dto);
+  }
+
+  @Post(':slug/vote')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  respondToVote(@Param('slug') slug: string, @Body() dto: RespondMomentVoteDto) {
+    return this.moments.respondToVote(slug, dto);
   }
 }

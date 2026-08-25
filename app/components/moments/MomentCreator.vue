@@ -52,7 +52,6 @@ const publishedSlug = ref("");
 const shareUrl = ref("");
 const qrDataUrl = ref("");
 const copied = ref(false);
-
 const draft = reactive<MomentDraft>({
   recipientName: "",
   occasion: "BIRTHDAY",
@@ -69,7 +68,13 @@ const draft = reactive<MomentDraft>({
   dressCode: "",
   eventSchedule: "",
   hostName: "",
+  pollQuestion: "",
+  pollOptions: ["", ""],
 });
+const visibleSteps = computed(() =>
+  draft.occasion === "VOTING" ? [1, 3, 4] : [1, 2, 3, 4],
+);
+const progressStep = computed(() => visibleSteps.value.indexOf(step.value) + 1);
 
 const suggestedTitle = computed(() =>
   buildMomentTitle(draft.recipientName, draft.occasion, locale.value),
@@ -129,14 +134,16 @@ function nextStep() {
   if (step.value === 1 && !draft.recipientName.trim()) {
     formError.value = draft.occasion === "INVITATION"
       ? creatorCopy.value.errors.eventName
-      : creatorCopy.value.errors.recipient;
+      : draft.occasion === "VOTING"
+        ? creatorCopy.value.errors.pollQuestion
+        : creatorCopy.value.errors.recipient;
     return;
   }
   if (step.value === 1 && draft.occasion === "INVITATION" && !draft.hostName.trim()) {
     formError.value = creatorCopy.value.errors.hostName;
     return;
   }
-  if (step.value === 2 && photos.value.length < 1) {
+  if (step.value === 2 && draft.occasion !== "VOTING" && photos.value.length < 1) {
     formError.value = creatorCopy.value.errors.photoRequired;
     return;
   }
@@ -151,13 +158,17 @@ function nextStep() {
       return;
     }
   }
-  step.value = Math.min(4, step.value + 1);
+  step.value = draft.occasion === "VOTING" && step.value === 1
+    ? 3
+    : Math.min(4, step.value + 1);
   scrollToTop();
 }
 
 function previousStep() {
   formError.value = "";
-  step.value = Math.max(1, step.value - 1);
+  step.value = draft.occasion === "VOTING" && step.value === 3
+    ? 1
+    : Math.max(1, step.value - 1);
   scrollToTop();
 }
 
@@ -222,6 +233,14 @@ function removePhoto(id: string) {
   photos.value = photos.value.filter((item) => item.id !== id);
 }
 
+function addPollOption() {
+  if (draft.pollOptions.length < 10) draft.pollOptions.push("");
+}
+
+function removePollOption(index: number) {
+  if (draft.pollOptions.length > 2) draft.pollOptions.splice(index, 1);
+}
+
 async function requestPublish() {
   formError.value = getMomentFormError(
     draft,
@@ -258,7 +277,7 @@ async function publishMoment() {
         secretMessage: draft.secretMessage,
         theme: draft.theme,
         specialDate:
-          draft.occasion !== "INVITATION" && draft.specialDate
+          !["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate
             ? draft.specialDate
             : undefined,
         publishAt: draft.publishAt
@@ -273,11 +292,13 @@ async function publishMoment() {
         dressCode: draft.occasion === "INVITATION" && draft.dressCode ? draft.dressCode : undefined,
         eventSchedule: draft.occasion === "INVITATION" && draft.eventSchedule ? draft.eventSchedule : undefined,
         hostName: draft.occasion === "INVITATION" ? draft.hostName : undefined,
+        pollQuestion: draft.occasion === "VOTING" ? draft.recipientName : undefined,
+        pollOptions: draft.occasion === "VOTING" ? draft.pollOptions : undefined,
       },
     });
     momentId = created.id;
     publishState.value = "uploading";
-    for (const [index, photo] of photos.value.entries()) {
+    for (const [index, photo] of (draft.occasion === "VOTING" ? [] : photos.value).entries()) {
       uploadProgress.value = index + 1;
       const body = new FormData();
       body.append("file", photo.file);
@@ -444,13 +465,17 @@ onBeforeUnmount(() => {
         <p>{{ creatorCopy.description }}</p>
       </header>
 
-      <ol class="stepper" :aria-label="creatorCopy.progressLabel">
+      <ol
+        class="stepper"
+        :style="{ gridTemplateColumns: `repeat(${visibleSteps.length}, minmax(0, 1fr))` }"
+        :aria-label="creatorCopy.progressLabel"
+      >
         <li
-          v-for="item in 4"
+          v-for="(item, index) in visibleSteps"
           :key="item"
           :class="{ active: step === item, complete: step > item }"
         >
-          <span>{{ step > item ? "✓" : item }}</span>
+          <span>{{ step > item ? "✓" : index + 1 }}</span>
           <small>{{ creatorCopy.steps[item - 1] }}</small>
         </li>
       </ol>
@@ -460,10 +485,10 @@ onBeforeUnmount(() => {
         @submit.prevent="step < 4 ? nextStep() : requestPublish()"
       >
         <section v-if="step === 1" aria-labelledby="step-one-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(1) }}</p>
-          <h2 id="step-one-title">{{ draft.occasion === 'INVITATION' ? creatorCopy.invitationPersonTitle : creatorCopy.personTitle }}</h2>
+          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+          <h2 id="step-one-title">{{ draft.occasion === 'INVITATION' ? creatorCopy.invitationPersonTitle : draft.occasion === 'VOTING' ? creatorCopy.votingPersonTitle : creatorCopy.personTitle }}</h2>
           <label for="recipient-name" class="field-label mt-6"
-            >{{ draft.occasion === 'INVITATION' ? creatorCopy.eventName : creatorCopy.recipientName }}</label
+            >{{ draft.occasion === 'INVITATION' ? creatorCopy.eventName : draft.occasion === 'VOTING' ? creatorCopy.voteName : creatorCopy.recipientName }}</label
           >
           <input
             id="recipient-name"
@@ -471,7 +496,7 @@ onBeforeUnmount(() => {
             maxlength="80"
             required
             class="field-input mt-2"
-            :placeholder="draft.occasion === 'INVITATION' ? creatorCopy.eventNamePlaceholder : creatorCopy.recipientPlaceholder"
+            :placeholder="draft.occasion === 'INVITATION' ? creatorCopy.eventNamePlaceholder : draft.occasion === 'VOTING' ? creatorCopy.voteNamePlaceholder : creatorCopy.recipientPlaceholder"
             autocomplete="off"
           />
           <div v-if="draft.occasion === 'INVITATION'" class="mt-5">
@@ -503,7 +528,7 @@ onBeforeUnmount(() => {
         </section>
 
         <section v-else-if="step === 2" aria-labelledby="step-two-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(2) }}</p>
+          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-two-title">{{ creatorCopy.photosTitle }}</h2>
           <p class="step-copy">{{ creatorCopy.photosDescription }}</p>
           <input
@@ -561,10 +586,10 @@ onBeforeUnmount(() => {
         </section>
 
         <section v-else-if="step === 3" aria-labelledby="step-three-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(3) }}</p>
-          <h2 id="step-three-title">{{ creatorCopy.storyTitle }}</h2>
+          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+          <h2 id="step-three-title">{{ draft.occasion === 'VOTING' ? creatorCopy.pollTitle : creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
-            <div>
+            <div v-if="draft.occasion !== 'VOTING'">
               <label for="moment-title" class="field-label">{{
                 creatorCopy.titleLabel
               }}</label
@@ -576,7 +601,7 @@ onBeforeUnmount(() => {
                 @input="titleTouched = true"
               />
             </div>
-            <div>
+            <div v-if="draft.occasion !== 'VOTING'">
               <label for="moment-message" class="field-label">{{
                 creatorCopy.messageLabel
               }}</label
@@ -590,8 +615,19 @@ onBeforeUnmount(() => {
               />
               <p class="character-count">{{ draft.message.length }} / 3000</p>
             </div>
-            <div class="grid gap-5" :class="{ 'sm:grid-cols-2': draft.occasion !== 'INVITATION' }">
-              <div v-if="draft.occasion !== 'INVITATION'">
+            <fieldset v-if="draft.occasion === 'VOTING'" class="invitation-fields">
+              <legend class="sr-only">{{ creatorCopy.pollTitle }}</legend>
+              <div class="mt-3 grid gap-3">
+                <span class="field-label">{{ creatorCopy.pollOptions }}</span>
+                <div v-for="(_, index) in draft.pollOptions" :key="index" class="flex gap-2">
+                  <input v-model="draft.pollOptions[index]" maxlength="120" required class="field-input" :placeholder="creatorCopy.pollOptionPlaceholder(index + 1)" />
+                  <button v-if="draft.pollOptions.length > 2" type="button" class="secondary-button" :aria-label="creatorCopy.removePollOption" @click="removePollOption(index)"><Trash2 class="h-4 w-4" /></button>
+                </div>
+                <button v-if="draft.pollOptions.length < 10" type="button" class="secondary-button justify-self-start" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
+              </div>
+            </fieldset>
+            <div class="grid gap-5" :class="{ 'sm:grid-cols-2': !['INVITATION', 'VOTING'].includes(draft.occasion) }">
+              <div v-if="!['INVITATION', 'VOTING'].includes(draft.occasion)">
                 <label for="special-date" class="field-label"
                   >{{ creatorCopy.specialDate }}
                   <span>({{ creatorCopy.optional }})</span></label
@@ -617,7 +653,7 @@ onBeforeUnmount(() => {
                 <p class="field-help">{{ creatorCopy.countdownHelp }}</p>
               </div>
             </div>
-            <div>
+            <div v-if="draft.occasion !== 'VOTING'">
               <label for="secret-message" class="field-label">{{
                 creatorCopy.secretLabel
               }}</label
@@ -664,7 +700,7 @@ onBeforeUnmount(() => {
         </section>
 
         <section v-else aria-labelledby="step-four-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(4) }}</p>
+          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-four-title">{{ creatorCopy.previewTitle }}</h2>
           <fieldset class="mt-6">
             <legend class="field-label">{{ creatorCopy.themeLabel }}</legend>

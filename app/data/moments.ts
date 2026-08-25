@@ -63,6 +63,12 @@ export const MOMENT_OCCASIONS: ReadonlyArray<{
     emoji: "💌",
     titlePrefix: "You're invited",
   },
+  {
+    value: "VOTING",
+    label: "Vote together",
+    emoji: "🗳️",
+    titlePrefix: "Help us choose",
+  },
   { value: "OTHER", label: "Something else", emoji: "✨", titlePrefix: "For" },
 ];
 

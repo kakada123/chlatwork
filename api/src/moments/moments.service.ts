@@ -21,6 +21,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateMomentDto } from './dto/create-moment.dto';
 import type { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
+import type { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -73,6 +74,7 @@ export class MomentsService {
     }
 
     const isInvitation = dto.occasion === 'INVITATION';
+    const isVoting = dto.occasion === 'VOTING';
     const eventDate = isInvitation
       ? this.parseDate(dto.eventDate ?? '', 'event date')
       : null;
@@ -96,6 +98,11 @@ export class MomentsService {
         throw new BadRequestException('Map URL must use HTTP or HTTPS');
       }
     }
+    const pollQuestion = dto.pollQuestion?.trim() ?? '';
+    const pollOptions = [...new Set((dto.pollOptions ?? []).map((option) => option.trim()).filter(Boolean))];
+    if (isVoting && (!pollQuestion || pollOptions.length < 2)) {
+      throw new BadRequestException('Voting Moments require a question and at least two unique options');
+    }
 
     const slug = await this.createUniqueSlug(recipientName);
     const blocks: Array<{ type: MomentBlockType; position: number; data: Record<string, unknown> }> = [];
@@ -115,6 +122,12 @@ export class MomentsService {
         addBlock(MomentBlockType.SCHEDULE, { schedule: dto.eventSchedule.trim() });
       }
       addBlock(MomentBlockType.RSVP, {});
+    }
+    if (isVoting) {
+      addBlock(MomentBlockType.POLL, {
+        question: pollQuestion,
+        options: pollOptions.map((label, index) => ({ id: `option-${index + 1}`, label })),
+      });
     }
     addBlock(MomentBlockType.GALLERY, {});
     if (dto.specialDate) addBlock(MomentBlockType.COUNTER, { date: dto.specialDate });
@@ -160,6 +173,7 @@ export class MomentsService {
       select: {
         creatorId: true,
         status: true,
+        occasion: true,
         _count: { select: { media: true } },
       },
     });
@@ -167,6 +181,9 @@ export class MomentsService {
     if (moment.creatorId !== userId) throw new ForbiddenException();
     if (moment.status !== MomentStatus.DRAFT) {
       throw new ConflictException('Published Moments cannot accept new photos');
+    }
+    if (moment.occasion === MomentOccasion.VOTING) {
+      throw new BadRequestException('Voting Moments do not accept photos');
     }
     if (moment._count.media >= MAX_MEDIA) {
       throw new ConflictException('A Moment can contain up to 10 photos');
@@ -197,6 +214,7 @@ export class MomentsService {
         creatorId: true,
         status: true,
         slug: true,
+        occasion: true,
         _count: { select: { media: true } },
       },
     });
@@ -204,6 +222,13 @@ export class MomentsService {
     if (moment.creatorId !== userId) throw new ForbiddenException();
     if (moment.status === MomentStatus.PUBLISHED) return { slug: moment.slug };
     if (moment._count.media < 1) {
+      if (moment.occasion === MomentOccasion.VOTING) {
+        await this.prisma.moment.update({
+          where: { id: momentId },
+          data: { status: MomentStatus.PUBLISHED, publishedAt: new Date() },
+        });
+        return { slug: moment.slug };
+      }
       throw new BadRequestException('Add at least one photo before publishing');
     }
 
@@ -391,6 +416,26 @@ export class MomentsService {
     return response;
   }
 
+  async respondToVote(slug: string, dto: RespondMomentVoteDto) {
+    const moment = await this.prisma.moment.findUnique({
+      where: { slug },
+      include: { blocks: { where: { type: MomentBlockType.POLL } } },
+    });
+    this.assertPublic(moment);
+    if (moment.occasion !== MomentOccasion.VOTING) throw new NotFoundException('Poll not found');
+    const poll = moment.blocks[0]?.data as { options?: Array<{ id: string }> } | undefined;
+    if (!poll?.options?.some((option) => option.id === dto.optionId)) {
+      throw new BadRequestException('Choose a valid poll option');
+    }
+    const responseKey = createHash('sha256').update(dto.responseToken).digest('hex');
+    await this.prisma.momentVote.upsert({
+      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
+      create: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: dto.voterName?.trim() || null },
+      update: { optionId: dto.optionId, voterName: dto.voterName?.trim() || null },
+    });
+    return this.getPollSummary(moment.id, poll.options);
+  }
+
   async remove(userId: string, momentId: string) {
     const result = await this.prisma.moment.deleteMany({
       where: { id: momentId, creatorId: userId },
@@ -421,6 +466,8 @@ export class MomentsService {
       };
     }
 
+    const pollBlock = moment.blocks.find((block) => block.type === MomentBlockType.POLL);
+    const pollData = pollBlock?.data as { options?: Array<{ id: string; label: string }> } | undefined;
     return {
       status: 'ready' as const,
       slug: moment.slug,
@@ -439,7 +486,24 @@ export class MomentsService {
         position: media.position,
         url: `/api/moments/${moment.slug}/media/${media.id}`,
       })),
+      ...(pollData?.options
+        ? { pollSummary: await this.getPollSummary(moment.id, pollData.options) }
+        : {}),
     };
+  }
+
+  private async getPollSummary(momentId: string, options: Array<{ id: string; label?: string }>) {
+    const groups = await this.prisma.momentVote.groupBy({
+      by: ['optionId'],
+      where: { momentId },
+      _count: { _all: true },
+    });
+    const results = options.map((option) => ({
+      optionId: option.id,
+      label: option.label ?? '',
+      votes: groups.find((group) => group.optionId === option.id)?._count._all ?? 0,
+    }));
+    return { totalVotes: results.reduce((total, result) => total + result.votes, 0), results };
   }
 
   async getPublicMedia(slug: string, mediaId: string) {

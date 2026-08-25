@@ -8,7 +8,7 @@ import {
 } from "~/data/moment-locales";
 import { getMomentOccasion } from "~/data/moments";
 import { getMomentCounterCopy, readMomentBlockText } from "~/lib/moments";
-import type { InvitationGuestIdentity, MomentRsvpChoice, ReadyMoment } from "~/types/moment";
+import type { InvitationGuestIdentity, MomentPollSummary, MomentRsvpChoice, ReadyMoment } from "~/types/moment";
 
 const props = withDefaults(
   defineProps<{
@@ -33,6 +33,12 @@ const rsvpNote = ref("");
 const rsvpSaving = ref(false);
 const rsvpSaved = ref(false);
 const rsvpError = ref("");
+const voteChoice = ref("");
+const voterName = ref("");
+const voteSaving = ref(false);
+const voteSaved = ref(false);
+const voteError = ref("");
+const pollSummary = ref<MomentPollSummary | undefined>(props.moment.pollSummary);
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 
 const heroBlock = computed(() =>
@@ -51,6 +57,15 @@ const eventBlock = computed(() => props.moment.blocks.find((block) => block.type
 const locationBlock = computed(() => props.moment.blocks.find((block) => block.type === "LOCATION"));
 const scheduleBlock = computed(() => props.moment.blocks.find((block) => block.type === "SCHEDULE"));
 const rsvpBlock = computed(() => props.moment.blocks.find((block) => block.type === "RSVP"));
+const pollBlock = computed(() => props.moment.blocks.find((block) => block.type === "POLL"));
+const pollQuestion = computed(() => readMomentBlockText(pollBlock.value, "question"));
+const pollOptions = computed(() => {
+  const value = pollBlock.value?.data.options;
+  if (!Array.isArray(value)) return [];
+  return value.filter((option): option is { id: string; label: string } =>
+    Boolean(option && typeof option === "object" && typeof option.id === "string" && typeof option.label === "string"),
+  );
+});
 const heroTitle = computed(
   () => readMomentBlockText(heroBlock.value, "title") || props.moment.title,
 );
@@ -72,6 +87,7 @@ const counter = computed(() =>
 );
 const occasion = computed(() => getMomentOccasion(props.moment.occasion));
 const isInvitation = computed(() => props.moment.occasion === "INVITATION");
+const isVoting = computed(() => props.moment.occasion === "VOTING");
 const occasionLabel = computed(
   () =>
     getMomentOccasionCopy(props.moment.occasion, props.locale)?.label ??
@@ -167,6 +183,39 @@ async function submitRsvp() {
   }
 }
 
+async function submitVote() {
+  if (props.preview || !voteChoice.value || voteSaving.value) return;
+  voteSaving.value = true;
+  voteError.value = "";
+  try {
+    const storageKey = `chlatwork_moment_vote_${props.moment.slug}`;
+    let responseToken = localStorage.getItem(storageKey);
+    if (!responseToken) {
+      responseToken = crypto.randomUUID();
+      localStorage.setItem(storageKey, responseToken);
+    }
+    pollSummary.value = await $fetch<MomentPollSummary>(`/api/moments/${props.moment.slug}/vote`, {
+      method: "POST",
+      body: { responseToken, optionId: voteChoice.value, voterName: voterName.value || undefined },
+    });
+    voteSaved.value = true;
+  } catch {
+    voteError.value = experienceCopy.value.voteError;
+  } finally {
+    voteSaving.value = false;
+  }
+}
+
+function pollVotes(optionId: string) {
+  return pollSummary.value?.results.find((result) => result.optionId === optionId)?.votes ?? 0;
+}
+
+function pollPercent(optionId: string) {
+  return pollSummary.value?.totalVotes
+    ? Math.round((pollVotes(optionId) / pollSummary.value.totalVotes) * 100)
+    : 0;
+}
+
 function startHold() {
   if (isSecretOpen.value || holdTimer) return;
   isHolding.value = true;
@@ -210,7 +259,7 @@ onBeforeUnmount(cancelHold);
     <div class="moment-glow moment-glow-one" aria-hidden="true" />
     <div class="moment-glow moment-glow-two" aria-hidden="true" />
 
-    <header class="moment-hero">
+    <header v-if="!isVoting" class="moment-hero">
       <div class="occasion-pill">
         <span aria-hidden="true">{{ occasion.emoji }}</span>
         {{ experienceCopy.occasionMoment(occasionLabel) }}
@@ -222,7 +271,7 @@ onBeforeUnmount(cancelHold);
       <h1>{{ displayedHeroTitle }}</h1>
       <p class="scroll-note">{{ scrollCopy }}</p>
 
-      <figure v-if="heroPhoto" class="hero-photo-wrap">
+      <figure v-if="heroPhoto && !isVoting" class="hero-photo-wrap">
         <img
           :src="heroPhoto.url"
           :alt="experienceCopy.heroAlt(moment.recipientName)"
@@ -232,7 +281,7 @@ onBeforeUnmount(cancelHold);
         <span class="photo-tape photo-tape-right" aria-hidden="true" />
       </figure>
       <div
-        v-else
+        v-else-if="!isVoting"
         class="hero-placeholder"
         :aria-label="experienceCopy.photoPlaceholderLabel"
       >
@@ -242,6 +291,7 @@ onBeforeUnmount(cancelHold);
     </header>
 
     <section
+      v-if="!isVoting"
       class="moment-section message-section"
       aria-labelledby="moment-message-title"
     >
@@ -302,8 +352,26 @@ onBeforeUnmount(cancelHold);
       </form>
     </section>
 
+    <section v-if="pollBlock" class="moment-section poll-section" aria-labelledby="poll-title">
+      <p class="section-kicker">{{ experienceCopy.voteKicker }}</p>
+      <h2 id="poll-title">{{ pollQuestion }}</h2>
+      <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
+      <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
+      <form v-else class="poll-form" @submit.prevent="submitVote">
+        <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
+          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" required />
+          <span class="poll-option-copy"><strong>{{ option.label }}</strong><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
+          <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
+        </label>
+        <input v-model="voterName" class="poll-name" maxlength="80" :placeholder="experienceCopy.voterName" />
+        <button type="submit" :disabled="voteSaving || !voteChoice">{{ voteSaving ? experienceCopy.savingVote : experienceCopy.submitVote }}</button>
+        <p v-if="voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
+        <p v-if="voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
+      </form>
+    </section>
+
     <section
-      v-if="photos.length"
+      v-if="photos.length && !isVoting"
       class="moment-section"
       aria-labelledby="moment-gallery-title"
     >
@@ -353,7 +421,7 @@ onBeforeUnmount(cancelHold);
     </section>
 
     <section
-      v-else
+      v-else-if="!isVoting"
       class="moment-section secret-section"
       aria-labelledby="secret-title"
     >
@@ -657,6 +725,17 @@ onBeforeUnmount(cancelHold);
 .rsvp-error { margin-top: 1rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
 .rsvp-success { color: #15803d; }
 .rsvp-error { color: #dc2626; }
+.poll-section { max-width: 760px; }
+.poll-form { display: grid; margin-top: 1.5rem; gap: .8rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+.poll-option { position: relative; display: block; overflow: hidden; cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: 1rem; text-align: left; }
+.poll-option.selected { border-color: var(--moment-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--moment-accent) 22%, transparent); }
+.poll-option input { position: absolute; opacity: 0; }
+.poll-option i { position: absolute; inset: 0 auto 0 0; z-index: 0; background: color-mix(in srgb, var(--moment-accent) 13%, transparent); transition: width .3s ease; }
+.poll-option-copy { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.poll-option-copy small { color: var(--moment-muted); }
+.poll-name { width: 100%; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-surface); padding: .9rem 1rem; color: var(--moment-ink); }
+.poll-form > button { border-radius: .85rem; background: var(--moment-accent); padding: .95rem 1rem; color: white; font-weight: 800; }
+.poll-form > button:disabled { cursor: not-allowed; opacity: .55; }
 .moment-section h2 {
   margin-top: 0.75rem;
   font-size: clamp(2rem, 5vw, 3.2rem);
