@@ -226,18 +226,55 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   assert.match(schema, /INVITATION/);
   assert.match(schema, /model MomentRsvp/);
   assert.match(schema, /@@unique\(\[momentId, responseKey\]\)/);
-  assert.match(service, /createHash\('sha256'\)\.update\(dto\.responseToken\)/);
+  assert.match(service, /createHash\('sha256'\)\.update\(rawResponseToken\)/);
   assert.match(service, /momentRsvp\.upsert/);
   assert.match(controller, /@Post\(':slug\/rsvp'\)/);
   assert.match(proxy, /requestAuthApi\(event, `\/moments\/\$\{slug\}\/rsvp`/);
   assert.match(creator, /draft\.occasion === "INVITATION"/);
   assert.match(experience, /experienceCopy\.rsvpTitle/);
   assert.match(experience, /experienceCopy\.openMap/);
+  assert.match(experience, /output=embed/);
+  assert.match(experience, /'is-single': photos\.length === 1/);
+  assert.match(experience, /formatKhmerEventDate\(date\)/);
+  assert.match(experience, /'is-single': eventDetailCount === 1/);
+  assert.match(experience, /experienceCopy\.invitationGalleryTitle/);
+  assert.match(experience, /v-if="isInvitation"[\s\S]*?invitationNoteTitle/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_rsvps"/);
   assert.match(creator, /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/);
   const locales = readProjectFile("app/data/moment-locales.ts");
   assert.match(locales, /INVITATION: \{ message: `\$\{name\} យើងខ្ញុំមានសេចក្តីរីករាយ/);
   assert.match(locales, /INVITATION: \{ message: `\$\{name\}, we would be delighted/);
+});
+
+test("personalized invitation guest links keep names private and connect RSVP identity", () => {
+  const schema = readProjectFile("api/prisma/schema.prisma");
+  const service = readProjectFile("api/src/moments/moments.service.ts");
+  const controller = readProjectFile("api/src/moments/moments.controller.ts");
+  const manager = readProjectFile("app/components/moments/MomentInvitationGuests.vue");
+  const personalPage = readProjectFile("app/pages/i/[token].vue");
+  const sql = readProjectFile("database/updates/2026-08-25-add-personalized-invitation-guests.sql");
+
+  assert.match(schema, /model MomentInvitationGuest/);
+  assert.match(schema, /token\s+String\s+@unique/);
+  assert.match(schema, /guestId\s+String\?\s+@unique/);
+  assert.match(service, /randomBytes\(18\)\.toString\('base64url'\)/);
+  assert.match(service, /personalizedGuest\.maxGuests/);
+  assert.match(controller, /@Post\(':id\/guests'\)/);
+  assert.match(controller, /@Get\('invitations\/:token'\)/);
+  assert.match(manager, /split\(\/\\r\?\\n\/\)/);
+  assert.match(manager, /navigator\.share/);
+  assert.match(manager, /copiedAction\.value = `\$\{guest\.id\}:\$\{kind\}`/);
+  assert.match(manager, /copy-success-icon/);
+  assert.match(manager, /:global\(html\.dark \.guest-manager\)/);
+  assert.doesNotMatch(manager, /:global\(html\.dark\) \.guest-manager/);
+  assert.match(personalPage, /:invitation-guest="invitation\.invitationGuest"/);
+  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
+  assert.match(experience, /props\.invitationGuest\?\.displayName \|\| heroTitle\.value/);
+  assert.doesNotMatch(experience, /<strong>\{\{ invitationGuest\.displayName \}\}<\/strong>/);
+  assert.match(experience, /experienceCopy\.value\.invitationScroll/);
+  assert.match(experience, /v-if="!invitationGuest" class="eyebrow"/);
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_invitation_guests"/);
+  assert.match(manager, /localizeMomentPath\(`\/i\/\$\{guest\.token\}`\)/);
 });
 
 test("Moment language stays scoped and follows shared links", () => {

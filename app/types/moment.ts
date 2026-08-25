@@ -19,6 +19,7 @@ export type MomentBlockType =
   | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP";
 
 export type MomentRsvpChoice = "YES" | "MAYBE" | "NO";
+export type InvitationRecipientType = "INDIVIDUAL" | "COUPLE" | "FAMILY" | "GROUP";
 export interface MomentRsvpSummary { yes: number; maybe: number; no: number; guests: number }
 
 export interface MomentSummary {
@@ -67,6 +68,30 @@ export interface LockedMoment {
 }
 
 export type PublicMoment = ReadyMoment | LockedMoment;
+
+export interface InvitationGuestIdentity {
+  token: string;
+  displayName: string;
+  recipientType: InvitationRecipientType;
+  maxGuests: number;
+}
+
+export type PersonalInvitation = PublicMoment & { invitationGuest: InvitationGuestIdentity };
+
+export interface InvitationGuest {
+  id: string;
+  token: string;
+  displayName: string;
+  recipientType: InvitationRecipientType;
+  maxGuests: number;
+  sentAt: string | null;
+  rsvp: null | {
+    choice: MomentRsvpChoice;
+    guestCount: number;
+    note: string | null;
+    updatedAt: string;
+  };
+}
 
 export interface MomentDraft {
   recipientName: string;

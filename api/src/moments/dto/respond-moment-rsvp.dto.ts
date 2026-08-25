@@ -1,8 +1,14 @@
 import { IsIn, IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
 
 export class RespondMomentRsvpDto {
+  @IsOptional()
   @IsUUID('4')
-  responseToken!: string;
+  responseToken?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  guestToken?: string;
 
   @IsIn(['YES', 'MAYBE', 'NO'])
   choice!: 'YES' | 'MAYBE' | 'NO';

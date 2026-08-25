@@ -8,17 +8,19 @@ import {
 } from "~/data/moment-locales";
 import { getMomentOccasion } from "~/data/moments";
 import { getMomentCounterCopy, readMomentBlockText } from "~/lib/moments";
-import type { MomentRsvpChoice, ReadyMoment } from "~/types/moment";
+import type { InvitationGuestIdentity, MomentRsvpChoice, ReadyMoment } from "~/types/moment";
 
 const props = withDefaults(
   defineProps<{
     moment: ReadyMoment;
     preview?: boolean;
     locale?: MomentLocale;
+    invitationGuest?: InvitationGuestIdentity | null;
   }>(),
   {
     preview: false,
     locale: "en",
+    invitationGuest: null,
   },
 );
 
@@ -52,6 +54,9 @@ const rsvpBlock = computed(() => props.moment.blocks.find((block) => block.type 
 const heroTitle = computed(
   () => readMomentBlockText(heroBlock.value, "title") || props.moment.title,
 );
+const displayedHeroTitle = computed(
+  () => props.invitationGuest?.displayName || heroTitle.value,
+);
 const message = computed(() =>
   readMomentBlockText(messageBlock.value, "message"),
 );
@@ -66,12 +71,23 @@ const counter = computed(() =>
   ),
 );
 const occasion = computed(() => getMomentOccasion(props.moment.occasion));
+const isInvitation = computed(() => props.moment.occasion === "INVITATION");
 const occasionLabel = computed(
   () =>
     getMomentOccasionCopy(props.moment.occasion, props.locale)?.label ??
     occasion.value.label,
 );
 const experienceCopy = computed(() => MOMENT_COPY[props.locale].experience);
+const heroIntro = computed(() =>
+  isInvitation.value
+    ? experienceCopy.value.invitationIntro
+    : experienceCopy.value.forPerson,
+);
+const scrollCopy = computed(() =>
+  isInvitation.value
+    ? experienceCopy.value.invitationScroll
+    : experienceCopy.value.scroll,
+);
 const photos = computed(() =>
   [...props.moment.media].sort((a, b) => a.position - b.position),
 );
@@ -83,16 +99,38 @@ const eventDate = computed(() => readMomentBlockText(eventBlock.value, "date"));
 const venueName = computed(() => readMomentBlockText(locationBlock.value, "venueName") || readMomentBlockText(eventBlock.value, "venueName"));
 const eventAddress = computed(() => readMomentBlockText(locationBlock.value, "address"));
 const mapUrl = computed(() => readMomentBlockText(locationBlock.value, "mapUrl"));
+const mapQuery = computed(() =>
+  [...new Set([venueName.value.trim(), eventAddress.value.trim()].filter(Boolean))].join(" "),
+);
 const directionsUrl = computed(() =>
-  mapUrl.value || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venueName.value} ${eventAddress.value}`)}`,
+  mapUrl.value || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery.value)}`,
+);
+const mapEmbedUrl = computed(() =>
+  eventAddress.value
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery.value)}&output=embed`
+    : "",
 );
 const dressCode = computed(() => readMomentBlockText(eventBlock.value, "dressCode"));
 const eventSchedule = computed(() => readMomentBlockText(scheduleBlock.value, "schedule"));
+const eventDetailCount = computed(() =>
+  Number(Boolean(venueName.value || eventAddress.value)) + Number(Boolean(dressCode.value)),
+);
 const formattedEventDate = computed(() => {
   const date = new Date(eventDate.value);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(props.locale === "km" ? "km-KH" : undefined, { dateStyle: "full", timeStyle: "short" }).format(date);
+  if (props.locale === "km") return formatKhmerEventDate(date);
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "full", timeStyle: "short" }).format(date);
 });
+
+function formatKhmerEventDate(date: Date) {
+  const weekdays = ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"];
+  const months = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+  const khmerDigits = (value: number) => String(value).replace(/\d/g, (digit) => "០១២៣៤៥៦៧៨៩"[Number(digit)]!);
+  const hour = date.getHours();
+  const period = hour < 12 ? "ព្រឹក" : "រសៀល";
+  const displayHour = hour % 12 || 12;
+  return `ថ្ងៃ${weekdays[date.getDay()]} ទី${khmerDigits(date.getDate())} ខែ${months[date.getMonth()]} ឆ្នាំ${khmerDigits(date.getFullYear())} ម៉ោង ${khmerDigits(displayHour)}:${khmerDigits(date.getMinutes()).padStart(2, "០")} ${period}`;
+}
 const calendarUrl = computed(() => {
   const date = new Date(eventDate.value);
   if (Number.isNaN(date.getTime())) return "";
@@ -108,14 +146,17 @@ async function submitRsvp() {
   rsvpError.value = "";
   try {
     const storageKey = `chlatwork_moment_rsvp_${props.moment.slug}`;
-    let responseToken = localStorage.getItem(storageKey);
-    if (!responseToken) {
-      responseToken = crypto.randomUUID();
-      localStorage.setItem(storageKey, responseToken);
+    let responseToken: string | undefined;
+    if (!props.invitationGuest) {
+      responseToken = localStorage.getItem(storageKey) ?? undefined;
+      if (!responseToken) {
+        responseToken = crypto.randomUUID();
+        localStorage.setItem(storageKey, responseToken);
+      }
     }
     await $fetch(`/api/moments/${props.moment.slug}/rsvp`, {
       method: "POST",
-      body: { responseToken, choice: rsvpChoice.value, guestName: rsvpName.value || undefined, guestCount: rsvpChoice.value === "NO" ? 0 : rsvpGuestCount.value, note: rsvpNote.value || undefined },
+      body: { responseToken, guestToken: props.invitationGuest?.token, choice: rsvpChoice.value, guestName: props.invitationGuest ? undefined : rsvpName.value || undefined, guestCount: rsvpChoice.value === "NO" ? 0 : rsvpGuestCount.value, note: rsvpNote.value || undefined },
     });
     rsvpSaved.value = true;
   } catch {
@@ -173,9 +214,12 @@ onBeforeUnmount(cancelHold);
         <span aria-hidden="true">{{ occasion.emoji }}</span>
         {{ experienceCopy.occasionMoment(occasionLabel) }}
       </div>
-      <p class="eyebrow">{{ experienceCopy.forPerson }}</p>
-      <h1>{{ heroTitle }}</h1>
-      <p class="scroll-note">{{ experienceCopy.scroll }}</p>
+      <p v-if="!invitationGuest" class="eyebrow">{{ heroIntro }}</p>
+      <p v-if="invitationGuest" class="personal-invitation-eyebrow">
+        {{ experienceCopy.respectfullyInvited }}
+      </p>
+      <h1>{{ displayedHeroTitle }}</h1>
+      <p class="scroll-note">{{ scrollCopy }}</p>
 
       <figure v-if="heroPhoto" class="hero-photo-wrap">
         <img
@@ -214,7 +258,7 @@ onBeforeUnmount(cancelHold);
       <div class="event-actions">
         <a v-if="calendarUrl" :href="calendarUrl" target="_blank" rel="noopener noreferrer"><CalendarDays class="h-5 w-5" />{{ experienceCopy.addCalendar }}</a>
       </div>
-      <div class="event-detail-grid">
+      <div class="event-detail-grid" :class="{ 'is-single': eventDetailCount === 1 }">
         <div v-if="venueName || eventAddress" class="event-detail-card">
           <MapPin class="h-6 w-6" aria-hidden="true" />
           <strong>{{ experienceCopy.location }}</strong>
@@ -222,6 +266,14 @@ onBeforeUnmount(cancelHold);
           <a v-if="eventAddress" :href="directionsUrl" target="_blank" rel="noopener noreferrer"><Navigation class="h-4 w-4" />{{ experienceCopy.openMap }}</a>
         </div>
         <div v-if="dressCode" class="event-detail-card"><Sparkles class="h-6 w-6" aria-hidden="true" /><strong>{{ experienceCopy.dressCode }}</strong><p>{{ dressCode }}</p></div>
+      </div>
+      <div v-if="mapEmbedUrl" class="map-frame">
+        <iframe
+          :src="mapEmbedUrl"
+          :title="experienceCopy.mapTitle"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        />
       </div>
       <div v-if="eventSchedule" class="schedule-card"><strong>{{ experienceCopy.schedule }}</strong><p>{{ eventSchedule }}</p></div>
     </section>
@@ -238,8 +290,8 @@ onBeforeUnmount(cancelHold);
           </label>
         </div>
         <div v-if="rsvpChoice" class="rsvp-fields">
-          <input v-model="rsvpName" maxlength="80" :placeholder="experienceCopy.guestName" />
-          <label v-if="rsvpChoice !== 'NO'">{{ experienceCopy.guestCount }}<input v-model.number="rsvpGuestCount" type="number" min="1" max="20" required /></label>
+          <input v-if="!invitationGuest" v-model="rsvpName" maxlength="80" :placeholder="experienceCopy.guestName" />
+          <label v-if="rsvpChoice !== 'NO'">{{ experienceCopy.guestCount }}<input v-model.number="rsvpGuestCount" type="number" min="1" :max="invitationGuest?.maxGuests ?? 20" required /></label>
           <textarea v-model="rsvpNote" maxlength="500" rows="3" :placeholder="experienceCopy.guestNote" />
           <button type="submit" :disabled="rsvpSaving">{{ rsvpSaving ? experienceCopy.sendingRsvp : experienceCopy.sendRsvp }}</button>
         </div>
@@ -253,9 +305,9 @@ onBeforeUnmount(cancelHold);
       class="moment-section"
       aria-labelledby="moment-gallery-title"
     >
-      <p class="section-kicker">{{ experienceCopy.memories }}</p>
-      <h2 id="moment-gallery-title">{{ experienceCopy.galleryTitle }}</h2>
-      <div class="photo-grid">
+      <p class="section-kicker">{{ isInvitation ? experienceCopy.invitationPhotos : experienceCopy.memories }}</p>
+      <h2 id="moment-gallery-title">{{ isInvitation ? experienceCopy.invitationGalleryTitle : experienceCopy.galleryTitle }}</h2>
+      <div class="photo-grid" :class="{ 'is-single': photos.length === 1 }">
         <figure
           v-for="(photo, index) in photos"
           :key="photo.id"
@@ -288,6 +340,18 @@ onBeforeUnmount(cancelHold);
     </section>
 
     <section
+      v-if="isInvitation"
+      class="moment-section invitation-note-section"
+      aria-labelledby="invitation-note-title"
+    >
+      <Sparkles class="section-icon" aria-hidden="true" />
+      <p class="section-kicker">{{ experienceCopy.invitationNoteKicker }}</p>
+      <h2 id="invitation-note-title">{{ experienceCopy.invitationNoteTitle }}</h2>
+      <div class="secret-message invitation-note-message"><p>{{ secretMessage }}</p></div>
+    </section>
+
+    <section
+      v-else
       class="moment-section secret-section"
       aria-labelledby="secret-title"
     >
@@ -472,6 +536,8 @@ onBeforeUnmount(cancelHold);
 .eyebrow {
   margin-top: 2.5rem;
 }
+.personal-invitation-eyebrow { margin: 1.25rem auto -.25rem; color: var(--moment-accent); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.moment-experience.is-khmer .personal-invitation-eyebrow { letter-spacing: 0; text-transform: none; }
 .moment-hero h1 {
   margin: 1rem auto 0;
   max-width: 760px;
@@ -557,6 +623,7 @@ onBeforeUnmount(cancelHold);
 .event-actions a,
 .event-detail-card a { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--moment-accent); padding: .75rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .8rem; font-weight: 800; }
 .event-detail-grid { display: grid; margin-top: 2rem; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.event-detail-grid.is-single { grid-template-columns: minmax(0, 1fr); }
 .event-detail-card,
 .schedule-card { border: 1px solid var(--moment-border); border-radius: 1.5rem; background: var(--moment-surface); padding: 1.5rem; box-shadow: 0 1rem 3rem var(--moment-shadow); backdrop-filter: blur(12px); }
 .event-detail-card { display: flex; flex-direction: column; align-items: center; gap: .7rem; }
@@ -564,6 +631,9 @@ onBeforeUnmount(cancelHold);
 .event-detail-card span { font-size: 1.25rem; font-weight: 700; }
 .event-detail-card p { color: var(--moment-muted); white-space: pre-line; }
 .schedule-card { margin-top: 1rem; }
+.map-frame { margin-top: 1rem; overflow: hidden; border: 1px solid var(--moment-border); border-radius: 1.5rem; background: var(--moment-surface); box-shadow: 0 1rem 3rem var(--moment-shadow); }
+.map-frame iframe { display: block; width: 100%; height: clamp(15rem, 36vw, 21rem); border: 0; }
+.invitation-note-message { margin-top: 1.5rem; }
 .schedule-card strong { color: var(--moment-accent); }
 .schedule-card p { margin-top: 1rem; white-space: pre-line; line-height: 1.9; }
 .rsvp-section { max-width: 760px; }
@@ -595,6 +665,7 @@ onBeforeUnmount(cancelHold);
   gap: 1rem;
   align-items: start;
 }
+.photo-grid.is-single { margin-inline: auto; max-width: 620px; grid-template-columns: minmax(0, 1fr); }
 .memory-photo {
   border: 0.65rem solid var(--moment-surface);
   border-bottom-width: 2.4rem;

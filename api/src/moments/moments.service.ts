@@ -9,6 +9,7 @@ import {
 import { createHash, randomBytes } from 'node:crypto';
 import { basename } from 'node:path';
 import {
+  InvitationRecipientType,
   MomentBlockType,
   MomentOccasion,
   MomentRsvpChoice,
@@ -18,10 +19,12 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateMomentDto } from './dto/create-moment.dto';
+import type { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
+const MAX_INVITATION_GUESTS = 500;
 export const MAX_MOMENT_IMAGE_BYTES = 2 * 1024 * 1024;
 
 export interface MomentUpload {
@@ -251,31 +254,133 @@ export class MomentsService {
     );
   }
 
+  async addInvitationGuests(
+    userId: string,
+    momentId: string,
+    dto: CreateInvitationGuestsDto,
+  ) {
+    const moment = await this.prisma.moment.findFirst({
+      where: { id: momentId, creatorId: userId },
+      select: { id: true, occasion: true, _count: { select: { invitationGuests: true } } },
+    });
+    if (!moment) throw new NotFoundException('Moment not found');
+    if (moment.occasion !== MomentOccasion.INVITATION) {
+      throw new BadRequestException('Guest lists are available only for invitations');
+    }
+    const names = [...new Set(dto.names.map((name) => name.trim()).filter(Boolean))];
+    if (!names.length) throw new BadRequestException('Add at least one guest name');
+    if (moment._count.invitationGuests + names.length > MAX_INVITATION_GUESTS) {
+      throw new ConflictException(`An invitation can contain up to ${MAX_INVITATION_GUESTS} guests`);
+    }
+    const recipientType = dto.recipientType as InvitationRecipientType;
+    return this.prisma.$transaction(
+      names.map((displayName) => this.prisma.momentInvitationGuest.create({
+        data: {
+          momentId,
+          displayName,
+          recipientType,
+          maxGuests: dto.maxGuests,
+          // Opaque tokens keep guest names and database IDs out of shared URLs.
+          token: randomBytes(18).toString('base64url'),
+        },
+        select: { id: true, token: true, displayName: true, recipientType: true, maxGuests: true, sentAt: true },
+      })),
+    );
+  }
+
+  async listInvitationGuests(userId: string, momentId: string) {
+    const moment = await this.prisma.moment.findFirst({
+      where: { id: momentId, creatorId: userId, occasion: MomentOccasion.INVITATION },
+      select: { id: true },
+    });
+    if (!moment) throw new NotFoundException('Invitation not found');
+    return this.prisma.momentInvitationGuest.findMany({
+      where: { momentId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        token: true,
+        displayName: true,
+        recipientType: true,
+        maxGuests: true,
+        sentAt: true,
+        rsvp: { select: { choice: true, guestCount: true, note: true, updatedAt: true } },
+      },
+    });
+  }
+
+  async markInvitationGuestSent(userId: string, momentId: string, guestId: string) {
+    const result = await this.prisma.momentInvitationGuest.updateMany({
+      where: { id: guestId, momentId, moment: { creatorId: userId } },
+      data: { sentAt: new Date() },
+    });
+    if (!result.count) throw new NotFoundException('Invitation guest not found');
+    return { sent: true };
+  }
+
+  async getPersonalInvitation(token: string) {
+    const guest = await this.prisma.momentInvitationGuest.findUnique({
+      where: { token },
+      select: { token: true, displayName: true, recipientType: true, maxGuests: true, moment: { select: { slug: true } } },
+    });
+    if (!guest) throw new NotFoundException('Invitation not found');
+    const moment = await this.getPublic(guest.moment.slug);
+    return {
+      ...moment,
+      invitationGuest: {
+        token: guest.token,
+        displayName: guest.displayName,
+        recipientType: guest.recipientType,
+        maxGuests: guest.maxGuests,
+      },
+    };
+  }
+
   async respondToInvitation(slug: string, dto: RespondMomentRsvpDto) {
     const moment = await this.prisma.moment.findUnique({ where: { slug } });
     this.assertPublic(moment);
     if (moment.occasion !== MomentOccasion.INVITATION) {
       throw new NotFoundException('Invitation not found');
     }
-    const responseKey = createHash('sha256').update(dto.responseToken).digest('hex');
+    if (!dto.responseToken && !dto.guestToken) {
+      throw new BadRequestException('An RSVP response token is required');
+    }
+    const personalizedGuest = dto.guestToken
+      ? await this.prisma.momentInvitationGuest.findFirst({
+          where: { token: dto.guestToken, momentId: moment.id },
+          select: { id: true, displayName: true, maxGuests: true },
+        })
+      : null;
+    if (dto.guestToken && !personalizedGuest) {
+      throw new NotFoundException('Invitation guest not found');
+    }
+    const rawResponseToken = dto.guestToken ?? dto.responseToken!;
+    const responseKey = createHash('sha256').update(rawResponseToken).digest('hex');
     const choice = dto.choice as MomentRsvpChoice;
     const guestCount = choice === MomentRsvpChoice.NO ? 0 : dto.guestCount;
     if (choice !== MomentRsvpChoice.NO && guestCount < 1) {
       throw new BadRequestException('Attending guests must include at least one person');
     }
+    if (personalizedGuest && guestCount > personalizedGuest.maxGuests) {
+      throw new BadRequestException(`This invitation allows up to ${personalizedGuest.maxGuests} guests`);
+    }
+    const where: Prisma.MomentRsvpWhereUniqueInput = personalizedGuest
+      ? { guestId: personalizedGuest.id }
+      : { momentId_responseKey: { momentId: moment.id, responseKey } };
     const response = await this.prisma.momentRsvp.upsert({
-      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
+      where,
       create: {
         momentId: moment.id,
         responseKey,
+        guestId: personalizedGuest?.id,
         choice,
-        guestName: dto.guestName?.trim() || null,
+        guestName: personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
         guestCount,
         note: dto.note?.trim() || null,
       },
       update: {
         choice,
-        guestName: dto.guestName?.trim() || null,
+        guestName: personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
         guestCount,
         note: dto.note?.trim() || null,
       },

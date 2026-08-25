@@ -19,6 +19,7 @@ import { CurrentAuthUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { CurrentUser } from '../auth/types';
 import { CreateMomentDto } from './dto/create-moment.dto';
+import { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import {
   MAX_MOMENT_IMAGE_BYTES,
@@ -66,6 +67,35 @@ export class MomentsController {
     return this.moments.listMine(user.id);
   }
 
+  @Post(':id/guests')
+  @UseGuards(JwtAuthGuard)
+  addInvitationGuests(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: CreateInvitationGuestsDto,
+  ) {
+    return this.moments.addInvitationGuests(user.id, id, dto);
+  }
+
+  @Get(':id/guests')
+  @UseGuards(JwtAuthGuard)
+  listInvitationGuests(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.moments.listInvitationGuests(user.id, id);
+  }
+
+  @Post(':id/guests/:guestId/sent')
+  @UseGuards(JwtAuthGuard)
+  markInvitationGuestSent(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('guestId', new ParseUUIDPipe({ version: '4' })) guestId: string,
+  ) {
+    return this.moments.markInvitationGuestSent(user.id, id, guestId);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(
@@ -86,6 +116,12 @@ export class MomentsController {
     response.setHeader('Cache-Control', 'private, max-age=86400');
     response.setHeader('X-Content-Type-Options', 'nosniff');
     return new StreamableFile(media.content);
+  }
+
+  @Get('invitations/:token')
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  getPersonalInvitation(@Param('token') token: string) {
+    return this.moments.getPersonalInvitation(token);
   }
 
   @Get(':slug')

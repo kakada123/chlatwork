@@ -94,6 +94,13 @@ enum MomentRsvpChoice {
   NO
 }
 
+enum InvitationRecipientType {
+  INDIVIDUAL
+  COUPLE
+  FAMILY
+  GROUP
+}
+
 model User {
   id             String          @id @default(uuid()) @db.Uuid
   email          String?         @unique
@@ -136,6 +143,7 @@ model Moment {
   blocks        MomentBlock[]
   media         MomentMedia[]
   rsvps         MomentRsvp[]
+  invitationGuests MomentInvitationGuest[]
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
@@ -147,6 +155,8 @@ model MomentRsvp {
   momentId      String           @map("moment_id") @db.Uuid
   moment        Moment           @relation(fields: [momentId], references: [id], onDelete: Cascade)
   responseKey   String           @map("response_key") @db.Char(64)
+  guestId       String?          @unique @map("guest_id") @db.Uuid
+  guest         MomentInvitationGuest? @relation(fields: [guestId], references: [id], onDelete: Cascade)
   choice        MomentRsvpChoice
   guestName     String?          @map("guest_name") @db.VarChar(80)
   guestCount    Int              @default(1) @map("guest_count")
@@ -157,6 +167,23 @@ model MomentRsvp {
   @@unique([momentId, responseKey])
   @@index([momentId, choice])
   @@map("moment_rsvps")
+}
+
+model MomentInvitationGuest {
+  id            String                  @id @default(uuid()) @db.Uuid
+  momentId      String                  @map("moment_id") @db.Uuid
+  moment        Moment                  @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  token         String                  @unique @db.VarChar(32)
+  displayName   String                  @map("display_name") @db.VarChar(120)
+  recipientType InvitationRecipientType @default(INDIVIDUAL) @map("recipient_type")
+  maxGuests     Int                     @default(1) @map("max_guests")
+  sentAt        DateTime?               @map("sent_at")
+  createdAt     DateTime                @default(now()) @map("created_at")
+  updatedAt     DateTime                @updatedAt @map("updated_at")
+  rsvp          MomentRsvp?
+
+  @@index([momentId, createdAt])
+  @@map("moment_invitation_guests")
 }
 
 model MomentBlock {

@@ -13,8 +13,9 @@ const props = withDefaults(
     moment: MomentSummary;
     deletable?: boolean;
     deleting?: boolean;
+    stacked?: boolean;
   }>(),
-  { deletable: false, deleting: false },
+  { deletable: false, deleting: false, stacked: false },
 );
 const emit = defineEmits<{ delete: [moment: MomentSummary] }>();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
@@ -41,7 +42,7 @@ const createdDate = computed(() =>
 <template>
   <article
     class="moment-summary-card"
-    :class="{ 'is-khmer': isKhmer }"
+    :class="{ 'is-khmer': isKhmer, 'is-stacked': stacked }"
     :lang="isKhmer ? 'km' : 'en'"
   >
     <div class="flex items-start justify-between gap-3">
@@ -122,6 +123,9 @@ const createdDate = computed(() =>
   background: white;
   padding: 1.25rem;
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+.moment-summary-card.is-stacked {
+  height: auto;
 }
 .moment-summary-card.is-khmer,
 .moment-summary-card.is-khmer h3 {
