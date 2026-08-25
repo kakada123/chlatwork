@@ -1,7 +1,8 @@
 import { createError, readMultipartFormData } from "h3";
 import { requestAuthenticatedApi } from "../../../utils/auth";
 
-const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+// Keep this proxy ceiling aligned with the temporary API upload allowance.
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export default defineEventHandler(async (event) => {
   setResponseHeader(event, "Cache-Control", "no-store");
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (file.data.byteLength > MAX_IMAGE_BYTES) {
     throw createError({
       statusCode: 413,
-      statusMessage: "Each Moment image must be 2MB or smaller",
+      statusMessage: "Each Moment image must be 10MB or smaller",
     });
   }
 
