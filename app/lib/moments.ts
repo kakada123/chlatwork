@@ -23,6 +23,7 @@ export function buildMomentTitle(
   if (locale === "km") return buildKhmerMomentTitle(recipientName, occasion);
   const name = recipientName.trim() || "Someone special";
   const option = getMomentOccasion(occasion);
+  if (occasion === "INVITATION") return `${option.emoji} ${name}`;
   if (option.titlePrefix === "For") return `${option.emoji} For ${name}`;
   if (option.titlePrefix === "For my friend") {
     return `${option.emoji} For my friend ${name}!`;
@@ -98,14 +99,14 @@ export function buildPreviewMoment(
     },
     ...(draft.occasion === "INVITATION"
       ? [
-          { id: "preview-event", type: "EVENT_DETAILS" as const, position: 2, data: { date: draft.eventDate, venueName: draft.venueName, dressCode: draft.dressCode } },
+          { id: "preview-event", type: "EVENT_DETAILS" as const, position: 2, data: { date: draft.eventDate, venueName: draft.venueName, dressCode: draft.dressCode, hostName: draft.hostName } },
           { id: "preview-location", type: "LOCATION" as const, position: 3, data: { venueName: draft.venueName, address: draft.eventAddress, mapUrl: draft.mapUrl } },
           ...(draft.eventSchedule ? [{ id: "preview-schedule", type: "SCHEDULE" as const, position: 4, data: { schedule: draft.eventSchedule } }] : []),
           { id: "preview-rsvp", type: "RSVP" as const, position: 5, data: {} },
         ]
       : []),
     { id: "preview-gallery", type: "GALLERY", position: 2, data: {} },
-    ...(draft.specialDate
+    ...(draft.occasion !== "INVITATION" && draft.specialDate
       ? [
           {
             id: "preview-counter",
@@ -145,7 +146,8 @@ export function getMomentFormError(
   locale: MomentLocale = "en",
 ) {
   const errors = MOMENT_COPY[locale].creator.errors;
-  if (!draft.recipientName.trim()) return errors.recipient;
+  if (!draft.recipientName.trim())
+    return draft.occasion === "INVITATION" ? errors.eventName : errors.recipient;
   if (!draft.title.trim()) return errors.title;
   if (!draft.message.trim()) return errors.message;
   if (!draft.secretMessage.trim()) return errors.secret;
@@ -155,6 +157,7 @@ export function getMomentFormError(
   if (draft.specialDate && !isValidMomentDate(draft.specialDate))
     return errors.invalidDate;
   if (draft.occasion === "INVITATION") {
+    if (!draft.hostName.trim()) return errors.hostName;
     if (!draft.eventDate || Number.isNaN(new Date(draft.eventDate).getTime()))
       return errors.eventDate;
     if (!draft.venueName.trim()) return errors.venue;

@@ -68,6 +68,7 @@ const draft = reactive<MomentDraft>({
   mapUrl: "",
   dressCode: "",
   eventSchedule: "",
+  hostName: "",
 });
 
 const suggestedTitle = computed(() =>
@@ -126,7 +127,13 @@ const minimumUnlockDate = computed(() => {
 function nextStep() {
   formError.value = "";
   if (step.value === 1 && !draft.recipientName.trim()) {
-    formError.value = creatorCopy.value.errors.recipient;
+    formError.value = draft.occasion === "INVITATION"
+      ? creatorCopy.value.errors.eventName
+      : creatorCopy.value.errors.recipient;
+    return;
+  }
+  if (step.value === 1 && draft.occasion === "INVITATION" && !draft.hostName.trim()) {
+    formError.value = creatorCopy.value.errors.hostName;
     return;
   }
   if (step.value === 2 && photos.value.length < 1) {
@@ -250,7 +257,10 @@ async function publishMoment() {
         message: draft.message,
         secretMessage: draft.secretMessage,
         theme: draft.theme,
-        specialDate: draft.specialDate || undefined,
+        specialDate:
+          draft.occasion !== "INVITATION" && draft.specialDate
+            ? draft.specialDate
+            : undefined,
         publishAt: draft.publishAt
           ? new Date(draft.publishAt).toISOString()
           : undefined,
@@ -262,6 +272,7 @@ async function publishMoment() {
         mapUrl: draft.occasion === "INVITATION" && draft.mapUrl ? draft.mapUrl : undefined,
         dressCode: draft.occasion === "INVITATION" && draft.dressCode ? draft.dressCode : undefined,
         eventSchedule: draft.occasion === "INVITATION" && draft.eventSchedule ? draft.eventSchedule : undefined,
+        hostName: draft.occasion === "INVITATION" ? draft.hostName : undefined,
       },
     });
     momentId = created.id;
@@ -450,9 +461,9 @@ onBeforeUnmount(() => {
       >
         <section v-if="step === 1" aria-labelledby="step-one-title">
           <p class="step-label">{{ creatorCopy.stepLabel(1) }}</p>
-          <h2 id="step-one-title">{{ creatorCopy.personTitle }}</h2>
+          <h2 id="step-one-title">{{ draft.occasion === 'INVITATION' ? creatorCopy.invitationPersonTitle : creatorCopy.personTitle }}</h2>
           <label for="recipient-name" class="field-label mt-6"
-            >{{ creatorCopy.recipientName }}</label
+            >{{ draft.occasion === 'INVITATION' ? creatorCopy.eventName : creatorCopy.recipientName }}</label
           >
           <input
             id="recipient-name"
@@ -460,9 +471,13 @@ onBeforeUnmount(() => {
             maxlength="80"
             required
             class="field-input mt-2"
-            :placeholder="creatorCopy.recipientPlaceholder"
+            :placeholder="draft.occasion === 'INVITATION' ? creatorCopy.eventNamePlaceholder : creatorCopy.recipientPlaceholder"
             autocomplete="off"
           />
+          <div v-if="draft.occasion === 'INVITATION'" class="mt-5">
+            <label for="host-name" class="field-label">{{ creatorCopy.hostName }}</label>
+            <input id="host-name" v-model="draft.hostName" maxlength="120" required class="field-input mt-2" :placeholder="creatorCopy.hostNamePlaceholder" autocomplete="organization" />
+          </div>
           <fieldset class="mt-7">
             <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
             <div class="occasion-grid mt-3">
@@ -575,8 +590,8 @@ onBeforeUnmount(() => {
               />
               <p class="character-count">{{ draft.message.length }} / 3000</p>
             </div>
-            <div class="grid gap-5 sm:grid-cols-2">
-              <div>
+            <div class="grid gap-5" :class="{ 'sm:grid-cols-2': draft.occasion !== 'INVITATION' }">
+              <div v-if="draft.occasion !== 'INVITATION'">
                 <label for="special-date" class="field-label"
                   >{{ creatorCopy.specialDate }}
                   <span>({{ creatorCopy.optional }})</span></label

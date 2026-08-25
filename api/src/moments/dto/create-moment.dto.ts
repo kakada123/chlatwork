@@ -93,4 +93,9 @@ export class CreateMomentDto {
   @IsString()
   @MaxLength(1500)
   eventSchedule?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  hostName?: string;
 }

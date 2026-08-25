@@ -108,4 +108,5 @@ export interface MomentDraft {
   mapUrl: string;
   dressCode: string;
   eventSchedule: string;
+  hostName: string;
 }

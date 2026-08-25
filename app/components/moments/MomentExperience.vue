@@ -111,6 +111,7 @@ const mapEmbedUrl = computed(() =>
     : "",
 );
 const dressCode = computed(() => readMomentBlockText(eventBlock.value, "dressCode"));
+const hostName = computed(() => readMomentBlockText(eventBlock.value, "hostName"));
 const eventSchedule = computed(() => readMomentBlockText(scheduleBlock.value, "schedule"));
 const eventDetailCount = computed(() =>
   Number(Boolean(venueName.value || eventAddress.value)) + Number(Boolean(dressCode.value)),
@@ -255,6 +256,7 @@ onBeforeUnmount(cancelHold);
     <section v-if="eventBlock" class="moment-section event-section" aria-labelledby="event-details-title">
       <p class="section-kicker">{{ experienceCopy.eventDetails }}</p>
       <h2 id="event-details-title">{{ formattedEventDate }}</h2>
+      <p v-if="hostName" class="event-host">{{ experienceCopy.hostedBy(hostName) }}</p>
       <div class="event-actions">
         <a v-if="calendarUrl" :href="calendarUrl" target="_blank" rel="noopener noreferrer"><CalendarDays class="h-5 w-5" />{{ experienceCopy.addCalendar }}</a>
       </div>
@@ -619,6 +621,7 @@ onBeforeUnmount(cancelHold);
   line-height: 1.5;
 }
 .event-section h2 { max-width: 48rem; margin-inline: auto; }
+.event-host { margin-top: .75rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .9rem; font-weight: 700; }
 .event-actions { display: flex; justify-content: center; margin-top: 1.5rem; }
 .event-actions a,
 .event-detail-card a { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--moment-accent); padding: .75rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .8rem; font-weight: 800; }

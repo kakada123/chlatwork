@@ -26,6 +26,7 @@ const draft: MomentDraft = {
   mapUrl: "",
   dressCode: "",
   eventSchedule: "",
+  hostName: "",
 };
 
 const readProjectFile = (path: string) =>
@@ -50,7 +51,7 @@ test("default story copy follows the selected Moment occasion", () => {
   const birthday = getMomentDefaultStory("BIRTHDAY", "en", "Neth");
   const khmerInvitation = getMomentDefaultStory("INVITATION", "km", "ណែត");
 
-  assert.match(invitation.message, /Neth, we would be delighted/);
+  assert.match(invitation.message, /We would be delighted/);
   assert.match(invitation.secret, /RSVP/);
   assert.match(birthday.message, /Happy birthday, Neth/);
   assert.match(khmerInvitation.message, /សូមអញ្ជើញ/);
@@ -92,6 +93,25 @@ test("preview uses ordered extensible blocks and photos", () => {
     getMomentFormError({ ...draft, secretMessage: " " }, 2),
     "Add the secret surprise message.",
   );
+});
+
+test("invitation Moments use only the event date", () => {
+  const invitationPreview = buildPreviewMoment(
+    {
+      ...draft,
+      occasion: "INVITATION",
+      specialDate: "2026-08-28",
+      eventDate: "2026-08-28T18:00",
+    },
+    [],
+  );
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
+
+  assert.equal(
+    invitationPreview.blocks.filter((block) => block.type === "COUNTER").length,
+    0,
+  );
+  assert.match(creator, /v-if="draft\.occasion !== 'INVITATION'"/);
 });
 
 test("published Moment surfaces are unlisted and validate image content", () => {
@@ -231,6 +251,8 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   assert.match(controller, /@Post\(':slug\/rsvp'\)/);
   assert.match(proxy, /requestAuthApi\(event, `\/moments\/\$\{slug\}\/rsvp`/);
   assert.match(creator, /draft\.occasion === "INVITATION"/);
+  assert.match(creator, /creatorCopy\.eventName/);
+  assert.match(creator, /v-model="draft\.hostName"/);
   assert.match(experience, /experienceCopy\.rsvpTitle/);
   assert.match(experience, /experienceCopy\.openMap/);
   assert.match(experience, /output=embed/);
@@ -242,8 +264,8 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_rsvps"/);
   assert.match(creator, /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/);
   const locales = readProjectFile("app/data/moment-locales.ts");
-  assert.match(locales, /INVITATION: \{ message: `\$\{name\} យើងខ្ញុំមានសេចក្តីរីករាយ/);
-  assert.match(locales, /INVITATION: \{ message: `\$\{name\}, we would be delighted/);
+  assert.match(locales, /INVITATION: \{ message: "យើងខ្ញុំមានសេចក្តីរីករាយ/);
+  assert.match(locales, /INVITATION: \{ message: "We would be delighted/);
 });
 
 test("personalized invitation guest links keep names private and connect RSVP identity", () => {

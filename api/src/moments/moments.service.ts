@@ -78,10 +78,11 @@ export class MomentsService {
       : null;
     const venueName = dto.venueName?.trim() ?? '';
     const eventAddress = dto.eventAddress?.trim() ?? '';
+    const hostName = dto.hostName?.trim() ?? '';
     const mapUrl = dto.mapUrl?.trim() ?? '';
-    if (isInvitation && (!venueName || !eventAddress)) {
+    if (isInvitation && (!venueName || !eventAddress || !hostName)) {
       throw new BadRequestException(
-        'Invitation venue name and address are required',
+        'Invitation host, venue name, and address are required',
       );
     }
     if (mapUrl) {
@@ -107,6 +108,7 @@ export class MomentsService {
         date: eventDate!.toISOString(),
         venueName,
         dressCode: dto.dressCode?.trim() ?? '',
+        hostName,
       });
       addBlock(MomentBlockType.LOCATION, { venueName, address: eventAddress, mapUrl });
       if (dto.eventSchedule?.trim()) {

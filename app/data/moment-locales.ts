@@ -20,8 +20,13 @@ const EN = {
     defaultSecret:
       "Thank you for being part of my life. There are so many more memories I cannot wait to make with you. ❤️",
     personTitle: "Who are we celebrating?",
+    invitationPersonTitle: "Tell us about the event",
     recipientName: "Their name",
-    recipientPlaceholder: "Neth",
+    recipientPlaceholder: "Sokha",
+    eventName: "Event name",
+    eventNamePlaceholder: "Sokha’s Birthday Party",
+    hostName: "Hosted by",
+    hostNamePlaceholder: "Sopheak & Family",
     chooseOccasion: "Choose an occasion",
     photosTitle: "Choose your favorite photos",
     photosDescription:
@@ -82,6 +87,8 @@ const EN = {
     shareText: "I made a ChlatWork Moment for you ❤️",
     errors: {
       recipient: "Tell us who this Moment is for.",
+      eventName: "Add a name for the event.",
+      hostName: "Add the host’s name.",
       title: "Add a title for the Moment.",
       message: "Write a message for your person.",
       secret: "Add the secret surprise message.",
@@ -154,6 +161,7 @@ const EN = {
     respectfullyInvited: "Respectfully invited",
     invitationNoteKicker: "Additional information",
     invitationNoteTitle: "A note for our guests",
+    hostedBy: (name: string) => `Hosted by ${name}`,
   },
   manager: {
     title: "Your Moments",
@@ -245,8 +253,13 @@ const KM = {
     defaultSecret:
       "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃជីវិតរបស់ខ្ញុំ។ នៅមានអនុស្សាវរីយ៍ជាច្រើនទៀត ដែលខ្ញុំរង់ចាំបង្កើតជាមួយអ្នក។ ❤️",
     personTitle: "តើយើងកំពុងអបអរឱ្យនរណា?",
+    invitationPersonTitle: "ប្រាប់យើងអំពីកម្មវិធី",
     recipientName: "ឈ្មោះរបស់ពួកគេ",
-    recipientPlaceholder: "ណែត",
+    recipientPlaceholder: "សុខា",
+    eventName: "ឈ្មោះកម្មវិធី",
+    eventNamePlaceholder: "កម្មវិធីខួបកំណើតរបស់សុខា",
+    hostName: "រៀបចំដោយ",
+    hostNamePlaceholder: "សុភ័ក្រ និងក្រុមគ្រួសារ",
     chooseOccasion: "ជ្រើសរើសឱកាស",
     photosTitle: "ជ្រើសរើសរូបថតដែលអ្នកពេញចិត្ត",
     photosDescription:
@@ -307,6 +320,8 @@ const KM = {
     shareText: "ខ្ញុំបានបង្កើត ChlatWork Moment មួយសម្រាប់អ្នក ❤️",
     errors: {
       recipient: "សូមបញ្ចូលឈ្មោះមនុស្សដែលអ្នកចង់អបអរ។",
+      eventName: "សូមបញ្ចូលឈ្មោះកម្មវិធី។",
+      hostName: "សូមបញ្ចូលឈ្មោះម្ចាស់កម្មវិធី។",
       title: "សូមបន្ថែមចំណងជើងសម្រាប់ Moment។",
       message: "សូមសរសេរសារសម្រាប់មនុស្សពិសេសរបស់អ្នក។",
       secret: "សូមបន្ថែមសារភ្ញាក់ផ្អើលសម្ងាត់។",
@@ -380,6 +395,7 @@ const KM = {
     respectfullyInvited: "សូមគោរពអញ្ជើញ",
     invitationNoteKicker: "ព័ត៌មានបន្ថែម",
     invitationNoteTitle: "សម្គាល់សម្រាប់ភ្ញៀវ",
+    hostedBy: (name: string) => `រៀបចំដោយ ${name}`,
   },
   manager: {
     title: "Moments របស់អ្នក",
@@ -488,7 +504,7 @@ const KHMER_OCCASIONS: Record<
   },
   HOLIDAY: { label: "ថ្ងៃឈប់សម្រាក", title: (name) => `🎄 សូមជូនពរ ${name}!` },
   FAREWELL: { label: "លាគ្នា", title: (name) => `👋 សម្រាប់ ${name}` },
-  INVITATION: { label: "ការអញ្ជើញ", title: (name) => `💌 សូមអញ្ជើញ ${name}` },
+  INVITATION: { label: "ការអញ្ជើញ", title: (name) => `💌 ${name}` },
   OTHER: { label: "ឱកាសផ្សេងទៀត", title: (name) => `✨ សម្រាប់ ${name}` },
 };
 
@@ -552,7 +568,7 @@ export function getMomentDefaultStory(
       FATHERS_DAY: { message: `រីករាយទិវាបិតា ${name}! អរគុណសម្រាប់ការណែនាំ ការការពារ និងការគាំទ្រដែលប៉ាផ្តល់ឱ្យជានិច្ច។`, secret: "ប៉ាគឺជាគំរូ និងជាកម្លាំងចិត្តដ៏សំខាន់របស់ខ្ញុំ។ 💙" },
       HOLIDAY: { message: `${name} សូមជូនពរឱ្យរដូវកាលនេះពោរពេញដោយភាពកក់ក្តៅ សុភមង្គល និងពេលវេលាល្អៗជាមួយមនុស្សជាទីស្រឡាញ់។`, secret: "សូមឱ្យថ្ងៃឈប់សម្រាកនេះនាំមកនូវសន្តិភាព និងការចាប់ផ្តើមដ៏ស្រស់ស្អាត។ 🎄" },
       FAREWELL: { message: `${name} អរគុណសម្រាប់ពេលវេលា ការចងចាំ និងអ្វីៗល្អៗដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ទោះបីយើងត្រូវបែកគ្នាក៏ដោយ អនុស្សាវរីយ៍ល្អៗនឹងនៅជាមួយយើងជានិច្ច។ 👋" },
-      INVITATION: { message: `${name} យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់អ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។`, secret: "យើងខ្ញុំរង់ចាំស្វាគមន៍អ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌" },
+      INVITATION: { message: "យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញលោកអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់លោកអ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។", secret: "យើងខ្ញុំរង់ចាំស្វាគមន៍លោកអ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌" },
       OTHER: { message: `${name} ទំព័រតូចមួយនេះត្រូវបានបង្កើតឡើងជាពិសេសសម្រាប់អ្នក និងពេលវេលាដ៏មានអត្ថន័យនេះ។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃពេលវេលាពិសេសនេះ។ ✨" },
     };
     return stories[occasion];
@@ -570,7 +586,7 @@ export function getMomentDefaultStory(
     FATHERS_DAY: { message: `Happy Father’s Day, ${name}! Thank you for your guidance, protection, and constant support.`, secret: "You are an incredible role model and a source of strength every day. 💙" },
     HOLIDAY: { message: `${name}, may this season bring warmth, happiness, and meaningful time with the people you love.`, secret: "Wishing you peace, joy, and a beautiful new beginning. 🎄" },
     FAREWELL: { message: `${name}, thank you for the time, memories, and wonderful experiences we have shared.`, secret: "Distance may change where we are, but the best memories will always stay with us. 👋" },
-    INVITATION: { message: `${name}, we would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.`, secret: "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌" },
+    INVITATION: { message: "We would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.", secret: "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌" },
     OTHER: { message: `${name}, this little page was made especially for you and this meaningful moment.`, secret: "Thank you for being part of this special occasion. ✨" },
   };
   return stories[occasion];
