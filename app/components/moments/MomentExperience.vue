@@ -23,6 +23,7 @@ const props = withDefaults(
     invitationGuest: null,
   },
 );
+const { user, isReady, fetchMe } = useAuth();
 
 const isSecretOpen = ref(false);
 const isHolding = ref(false);
@@ -38,6 +39,7 @@ const voterName = ref("");
 const voteSaving = ref(false);
 const voteSaved = ref(false);
 const voteError = ref("");
+const showVoteLogin = ref(false);
 const pollSummary = ref<MomentPollSummary | undefined>(props.moment.pollSummary);
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -66,6 +68,13 @@ const pollOptions = computed(() => {
     Boolean(option && typeof option === "object" && typeof option.id === "string" && typeof option.label === "string"),
   );
 });
+const pollIdentityMode = computed(() => {
+  const mode = pollBlock.value?.data.identityMode ?? pollSummary.value?.identityMode;
+  if (mode === "NAME_REQUIRED" || mode === "LOGIN_REQUIRED") return mode;
+  return pollBlock.value?.data.requireName === true ? "NAME_REQUIRED" : "ANONYMOUS";
+});
+const pollRequiresName = computed(() => pollIdentityMode.value === "NAME_REQUIRED");
+const pollRequiresLogin = computed(() => pollIdentityMode.value === "LOGIN_REQUIRED");
 const heroTitle = computed(
   () => readMomentBlockText(heroBlock.value, "title") || props.moment.title,
 );
@@ -184,7 +193,14 @@ async function submitRsvp() {
 }
 
 async function submitVote() {
-  if (props.preview || !voteChoice.value || voteSaving.value) return;
+  if (props.preview || voteSaved.value || !voteChoice.value || voteSaving.value) return;
+  if (pollRequiresLogin.value) {
+    if (!isReady.value) await fetchMe();
+    if (!user.value) {
+      showVoteLogin.value = true;
+      return;
+    }
+  }
   voteSaving.value = true;
   voteError.value = "";
   try {
@@ -198,13 +214,44 @@ async function submitVote() {
       method: "POST",
       body: { responseToken, optionId: voteChoice.value, voterName: voterName.value || undefined },
     });
+    localStorage.setItem(
+      `${storageKey}_selection`,
+      JSON.stringify({ optionId: voteChoice.value, voterName: pollRequiresName.value ? voterName.value : "" }),
+    );
     voteSaved.value = true;
-  } catch {
-    voteError.value = experienceCopy.value.voteError;
+  } catch (error) {
+    const status = (error as { statusCode?: number; response?: { status?: number } }).statusCode
+      ?? (error as { response?: { status?: number } }).response?.status;
+    if (status === 409) {
+      voteSaved.value = true;
+      voteError.value = "";
+    } else {
+      voteError.value = experienceCopy.value.voteError;
+    }
   } finally {
     voteSaving.value = false;
   }
 }
+
+async function continueVoteAfterLogin() {
+  showVoteLogin.value = false;
+  await fetchMe();
+  if (user.value) await submitVote();
+}
+
+onMounted(() => {
+  if (props.preview || !pollBlock.value) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem(`chlatwork_moment_vote_${props.moment.slug}_selection`) ?? "null") as { optionId?: string; voterName?: string } | null;
+    if (saved?.optionId && pollOptions.value.some((option) => option.id === saved.optionId)) {
+      voteChoice.value = saved.optionId;
+      voterName.value = saved.voterName ?? "";
+      voteSaved.value = true;
+    }
+  } catch {
+    // A malformed local preference should never prevent someone from voting.
+  }
+});
 
 function pollVotes(optionId: string) {
   return pollSummary.value?.results.find((result) => result.optionId === optionId)?.votes ?? 0;
@@ -357,18 +404,28 @@ onBeforeUnmount(cancelHold);
       <h2 id="poll-title">{{ pollQuestion }}</h2>
       <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
-      <form v-else class="poll-form" @submit.prevent="submitVote">
+      <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="submitVote">
         <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
-          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" required />
+          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteSaved" required />
           <span class="poll-option-copy"><strong>{{ option.label }}</strong><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
           <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
+          <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
+            {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
+          </span>
         </label>
-        <input v-model="voterName" class="poll-name" maxlength="80" :placeholder="experienceCopy.voterName" />
-        <button type="submit" :disabled="voteSaving || !voteChoice">{{ voteSaving ? experienceCopy.savingVote : experienceCopy.submitVote }}</button>
-        <p v-if="voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
-        <p v-if="voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
+        <input v-if="!preview && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" :disabled="voteSaved" required :placeholder="experienceCopy.voterNameRequired" />
+        <button v-if="!preview && !voteSaved" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
+        <p v-if="!preview && voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
+        <p v-if="!preview && voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
       </form>
     </section>
+
+    <AuthLoginDialog
+      :open="showVoteLogin"
+      :locale="locale"
+      @close="showVoteLogin = false"
+      @success="continueVoteAfterLogin"
+    />
 
     <section
       v-if="photos.length && !isVoting"
@@ -733,9 +790,11 @@ onBeforeUnmount(cancelHold);
 .poll-option i { position: absolute; inset: 0 auto 0 0; z-index: 0; background: color-mix(in srgb, var(--moment-accent) 13%, transparent); transition: width .3s ease; }
 .poll-option-copy { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .poll-option-copy small { color: var(--moment-muted); }
+.poll-voters { position: relative; z-index: 1; display: block; margin-top: .55rem; color: var(--moment-muted); font-size: .78rem; line-height: 1.6; }
 .poll-name { width: 100%; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-surface); padding: .9rem 1rem; color: var(--moment-ink); }
 .poll-form > button { border-radius: .85rem; background: var(--moment-accent); padding: .95rem 1rem; color: white; font-weight: 800; }
 .poll-form > button:disabled { cursor: not-allowed; opacity: .55; }
+.poll-form.is-preview .poll-option { cursor: default; }
 .moment-section h2 {
   margin-top: 0.75rem;
   font-size: clamp(2rem, 5vw, 3.2rem);

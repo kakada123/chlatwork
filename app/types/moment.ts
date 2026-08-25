@@ -20,6 +20,7 @@ export type MomentBlockType =
   | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP" | "POLL";
 
 export type MomentRsvpChoice = "YES" | "MAYBE" | "NO";
+export type MomentPollIdentityMode = "ANONYMOUS" | "NAME_REQUIRED" | "LOGIN_REQUIRED";
 export type InvitationRecipientType = "INDIVIDUAL" | "COUPLE" | "FAMILY" | "GROUP";
 export interface MomentRsvpSummary { yes: number; maybe: number; no: number; guests: number }
 
@@ -36,6 +37,7 @@ export interface MomentSummary {
   createdAt: string;
   _count: { media: number };
   rsvpSummary?: MomentRsvpSummary;
+  pollSummary?: MomentPollSummary;
 }
 
 export interface MomentBlock {
@@ -63,8 +65,8 @@ export interface ReadyMoment {
   pollSummary?: MomentPollSummary;
 }
 
-export interface MomentPollResult { optionId: string; label: string; votes: number }
-export interface MomentPollSummary { totalVotes: number; results: MomentPollResult[] }
+export interface MomentPollResult { optionId: string; label: string; votes: number; voters?: string[] }
+export interface MomentPollSummary { totalVotes: number; identityMode?: MomentPollIdentityMode; results: MomentPollResult[] }
 
 export interface LockedMoment {
   status: "locked";
@@ -116,4 +118,5 @@ export interface MomentDraft {
   hostName: string;
   pollQuestion: string;
   pollOptions: string[];
+  pollIdentityMode: MomentPollIdentityMode;
 }

@@ -117,4 +117,8 @@ export class CreateMomentDto {
   @MinLength(1, { each: true })
   @MaxLength(120, { each: true })
   pollOptions?: string[];
+
+  @IsOptional()
+  @IsIn(['ANONYMOUS', 'NAME_REQUIRED', 'LOGIN_REQUIRED'])
+  pollIdentityMode?: 'ANONYMOUS' | 'NAME_REQUIRED' | 'LOGIN_REQUIRED';
 }

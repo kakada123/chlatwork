@@ -3,6 +3,7 @@ import { Plus } from "lucide-vue-next";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
 import MomentInvitationGuests from "~/components/moments/MomentInvitationGuests.vue";
+import MomentVotingResults from "~/components/moments/MomentVotingResults.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { MomentSummary } from "~/types/moment";
 
@@ -124,16 +125,17 @@ async function removeMoment() {
         v-for="moment in moments"
         :key="moment.id"
         class="min-w-0"
-        :class="{ 'sm:col-span-2': moment.occasion === 'INVITATION' }"
+        :class="{ 'sm:col-span-2': ['INVITATION', 'VOTING'].includes(moment.occasion) }"
       >
         <MomentSummaryCard
           :moment="moment"
           deletable
           :deleting="deletingId === moment.id"
-          :stacked="moment.occasion === 'INVITATION'"
+          :stacked="['INVITATION', 'VOTING'].includes(moment.occasion)"
           @delete="requestMomentDelete"
         />
         <MomentInvitationGuests v-if="moment.occasion === 'INVITATION' && moment.status === 'PUBLISHED'" :moment="moment" />
+        <MomentVotingResults v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'" :moment="moment" />
       </li>
     </ul>
 

@@ -112,6 +112,7 @@ export function buildPreviewMoment(
           position: 2,
           data: {
             question: draft.recipientName,
+            identityMode: draft.pollIdentityMode,
             options: draft.pollOptions.map((label, index) => ({ id: `option-${index + 1}`, label })),
           },
         }]

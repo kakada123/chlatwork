@@ -29,6 +29,7 @@ const draft: MomentDraft = {
   hostName: "",
   pollQuestion: "",
   pollOptions: ["", ""],
+  pollIdentityMode: "ANONYMOUS",
 };
 
 const readProjectFile = (path: string) =>
@@ -142,6 +143,28 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /v-if="photos\.length && !isVoting"/);
   assert.match(experience, /v-else-if="!isVoting"\s+class="moment-section secret-section"/);
   assert.match(experience, /<header v-if="!isVoting" class="moment-hero">/);
+  assert.match(experience, /pollRequiresName/);
+  assert.match(experience, /_selection/);
+  assert.match(experience, /experienceCopy\.voters/);
+  assert.match(creator, /value="LOGIN_REQUIRED"/);
+  assert.match(experience, /showVoteLogin/);
+  assert.match(experience, /:disabled="preview \|\| voteSaved"/);
+  assert.match(experience, /<form class="poll-form" :class="\{ 'is-preview': preview \}"/);
+  const voteService = readProjectFile("api/src/moments/moments.service.ts");
+  const voteController = readProjectFile("api/src/moments/moments.controller.ts");
+  const voteProxy = readProjectFile("server/api/moments/[id]/vote.post.ts");
+  const voteResults = readProjectFile("app/components/moments/MomentVotingResults.vue");
+  const managerPage = readProjectFile("app/pages/moments/index.vue");
+  assert.match(voteService, /`account:\$\{user!\.id\}`/);
+  assert.match(voteService, /UnauthorizedException\('Log in to vote in this poll'\)/);
+  assert.match(voteService, /momentVote\.create/);
+  assert.match(voteService, /error\.code === 'P2002'/);
+  assert.doesNotMatch(voteService, /momentVote\.upsert/);
+  assert.match(voteController, /OptionalJwtAuthGuard/);
+  assert.match(voteProxy, /requestOptionallyAuthenticatedApi/);
+  assert.match(voteService, /pollSummary: await this\.getPollSummary/);
+  assert.match(managerPage, /<MomentVotingResults/);
+  assert.match(voteResults, /result\.voters\.join/);
 });
 
 test("published Moment surfaces are unlisted and validate image content", () => {
@@ -188,6 +211,8 @@ test("Moment creator keeps dark interaction states readable", () => {
   );
   assert.match(creator, /html\.dark \.moments-creator \.success-copy/);
   assert.match(creator, /html\.dark \.moments-creator \.preview-link:hover/);
+  assert.match(creator, /fetchError\.response\?\._data\?\.message/);
+  assert.doesNotMatch(creator, /if \(locale\.value === "km"\) return creatorCopy\.value\.errors\.publishFailed/);
 });
 
 test("Khmer Moment headings use Khmer typography and spacing", () => {

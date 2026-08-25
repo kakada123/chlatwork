@@ -143,3 +143,19 @@ export async function requestAuthenticatedApi<T>(
     return await send(refreshed.accessToken);
   }
 }
+
+export async function requestOptionallyAuthenticatedApi<T>(
+  event: H3Event,
+  path: string,
+  options: Parameters<typeof $fetch<T>>[1] = {},
+): Promise<T> {
+  let accessToken = getAccessToken(event);
+  if (!accessToken && getRefreshToken(event)) {
+    accessToken = (await refreshAuthCookies(event).catch(() => null))?.accessToken;
+  }
+  if (!accessToken) return requestAuthApi<T>(event, path, options);
+
+  const headers = new Headers(options.headers as HeadersInit | undefined);
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  return requestAuthApi<T>(event, path, { ...options, headers });
+}

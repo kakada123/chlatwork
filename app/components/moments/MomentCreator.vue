@@ -70,6 +70,7 @@ const draft = reactive<MomentDraft>({
   hostName: "",
   pollQuestion: "",
   pollOptions: ["", ""],
+  pollIdentityMode: "ANONYMOUS",
 });
 const visibleSteps = computed(() =>
   draft.occasion === "VOTING" ? [1, 3, 4] : [1, 2, 3, 4],
@@ -294,6 +295,7 @@ async function publishMoment() {
         hostName: draft.occasion === "INVITATION" ? draft.hostName : undefined,
         pollQuestion: draft.occasion === "VOTING" ? draft.recipientName : undefined,
         pollOptions: draft.occasion === "VOTING" ? draft.pollOptions : undefined,
+        pollIdentityMode: draft.occasion === "VOTING" ? draft.pollIdentityMode : undefined,
       },
     });
     momentId = created.id;
@@ -372,15 +374,17 @@ function downloadQr() {
 function getRequestError(error: unknown) {
   const fetchError = error as {
     data?: { message?: string | string[]; statusMessage?: string };
+    response?: { _data?: { message?: string | string[]; statusMessage?: string } };
     statusMessage?: string;
     message?: string;
   };
   const message =
     fetchError.data?.message ??
     fetchError.data?.statusMessage ??
+    fetchError.response?._data?.message ??
+    fetchError.response?._data?.statusMessage ??
     fetchError.statusMessage ??
     fetchError.message;
-  if (locale.value === "km") return creatorCopy.value.errors.publishFailed;
   return Array.isArray(message)
     ? message.join(", ")
     : message || creatorCopy.value.errors.publishFailed;
@@ -624,6 +628,23 @@ onBeforeUnmount(() => {
                   <button v-if="draft.pollOptions.length > 2" type="button" class="secondary-button" :aria-label="creatorCopy.removePollOption" @click="removePollOption(index)"><Trash2 class="h-4 w-4" /></button>
                 </div>
                 <button v-if="draft.pollOptions.length < 10" type="button" class="secondary-button justify-self-start" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
+              </div>
+              <div class="mt-5">
+                <span class="field-label">{{ creatorCopy.voterIdentity }}</span>
+                <div class="mt-2 grid gap-3 sm:grid-cols-3">
+                  <label class="choice-card" :class="{ selected: draft.pollIdentityMode === 'ANONYMOUS' }">
+                    <input v-model="draft.pollIdentityMode" type="radio" value="ANONYMOUS" class="sr-only" />
+                    <span>🙈</span><span><strong>{{ creatorCopy.anonymousVote }}</strong><small class="block">{{ creatorCopy.anonymousVoteHelp }}</small></span>
+                  </label>
+                  <label class="choice-card" :class="{ selected: draft.pollIdentityMode === 'NAME_REQUIRED' }">
+                    <input v-model="draft.pollIdentityMode" type="radio" value="NAME_REQUIRED" class="sr-only" />
+                    <span>👤</span><span><strong>{{ creatorCopy.namedVote }}</strong><small class="block">{{ creatorCopy.namedVoteHelp }}</small></span>
+                  </label>
+                  <label class="choice-card" :class="{ selected: draft.pollIdentityMode === 'LOGIN_REQUIRED' }">
+                    <input v-model="draft.pollIdentityMode" type="radio" value="LOGIN_REQUIRED" class="sr-only" />
+                    <span>🔐</span><span><strong>{{ creatorCopy.loginVote }}</strong><small class="block">{{ creatorCopy.loginVoteHelp }}</small></span>
+                  </label>
+                </div>
               </div>
             </fieldset>
             <div class="grid gap-5" :class="{ 'sm:grid-cols-2': !['INVITATION', 'VOTING'].includes(draft.occasion) }">

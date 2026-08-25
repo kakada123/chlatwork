@@ -5,6 +5,7 @@ import {
   GoneException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { basename } from 'node:path';
@@ -22,6 +23,7 @@ import type { CreateMomentDto } from './dto/create-moment.dto';
 import type { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import type { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
+import type { CurrentUser } from '../auth/types';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -126,6 +128,7 @@ export class MomentsService {
     if (isVoting) {
       addBlock(MomentBlockType.POLL, {
         question: pollQuestion,
+        identityMode: dto.pollIdentityMode ?? 'ANONYMOUS',
         options: pollOptions.map((label, index) => ({ id: `option-${index + 1}`, label })),
       });
     }
@@ -254,12 +257,27 @@ export class MomentsService {
         publishAt: true,
         expiresAt: true,
         createdAt: true,
+        blocks: {
+          where: { type: MomentBlockType.POLL },
+          select: { data: true },
+          take: 1,
+        },
         _count: { select: { media: true, rsvps: true } },
       },
     });
     return Promise.all(
       moments.map(async (moment) => {
-        if (moment.occasion !== MomentOccasion.INVITATION) return moment;
+        const { blocks, ...summary } = moment;
+        if (moment.occasion === MomentOccasion.VOTING) {
+          const poll = blocks[0]?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label: string }> } | undefined;
+          return {
+            ...summary,
+            ...(poll?.options
+              ? { pollSummary: await this.getPollSummary(moment.id, poll.options, poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS')) }
+              : {}),
+          };
+        }
+        if (moment.occasion !== MomentOccasion.INVITATION) return summary;
         const groups = await this.prisma.momentRsvp.groupBy({
           by: ['choice'],
           where: { momentId: moment.id },
@@ -267,7 +285,7 @@ export class MomentsService {
           _sum: { guestCount: true },
         });
         return {
-          ...moment,
+          ...summary,
           rsvpSummary: {
             yes: groups.find((group) => group.choice === MomentRsvpChoice.YES)?._count._all ?? 0,
             maybe: groups.find((group) => group.choice === MomentRsvpChoice.MAYBE)?._count._all ?? 0,
@@ -416,24 +434,47 @@ export class MomentsService {
     return response;
   }
 
-  async respondToVote(slug: string, dto: RespondMomentVoteDto) {
+  async respondToVote(slug: string, dto: RespondMomentVoteDto, user: CurrentUser | null) {
     const moment = await this.prisma.moment.findUnique({
       where: { slug },
       include: { blocks: { where: { type: MomentBlockType.POLL } } },
     });
     this.assertPublic(moment);
     if (moment.occasion !== MomentOccasion.VOTING) throw new NotFoundException('Poll not found');
-    const poll = moment.blocks[0]?.data as { options?: Array<{ id: string }> } | undefined;
+    const poll = moment.blocks[0]?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label?: string }> } | undefined;
     if (!poll?.options?.some((option) => option.id === dto.optionId)) {
       throw new BadRequestException('Choose a valid poll option');
     }
-    const responseKey = createHash('sha256').update(dto.responseToken).digest('hex');
-    await this.prisma.momentVote.upsert({
-      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
-      create: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: dto.voterName?.trim() || null },
-      update: { optionId: dto.optionId, voterName: dto.voterName?.trim() || null },
-    });
-    return this.getPollSummary(moment.id, poll.options);
+    const identityMode = poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS');
+    if (identityMode === 'LOGIN_REQUIRED' && !user) {
+      throw new UnauthorizedException('Log in to vote in this poll');
+    }
+    if (identityMode !== 'LOGIN_REQUIRED' && !dto.responseToken) {
+      throw new BadRequestException('A vote response token is required');
+    }
+    let voterName = dto.voterName?.trim() ?? '';
+    if (identityMode === 'NAME_REQUIRED' && !voterName) {
+      throw new BadRequestException('Your name is required for this vote');
+    }
+    if (identityMode === 'LOGIN_REQUIRED') {
+      const account = await this.prisma.user.findUnique({ where: { id: user!.id }, select: { name: true } });
+      voterName = account?.name?.trim() || 'ChlatWork member';
+    }
+    const identityKey = identityMode === 'LOGIN_REQUIRED' ? `account:${user!.id}` : dto.responseToken!;
+    const responseKey = createHash('sha256').update(identityKey).digest('hex');
+    try {
+      await this.prisma.momentVote.create({
+        // Anonymous polls intentionally discard names even if a modified client sends one.
+        data: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
+      });
+    } catch (error) {
+      // The database uniqueness constraint is the final protection against repeat and concurrent votes.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new ConflictException('You have already voted in this poll');
+      }
+      throw error;
+    }
+    return this.getPollSummary(moment.id, poll.options, identityMode);
   }
 
   async remove(userId: string, momentId: string) {
@@ -467,7 +508,7 @@ export class MomentsService {
     }
 
     const pollBlock = moment.blocks.find((block) => block.type === MomentBlockType.POLL);
-    const pollData = pollBlock?.data as { options?: Array<{ id: string; label: string }> } | undefined;
+    const pollData = pollBlock?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label: string }> } | undefined;
     return {
       status: 'ready' as const,
       slug: moment.slug,
@@ -487,23 +528,33 @@ export class MomentsService {
         url: `/api/moments/${moment.slug}/media/${media.id}`,
       })),
       ...(pollData?.options
-        ? { pollSummary: await this.getPollSummary(moment.id, pollData.options) }
+        ? { pollSummary: await this.getPollSummary(moment.id, pollData.options, pollData.identityMode ?? (pollData.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS')) }
         : {}),
     };
   }
 
-  private async getPollSummary(momentId: string, options: Array<{ id: string; label?: string }>) {
+  private async getPollSummary(momentId: string, options: Array<{ id: string; label?: string }>, identityMode: string) {
     const groups = await this.prisma.momentVote.groupBy({
       by: ['optionId'],
       where: { momentId },
       _count: { _all: true },
     });
+    const namedVotes = identityMode !== 'ANONYMOUS'
+      ? await this.prisma.momentVote.findMany({
+          where: { momentId },
+          orderBy: { updatedAt: 'asc' },
+          select: { optionId: true, voterName: true },
+        })
+      : [];
     const results = options.map((option) => ({
       optionId: option.id,
       label: option.label ?? '',
       votes: groups.find((group) => group.optionId === option.id)?._count._all ?? 0,
+      ...(identityMode !== 'ANONYMOUS'
+        ? { voters: namedVotes.filter((vote) => vote.optionId === option.id).flatMap((vote) => vote.voterName ? [vote.voterName] : []) }
+        : {}),
     }));
-    return { totalVotes: results.reduce((total, result) => total + result.votes, 0), results };
+    return { totalVotes: results.reduce((total, result) => total + result.votes, 0), identityMode, results };
   }
 
   async getPublicMedia(slug: string, mediaId: string) {

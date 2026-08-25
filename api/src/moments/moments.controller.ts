@@ -15,8 +15,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import { CurrentAuthUser } from '../auth/current-user.decorator';
+import { CurrentAuthUser, OptionalCurrentAuthUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 import type { CurrentUser } from '../auth/types';
 import { CreateMomentDto } from './dto/create-moment.dto';
 import { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
@@ -141,7 +142,12 @@ export class MomentsController {
 
   @Post(':slug/vote')
   @Throttle({ default: { limit: 20, ttl: 60_000 } })
-  respondToVote(@Param('slug') slug: string, @Body() dto: RespondMomentVoteDto) {
-    return this.moments.respondToVote(slug, dto);
+  @UseGuards(OptionalJwtAuthGuard)
+  respondToVote(
+    @Param('slug') slug: string,
+    @Body() dto: RespondMomentVoteDto,
+    @OptionalCurrentAuthUser() user: CurrentUser | null,
+  ) {
+    return this.moments.respondToVote(slug, dto, user);
   }
 }
