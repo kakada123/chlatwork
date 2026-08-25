@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { MOMENT_COPY } from "../app/data/moment-locales.ts";
+import { MOMENT_COPY, getMomentDefaultStory } from "../app/data/moment-locales.ts";
 import {
   buildMomentTitle,
   buildPreviewMoment,
@@ -20,6 +20,12 @@ const draft: MomentDraft = {
   theme: "ROMANTIC",
   specialDate: "2025-05-22",
   publishAt: "",
+  eventDate: "",
+  venueName: "",
+  eventAddress: "",
+  mapUrl: "",
+  dressCode: "",
+  eventSchedule: "",
 };
 
 const readProjectFile = (path: string) =>
@@ -37,6 +43,18 @@ test("Moment titles and dates are deterministic", () => {
     unit: "days",
     label: "of memories together",
   });
+});
+
+test("default story copy follows the selected Moment occasion", () => {
+  const invitation = getMomentDefaultStory("INVITATION", "en", "Neth");
+  const birthday = getMomentDefaultStory("BIRTHDAY", "en", "Neth");
+  const khmerInvitation = getMomentDefaultStory("INVITATION", "km", "ណែត");
+
+  assert.match(invitation.message, /Neth, we would be delighted/);
+  assert.match(invitation.secret, /RSVP/);
+  assert.match(birthday.message, /Happy birthday, Neth/);
+  assert.match(khmerInvitation.message, /សូមអញ្ជើញ/);
+  assert.notEqual(invitation.message, birthday.message);
 });
 
 test("Khmer Moment copy covers creation and receiver experiences", () => {
@@ -194,6 +212,32 @@ test("sign out and Moment deletion use the shared confirmation dialog", () => {
   assert.match(dialog, /role="alertdialog"/);
   assert.match(dialog, /cancelButton\.value\?\.focus\(\)/);
   assert.match(dialog, /dark:bg-\[#101214\]/);
+});
+
+test("Invitation Moments collect private RSVP responses end to end", () => {
+  const schema = readProjectFile("api/prisma/schema.prisma");
+  const service = readProjectFile("api/src/moments/moments.service.ts");
+  const controller = readProjectFile("api/src/moments/moments.controller.ts");
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
+  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
+  const proxy = readProjectFile("server/api/moments/[id]/rsvp.post.ts");
+  const sql = readProjectFile("database/updates/2026-08-25-add-moment-invitations.sql");
+
+  assert.match(schema, /INVITATION/);
+  assert.match(schema, /model MomentRsvp/);
+  assert.match(schema, /@@unique\(\[momentId, responseKey\]\)/);
+  assert.match(service, /createHash\('sha256'\)\.update\(dto\.responseToken\)/);
+  assert.match(service, /momentRsvp\.upsert/);
+  assert.match(controller, /@Post\(':slug\/rsvp'\)/);
+  assert.match(proxy, /requestAuthApi\(event, `\/moments\/\$\{slug\}\/rsvp`/);
+  assert.match(creator, /draft\.occasion === "INVITATION"/);
+  assert.match(experience, /experienceCopy\.rsvpTitle/);
+  assert.match(experience, /experienceCopy\.openMap/);
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_rsvps"/);
+  assert.match(creator, /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/);
+  const locales = readProjectFile("app/data/moment-locales.ts");
+  assert.match(locales, /INVITATION: \{ message: `\$\{name\} យើងខ្ញុំមានសេចក្តីរីករាយ/);
+  assert.match(locales, /INVITATION: \{ message: `\$\{name\}, we would be delighted/);
 });
 
 test("Moment language stays scoped and follows shared links", () => {

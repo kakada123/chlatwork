@@ -56,6 +56,7 @@ enum MomentOccasion {
   FATHERS_DAY
   HOLIDAY
   FAREWELL
+  INVITATION
   OTHER
 }
 
@@ -81,6 +82,16 @@ enum MomentBlockType {
   GALLERY
   COUNTER
   SECRET
+  EVENT_DETAILS
+  LOCATION
+  SCHEDULE
+  RSVP
+}
+
+enum MomentRsvpChoice {
+  YES
+  MAYBE
+  NO
 }
 
 model User {
@@ -124,10 +135,28 @@ model Moment {
   updatedAt     DateTime         @updatedAt @map("updated_at")
   blocks        MomentBlock[]
   media         MomentMedia[]
+  rsvps         MomentRsvp[]
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
   @@map("moments")
+}
+
+model MomentRsvp {
+  id            String           @id @default(uuid()) @db.Uuid
+  momentId      String           @map("moment_id") @db.Uuid
+  moment        Moment           @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  responseKey   String           @map("response_key") @db.Char(64)
+  choice        MomentRsvpChoice
+  guestName     String?          @map("guest_name") @db.VarChar(80)
+  guestCount    Int              @default(1) @map("guest_count")
+  note          String?          @db.VarChar(500)
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@unique([momentId, responseKey])
+  @@index([momentId, choice])
+  @@map("moment_rsvps")
 }
 
 model MomentBlock {

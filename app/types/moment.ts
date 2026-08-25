@@ -10,11 +10,16 @@ export type MomentOccasion =
   | "FATHERS_DAY"
   | "HOLIDAY"
   | "FAREWELL"
+  | "INVITATION"
   | "OTHER";
 
 export type MomentTheme = "ROMANTIC" | "CUTE" | "MINIMAL" | "ELEGANT";
 export type MomentBlockType =
-  "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET";
+  | "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET"
+  | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP";
+
+export type MomentRsvpChoice = "YES" | "MAYBE" | "NO";
+export interface MomentRsvpSummary { yes: number; maybe: number; no: number; guests: number }
 
 export interface MomentSummary {
   id: string;
@@ -28,6 +33,7 @@ export interface MomentSummary {
   expiresAt: string | null;
   createdAt: string;
   _count: { media: number };
+  rsvpSummary?: MomentRsvpSummary;
 }
 
 export interface MomentBlock {
@@ -71,4 +77,10 @@ export interface MomentDraft {
   theme: MomentTheme;
   specialDate: string;
   publishAt: string;
+  eventDate: string;
+  venueName: string;
+  eventAddress: string;
+  mapUrl: string;
+  dressCode: string;
+  eventSchedule: string;
 }

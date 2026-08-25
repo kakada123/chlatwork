@@ -13,11 +13,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { CurrentAuthUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { CurrentUser } from '../auth/types';
 import { CreateMomentDto } from './dto/create-moment.dto';
+import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -89,5 +91,14 @@ export class MomentsController {
   @Get(':slug')
   getPublic(@Param('slug') slug: string) {
     return this.moments.getPublic(slug);
+  }
+
+  @Post(':slug/rsvp')
+  @Throttle({ default: { limit: 12, ttl: 60_000 } })
+  respondToInvitation(
+    @Param('slug') slug: string,
+    @Body() dto: RespondMomentRsvpDto,
+  ) {
+    return this.moments.respondToInvitation(slug, dto);
   }
 }

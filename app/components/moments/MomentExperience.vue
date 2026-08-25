@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import confetti from "canvas-confetti";
-import { Gift, Heart, Image as ImageIcon, Sparkles } from "lucide-vue-next";
+import { CalendarDays, Gift, Heart, Image as ImageIcon, MapPin, Navigation, Sparkles } from "lucide-vue-next";
 import {
   MOMENT_COPY,
   getMomentOccasionCopy,
@@ -8,7 +8,7 @@ import {
 } from "~/data/moment-locales";
 import { getMomentOccasion } from "~/data/moments";
 import { getMomentCounterCopy, readMomentBlockText } from "~/lib/moments";
-import type { ReadyMoment } from "~/types/moment";
+import type { MomentRsvpChoice, ReadyMoment } from "~/types/moment";
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +24,13 @@ const props = withDefaults(
 
 const isSecretOpen = ref(false);
 const isHolding = ref(false);
+const rsvpChoice = ref<MomentRsvpChoice | "">("");
+const rsvpName = ref("");
+const rsvpGuestCount = ref(1);
+const rsvpNote = ref("");
+const rsvpSaving = ref(false);
+const rsvpSaved = ref(false);
+const rsvpError = ref("");
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 
 const heroBlock = computed(() =>
@@ -38,6 +45,10 @@ const counterBlock = computed(() =>
 const secretBlock = computed(() =>
   props.moment.blocks.find((block) => block.type === "SECRET"),
 );
+const eventBlock = computed(() => props.moment.blocks.find((block) => block.type === "EVENT_DETAILS"));
+const locationBlock = computed(() => props.moment.blocks.find((block) => block.type === "LOCATION"));
+const scheduleBlock = computed(() => props.moment.blocks.find((block) => block.type === "SCHEDULE"));
+const rsvpBlock = computed(() => props.moment.blocks.find((block) => block.type === "RSVP"));
 const heroTitle = computed(
   () => readMomentBlockText(heroBlock.value, "title") || props.moment.title,
 );
@@ -68,6 +79,51 @@ const heroPhoto = computed(() => photos.value[0]);
 const themeClass = computed(
   () => `moment-theme-${props.moment.theme.toLowerCase()}`,
 );
+const eventDate = computed(() => readMomentBlockText(eventBlock.value, "date"));
+const venueName = computed(() => readMomentBlockText(locationBlock.value, "venueName") || readMomentBlockText(eventBlock.value, "venueName"));
+const eventAddress = computed(() => readMomentBlockText(locationBlock.value, "address"));
+const mapUrl = computed(() => readMomentBlockText(locationBlock.value, "mapUrl"));
+const directionsUrl = computed(() =>
+  mapUrl.value || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venueName.value} ${eventAddress.value}`)}`,
+);
+const dressCode = computed(() => readMomentBlockText(eventBlock.value, "dressCode"));
+const eventSchedule = computed(() => readMomentBlockText(scheduleBlock.value, "schedule"));
+const formattedEventDate = computed(() => {
+  const date = new Date(eventDate.value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(props.locale === "km" ? "km-KH" : undefined, { dateStyle: "full", timeStyle: "short" }).format(date);
+});
+const calendarUrl = computed(() => {
+  const date = new Date(eventDate.value);
+  if (Number.isNaN(date.getTime())) return "";
+  const format = (value: Date) => value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = new Date(date.getTime() + 2 * 60 * 60 * 1000);
+  const params = new URLSearchParams({ action: "TEMPLATE", text: props.moment.title, dates: `${format(date)}/${format(end)}`, location: `${venueName.value}, ${eventAddress.value}`, details: message.value });
+  return `https://calendar.google.com/calendar/render?${params}`;
+});
+
+async function submitRsvp() {
+  if (props.preview || !rsvpChoice.value || rsvpSaving.value) return;
+  rsvpSaving.value = true;
+  rsvpError.value = "";
+  try {
+    const storageKey = `chlatwork_moment_rsvp_${props.moment.slug}`;
+    let responseToken = localStorage.getItem(storageKey);
+    if (!responseToken) {
+      responseToken = crypto.randomUUID();
+      localStorage.setItem(storageKey, responseToken);
+    }
+    await $fetch(`/api/moments/${props.moment.slug}/rsvp`, {
+      method: "POST",
+      body: { responseToken, choice: rsvpChoice.value, guestName: rsvpName.value || undefined, guestCount: rsvpChoice.value === "NO" ? 0 : rsvpGuestCount.value, note: rsvpNote.value || undefined },
+    });
+    rsvpSaved.value = true;
+  } catch {
+    rsvpError.value = experienceCopy.value.rsvpError;
+  } finally {
+    rsvpSaving.value = false;
+  }
+}
 
 function startHold() {
   if (isSecretOpen.value || holdTimer) return;
@@ -150,6 +206,46 @@ onBeforeUnmount(cancelHold);
       </p>
       <p class="personal-message">“{{ message }}”</p>
       <Heart class="mx-auto mt-7 h-5 w-5 fill-current" aria-hidden="true" />
+    </section>
+
+    <section v-if="eventBlock" class="moment-section event-section" aria-labelledby="event-details-title">
+      <p class="section-kicker">{{ experienceCopy.eventDetails }}</p>
+      <h2 id="event-details-title">{{ formattedEventDate }}</h2>
+      <div class="event-actions">
+        <a v-if="calendarUrl" :href="calendarUrl" target="_blank" rel="noopener noreferrer"><CalendarDays class="h-5 w-5" />{{ experienceCopy.addCalendar }}</a>
+      </div>
+      <div class="event-detail-grid">
+        <div v-if="venueName || eventAddress" class="event-detail-card">
+          <MapPin class="h-6 w-6" aria-hidden="true" />
+          <strong>{{ experienceCopy.location }}</strong>
+          <span>{{ venueName }}</span><p>{{ eventAddress }}</p>
+          <a v-if="eventAddress" :href="directionsUrl" target="_blank" rel="noopener noreferrer"><Navigation class="h-4 w-4" />{{ experienceCopy.openMap }}</a>
+        </div>
+        <div v-if="dressCode" class="event-detail-card"><Sparkles class="h-6 w-6" aria-hidden="true" /><strong>{{ experienceCopy.dressCode }}</strong><p>{{ dressCode }}</p></div>
+      </div>
+      <div v-if="eventSchedule" class="schedule-card"><strong>{{ experienceCopy.schedule }}</strong><p>{{ eventSchedule }}</p></div>
+    </section>
+
+    <section v-if="rsvpBlock" class="moment-section rsvp-section" aria-labelledby="rsvp-title">
+      <p class="section-kicker">{{ experienceCopy.rsvpKicker }}</p>
+      <h2 id="rsvp-title">{{ experienceCopy.rsvpTitle }}</h2>
+      <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewRsvp }}</p>
+      <form v-else class="rsvp-form" @submit.prevent="submitRsvp">
+        <div class="rsvp-choices">
+          <label v-for="choice in ([['YES', experienceCopy.yes], ['MAYBE', experienceCopy.maybe], ['NO', experienceCopy.no]] as const)" :key="choice[0]" :class="{ selected: rsvpChoice === choice[0] }">
+            <input v-model="rsvpChoice" type="radio" name="rsvp" :value="choice[0]" required />
+            <span>{{ choice[1] }}</span>
+          </label>
+        </div>
+        <div v-if="rsvpChoice" class="rsvp-fields">
+          <input v-model="rsvpName" maxlength="80" :placeholder="experienceCopy.guestName" />
+          <label v-if="rsvpChoice !== 'NO'">{{ experienceCopy.guestCount }}<input v-model.number="rsvpGuestCount" type="number" min="1" max="20" required /></label>
+          <textarea v-model="rsvpNote" maxlength="500" rows="3" :placeholder="experienceCopy.guestNote" />
+          <button type="submit" :disabled="rsvpSaving">{{ rsvpSaving ? experienceCopy.sendingRsvp : experienceCopy.sendRsvp }}</button>
+        </div>
+        <p v-if="rsvpSaved" class="rsvp-success" role="status">{{ experienceCopy.rsvpSaved }}</p>
+        <p v-if="rsvpError" class="rsvp-error" role="alert">{{ rsvpError }}</p>
+      </form>
     </section>
 
     <section
@@ -456,6 +552,38 @@ onBeforeUnmount(cancelHold);
   font-size: clamp(1.5rem, 4vw, 2.45rem);
   line-height: 1.5;
 }
+.event-section h2 { max-width: 48rem; margin-inline: auto; }
+.event-actions { display: flex; justify-content: center; margin-top: 1.5rem; }
+.event-actions a,
+.event-detail-card a { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--moment-accent); padding: .75rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .8rem; font-weight: 800; }
+.event-detail-grid { display: grid; margin-top: 2rem; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.event-detail-card,
+.schedule-card { border: 1px solid var(--moment-border); border-radius: 1.5rem; background: var(--moment-surface); padding: 1.5rem; box-shadow: 0 1rem 3rem var(--moment-shadow); backdrop-filter: blur(12px); }
+.event-detail-card { display: flex; flex-direction: column; align-items: center; gap: .7rem; }
+.event-detail-card > svg { color: var(--moment-accent); }
+.event-detail-card span { font-size: 1.25rem; font-weight: 700; }
+.event-detail-card p { color: var(--moment-muted); white-space: pre-line; }
+.schedule-card { margin-top: 1rem; }
+.schedule-card strong { color: var(--moment-accent); }
+.schedule-card p { margin-top: 1rem; white-space: pre-line; line-height: 1.9; }
+.rsvp-section { max-width: 760px; }
+.rsvp-form { margin-top: 2rem; }
+.rsvp-choices { display: grid; gap: .75rem; grid-template-columns: repeat(3, minmax(0, 1fr)); font-family: ui-sans-serif, system-ui, sans-serif; }
+.rsvp-choices label { cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: 1rem .7rem; font-size: .82rem; font-weight: 800; transition: .18s ease; }
+.rsvp-choices label.selected { border-color: var(--moment-accent); background: var(--moment-accent); color: white; transform: translateY(-2px); }
+.rsvp-choices input { position: absolute; opacity: 0; pointer-events: none; }
+.rsvp-fields { display: grid; margin-top: 1rem; gap: .75rem; border: 1px solid var(--moment-border); border-radius: 1.5rem; background: var(--moment-surface); padding: 1rem; text-align: left; }
+.rsvp-fields input,
+.rsvp-fields textarea { width: 100%; border: 1px solid var(--moment-border); border-radius: .8rem; background: color-mix(in srgb, var(--moment-bg) 78%, transparent); padding: .85rem; color: var(--moment-ink); font-family: ui-sans-serif, system-ui, sans-serif; }
+.rsvp-fields label { color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 700; }
+.rsvp-fields label input { margin-top: .4rem; }
+.rsvp-fields button { border-radius: .85rem; background: var(--moment-accent); padding: .9rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 800; }
+.rsvp-fields button:disabled { cursor: wait; opacity: .6; }
+.rsvp-status,
+.rsvp-success,
+.rsvp-error { margin-top: 1rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
+.rsvp-success { color: #15803d; }
+.rsvp-error { color: #dc2626; }
 .moment-section h2 {
   margin-top: 0.75rem;
   font-size: clamp(2rem, 5vw, 3.2rem);
@@ -610,6 +738,10 @@ onBeforeUnmount(cancelHold);
   to {
     width: 100%;
   }
+}
+@media (max-width: 699px) {
+  .event-detail-grid,
+  .rsvp-choices { grid-template-columns: 1fr; }
 }
 @media (min-width: 700px) {
   .photo-grid {

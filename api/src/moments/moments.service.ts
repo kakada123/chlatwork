@@ -6,17 +6,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { basename } from 'node:path';
 import {
   MomentBlockType,
   MomentOccasion,
+  MomentRsvpChoice,
   MomentStatus,
   MomentTheme,
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateMomentDto } from './dto/create-moment.dto';
+import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -67,26 +69,51 @@ export class MomentsService {
       );
     }
 
+    const isInvitation = dto.occasion === 'INVITATION';
+    const eventDate = isInvitation
+      ? this.parseDate(dto.eventDate ?? '', 'event date')
+      : null;
+    const venueName = dto.venueName?.trim() ?? '';
+    const eventAddress = dto.eventAddress?.trim() ?? '';
+    const mapUrl = dto.mapUrl?.trim() ?? '';
+    if (isInvitation && (!venueName || !eventAddress)) {
+      throw new BadRequestException(
+        'Invitation venue name and address are required',
+      );
+    }
+    if (mapUrl) {
+      let parsedMapUrl: URL;
+      try {
+        parsedMapUrl = new URL(mapUrl);
+      } catch {
+        throw new BadRequestException('Invalid map URL');
+      }
+      if (!['http:', 'https:'].includes(parsedMapUrl.protocol)) {
+        throw new BadRequestException('Map URL must use HTTP or HTTPS');
+      }
+    }
+
     const slug = await this.createUniqueSlug(recipientName);
-    const blocks = [
-      { type: MomentBlockType.HERO, position: 0, data: { title } },
-      { type: MomentBlockType.MESSAGE, position: 1, data: { message } },
-      { type: MomentBlockType.GALLERY, position: 2, data: {} },
-      ...(dto.specialDate
-        ? [
-            {
-              type: MomentBlockType.COUNTER,
-              position: 3,
-              data: { date: dto.specialDate },
-            },
-          ]
-        : []),
-      {
-        type: MomentBlockType.SECRET,
-        position: 4,
-        data: { message: secretMessage },
-      },
-    ];
+    const blocks: Array<{ type: MomentBlockType; position: number; data: Record<string, unknown> }> = [];
+    const addBlock = (type: MomentBlockType, data: Record<string, unknown>) =>
+      blocks.push({ type, position: blocks.length, data });
+    addBlock(MomentBlockType.HERO, { title });
+    addBlock(MomentBlockType.MESSAGE, { message });
+    if (isInvitation) {
+      addBlock(MomentBlockType.EVENT_DETAILS, {
+        date: eventDate!.toISOString(),
+        venueName,
+        dressCode: dto.dressCode?.trim() ?? '',
+      });
+      addBlock(MomentBlockType.LOCATION, { venueName, address: eventAddress, mapUrl });
+      if (dto.eventSchedule?.trim()) {
+        addBlock(MomentBlockType.SCHEDULE, { schedule: dto.eventSchedule.trim() });
+      }
+      addBlock(MomentBlockType.RSVP, {});
+    }
+    addBlock(MomentBlockType.GALLERY, {});
+    if (dto.specialDate) addBlock(MomentBlockType.COUNTER, { date: dto.specialDate });
+    addBlock(MomentBlockType.SECRET, { message: secretMessage });
 
     const moment = await this.prisma.moment.create({
       data: {
@@ -183,7 +210,7 @@ export class MomentsService {
   }
 
   async listMine(userId: string) {
-    return this.prisma.moment.findMany({
+    const moments = await this.prisma.moment.findMany({
       where: { creatorId: userId },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -197,9 +224,64 @@ export class MomentsService {
         publishAt: true,
         expiresAt: true,
         createdAt: true,
-        _count: { select: { media: true } },
+        _count: { select: { media: true, rsvps: true } },
       },
     });
+    return Promise.all(
+      moments.map(async (moment) => {
+        if (moment.occasion !== MomentOccasion.INVITATION) return moment;
+        const groups = await this.prisma.momentRsvp.groupBy({
+          by: ['choice'],
+          where: { momentId: moment.id },
+          _count: { _all: true },
+          _sum: { guestCount: true },
+        });
+        return {
+          ...moment,
+          rsvpSummary: {
+            yes: groups.find((group) => group.choice === MomentRsvpChoice.YES)?._count._all ?? 0,
+            maybe: groups.find((group) => group.choice === MomentRsvpChoice.MAYBE)?._count._all ?? 0,
+            no: groups.find((group) => group.choice === MomentRsvpChoice.NO)?._count._all ?? 0,
+            guests: groups
+              .filter((group) => group.choice !== MomentRsvpChoice.NO)
+              .reduce((total, group) => total + (group._sum.guestCount ?? 0), 0),
+          },
+        };
+      }),
+    );
+  }
+
+  async respondToInvitation(slug: string, dto: RespondMomentRsvpDto) {
+    const moment = await this.prisma.moment.findUnique({ where: { slug } });
+    this.assertPublic(moment);
+    if (moment.occasion !== MomentOccasion.INVITATION) {
+      throw new NotFoundException('Invitation not found');
+    }
+    const responseKey = createHash('sha256').update(dto.responseToken).digest('hex');
+    const choice = dto.choice as MomentRsvpChoice;
+    const guestCount = choice === MomentRsvpChoice.NO ? 0 : dto.guestCount;
+    if (choice !== MomentRsvpChoice.NO && guestCount < 1) {
+      throw new BadRequestException('Attending guests must include at least one person');
+    }
+    const response = await this.prisma.momentRsvp.upsert({
+      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
+      create: {
+        momentId: moment.id,
+        responseKey,
+        choice,
+        guestName: dto.guestName?.trim() || null,
+        guestCount,
+        note: dto.note?.trim() || null,
+      },
+      update: {
+        choice,
+        guestName: dto.guestName?.trim() || null,
+        guestCount,
+        note: dto.note?.trim() || null,
+      },
+      select: { choice: true, guestCount: true, updatedAt: true },
+    });
+    return response;
   }
 
   async remove(userId: string, momentId: string) {

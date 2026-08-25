@@ -77,6 +77,13 @@ const createdDate = computed(() =>
       </span>
     </div>
 
+    <div v-if="moment.rsvpSummary" class="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-rose-50/70 p-3 text-center dark:bg-rose-300/[0.06] sm:grid-cols-4">
+      <span><strong class="block text-sm text-emerald-700 dark:text-emerald-300">{{ moment.rsvpSummary.yes }}</strong><small>{{ managerCopy.attending(moment.rsvpSummary.yes) }}</small></span>
+      <span><strong class="block text-sm text-amber-700 dark:text-amber-200">{{ moment.rsvpSummary.maybe }}</strong><small>{{ managerCopy.maybeCount(moment.rsvpSummary.maybe) }}</small></span>
+      <span><strong class="block text-sm text-slate-700 dark:text-white/70">{{ moment.rsvpSummary.no }}</strong><small>{{ managerCopy.declined(moment.rsvpSummary.no) }}</small></span>
+      <span><strong class="block text-sm text-rose-700 dark:text-rose-300">{{ moment.rsvpSummary.guests }}</strong><small>{{ managerCopy.expectedGuests(moment.rsvpSummary.guests) }}</small></span>
+    </div>
+
     <div
       class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10"
     >

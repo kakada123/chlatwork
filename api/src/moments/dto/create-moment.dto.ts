@@ -20,6 +20,7 @@ const OCCASIONS = [
   'FATHERS_DAY',
   'HOLIDAY',
   'FAREWELL',
+  'INVITATION',
   'OTHER',
 ] as const;
 
@@ -63,4 +64,33 @@ export class CreateMomentDto {
   @IsOptional()
   @IsISO8601({ strict: true })
   expiresAt?: string;
+
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  eventDate?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  venueName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  eventAddress?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  mapUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  dressCode?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1500)
+  eventSchedule?: string;
 }

@@ -96,6 +96,14 @@ export function buildPreviewMoment(
       position: 1,
       data: { message: draft.message },
     },
+    ...(draft.occasion === "INVITATION"
+      ? [
+          { id: "preview-event", type: "EVENT_DETAILS" as const, position: 2, data: { date: draft.eventDate, venueName: draft.venueName, dressCode: draft.dressCode } },
+          { id: "preview-location", type: "LOCATION" as const, position: 3, data: { venueName: draft.venueName, address: draft.eventAddress, mapUrl: draft.mapUrl } },
+          ...(draft.eventSchedule ? [{ id: "preview-schedule", type: "SCHEDULE" as const, position: 4, data: { schedule: draft.eventSchedule } }] : []),
+          { id: "preview-rsvp", type: "RSVP" as const, position: 5, data: {} },
+        ]
+      : []),
     { id: "preview-gallery", type: "GALLERY", position: 2, data: {} },
     ...(draft.specialDate
       ? [
@@ -146,5 +154,17 @@ export function getMomentFormError(
     return errors.tooManyPhotos(MAX_MOMENT_PHOTOS);
   if (draft.specialDate && !isValidMomentDate(draft.specialDate))
     return errors.invalidDate;
+  if (draft.occasion === "INVITATION") {
+    if (!draft.eventDate || Number.isNaN(new Date(draft.eventDate).getTime()))
+      return errors.eventDate;
+    if (!draft.venueName.trim()) return errors.venue;
+    if (!draft.eventAddress.trim()) return errors.address;
+    if (draft.mapUrl) {
+      try {
+        const url = new URL(draft.mapUrl);
+        if (!['http:', 'https:'].includes(url.protocol)) return errors.mapUrl;
+      } catch { return errors.mapUrl; }
+    }
+  }
   return "";
 }

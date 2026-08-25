@@ -42,6 +42,17 @@ const EN = {
     countdownHelp: "Until then, they see a countdown.",
     secretLabel: "Secret surprise",
     secretHelp: "Revealed after they hold the gift button.",
+    invitationDetails: "Event details",
+    eventDate: "Event date and time",
+    venueName: "Venue name",
+    venuePlaceholder: "The Glasshouse",
+    eventAddress: "Full address",
+    addressPlaceholder: "Street, city, and arrival landmark",
+    mapUrl: "Google Maps link",
+    dressCode: "Dress code",
+    dressCodePlaceholder: "Smart casual · Pink, cream, or white",
+    eventSchedule: "Event schedule",
+    schedulePlaceholder: "5:30 PM — Guest arrival\n6:00 PM — Dinner\n7:30 PM — Cake and photos",
     previewTitle: "Choose the feeling, then preview",
     themeLabel: "Theme",
     receiverPreview: "Receiver preview",
@@ -77,6 +88,10 @@ const EN = {
       photoRequired: "Add at least one photo to continue.",
       tooManyPhotos: (max: number) => `Add no more than ${max} photos.`,
       invalidDate: "Choose a valid special date.",
+      eventDate: "Choose a valid event date and time.",
+      venue: "Add the event venue.",
+      address: "Add the venue address.",
+      mapUrl: "Use a valid Google Maps or HTTPS map link.",
       photoLimit: (max: number) => `You can add up to ${max} photos.`,
       partialPhotos: (count: number) =>
         `Only the first ${count} selected photos were added.`,
@@ -112,6 +127,25 @@ const EN = {
     heroAlt: (name: string) => `A favorite memory with ${name}`,
     memoryAlt: (number: number, name: string) =>
       `Memory ${number} with ${name}`,
+    eventDetails: "Event details",
+    dressCode: "Dress code",
+    location: "Location",
+    openMap: "Get directions",
+    addCalendar: "Add to calendar",
+    schedule: "Schedule",
+    rsvpKicker: "Please respond",
+    rsvpTitle: "Will you join us?",
+    yes: "Yes, I’ll be there",
+    maybe: "Maybe",
+    no: "Sorry, I can’t",
+    guestName: "Your name (optional)",
+    guestCount: "Number of guests",
+    guestNote: "Message for the host (optional)",
+    sendRsvp: "Send response",
+    sendingRsvp: "Saving…",
+    rsvpSaved: "Your response is saved. You can update it anytime from this device.",
+    rsvpError: "Your response could not be saved. Please try again.",
+    previewRsvp: "RSVP is enabled after publishing.",
   },
   manager: {
     title: "Your Moments",
@@ -136,6 +170,10 @@ const EN = {
     deleteConfirm: (title: string) =>
       `Delete “${title}”? This permanently removes its photos and share link.`,
     deleteError: "This Moment could not be deleted. Please try again.",
+    attending: (count: number) => `${count} attending`,
+    maybeCount: (count: number) => `${count} maybe`,
+    declined: (count: number) => `${count} declined`,
+    expectedGuests: (count: number) => `${count} expected guests`,
   },
   publicPage: {
     metaWaiting: "A Moment is waiting for you | ChlatWork",
@@ -199,6 +237,17 @@ const KM = {
     countdownHelp: "មុនពេលនោះ ពួកគេនឹងឃើញការរាប់ថយក្រោយ។",
     secretLabel: "សារភ្ញាក់ផ្អើលសម្ងាត់",
     secretHelp: "សារនេះនឹងបង្ហាញ បន្ទាប់ពីពួកគេចុចកាន់ប៊ូតុងអំណោយ។",
+    invitationDetails: "ព័ត៌មានកម្មវិធី",
+    eventDate: "កាលបរិច្ឆេទ និងម៉ោងកម្មវិធី",
+    venueName: "ឈ្មោះទីតាំង",
+    venuePlaceholder: "The Glasshouse",
+    eventAddress: "អាសយដ្ឋានពេញ",
+    addressPlaceholder: "ផ្លូវ ទីក្រុង និងទីតាំងសម្គាល់",
+    mapUrl: "តំណ Google Maps",
+    dressCode: "ការស្លៀកពាក់",
+    dressCodePlaceholder: "Smart casual · ពណ៌ផ្កាឈូក ក្រែម ឬស",
+    eventSchedule: "កាលវិភាគកម្មវិធី",
+    schedulePlaceholder: "5:30 PM — ភ្ញៀវមកដល់\n6:00 PM — អាហារពេលល្ងាច\n7:30 PM — កាត់នំ និងថតរូប",
     previewTitle: "ជ្រើសរើសរចនាប័ទ្ម រួចមើលជាមុន",
     themeLabel: "រចនាប័ទ្ម",
     receiverPreview: "ទិដ្ឋភាពសម្រាប់អ្នកទទួល",
@@ -234,6 +283,10 @@ const KM = {
       photoRequired: "សូមបន្ថែមរូបថតយ៉ាងហោចណាស់មួយ ដើម្បីបន្ត។",
       tooManyPhotos: (max: number) => `សូមបន្ថែមរូបថតមិនលើសពី ${max} សន្លឹក។`,
       invalidDate: "សូមជ្រើសរើសថ្ងៃពិសេសឱ្យបានត្រឹមត្រូវ។",
+      eventDate: "សូមជ្រើសរើសកាលបរិច្ឆេទ និងម៉ោងកម្មវិធី។",
+      venue: "សូមបញ្ចូលទីតាំងកម្មវិធី។",
+      address: "សូមបញ្ចូលអាសយដ្ឋានកម្មវិធី។",
+      mapUrl: "សូមប្រើតំណ Google Maps ឬ HTTPS ត្រឹមត្រូវ។",
       photoLimit: (max: number) =>
         `អ្នកអាចបន្ថែមរូបថតបានរហូតដល់ ${max} សន្លឹក។`,
       partialPhotos: (count: number) =>
@@ -270,6 +323,25 @@ const KM = {
     heroAlt: (name: string) => `អនុស្សាវរីយ៍ដែលចូលចិត្តជាមួយ ${name}`,
     memoryAlt: (number: number, name: string) =>
       `អនុស្សាវរីយ៍ទី ${number} ជាមួយ ${name}`,
+    eventDetails: "ព័ត៌មានកម្មវិធី",
+    dressCode: "ការស្លៀកពាក់",
+    location: "ទីតាំង",
+    openMap: "បើកផែនទី",
+    addCalendar: "បន្ថែមទៅប្រតិទិន",
+    schedule: "កាលវិភាគ",
+    rsvpKicker: "សូមឆ្លើយតប",
+    rsvpTitle: "តើអ្នកនឹងចូលរួមទេ?",
+    yes: "បាទ/ចាស ខ្ញុំនឹងចូលរួម",
+    maybe: "ប្រហែលជាចូលរួម",
+    no: "សុំទោស ខ្ញុំមិនអាចចូលរួមបានទេ",
+    guestName: "ឈ្មោះរបស់អ្នក (មិនចាំបាច់)",
+    guestCount: "ចំនួនភ្ញៀវ",
+    guestNote: "សារសម្រាប់ម្ចាស់កម្មវិធី (មិនចាំបាច់)",
+    sendRsvp: "ផ្ញើចម្លើយ",
+    sendingRsvp: "កំពុងរក្សាទុក…",
+    rsvpSaved: "បានរក្សាទុកចម្លើយរបស់អ្នក។ អ្នកអាចកែប្រែវាបាននៅលើឧបករណ៍នេះ។",
+    rsvpError: "មិនអាចរក្សាទុកចម្លើយបានទេ។ សូមព្យាយាមម្តងទៀត។",
+    previewRsvp: "RSVP នឹងដំណើរការបន្ទាប់ពីបោះពុម្ព។",
   },
   manager: {
     title: "Moments របស់អ្នក",
@@ -294,6 +366,10 @@ const KM = {
     deleteConfirm: (title: string) =>
       `លុប “${title}” មែនទេ? សកម្មភាពនេះនឹងលុបរូបថត និងតំណចែករំលែកជាអចិន្ត្រៃយ៍។`,
     deleteError: "មិនអាចលុប Moment នេះបានទេ។ សូមព្យាយាមម្តងទៀត។",
+    attending: (count: number) => `${count} នាក់ចូលរួម`,
+    maybeCount: (count: number) => `${count} នាក់ប្រហែលចូលរួម`,
+    declined: (count: number) => `${count} នាក់មិនចូលរួម`,
+    expectedGuests: (count: number) => `ភ្ញៀវរំពឹងទុក ${count} នាក់`,
   },
   publicPage: {
     metaWaiting: "មាន Moment មួយកំពុងរង់ចាំអ្នក | ChlatWork",
@@ -352,6 +428,7 @@ const KHMER_OCCASIONS: Record<
   },
   HOLIDAY: { label: "ថ្ងៃឈប់សម្រាក", title: (name) => `🎄 សូមជូនពរ ${name}!` },
   FAREWELL: { label: "លាគ្នា", title: (name) => `👋 សម្រាប់ ${name}` },
+  INVITATION: { label: "ការអញ្ជើញ", title: (name) => `💌 សូមអញ្ជើញ ${name}` },
   OTHER: { label: "ឱកាសផ្សេងទៀត", title: (name) => `✨ សម្រាប់ ${name}` },
 };
 
@@ -394,4 +471,47 @@ export function buildKhmerMomentTitle(
 ) {
   const name = recipientName.trim() || KM.creator.defaultName;
   return KHMER_OCCASIONS[occasion].title(name);
+}
+
+export function getMomentDefaultStory(
+  occasion: MomentOccasion,
+  locale: MomentLocale,
+  recipientName: string,
+) {
+  const name = recipientName.trim() || (locale === "km" ? "អ្នក" : "you");
+  if (locale === "km") {
+    const stories: Record<MomentOccasion, { message: string; secret: string }> = {
+      BIRTHDAY: { message: `រីករាយថ្ងៃកំណើត ${name}! សូមឱ្យថ្ងៃពិសេសនេះពោរពេញដោយស្នាមញញឹម ក្តីស្រឡាញ់ និងអនុស្សាវរីយ៍ល្អៗ។`, secret: "សូមឱ្យឆ្នាំថ្មីនៃជីវិតនេះ នាំមកនូវសុភមង្គល និងរឿងអស្ចារ្យជាច្រើន។ 🎂" },
+      ANNIVERSARY: { message: `${name} អរគុណសម្រាប់គ្រប់ពេលវេលា និងអនុស្សាវរីយ៍ដ៏មានតម្លៃដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ខ្ញុំរង់ចាំបង្កើតអនុស្សាវរីយ៍ជាច្រើនទៀតជាមួយអ្នក។ ❤️" },
+      LOVE: { message: `${name} អ្នកធ្វើឱ្យថ្ងៃធម្មតាៗក្លាយជាថ្ងៃពិសេស ហើយខ្ញុំចង់ឱ្យអ្នកដឹងថា អ្នកមានតម្លៃខ្លាំងប៉ុណ្ណា។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកដ៏ស្រស់ស្អាតមួយនៃជីវិតរបស់ខ្ញុំ។ ❤️" },
+      FRIENDSHIP: { message: `${name} អរគុណសម្រាប់ការគាំទ្រ សំណើច និងអនុស្សាវរីយ៍ល្អៗទាំងអស់។ មិត្តភាពរបស់យើងមានតម្លៃខ្លាំងណាស់។`, secret: "សូមឱ្យយើងនៅតែជាមិត្តល្អ និងបង្កើតរឿងសប្បាយៗជាមួយគ្នាបន្តទៀត។ 👯" },
+      GRADUATION: { message: `អបអរសាទរ ${name}! ការខិតខំប្រឹងប្រែងរបស់អ្នកបាននាំមកដល់ថ្ងៃដ៏មោទនភាពនេះ។`, secret: "នេះគ្រាន់តែជាការចាប់ផ្តើមប៉ុណ្ណោះ។ អនាគតដ៏អស្ចារ្យកំពុងរង់ចាំអ្នក។ 🎓" },
+      WEDDING: { message: `សូមអបអរសាទរ ${name} ក្នុងថ្ងៃដ៏មានអត្ថន័យនេះ។ សូមឱ្យជីវិតគូពោរពេញដោយក្តីស្រឡាញ់ និងសុភមង្គល។`, secret: "សូមឱ្យដំណើរថ្មីនេះពោរពេញដោយការយល់ចិត្ត សំណើច និងក្តីស្រឡាញ់ជារៀងរហូត។ 💍" },
+      BABY: { message: `សូមស្វាគមន៍ ${name}! អ្នកបាននាំមកនូវក្តីស្រឡាញ់ និងសុភមង្គលដ៏ធំធេងដល់គ្រួសារ។`, secret: "សូមឱ្យកូនតូចលូតលាស់ដោយសុខភាពល្អ និងពោរពេញដោយក្តីស្រឡាញ់។ 👶" },
+      MOTHERS_DAY: { message: `រីករាយទិវាមាតា ${name}! អរគុណសម្រាប់ក្តីស្រឡាញ់ ការលះបង់ និងភាពកក់ក្តៅដែលម៉ាក់ផ្តល់ឱ្យជានិច្ច។`, secret: "ម៉ាក់គឺជាមនុស្សដ៏ពិសេស និងជាកម្លាំងចិត្តដ៏ធំបំផុតរបស់ខ្ញុំ។ 🌷" },
+      FATHERS_DAY: { message: `រីករាយទិវាបិតា ${name}! អរគុណសម្រាប់ការណែនាំ ការការពារ និងការគាំទ្រដែលប៉ាផ្តល់ឱ្យជានិច្ច។`, secret: "ប៉ាគឺជាគំរូ និងជាកម្លាំងចិត្តដ៏សំខាន់របស់ខ្ញុំ។ 💙" },
+      HOLIDAY: { message: `${name} សូមជូនពរឱ្យរដូវកាលនេះពោរពេញដោយភាពកក់ក្តៅ សុភមង្គល និងពេលវេលាល្អៗជាមួយមនុស្សជាទីស្រឡាញ់។`, secret: "សូមឱ្យថ្ងៃឈប់សម្រាកនេះនាំមកនូវសន្តិភាព និងការចាប់ផ្តើមដ៏ស្រស់ស្អាត។ 🎄" },
+      FAREWELL: { message: `${name} អរគុណសម្រាប់ពេលវេលា ការចងចាំ និងអ្វីៗល្អៗដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ទោះបីយើងត្រូវបែកគ្នាក៏ដោយ អនុស្សាវរីយ៍ល្អៗនឹងនៅជាមួយយើងជានិច្ច។ 👋" },
+      INVITATION: { message: `${name} យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់អ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។`, secret: "យើងខ្ញុំរង់ចាំស្វាគមន៍អ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌" },
+      OTHER: { message: `${name} ទំព័រតូចមួយនេះត្រូវបានបង្កើតឡើងជាពិសេសសម្រាប់អ្នក និងពេលវេលាដ៏មានអត្ថន័យនេះ។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃពេលវេលាពិសេសនេះ។ ✨" },
+    };
+    return stories[occasion];
+  }
+
+  const stories: Record<MomentOccasion, { message: string; secret: string }> = {
+    BIRTHDAY: { message: `Happy birthday, ${name}! May your special day be filled with smiles, love, and wonderful memories.`, secret: "May this new year of your life bring happiness, growth, and many beautiful surprises. 🎂" },
+    ANNIVERSARY: { message: `${name}, thank you for every beautiful moment and memory we have shared together.`, secret: "I cannot wait to make many more memories with you. ❤️" },
+    LOVE: { message: `${name}, you make ordinary days feel special, and I want you to know how deeply appreciated you are.`, secret: "Thank you for being such a beautiful part of my life. ❤️" },
+    FRIENDSHIP: { message: `${name}, thank you for the support, laughter, and unforgettable memories. Our friendship means so much to me.`, secret: "Here’s to more adventures, inside jokes, and great memories together. 👯" },
+    GRADUATION: { message: `Congratulations, ${name}! Your hard work brought you to this proud and well-deserved moment.`, secret: "This is only the beginning. An exciting future is waiting for you. 🎓" },
+    WEDDING: { message: `Congratulations, ${name}, on this meaningful day. May married life bring endless love, laughter, and happiness.`, secret: "May this new journey be filled with understanding, joy, and a lifetime of love. 💍" },
+    BABY: { message: `Welcome, ${name}! You have already brought so much happiness and love into the family.`, secret: "May this little one grow surrounded by good health, kindness, and endless love. 👶" },
+    MOTHERS_DAY: { message: `Happy Mother’s Day, ${name}! Thank you for your endless love, strength, and warmth.`, secret: "You are deeply loved and appreciated, today and every day. 🌷" },
+    FATHERS_DAY: { message: `Happy Father’s Day, ${name}! Thank you for your guidance, protection, and constant support.`, secret: "You are an incredible role model and a source of strength every day. 💙" },
+    HOLIDAY: { message: `${name}, may this season bring warmth, happiness, and meaningful time with the people you love.`, secret: "Wishing you peace, joy, and a beautiful new beginning. 🎄" },
+    FAREWELL: { message: `${name}, thank you for the time, memories, and wonderful experiences we have shared.`, secret: "Distance may change where we are, but the best memories will always stay with us. 👋" },
+    INVITATION: { message: `${name}, we would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.`, secret: "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌" },
+    OTHER: { message: `${name}, this little page was made especially for you and this meaningful moment.`, secret: "Thank you for being part of this special occasion. ✨" },
+  };
+  return stories[occasion];
 }

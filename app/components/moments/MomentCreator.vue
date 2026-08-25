@@ -16,7 +16,7 @@ import {
 import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import {
-  MOMENT_COPY,
+  getMomentDefaultStory,
   getMomentOccasionCopy,
   getMomentThemeCopy,
 } from "~/data/moment-locales";
@@ -57,11 +57,17 @@ const draft = reactive<MomentDraft>({
   recipientName: "",
   occasion: "BIRTHDAY",
   title: buildMomentTitle("", "BIRTHDAY", locale.value),
-  message: creatorCopy.value.defaultMessage,
-  secretMessage: creatorCopy.value.defaultSecret,
+  message: getMomentDefaultStory("BIRTHDAY", locale.value, "").message,
+  secretMessage: getMomentDefaultStory("BIRTHDAY", locale.value, "").secret,
   theme: "ROMANTIC",
   specialDate: "",
   publishAt: "",
+  eventDate: "",
+  venueName: "",
+  eventAddress: "",
+  mapUrl: "",
+  dressCode: "",
+  eventSchedule: "",
 });
 
 const suggestedTitle = computed(() =>
@@ -70,11 +76,10 @@ const suggestedTitle = computed(() =>
 watch(suggestedTitle, (title) => {
   if (!titleTouched.value) draft.title = title;
 });
-watch(locale, (nextLocale) => {
-  if (!messageTouched.value)
-    draft.message = MOMENT_COPY[nextLocale].creator.defaultMessage;
-  if (!secretTouched.value)
-    draft.secretMessage = MOMENT_COPY[nextLocale].creator.defaultSecret;
+watch([locale, () => draft.occasion, () => draft.recipientName], ([nextLocale]) => {
+  const defaults = getMomentDefaultStory(draft.occasion, nextLocale, draft.recipientName);
+  if (!messageTouched.value) draft.message = defaults.message;
+  if (!secretTouched.value) draft.secretMessage = defaults.secret;
   if (publishedSlug.value) void updateShareArtifacts(publishedSlug.value);
 });
 
@@ -249,6 +254,14 @@ async function publishMoment() {
         publishAt: draft.publishAt
           ? new Date(draft.publishAt).toISOString()
           : undefined,
+        eventDate: draft.occasion === "INVITATION" && draft.eventDate
+          ? new Date(draft.eventDate).toISOString()
+          : undefined,
+        venueName: draft.occasion === "INVITATION" ? draft.venueName : undefined,
+        eventAddress: draft.occasion === "INVITATION" ? draft.eventAddress : undefined,
+        mapUrl: draft.occasion === "INVITATION" && draft.mapUrl ? draft.mapUrl : undefined,
+        dressCode: draft.occasion === "INVITATION" && draft.dressCode ? draft.dressCode : undefined,
+        eventSchedule: draft.occasion === "INVITATION" && draft.eventSchedule ? draft.eventSchedule : undefined,
       },
     });
     momentId = created.id;
@@ -603,6 +616,35 @@ onBeforeUnmount(() => {
               />
               <p class="field-help">{{ creatorCopy.secretHelp }}</p>
             </div>
+            <fieldset v-if="draft.occasion === 'INVITATION'" class="invitation-fields">
+              <legend class="field-label">{{ creatorCopy.invitationDetails }}</legend>
+              <div class="mt-3 grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label for="event-date" class="field-label">{{ creatorCopy.eventDate }}</label>
+                  <input id="event-date" v-model="draft.eventDate" type="datetime-local" class="field-input mt-2" required />
+                </div>
+                <div>
+                  <label for="venue-name" class="field-label">{{ creatorCopy.venueName }}</label>
+                  <input id="venue-name" v-model="draft.venueName" maxlength="120" class="field-input mt-2" :placeholder="creatorCopy.venuePlaceholder" required />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="event-address" class="field-label">{{ creatorCopy.eventAddress }}</label>
+                  <input id="event-address" v-model="draft.eventAddress" maxlength="300" class="field-input mt-2" :placeholder="creatorCopy.addressPlaceholder" required />
+                </div>
+                <div>
+                  <label for="map-url" class="field-label">{{ creatorCopy.mapUrl }} <span>({{ creatorCopy.optional }})</span></label>
+                  <input id="map-url" v-model="draft.mapUrl" type="url" maxlength="500" class="field-input mt-2" placeholder="https://maps.google.com/…" />
+                </div>
+                <div>
+                  <label for="dress-code" class="field-label">{{ creatorCopy.dressCode }} <span>({{ creatorCopy.optional }})</span></label>
+                  <input id="dress-code" v-model="draft.dressCode" maxlength="120" class="field-input mt-2" :placeholder="creatorCopy.dressCodePlaceholder" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="event-schedule" class="field-label">{{ creatorCopy.eventSchedule }} <span>({{ creatorCopy.optional }})</span></label>
+                  <textarea id="event-schedule" v-model="draft.eventSchedule" maxlength="1500" rows="4" class="field-input mt-2 resize-y" :placeholder="creatorCopy.schedulePlaceholder" />
+                </div>
+              </div>
+            </fieldset>
           </div>
         </section>
 
@@ -885,6 +927,16 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
+}
+.invitation-fields {
+  border: 1px solid rgb(251 113 133 / 0.28);
+  border-radius: 1rem;
+  background: rgb(255 241 242 / 0.45);
+  padding: 1rem;
+}
+:global(html.dark) .invitation-fields {
+  border-color: rgb(251 113 133 / 0.2);
+  background: rgb(251 113 133 / 0.05);
 }
 .choice-card {
   display: flex;

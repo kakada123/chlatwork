@@ -57,6 +57,12 @@ export const MOMENT_OCCASIONS: ReadonlyArray<{
     titlePrefix: "Warm wishes",
   },
   { value: "FAREWELL", label: "Farewell", emoji: "👋", titlePrefix: "For" },
+  {
+    value: "INVITATION",
+    label: "Invitation",
+    emoji: "💌",
+    titlePrefix: "You're invited",
+  },
   { value: "OTHER", label: "Something else", emoji: "✨", titlePrefix: "For" },
 ];
 
