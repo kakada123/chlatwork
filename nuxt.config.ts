@@ -82,6 +82,8 @@ const legacyToolGuideRedirectRules = Object.fromEntries(
 
 export default defineNuxtConfig({
   ssr: true,
+  // CI and restricted workspaces can isolate generated artifacts from shared caches.
+  buildDir: nodeEnv.CHLATWORK_NUXT_BUILD_DIR || undefined,
   compatibilityDate: "2026-05-07",
   hooks: {
     "prepare:types"(options) {
@@ -224,5 +226,8 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: "vercel",
+    output: nodeEnv.CHLATWORK_NITRO_OUTPUT_DIR
+      ? { dir: nodeEnv.CHLATWORK_NITRO_OUTPUT_DIR }
+      : undefined,
   },
 });

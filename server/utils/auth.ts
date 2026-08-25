@@ -44,7 +44,7 @@ function cookieOptions(event: H3Event, maxAge: number) {
   };
 }
 
-function apiBaseUrl(event: H3Event) {
+export function apiBaseUrl(event: H3Event) {
   const value = useRuntimeConfig(event).authApiBaseUrl;
   if (!value) {
     throw createError({ statusCode: 503, statusMessage: "Authentication service is not configured" });

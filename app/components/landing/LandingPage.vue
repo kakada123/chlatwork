@@ -4,6 +4,7 @@ import LandingFaq from "./LandingFaq.vue";
 import ToolCategorySection from "./ToolCategorySection.vue";
 import LandingDeveloperSection from "./LandingDeveloperSection.vue";
 import LandingWhyUse from "./LandingWhyUse.vue";
+import LandingMomentsSection from "./LandingMomentsSection.vue";
 
 import {
   LANDING_CATEGORIES,
@@ -65,6 +66,7 @@ const landingCategories = computed(() =>
   >
     <HeroSection :tools="landingTools" :popular-tools="popularTools" />
     <ToolCategorySection :categories="landingCategories" />
+    <LandingMomentsSection />
     <LandingWhyUse />
     <LandingDeveloperSection />
     <LandingFaq />

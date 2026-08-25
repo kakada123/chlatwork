@@ -53,6 +53,14 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
     searchText: "commands docker git nestjs npm pnpm yarn bun postgres redis linux nginx ssh network laravel vite typeorm pm2 github cli",
   },
   {
+    key: "page-moments-create",
+    title: "ChlatWork Moments",
+    description: "Create an interactive celebration page with photos, a message, counter, and secret surprise.",
+    path: "/moments/create",
+    label: "Moments",
+    searchText: "birthday anniversary love friendship celebration greeting photos surprise QR share",
+  },
+  {
     key: "page-developer-guides",
     title: "Developer Guides",
     description: "Production runbooks for Ubuntu, NestJS, Docker, AWS, PostgreSQL, Redis, Nginx, and SSL.",
@@ -435,12 +443,20 @@ onBeforeUnmount(() => {
               Guides
             </NuxtLink>
             <NuxtLink
+              to="/moments/create"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path.startsWith('/moments') ? 'bg-rose-50 text-rose-700 dark:bg-rose-300/10 dark:text-rose-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
+            >
+              Moments
+            </NuxtLink>
+            <NuxtLink
               to="/about"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path === '/about' ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               About
             </NuxtLink>
+
           </nav>
         </div>
 
@@ -744,6 +760,15 @@ onBeforeUnmount(() => {
               @click="closeMenu"
             >
               About
+            </NuxtLink>
+
+            <NuxtLink
+              to="/moments/create"
+              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-rose-50 hover:text-rose-700"
+              @click="closeMenu"
+            >
+              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600" aria-hidden="true">❤️</span>
+              Moments
             </NuxtLink>
 
             <NuxtLink
