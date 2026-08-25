@@ -11,6 +11,7 @@ import CommandQuickCard from "~/components/developer-commands/CommandQuickCard.v
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeToolCard from "~/components/landing/HomeToolCard.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
+import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
@@ -30,6 +31,7 @@ const { favoriteCommandIds, toggleCommandFavorite } = useCommandFavorites();
 const { clearToolUsage, getToolUsageSummary } = useToolUsage();
 
 const isLoggingOut = ref(false);
+const signOutDialogOpen = ref(false);
 const historyItems = ref<PaybackHistoryItem[]>([]);
 const historyCount = ref(0);
 const historyLoading = ref(true);
@@ -132,8 +134,13 @@ async function removeHistory(item: PaybackHistoryItem) {
 
 async function signOut() {
   isLoggingOut.value = true;
-  await logout();
-  await navigateTo("/");
+  try {
+    await logout();
+    signOutDialogOpen.value = false;
+    await navigateTo("/");
+  } finally {
+    isLoggingOut.value = false;
+  }
 }
 
 function refreshHistoryWhenActive() {
@@ -177,7 +184,7 @@ onBeforeUnmount(() => {
             <p class="mt-1 truncate text-sm text-slate-500 dark:text-white/50">{{ user?.email || user?.phone || "Signed-in account" }}</p>
             <span class="mt-3 inline-flex rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">Active account</span>
           </div>
-          <button type="button" :disabled="isLoggingOut" class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10" @click="signOut">
+          <button type="button" :disabled="isLoggingOut" class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10" @click="signOutDialogOpen = true">
             <LogOut class="h-4 w-4" aria-hidden="true" /> {{ isLoggingOut ? "Signing out…" : "Sign out" }}
           </button>
         </div>
@@ -234,6 +241,18 @@ onBeforeUnmount(() => {
         <NuxtLink :to="localizeMomentPath('/moments/create')" class="mt-2 inline-flex text-sm font-semibold text-rose-700 dark:text-rose-300">Create your first Moment</NuxtLink>
       </div>
     </section>
+
+    <ConfirmDialog
+      :open="signOutDialogOpen"
+      title="Sign out of ChlatWork?"
+      description="You’ll need to sign in again to access your saved Moments and account activity."
+      confirm-label="Sign out"
+      cancel-label="Stay signed in"
+      :busy="isLoggingOut"
+      busy-label="Signing out…"
+      @close="signOutDialogOpen = false"
+      @confirm="signOut"
+    />
 
     <PaybackCalculatorHistory :items="historyItems" :loading="historyLoading" :deleting-id="historyDeletingId" @load="reopenHistory" @remove="removeHistory" />
 

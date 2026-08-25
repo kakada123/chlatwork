@@ -271,6 +271,10 @@ onBeforeUnmount(cancelHold);
   font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
 }
 .moment-experience.is-khmer .occasion-pill,
+.moment-experience.is-khmer .moment-footer {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+}
+.moment-experience.is-khmer .occasion-pill,
 .moment-experience.is-khmer .eyebrow,
 .moment-experience.is-khmer .section-kicker,
 .moment-experience.is-khmer .memory-photo figcaption {

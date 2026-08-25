@@ -2,6 +2,7 @@
 import { Plus } from "lucide-vue-next";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
+import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { MomentSummary } from "~/types/moment";
 
 definePageMeta({ middleware: "auth" });
@@ -19,15 +20,22 @@ const { data, status, error } =
 const moments = computed(() => data.value ?? []);
 const deletingId = ref("");
 const deleteError = ref("");
+const momentPendingDelete = ref<MomentSummary | null>(null);
 
-async function removeMoment(moment: MomentSummary) {
-  if (!window.confirm(managerCopy.value.deleteConfirm(moment.title)))
-    return;
+function requestMomentDelete(moment: MomentSummary) {
+  momentPendingDelete.value = moment;
+  deleteError.value = "";
+}
+
+async function removeMoment() {
+  const moment = momentPendingDelete.value;
+  if (!moment) return;
   deletingId.value = moment.id;
   deleteError.value = "";
   try {
     await $fetch(`/api/moments/${moment.id}`, { method: "DELETE" });
     data.value = moments.value.filter((item) => item.id !== moment.id);
+    momentPendingDelete.value = null;
   } catch {
     deleteError.value = managerCopy.value.deleteError;
   } finally {
@@ -120,10 +128,23 @@ async function removeMoment(moment: MomentSummary) {
           :moment="moment"
           deletable
           :deleting="deletingId === moment.id"
-          @delete="removeMoment"
+          @delete="requestMomentDelete"
         />
       </li>
     </ul>
+
+    <ConfirmDialog
+      :open="Boolean(momentPendingDelete)"
+      :title="managerCopy.deleteDialogTitle"
+      :description="managerCopy.deleteConfirm(momentPendingDelete?.title ?? '')"
+      :confirm-label="managerCopy.delete"
+      :cancel-label="managerCopy.cancelDelete"
+      :busy="Boolean(deletingId)"
+      :busy-label="managerCopy.deleting"
+      :locale="isKhmer ? 'km' : 'en'"
+      @close="momentPendingDelete = null"
+      @confirm="removeMoment"
+    />
   </div>
 </template>
 

@@ -148,6 +148,10 @@ test("Khmer Moment detail applies Hanuman to nested text", () => {
   );
   assert.match(
     experience,
+    /\.moment-experience\.is-khmer \.occasion-pill,[\s\S]*?\.moment-experience\.is-khmer \.moment-footer \{\s+font-family: "Hanuman"/,
+  );
+  assert.match(
+    experience,
     /\.moment-experience\.is-khmer \.moment-hero h1,[\s\S]*?letter-spacing: 0;/,
   );
 });
@@ -175,6 +179,21 @@ test("profile lists account-owned Moments with the shared summary card", () => {
   assert.match(manager, /<MomentSummaryCard[\s\S]*?deletable/);
   assert.match(card, /emit\('delete', moment\)/);
   assert.match(types, /export interface MomentSummary/);
+});
+
+test("sign out and Moment deletion use the shared confirmation dialog", () => {
+  const account = readProjectFile("app/pages/account.vue");
+  const manager = readProjectFile("app/pages/moments/index.vue");
+  const dialog = readProjectFile("app/components/ui/ConfirmDialog.vue");
+
+  assert.match(account, /<ConfirmDialog[\s\S]*?@confirm="signOut"/);
+  assert.match(account, /@click="signOutDialogOpen = true"/);
+  assert.match(manager, /@delete="requestMomentDelete"/);
+  assert.match(manager, /<ConfirmDialog[\s\S]*?@confirm="removeMoment"/);
+  assert.doesNotMatch(manager, /window\.confirm/);
+  assert.match(dialog, /role="alertdialog"/);
+  assert.match(dialog, /cancelButton\.value\?\.focus\(\)/);
+  assert.match(dialog, /dark:bg-\[#101214\]/);
 });
 
 test("Moment language stays scoped and follows shared links", () => {
