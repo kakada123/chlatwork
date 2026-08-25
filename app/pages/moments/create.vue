@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import MomentCreator from "~/components/moments/MomentCreator.vue";
 
+const { isKhmer, copy } = useMomentLanguage();
+
 useSeoMeta({
-  title: "Create a Moment | ChlatWork Moments",
-  description:
-    "Turn your photos and message into a beautiful interactive celebration page for someone special.",
+  title: () =>
+    isKhmer.value
+      ? "បង្កើត Moment | ChlatWork Moments"
+      : "Create a Moment | ChlatWork Moments",
+  description: () => copy.value.creator.description,
   robots: "noindex, nofollow",
-  ogTitle: "Create a Moment | ChlatWork",
-  ogDescription: "Create a little place on the internet for someone special.",
+  ogTitle: () =>
+    isKhmer.value ? "បង្កើត Moment | ChlatWork" : "Create a Moment | ChlatWork",
+  ogDescription: () => copy.value.creator.title,
 });
 
 useHead({

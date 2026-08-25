@@ -1,4 +1,9 @@
 import { getMomentOccasion } from "../data/moments.ts";
+import {
+  MOMENT_COPY,
+  buildKhmerMomentTitle,
+  type MomentLocale,
+} from "../data/moment-locales.ts";
 import type {
   MomentBlock,
   MomentDraft,
@@ -13,7 +18,9 @@ export const MAX_MOMENT_UPLOAD_BYTES = 2 * 1024 * 1024;
 export function buildMomentTitle(
   recipientName: string,
   occasion: MomentDraft["occasion"],
+  locale: MomentLocale = "en",
 ) {
+  if (locale === "km") return buildKhmerMomentTitle(recipientName, occasion);
   const name = recipientName.trim() || "Someone special";
   const option = getMomentOccasion(occasion);
   if (option.titlePrefix === "For") return `${option.emoji} For ${name}`;
@@ -39,21 +46,28 @@ export function getMomentDayCount(date: string, now = new Date()) {
   return Math.floor((today.getTime() - start.getTime()) / 86_400_000);
 }
 
-export function getMomentCounterCopy(date: string, now = new Date()) {
+export function getMomentCounterCopy(
+  date: string,
+  now = new Date(),
+  locale: MomentLocale = "en",
+) {
   const days = getMomentDayCount(date, now);
   if (days === null) return null;
   if (days < 0) {
     const remaining = Math.abs(days);
     return {
       value: remaining,
-      unit: remaining === 1 ? "day" : "days",
-      label: "until our special day",
+      unit:
+        locale === "km" ? "ថ្ងៃ" : remaining === 1 ? "day" : "days",
+      label:
+        locale === "km" ? "រហូតដល់ថ្ងៃពិសេសរបស់យើង" : "until our special day",
     };
   }
   return {
     value: days,
-    unit: days === 1 ? "day" : "days",
-    label: "of memories together",
+    unit: locale === "km" ? "ថ្ងៃ" : days === 1 ? "day" : "days",
+    label:
+      locale === "km" ? "នៃអនុស្សាវរីយ៍រួមគ្នា" : "of memories together",
   };
 }
 
@@ -117,15 +131,20 @@ export function buildPreviewMoment(
   };
 }
 
-export function getMomentFormError(draft: MomentDraft, photoCount: number) {
-  if (!draft.recipientName.trim()) return "Tell us who this Moment is for.";
-  if (!draft.title.trim()) return "Add a title for the Moment.";
-  if (!draft.message.trim()) return "Write a message for your person.";
-  if (!draft.secretMessage.trim()) return "Add the secret surprise message.";
-  if (photoCount < 1) return "Add at least one photo.";
+export function getMomentFormError(
+  draft: MomentDraft,
+  photoCount: number,
+  locale: MomentLocale = "en",
+) {
+  const errors = MOMENT_COPY[locale].creator.errors;
+  if (!draft.recipientName.trim()) return errors.recipient;
+  if (!draft.title.trim()) return errors.title;
+  if (!draft.message.trim()) return errors.message;
+  if (!draft.secretMessage.trim()) return errors.secret;
+  if (photoCount < 1) return errors.photoRequired;
   if (photoCount > MAX_MOMENT_PHOTOS)
-    return `Add no more than ${MAX_MOMENT_PHOTOS} photos.`;
+    return errors.tooManyPhotos(MAX_MOMENT_PHOTOS);
   if (draft.specialDate && !isValidMomentDate(draft.specialDate))
-    return "Choose a valid special date.";
+    return errors.invalidDate;
   return "";
 }

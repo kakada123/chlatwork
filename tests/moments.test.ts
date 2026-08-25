@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
+import { MOMENT_COPY } from "../app/data/moment-locales.ts";
 import {
   buildMomentTitle,
   buildPreviewMoment,
@@ -36,6 +37,26 @@ test("Moment titles and dates are deterministic", () => {
     unit: "days",
     label: "of memories together",
   });
+});
+
+test("Khmer Moment copy covers creation and receiver experiences", () => {
+  assert.equal(
+    buildMomentTitle("ណែត", "BIRTHDAY", "km"),
+    "🎂 រីករាយថ្ងៃកំណើត ណែត!",
+  );
+  assert.deepEqual(
+    getMomentCounterCopy("2025-05-22", new Date(2025, 4, 24), "km"),
+    {
+      value: 2,
+      unit: "ថ្ងៃ",
+      label: "នៃអនុស្សាវរីយ៍រួមគ្នា",
+    },
+  );
+  assert.equal(
+    getMomentFormError({ ...draft, secretMessage: " " }, 2, "km"),
+    MOMENT_COPY.km.creator.errors.secret,
+  );
+  assert.match(MOMENT_COPY.km.publicPage.waitingTitle, /[\u1780-\u17ff]/u);
 });
 
 test("preview uses ordered extensible blocks and photos", () => {
@@ -78,10 +99,7 @@ test("Moment API routes share one dynamic segment", () => {
     existsSync(new URL(`../${path}`, import.meta.url));
 
   assert.equal(projectFileExists("server/api/moments/[slug].get.ts"), false);
-  assert.equal(
-    projectFileExists("server/api/moments/[id]/index.get.ts"),
-    true,
-  );
+  assert.equal(projectFileExists("server/api/moments/[id]/index.get.ts"), true);
   assert.equal(
     projectFileExists("server/api/moments/[id]/media.post.ts"),
     true,
@@ -93,9 +111,7 @@ test("Moment API routes share one dynamic segment", () => {
 });
 
 test("Moment creator keeps dark interaction states readable", () => {
-  const creator = readProjectFile(
-    "app/components/moments/MomentCreator.vue",
-  );
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
 
   assert.doesNotMatch(creator, /:global\(\.dark\)/);
   assert.match(
@@ -104,4 +120,63 @@ test("Moment creator keeps dark interaction states readable", () => {
   );
   assert.match(creator, /html\.dark \.moments-creator \.success-copy/);
   assert.match(creator, /html\.dark \.moments-creator \.preview-link:hover/);
+});
+
+test("Khmer Moment headings use Khmer typography and spacing", () => {
+  const creator = readProjectFile(
+    "app/components/moments/MomentCreator.vue",
+  );
+
+  assert.match(
+    creator,
+    /\.moments-creator\.is-khmer \.creator-card h2 \{[\s\S]*?font-size: clamp\(1\.55rem, 3\.2vw, 2rem\);[\s\S]*?line-height: 1\.6;/,
+  );
+  assert.match(
+    creator,
+    /\.moments-creator\.is-khmer \.step-label \{[\s\S]*?letter-spacing: 0;[\s\S]*?text-transform: none;/,
+  );
+});
+
+test("Khmer Moment detail applies Hanuman to nested text", () => {
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
+
+  assert.match(
+    experience,
+    /\.moment-experience\.is-khmer\s+:where\(h1, h2, p, span, strong, figcaption, button\) \{\s+font-family: "Hanuman"/,
+  );
+  assert.match(
+    experience,
+    /\.moment-experience\.is-khmer \.moment-hero h1,[\s\S]*?letter-spacing: 0;/,
+  );
+});
+
+test("Moment language stays scoped and follows shared links", () => {
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
+  const viewer = readProjectFile("app/pages/m/[slug].vue");
+  const manager = readProjectFile("app/pages/moments/index.vue");
+  const language = readProjectFile("app/composables/useMomentLanguage.ts");
+  const siteLanguage = readProjectFile("app/composables/useLanguage.ts");
+  const login = readProjectFile("app/components/auth/AuthLoginDialog.vue");
+
+  assert.match(creator, /<MomentLanguageToggle/);
+  assert.match(
+    creator,
+    /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
+  );
+  assert.match(
+    viewer,
+    /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
+  );
+  assert.match(
+    manager,
+    /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
+  );
+  assert.match(creator, /localizeMomentPath\(`\/m\/\$\{slug\}`\)/);
+  assert.match(viewer, /<MomentExperience :moment="moment" :locale="locale"/);
+  assert.match(viewer, /:dark="moment\.theme === 'ELEGANT'"/);
+  assert.match(language, /query\.lang = "km"/);
+  assert.match(siteLanguage, /const ENABLE_KHMER_LOCALIZATION = false/);
+  assert.match(login, /ចូលគណនីដើម្បីបន្ត/);
 });

@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import confetti from "canvas-confetti";
 import { Gift, Heart, Image as ImageIcon, Sparkles } from "lucide-vue-next";
+import {
+  MOMENT_COPY,
+  getMomentOccasionCopy,
+  type MomentLocale,
+} from "~/data/moment-locales";
 import { getMomentOccasion } from "~/data/moments";
 import { getMomentCounterCopy, readMomentBlockText } from "~/lib/moments";
 import type { ReadyMoment } from "~/types/moment";
 
 const props = withDefaults(
-  defineProps<{ moment: ReadyMoment; preview?: boolean }>(),
+  defineProps<{
+    moment: ReadyMoment;
+    preview?: boolean;
+    locale?: MomentLocale;
+  }>(),
   {
     preview: false,
+    locale: "en",
   },
 );
 
@@ -38,9 +48,19 @@ const secretMessage = computed(() =>
   readMomentBlockText(secretBlock.value, "message"),
 );
 const counter = computed(() =>
-  getMomentCounterCopy(readMomentBlockText(counterBlock.value, "date")),
+  getMomentCounterCopy(
+    readMomentBlockText(counterBlock.value, "date"),
+    new Date(),
+    props.locale,
+  ),
 );
 const occasion = computed(() => getMomentOccasion(props.moment.occasion));
+const occasionLabel = computed(
+  () =>
+    getMomentOccasionCopy(props.moment.occasion, props.locale)?.label ??
+    occasion.value.label,
+);
+const experienceCopy = computed(() => MOMENT_COPY[props.locale].experience);
 const photos = computed(() =>
   [...props.moment.media].sort((a, b) => a.position - b.position),
 );
@@ -83,7 +103,11 @@ onBeforeUnmount(cancelHold);
 <template>
   <article
     class="moment-experience"
-    :class="[themeClass, { 'is-preview': preview }]"
+    :class="[
+      themeClass,
+      { 'is-preview': preview, 'is-khmer': locale === 'km' },
+    ]"
+    :lang="locale === 'km' ? 'km' : 'en'"
   >
     <div class="moment-glow moment-glow-one" aria-hidden="true" />
     <div class="moment-glow moment-glow-two" aria-hidden="true" />
@@ -91,16 +115,16 @@ onBeforeUnmount(cancelHold);
     <header class="moment-hero">
       <div class="occasion-pill">
         <span aria-hidden="true">{{ occasion.emoji }}</span>
-        {{ occasion.label }} Moment
+        {{ experienceCopy.occasionMoment(occasionLabel) }}
       </div>
-      <p class="eyebrow">A little place on the internet for</p>
+      <p class="eyebrow">{{ experienceCopy.forPerson }}</p>
       <h1>{{ heroTitle }}</h1>
-      <p class="scroll-note">Made with care · Scroll to open</p>
+      <p class="scroll-note">{{ experienceCopy.scroll }}</p>
 
       <figure v-if="heroPhoto" class="hero-photo-wrap">
         <img
           :src="heroPhoto.url"
-          :alt="`A favorite memory with ${moment.recipientName}`"
+          :alt="experienceCopy.heroAlt(moment.recipientName)"
           class="hero-photo"
         />
         <span class="photo-tape photo-tape-left" aria-hidden="true" />
@@ -109,10 +133,10 @@ onBeforeUnmount(cancelHold);
       <div
         v-else
         class="hero-placeholder"
-        aria-label="Photo preview placeholder"
+        :aria-label="experienceCopy.photoPlaceholderLabel"
       >
         <ImageIcon class="h-9 w-9" aria-hidden="true" />
-        <span>Your hero photo will appear here</span>
+        <span>{{ experienceCopy.photoPlaceholder }}</span>
       </div>
     </header>
 
@@ -121,7 +145,9 @@ onBeforeUnmount(cancelHold);
       aria-labelledby="moment-message-title"
     >
       <Sparkles class="section-icon" aria-hidden="true" />
-      <p id="moment-message-title" class="section-kicker">A note for you</p>
+      <p id="moment-message-title" class="section-kicker">
+        {{ experienceCopy.note }}
+      </p>
       <p class="personal-message">“{{ message }}”</p>
       <Heart class="mx-auto mt-7 h-5 w-5 fill-current" aria-hidden="true" />
     </section>
@@ -131,8 +157,8 @@ onBeforeUnmount(cancelHold);
       class="moment-section"
       aria-labelledby="moment-gallery-title"
     >
-      <p class="section-kicker">Our memories</p>
-      <h2 id="moment-gallery-title">Tiny moments. Big feelings.</h2>
+      <p class="section-kicker">{{ experienceCopy.memories }}</p>
+      <h2 id="moment-gallery-title">{{ experienceCopy.galleryTitle }}</h2>
       <div class="photo-grid">
         <figure
           v-for="(photo, index) in photos"
@@ -142,11 +168,11 @@ onBeforeUnmount(cancelHold);
         >
           <img
             :src="photo.url"
-            :alt="`Memory ${index + 1} with ${moment.recipientName}`"
+            :alt="experienceCopy.memoryAlt(index + 1, moment.recipientName)"
             loading="lazy"
           />
           <figcaption>
-            Memory {{ String(index + 1).padStart(2, "0") }}
+            {{ experienceCopy.memory(String(index + 1).padStart(2, "0")) }}
           </figcaption>
         </figure>
       </div>
@@ -155,9 +181,9 @@ onBeforeUnmount(cancelHold);
     <section
       v-if="counter"
       class="counter-section"
-      aria-label="Special date counter"
+      :aria-label="experienceCopy.counterLabel"
     >
-      <p class="section-kicker">And counting</p>
+      <p class="section-kicker">{{ experienceCopy.counting }}</p>
       <div class="counter-value">{{ counter.value }}</div>
       <p class="counter-unit">{{ counter.unit }}</p>
       <p class="counter-label">
@@ -170,8 +196,8 @@ onBeforeUnmount(cancelHold);
       aria-labelledby="secret-title"
     >
       <div class="gift-icon"><Gift class="h-7 w-7" aria-hidden="true" /></div>
-      <p class="section-kicker">One last thing</p>
-      <h2 id="secret-title">I have something else for you…</h2>
+      <p class="section-kicker">{{ experienceCopy.oneLastThing }}</p>
+      <h2 id="secret-title">{{ experienceCopy.secretTitle }}</h2>
 
       <Transition name="secret-swap" mode="out-in">
         <div
@@ -198,17 +224,17 @@ onBeforeUnmount(cancelHold);
           @keyup.space.prevent="cancelHold"
         >
           <span class="secret-progress" aria-hidden="true" />
-          <span class="relative z-10">Hold to open ❤️</span>
+          <span class="relative z-10">{{ experienceCopy.holdOpen }}</span>
         </button>
       </Transition>
       <p v-if="!isSecretOpen" class="hold-hint">
-        Press and hold for two seconds
+        {{ experienceCopy.holdHint }}
       </p>
     </section>
 
     <footer class="moment-footer">
       <Heart class="h-4 w-4 fill-current" aria-hidden="true" />
-      Made with ChlatWork Moments
+      {{ experienceCopy.footer }}
     </footer>
   </article>
 </template>
@@ -236,6 +262,29 @@ onBeforeUnmount(cancelHold);
     var(--moment-bg);
   color: var(--moment-ink);
   font-family: Georgia, "Times New Roman", serif;
+}
+.moment-experience.is-khmer {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+}
+.moment-experience.is-khmer
+  :where(h1, h2, p, span, strong, figcaption, button) {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+}
+.moment-experience.is-khmer .occasion-pill,
+.moment-experience.is-khmer .eyebrow,
+.moment-experience.is-khmer .section-kicker,
+.moment-experience.is-khmer .memory-photo figcaption {
+  letter-spacing: 0;
+  text-transform: none;
+}
+.moment-experience.is-khmer .moment-hero h1,
+.moment-experience.is-khmer .moment-section h2 {
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+.moment-experience.is-khmer .personal-message,
+.moment-experience.is-khmer .secret-message p {
+  line-height: 1.85;
 }
 
 .moment-theme-cute {

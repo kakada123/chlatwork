@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Gift, Heart } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
+import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import type { PublicMoment } from "~/types/moment";
 
 definePageMeta({ layout: false });
 
 const route = useRoute();
+const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+const publicCopy = computed(() => copy.value.publicPage);
 const slug = computed(() => String(route.params.slug || ""));
 const {
   data: moment,
@@ -23,26 +26,31 @@ const remaining = computed(() => {
 });
 const countdown = computed(() => {
   const seconds = Math.ceil(remaining.value / 1000);
-  return {
-    days: Math.floor(seconds / 86400),
-    hours: Math.floor((seconds % 86400) / 3600),
-    minutes: Math.floor((seconds % 3600) / 60),
-    seconds: seconds % 60,
-  };
+  const values = [
+    ["days", Math.floor(seconds / 86400)],
+    ["hours", Math.floor((seconds % 86400) / 3600)],
+    ["minutes", Math.floor((seconds % 3600) / 60)],
+    ["seconds", seconds % 60],
+  ] as const;
+  return values.map(([key, value]) => ({
+    key,
+    value,
+    label: publicCopy.value.countdownUnits[key],
+  }));
 });
 
 useSeoMeta({
   title: () =>
     moment.value?.status === "ready"
       ? `${moment.value.title} | ChlatWork Moments`
-      : "A Moment is waiting for you | ChlatWork",
-  description: "A private celebration made with ChlatWork Moments.",
+      : publicCopy.value.metaWaiting,
+  description: () => publicCopy.value.metaDescription,
   robots: "noindex, nofollow, noarchive",
   ogTitle: () =>
     moment.value?.status === "ready"
       ? moment.value.title
-      : "A Moment is waiting for you 🎁",
-  ogDescription: "Someone made a little place on the internet just for you.",
+      : publicCopy.value.ogWaiting,
+  ogDescription: () => publicCopy.value.ogDescription,
 });
 
 onMounted(() => {
@@ -62,22 +70,33 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <MomentExperience v-if="moment?.status === 'ready'" :moment="moment" />
+  <div v-if="moment?.status === 'ready'" class="public-moment-shell">
+    <div class="public-language-toggle">
+      <MomentLanguageToggle :dark="moment.theme === 'ELEGANT'" />
+    </div>
+    <MomentExperience :moment="moment" :locale="locale" />
+  </div>
 
-  <main v-else-if="moment?.status === 'locked'" class="locked-page">
+  <main
+    v-else-if="moment?.status === 'locked'"
+    class="locked-page"
+    :class="{ 'is-khmer': isKhmer }"
+    :lang="isKhmer ? 'km' : 'en'"
+  >
+    <div class="public-language-toggle"><MomentLanguageToggle /></div>
     <div class="locked-card">
       <div class="gift-orbit">
         <Gift class="h-10 w-10" aria-hidden="true" />
       </div>
-      <p class="locked-eyebrow">For {{ moment.recipientName }}</p>
-      <h1>Something special is waiting for you…</h1>
-      <p class="locked-copy">
-        This Moment is still wrapped. Come back when the countdown reaches zero.
-      </p>
-      <div class="countdown" aria-label="Time until this Moment unlocks">
-        <div v-for="(value, label) in countdown" :key="label">
-          <strong>{{ String(value).padStart(2, "0") }}</strong>
-          <span>{{ label }}</span>
+      <p class="locked-eyebrow">{{
+        publicCopy.forRecipient(moment.recipientName)
+      }}</p>
+      <h1>{{ publicCopy.waitingTitle }}</h1>
+      <p class="locked-copy">{{ publicCopy.waitingCopy }}</p>
+      <div class="countdown" :aria-label="publicCopy.countdownLabel">
+        <div v-for="item in countdown" :key="item.key">
+          <strong>{{ String(item.value).padStart(2, "0") }}</strong>
+          <span>{{ item.label }}</span>
         </div>
       </div>
       <p class="brand">
@@ -87,22 +106,38 @@ onBeforeUnmount(() => {
     </div>
   </main>
 
-  <main v-else class="locked-page">
+  <main
+    v-else
+    class="locked-page"
+    :class="{ 'is-khmer': isKhmer }"
+    :lang="isKhmer ? 'km' : 'en'"
+  >
+    <div class="public-language-toggle"><MomentLanguageToggle /></div>
     <div class="locked-card">
       <p class="locked-eyebrow">ChlatWork Moments</p>
-      <h1>This Moment is unavailable.</h1>
-      <p class="locked-copy">
-        The link may be incorrect, unpublished, or expired.
-      </p>
-      <NuxtLink to="/moments/create" class="create-link"
-        >Create your own Moment</NuxtLink
+      <h1>{{ publicCopy.unavailableTitle }}</h1>
+      <p class="locked-copy">{{ publicCopy.unavailableCopy }}</p>
+      <NuxtLink
+        :to="localizeMomentPath('/moments/create')"
+        class="create-link"
+        >{{ publicCopy.createOwn }}</NuxtLink
       >
     </div>
   </main>
 </template>
 
 <style scoped>
+.public-moment-shell {
+  position: relative;
+}
+.public-language-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 40;
+}
 .locked-page {
+  position: relative;
   display: grid;
   min-height: 100vh;
   place-items: center;
@@ -111,6 +146,15 @@ onBeforeUnmount(() => {
     radial-gradient(circle at 50% 0%, #ffe1e9 0, transparent 35rem), #fff8f8;
   padding: 1.25rem;
   color: #4c1427;
+}
+.locked-page.is-khmer {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+}
+.locked-page.is-khmer h1,
+.locked-page.is-khmer .locked-copy {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.65;
+  letter-spacing: 0;
 }
 .locked-card {
   width: min(100%, 680px);

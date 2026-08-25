@@ -14,6 +14,12 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
+import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
+import {
+  MOMENT_COPY,
+  getMomentOccasionCopy,
+  getMomentThemeCopy,
+} from "~/data/moment-locales";
 import { MOMENT_OCCASIONS, MOMENT_THEMES } from "~/data/moments";
 import { prepareMomentImage } from "~/lib/moment-image";
 import {
@@ -28,8 +34,12 @@ type SelectedPhoto = { id: string; file: File; url: string };
 type PublishState = "idle" | "creating" | "uploading" | "publishing" | "done";
 
 const { user, isReady, fetchMe } = useAuth();
+const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+const creatorCopy = computed(() => copy.value.creator);
 const step = ref(1);
 const titleTouched = ref(false);
+const messageTouched = ref(false);
+const secretTouched = ref(false);
 const photos = ref<SelectedPhoto[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
 const photoError = ref("");
@@ -46,22 +56,42 @@ const copied = ref(false);
 const draft = reactive<MomentDraft>({
   recipientName: "",
   occasion: "BIRTHDAY",
-  title: buildMomentTitle("", "BIRTHDAY"),
-  message:
-    "You make ordinary days feel special. I hope this little page reminds you how loved and appreciated you are.",
-  secretMessage:
-    "Thank you for being part of my life. There are so many more memories I cannot wait to make with you. ❤️",
+  title: buildMomentTitle("", "BIRTHDAY", locale.value),
+  message: creatorCopy.value.defaultMessage,
+  secretMessage: creatorCopy.value.defaultSecret,
   theme: "ROMANTIC",
   specialDate: "",
   publishAt: "",
 });
 
 const suggestedTitle = computed(() =>
-  buildMomentTitle(draft.recipientName, draft.occasion),
+  buildMomentTitle(draft.recipientName, draft.occasion, locale.value),
 );
 watch(suggestedTitle, (title) => {
   if (!titleTouched.value) draft.title = title;
 });
+watch(locale, (nextLocale) => {
+  if (!messageTouched.value)
+    draft.message = MOMENT_COPY[nextLocale].creator.defaultMessage;
+  if (!secretTouched.value)
+    draft.secretMessage = MOMENT_COPY[nextLocale].creator.defaultSecret;
+  if (publishedSlug.value) void updateShareArtifacts(publishedSlug.value);
+});
+
+const localizedOccasions = computed(() =>
+  MOMENT_OCCASIONS.map((occasion) => ({
+    ...occasion,
+    label:
+      getMomentOccasionCopy(occasion.value, locale.value)?.label ??
+      occasion.label,
+  })),
+);
+const localizedThemes = computed(() =>
+  MOMENT_THEMES.map((theme) => ({
+    ...theme,
+    ...(getMomentThemeCopy(theme.value, locale.value) ?? {}),
+  })),
+);
 
 const previewMoment = computed(() =>
   buildPreviewMoment(
@@ -73,11 +103,14 @@ const isPublishing = computed(
   () => publishState.value !== "idle" && publishState.value !== "done",
 );
 const progressLabel = computed(() => {
-  if (publishState.value === "creating") return "Creating your Moment…";
+  if (publishState.value === "creating") return creatorCopy.value.creating;
   if (publishState.value === "uploading")
-    return `Uploading photo ${uploadProgress.value} of ${photos.value.length}…`;
-  if (publishState.value === "publishing") return "Wrapping the surprise…";
-  return "Publish Moment";
+    return creatorCopy.value.uploading(
+      uploadProgress.value,
+      photos.value.length,
+    );
+  if (publishState.value === "publishing") return creatorCopy.value.wrapping;
+  return creatorCopy.value.publish;
 });
 const minimumUnlockDate = computed(() => {
   const date = new Date(Date.now() + 5 * 60_000);
@@ -88,15 +121,19 @@ const minimumUnlockDate = computed(() => {
 function nextStep() {
   formError.value = "";
   if (step.value === 1 && !draft.recipientName.trim()) {
-    formError.value = "Tell us who this Moment is for.";
+    formError.value = creatorCopy.value.errors.recipient;
     return;
   }
   if (step.value === 2 && photos.value.length < 1) {
-    formError.value = "Add at least one photo to continue.";
+    formError.value = creatorCopy.value.errors.photoRequired;
     return;
   }
   if (step.value === 3) {
-    const error = getMomentFormError(draft, photos.value.length);
+    const error = getMomentFormError(
+      draft,
+      photos.value.length,
+      locale.value,
+    );
     if (error) {
       formError.value = error;
       return;
@@ -130,12 +167,12 @@ async function addPhotos(files: File[]) {
   photoError.value = "";
   const available = MAX_MOMENT_PHOTOS - photos.value.length;
   if (available <= 0) {
-    photoError.value = `You can add up to ${MAX_MOMENT_PHOTOS} photos.`;
+    photoError.value = creatorCopy.value.errors.photoLimit(MAX_MOMENT_PHOTOS);
     return;
   }
   const selected = files.slice(0, available);
   if (files.length > available)
-    photoError.value = `Only the first ${available} selected photos were added.`;
+    photoError.value = creatorCopy.value.errors.partialPhotos(available);
   isPreparingPhotos.value = true;
   for (const file of selected) {
     try {
@@ -146,13 +183,25 @@ async function addPhotos(files: File[]) {
         url: URL.createObjectURL(prepared),
       });
     } catch (error) {
-      photoError.value =
-        error instanceof Error
-          ? error.message
-          : "A photo could not be prepared.";
+      photoError.value = getPhotoPreparationError(error);
     }
   }
   isPreparingPhotos.value = false;
+}
+
+function getPhotoPreparationError(error: unknown) {
+  if (!(error instanceof Error)) return creatorCopy.value.errors.photoFailed;
+  const errorCopy = creatorCopy.value.errors;
+  const translations: Record<string, string> = {
+    "Use a JPG, PNG, or WebP photo.": errorCopy.photoType,
+    "Each original photo must be 20MB or smaller.": errorCopy.photoSourceSize,
+    "This browser cannot prepare the photo.": errorCopy.photoBrowser,
+    "This photo is still over 2MB after compression. Try a smaller image.":
+      errorCopy.photoCompressedSize,
+    "This photo could not be opened.": errorCopy.photoOpen,
+    "This photo could not be compressed.": errorCopy.photoCompress,
+  };
+  return translations[error.message] ?? errorCopy.photoFailed;
 }
 
 function removePhoto(id: string) {
@@ -162,7 +211,11 @@ function removePhoto(id: string) {
 }
 
 async function requestPublish() {
-  formError.value = getMomentFormError(draft, photos.value.length);
+  formError.value = getMomentFormError(
+    draft,
+    photos.value.length,
+    locale.value,
+  );
   if (formError.value) return;
   if (!isReady.value) await fetchMe();
   if (!user.value) {
@@ -215,13 +268,7 @@ async function publishMoment() {
       { method: "POST" },
     );
     publishedSlug.value = published.slug;
-    shareUrl.value = `${window.location.origin}/m/${published.slug}`;
-    const QR = await import("qrcode");
-    qrDataUrl.value = await QR.toDataURL(shareUrl.value, {
-      width: 320,
-      margin: 2,
-      errorCorrectionLevel: "M",
-    });
+    await updateShareArtifacts(published.slug);
     publishState.value = "done";
     scrollToTop();
   } catch (error) {
@@ -234,6 +281,16 @@ async function publishMoment() {
   }
 }
 
+async function updateShareArtifacts(slug: string) {
+  shareUrl.value = `${window.location.origin}${localizeMomentPath(`/m/${slug}`)}`;
+  const QR = await import("qrcode");
+  qrDataUrl.value = await QR.toDataURL(shareUrl.value, {
+    width: 320,
+    margin: 2,
+    errorCorrectionLevel: "M",
+  });
+}
+
 async function copyLink() {
   try {
     await navigator.clipboard.writeText(shareUrl.value);
@@ -242,7 +299,7 @@ async function copyLink() {
       copied.value = false;
     }, 1600);
   } catch {
-    formError.value = "Could not copy the link. Select it manually.";
+    formError.value = creatorCopy.value.errors.copyFailed;
   }
 }
 
@@ -254,7 +311,7 @@ async function shareMoment() {
   await navigator
     .share({
       title: draft.title,
-      text: "I made a ChlatWork Moment for you ❤️",
+      text: creatorCopy.value.shareText,
       url: shareUrl.value,
     })
     .catch(() => null);
@@ -278,9 +335,10 @@ function getRequestError(error: unknown) {
     fetchError.data?.statusMessage ??
     fetchError.statusMessage ??
     fetchError.message;
+  if (locale.value === "km") return creatorCopy.value.errors.publishFailed;
   return Array.isArray(message)
     ? message.join(", ")
-    : message || "Your Moment could not be published. Please try again.";
+    : message || creatorCopy.value.errors.publishFailed;
 }
 
 onMounted(() => {
@@ -292,25 +350,31 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="moments-creator">
+  <div
+    class="moments-creator"
+    :class="{ 'is-khmer': isKhmer }"
+    :lang="isKhmer ? 'km' : 'en'"
+  >
+    <div class="language-toolbar">
+      <MomentLanguageToggle />
+    </div>
     <section v-if="publishState === 'done'" class="success-card">
       <div class="success-icon">
         <Check class="h-8 w-8" aria-hidden="true" />
       </div>
-      <p class="creator-eyebrow">Ready to share</p>
-      <h1>Your Moment is ready ❤️</h1>
-      <p class="success-copy">
-        Only people with this link can open it. ChlatWork keeps Moment pages out
-        of search engines.
-      </p>
+      <p class="creator-eyebrow">{{ creatorCopy.readyEyebrow }}</p>
+      <h1>{{ creatorCopy.readyTitle }}</h1>
+      <p class="success-copy">{{ creatorCopy.readyCopy }}</p>
       <div class="share-panel">
         <img
           :src="qrDataUrl"
-          alt="QR code for the published Moment"
+          :alt="creatorCopy.qrAlt"
           class="qr-image"
         />
         <div class="min-w-0 flex-1">
-          <label for="moment-link" class="field-label">Share link</label>
+          <label for="moment-link" class="field-label">{{
+            creatorCopy.shareLink
+          }}</label>
           <input
             id="moment-link"
             :value="shareUrl"
@@ -323,48 +387,47 @@ onBeforeUnmount(() => {
               <Check v-if="copied" class="h-4 w-4" /><Copy
                 v-else
                 class="h-4 w-4"
-              />{{ copied ? "Copied" : "Copy link" }}
+              />{{ copied ? creatorCopy.copied : creatorCopy.copyLink }}
             </button>
             <button type="button" class="secondary-button" @click="shareMoment">
-              <Share2 class="h-4 w-4" />Share
+              <Share2 class="h-4 w-4" />{{ creatorCopy.share }}
             </button>
             <button type="button" class="secondary-button" @click="downloadQr">
-              <Download class="h-4 w-4" />Download QR
+              <Download class="h-4 w-4" />{{ creatorCopy.downloadQr }}
             </button>
           </div>
         </div>
       </div>
-      <NuxtLink :to="`/m/${publishedSlug}`" class="preview-link" target="_blank"
-        >Open the receiver experience <ArrowRight class="h-4 w-4"
+      <NuxtLink
+        :to="localizeMomentPath(`/m/${publishedSlug}`)"
+        class="preview-link"
+        target="_blank"
+        >{{ creatorCopy.openReceiver }} <ArrowRight class="h-4 w-4"
       /></NuxtLink>
       <span class="mx-2 text-rose-200" aria-hidden="true">·</span>
-      <NuxtLink to="/moments" class="preview-link"
-        >Manage your Moments</NuxtLink
+      <NuxtLink :to="localizeMomentPath('/moments')" class="preview-link"
+        >{{ creatorCopy.manageMoments }}</NuxtLink
       >
     </section>
 
     <template v-else>
       <header class="creator-header">
         <p class="creator-eyebrow">
-          <Sparkles class="h-4 w-4" aria-hidden="true" /> ChlatWork Moments
+          <Sparkles class="h-4 w-4" aria-hidden="true" />
+          {{ creatorCopy.eyebrow }}
         </p>
-        <h1>Create a little place on the internet for someone special.</h1>
-        <p>
-          Pick a few details and photos. ChlatWork turns them into a personal,
-          interactive celebration—no page builder needed.
-        </p>
+        <h1>{{ creatorCopy.title }}</h1>
+        <p>{{ creatorCopy.description }}</p>
       </header>
 
-      <ol class="stepper" aria-label="Moment creation progress">
+      <ol class="stepper" :aria-label="creatorCopy.progressLabel">
         <li
           v-for="item in 4"
           :key="item"
           :class="{ active: step === item, complete: step > item }"
         >
           <span>{{ step > item ? "✓" : item }}</span>
-          <small>{{
-            ["Person", "Photos", "Story", "Preview"][item - 1]
-          }}</small>
+          <small>{{ creatorCopy.steps[item - 1] }}</small>
         </li>
       </ol>
 
@@ -373,10 +436,10 @@ onBeforeUnmount(() => {
         @submit.prevent="step < 4 ? nextStep() : requestPublish()"
       >
         <section v-if="step === 1" aria-labelledby="step-one-title">
-          <p class="step-label">Step 1 of 4</p>
-          <h2 id="step-one-title">Who are we celebrating?</h2>
+          <p class="step-label">{{ creatorCopy.stepLabel(1) }}</p>
+          <h2 id="step-one-title">{{ creatorCopy.personTitle }}</h2>
           <label for="recipient-name" class="field-label mt-6"
-            >Their name</label
+            >{{ creatorCopy.recipientName }}</label
           >
           <input
             id="recipient-name"
@@ -384,14 +447,14 @@ onBeforeUnmount(() => {
             maxlength="80"
             required
             class="field-input mt-2"
-            placeholder="Neth"
+            :placeholder="creatorCopy.recipientPlaceholder"
             autocomplete="off"
           />
           <fieldset class="mt-7">
-            <legend class="field-label">Choose an occasion</legend>
+            <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
             <div class="occasion-grid mt-3">
               <label
-                v-for="occasion in MOMENT_OCCASIONS"
+                v-for="occasion in localizedOccasions"
                 :key="occasion.value"
                 class="choice-card"
                 :class="{ selected: draft.occasion === occasion.value }"
@@ -412,12 +475,9 @@ onBeforeUnmount(() => {
         </section>
 
         <section v-else-if="step === 2" aria-labelledby="step-two-title">
-          <p class="step-label">Step 2 of 4</p>
-          <h2 id="step-two-title">Choose your favorite photos</h2>
-          <p class="step-copy">
-            Add 1–10 JPG, PNG, or WebP photos. We resize them and remove
-            location/device metadata before upload.
-          </p>
+          <p class="step-label">{{ creatorCopy.stepLabel(2) }}</p>
+          <h2 id="step-two-title">{{ creatorCopy.photosTitle }}</h2>
+          <p class="step-copy">{{ creatorCopy.photosDescription }}</p>
           <input
             ref="fileInput"
             type="file"
@@ -441,34 +501,45 @@ onBeforeUnmount(() => {
             />
             <ImagePlus v-else class="h-8 w-8" aria-hidden="true" />
             <strong>{{
-              isPreparingPhotos ? "Preparing photos…" : "Choose or drop photos"
+              isPreparingPhotos
+                ? creatorCopy.preparingPhotos
+                : creatorCopy.choosePhotos
             }}</strong>
-            <span>{{ photos.length }} / {{ MAX_MOMENT_PHOTOS }} added</span>
+            <span>{{
+              creatorCopy.photosAdded(photos.length, MAX_MOMENT_PHOTOS)
+            }}</span>
           </button>
           <p v-if="photoError" role="alert" class="error-message">
             {{ photoError }}
           </p>
           <div v-if="photos.length" class="selected-photos">
             <figure v-for="(photo, index) in photos" :key="photo.id">
-              <img :src="photo.url" :alt="`Selected photo ${index + 1}`" />
+              <img
+                :src="photo.url"
+                :alt="creatorCopy.selectedPhoto(index + 1)"
+              />
               <button
                 type="button"
-                :aria-label="`Remove photo ${index + 1}`"
+                :aria-label="creatorCopy.removePhoto(index + 1)"
                 @click="removePhoto(photo.id)"
               >
                 <Trash2 class="h-4 w-4" />
               </button>
-              <figcaption>{{ index === 0 ? "Hero" : index + 1 }}</figcaption>
+              <figcaption>{{
+                index === 0 ? creatorCopy.heroPhoto : index + 1
+              }}</figcaption>
             </figure>
           </div>
         </section>
 
         <section v-else-if="step === 3" aria-labelledby="step-three-title">
-          <p class="step-label">Step 3 of 4</p>
-          <h2 id="step-three-title">Tell the story in your words</h2>
+          <p class="step-label">{{ creatorCopy.stepLabel(3) }}</p>
+          <h2 id="step-three-title">{{ creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
             <div>
-              <label for="moment-title" class="field-label">Title</label
+              <label for="moment-title" class="field-label">{{
+                creatorCopy.titleLabel
+              }}</label
               ><input
                 id="moment-title"
                 v-model="draft.title"
@@ -478,32 +549,36 @@ onBeforeUnmount(() => {
               />
             </div>
             <div>
-              <label for="moment-message" class="field-label"
-                >Your message</label
+              <label for="moment-message" class="field-label">{{
+                creatorCopy.messageLabel
+              }}</label
               ><textarea
                 id="moment-message"
                 v-model="draft.message"
                 maxlength="3000"
                 rows="6"
                 class="field-input mt-2 resize-y"
+                @input="messageTouched = true"
               />
               <p class="character-count">{{ draft.message.length }} / 3000</p>
             </div>
             <div class="grid gap-5 sm:grid-cols-2">
               <div>
                 <label for="special-date" class="field-label"
-                  >Special date <span>(optional)</span></label
+                  >{{ creatorCopy.specialDate }}
+                  <span>({{ creatorCopy.optional }})</span></label
                 ><input
                   id="special-date"
                   v-model="draft.specialDate"
                   type="date"
                   class="field-input mt-2"
                 />
-                <p class="field-help">Used for the day counter.</p>
+                <p class="field-help">{{ creatorCopy.counterHelp }}</p>
               </div>
               <div>
                 <label for="unlock-date" class="field-label"
-                  >Scheduled unlock <span>(optional)</span></label
+                  >{{ creatorCopy.scheduledUnlock }}
+                  <span>({{ creatorCopy.optional }})</span></label
                 ><input
                   id="unlock-date"
                   v-model="draft.publishAt"
@@ -511,34 +586,34 @@ onBeforeUnmount(() => {
                   :min="minimumUnlockDate"
                   class="field-input mt-2"
                 />
-                <p class="field-help">Until then, they see a countdown.</p>
+                <p class="field-help">{{ creatorCopy.countdownHelp }}</p>
               </div>
             </div>
             <div>
-              <label for="secret-message" class="field-label"
-                >Secret surprise</label
+              <label for="secret-message" class="field-label">{{
+                creatorCopy.secretLabel
+              }}</label
               ><textarea
                 id="secret-message"
                 v-model="draft.secretMessage"
                 maxlength="1500"
                 rows="4"
                 class="field-input mt-2 resize-y"
+                @input="secretTouched = true"
               />
-              <p class="field-help">
-                Revealed after they hold the gift button.
-              </p>
+              <p class="field-help">{{ creatorCopy.secretHelp }}</p>
             </div>
           </div>
         </section>
 
         <section v-else aria-labelledby="step-four-title">
-          <p class="step-label">Step 4 of 4</p>
-          <h2 id="step-four-title">Choose the feeling, then preview</h2>
+          <p class="step-label">{{ creatorCopy.stepLabel(4) }}</p>
+          <h2 id="step-four-title">{{ creatorCopy.previewTitle }}</h2>
           <fieldset class="mt-6">
-            <legend class="field-label">Theme</legend>
+            <legend class="field-label">{{ creatorCopy.themeLabel }}</legend>
             <div class="theme-grid mt-3">
               <label
-                v-for="theme in MOMENT_THEMES"
+                v-for="theme in localizedThemes"
                 :key="theme.value"
                 class="theme-card"
                 :class="{ selected: draft.theme === theme.value }"
@@ -563,24 +638,24 @@ onBeforeUnmount(() => {
           <div class="preview-heading">
             <div>
               <p class="field-label">
-                <Eye class="inline h-4 w-4" /> Receiver preview
+                <Eye class="inline h-4 w-4" />
+                {{ creatorCopy.receiverPreview }}
               </p>
-              <p>
-                Scroll inside the preview to experience the complete Moment.
-              </p>
+              <p>{{ creatorCopy.previewHelp }}</p>
             </div>
           </div>
           <div class="experience-preview">
-            <MomentExperience :moment="previewMoment" preview />
+            <MomentExperience
+              :moment="previewMoment"
+              :locale="locale"
+              preview
+            />
           </div>
           <div class="privacy-note">
             <LockKeyhole class="h-5 w-5" aria-hidden="true" />
             <div>
-              <strong>Private by default</strong>
-              <p>
-                The published page is unlisted, excluded from search engines,
-                and accessible only to people with its link.
-              </p>
+              <strong>{{ creatorCopy.privateTitle }}</strong>
+              <p>{{ creatorCopy.privateCopy }}</p>
             </div>
           </div>
         </section>
@@ -596,7 +671,7 @@ onBeforeUnmount(() => {
             :disabled="isPublishing"
             @click="previousStep"
           >
-            <ArrowLeft class="h-4 w-4" />Back
+            <ArrowLeft class="h-4 w-4" />{{ creatorCopy.back }}
           </button>
           <span v-else />
           <button
@@ -606,7 +681,7 @@ onBeforeUnmount(() => {
           >
             <LoaderCircle v-if="isPublishing" class="h-4 w-4 animate-spin" />
             <Sparkles v-else-if="step === 4" class="h-4 w-4" />
-            {{ step === 4 ? progressLabel : "Continue" }}
+            {{ step === 4 ? progressLabel : creatorCopy.continue }}
             <ArrowRight v-if="step < 4" class="h-4 w-4" />
           </button>
         </footer>
@@ -615,6 +690,7 @@ onBeforeUnmount(() => {
 
     <AuthLoginDialog
       :open="showLogin"
+      :locale="locale"
       @close="showLogin = false"
       @success="continueAfterLogin"
     />
@@ -626,6 +702,46 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   max-width: 1040px;
   color: #172033;
+}
+.language-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+.moments-creator.is-khmer {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+}
+.moments-creator.is-khmer .creator-header h1,
+.moments-creator.is-khmer .success-card h1,
+.moments-creator.is-khmer .creator-card h2 {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+}
+.moments-creator.is-khmer .creator-header h1,
+.moments-creator.is-khmer .success-card h1 {
+  line-height: 1.45;
+}
+.moments-creator.is-khmer .creator-card h2 {
+  font-size: clamp(1.55rem, 3.2vw, 2rem);
+  font-weight: 600 !important;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.moments-creator.is-khmer .step-label {
+  margin-bottom: 0.15rem;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  line-height: 1.7;
+  text-transform: none;
+}
+.moments-creator.is-khmer .creator-header > p:last-child,
+.moments-creator.is-khmer .step-copy,
+.moments-creator.is-khmer .field-help,
+.moments-creator.is-khmer .success-copy {
+  line-height: 1.85;
+}
+.moments-creator.is-khmer .step-copy {
+  margin-top: 0.9rem;
 }
 .creator-header {
   margin: 2.5rem auto 0;

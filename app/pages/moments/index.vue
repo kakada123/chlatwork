@@ -6,6 +6,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-vue-next";
+import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import { getMomentOccasion } from "~/data/moments";
 import type { MomentOccasion, MomentTheme } from "~/types/moment";
 
@@ -25,13 +26,14 @@ type MomentSummary = {
   _count: { media: number };
 };
 
+const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+const managerCopy = computed(() => copy.value.manager);
+
 useSeoMeta({
-  title: "Your Moments | ChlatWork",
-  description:
-    "Manage the celebration pages you created with ChlatWork Moments.",
+  title: () => `${managerCopy.value.title} | ChlatWork`,
+  description: () => managerCopy.value.description,
   robots: "noindex, nofollow",
 });
-
 const { data, status, error } =
   await useFetch<MomentSummary[]>("/api/moments/mine");
 const moments = computed(() => data.value ?? []);
@@ -39,24 +41,24 @@ const deletingId = ref("");
 const deleteError = ref("");
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat(locale.value === "km" ? "km-KH" : undefined, {
+    dateStyle: "medium",
+  }).format(new Date(value));
+}
+
+function statusKind(moment: MomentSummary) {
+  if (moment.status === "DRAFT") return "draft";
+  if (moment.publishAt && new Date(moment.publishAt) > new Date())
+    return "scheduled";
+  return "published";
 }
 
 function statusLabel(moment: MomentSummary) {
-  if (moment.status === "DRAFT") return "Draft";
-  if (moment.publishAt && new Date(moment.publishAt) > new Date())
-    return "Scheduled";
-  return "Published";
+  return managerCopy.value[statusKind(moment)];
 }
 
 async function removeMoment(moment: MomentSummary) {
-  if (
-    !window.confirm(
-      `Delete “${moment.title}”? This permanently removes its photos and share link.`,
-    )
-  )
+  if (!window.confirm(managerCopy.value.deleteConfirm(moment.title)))
     return;
   deletingId.value = moment.id;
   deleteError.value = "";
@@ -64,7 +66,7 @@ async function removeMoment(moment: MomentSummary) {
     await $fetch(`/api/moments/${moment.id}`, { method: "DELETE" });
     data.value = moments.value.filter((item) => item.id !== moment.id);
   } catch {
-    deleteError.value = "This Moment could not be deleted. Please try again.";
+    deleteError.value = managerCopy.value.deleteError;
   } finally {
     deletingId.value = "";
   }
@@ -72,7 +74,11 @@ async function removeMoment(moment: MomentSummary) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-5xl">
+  <div
+    class="moments-manager mx-auto max-w-5xl"
+    :class="{ 'is-khmer': isKhmer }"
+    :lang="isKhmer ? 'km' : 'en'"
+  >
     <header
       class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
     >
@@ -82,16 +88,19 @@ async function removeMoment(moment: MomentSummary) {
         >
           ChlatWork Moments
         </p>
-        <h1 class="mt-2">Your Moments</h1>
+        <h1 class="mt-2">{{ managerCopy.title }}</h1>
         <p class="mt-2 text-sm text-slate-600 dark:text-white/60">
-          Keep up to three active celebration pages on a free account.
+          {{ managerCopy.description }}
         </p>
       </div>
-      <NuxtLink
-        to="/moments/create"
-        class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold text-white hover:bg-rose-700"
-        ><Plus class="h-4 w-4" />Create a Moment</NuxtLink
-      >
+      <div class="flex flex-wrap items-center gap-3">
+        <MomentLanguageToggle />
+        <NuxtLink
+          :to="localizeMomentPath('/moments/create')"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold text-white hover:bg-rose-700"
+          ><Plus class="h-4 w-4" />{{ managerCopy.create }}</NuxtLink
+        >
+      </div>
     </header>
 
     <p
@@ -114,8 +123,8 @@ async function removeMoment(moment: MomentSummary) {
       v-else-if="error"
       class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-red-800 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-200"
     >
-      <h2 class="text-lg font-semibold">Your Moments could not be loaded.</h2>
-      <p class="mt-2 text-sm">Refresh the page and try again.</p>
+      <h2 class="text-lg font-semibold">{{ managerCopy.loadErrorTitle }}</h2>
+      <p class="mt-2 text-sm">{{ managerCopy.loadErrorCopy }}</p>
     </section>
 
     <section
@@ -124,18 +133,17 @@ async function removeMoment(moment: MomentSummary) {
     >
       <p class="text-4xl" aria-hidden="true">💝</p>
       <h2 class="mt-4 text-2xl font-semibold">
-        Your first Moment starts here.
+        {{ managerCopy.emptyTitle }}
       </h2>
       <p
         class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-white/60"
       >
-        Choose someone, add your favorite photos, and share a surprise they can
-        keep coming back to.
+        {{ managerCopy.emptyCopy }}
       </p>
       <NuxtLink
-        to="/moments/create"
+        :to="localizeMomentPath('/moments/create')"
         class="mt-5 inline-flex rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold text-white"
-        >Create a Moment</NuxtLink
+        >{{ managerCopy.create }}</NuxtLink
       >
     </section>
 
@@ -152,7 +160,7 @@ async function removeMoment(moment: MomentSummary) {
           <span
             class="rounded-full px-2.5 py-1 text-xs font-bold"
             :class="
-              statusLabel(moment) === 'Published'
+              statusKind(moment) === 'published'
                 ? 'bg-green-50 text-green-700 dark:bg-green-300/10 dark:text-green-300'
                 : 'bg-amber-50 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200'
             "
@@ -161,16 +169,15 @@ async function removeMoment(moment: MomentSummary) {
         </div>
         <h2 class="mt-4 text-xl font-semibold">{{ moment.title }}</h2>
         <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-          For {{ moment.recipientName }}
+          {{ managerCopy.forRecipient(moment.recipientName) }}
         </p>
         <div
           class="mt-4 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-white/45"
         >
           <span class="inline-flex items-center gap-1"
             ><Images class="h-3.5 w-3.5" />{{
-              moment._count.media
-            }}
-            photos</span
+              managerCopy.photos(moment._count.media)
+            }}</span
           >
           <span class="inline-flex items-center gap-1"
             ><CalendarClock class="h-3.5 w-3.5" />{{
@@ -183,12 +190,14 @@ async function removeMoment(moment: MomentSummary) {
         >
           <NuxtLink
             v-if="moment.status === 'PUBLISHED'"
-            :to="`/m/${moment.slug}`"
+            :to="localizeMomentPath(`/m/${moment.slug}`)"
             target="_blank"
             class="inline-flex items-center gap-1.5 text-sm font-bold text-rose-600 hover:text-rose-800 dark:text-rose-300"
-            ><ExternalLink class="h-4 w-4" />Open</NuxtLink
+            ><ExternalLink class="h-4 w-4" />{{ managerCopy.open }}</NuxtLink
           >
-          <span v-else class="text-xs text-slate-400">Not shared</span>
+          <span v-else class="text-xs text-slate-400">{{
+            managerCopy.notShared
+          }}</span>
           <button
             type="button"
             class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-400/10"
@@ -196,7 +205,9 @@ async function removeMoment(moment: MomentSummary) {
             @click="removeMoment(moment)"
           >
             <Trash2 class="h-4 w-4" />{{
-              deletingId === moment.id ? "Deleting…" : "Delete"
+              deletingId === moment.id
+                ? managerCopy.deleting
+                : managerCopy.delete
             }}
           </button>
         </div>
@@ -204,3 +215,10 @@ async function removeMoment(moment: MomentSummary) {
     </ul>
   </div>
 </template>
+
+<style scoped>
+.moments-manager.is-khmer {
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.75;
+}
+</style>
