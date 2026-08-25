@@ -1,17 +1,38 @@
 import { MAX_MOMENT_SOURCE_BYTES, MAX_MOMENT_UPLOAD_BYTES } from "./moments.ts";
 
-const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ACCEPTED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
+const ACCEPTED_EXTENSIONS = /\.(jpe?g|png|webp|heic|heif)$/i;
 const MAX_DIMENSION = 1600;
 
 export async function prepareMomentImage(file: File) {
-  if (!ACCEPTED_TYPES.has(file.type)) {
-    throw new Error("Use a JPG, PNG, or WebP photo.");
+  // Some iPhone browsers omit the MIME type for HEIC files, so the extension is a safe fallback before re-encoding.
+  if (!ACCEPTED_TYPES.has(file.type.toLowerCase()) && !ACCEPTED_EXTENSIONS.test(file.name)) {
+    throw new Error("Use a JPG, PNG, WebP, HEIC, or HEIF photo.");
   }
   if (file.size > MAX_MOMENT_SOURCE_BYTES) {
     throw new Error("Each original photo must be 20MB or smaller.");
   }
 
-  const sourceUrl = URL.createObjectURL(file);
+  const isHeic = ["image/heic", "image/heif"].includes(file.type.toLowerCase())
+    || /\.(heic|heif)$/i.test(file.name);
+  let sourceBlob: Blob = file;
+  if (isHeic) {
+    try {
+      const { default: heic2any } = await import("heic2any");
+      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+      sourceBlob = Array.isArray(converted) ? converted[0]! : converted;
+    } catch {
+      throw new Error("This iPhone photo could not be converted. Try sharing it as JPEG.");
+    }
+  }
+
+  const sourceUrl = URL.createObjectURL(sourceBlob);
   try {
     const image = await loadImage(sourceUrl);
     const scale = Math.min(

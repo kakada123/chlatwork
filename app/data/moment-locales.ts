@@ -47,7 +47,7 @@ const EN = {
     chooseOccasion: "Choose an occasion",
     photosTitle: "Choose your favorite photos",
     photosDescription:
-      "Add 1–10 JPG, PNG, or WebP photos. We resize them and remove location/device metadata before upload.",
+      "Add 1–10 JPG, PNG, WebP, HEIC, or HEIF photos. We resize them and remove location/device metadata before upload.",
     preparingPhotos: "Preparing photos…",
     choosePhotos: "Choose or drop photos",
     photosAdded: (count: number, max: number) => `${count} / ${max} added`,
@@ -122,13 +122,14 @@ const EN = {
       partialPhotos: (count: number) =>
         `Only the first ${count} selected photos were added.`,
       photoFailed: "A photo could not be prepared.",
-      photoType: "Use a JPG, PNG, or WebP photo.",
+      photoType: "Use a JPG, PNG, WebP, HEIC, or HEIF photo.",
       photoSourceSize: "Each original photo must be 20MB or smaller.",
       photoBrowser: "This browser cannot prepare the photo.",
       photoCompressedSize:
         "This photo is still over 10MB after compression. Try a smaller image.",
       photoOpen: "This photo could not be opened.",
       photoCompress: "This photo could not be compressed.",
+      photoHeic: "This iPhone photo could not be converted. Try sharing it as JPEG.",
       copyFailed: "Could not copy the link. Select it manually.",
       publishFailed: "Your Moment could not be published. Please try again.",
     },
@@ -318,7 +319,7 @@ const KM = {
     chooseOccasion: "ជ្រើសរើសឱកាស",
     photosTitle: "ជ្រើសរើសរូបថតដែលអ្នកពេញចិត្ត",
     photosDescription:
-      "បន្ថែមរូបថត JPG, PNG ឬ WebP ចំនួន ១–១០។ យើងនឹងបន្ថយទំហំ និងដកព័ត៌មានទីតាំង ឬឧបករណ៍ មុនពេល upload។",
+      "បន្ថែមរូបថត JPG, PNG, WebP, HEIC ឬ HEIF ចំនួន ១–១០។ យើងនឹងបន្ថយទំហំ និងដកព័ត៌មានទីតាំង ឬឧបករណ៍ មុនពេល upload។",
     preparingPhotos: "កំពុងរៀបចំរូបថត…",
     choosePhotos: "ជ្រើសរើស ឬទម្លាក់រូបថតនៅទីនេះ",
     photosAdded: (count: number, max: number) => `បានបន្ថែម ${count} / ${max}`,
@@ -394,13 +395,14 @@ const KM = {
       partialPhotos: (count: number) =>
         `បានបន្ថែមតែរូបថត ${count} សន្លឹកដំបូងប៉ុណ្ណោះ។`,
       photoFailed: "មិនអាចរៀបចំរូបថតនេះបានទេ។",
-      photoType: "សូមប្រើរូបថតប្រភេទ JPG, PNG ឬ WebP។",
+      photoType: "សូមប្រើរូបថតប្រភេទ JPG, PNG, WebP, HEIC ឬ HEIF។",
       photoSourceSize: "រូបថតដើមនីមួយៗត្រូវមានទំហំ 20MB ឬតូចជាងនេះ។",
       photoBrowser: "Browser នេះមិនអាចរៀបចំរូបថតបានទេ។",
       photoCompressedSize:
         "រូបថតនេះនៅតែធំជាង 10MB បន្ទាប់ពីបង្រួម។ សូមសាកល្បងរូបថតតូចជាងនេះ។",
       photoOpen: "មិនអាចបើករូបថតនេះបានទេ។",
       photoCompress: "មិនអាចបង្រួមរូបថតនេះបានទេ។",
+      photoHeic: "មិនអាចបម្លែងរូបថត iPhone នេះបានទេ។ សូមសាកល្បងចែករំលែកជា JPEG។",
       copyFailed: "មិនអាចចម្លងតំណបានទេ។ សូមជ្រើសរើស និងចម្លងដោយផ្ទាល់។",
       publishFailed: "មិនអាចបោះពុម្ព Moment បានទេ។ សូមព្យាយាមម្តងទៀត។",
     },

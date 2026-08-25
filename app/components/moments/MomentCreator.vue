@@ -217,13 +217,15 @@ function getPhotoPreparationError(error: unknown) {
   if (!(error instanceof Error)) return creatorCopy.value.errors.photoFailed;
   const errorCopy = creatorCopy.value.errors;
   const translations: Record<string, string> = {
-    "Use a JPG, PNG, or WebP photo.": errorCopy.photoType,
+    "Use a JPG, PNG, WebP, HEIC, or HEIF photo.": errorCopy.photoType,
     "Each original photo must be 20MB or smaller.": errorCopy.photoSourceSize,
     "This browser cannot prepare the photo.": errorCopy.photoBrowser,
     "This photo is still over 10MB after compression. Try a smaller image.":
       errorCopy.photoCompressedSize,
     "This photo could not be opened.": errorCopy.photoOpen,
     "This photo could not be compressed.": errorCopy.photoCompress,
+    "This iPhone photo could not be converted. Try sharing it as JPEG.":
+      errorCopy.photoHeic,
   };
   return translations[error.message] ?? errorCopy.photoFailed;
 }
@@ -538,7 +540,7 @@ onBeforeUnmount(() => {
           <input
             ref="fileInput"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
             multiple
             class="sr-only"
             @change="onPhotoPick"

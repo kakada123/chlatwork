@@ -171,12 +171,16 @@ test("published Moment surfaces are unlisted and validate image content", () => 
   const service = readProjectFile("api/src/moments/moments.service.ts");
   const sql = readProjectFile("database/updates/2026-08-24-create-moments.sql");
   const mediaProxy = readProjectFile("server/api/moments/[id]/media.post.ts");
+  const imagePreparation = readProjectFile("app/lib/moment-image.ts");
 
   assert.match(viewer, /noindex, nofollow, noarchive/);
   assert.match(service, /detectImageMime/);
   assert.match(service, /MAX_MOMENT_IMAGE_BYTES = 10 \* 1024 \* 1024/);
   assert.match(mediaProxy, /MAX_IMAGE_BYTES = 10 \* 1024 \* 1024/);
   assert.doesNotMatch(mediaProxy, /2MB or smaller/);
+  assert.match(imagePreparation, /"image\/heic"/);
+  assert.match(imagePreparation, /"image\/heif"/);
+  assert.match(imagePreparation, /import\("heic2any"\)/);
   assert.match(service, /MAX_ACTIVE_MOMENTS = 3/);
   assert.match(service, /randomBytes\(8\)/);
   assert.match(service, /where: \{ id: momentId, creatorId: userId \}/);
