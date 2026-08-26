@@ -66,6 +66,17 @@ body {
   letter-spacing: -0.006em;
 }
 
+/* Theme changes are user-triggered; initial page paint stays transition-free to avoid a flash. */
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning body *,
+html.theme-transitioning body *::before,
+html.theme-transitioning body *::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 220ms;
+  transition-timing-function: ease;
+}
+
 .site-container {
   width: 100%;
   max-width: 1200px;
@@ -906,6 +917,14 @@ html .expense-summary-surface .expense-budget-status-danger {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+  }
+
+  html.theme-transitioning,
+  html.theme-transitioning body,
+  html.theme-transitioning body *,
+  html.theme-transitioning body *::before,
+  html.theme-transitioning body *::after {
+    transition: none !important;
   }
 
   [data-reveal],

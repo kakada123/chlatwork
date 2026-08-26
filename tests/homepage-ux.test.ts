@@ -4,7 +4,10 @@ import test from "node:test";
 
 test("homepage stays focused instead of duplicating the complete tools directory", () => {
   const hero = readFileSync("app/components/landing/HeroSection.vue", "utf8");
-  const landing = readFileSync("app/components/landing/LandingPage.vue", "utf8");
+  const landing = readFileSync(
+    "app/components/landing/LandingPage.vue",
+    "utf8",
+  );
 
   assert.match(hero, /popularTools\.slice\(0, 6\)/);
   assert.match(hero, /Start with a popular tool/);
@@ -27,9 +30,26 @@ test("homepage cards use semantic collections and calm interaction states", () =
 test("new visitors receive the light-first theme while saved preferences still win", () => {
   const composable = readFileSync("app/composables/useColorMode.ts", "utf8");
   const config = readFileSync("nuxt.config.ts", "utf8");
+  const hydrationPlugin = readFileSync(
+    "app/plugins/color-mode.client.ts",
+    "utf8",
+  );
+  const styles = readFileSync("app/assets/css/main.css", "utf8");
 
-  assert.match(composable, /useState<ColorMode>\("color-mode", \(\) => "light"\)/);
-  assert.match(composable, /getStoredColorMode\(\) \?\? getSystemColorMode\(\)/);
+  assert.match(
+    composable,
+    /useState<ColorMode>\("color-mode", \(\) => "light"\)/,
+  );
+  assert.match(
+    composable,
+    /getStoredColorMode\(\) \?\? getSystemColorMode\(\)/,
+  );
   assert.match(config, /storedMode === "light" \|\| storedMode === "dark"/);
   assert.match(config, /: "light";/);
+  assert.match(config, /key: "color-mode-init"/);
+  assert.match(config, /tagPriority: "critical"/);
+  assert.match(hydrationPlugin, /document\.documentElement\.dataset\.theme/);
+  assert.match(hydrationPlugin, /useState<ColorMode>\("color-mode"/);
+  assert.match(composable, /classList\.add\("theme-transitioning"\)/);
+  assert.match(styles, /html\.theme-transitioning body \*/);
 });

@@ -4,6 +4,8 @@ const STORAGE_KEY = "chlatwork-color-mode";
 const LIGHT_THEME_COLOR = "#f9fafb";
 const DARK_THEME_COLOR = "#1c1c1e";
 const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
+const THEME_TRANSITION_MS = 220;
+let transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
 function isColorMode(value: string | null): value is ColorMode {
   return value === "light" || value === "dark";
@@ -26,13 +28,22 @@ function getSystemColorMode(): ColorMode {
   return "light";
 }
 
-function applyColorMode(mode: ColorMode) {
+function applyColorMode(mode: ColorMode, animate = false) {
   if (!import.meta.client) {
     return;
   }
 
   const root = document.documentElement;
   const isDark = mode === "dark";
+
+  if (animate) {
+    root.classList.add("theme-transitioning");
+    if (transitionTimer) window.clearTimeout(transitionTimer);
+    transitionTimer = window.setTimeout(() => {
+      root.classList.remove("theme-transitioning");
+      transitionTimer = null;
+    }, THEME_TRANSITION_MS);
+  }
 
   root.classList.toggle("dark", isDark);
   root.dataset.theme = mode;
@@ -62,16 +73,16 @@ export function useColorMode() {
       }
     }
 
-    syncColorMode(mode);
+    syncColorMode(mode, true);
   };
 
   const toggleColorMode = () => {
     setColorMode(isDark.value ? "light" : "dark");
   };
 
-  const syncColorMode = (mode: ColorMode) => {
+  const syncColorMode = (mode: ColorMode, animate = false) => {
     colorMode.value = mode;
-    applyColorMode(mode);
+    applyColorMode(mode, animate);
   };
 
   let stopWatchingSystemColorMode: (() => void) | null = null;
@@ -92,7 +103,7 @@ export function useColorMode() {
         return;
       }
 
-      syncColorMode(event.matches ? "dark" : "light");
+      syncColorMode(event.matches ? "dark" : "light", true);
     };
 
     systemColorMode.addEventListener("change", syncSystemColorMode);

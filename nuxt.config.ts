@@ -203,6 +203,11 @@ export default defineNuxtConfig({
         },
       ],
       script: [
+        {
+          key: "color-mode-init",
+          children: colorModeScript,
+          tagPriority: "critical",
+        },
         ...(isProduction
           ? [
               {
@@ -217,9 +222,6 @@ export default defineNuxtConfig({
               },
             ]
           : []),
-        {
-          children: colorModeScript,
-        },
       ],
     },
   },
