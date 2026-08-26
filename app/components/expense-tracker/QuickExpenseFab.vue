@@ -30,11 +30,60 @@ const savedNotice = ref(false);
 const dialog = ref<HTMLDivElement | null>(null);
 const trigger = ref<HTMLButtonElement | null>(null);
 const form = ref<QuickExpenseFormHandle | null>(null);
+const visualViewportHeight = ref<number | null>(null);
+const visualViewportOffsetTop = ref(0);
 const shouldShowTrigger = computed(
   () => enabled.value && !isOpen.value,
 );
-let previousOverflow = "";
+const dialogViewportStyle = computed(() => visualViewportHeight.value
+  ? {
+      height: `${visualViewportHeight.value}px`,
+      transform: `translateY(${visualViewportOffsetTop.value}px)`,
+    }
+  : undefined);
+const dialogPanelStyle = computed(() => visualViewportHeight.value
+  ? { maxHeight: `${Math.max(0, visualViewportHeight.value - 8)}px` }
+  : undefined);
+let lockedScrollY = 0;
+let previousBodyStyles: {
+  overflow: string;
+  position: string;
+  top: string;
+  width: string;
+} | null = null;
 let noticeTimer: ReturnType<typeof setTimeout> | null = null;
+
+function syncVisualViewport() {
+  const viewport = window.visualViewport;
+  visualViewportHeight.value = viewport?.height ?? window.innerHeight;
+  visualViewportOffsetTop.value = viewport?.offsetTop ?? 0;
+}
+
+function lockPageScroll() {
+  if (previousBodyStyles) return;
+  lockedScrollY = window.scrollY;
+  previousBodyStyles = {
+    overflow: document.body.style.overflow,
+    position: document.body.style.position,
+    top: document.body.style.top,
+    width: document.body.style.width,
+  };
+  document.body.style.overflow = "hidden";
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.style.width = "100%";
+}
+
+function unlockPageScroll() {
+  if (!previousBodyStyles) return;
+  const styles = previousBodyStyles;
+  previousBodyStyles = null;
+  document.body.style.overflow = styles.overflow;
+  document.body.style.position = styles.position;
+  document.body.style.top = styles.top;
+  document.body.style.width = styles.width;
+  window.scrollTo({ top: lockedScrollY, behavior: "instant" });
+}
 
 function openDialog() {
   error.value = "";
@@ -109,20 +158,33 @@ watch(
 watch(isOpen, async (open) => {
   if (!import.meta.client) return;
   if (open) {
-    previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    syncVisualViewport();
+    lockPageScroll();
     await nextTick();
     form.value?.focusAmount();
+    requestAnimationFrame(() => {
+      syncVisualViewport();
+      dialog.value?.scrollTo({ top: 0, behavior: "instant" });
+    });
     return;
   }
-  document.body.style.overflow = previousOverflow;
+  unlockPageScroll();
   await nextTick();
   trigger.value?.focus();
 });
 
+onMounted(() => {
+  window.visualViewport?.addEventListener("resize", syncVisualViewport);
+  window.visualViewport?.addEventListener("scroll", syncVisualViewport);
+});
+
 onBeforeUnmount(() => {
   if (noticeTimer) clearTimeout(noticeTimer);
-  if (import.meta.client) document.body.style.overflow = previousOverflow;
+  if (import.meta.client) {
+    window.visualViewport?.removeEventListener("resize", syncVisualViewport);
+    window.visualViewport?.removeEventListener("scroll", syncVisualViewport);
+    unlockPageScroll();
+  }
 });
 </script>
 
@@ -165,7 +227,8 @@ onBeforeUnmount(() => {
     <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" leave-active-class="transition duration-150 ease-in" leave-to-class="opacity-0">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[120] flex items-end bg-slate-950/65 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4"
+        class="fixed inset-x-0 top-0 z-[120] flex h-[100dvh] items-end overflow-hidden bg-slate-950/65 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4"
+        :style="dialogViewportStyle"
         @click.self="closeDialog"
       >
         <div
@@ -174,6 +237,7 @@ onBeforeUnmount(() => {
           aria-modal="true"
           aria-labelledby="quick-expense-dialog-title"
           class="max-h-[92dvh] w-full overflow-y-auto rounded-t-[2rem] border border-slate-200 bg-white px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4 shadow-2xl outline-none dark:border-white/15 dark:bg-[#101214] sm:max-w-md sm:rounded-3xl sm:p-6"
+          :style="dialogPanelStyle"
           @keydown.esc.prevent="closeDialog"
           @keydown="keepFocusInside"
         >

@@ -202,7 +202,10 @@ test("summary markup has mobile overflow guards for extreme values", () => {
   assert.match(source, /min-w-0/);
   assert.match(source, /truncate/);
   assert.match(source, /<MoneyAmount/);
-  assert.match(source, /max-w-\[9rem\]/);
+  assert.match(source, /Spending by category/);
+  assert.match(source, /v-for="category in props\.categoryBreakdown"/);
+  assert.match(source, /:value="category\.total"/);
+  assert.doesNotMatch(source, /Top expenses/);
 });
 
 test("expense entry is quick-first while saved rows and summaries stay collapsed", () => {
@@ -290,6 +293,11 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /A quick entry now keeps your money clear later\./);
   assert.match(fab, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(fab, /role="dialog"/);
+  assert.match(fab, /window\.visualViewport\?\.addEventListener\("resize"/);
+  assert.match(fab, /transform: `translateY\(\$\{visualViewportOffsetTop\.value\}px\)`/);
+  assert.match(fab, /document\.body\.style\.position = "fixed"/);
+  assert.match(fab, /unlockPageScroll\(\)/);
+  assert.match(fab, /:style="dialogViewportStyle"/);
   assert.match(fab, /\/api\/expenses\/quick-entry/);
   assert.match(controller, /@Post\('quick-entry'\)/);
   assert.match(service, /pg_advisory_xact_lock/);

@@ -54,7 +54,6 @@
             :budget-status="budgetStatus"
             :insights="insights"
             :category-breakdown="categoryBreakdown"
-            :top-expenses="topExpenses"
           />
         </div>
       </details>

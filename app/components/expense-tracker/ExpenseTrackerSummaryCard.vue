@@ -5,7 +5,6 @@ import type {
   ExpenseBudgetStatus,
   ExpenseCurrency,
   ExpenseInsight,
-  ExpenseItem,
 } from "~/lib/expense-tracker";
 
 const props = defineProps<{
@@ -22,7 +21,6 @@ const props = defineProps<{
   budgetStatus: ExpenseBudgetStatus;
   insights: ExpenseInsight[];
   categoryBreakdown: Breakdown[];
-  topExpenses: ExpenseItem[];
 }>();
 
 const budget = defineModel<Budget>("budget", { required: true });
@@ -256,70 +254,35 @@ function balanceClass(value: number) {
 
     <div class="mt-5 sm:mt-4">
       <div class="mb-2 flex items-center justify-between">
-        <h3 class="font-black sm:font-semibold">Expense breakdown</h3>
+        <h3 class="font-black sm:font-semibold">Spending by category</h3>
         <span class="expense-summary-muted text-xs">
-          {{ props.categoryBreakdown.length ? "Top first" : "" }}
+          {{ props.categoryBreakdown.length ? "Highest first" : "" }}
         </span>
       </div>
 
-      <div class="expense-summary-card overflow-auto rounded-2xl border sm:rounded-xl">
-        <table class="w-full text-sm">
-          <thead class="expense-summary-card-muted">
-            <tr>
-              <th class="p-2 text-left">Category</th>
-              <th class="p-2 text-right">Total</th>
-              <th class="p-2 text-right">%</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="category in props.categoryBreakdown"
-              :key="category.category"
-              class="border-t"
-            >
-              <td class="p-2 font-medium">{{ category.category }}</td>
-              <td class="max-w-[9rem] p-2 text-right sm:max-w-none">
-                <MoneyAmount
-                  :value="category.total"
-                  :currency="props.currency"
-                />
-              </td>
-              <td class="p-2 text-right">{{ category.percent.toFixed(0) }}%</td>
-            </tr>
-
-            <tr v-if="props.categoryBreakdown.length === 0">
-              <td class="expense-summary-muted p-3" colspan="3">No data yet.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="mt-5 sm:mt-4">
-      <h3 class="mb-2 font-black sm:font-semibold">Top expenses</h3>
-
-      <ul v-if="props.topExpenses.length" class="space-y-2">
+      <ul v-if="props.categoryBreakdown.length" class="space-y-2">
         <li
-          v-for="(item, index) in props.topExpenses"
-          :key="`${item.date}-${item.category}-${index}`"
-          class="expense-summary-card-muted flex items-center justify-between gap-3 rounded-2xl border p-3.5 sm:rounded-xl sm:p-3"
+          v-for="category in props.categoryBreakdown"
+          :key="category.category"
+          class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5 sm:rounded-xl sm:p-3"
         >
-          <div class="min-w-0 text-sm">
-            <div class="truncate font-semibold">{{ item.category }}</div>
-            <div class="expense-summary-muted truncate text-xs">
-              {{ item.date }} • {{ item.note || "—" }}
+          <div class="flex min-w-0 items-center justify-between gap-3">
+            <div class="min-w-0 truncate text-sm font-bold">{{ category.category }}</div>
+            <div class="min-w-0 max-w-[55%] shrink-0 truncate text-right font-black">
+              <MoneyAmount :value="category.total" :currency="props.currency" />
             </div>
           </div>
-          <div
-            class="min-w-0 max-w-[45%] shrink-0 truncate text-right font-bold"
-          >
-            <MoneyAmount :value="item.amount" :currency="props.currency" />
+          <div class="mt-2 flex items-center gap-3">
+            <div class="expense-summary-progress-track h-1.5 min-w-0 flex-1 overflow-hidden rounded-full">
+              <div class="h-full rounded-full bg-sky-500 dark:bg-cyan-200" :style="{ width: `${category.percent}%` }" />
+            </div>
+            <span class="expense-summary-muted w-10 shrink-0 text-right text-xs tabular-nums">{{ category.percent.toFixed(0) }}%</span>
           </div>
         </li>
       </ul>
 
       <div v-else class="expense-summary-muted text-sm">
-        Add expenses to see top spending.
+        Add expenses to see spending by category.
       </div>
     </div>
 
