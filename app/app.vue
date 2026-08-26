@@ -11,14 +11,13 @@ import { Analytics } from "@vercel/analytics/nuxt";
 import { getPublisherRobots } from "~/data/site-routes";
 
 const { copy, isKhmer } = useLanguage();
-const { isDark } = useColorMode();
+useColorMode();
 const route = useRoute();
 const siteUrl = "https://chlatwork.com";
 const ogImage = `${siteUrl}/og-home.png`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
 const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
-const themeColor = computed(() => (isDark.value ? "#1c1c1e" : "#f9fafb"));
 const normalizedPath = computed(() =>
   route.path === "/" ? "/" : route.path.replace(/\/$/, ""),
 );
@@ -51,21 +50,12 @@ useSeoMeta({
 useHead(() => ({
   htmlAttrs: {
     lang: htmlLocale.value,
-    class: isDark.value ? "dark" : "",
-    style: `color-scheme: ${isDark.value ? "dark" : "light"};`,
     "data-locale": htmlLocale.value,
-    "data-theme": isDark.value ? "dark" : "light",
   },
   link: [
     {
       rel: "canonical",
       href: canonicalUrl.value,
-    },
-  ],
-  meta: [
-    {
-      name: "theme-color",
-      content: themeColor.value,
     },
   ],
   script: [

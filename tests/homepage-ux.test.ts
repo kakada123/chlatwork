@@ -30,10 +30,7 @@ test("homepage cards use semantic collections and calm interaction states", () =
 test("new visitors receive the light-first theme while saved preferences still win", () => {
   const composable = readFileSync("app/composables/useColorMode.ts", "utf8");
   const config = readFileSync("nuxt.config.ts", "utf8");
-  const hydrationPlugin = readFileSync(
-    "app/plugins/color-mode.client.ts",
-    "utf8",
-  );
+  const app = readFileSync("app/app.vue", "utf8");
   const styles = readFileSync("app/assets/css/main.css", "utf8");
 
   assert.match(
@@ -53,8 +50,8 @@ test("new visitors receive the light-first theme while saved preferences still w
     /key: "color-mode-init",\s*children: colorModeScript/,
   );
   assert.match(config, /tagPriority: "critical"/);
-  assert.match(hydrationPlugin, /document\.documentElement\.dataset\.theme/);
-  assert.match(hydrationPlugin, /useState<ColorMode>\("color-mode"/);
+  assert.doesNotMatch(app, /class: isDark\.value \? "dark"/);
+  assert.doesNotMatch(app, /"data-theme": isDark\.value/);
   assert.match(composable, /dataset\.themeTransitioning = "true"/);
   assert.match(styles, /html\[data-theme-transitioning\] body \*/);
 });
