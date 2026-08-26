@@ -37,10 +37,10 @@ function applyColorMode(mode: ColorMode, animate = false) {
   const isDark = mode === "dark";
 
   if (animate) {
-    root.classList.add("theme-transitioning");
+    root.dataset.themeTransitioning = "true";
     if (transitionTimer) window.clearTimeout(transitionTimer);
     transitionTimer = window.setTimeout(() => {
-      root.classList.remove("theme-transitioning");
+      delete root.dataset.themeTransitioning;
       transitionTimer = null;
     }, THEME_TRANSITION_MS);
   }

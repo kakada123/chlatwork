@@ -47,9 +47,14 @@ test("new visitors receive the light-first theme while saved preferences still w
   assert.match(config, /storedMode === "light" \|\| storedMode === "dark"/);
   assert.match(config, /: "light";/);
   assert.match(config, /key: "color-mode-init"/);
+  assert.match(config, /innerHTML: colorModeScript/);
+  assert.doesNotMatch(
+    config,
+    /key: "color-mode-init",\s*children: colorModeScript/,
+  );
   assert.match(config, /tagPriority: "critical"/);
   assert.match(hydrationPlugin, /document\.documentElement\.dataset\.theme/);
   assert.match(hydrationPlugin, /useState<ColorMode>\("color-mode"/);
-  assert.match(composable, /classList\.add\("theme-transitioning"\)/);
-  assert.match(styles, /html\.theme-transitioning body \*/);
+  assert.match(composable, /dataset\.themeTransitioning = "true"/);
+  assert.match(styles, /html\[data-theme-transitioning\] body \*/);
 });

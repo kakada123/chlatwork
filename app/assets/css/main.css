@@ -67,11 +67,11 @@ body {
 }
 
 /* Theme changes are user-triggered; initial page paint stays transition-free to avoid a flash. */
-html.theme-transitioning,
-html.theme-transitioning body,
-html.theme-transitioning body *,
-html.theme-transitioning body *::before,
-html.theme-transitioning body *::after {
+html[data-theme-transitioning],
+html[data-theme-transitioning] body,
+html[data-theme-transitioning] body *,
+html[data-theme-transitioning] body *::before,
+html[data-theme-transitioning] body *::after {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-duration: 220ms;
   transition-timing-function: ease;
@@ -919,11 +919,11 @@ html .expense-summary-surface .expense-budget-status-danger {
     scroll-behavior: auto !important;
   }
 
-  html.theme-transitioning,
-  html.theme-transitioning body,
-  html.theme-transitioning body *,
-  html.theme-transitioning body *::before,
-  html.theme-transitioning body *::after {
+  html[data-theme-transitioning],
+  html[data-theme-transitioning] body,
+  html[data-theme-transitioning] body *,
+  html[data-theme-transitioning] body *::before,
+  html[data-theme-transitioning] body *::after {
     transition: none !important;
   }
 
