@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { CurrentAuthUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { CurrentUser } from '../auth/types';
+import { CreateQuickExpenseDto } from './dto/create-quick-expense.dto';
 import { SaveExpenseStateDto } from './dto/save-expense-state.dto';
 import { ExpensesService } from './expenses.service';
 
@@ -18,5 +19,15 @@ export class ExpensesController {
   @Put('state')
   saveState(@CurrentAuthUser() user: CurrentUser, @Body() dto: SaveExpenseStateDto) {
     return this.expenses.saveState(user.id, dto);
+  }
+
+  @Get('quick-entry/settings')
+  getQuickEntrySettings(@CurrentAuthUser() user: CurrentUser) {
+    return this.expenses.getQuickEntrySettings(user.id);
+  }
+
+  @Post('quick-entry')
+  createQuickExpense(@CurrentAuthUser() user: CurrentUser, @Body() dto: CreateQuickExpenseDto) {
+    return this.expenses.createQuickExpense(user.id, dto);
   }
 }

@@ -4,6 +4,7 @@ import {
   Heart,
   History,
   LogOut,
+  ReceiptText,
   Sparkles,
   UserRound,
 } from "lucide-vue-next";
@@ -15,6 +16,7 @@ import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
+import type { ExpenseStoredState } from "~/lib/expense-tracker";
 import { buildPaybackRawFromRows, buildPaybackSharePayload } from "~/lib/payback-calculator";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
@@ -39,6 +41,9 @@ const historyDeletingId = ref("");
 const usageItems = ref<ToolUsageSummaryItem[]>([]);
 const usageLoading = ref(true);
 const usageClearing = ref(false);
+const expenseState = ref<ExpenseStoredState | null>(null);
+const expenseLoading = ref(true);
+const expenseLoadFailed = ref(false);
 const {
   data: momentData,
   status: momentsStatus,
@@ -48,6 +53,9 @@ const {
   key: "profile-moments",
 });
 const moments = computed(() => momentData.value ?? []);
+const savedExpenseCount = computed(() =>
+  expenseState.value?.rows.filter((row) => (row.type ?? "expense") === "expense").length ?? 0,
+);
 
 const favoriteTools = computed(() => favoriteToolKeys.value
   .map((key) => LANDING_TOOLS.find((tool) => tool.key === key))
@@ -99,6 +107,19 @@ async function loadToolUsage() {
   }
 }
 
+async function loadExpenseState() {
+  expenseLoading.value = true;
+  expenseLoadFailed.value = false;
+  try {
+    expenseState.value = await $fetch<ExpenseStoredState | null>("/api/expenses/state");
+  } catch {
+    expenseState.value = null;
+    expenseLoadFailed.value = true;
+  } finally {
+    expenseLoading.value = false;
+  }
+}
+
 async function clearUsageHistory() {
   if (!window.confirm("Clear your tool usage history? This cannot be undone.")) return;
   usageClearing.value = true;
@@ -147,19 +168,28 @@ function refreshHistoryWhenActive() {
   if (document.visibilityState === "visible") {
     void loadHistory();
     void loadToolUsage();
+    void loadExpenseState();
     void refreshMoments();
   }
+}
+
+function refreshExpensesAfterQuickSave() {
+  // The global quick form can save while the profile remains open, so refresh its account summary in place.
+  void loadExpenseState();
 }
 
 onMounted(() => {
   void loadHistory();
   void loadToolUsage();
+  void loadExpenseState();
   window.addEventListener("focus", refreshHistoryWhenActive);
+  window.addEventListener("chlatwork:quick-expense-saved", refreshExpensesAfterQuickSave);
   document.addEventListener("visibilitychange", refreshHistoryWhenActive);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("focus", refreshHistoryWhenActive);
+  window.removeEventListener("chlatwork:quick-expense-saved", refreshExpensesAfterQuickSave);
   document.removeEventListener("visibilitychange", refreshHistoryWhenActive);
 });
 </script>
@@ -207,6 +237,33 @@ onBeforeUnmount(() => {
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="h-5 w-5" aria-hidden="true" /></span>
           <div class="flex min-w-0 flex-col gap-1.5"><strong class="block text-xl leading-none">{{ momentsStatus === 'pending' || momentsError ? '—' : moments.length }}</strong><span class="block text-xs leading-4 text-slate-500 dark:text-white/45">{{ moments.length === 1 ? 'Moment' : 'Moments' }}</span></div>
         </div>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:p-6" aria-labelledby="profile-expense-tracker">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200" aria-hidden="true">
+          <ReceiptText class="h-6 w-6" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h2 id="profile-expense-tracker" class="text-xl font-semibold">Expense Tracker</h2>
+            <span v-if="expenseState" class="rounded-lg bg-white/80 px-2 py-1 text-xs font-bold text-cyan-800 dark:bg-white/10 dark:text-cyan-200">
+              {{ expenseState.currency }}
+            </span>
+            <span v-if="expenseState?.quickExpenseEnabled" class="rounded-lg bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">
+              Quick add on
+            </span>
+          </div>
+          <p v-if="expenseLoading" class="mt-2 text-sm text-slate-500 dark:text-white/50">Loading your saved expenses…</p>
+          <p v-else-if="expenseLoadFailed" class="mt-2 text-sm text-red-600 dark:text-red-300">Your saved expense summary is temporarily unavailable.</p>
+          <p v-else class="mt-2 text-sm text-slate-600 dark:text-white/55">
+            {{ savedExpenseCount }} {{ savedExpenseCount === 1 ? "expense" : "expenses" }} saved to your account. Keep every entry easy to find in one place.
+          </p>
+        </div>
+        <NuxtLink to="/tools/expense-tracker" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100">
+          Open tracker
+        </NuxtLink>
       </div>
     </section>
 

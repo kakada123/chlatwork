@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE expense_profiles
+  ADD COLUMN IF NOT EXISTS "quickExpenseEnabled" BOOLEAN NOT NULL DEFAULT FALSE;
+
+COMMIT;

@@ -175,9 +175,98 @@ test("summary markup has mobile overflow guards for extreme values", () => {
     "utf8",
   );
 
-  assert.match(source, /grid grid-cols-2 gap-3 sm:grid-cols-4/);
+  assert.match(source, /Total spent/);
+  assert.match(source, /space-y-3 sm:hidden/);
+  assert.match(source, /hidden grid-cols-4 gap-3 sm:grid/);
+  assert.match(source, /grid grid-cols-1 gap-3 sm:mt-2 sm:grid-cols-2/);
+  assert.match(source, /Enter your budget/);
   assert.match(source, /min-w-0/);
   assert.match(source, /truncate/);
   assert.match(source, /<MoneyAmount/);
   assert.match(source, /max-w-\[9rem\]/);
+});
+
+test("expense entry is quick-first while saved rows and summaries stay collapsed", () => {
+  const header = readFileSync(
+    new URL("../app/components/expense-tracker/ExpenseTrackerHeader.vue", import.meta.url),
+    "utf8",
+  );
+  const input = readFileSync(
+    new URL("../app/components/expense-tracker/ExpenseTrackerInputCard.vue", import.meta.url),
+    "utf8",
+  );
+  const page = readFileSync(
+    new URL("../app/pages/tools/expense-tracker.vue", import.meta.url),
+    "utf8",
+  );
+  const form = readFileSync(
+    new URL("../app/components/expense-tracker/QuickExpenseForm.vue", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(input, /<QuickExpenseForm/);
+  assert.match(input, /Review and manage saved entries/);
+  assert.match(input, /<details class="group mt-5 hidden/);
+  assert.match(page, /Enable quick expense button/);
+  assert.match(page, /View expense details/);
+  assert.match(page, /View spending summary and budget/);
+  assert.match(page, /<details v-if="signedIn" class="group rounded-2xl/);
+  assert.match(page, /Expense saved to your account/);
+  assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
+  assert.match(page, /@quick-add="saveQuickExpenseImmediately"/);
+  assert.match(page, /v-if="signedIn"/);
+  assert.match(page, /v-else-if="isAuthReady"/);
+  assert.match(header, /<header class="mb-6 hidden sm:block">/);
+  assert.match(input, /mb-5 hidden items-start justify-between gap-3 sm:flex/);
+  assert.match(form, /fieldset class="min-w-0 max-w-full overflow-hidden"/);
+  assert.match(form, /sm:grid-cols-\[minmax\(0,1fr\)_18rem\]/);
+  assert.match(form, /hidden h-16 items-center[^"]*sm:inline-flex/);
+  assert.match(form, /hidden w-full max-w-full gap-2 sm:grid sm:grid-cols-6/);
+  assert.match(form, /ref="categoryPicker".*sm:hidden/);
+  assert.match(form, /selectMobileCategory\(item\)/);
+  assert.match(form, /Custom category…/);
+  assert.match(form, /Enter your category/);
+  assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
+  assert.match(input, /min-w-0 overflow-hidden rounded-3xl/);
+  assert.match(page, /min-w-0 w-full[^\"]*overflow-x-clip/);
+  assert.match(form, /relative mt-2 hidden sm:block/);
+  assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);
+  assert.match(form, /group hidden rounded-2xl/);
+  assert.match(page, /hidden cursor-pointer items-center.*sm:flex/);
+  assert.match(page, /mt-6 hidden space-y-3/);
+  assert.doesNotMatch(header, /Share link|Reset|defineEmits/);
+  assert.doesNotMatch(page, /shareLink|@share|@reset/);
+});
+
+test("quick expense floating action is opt-in, authenticated, and appends through its own endpoint", () => {
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+  const fab = readFileSync(
+    "app/components/expense-tracker/QuickExpenseFab.vue",
+    "utf8",
+  );
+  const controller = readFileSync("api/src/expenses/expenses.controller.ts", "utf8");
+  const service = readFileSync("api/src/expenses/expenses.service.ts", "utf8");
+  const schema = readFileSync("api/prisma/schema.prisma", "utf8");
+  const sql = readFileSync(
+    "database/updates/2026-08-26-add-quick-expense-setting.sql",
+    "utf8",
+  );
+
+  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(fab, /v-if="shouldShowTrigger"/);
+  assert.match(fab, /\(\) => enabled\.value && !isOpen\.value/);
+  assert.doesNotMatch(fab, /route\.path !== "\/tools\/expense-tracker"/);
+  assert.match(fab, /import QuickExpenseForm from "~\/components\/expense-tracker\/QuickExpenseForm\.vue"/);
+  assert.match(fab, /import \{ useAuth \} from "~\/composables\/useAuth"/);
+  assert.match(fab, /Stay on track/);
+  assert.match(fab, /A quick entry now keeps your money clear later\./);
+  assert.match(fab, /EXPENSE_SAVE_MOTIVATION/);
+  assert.match(fab, /role="dialog"/);
+  assert.match(fab, /\/api\/expenses\/quick-entry/);
+  assert.match(controller, /@Post\('quick-entry'\)/);
+  assert.match(service, /pg_advisory_xact_lock/);
+  assert.match(service, /\$executeRaw`SELECT pg_advisory_xact_lock/);
+  assert.doesNotMatch(service, /\$queryRaw`SELECT pg_advisory_xact_lock/);
+  assert.match(schema, /quickExpenseEnabled Boolean\s+@default\(false\)/);
+  assert.match(sql, /ADD COLUMN IF NOT EXISTS "quickExpenseEnabled" BOOLEAN NOT NULL DEFAULT FALSE/);
 });

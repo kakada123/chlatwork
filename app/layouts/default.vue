@@ -5,6 +5,8 @@ import {
 } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
+import QuickExpenseFab from "~/components/expense-tracker/QuickExpenseFab.vue";
+import FooterMenuGroup from "~/components/layout/FooterMenuGroup.vue";
 import {
   STARTER_GUIDES,
   type StarterGuide,
@@ -151,6 +153,43 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
 ];
 
 const { categoryLabel, copy, homePath, isKhmer, localizeTool } = useLanguage();
+const footerMenuGroups = computed(() => [
+  {
+    title: "Site",
+    ariaLabel: "Footer site links",
+    items: [
+      { label: copy.value.footer.about, to: "/about" },
+      { label: copy.value.footer.contact, to: "/contact" },
+      { label: "Guides", to: "/guides" },
+      { label: "Posts", to: "/posts" },
+      { label: "Sitemap", href: "/sitemap.xml" },
+    ],
+  },
+  {
+    title: "Policies",
+    ariaLabel: "Footer policy links",
+    items: [
+      { label: "Editorial policy", to: "/editorial-policy" },
+      { label: copy.value.footer.privacy, to: "/privacy-policy" },
+      { label: copy.value.footer.terms, to: "/terms" },
+      { label: copy.value.footer.cookies, to: "/cookies" },
+      { label: copy.value.footer.disclaimer, to: "/disclaimer" },
+    ],
+  },
+  {
+    title: "Support",
+    ariaLabel: "Footer support links",
+    items: [
+      { label: copy.value.footer.cookieNotice, action: "cookie-settings" },
+      { label: copy.value.footer.coffee, to: "/buy-me-coffee" },
+    ],
+  },
+]);
+
+function handleFooterAction(action: string) {
+  if (action === "cookie-settings") openPrivacyCookieSettings();
+}
+
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const headerToolSearch = ref("");
 const isHeaderSearchOpen = ref(false);
@@ -261,6 +300,8 @@ const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
 const { user: authUser, isReady: isAuthReady, fetchMe: fetchAuthUser } = useAuth();
+// Do not branch on a session until the client has resolved it; server and hydration markup must match.
+const visibleAuthUser = computed(() => isAuthReady.value ? authUser.value : null);
 const { recordToolOpen } = useToolUsage();
 const showHeaderLogin = ref(false);
 const headerAvatarFailed = ref(false);
@@ -409,7 +450,7 @@ onBeforeUnmount(() => {
 <template>
   <!-- ✅ make whole page a flex column -->
   <div
-    class="flex min-h-screen flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
+    class="flex min-h-[100dvh] flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
   >
     <!-- Top Task Bar -->
     <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
@@ -544,7 +585,7 @@ onBeforeUnmount(() => {
           </div>
 
           <NuxtLink
-            v-if="authUser"
+            v-if="visibleAuthUser"
             to="/account"
             class="hidden h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-sky-50 text-sm font-semibold text-sky-700 transition hover:border-sky-300 hover:bg-sky-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
             aria-label="Open account"
@@ -772,7 +813,7 @@ onBeforeUnmount(() => {
             </NuxtLink>
 
             <NuxtLink
-              v-if="authUser"
+              v-if="visibleAuthUser"
               to="/account"
               class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
               @click="closeMenu"
@@ -824,7 +865,9 @@ onBeforeUnmount(() => {
         <main class="site-content min-w-0">
           <div
             v-if="currentToolGuide?.tool"
-            class="mb-3 flex justify-end"
+            :class="route.path === '/tools/expense-tracker'
+              ? 'mb-3 hidden justify-end sm:flex'
+              : 'mb-3 flex justify-end'"
             aria-label="Tool actions"
           >
             <ToolFavoriteButton
@@ -836,6 +879,7 @@ onBeforeUnmount(() => {
           <slot />
           <ToolPageDetails
             v-if="currentToolGuide?.guide && shouldShowToolPageDetails"
+            :class="route.path === '/tools/expense-tracker' ? 'hidden sm:block' : undefined"
             :guide="currentToolGuide.guide"
           />
         </main>
@@ -843,130 +887,39 @@ onBeforeUnmount(() => {
     </div>
 
     <AuthLoginDialog :open="showHeaderLogin" @close="showHeaderLogin = false" />
+    <!-- The tracker already exposes its primary form, so a second floating action would compete with it. -->
+    <QuickExpenseFab v-if="visibleAuthUser && route.path !== '/tools/expense-tracker'" />
 
     <!-- The footer keeps trust and policy links visible on every public page. -->
     <footer
-      class="site-footer mt-0 border-t border-slate-200/70 py-8 dark:border-white/10"
+      class="site-footer mt-0 border-t border-slate-200/70 py-4 dark:border-white/10 sm:py-8"
+      :class="{ 'hidden sm:block': route.path === '/tools/expense-tracker' }"
     >
       <div
-        class="site-container grid gap-8 text-sm lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
+        class="site-container grid text-sm sm:gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
       >
-        <div class="max-w-xl space-y-3">
+        <div class="flex max-w-xl items-center justify-between gap-4 sm:block sm:space-y-3">
           <p class="text-base font-black text-slate-950 dark:text-white">
             ChlatWork
           </p>
-          <p class="leading-6 text-gray-500 dark:text-white/60">
+          <p class="hidden leading-6 text-gray-500 dark:text-white/60 sm:block">
             ChlatWork provides simple online tools for documents, images, QR
             codes, barcodes, dates, and productivity.
           </p>
           <p class="text-xs text-gray-400 dark:text-white/40">
-            © 2026 ChlatWork. Simple tools for everyday work.
+            © 2026 ChlatWork.
           </p>
         </div>
 
-        <div class="grid gap-6 sm:grid-cols-3">
-          <nav class="space-y-3" aria-label="Footer site links">
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
-            >
-              Site
-            </p>
-            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
-              <NuxtLink
-                to="/about"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.about }}
-              </NuxtLink>
-              <NuxtLink
-                to="/contact"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.contact }}
-              </NuxtLink>
-              <NuxtLink
-                to="/guides"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                Guides
-              </NuxtLink>
-              <NuxtLink
-                to="/posts"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                Posts
-              </NuxtLink>
-              <a
-                href="/sitemap.xml"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                Sitemap
-              </a>
-            </div>
-          </nav>
-
-          <nav class="space-y-3" aria-label="Footer policy links">
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
-            >
-              Policies
-            </p>
-            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
-              <NuxtLink
-                to="/editorial-policy"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                Editorial policy
-              </NuxtLink>
-              <NuxtLink
-                to="/privacy-policy"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.privacy }}
-              </NuxtLink>
-              <NuxtLink
-                to="/terms"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.terms }}
-              </NuxtLink>
-              <NuxtLink
-                to="/cookies"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.cookies }}
-              </NuxtLink>
-              <NuxtLink
-                to="/disclaimer"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.disclaimer }}
-              </NuxtLink>
-            </div>
-          </nav>
-
-          <div class="space-y-3">
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35"
-            >
-              Support
-            </p>
-            <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">
-              <button
-                type="button"
-                class="text-left hover:text-gray-900 dark:hover:text-white"
-                @click="openPrivacyCookieSettings"
-              >
-                {{ copy.footer.cookieNotice }}
-              </button>
-              <NuxtLink
-                to="/buy-me-coffee"
-                class="hover:text-gray-900 dark:hover:text-white"
-              >
-                {{ copy.footer.coffee }}
-              </NuxtLink>
-            </div>
-          </div>
+        <div class="hidden sm:grid sm:grid-cols-3 sm:gap-6">
+          <FooterMenuGroup
+            v-for="group in footerMenuGroups"
+            :key="group.title"
+            :title="group.title"
+            :aria-label="group.ariaLabel"
+            :items="group.items"
+            @action="handleFooterAction"
+          />
         </div>
       </div>
     </footer>

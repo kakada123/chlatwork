@@ -22,6 +22,9 @@ export type ExpenseCurrency = MoneyCurrency;
 export type MoneyType = "expense" | "income";
 export type ExpenseRangeMode = "all" | "month" | "week" | "today";
 
+export const EXPENSE_SAVE_MOTIVATION =
+  "Nice work—every entry makes your spending clearer.";
+
 export type ExpenseRow = {
   type?: MoneyType;
   date: string;
@@ -35,6 +38,15 @@ export type ExpenseRow = {
 export type Budget = {
   period: "monthly" | "weekly";
   amount: string;
+};
+
+export type ExpenseStoredState = {
+  currency: ExpenseCurrency;
+  rangeMode: ExpenseRangeMode;
+  budget: Budget;
+  raw: string;
+  quickExpenseEnabled: boolean;
+  rows: ExpenseRow[];
 };
 
 export type Breakdown = {

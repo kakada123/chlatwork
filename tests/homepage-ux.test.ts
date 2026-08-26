@@ -55,3 +55,20 @@ test("new visitors receive the light-first theme while saved preferences still w
   assert.match(composable, /dataset\.themeTransitioning = "true"/);
   assert.match(styles, /html\[data-theme-transitioning\] body \*/);
 });
+
+test("mobile footer removes secondary navigation and dead scroll", () => {
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+  const footerGroup = readFileSync(
+    "app/components/layout/FooterMenuGroup.vue",
+    "utf8",
+  );
+
+  assert.match(layout, /const footerMenuGroups = computed/);
+  assert.match(layout, /<FooterMenuGroup/);
+  assert.match(layout, /<div class="hidden sm:grid sm:grid-cols-3 sm:gap-6">/);
+  assert.match(layout, /py-4[^\"]*sm:py-8/);
+  assert.match(layout, /class="flex min-h-\[100dvh\] flex-col/);
+  assert.match(layout, /'hidden sm:block': route\.path === '\/tools\/expense-tracker'/);
+  assert.match(footerGroup, /<nav class="space-y-3"/);
+  assert.doesNotMatch(footerGroup, /<details|sm:hidden/);
+});

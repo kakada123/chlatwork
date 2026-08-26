@@ -7,26 +7,33 @@ import type {
 import {
   createExpenseRow,
   createIncomeRow,
-  expenseCategories,
   getPresetCategoriesForExpenseRow,
 } from "~/lib/expense-tracker";
+import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
+
+type QuickExpenseFormHandle = {
+  resetForm: () => void;
+};
 
 defineProps<{
   copied: boolean;
   canCopy: boolean;
   error: string;
+  signedIn: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "load-example"): void;
   (e: "copy-summary"): void;
   (e: "apply-raw"): void;
+  (e: "quick-add"): void;
 }>();
 
 const currency = defineModel<ExpenseCurrency>("currency", { required: true });
 const rangeMode = defineModel<ExpenseRangeMode>("rangeMode", { required: true });
 const rows = defineModel<ExpenseRow[]>("rows", { required: true });
 const raw = defineModel<string>("raw", { required: true });
+const quickForm = ref<QuickExpenseFormHandle | null>(null);
 
 // Rows are shared without persisted IDs, so local keys keep inputs stable while newest rows render first.
 const rowKeys = new WeakMap<ExpenseRow, string>();
@@ -63,12 +70,14 @@ function addRow() {
   rows.value = [...rows.value, createExpenseRow()];
 }
 
-function quickAdd(category: string) {
-  rows.value = [...rows.value, createExpenseRow(category)];
-}
-
 function quickAddIncome() {
   rows.value = [...rows.value, createIncomeRow()];
+}
+
+function addQuickExpense(row: ExpenseRow) {
+  rows.value = [...rows.value, row];
+  quickForm.value?.resetForm();
+  emit("quick-add");
 }
 
 function removeRow(index: number) {
@@ -77,45 +86,52 @@ function removeRow(index: number) {
 </script>
 
 <template>
-  <div class="rounded-xl border bg-white p-4">
-    <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="font-semibold">Input</h2>
+  <div class="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-[#101214] sm:p-6">
+    <div class="mb-5 hidden items-start justify-between gap-3 sm:flex">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[0.18em] text-sky-600 dark:text-cyan-200">Fast entry</p>
+        <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">Add an expense</h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
+          {{ signedIn ? "Enter the amount now. Your account saves it automatically." : "Enter the amount now, then sign in to save it." }}
+        </p>
+      </div>
 
-      <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
-        <select v-model="currency" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
+      <div class="shrink-0">
+        <label for="expense-currency" class="sr-only">Currency</label>
+        <select id="expense-currency" v-model="currency" class="h-11 min-w-0 rounded-xl border border-slate-200 px-3 text-sm font-bold dark:border-white/10">
           <option value="USD">USD</option>
           <option value="KHR">KHR</option>
-        </select>
-
-        <select v-model="rangeMode" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
-          <option value="all">All</option>
-          <option value="month">This month</option>
-          <option value="week">Last 7 days</option>
-          <option value="today">Today</option>
         </select>
       </div>
     </div>
 
-    <div class="mb-3 flex flex-wrap gap-2">
-      <button
-        v-for="category in expenseCategories"
-        :key="category"
-        class="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700 transition hover:bg-gray-50 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
-        type="button"
-        @click="quickAdd(category)"
-      >
-        {{ category }}
-      </button>
-    </div>
+    <QuickExpenseForm ref="quickForm" :currency="currency" @submit="addQuickExpense" />
 
-    <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <details class="group mt-5 hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
+      <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-black text-slate-700 dark:text-white/75">
+        <span>
+          Review and manage saved entries
+          <span class="ml-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs tabular-nums text-slate-600 dark:bg-white/10 dark:text-white/55">{{ rows.length }}</span>
+        </span>
+        <svg class="h-4 w-4 shrink-0 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+      </summary>
+
+      <div class="border-t border-slate-200 p-3 dark:border-white/10 sm:p-4">
+        <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto_auto]">
+          <select v-model="rangeMode" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
+            <option value="all">All entries</option>
+            <option value="month">This month</option>
+            <option value="week">Last 7 days</option>
+            <option value="today">Today</option>
+          </select>
+
       <button
         class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white dark:focus-visible:ring-cyan-200/15"
         type="button"
         @click="addRow"
       >
         <span class="text-base leading-none">＋</span>
-        <span class="truncate">Add expense</span>
+        <span class="truncate">Blank expense</span>
       </button>
 
       <button
@@ -166,7 +182,7 @@ function removeRow(index: number) {
 
         <span class="truncate">{{ copied ? "Copied" : "Copy" }}</span>
       </button>
-    </div>
+        </div>
 
     <div class="space-y-3 md:hidden">
       <div
@@ -359,7 +375,7 @@ function removeRow(index: number) {
       </table>
     </div>
 
-    <details class="mt-4">
+    <details class="mt-4 rounded-xl border border-slate-200 p-3 dark:border-white/10">
       <summary class="cursor-pointer text-sm text-gray-600 hover:text-gray-900">
         Paste mode (optional)
       </summary>
@@ -382,6 +398,8 @@ function removeRow(index: number) {
         >
           Apply paste to rows
         </button>
+      </div>
+    </details>
       </div>
     </details>
 

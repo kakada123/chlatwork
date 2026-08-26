@@ -27,6 +27,16 @@ test("signed-in navigation displays the user avatar with an initials fallback", 
   assert.match(layout, /referrerpolicy="no-referrer"/);
 });
 
+test("auth-dependent expense UI waits for client session readiness before rendering", () => {
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+  const expensePage = readFileSync("app/pages/tools/expense-tracker.vue", "utf8");
+
+  assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
+  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser"/);
+  assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
+  assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);
+});
+
 test("auth endpoints never return tokens to the browser", () => {
   for (const file of ["google.post.ts", "telegram.post.ts"]) {
     const source = readFileSync(`server/api/auth/${file}`, "utf8");
@@ -74,11 +84,23 @@ test("expense data is user-owned PostgreSQL data, not an Upstash share payload",
   assert.match(schema, /model ExpenseEntry/);
   assert.match(controller, /@UseGuards\(JwtAuthGuard\)/);
   assert.match(controller, /@Put\('state'\)/);
+  assert.match(controller, /@Post\('quick-entry'\)/);
   assert.doesNotMatch(page, /definePageMeta\(\{ middleware: "auth"/);
   assert.match(page, /AuthResultAuthGate/);
   assert.match(page, /chlatwork-expense-login-draft/);
   assert.match(page, /\/api\/expenses\/state/);
   assert.doesNotMatch(envExample, /UPSTASH|KV_REST/);
+});
+
+test("profile provides account-owned Expense Tracker access and status", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+
+  assert.match(account, /id="profile-expense-tracker"/);
+  assert.match(account, /\/api\/expenses\/state/);
+  assert.match(account, /savedExpenseCount/);
+  assert.match(account, /Quick add on/);
+  assert.match(account, /to="\/tools\/expense-tracker"/);
+  assert.match(account, /chlatwork:quick-expense-saved/);
 });
 
 test("PayBack data is protected and stored by account", () => {

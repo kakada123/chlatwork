@@ -305,15 +305,16 @@ model PaybackCalculationEntry {
 }
 
 model ExpenseProfile {
-  userId       String           @id @db.Uuid
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currency     ExpenseCurrency  @default(USD)
-  rangeMode    ExpenseRangeMode @default(MONTH)
-  budgetPeriod BudgetPeriod     @default(MONTHLY)
-  budgetInput  String           @default("") @db.VarChar(64)
-  rawInput     String           @default("")
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  userId              String           @id @db.Uuid
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency            ExpenseCurrency  @default(USD)
+  rangeMode           ExpenseRangeMode @default(MONTH)
+  budgetPeriod        BudgetPeriod     @default(MONTHLY)
+  budgetInput         String           @default("") @db.VarChar(64)
+  rawInput            String           @default("")
+  quickExpenseEnabled Boolean          @default(false)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
   @@map("expense_profiles")
 }

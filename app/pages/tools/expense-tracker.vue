@@ -1,10 +1,6 @@
 <template>
-  <div class="mx-auto w-full max-w-[1440px]">
-    <ExpenseTrackerHeader
-      :share-state="shareState"
-      @reset="reset"
-      @share="shareLink"
-    />
+  <div class="mx-auto min-w-0 w-full max-w-[1440px] overflow-x-clip">
+    <ExpenseTrackerHeader />
 
     <div class="grid grid-cols-1 gap-4">
       <ExpenseTrackerInputCard
@@ -15,38 +11,85 @@
         :copied="copied"
         :can-copy="filteredExpenses.length > 0"
         :error="error"
+        :signed-in="signedIn"
         @apply-raw="applyRaw"
         @copy-summary="copySummary"
         @load-example="loadExample"
+        @quick-add="saveQuickExpenseImmediately"
       />
 
-      <ExpenseTrackerSummaryCard
-        v-if="user"
-        v-model:budget="budget"
-        :currency="currency"
-        :range-label="rangeLabel"
-        :items-count="filteredExpenses.length"
-        :total-income="totalIncome"
-        :total-spent="totalSpent"
-        :net-balance="netBalance"
-        :daily-avg="dailyAvg"
-        :budget-value="budgetValue"
-        :budget-remaining="budgetRemaining"
-        :budget-percent="budgetPercent"
-        :budget-status="budgetStatus"
-        :insights="insights"
-        :category-breakdown="categoryBreakdown"
-        :top-expenses="topExpenses"
-      />
-      <AuthResultAuthGate v-else @login="storeGuestDraft" />
+      <label
+        v-if="signedIn"
+        class="hidden cursor-pointer items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex"
+      >
+        <span>
+          <span class="block text-sm font-black text-slate-950 dark:text-white">Enable quick expense button</span>
+          <span class="mt-1 block text-xs leading-5 text-slate-600 dark:text-white/55">Show a floating Add expense button on ChlatWork while you are signed in.</span>
+        </span>
+        <span class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition" :class="quickExpenseEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
+          <input v-model="quickExpenseEnabled" type="checkbox" class="peer sr-only" @change="saveImmediately" />
+          <span class="ml-1 h-5 w-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
+        </span>
+      </label>
+
+      <details v-if="signedIn" class="group rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#101214]">
+        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between px-4 text-sm font-black text-slate-700 dark:text-white/75">
+          <span class="sm:hidden">View expense details</span>
+          <span class="hidden sm:inline">View spending summary and budget</span>
+          <svg class="h-4 w-4 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </summary>
+        <div class="border-t border-slate-200 p-3 dark:border-white/10 sm:p-4">
+          <ExpenseTrackerSummaryCard
+            v-model:budget="budget"
+            :currency="currency"
+            :range-label="rangeLabel"
+            :items-count="filteredExpenses.length"
+            :total-income="totalIncome"
+            :total-spent="totalSpent"
+            :net-balance="netBalance"
+            :daily-avg="dailyAvg"
+            :budget-value="budgetValue"
+            :budget-remaining="budgetRemaining"
+            :budget-percent="budgetPercent"
+            :budget-status="budgetStatus"
+            :insights="insights"
+            :category-breakdown="categoryBreakdown"
+            :top-expenses="topExpenses"
+          />
+        </div>
+      </details>
+      <AuthResultAuthGate v-else-if="isAuthReady" @login="storeGuestDraft" />
     </div>
 
-    <p class="mt-3 text-right text-xs text-gray-500 dark:text-white/50" role="status">
+    <p class="mt-3 hidden text-right text-xs text-gray-500 dark:text-white/50 sm:block" role="status">
       {{ persistenceMessage }}
     </p>
 
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="translate-y-2 opacity-0"
+      leave-active-class="transition duration-150 ease-in"
+      leave-to-class="translate-y-2 opacity-0"
+    >
+      <div
+        v-if="quickSaveNotice"
+        role="status"
+        class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-[115] inline-flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-2xl sm:right-6 sm:max-w-sm"
+      >
+        <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 12 4 4L19 6" />
+        </svg>
+        <span>
+          <span class="block">Expense saved to your account</span>
+          <span class="mt-1 block text-xs font-medium leading-5 text-white/80">
+            {{ EXPENSE_SAVE_MOTIVATION }}
+          </span>
+        </span>
+      </div>
+    </Transition>
+
     <section
-      class="mt-6 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100"
+      class="mt-6 hidden space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-900 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100 sm:block"
       aria-label="How we validate finance examples"
     >
       <h2 class="text-base font-black">How we validate finance examples</h2>
@@ -90,16 +133,15 @@ import type {
   ExpenseCurrency,
   ExpenseRangeMode,
   ExpenseRow,
-  ExpenseTrackerSharePayload,
+  ExpenseStoredState,
 } from "~/lib/expense-tracker";
 import {
+  EXPENSE_SAVE_MOTIVATION,
   buildExpenseBreakdown,
-  buildExpenseSharePayload,
   buildExpenseSummaryLines,
   buildExpenseInsights,
   collectExpenseItems,
   createDefaultBudget,
-  createDefaultExpenseRows,
   getBudgetPercent,
   getBudgetRemaining,
   getBudgetStatus,
@@ -113,29 +155,13 @@ import {
   getTotalIncome,
   getTotalSpent,
   parseExpenseRaw,
-  parseExpenseSharePayload,
 } from "~/lib/expense-tracker";
 
 const route = useRoute();
-const router = useRouter();
 
 const { user, isReady: isAuthReady, fetchMe } = useAuth();
-
-type ExpenseShareState =
-  | "idle"
-  | "busy"
-  | "copied"
-  | "shared"
-  | "ready"
-  | "failed";
-
-type ExpenseStoredState = {
-  currency: ExpenseCurrency;
-  rangeMode: ExpenseRangeMode;
-  budget: { period: "monthly" | "weekly"; amount: string };
-  raw: string;
-  rows: ExpenseRow[];
-};
+// Auth-dependent branches stay empty until the client resolves the session, keeping SSR hydration deterministic.
+const signedIn = computed(() => isAuthReady.value && Boolean(user.value));
 
 useSeoMeta({
   title: "Expense Tracker | ChlatWork",
@@ -157,7 +183,6 @@ useHead({
 });
 
 const copied = ref(false);
-const shareState = ref<ExpenseShareState>("idle");
 const persistenceState = ref<"loading" | "saved" | "saving" | "failed" | "guest">("loading");
 const isHydrated = ref(false);
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -171,14 +196,20 @@ const persistenceMessage = computed(() => {
 });
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
-let shareTimer: ReturnType<typeof setTimeout> | null = null;
+let quickSaveNoticeTimer: ReturnType<typeof setTimeout> | null = null;
 
 const currency = ref<ExpenseCurrency>("USD");
 const rangeMode = ref<ExpenseRangeMode>("month");
 const budget = ref(createDefaultBudget());
-const rows = ref<ExpenseRow[]>(createDefaultExpenseRows());
+const rows = ref<ExpenseRow[]>([]);
 const raw = ref("");
 const rawError = ref("");
+const quickExpenseEnabled = ref(false);
+const quickSaveNotice = ref(false);
+const {
+  enabled: floatingQuickExpenseEnabled,
+  syncSettings: syncQuickExpenseSettings,
+} = useQuickExpense();
 
 function flashCopied(ms = 1500) {
   copied.value = true;
@@ -189,27 +220,6 @@ function flashCopied(ms = 1500) {
   copiedTimer = setTimeout(() => {
     copied.value = false;
     copiedTimer = null;
-  }, ms);
-}
-
-function clearShareTimer() {
-  if (shareTimer) {
-    clearTimeout(shareTimer);
-    shareTimer = null;
-  }
-}
-
-function setShareState(state: ExpenseShareState, ms = 0) {
-  clearShareTimer();
-  shareState.value = state;
-
-  if (!ms) {
-    return;
-  }
-
-  shareTimer = setTimeout(() => {
-    shareState.value = "idle";
-    shareTimer = null;
   }, ms);
 }
 
@@ -275,7 +285,7 @@ watch(
 );
 
 watch(
-  [currency, rangeMode, budget, rows, raw],
+  [currency, rangeMode, budget, rows, raw, quickExpenseEnabled],
   () => {
     if (!isHydrated.value || !user.value) return;
     if (saveTimer) clearTimeout(saveTimer);
@@ -304,12 +314,37 @@ async function saveExpenseState() {
           showNote: row.showNote ?? false,
           amount: row.amount ?? "",
         })),
+        quickExpenseEnabled: quickExpenseEnabled.value,
       },
     });
     persistenceState.value = "saved";
+    return true;
   } catch {
     persistenceState.value = "failed";
+    return false;
   }
+}
+
+async function saveImmediately() {
+  await nextTick();
+  if (!isHydrated.value || !user.value) return false;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  persistenceState.value = "saving";
+  return await saveExpenseState();
+}
+
+async function saveQuickExpenseImmediately() {
+  if (!(await saveImmediately())) return;
+
+  quickSaveNotice.value = true;
+  if (quickSaveNoticeTimer) clearTimeout(quickSaveNoticeTimer);
+  quickSaveNoticeTimer = setTimeout(() => {
+    quickSaveNotice.value = false;
+    quickSaveNoticeTimer = null;
+  }, 2200);
 }
 
 function storeGuestDraft() {
@@ -319,6 +354,7 @@ function storeGuestDraft() {
     budget: budget.value,
     raw: raw.value,
     rows: rows.value,
+    quickExpenseEnabled: quickExpenseEnabled.value,
   }));
 }
 
@@ -330,7 +366,7 @@ function applyRaw() {
 
   try {
     const nextRows = parseExpenseRaw(raw.value);
-    rows.value = nextRows.length ? nextRows : createDefaultExpenseRows();
+    rows.value = nextRows;
   } catch (error: any) {
     rawError.value = error?.message || "Invalid paste input";
   }
@@ -344,42 +380,6 @@ function applyExpenseExample(exampleCurrency = currency.value) {
   rangeMode.value = example.rangeMode;
   raw.value = example.raw;
   rawError.value = "";
-}
-
-function isExpenseExampleState() {
-  const example = getExpenseExampleState();
-
-  return (
-    rangeMode.value === example.rangeMode &&
-    raw.value === example.raw &&
-    JSON.stringify(budget.value) === JSON.stringify(example.budget) &&
-    JSON.stringify(rows.value) === JSON.stringify(example.rows)
-  );
-}
-
-function buildExampleShareUrl() {
-  const query = currency.value === "KHR" ? "?example=1&c=KHR" : "?example=1";
-
-  return `${window.location.origin}${route.path}${query}`;
-}
-
-function replaceShareQuery(query: Record<string, string | undefined>) {
-  void router.replace({ query }).catch(() => {});
-}
-
-function shouldUseNativeShare() {
-  if (typeof navigator.share !== "function") {
-    return false;
-  }
-
-  return (
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia?.("(pointer: coarse)").matches === true
-  );
-}
-
-function isAbortError(error: unknown) {
-  return error instanceof Error && error.name === "AbortError";
 }
 
 function copyTextWithSelection(value: string) {
@@ -416,69 +416,11 @@ async function copyTextToClipboard(value: string) {
       await navigator.clipboard.writeText(value);
       return true;
     } catch {
-      // Mobile browsers can reject async clipboard writes after API/link work.
+      // Some mobile browsers reject async clipboard writes despite a user action.
     }
   }
 
   return copyTextWithSelection(value);
-}
-
-async function shareUrlOnDevice(url: string): Promise<ExpenseShareState> {
-  if (shouldUseNativeShare()) {
-    try {
-      await navigator.share({
-        title: "Expense Tracker | ChlatWork",
-        text: "Open this Expense Tracker share link.",
-        url,
-      });
-      return "shared";
-    } catch (error) {
-      if (isAbortError(error)) {
-        return "idle";
-      }
-    }
-  }
-
-  return (await copyTextToClipboard(url)) ? "copied" : "ready";
-}
-
-function showShareResult(state: ExpenseShareState) {
-  if (state === "ready") {
-    setShareState("ready");
-    return;
-  }
-
-  setShareState(state, state === "idle" ? 0 : 1500);
-}
-
-async function shareLink() {
-  if (shareState.value === "busy") {
-    return;
-  }
-
-  setShareState("busy");
-
-  if (isExpenseExampleState()) {
-    const query =
-      currency.value === "KHR" ? { example: "1", c: "KHR" } : { example: "1" };
-    const url = buildExampleShareUrl();
-
-    replaceShareQuery(query);
-    showShareResult(await shareUrlOnDevice(url));
-    return;
-  }
-
-  const s = buildExpenseSharePayload({
-    c: currency.value,
-    r: rangeMode.value,
-    b: budget.value,
-    t: raw.value,
-    rows: rows.value,
-  });
-
-  replaceShareQuery({ s });
-  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
-  showShareResult(await shareUrlOnDevice(url));
 }
 
 async function copySummary() {
@@ -510,40 +452,23 @@ function loadExample() {
   applyExpenseExample();
 }
 
-function reset() {
-  rawError.value = "";
-  raw.value = "";
-  budget.value = createDefaultBudget();
-  rangeMode.value = "month";
-  rows.value = createDefaultExpenseRows();
+function applyQuickExpenseSettings(enabled: boolean) {
+  quickExpenseEnabled.value = enabled;
+  syncQuickExpenseSettings({ enabled, currency: currency.value });
 }
 
-function applyExpenseSharePayload(payload: ExpenseTrackerSharePayload) {
-  if (payload.c) {
-    currency.value = payload.c;
-  }
-
-  if (payload.r) {
-    rangeMode.value = payload.r;
-  }
-
-  if (payload.b) {
-    budget.value = payload.b;
-  }
-
-  if (typeof payload.t === "string") {
-    raw.value = payload.t;
-  }
-
-  if (Array.isArray(payload.rows)) {
-    rows.value = payload.rows as ExpenseRow[];
-  }
+function handleFloatingQuickExpense(event: Event) {
+  const row = (event as CustomEvent<ExpenseRow>).detail;
+  if (!row || row.type !== "expense" || !row.amount) return;
+  rows.value = [...rows.value, row];
+  void saveImmediately();
 }
 
 onMounted(async () => {
+  window.addEventListener("chlatwork:quick-expense-saved", handleFloatingQuickExpense);
   if (!isAuthReady.value) await fetchMe();
 
-  if (user.value && !route.query.example && !route.query.s) {
+  if (user.value && !route.query.example) {
     const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
     if (draft) {
       try {
@@ -553,6 +478,7 @@ onMounted(async () => {
         budget.value = saved.budget;
         raw.value = saved.raw;
         rows.value = saved.rows;
+        applyQuickExpenseSettings(saved.quickExpenseEnabled ?? false);
         sessionStorage.removeItem("chlatwork-expense-login-draft");
         persistenceState.value = "saving";
         isHydrated.value = true;
@@ -571,18 +497,6 @@ onMounted(async () => {
     return;
   }
 
-  const s = route.query.s;
-  if (typeof s === "string" && s.trim()) {
-    try {
-      applyExpenseSharePayload(parseExpenseSharePayload(s.trim()));
-    } catch {
-      // Ignore malformed links; they must never overwrite stored account data.
-    }
-    persistenceState.value = user.value ? "saved" : "guest";
-    isHydrated.value = true;
-    return;
-  }
-
   if (!user.value) {
     persistenceState.value = "guest";
     isHydrated.value = true;
@@ -596,7 +510,8 @@ onMounted(async () => {
       rangeMode.value = saved.rangeMode;
       budget.value = saved.budget;
       raw.value = saved.raw;
-      rows.value = saved.rows.length ? saved.rows : createDefaultExpenseRows();
+      rows.value = saved.rows;
+      applyQuickExpenseSettings(saved.quickExpenseEnabled ?? false);
     }
     persistenceState.value = "saved";
   } catch {
@@ -607,14 +522,24 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener("chlatwork:quick-expense-saved", handleFloatingQuickExpense);
   if (copiedTimer) {
     clearTimeout(copiedTimer);
   }
 
-  if (shareTimer) {
-    clearShareTimer();
-  }
-
+  if (quickSaveNoticeTimer) clearTimeout(quickSaveNoticeTimer);
   if (saveTimer) clearTimeout(saveTimer);
+});
+
+watch(quickExpenseEnabled, (enabled) => {
+  floatingQuickExpenseEnabled.value = enabled;
+});
+
+watch(currency, (nextCurrency) => {
+  if (!user.value) return;
+  syncQuickExpenseSettings({
+    enabled: quickExpenseEnabled.value,
+    currency: nextCurrency,
+  });
 });
 </script>

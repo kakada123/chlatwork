@@ -60,6 +60,9 @@ export class SaveExpenseStateDto {
   @MaxLength(50_000)
   raw!: string;
 
+  @IsBoolean()
+  quickExpenseEnabled!: boolean;
+
   @IsArray()
   @ArrayMaxSize(500)
   @ValidateNested({ each: true })
