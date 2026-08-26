@@ -4,7 +4,7 @@
       class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
     >
       <div class="max-w-3xl">
-        <p class="text-sm font-bold uppercase tracking-[0.16em] text-fuchsia-600 dark:text-fuchsia-300">
+        <p class="text-sm font-bold uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">
           Free · Private · No sign-in
         </p>
         <h1 class="mt-2 text-2xl font-black leading-tight sm:text-3xl">Random Winner Picker</h1>
@@ -16,44 +16,10 @@
 
       <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button
-          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] sm:w-auto"
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] sm:w-auto"
           @click="reset"
         >
           Reset
-        </button>
-
-        <button
-          class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-white transition hover:bg-fuchsia-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:bg-white dark:text-black dark:hover:bg-fuchsia-200 sm:w-auto"
-          @click="shareLink"
-          :aria-label="shareCopied ? 'Link copied' : 'Share link'"
-        >
-          <svg
-            v-if="!shareCopied"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="h-4 w-4"
-          >
-            <path
-              fill="currentColor"
-              d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.5 2.5 0 0 0 0-1.39l7-4.11A2.99 2.99 0 1 0 14 5a2.9 2.9 0 0 0 .05.52l-7 4.11a3 3 0 1 0 0 4.74l7.05 4.11c-.03.17-.05.34-.05.52a3 3 0 1 0 3-2.92Z"
-            />
-          </svg>
-
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="h-4 w-4"
-          >
-            <path
-              fill="currentColor"
-              d="M9.55 18.2 4.8 13.45l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4-9.65 9.65Z"
-            />
-          </svg>
-
-          <span class="text-sm font-medium">
-            {{ shareCopied ? "Link copied" : "Share link" }}
-          </span>
         </button>
       </div>
     </div>
@@ -62,11 +28,11 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] sm:p-5">
         <div class="mb-2 flex items-center justify-between gap-3">
           <div>
-            <p class="text-xs font-bold uppercase tracking-[0.14em] text-fuchsia-600 dark:text-fuchsia-300">Step 1</p>
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">Step 1</p>
             <h2 class="mt-1 text-lg font-bold">Add participants</h2>
           </div>
 
-          <div class="rounded-full bg-fuchsia-50 px-3 py-1 text-sm font-semibold text-fuchsia-700 dark:bg-fuchsia-300/10 dark:text-fuchsia-200">
+          <div class="rounded-full bg-sky-50 px-3 py-1 text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
             {{ participants.length }} {{ participants.length === 1 ? "person" : "people" }}
           </div>
         </div>
@@ -78,13 +44,13 @@
         <textarea
           id="lucky-draw-paste"
           v-model="raw"
-          class="mt-2 h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-black/20 dark:placeholder:text-white/30"
+          class="mt-2 h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-black/20 dark:placeholder:text-white/30"
           :disabled="isSpinning"
           placeholder="Vann Mey&#10;Sokha Lim&#10;Sophea Kim&#10;Nita Phan"
         />
         <button
           type="button"
-          class="mt-2 inline-flex h-10 items-center justify-center rounded-xl bg-fuchsia-600 px-4 text-sm font-bold text-white transition hover:bg-fuchsia-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 disabled:cursor-not-allowed disabled:opacity-40"
+          class="mt-2 inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-4 text-sm font-bold text-white transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="isSpinning || !raw.trim()"
           @click="applyRawToRows"
         >
@@ -126,7 +92,7 @@
                   <input
                     :ref="(element) => setNameInputRef(element, index)"
                     v-model.trim="row.name"
-                    class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 outline-none transition focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-white/15 dark:bg-black/20 dark:disabled:bg-white/[0.03] dark:disabled:text-white/35"
+                    class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-white/15 dark:bg-black/20 dark:disabled:bg-white/[0.03] dark:disabled:text-white/35"
                     :placeholder="`Participant ${index + 1}`"
                     :disabled="isSpinning"
                   />
@@ -155,7 +121,7 @@
 
         <div class="mt-3 grid grid-cols-2 gap-2">
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
             @click="addRow"
             :disabled="isSpinning"
           >
@@ -164,7 +130,7 @@
           </button>
 
           <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
             @click="loadExample"
             :disabled="isSpinning"
           >
@@ -175,20 +141,68 @@
 
         <p v-if="error" class="mt-3 text-sm font-medium text-red-600 dark:text-red-300">{{ error }}</p>
         <p class="mt-4 text-xs leading-5 text-slate-500 dark:text-white/45">
-          Names stay in this browser. A shared link includes the participant list in its URL, so avoid sensitive personal details.
+          Participants, notes, and winner history are saved only in this browser. Avoid sensitive personal details on shared devices.
         </p>
       </div>
 
-      <div ref="wheelStageRef" :class="wheelCardClass">
+      <div
+        ref="wheelStageRef"
+        class="wheel-stage"
+        :class="[wheelCardClass, { 'has-results': winnerHistory.length > 0 }]"
+      >
         <canvas
           ref="confettiCanvasRef"
-          class="pointer-events-none absolute inset-0 z-40 h-full w-full"
+          class="pointer-events-none inset-0 z-[140] h-full w-full"
+          :class="isWinnerDialogOpen ? 'fixed' : 'absolute'"
         />
 
-        <div class="relative z-10 flex h-full min-h-0 flex-col">
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0"
+          leave-active-class="transition duration-150 ease-in"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="isWinnerDialogOpen && currentWinnerEntry"
+            class="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
+            @click.self="closeWinnerDialog"
+          >
+            <div
+              ref="winnerDialogRef"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Lucky draw winner"
+              class="relative max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl outline-none dark:border-white/15 dark:bg-[#101014] sm:p-8"
+              @keydown.esc.prevent="closeWinnerDialog"
+              @keydown="keepWinnerDialogFocusInside"
+            >
+              <button
+                ref="winnerDialogCloseRef"
+                type="button"
+                class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-xl text-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="Close winner dialog"
+                @click="closeWinnerDialog"
+              >
+                ✕
+              </button>
+
+              <LuckyDrawWinnerResult
+                class="pt-5"
+                :winner="currentWinnerEntry.name"
+                :note="currentWinnerEntry.note"
+                :winner-copied="winnerCopied"
+                :can-spin="canSpin"
+                @copy="copyWinner"
+                @spin-again="runLuckyDraw"
+              />
+            </div>
+          </div>
+        </Transition>
+
+        <div class="wheel-stage-content relative z-10 flex h-full min-h-0 flex-col">
           <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-[0.14em] text-fuchsia-600 dark:text-fuchsia-300">Step 2</p>
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">Step 2</p>
               <h2 class="mt-1 text-lg font-bold">Spin the wheel</h2>
 
               <div class="mt-1 text-sm text-slate-500 dark:text-white/50">
@@ -199,7 +213,7 @@
             <div class="flex items-center gap-2">
               <button
                 type="button"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
                 :aria-label="soundEnabled ? 'Mute wheel sounds' : 'Enable wheel sounds'"
                 :title="soundEnabled ? 'Mute sounds' : 'Enable sounds'"
                 @click="soundEnabled = !soundEnabled"
@@ -209,7 +223,7 @@
 
               <button
                 v-if="isFullscreenSupported"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
                 @click="toggleWheelFullscreen"
                 :aria-label="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
                 :title="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
@@ -247,16 +261,23 @@
             </div>
           </div>
 
-          <div class="mb-4 grid grid-cols-1 gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-2">
+          <div
+            :class="isFullscreen ? 'mb-3 w-fit max-w-full' : 'mb-4 w-full'"
+            class="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[0.03]"
+          >
             <label class="flex items-center gap-2 font-semibold">
-              <input v-model="preventRepeatWinners" type="checkbox" class="h-4 w-4 accent-fuchsia-600" :disabled="isSpinning">
+              <input v-model="preventRepeatWinners" type="checkbox" class="h-4 w-4 accent-sky-600" :disabled="isSpinning">
               No repeat winners
             </label>
-            <label class="flex items-center justify-between gap-2 font-semibold">
+            <label class="flex items-center gap-2 font-semibold">
+              <input v-model="showWinnerDialog" type="checkbox" class="h-4 w-4 accent-sky-600" :disabled="isSpinning">
+              Show winner in dialog
+            </label>
+            <label class="flex items-center gap-2 font-semibold">
               Spin speed
               <select
                 v-model="spinSpeed"
-                class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-fuchsia-400 dark:border-white/15 dark:bg-[#17171b]"
+                class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-sky-400 dark:border-white/15 dark:bg-[#17171b]"
                 :disabled="isSpinning"
               >
                 <option value="quick">Quick</option>
@@ -264,19 +285,37 @@
                 <option value="suspense">Suspense</option>
               </select>
             </label>
+            <label class="flex min-w-[min(100%,18rem)] flex-1 items-center gap-2 font-semibold">
+              <span class="shrink-0">Note for this spin</span>
+              <input
+                v-model="drawNote"
+                type="text"
+                maxlength="120"
+                class="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-[#17171b] dark:text-white dark:placeholder:text-white/30"
+                placeholder="e.g. Do an exercise"
+                :disabled="isSpinning"
+              >
+            </label>
           </div>
 
-          <div class="flex flex-1 min-h-0 flex-col">
-            <div class="flex flex-1 items-center justify-center min-h-0">
-              <div
-                class="relative mx-auto aspect-square w-full"
-                :style="wheelBoxStyle"
-              >
-                <div class="absolute left-1/2 top-0 z-30 -translate-x-1/2">
-                  <div
-                    class="h-0 w-0 border-l-[14px] border-r-[14px] border-t-[24px] border-l-transparent border-r-transparent border-t-slate-950 drop-shadow-sm dark:border-t-white"
-                  />
-                </div>
+          <div
+            class="wheel-layout"
+            :class="
+              isFullscreen
+                ? 'grid min-h-0 flex-1 grid-rows-[auto_auto] gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:grid-rows-1 lg:gap-4'
+                : 'flex min-h-0 flex-1 flex-col'
+            "
+          >
+            <div class="wheel-column flex min-h-0 flex-col">
+              <div class="wheel-space flex min-h-0 flex-1 items-center justify-center">
+                <div
+                  class="wheel-box relative mx-auto aspect-square w-full shrink-0"
+                >
+                  <div class="absolute left-1/2 top-0 z-30 -translate-x-1/2">
+                    <div
+                      class="h-0 w-0 border-l-[14px] border-r-[14px] border-t-[24px] border-l-transparent border-r-transparent border-t-slate-950 drop-shadow-sm dark:border-t-white"
+                    />
+                  </div>
 
                 <div
                   class="relative h-full w-full overflow-hidden rounded-full border-[10px] border-white bg-slate-50 shadow-xl dark:border-[#222227] dark:bg-white/[0.04]"
@@ -345,65 +384,91 @@
                     class="absolute inset-0 flex items-center justify-center"
                   >
                     <button
-                      class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-slate-950 text-sm font-black tracking-wide text-white shadow-lg transition hover:scale-105 hover:bg-fuchsia-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 dark:bg-white dark:text-black dark:hover:bg-fuchsia-200"
+                      class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-sky-700 text-sm font-black tracking-wide text-white shadow-lg ring-4 ring-sky-200/70 transition hover:scale-105 hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 dark:bg-cyan-300 dark:text-slate-950 dark:ring-cyan-300/20 dark:hover:bg-cyan-200"
                       :disabled="!canSpin"
                       @click="runLuckyDraw"
                     >
                       {{ isSpinning ? "..." : "SPIN" }}
                     </button>
                   </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <p class="mt-4 text-center text-xs leading-5 text-slate-500 dark:text-white/45">
-              Secure browser randomness chooses the winner before the wheel animates.
-            </p>
+              <p
+                :class="isFullscreen ? 'mt-2' : 'mt-4'"
+                class="wheel-note text-center text-xs leading-5 text-slate-500 dark:text-white/45"
+              >
+                Secure browser randomness chooses the winner before the wheel animates.
+              </p>
+            </div>
 
             <div
-              v-if="lastWinner"
-              class="mt-3 overflow-hidden rounded-2xl border border-fuchsia-200 bg-gradient-to-br from-fuchsia-50 to-amber-50 p-4 text-center dark:border-fuchsia-300/20 dark:from-fuchsia-300/10 dark:to-amber-300/10"
+              :class="[
+                isFullscreen
+                  ? 'rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03] lg:min-h-0 lg:overflow-y-auto lg:p-4'
+                  : '',
+                isFullscreen && winnerHistory.length === 0 ? 'hidden lg:block' : '',
+              ]"
             >
-              <p class="text-xs font-black uppercase tracking-[0.18em] text-fuchsia-600 dark:text-fuchsia-300">Winner</p>
-              <p class="mt-1 break-words text-2xl font-black text-slate-950 dark:text-white">{{ lastWinner }}</p>
-              <div class="mt-3 flex flex-wrap justify-center gap-2">
-                <button
-                  type="button"
-                  class="rounded-xl border border-fuchsia-200 bg-white px-3 py-2 text-xs font-bold text-fuchsia-700 transition hover:bg-fuchsia-50 dark:border-white/15 dark:bg-white/[0.06] dark:text-fuchsia-200 dark:hover:bg-white/10"
-                  @click="copyWinner"
-                >
-                  {{ winnerCopied ? "Winner copied" : "Copy winner" }}
-                </button>
-                <button
-                  type="button"
-                  class="rounded-xl bg-fuchsia-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-40"
-                  :disabled="!canSpin"
-                  @click="runLuckyDraw"
-                >
-                  Spin again
-                </button>
-              </div>
-            </div>
+              <LuckyDrawWinnerResult
+                v-if="lastWinner && !showWinnerDialog"
+                class="mt-3 overflow-hidden rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 text-center dark:border-cyan-300/20 dark:from-sky-300/10 dark:to-cyan-300/10"
+                :winner="lastWinner"
+                :note="currentWinnerEntry?.note ?? ''"
+                :winner-copied="winnerCopied"
+                :can-spin="canSpin"
+                @copy="copyWinner"
+                @spin-again="runLuckyDraw"
+              />
 
             <div v-if="winnerHistory.length" class="mt-4 rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <div class="flex items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
                 <h3 class="font-bold">Winner history</h3>
-                <button type="button" class="text-xs font-bold text-slate-500 underline underline-offset-4 hover:text-red-600 dark:text-white/45 dark:hover:text-red-300" @click="clearWinnerHistory">
-                  Clear
-                </button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
+                    @click="copyWinnerList"
+                  >
+                    {{ winnerListCopied ? "List copied" : "Copy list" }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
+                    @click="exportWinnerList"
+                  >
+                    Export CSV
+                  </button>
+                  <button
+                    type="button"
+                    class="px-1.5 py-1.5 text-xs font-bold text-slate-500 underline underline-offset-4 hover:text-red-600 dark:text-white/45 dark:hover:text-red-300"
+                    @click="clearWinnerHistory"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
-              <ol class="mt-2 max-h-48 space-y-2 overflow-auto pr-1">
-                <li v-for="(winner, index) in winnerHistory" :key="`${winner}-${index}`" class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-white/[0.04]">
-                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-fuchsia-100 text-xs font-black text-fuchsia-700 dark:bg-fuchsia-300/10 dark:text-fuchsia-200">{{ index + 1 }}</span>
-                  <span class="min-w-0 flex-1 truncate font-semibold">{{ winner }}</span>
+              <ol
+                :class="isFullscreen ? 'max-h-32 lg:max-h-48' : 'max-h-48'"
+                class="mt-2 space-y-2 overflow-auto pr-1"
+              >
+                <li v-for="(winner, index) in winnerHistory" :key="`${winner.name}-${index}`" class="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-white/[0.04]">
+                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">{{ index + 1 }}</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="block truncate font-semibold">{{ winner.name }}</span>
+                    <span v-if="winner.note" class="mt-1 block break-words text-xs text-slate-600 dark:text-white/55">
+                      {{ winner.note }}
+                    </span>
+                  </div>
                 </li>
               </ol>
-            </div>
+              </div>
 
             <div
               :class="
                 isFullscreen
-                  ? 'mt-4 min-h-0 max-h-[28vh] overflow-auto'
+                  ? 'mt-4 hidden lg:block'
                   : 'mt-4 max-h-64 overflow-auto'
               "
             >
@@ -416,7 +481,11 @@
                 No participants yet.
               </div>
 
-              <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div
+                v-else
+                :class="isFullscreen ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'"
+                class="grid gap-2"
+              >
                 <div
                   v-for="segment in wheelSegments"
                   :key="`${segment.index}-${segment.name}`"
@@ -429,6 +498,7 @@
                   <span class="truncate">{{ segment.name }}</span>
                 </div>
               </div>
+            </div>
             </div>
 
             <p class="sr-only" aria-live="polite">
@@ -443,21 +513,22 @@
 
 <script setup lang="ts">
 import type { ComponentPublicInstance } from "vue";
+import type { LuckyDrawSession, WinnerHistoryEntry } from "~/lib/lucky-draw";
+import LuckyDrawWinnerResult from "~/components/tools/LuckyDrawWinnerResult.vue";
 import {
   deduplicateParticipants,
   findDuplicateParticipantNames,
+  formatWinnerListCsv,
+  formatWinnerListText,
   getEligibleParticipants,
   normalizeParticipantName,
+  parseLuckyDrawSession,
   parseParticipantText,
 } from "~/lib/lucky-draw";
 import { secureRandomInt } from "~/lib/secure-random";
 
 type InputRow = {
   name: string;
-};
-
-type SharePayload = {
-  t?: string;
 };
 
 type WheelSegment = {
@@ -476,9 +547,6 @@ type WheelSegment = {
 
 type ConfettiLauncher = ((options?: Record<string, unknown>) => unknown) | null;
 type SpinSpeed = "quick" | "standard" | "suspense";
-
-const route = useRoute();
-const router = useRouter();
 
 useSeoMeta({
   title: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
@@ -532,32 +600,45 @@ const SPIN_DURATION_MS: Record<SpinSpeed, number> = {
 const FULL_TURNS = 12;
 const WHEEL_CENTER = 50;
 const WHEEL_RADIUS = 49;
+const LUCKY_DRAW_SESSION_STORAGE_KEY = "chlatwork:lucky-draw:session:v1";
+const DIALOG_CONFETTI_COLORS = ["#0ea5e9", "#22d3ee", "#facc15", "#fb7185", "#ffffff"];
 
 const rows = ref<InputRow[]>(INITIAL_ROWS());
 const raw = ref("");
 const error = ref("");
-const shareCopied = ref(false);
 const isSpinning = ref(false);
 const wheelRotation = ref(0);
 const lastWinner = ref("");
 const isFullscreen = ref(false);
 const activeWheelParticipants = ref<string[]>([]);
 const preventRepeatWinners = ref(true);
+const showWinnerDialog = ref(false);
+const isWinnerDialogOpen = ref(false);
 const soundEnabled = ref(true);
 const spinSpeed = ref<SpinSpeed>("standard");
-const winnerHistory = ref<string[]>([]);
+const drawNote = ref("");
+const winnerHistory = ref<WinnerHistoryEntry[]>([]);
 const winnerCopied = ref(false);
+const winnerListCopied = ref(false);
 
 const nameInputRefs = ref<(HTMLInputElement | null)[]>([]);
 const wheelStageRef = ref<HTMLElement | null>(null);
 const confettiCanvasRef = ref<HTMLCanvasElement | null>(null);
+const winnerDialogRef = ref<HTMLDivElement | null>(null);
+const winnerDialogCloseRef = ref<HTMLButtonElement | null>(null);
 const audioContext = ref<AudioContext | null>(null);
 
-let shareTimer: ReturnType<typeof setTimeout> | null = null;
 let winnerCopyTimer: ReturnType<typeof setTimeout> | null = null;
+let winnerListCopyTimer: ReturnType<typeof setTimeout> | null = null;
 let spinAnimationFrameId: number | null = null;
 let confettiLauncher: ConfettiLauncher = null;
 let spinRunId = 0;
+let previouslyFocusedElement: HTMLElement | null = null;
+let previousBodyOverflow = "";
+let previousWheelStageOverflow = "";
+let canPersistSession = false;
+let isHydratingSession = true;
+let isWinnerDialogEnvironmentLocked = false;
 
 function normalizeName(value: string) {
   return normalizeParticipantName(value);
@@ -569,6 +650,111 @@ function parseRows(inputRows: InputRow[]) {
 
 function parseLines(input: string) {
   return parseParticipantText(input);
+}
+
+function buildLuckyDrawSession(): LuckyDrawSession {
+  return {
+    version: 1,
+    rows: rows.value.map((row) => row.name),
+    raw: raw.value,
+    preventRepeatWinners: preventRepeatWinners.value,
+    showWinnerDialog: showWinnerDialog.value,
+    soundEnabled: soundEnabled.value,
+    spinSpeed: spinSpeed.value,
+    drawNote: drawNote.value,
+    winnerHistory: winnerHistory.value.map((winner) => ({ ...winner })),
+    lastWinner: lastWinner.value,
+  };
+}
+
+function persistLuckyDrawSession() {
+  if (!import.meta.client || !canPersistSession) return;
+
+  try {
+    localStorage.setItem(
+      LUCKY_DRAW_SESSION_STORAGE_KEY,
+      JSON.stringify(buildLuckyDrawSession()),
+    );
+  } catch {
+    // The draw remains fully usable when private browsing or storage limits block persistence.
+  }
+}
+
+function restoreLuckyDrawSession() {
+  if (!import.meta.client) return false;
+
+  try {
+    const storedValue = localStorage.getItem(LUCKY_DRAW_SESSION_STORAGE_KEY);
+    if (!storedValue) return false;
+
+    const session = parseLuckyDrawSession(storedValue);
+    if (!session) return false;
+
+    rows.value = session.rows.length
+      ? session.rows.map((name) => ({ name }))
+      : INITIAL_ROWS();
+    raw.value = session.raw;
+    preventRepeatWinners.value = session.preventRepeatWinners;
+    showWinnerDialog.value = session.showWinnerDialog;
+    soundEnabled.value = session.soundEnabled;
+    spinSpeed.value = session.spinSpeed;
+    drawNote.value = session.drawNote;
+    winnerHistory.value = session.winnerHistory.map((winner) => ({ ...winner }));
+
+    const latestWinner = winnerHistory.value.at(-1);
+    lastWinner.value = latestWinner?.name === session.lastWinner
+      ? session.lastWinner
+      : "";
+    isWinnerDialogOpen.value = Boolean(
+      showWinnerDialog.value && lastWinner.value,
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function closeWinnerDialog() {
+  isWinnerDialogOpen.value = false;
+}
+
+function keepWinnerDialogFocusInside(event: KeyboardEvent) {
+  if (event.key !== "Tab" || !winnerDialogRef.value) return;
+
+  const focusable = Array.from(
+    winnerDialogRef.value.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  );
+  if (!focusable.length) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last?.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first?.focus();
+  }
+}
+
+function restoreWinnerDialogEnvironment(restoreFocus = true) {
+  if (!import.meta.client || !isWinnerDialogEnvironmentLocked) return;
+
+  document.body.style.overflow = previousBodyOverflow;
+  if (wheelStageRef.value) {
+    wheelStageRef.value.style.overflow = previousWheelStageOverflow;
+  }
+
+  const focusTarget = previouslyFocusedElement;
+  previouslyFocusedElement = null;
+  isWinnerDialogEnvironmentLocked = false;
+
+  if (restoreFocus && focusTarget) {
+    nextTick(() => focusTarget.focus());
+  }
 }
 
 function truncateText(value: string, maxLength: number) {
@@ -631,12 +817,22 @@ const duplicateNames = computed(() => {
   return findDuplicateParticipantNames(participants.value);
 });
 
+const previousWinnerNames = computed(() => {
+  // Notes are history metadata; no-repeat eligibility must remain name-based.
+  return winnerHistory.value.map((winner) => winner.name);
+});
+
 const eligibleParticipants = computed(() => {
   return getEligibleParticipants(
     participants.value,
-    winnerHistory.value,
+    previousWinnerNames.value,
     preventRepeatWinners.value,
   );
+});
+
+const currentWinnerEntry = computed(() => {
+  const entry = winnerHistory.value.at(-1);
+  return entry?.name === lastWinner.value ? entry : null;
 });
 
 const wheelParticipants = computed(() => {
@@ -714,12 +910,6 @@ const wheelCardClass = computed(() => {
       ? "fixed inset-0 z-[120] overflow-hidden rounded-none border-0 p-4 sm:p-5 md:p-6"
       : "rounded-2xl border border-slate-200 p-4 shadow-sm dark:border-white/10 sm:p-5",
   ].join(" ");
-});
-
-const wheelBoxStyle = computed(() => {
-  return {
-    maxWidth: isFullscreen.value ? "min(78vw, 68vh)" : "380px",
-  };
 });
 
 function angleToPoint(angle: number, radius: number) {
@@ -861,91 +1051,42 @@ function loadExample() {
 
 function reset() {
   spinRunId += 1;
+  closeWinnerDialog();
   rows.value = INITIAL_ROWS();
   raw.value = "";
   error.value = "";
-  shareCopied.value = false;
   isSpinning.value = false;
   wheelRotation.value = 0;
   lastWinner.value = "";
   activeWheelParticipants.value = [];
+  drawNote.value = "";
   winnerHistory.value = [];
   winnerCopied.value = false;
+  winnerListCopied.value = false;
   nameInputRefs.value = [];
-
-  if (shareTimer) {
-    clearTimeout(shareTimer);
-    shareTimer = null;
-  }
 
   if (winnerCopyTimer) {
     clearTimeout(winnerCopyTimer);
     winnerCopyTimer = null;
   }
 
+  if (winnerListCopyTimer) {
+    clearTimeout(winnerListCopyTimer);
+    winnerListCopyTimer = null;
+  }
+
   stopSpinAnimation();
 }
 
-function buildSharePayload() {
-  const payload: SharePayload = {
-    t: participants.value.join("\n"),
-  };
-
-  const json = JSON.stringify(payload);
-
-  return btoa(unescape(encodeURIComponent(json)))
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
-}
-
-function readSharePayload(value: string) {
-  const padded =
-    value.replaceAll("-", "+").replaceAll("_", "/") +
-    "=".repeat((4 - (value.length % 4)) % 4);
-
-  const json = decodeURIComponent(escape(atob(padded)));
-  const payload = JSON.parse(json) as SharePayload;
-
-  if (typeof payload.t === "string" && payload.t.trim()) {
-    const names = parseLines(payload.t);
-    rows.value = names.length
-      ? names.map((name) => ({ name }))
-      : INITIAL_ROWS();
-    raw.value = names.join("\n");
-  }
-}
-
-function flashShareCopied(ms = 1500) {
-  shareCopied.value = true;
-
-  if (shareTimer) clearTimeout(shareTimer);
-
-  shareTimer = setTimeout(() => {
-    shareCopied.value = false;
-    shareTimer = null;
-  }, ms);
-}
-
-async function shareLink() {
-  error.value = "";
-  const s = buildSharePayload();
-  await router.replace({ query: { s } });
-
-  const url = `${window.location.origin}${route.path}?s=${encodeURIComponent(s)}`;
-  try {
-    await navigator.clipboard.writeText(url);
-    flashShareCopied();
-  } catch {
-    error.value = "The share link is ready in the address bar, but this browser blocked copying.";
-  }
-}
-
 async function copyWinner() {
-  if (!lastWinner.value) return;
+  const winner = currentWinnerEntry.value;
+  if (!winner) return;
 
   try {
-    await navigator.clipboard.writeText(lastWinner.value);
+    const note = winner.note.trim();
+    await navigator.clipboard.writeText(
+      `${winner.name}${note ? ` — ${note}` : ""}`,
+    );
     winnerCopied.value = true;
     if (winnerCopyTimer) clearTimeout(winnerCopyTimer);
     winnerCopyTimer = setTimeout(() => {
@@ -957,10 +1098,44 @@ async function copyWinner() {
   }
 }
 
+async function copyWinnerList() {
+  if (winnerHistory.value.length === 0) return;
+
+  try {
+    await navigator.clipboard.writeText(formatWinnerListText(winnerHistory.value));
+    winnerListCopied.value = true;
+    if (winnerListCopyTimer) clearTimeout(winnerListCopyTimer);
+    winnerListCopyTimer = setTimeout(() => {
+      winnerListCopied.value = false;
+      winnerListCopyTimer = null;
+    }, 1500);
+  } catch {
+    error.value = "This browser blocked copying the winner list.";
+  }
+}
+
+function exportWinnerList() {
+  if (winnerHistory.value.length === 0) return;
+
+  const csv = `\uFEFF${formatWinnerListCsv(winnerHistory.value)}`;
+  const downloadUrl = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = `chlatwork-winners-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  // Revoke after the click has been handed to the browser so Safari can finish the download.
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+}
+
 function clearWinnerHistory() {
+  closeWinnerDialog();
   winnerHistory.value = [];
   lastWinner.value = "";
   winnerCopied.value = false;
+  winnerListCopied.value = false;
   activeWheelParticipants.value = [];
   wheelRotation.value = 0;
 }
@@ -1115,14 +1290,53 @@ async function launchConfetti() {
   const fire = await getConfettiLauncher();
   if (!fire) return;
 
-  const originY = isFullscreen.value ? 0.35 : 0.42;
+  if (isFullscreen.value || isWinnerDialogOpen.value) {
+    // Dialog celebrations use the viewport edges so particles frame the centered result.
+    const dialogDefaults = {
+      colors: DIALOG_CONFETTI_COLORS,
+      ticks: 220,
+      gravity: 0.9,
+      decay: 0.93,
+      scalar: 0.55,
+    };
+
+    fire({
+      ...dialogDefaults,
+      particleCount: 70,
+      angle: 62,
+      spread: 48,
+      startVelocity: 44,
+      origin: { x: 0.04, y: 0.72 },
+    });
+
+    fire({
+      ...dialogDefaults,
+      particleCount: 70,
+      angle: 118,
+      spread: 48,
+      startVelocity: 44,
+      origin: { x: 0.96, y: 0.72 },
+    });
+
+    fire({
+      ...dialogDefaults,
+      particleCount: 45,
+      angle: 270,
+      spread: 85,
+      startVelocity: 24,
+      gravity: 0.65,
+      scalar: 0.45,
+      origin: { x: 0.5, y: 0.04 },
+    });
+    return;
+  }
 
   fire({
     particleCount: 120,
     spread: 90,
     startVelocity: 38,
     scalar: 0.95,
-    origin: { y: originY, x: 0.5 },
+    origin: { y: 0.42, x: 0.5 },
   });
 
   fire({
@@ -1130,7 +1344,7 @@ async function launchConfetti() {
     spread: 120,
     startVelocity: 30,
     scalar: 0.8,
-    origin: { y: originY, x: 0.22 },
+    origin: { y: 0.42, x: 0.22 },
   });
 
   fire({
@@ -1138,7 +1352,7 @@ async function launchConfetti() {
     spread: 120,
     startVelocity: 30,
     scalar: 0.8,
-    origin: { y: originY, x: 0.78 },
+    origin: { y: 0.42, x: 0.78 },
   });
 }
 
@@ -1165,9 +1379,12 @@ async function toggleWheelFullscreen() {
 async function runLuckyDraw() {
   if (!canSpin.value) return;
 
+  closeWinnerDialog();
   const runId = (spinRunId += 1);
   const people = [...eligibleParticipants.value];
   const totalParticipants = people.length;
+  // Capture the assignment before animation so the result cannot be changed after selection.
+  const winnerNote = drawNote.value.trim();
   activeWheelParticipants.value = people;
   isSpinning.value = true;
   lastWinner.value = "";
@@ -1245,11 +1462,19 @@ async function runLuckyDraw() {
     wheelRotation.value = targetRotation;
     isSpinning.value = false;
     lastWinner.value = winnerName;
-    winnerHistory.value.push(winnerName);
+    winnerHistory.value.push({ name: winnerName, note: winnerNote });
     spinAnimationFrameId = null;
 
-    playWinSound();
-    launchConfetti();
+    if (showWinnerDialog.value) {
+      isWinnerDialogOpen.value = true;
+      nextTick(() => {
+        playWinSound();
+        launchConfetti();
+      });
+    } else {
+      playWinSound();
+      launchConfetti();
+    }
   };
 
   spinAnimationFrameId = requestAnimationFrame(animate);
@@ -1258,12 +1483,15 @@ async function runLuckyDraw() {
 watch(
   rows,
   () => {
+    if (isHydratingSession) return;
+
     error.value = "";
     raw.value = participants.value.join("\n");
 
     if (!isSpinning.value) {
       activeWheelParticipants.value = [];
       lastWinner.value = "";
+      closeWinnerDialog();
       wheelRotation.value = 0;
     }
   },
@@ -1276,16 +1504,56 @@ watch(preventRepeatWinners, () => {
   wheelRotation.value = 0;
 });
 
-onMounted(() => {
-  const s = route.query.s;
+watch(showWinnerDialog, (enabled) => {
+  if (!enabled) closeWinnerDialog();
+});
 
-  if (typeof s === "string" && s.trim()) {
-    try {
-      readSharePayload(s.trim());
-    } catch {
-      // ignore invalid payload
-    }
+watch(isWinnerDialogOpen, async (open) => {
+  if (!import.meta.client) return;
+
+  if (!open) {
+    restoreWinnerDialogEnvironment();
+    return;
   }
+
+  previouslyFocusedElement = document.activeElement as HTMLElement | null;
+  previousBodyOverflow = document.body.style.overflow;
+  previousWheelStageOverflow = wheelStageRef.value?.style.overflow ?? "";
+  isWinnerDialogEnvironmentLocked = true;
+  document.body.style.overflow = "hidden";
+
+  // Fullscreen scrolling belongs to the wheel stage rather than the document body.
+  if (wheelStageRef.value) {
+    wheelStageRef.value.style.overflow = "hidden";
+  }
+
+  await nextTick();
+  winnerDialogCloseRef.value?.focus();
+});
+
+watch(
+  [
+    rows,
+    raw,
+    preventRepeatWinners,
+    showWinnerDialog,
+    soundEnabled,
+    spinSpeed,
+    drawNote,
+    winnerHistory,
+    lastWinner,
+  ],
+  persistLuckyDrawSession,
+  { deep: true },
+);
+
+onMounted(async () => {
+  restoreLuckyDrawSession();
+
+  await nextTick();
+  isHydratingSession = false;
+  canPersistSession = true;
+  persistLuckyDrawSession();
 
   if (import.meta.client) {
     document.addEventListener("fullscreenchange", syncFullscreenState);
@@ -1296,9 +1564,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   spinRunId += 1;
 
-  if (shareTimer) clearTimeout(shareTimer);
   if (winnerCopyTimer) clearTimeout(winnerCopyTimer);
+  if (winnerListCopyTimer) clearTimeout(winnerListCopyTimer);
   stopSpinAnimation();
+  restoreWinnerDialogEnvironment(false);
 
   if (import.meta.client) {
     document.removeEventListener("fullscreenchange", syncFullscreenState);
@@ -1309,3 +1578,47 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+
+<style scoped>
+.wheel-box {
+  max-width: 380px;
+}
+
+.wheel-stage:fullscreen .wheel-box {
+  width: min(72vh, 100%);
+  max-width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .wheel-stage:fullscreen {
+    overflow-y: auto;
+  }
+
+  /* Portrait fullscreen scrolls as one document so the square wheel cannot paint over later rows. */
+  .wheel-stage:fullscreen .wheel-stage-content {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .wheel-stage:fullscreen .wheel-layout {
+    flex: none;
+  }
+
+  .wheel-stage:fullscreen .wheel-space {
+    flex: none;
+    padding-bottom: 0.5rem;
+  }
+
+  .wheel-stage:fullscreen .wheel-box {
+    width: min(48dvh, calc(100vw - 2rem));
+  }
+
+  .wheel-stage:fullscreen.has-results .wheel-box {
+    width: min(36dvh, calc(100vw - 5rem));
+  }
+
+  .wheel-stage:fullscreen .wheel-note {
+    margin-top: 1rem;
+  }
+}
+</style>

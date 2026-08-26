@@ -48,3 +48,91 @@ export function getEligibleParticipants(
     (name) => !winnerNames.has(normalizeParticipantName(name).toLocaleLowerCase()),
   );
 }
+
+export type WinnerHistoryEntry = {
+  name: string;
+  note: string;
+};
+
+export type LuckyDrawSession = {
+  version: 1;
+  rows: string[];
+  raw: string;
+  preventRepeatWinners: boolean;
+  showWinnerDialog: boolean;
+  soundEnabled: boolean;
+  spinSpeed: "quick" | "standard" | "suspense";
+  drawNote: string;
+  winnerHistory: WinnerHistoryEntry[];
+  lastWinner: string;
+};
+
+export function parseLuckyDrawSession(value: string): LuckyDrawSession | null {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const session = parsed as Record<string, unknown>;
+    const rows = session.rows;
+    const winnerHistory = session.winnerHistory;
+    const spinSpeed = session.spinSpeed;
+
+    if (
+      session.version !== 1
+      || !Array.isArray(rows)
+      || rows.length > 5_000
+      || !rows.every((name) => typeof name === "string" && name.length <= 1_000)
+      || typeof session.raw !== "string"
+      || session.raw.length > 1_000_000
+      || !Array.isArray(winnerHistory)
+      || winnerHistory.length > 5_000
+      || !winnerHistory.every(
+        (entry) =>
+          entry
+          && typeof entry === "object"
+          && typeof (entry as Record<string, unknown>).name === "string"
+          && String((entry as Record<string, unknown>).name).length <= 1_000
+          && typeof (entry as Record<string, unknown>).note === "string"
+          && String((entry as Record<string, unknown>).note).length <= 120,
+      )
+      || typeof session.preventRepeatWinners !== "boolean"
+      || typeof session.showWinnerDialog !== "boolean"
+      || typeof session.soundEnabled !== "boolean"
+      || !["quick", "standard", "suspense"].includes(String(spinSpeed))
+      || typeof session.drawNote !== "string"
+      || session.drawNote.length > 120
+      || typeof session.lastWinner !== "string"
+      || session.lastWinner.length > 1_000
+    ) {
+      return null;
+    }
+
+    return session as LuckyDrawSession;
+  } catch {
+    return null;
+  }
+}
+
+export function formatWinnerListText(winners: WinnerHistoryEntry[]) {
+  return winners
+    .map((winner, index) => {
+      const note = winner.note.trim();
+      return `${index + 1}. ${winner.name}${note ? ` — ${note}` : ""}`;
+    })
+    .join("\n");
+}
+
+export function formatWinnerListCsv(winners: WinnerHistoryEntry[]) {
+  const escapeCell = (value: string) => {
+    // Spreadsheet apps can execute formula-like user input when opening CSV files.
+    const safeValue = /^\s*[=+\-@]/.test(value) ? `'${value}` : value;
+    return `"${safeValue.replaceAll('"', '""')}"`;
+  };
+  return [
+    "Position,Winner,Note",
+    ...winners.map(
+      (winner, index) =>
+        `${index + 1},${escapeCell(winner.name)},${escapeCell(winner.note.trim())}`,
+    ),
+  ].join("\r\n");
+}

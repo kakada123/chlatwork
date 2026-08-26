@@ -2328,7 +2328,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "It is easy for audiences to understand during a live event.",
       "It supports pasted participant lists, duplicate cleanup, and winner selection without repeats.",
       "It works for small shops, schools, teams, and social campaigns.",
-      "It keeps a winner history that is easy to review or copy after each spin.",
+      "It keeps a winner history that you can review, copy as a list, or export as CSV.",
     ],
     steps: [
       "Open the Lucky Draw tool.",
@@ -2336,7 +2336,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Review the list to remove duplicates or typing mistakes.",
       "Choose whether winners can repeat and select the spin speed for your event.",
       "Start the draw and let the wheel select a winner.",
-      "Review the winner history or copy a winner name for your announcement.",
+      "Review the winner history, copy the numbered list, or export it as CSV.",
     ],
     useCases: [
       "A Cambodia shop runs a Facebook giveaway for customers who commented on a post.",
@@ -2380,8 +2380,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     privacy: [
       "Participant parsing, random winner selection, wheel animation, and fullscreen mode run in your browser.",
-      "The share button stores the participant list in the page URL query so another person can open the same list.",
-      "Do not put phone numbers, private customer details, or sensitive staff data in a public draw link.",
+      "The current participant list, notes, settings, and winner history are saved only in this browser for refresh recovery.",
+      "Avoid phone numbers, private customer details, or sensitive staff data when using the tool on a shared device.",
     ],
     faqs: [
       {
@@ -2400,9 +2400,9 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "That depends on your event rules. For one-entry-per-person draws, remove duplicates before spinning.",
       },
       {
-        question: "Can I share the draw result?",
+        question: "Can I export the draw result?",
         answer:
-          "You can copy each winner name or record the visible winner history. The Share link copies the participant setup, not the completed result.",
+          "Yes. You can copy an individual winner, copy the numbered winner list, or export the full history as CSV.",
       },
       {
         question: "Is the Lucky Draw free?",

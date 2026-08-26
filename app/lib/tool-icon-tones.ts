@@ -57,7 +57,7 @@ const ICON_TONE_BY_KEY: Record<string, keyof typeof ICON_TONES> = {
   "jwt-decoder": "rose",
   "password-generator": "rose",
   "security-encoding": "rose",
-  "lucky-draw": "violet",
+  "lucky-draw": "blue",
   generators: "violet",
 };
 
