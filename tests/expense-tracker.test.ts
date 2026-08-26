@@ -14,6 +14,7 @@ import {
   getBudgetRemaining,
   getBudgetStatus,
   getExpenseDailyAverage,
+  hasCompleteExpenseStoredRows,
   getNetBalance,
   getTotalIncome,
   getTotalSpent,
@@ -53,7 +54,11 @@ test("amount parser rejects non-positive, invalid, infinite, and unsupported val
   assert.equal(parseExpenseAmount("1.005"), 1.01);
 });
 
-test("legacy expense state without rows normalizes before rendering", () => {
+test("legacy expense state without rows is detected before rendering", () => {
+  assert.equal(hasCompleteExpenseStoredRows({ currency: "USD" }), false);
+  assert.equal(hasCompleteExpenseStoredRows({ rows: [] }), true);
+  assert.equal(hasCompleteExpenseStoredRows(null), true);
+
   assert.deepEqual(normalizeExpenseStoredState({ currency: "USD" }), {
     currency: "USD",
     rangeMode: "month",
@@ -228,6 +233,11 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(page, /Expense saved to your account/);
   assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(page, /@quick-add="saveQuickExpenseImmediately"/);
+  assert.match(page, /canPersistFullState/);
+  assert.match(page, /finishInitialStateLoad\(receivedCompleteState\)/);
+  assert.match(page, /expectedRowCount: persistedRowCount\.value/);
+  assert.match(page, /rows\.value = \[\.\.\.accountRows, \.\.\.savedDraft\.rows\]/);
+  assert.match(page, /Keep the draft recoverable/);
   assert.match(page, /v-if="signedIn"/);
   assert.match(page, /v-else-if="isAuthReady"/);
   assert.match(header, /<header class="mb-6 hidden sm:block">/);
@@ -260,6 +270,10 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   );
   const controller = readFileSync("api/src/expenses/expenses.controller.ts", "utf8");
   const service = readFileSync("api/src/expenses/expenses.service.ts", "utf8");
+  const saveStateDto = readFileSync(
+    "api/src/expenses/dto/save-expense-state.dto.ts",
+    "utf8",
+  );
   const schema = readFileSync("api/prisma/schema.prisma", "utf8");
   const sql = readFileSync(
     "database/updates/2026-08-26-add-quick-expense-setting.sql",
@@ -279,6 +293,9 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /\/api\/expenses\/quick-entry/);
   assert.match(controller, /@Post\('quick-entry'\)/);
   assert.match(service, /pg_advisory_xact_lock/);
+  assert.match(service, /currentRowCount !== dto\.expectedRowCount/);
+  assert.match(service, /Expense entries changed; reload before saving/);
+  assert.match(saveStateDto, /expectedRowCount\?: number/);
   assert.match(service, /\$executeRaw`SELECT pg_advisory_xact_lock/);
   assert.doesNotMatch(service, /\$queryRaw`SELECT pg_advisory_xact_lock/);
   assert.match(schema, /quickExpenseEnabled Boolean\s+@default\(false\)/);

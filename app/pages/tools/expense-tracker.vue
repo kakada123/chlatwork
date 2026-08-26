@@ -149,6 +149,7 @@ import {
   getExpenseDateSpanDays,
   getExpenseExampleState,
   getExpenseRangeLabel,
+  hasCompleteExpenseStoredRows,
   getNetBalance,
   getTopExpenseItems,
   getTotalIncome,
@@ -185,6 +186,8 @@ useHead({
 const copied = ref(false);
 const persistenceState = ref<"loading" | "saved" | "saving" | "failed" | "guest">("loading");
 const isHydrated = ref(false);
+const canPersistFullState = ref(false);
+const persistedRowCount = ref<number | null>(null);
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 const persistenceMessage = computed(() => {
@@ -287,7 +290,7 @@ watch(
 watch(
   [currency, rangeMode, budget, rows, raw, quickExpenseEnabled],
   () => {
-    if (!isHydrated.value || !user.value) return;
+    if (!isHydrated.value || !canPersistFullState.value || !user.value) return;
     if (saveTimer) clearTimeout(saveTimer);
     persistenceState.value = "saving";
     saveTimer = setTimeout(() => void saveExpenseState(), 700);
@@ -296,6 +299,11 @@ watch(
 );
 
 async function saveExpenseState() {
+  if (!canPersistFullState.value || !user.value) {
+    persistenceState.value = "failed";
+    return false;
+  }
+
   try {
     await $fetch("/api/expenses/state", {
       method: "PUT",
@@ -305,6 +313,7 @@ async function saveExpenseState() {
         budgetPeriod: budget.value.period,
         budgetAmount: budget.value.amount,
         raw: raw.value,
+        expectedRowCount: persistedRowCount.value ?? undefined,
         rows: rows.value.map((row) => ({
           type: row.type ?? "expense",
           date: row.date ?? "",
@@ -317,6 +326,7 @@ async function saveExpenseState() {
         quickExpenseEnabled: quickExpenseEnabled.value,
       },
     });
+    persistedRowCount.value = rows.value.length;
     persistenceState.value = "saved";
     return true;
   } catch {
@@ -327,7 +337,7 @@ async function saveExpenseState() {
 
 async function saveImmediately() {
   await nextTick();
-  if (!isHydrated.value || !user.value) return false;
+  if (!isHydrated.value || !canPersistFullState.value || !user.value) return false;
   if (saveTimer) {
     clearTimeout(saveTimer);
     saveTimer = null;
@@ -457,6 +467,13 @@ function applyQuickExpenseSettings(enabled: boolean) {
   syncQuickExpenseSettings({ enabled, currency: currency.value });
 }
 
+async function finishInitialStateLoad(allowFullStateSave: boolean) {
+  // Initial assignments trigger the deep watcher; let it flush while autosave is still disabled.
+  await nextTick();
+  canPersistFullState.value = allowFullStateSave;
+  isHydrated.value = true;
+}
+
 function handleFloatingQuickExpense(event: Event) {
   const row = (event as CustomEvent<ExpenseRow>).detail;
   if (!row || row.type !== "expense" || !row.amount) return;
@@ -472,21 +489,35 @@ onMounted(async () => {
     const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
     if (draft) {
       try {
-        const saved = normalizeExpenseStoredState(JSON.parse(draft));
-        if (!saved) throw new Error("Invalid saved expense draft");
-        currency.value = saved.currency;
-        rangeMode.value = saved.rangeMode;
-        budget.value = saved.budget;
-        raw.value = saved.raw;
-        rows.value = saved.rows;
-        applyQuickExpenseSettings(saved.quickExpenseEnabled ?? false);
-        sessionStorage.removeItem("chlatwork-expense-login-draft");
+        const parsedDraft: unknown = JSON.parse(draft);
+        if (!hasCompleteExpenseStoredRows(parsedDraft)) {
+          throw new Error("Saved expense draft is missing rows");
+        }
+        const savedDraft = normalizeExpenseStoredState(parsedDraft);
+        if (!savedDraft) throw new Error("Invalid saved expense draft");
+
+        const accountResponse = await $fetch<unknown>("/api/expenses/state");
+        if (!hasCompleteExpenseStoredRows(accountResponse)) {
+          throw new Error("Expense state response is missing saved rows");
+        }
+        const accountState = normalizeExpenseStoredState(accountResponse);
+        const accountRows = accountState?.rows ?? [];
+
+        currency.value = savedDraft.currency;
+        rangeMode.value = savedDraft.rangeMode;
+        budget.value = savedDraft.budget;
+        raw.value = savedDraft.raw;
+        rows.value = [...accountRows, ...savedDraft.rows];
+        persistedRowCount.value = accountRows.length;
+        applyQuickExpenseSettings(savedDraft.quickExpenseEnabled ?? false);
         persistenceState.value = "saving";
-        isHydrated.value = true;
-        await saveExpenseState();
+        await finishInitialStateLoad(true);
+        if (await saveExpenseState()) {
+          sessionStorage.removeItem("chlatwork-expense-login-draft");
+        }
         return;
       } catch {
-        sessionStorage.removeItem("chlatwork-expense-login-draft");
+        // Keep the draft recoverable when account state cannot be loaded safely.
       }
     }
   }
@@ -494,33 +525,40 @@ onMounted(async () => {
   if (route.query.example === "1") {
     applyExpenseExample(route.query.c === "KHR" ? "KHR" : "USD");
     persistenceState.value = user.value ? "saved" : "guest";
-    isHydrated.value = true;
+    await finishInitialStateLoad(false);
     return;
   }
 
   if (!user.value) {
     persistenceState.value = "guest";
-    isHydrated.value = true;
+    await finishInitialStateLoad(false);
     return;
   }
 
+  let receivedCompleteState = false;
   try {
-    const saved = normalizeExpenseStoredState(
-      await $fetch<unknown>("/api/expenses/state"),
-    );
+    const response = await $fetch<unknown>("/api/expenses/state");
+    if (!hasCompleteExpenseStoredRows(response)) {
+      throw new Error("Expense state response is missing saved rows");
+    }
+    receivedCompleteState = true;
+    const saved = normalizeExpenseStoredState(response);
     if (saved) {
       currency.value = saved.currency;
       rangeMode.value = saved.rangeMode;
       budget.value = saved.budget;
       raw.value = saved.raw;
       rows.value = saved.rows;
+      persistedRowCount.value = saved.rows.length;
       applyQuickExpenseSettings(saved.quickExpenseEnabled ?? false);
+    } else {
+      persistedRowCount.value = 0;
     }
     persistenceState.value = "saved";
   } catch {
     persistenceState.value = "failed";
   } finally {
-    isHydrated.value = true;
+    await finishInitialStateLoad(receivedCompleteState);
   }
 });
 

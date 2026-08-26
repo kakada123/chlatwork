@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import {
   BudgetPeriod,
   ExpenseCurrency,
@@ -43,6 +43,12 @@ export class ExpensesService {
     const rows = dto.rows.map((row, position) => this.mapRow(userId, row, position));
     await this.prisma.$transaction(async (tx) => {
       await this.lockExpenseState(tx, userId);
+      if (dto.expectedRowCount !== undefined) {
+        const currentRowCount = await tx.expenseEntry.count({ where: { userId } });
+        if (currentRowCount !== dto.expectedRowCount) {
+          throw new ConflictException('Expense entries changed; reload before saving');
+        }
+      }
       await tx.expenseProfile.upsert({
         where: { userId },
         create: {

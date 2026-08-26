@@ -4,10 +4,12 @@ import {
   IsArray,
   IsBoolean,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -42,6 +44,11 @@ export class ExpenseRowDto {
 }
 
 export class SaveExpenseStateDto {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  expectedRowCount?: number;
+
   @IsIn(['USD', 'KHR'])
   currency!: 'USD' | 'KHR';
 

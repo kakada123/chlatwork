@@ -16,7 +16,11 @@ import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
-import { normalizeExpenseStoredState, type ExpenseStoredState } from "~/lib/expense-tracker";
+import {
+  hasCompleteExpenseStoredRows,
+  normalizeExpenseStoredState,
+  type ExpenseStoredState,
+} from "~/lib/expense-tracker";
 import { buildPaybackRawFromRows, buildPaybackSharePayload } from "~/lib/payback-calculator";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
@@ -112,6 +116,9 @@ async function loadExpenseState() {
   expenseLoadFailed.value = false;
   try {
     const response = await $fetch<unknown>("/api/expenses/state");
+    if (!hasCompleteExpenseStoredRows(response)) {
+      throw new Error("Expense state response is missing saved rows");
+    }
     expenseState.value = normalizeExpenseStoredState(response);
   } catch {
     expenseState.value = null;

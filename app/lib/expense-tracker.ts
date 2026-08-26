@@ -49,6 +49,18 @@ export type ExpenseStoredState = {
   rows: ExpenseRow[];
 };
 
+export function hasCompleteExpenseStoredRows(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+
+  return Boolean(
+    value
+      && typeof value === "object"
+      && Array.isArray((value as { rows?: unknown }).rows),
+  );
+}
+
 function normalizeStoredExpenseRow(value: unknown): ExpenseRow | null {
   if (!value || typeof value !== "object") {
     return null;
