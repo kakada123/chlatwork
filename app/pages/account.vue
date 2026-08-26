@@ -16,7 +16,7 @@ import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
-import type { ExpenseStoredState } from "~/lib/expense-tracker";
+import { normalizeExpenseStoredState, type ExpenseStoredState } from "~/lib/expense-tracker";
 import { buildPaybackRawFromRows, buildPaybackSharePayload } from "~/lib/payback-calculator";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
@@ -54,7 +54,7 @@ const {
 });
 const moments = computed(() => momentData.value ?? []);
 const savedExpenseCount = computed(() =>
-  expenseState.value?.rows.filter((row) => (row.type ?? "expense") === "expense").length ?? 0,
+  (expenseState.value?.rows ?? []).filter((row) => (row.type ?? "expense") === "expense").length,
 );
 
 const favoriteTools = computed(() => favoriteToolKeys.value
@@ -111,7 +111,8 @@ async function loadExpenseState() {
   expenseLoading.value = true;
   expenseLoadFailed.value = false;
   try {
-    expenseState.value = await $fetch<ExpenseStoredState | null>("/api/expenses/state");
+    const response = await $fetch<unknown>("/api/expenses/state");
+    expenseState.value = normalizeExpenseStoredState(response);
   } catch {
     expenseState.value = null;
     expenseLoadFailed.value = true;

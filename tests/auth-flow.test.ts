@@ -32,7 +32,7 @@ test("auth-dependent expense UI waits for client session readiness before render
   const expensePage = readFileSync("app/pages/tools/expense-tracker.vue", "utf8");
 
   assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
-  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser"/);
+  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
   assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
   assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);
 });

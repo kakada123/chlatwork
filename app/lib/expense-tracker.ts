@@ -49,6 +49,54 @@ export type ExpenseStoredState = {
   rows: ExpenseRow[];
 };
 
+function normalizeStoredExpenseRow(value: unknown): ExpenseRow | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const row = value as Partial<ExpenseRow>;
+  return {
+    type: row.type === "income" ? "income" : "expense",
+    date: typeof row.date === "string" ? row.date : "",
+    category: typeof row.category === "string" ? row.category : "",
+    customCategory: typeof row.customCategory === "string" ? row.customCategory : undefined,
+    note: typeof row.note === "string" ? row.note : "",
+    showNote: row.showNote === true,
+    amount: typeof row.amount === "string" ? row.amount : "",
+  };
+}
+
+export function normalizeExpenseStoredState(value: unknown): ExpenseStoredState | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const state = value as Partial<ExpenseStoredState>;
+  const budget = state.budget && typeof state.budget === "object"
+    ? state.budget as Partial<Budget>
+    : {};
+  const rangeMode: ExpenseRangeMode = ["all", "month", "week", "today"].includes(
+    state.rangeMode ?? "",
+  )
+    ? state.rangeMode as ExpenseRangeMode
+    : "month";
+
+  // Deployments can briefly pair new UI with older account payloads, so normalize at the client boundary.
+  return {
+    currency: state.currency === "KHR" ? "KHR" : "USD",
+    rangeMode,
+    budget: {
+      period: budget.period === "weekly" ? "weekly" : "monthly",
+      amount: typeof budget.amount === "string" ? budget.amount : "",
+    },
+    raw: typeof state.raw === "string" ? state.raw : "",
+    quickExpenseEnabled: state.quickExpenseEnabled === true,
+    rows: Array.isArray(state.rows)
+      ? state.rows.map(normalizeStoredExpenseRow).filter((row): row is ExpenseRow => row !== null)
+      : [],
+  };
+}
+
 export type Breakdown = {
   category: string;
   total: number;

@@ -133,7 +133,6 @@ import type {
   ExpenseCurrency,
   ExpenseRangeMode,
   ExpenseRow,
-  ExpenseStoredState,
 } from "~/lib/expense-tracker";
 import {
   EXPENSE_SAVE_MOTIVATION,
@@ -154,6 +153,7 @@ import {
   getTopExpenseItems,
   getTotalIncome,
   getTotalSpent,
+  normalizeExpenseStoredState,
   parseExpenseRaw,
 } from "~/lib/expense-tracker";
 
@@ -472,7 +472,8 @@ onMounted(async () => {
     const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
     if (draft) {
       try {
-        const saved = JSON.parse(draft) as ExpenseStoredState;
+        const saved = normalizeExpenseStoredState(JSON.parse(draft));
+        if (!saved) throw new Error("Invalid saved expense draft");
         currency.value = saved.currency;
         rangeMode.value = saved.rangeMode;
         budget.value = saved.budget;
@@ -504,7 +505,9 @@ onMounted(async () => {
   }
 
   try {
-    const saved = await $fetch<ExpenseStoredState | null>("/api/expenses/state");
+    const saved = normalizeExpenseStoredState(
+      await $fetch<unknown>("/api/expenses/state"),
+    );
     if (saved) {
       currency.value = saved.currency;
       rangeMode.value = saved.rangeMode;

@@ -17,6 +17,7 @@ import {
   getNetBalance,
   getTotalIncome,
   getTotalSpent,
+  normalizeExpenseStoredState,
   parseExpenseSharePayload,
   parseExpenseAmount,
   parseExpenseAmountToCents,
@@ -50,6 +51,19 @@ test("amount parser rejects non-positive, invalid, infinite, and unsupported val
 
   assert.equal(parseExpenseAmountToCents("0.01"), 1n);
   assert.equal(parseExpenseAmount("1.005"), 1.01);
+});
+
+test("legacy expense state without rows normalizes before rendering", () => {
+  assert.deepEqual(normalizeExpenseStoredState({ currency: "USD" }), {
+    currency: "USD",
+    rangeMode: "month",
+    budget: { period: "monthly", amount: "" },
+    raw: "",
+    quickExpenseEnabled: false,
+    rows: [],
+  });
+
+  assert.equal(normalizeExpenseStoredState(null), null);
 });
 
 test("totals use decimal-safe cents instead of raw floating point addition", () => {
