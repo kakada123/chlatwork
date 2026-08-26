@@ -11,6 +11,7 @@ import type { AccessTokenPayload } from './types';
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const TELEGRAM_JWKS = createRemoteJWKSet(new URL('https://oauth.telegram.org/.well-known/jwks.json'));
 const REFRESH_TOKEN_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+const REFRESH_TOKEN_ROTATION_GRACE_MS = 10_000;
 
 interface ProviderProfile {
   provider: AuthProvider;
@@ -86,28 +87,37 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const tokenHash = this.hashToken(refreshToken);
+    const now = new Date();
     const stored = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
       include: { user: true },
     });
-    if (!stored || stored.revokedAt || stored.expiresAt <= new Date() || !stored.user.isActive) {
+    const rotationGraceStartedAt = new Date(now.getTime() - REFRESH_TOKEN_ROTATION_GRACE_MS);
+    if (
+      !stored
+      || stored.expiresAt <= now
+      || !stored.user.isActive
+      || (stored.revokedAt && stored.revokedAt < rotationGraceStartedAt)
+    ) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    // Atomic revocation prevents concurrent requests from reusing the same refresh token.
-    const revoked = await this.prisma.refreshToken.updateMany({
-      where: { id: stored.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-    if (revoked.count !== 1) throw new UnauthorizedException('Invalid refresh token');
+    if (!stored.revokedAt) {
+      // A short overlap lets parallel browser requests finish the same rotation without ending the session.
+      await this.prisma.refreshToken.updateMany({
+        where: { id: stored.id, revokedAt: null },
+        data: { revokedAt: now },
+      });
+    }
+
     return this.issueTokens(stored.user);
   }
 
   async logout(refreshToken?: string) {
     if (refreshToken) {
-      await this.prisma.refreshToken.updateMany({
-        where: { tokenHash: this.hashToken(refreshToken), revokedAt: null },
-        data: { revokedAt: new Date() },
+      // Deletion distinguishes an explicit logout from rotation, which has a brief concurrency grace period.
+      await this.prisma.refreshToken.deleteMany({
+        where: { tokenHash: this.hashToken(refreshToken) },
       });
     }
     return { message: 'Logged out successfully' };
