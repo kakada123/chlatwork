@@ -2326,17 +2326,17 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     whyUse: [
       "It makes the draw visible instead of hidden in a spreadsheet.",
       "It is easy for audiences to understand during a live event.",
-      "It supports quick participant entry and winner selection.",
+      "It supports pasted participant lists, duplicate cleanup, and winner selection without repeats.",
       "It works for small shops, schools, teams, and social campaigns.",
-      "It gives a cleaner experience than manually picking names from chat.",
+      "It keeps a winner history that is easy to review or copy after each spin.",
     ],
     steps: [
       "Open the Lucky Draw tool.",
       "Add participant names one by one or paste a list.",
       "Review the list to remove duplicates or typing mistakes.",
-      "Choose the draw settings that match your event.",
+      "Choose whether winners can repeat and select the spin speed for your event.",
       "Start the draw and let the wheel select a winner.",
-      "Record or share the winner result with the audience or team.",
+      "Review the winner history or copy a winner name for your announcement.",
     ],
     useCases: [
       "A Cambodia shop runs a Facebook giveaway for customers who commented on a post.",
@@ -2352,8 +2352,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "An online seller runs a live giveaway and needs visible, fair winner selection to avoid complaints.",
         steps: [
           "Import participant names from the final comment list.",
-          "Remove duplicate entries according to campaign rules.",
-          "Spin the wheel live and capture winner screenshot for proof post.",
+          "Use the duplicate warning to apply the campaign entry rules.",
+          "Enable no-repeat winners, spin live, and keep the winner history for the proof post.",
         ],
         result:
           "Audience trust improves because winner selection is visibly random and documented.",
@@ -2364,8 +2364,8 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
           "A teacher wants to choose presenters fairly from a full class roster.",
         steps: [
           "Add all student names once at session start.",
-          "Run one draw per activity round.",
-          "Record winners and remove selected names when repeats are not allowed.",
+          "Keep no-repeat winners enabled and run one draw per activity round.",
+          "Use the on-page winner history to review who has already presented.",
         ],
         result:
           "Class participation feels fairer, and quieter students get equal selection chance.",
@@ -2375,7 +2375,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       "Clean the participant list before starting the draw.",
       "Remove duplicate names unless your rules allow multiple entries.",
       "Announce the rules before spinning.",
-      "Keep a screenshot or copy of the winner list for transparency.",
+      "Keep the visible winner history or copy winner names for transparency.",
       "Test the draw before going live in front of customers.",
     ],
     privacy: [
@@ -2402,7 +2402,7 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
       {
         question: "Can I share the draw result?",
         answer:
-          "Yes. You can record the winner result or share the page state where supported by the tool.",
+          "You can copy each winner name or record the visible winner history. The Share link copies the participant setup, not the completed result.",
       },
       {
         question: "Is the Lucky Draw free?",
