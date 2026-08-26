@@ -226,6 +226,8 @@ function getPhotoPreparationError(error: unknown) {
     "This photo could not be compressed.": errorCopy.photoCompress,
     "This iPhone photo could not be converted. Try sharing it as JPEG.":
       errorCopy.photoHeic,
+    "This browser cannot encode WebP photos. Update the browser and try again.":
+      errorCopy.photoWebp,
   };
   return translations[error.message] ?? errorCopy.photoFailed;
 }

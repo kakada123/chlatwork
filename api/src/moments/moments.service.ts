@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { basename } from 'node:path';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 import {
   InvitationRecipientType,
   MomentBlockType,
@@ -102,13 +103,23 @@ export class MomentsService {
       }
     }
     const pollQuestion = dto.pollQuestion?.trim() ?? '';
-    const pollOptions = [...new Set((dto.pollOptions ?? []).map((option) => option.trim()).filter(Boolean))];
+    const pollOptions = [
+      ...new Set(
+        (dto.pollOptions ?? []).map((option) => option.trim()).filter(Boolean),
+      ),
+    ];
     if (isVoting && (!pollQuestion || pollOptions.length < 2)) {
-      throw new BadRequestException('Voting Moments require a question and at least two unique options');
+      throw new BadRequestException(
+        'Voting Moments require a question and at least two unique options',
+      );
     }
 
     const slug = await this.createUniqueSlug(recipientName);
-    const blocks: Array<{ type: MomentBlockType; position: number; data: Record<string, unknown> }> = [];
+    const blocks: Array<{
+      type: MomentBlockType;
+      position: number;
+      data: Record<string, unknown>;
+    }> = [];
     const addBlock = (type: MomentBlockType, data: Record<string, unknown>) =>
       blocks.push({ type, position: blocks.length, data });
     addBlock(MomentBlockType.HERO, { title });
@@ -120,9 +131,15 @@ export class MomentsService {
         dressCode: dto.dressCode?.trim() ?? '',
         hostName,
       });
-      addBlock(MomentBlockType.LOCATION, { venueName, address: eventAddress, mapUrl });
+      addBlock(MomentBlockType.LOCATION, {
+        venueName,
+        address: eventAddress,
+        mapUrl,
+      });
       if (dto.eventSchedule?.trim()) {
-        addBlock(MomentBlockType.SCHEDULE, { schedule: dto.eventSchedule.trim() });
+        addBlock(MomentBlockType.SCHEDULE, {
+          schedule: dto.eventSchedule.trim(),
+        });
       }
       addBlock(MomentBlockType.RSVP, {});
     }
@@ -130,11 +147,15 @@ export class MomentsService {
       addBlock(MomentBlockType.POLL, {
         question: pollQuestion,
         identityMode: dto.pollIdentityMode ?? 'ANONYMOUS',
-        options: pollOptions.map((label, index) => ({ id: `option-${index + 1}`, label })),
+        options: pollOptions.map((label, index) => ({
+          id: `option-${index + 1}`,
+          label,
+        })),
       });
     }
     addBlock(MomentBlockType.GALLERY, {});
-    if (dto.specialDate) addBlock(MomentBlockType.COUNTER, { date: dto.specialDate });
+    if (dto.specialDate)
+      addBlock(MomentBlockType.COUNTER, { date: dto.specialDate });
     addBlock(MomentBlockType.SECRET, { message: secretMessage });
 
     const moment = await this.prisma.moment.create({
@@ -162,7 +183,9 @@ export class MomentsService {
   async addMedia(userId: string, momentId: string, file?: MomentUpload) {
     if (!file) throw new BadRequestException('Choose an image to upload');
     if (file.size > MAX_MOMENT_IMAGE_BYTES) {
-      throw new BadRequestException('Each Moment image must be 10MB or smaller');
+      throw new BadRequestException(
+        'Each Moment image must be 10MB or smaller',
+      );
     }
 
     const mimeType = detectImageMime(file.buffer);
@@ -171,7 +194,6 @@ export class MomentsService {
         'Only valid JPEG, PNG, and WebP images are accepted',
       );
     }
-
     const moment = await this.prisma.moment.findUnique({
       where: { id: momentId },
       select: {
@@ -192,20 +214,22 @@ export class MomentsService {
     if (moment._count.media >= MAX_MEDIA) {
       throw new ConflictException('A Moment can contain up to 10 photos');
     }
+    const normalized = await normalizeMomentImage(file.buffer, mimeType);
 
-    const originalName =
+    const originalBaseName =
       basename(file.originalname)
         .replace(/[\u0000-\u001f\u007f]/g, '')
-        .slice(0, 180) || `photo-${moment._count.media + 1}.webp`;
+        .replace(/\.[^.]+$/, '')
+        .slice(0, 175) || `photo-${moment._count.media + 1}`;
 
     return this.prisma.momentMedia.create({
       data: {
         momentId,
         position: moment._count.media,
-        mimeType,
-        byteSize: file.size,
-        originalName,
-        content: Uint8Array.from(file.buffer),
+        mimeType: 'image/webp',
+        byteSize: normalized.length,
+        originalName: `${originalBaseName}.webp`,
+        content: Uint8Array.from(normalized),
       },
       select: { id: true, position: true },
     });
@@ -270,11 +294,24 @@ export class MomentsService {
       moments.map(async (moment) => {
         const { blocks, ...summary } = moment;
         if (moment.occasion === MomentOccasion.VOTING) {
-          const poll = blocks[0]?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label: string }> } | undefined;
+          const poll = blocks[0]?.data as
+            | {
+                identityMode?: string;
+                requireName?: boolean;
+                options?: Array<{ id: string; label: string }>;
+              }
+            | undefined;
           return {
             ...summary,
             ...(poll?.options
-              ? { pollSummary: await this.getPollSummary(moment.id, poll.options, poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS')) }
+              ? {
+                  pollSummary: await this.getPollSummary(
+                    moment.id,
+                    poll.options,
+                    poll.identityMode ??
+                      (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS'),
+                  ),
+                }
               : {}),
           };
         }
@@ -288,12 +325,21 @@ export class MomentsService {
         return {
           ...summary,
           rsvpSummary: {
-            yes: groups.find((group) => group.choice === MomentRsvpChoice.YES)?._count._all ?? 0,
-            maybe: groups.find((group) => group.choice === MomentRsvpChoice.MAYBE)?._count._all ?? 0,
-            no: groups.find((group) => group.choice === MomentRsvpChoice.NO)?._count._all ?? 0,
+            yes:
+              groups.find((group) => group.choice === MomentRsvpChoice.YES)
+                ?._count._all ?? 0,
+            maybe:
+              groups.find((group) => group.choice === MomentRsvpChoice.MAYBE)
+                ?._count._all ?? 0,
+            no:
+              groups.find((group) => group.choice === MomentRsvpChoice.NO)
+                ?._count._all ?? 0,
             guests: groups
               .filter((group) => group.choice !== MomentRsvpChoice.NO)
-              .reduce((total, group) => total + (group._sum.guestCount ?? 0), 0),
+              .reduce(
+                (total, group) => total + (group._sum.guestCount ?? 0),
+                0,
+              ),
           },
         };
       }),
@@ -307,36 +353,60 @@ export class MomentsService {
   ) {
     const moment = await this.prisma.moment.findFirst({
       where: { id: momentId, creatorId: userId },
-      select: { id: true, occasion: true, _count: { select: { invitationGuests: true } } },
+      select: {
+        id: true,
+        occasion: true,
+        _count: { select: { invitationGuests: true } },
+      },
     });
     if (!moment) throw new NotFoundException('Moment not found');
     if (moment.occasion !== MomentOccasion.INVITATION) {
-      throw new BadRequestException('Guest lists are available only for invitations');
+      throw new BadRequestException(
+        'Guest lists are available only for invitations',
+      );
     }
-    const names = [...new Set(dto.names.map((name) => name.trim()).filter(Boolean))];
-    if (!names.length) throw new BadRequestException('Add at least one guest name');
+    const names = [
+      ...new Set(dto.names.map((name) => name.trim()).filter(Boolean)),
+    ];
+    if (!names.length)
+      throw new BadRequestException('Add at least one guest name');
     if (moment._count.invitationGuests + names.length > MAX_INVITATION_GUESTS) {
-      throw new ConflictException(`An invitation can contain up to ${MAX_INVITATION_GUESTS} guests`);
+      throw new ConflictException(
+        `An invitation can contain up to ${MAX_INVITATION_GUESTS} guests`,
+      );
     }
     const recipientType = dto.recipientType as InvitationRecipientType;
     return this.prisma.$transaction(
-      names.map((displayName) => this.prisma.momentInvitationGuest.create({
-        data: {
-          momentId,
-          displayName,
-          recipientType,
-          maxGuests: dto.maxGuests,
-          // Opaque tokens keep guest names and database IDs out of shared URLs.
-          token: randomBytes(18).toString('base64url'),
-        },
-        select: { id: true, token: true, displayName: true, recipientType: true, maxGuests: true, sentAt: true },
-      })),
+      names.map((displayName) =>
+        this.prisma.momentInvitationGuest.create({
+          data: {
+            momentId,
+            displayName,
+            recipientType,
+            maxGuests: dto.maxGuests,
+            // Opaque tokens keep guest names and database IDs out of shared URLs.
+            token: randomBytes(18).toString('base64url'),
+          },
+          select: {
+            id: true,
+            token: true,
+            displayName: true,
+            recipientType: true,
+            maxGuests: true,
+            sentAt: true,
+          },
+        }),
+      ),
     );
   }
 
   async listInvitationGuests(userId: string, momentId: string) {
     const moment = await this.prisma.moment.findFirst({
-      where: { id: momentId, creatorId: userId, occasion: MomentOccasion.INVITATION },
+      where: {
+        id: momentId,
+        creatorId: userId,
+        occasion: MomentOccasion.INVITATION,
+      },
       select: { id: true },
     });
     if (!moment) throw new NotFoundException('Invitation not found');
@@ -350,24 +420,42 @@ export class MomentsService {
         recipientType: true,
         maxGuests: true,
         sentAt: true,
-        rsvp: { select: { choice: true, guestCount: true, note: true, updatedAt: true } },
+        rsvp: {
+          select: {
+            choice: true,
+            guestCount: true,
+            note: true,
+            updatedAt: true,
+          },
+        },
       },
     });
   }
 
-  async markInvitationGuestSent(userId: string, momentId: string, guestId: string) {
+  async markInvitationGuestSent(
+    userId: string,
+    momentId: string,
+    guestId: string,
+  ) {
     const result = await this.prisma.momentInvitationGuest.updateMany({
       where: { id: guestId, momentId, moment: { creatorId: userId } },
       data: { sentAt: new Date() },
     });
-    if (!result.count) throw new NotFoundException('Invitation guest not found');
+    if (!result.count)
+      throw new NotFoundException('Invitation guest not found');
     return { sent: true };
   }
 
   async getPersonalInvitation(token: string) {
     const guest = await this.prisma.momentInvitationGuest.findUnique({
       where: { token },
-      select: { token: true, displayName: true, recipientType: true, maxGuests: true, moment: { select: { slug: true } } },
+      select: {
+        token: true,
+        displayName: true,
+        recipientType: true,
+        maxGuests: true,
+        moment: { select: { slug: true } },
+      },
     });
     if (!guest) throw new NotFoundException('Invitation not found');
     const moment = await this.getPublic(guest.moment.slug);
@@ -405,10 +493,14 @@ export class MomentsService {
     const choice = dto.choice as MomentRsvpChoice;
     const guestCount = choice === MomentRsvpChoice.NO ? 0 : dto.guestCount;
     if (choice !== MomentRsvpChoice.NO && guestCount < 1) {
-      throw new BadRequestException('Attending guests must include at least one person');
+      throw new BadRequestException(
+        'Attending guests must include at least one person',
+      );
     }
     if (personalizedGuest && guestCount > personalizedGuest.maxGuests) {
-      throw new BadRequestException(`This invitation allows up to ${personalizedGuest.maxGuests} guests`);
+      throw new BadRequestException(
+        `This invitation allows up to ${personalizedGuest.maxGuests} guests`,
+      );
     }
     const where: Prisma.MomentRsvpWhereUniqueInput = personalizedGuest
       ? { guestId: personalizedGuest.id }
@@ -420,13 +512,15 @@ export class MomentsService {
         responseKey,
         guestId: personalizedGuest?.id,
         choice,
-        guestName: personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
+        guestName:
+          personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
         guestCount,
         note: dto.note?.trim() || null,
       },
       update: {
         choice,
-        guestName: personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
+        guestName:
+          personalizedGuest?.displayName ?? (dto.guestName?.trim() || null),
         guestCount,
         note: dto.note?.trim() || null,
       },
@@ -435,18 +529,30 @@ export class MomentsService {
     return response;
   }
 
-  async respondToVote(slug: string, dto: RespondMomentVoteDto, user: CurrentUser | null) {
+  async respondToVote(
+    slug: string,
+    dto: RespondMomentVoteDto,
+    user: CurrentUser | null,
+  ) {
     const moment = await this.prisma.moment.findUnique({
       where: { slug },
       include: { blocks: { where: { type: MomentBlockType.POLL } } },
     });
     this.assertPublic(moment);
-    if (moment.occasion !== MomentOccasion.VOTING) throw new NotFoundException('Poll not found');
-    const poll = moment.blocks[0]?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label?: string }> } | undefined;
+    if (moment.occasion !== MomentOccasion.VOTING)
+      throw new NotFoundException('Poll not found');
+    const poll = moment.blocks[0]?.data as
+      | {
+          identityMode?: string;
+          requireName?: boolean;
+          options?: Array<{ id: string; label?: string }>;
+        }
+      | undefined;
     if (!poll?.options?.some((option) => option.id === dto.optionId)) {
       throw new BadRequestException('Choose a valid poll option');
     }
-    const identityMode = poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS');
+    const identityMode =
+      poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS');
     if (identityMode === 'LOGIN_REQUIRED' && !user) {
       throw new UnauthorizedException('Log in to vote in this poll');
     }
@@ -458,16 +564,30 @@ export class MomentsService {
       throw new BadRequestException('Your name is required for this vote');
     }
     if (identityMode === 'LOGIN_REQUIRED') {
-      const account = await this.prisma.user.findUnique({ where: { id: user!.id }, select: { name: true } });
+      const account = await this.prisma.user.findUnique({
+        where: { id: user!.id },
+        select: { name: true },
+      });
       voterName = account?.name?.trim() || 'ChlatWork member';
     }
-    const identityKey = identityMode === 'LOGIN_REQUIRED' ? `account:${user!.id}` : dto.responseToken!;
+    const identityKey =
+      identityMode === 'LOGIN_REQUIRED'
+        ? `account:${user!.id}`
+        : dto.responseToken!;
     const responseKey = createHash('sha256').update(identityKey).digest('hex');
     await this.prisma.momentVote.upsert({
       where: { momentId_responseKey: { momentId: moment.id, responseKey } },
       // The stable identity key updates an existing choice without increasing participation.
-      create: { momentId: moment.id, responseKey, optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
-      update: { optionId: dto.optionId, voterName: identityMode === 'ANONYMOUS' ? null : voterName },
+      create: {
+        momentId: moment.id,
+        responseKey,
+        optionId: dto.optionId,
+        voterName: identityMode === 'ANONYMOUS' ? null : voterName,
+      },
+      update: {
+        optionId: dto.optionId,
+        voterName: identityMode === 'ANONYMOUS' ? null : voterName,
+      },
     });
     return this.getPollSummary(moment.id, poll.options, identityMode);
   }
@@ -502,8 +622,16 @@ export class MomentsService {
       };
     }
 
-    const pollBlock = moment.blocks.find((block) => block.type === MomentBlockType.POLL);
-    const pollData = pollBlock?.data as { identityMode?: string; requireName?: boolean; options?: Array<{ id: string; label: string }> } | undefined;
+    const pollBlock = moment.blocks.find(
+      (block) => block.type === MomentBlockType.POLL,
+    );
+    const pollData = pollBlock?.data as
+      | {
+          identityMode?: string;
+          requireName?: boolean;
+          options?: Array<{ id: string; label: string }>;
+        }
+      | undefined;
     return {
       status: 'ready' as const,
       slug: moment.slug,
@@ -523,33 +651,54 @@ export class MomentsService {
         url: `/api/moments/${moment.slug}/media/${media.id}`,
       })),
       ...(pollData?.options
-        ? { pollSummary: await this.getPollSummary(moment.id, pollData.options, pollData.identityMode ?? (pollData.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS')) }
+        ? {
+            pollSummary: await this.getPollSummary(
+              moment.id,
+              pollData.options,
+              pollData.identityMode ??
+                (pollData.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS'),
+            ),
+          }
         : {}),
     };
   }
 
-  private async getPollSummary(momentId: string, options: Array<{ id: string; label?: string }>, identityMode: string) {
+  private async getPollSummary(
+    momentId: string,
+    options: Array<{ id: string; label?: string }>,
+    identityMode: string,
+  ) {
     const groups = await this.prisma.momentVote.groupBy({
       by: ['optionId'],
       where: { momentId },
       _count: { _all: true },
     });
-    const namedVotes = identityMode !== 'ANONYMOUS'
-      ? await this.prisma.momentVote.findMany({
-          where: { momentId },
-          orderBy: { updatedAt: 'asc' },
-          select: { optionId: true, voterName: true },
-        })
-      : [];
+    const namedVotes =
+      identityMode !== 'ANONYMOUS'
+        ? await this.prisma.momentVote.findMany({
+            where: { momentId },
+            orderBy: { updatedAt: 'asc' },
+            select: { optionId: true, voterName: true },
+          })
+        : [];
     const results = options.map((option) => ({
       optionId: option.id,
       label: option.label ?? '',
-      votes: groups.find((group) => group.optionId === option.id)?._count._all ?? 0,
+      votes:
+        groups.find((group) => group.optionId === option.id)?._count._all ?? 0,
       ...(identityMode !== 'ANONYMOUS'
-        ? { voters: namedVotes.filter((vote) => vote.optionId === option.id).flatMap((vote) => vote.voterName ? [vote.voterName] : []) }
+        ? {
+            voters: namedVotes
+              .filter((vote) => vote.optionId === option.id)
+              .flatMap((vote) => (vote.voterName ? [vote.voterName] : [])),
+          }
         : {}),
     }));
-    return { totalVotes: results.reduce((total, result) => total + result.votes, 0), identityMode, results };
+    return {
+      totalVotes: results.reduce((total, result) => total + result.votes, 0),
+      identityMode,
+      results,
+    };
   }
 
   async getPublicMedia(slug: string, mediaId: string) {
@@ -607,6 +756,34 @@ export class MomentsService {
     throw new ConflictException(
       'Could not create a unique Moment link. Please try again',
     );
+  }
+}
+
+async function normalizeMomentImage(buffer: Buffer, mimeType: string) {
+  if (mimeType === 'image/webp') return buffer;
+
+  try {
+    const image = await loadImage(buffer);
+    if (image.width * image.height > 40_000_000) {
+      throw new BadRequestException(
+        'Moment photos cannot exceed 40 megapixels',
+      );
+    }
+    const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = createCanvas(width, height);
+    canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+    const converted = await canvas.encode('webp', 82);
+    if (converted.length > MAX_MOMENT_IMAGE_BYTES) {
+      throw new BadRequestException(
+        'Each Moment image must be 10MB or smaller after conversion',
+      );
+    }
+    return converted;
+  } catch (error) {
+    if (error instanceof BadRequestException) throw error;
+    throw new BadRequestException('This image could not be converted to WebP');
   }
 }
 

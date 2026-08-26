@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { MOMENT_COPY, getMomentDefaultStory } from "../app/data/moment-locales.ts";
+import {
+  MOMENT_COPY,
+  getMomentDefaultStory,
+} from "../app/data/moment-locales.ts";
 import {
   buildMomentTitle,
   buildPreviewMoment,
@@ -114,7 +117,10 @@ test("invitation Moments use only the event date", () => {
     invitationPreview.blocks.filter((block) => block.type === "COUNTER").length,
     0,
   );
-  assert.match(creator, /v-if="!\['INVITATION', 'VOTING'\]\.includes\(draft\.occasion\)"/);
+  assert.match(
+    creator,
+    /v-if="!\['INVITATION', 'VOTING'\]\.includes\(draft\.occasion\)"/,
+  );
 });
 
 test("voting Moments render a poll and allow photo-free publishing", () => {
@@ -138,10 +144,18 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
     MOMENT_COPY.en.creator.errors.pollOptions,
   );
   const creator = readProjectFile("app/components/moments/MomentCreator.vue");
-  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
-  assert.match(creator, /draft\.occasion === "VOTING" && step\.value === 1\s*\? 3/);
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
+  assert.match(
+    creator,
+    /draft\.occasion === "VOTING" && step\.value === 1\s*\? 3/,
+  );
   assert.match(experience, /v-if="photos\.length && !isVoting"/);
-  assert.match(experience, /v-else-if="!isVoting"\s+class="moment-section secret-section"/);
+  assert.match(
+    experience,
+    /v-else-if="!isVoting"\s+class="moment-section secret-section"/,
+  );
   assert.match(experience, /<header v-if="!isVoting" class="moment-hero">/);
   assert.match(experience, /pollRequiresName/);
   assert.match(experience, /_selection/);
@@ -149,14 +163,24 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(creator, /value="LOGIN_REQUIRED"/);
   assert.match(experience, /showVoteLogin/);
   assert.match(experience, /:disabled="preview"/);
-  assert.match(experience, /<form class="poll-form" :class="\{ 'is-preview': preview \}"/);
+  assert.match(
+    experience,
+    /<form class="poll-form" :class="\{ 'is-preview': preview \}"/,
+  );
   const voteService = readProjectFile("api/src/moments/moments.service.ts");
-  const voteController = readProjectFile("api/src/moments/moments.controller.ts");
+  const voteController = readProjectFile(
+    "api/src/moments/moments.controller.ts",
+  );
   const voteProxy = readProjectFile("server/api/moments/[id]/vote.post.ts");
-  const voteResults = readProjectFile("app/components/moments/MomentVotingResults.vue");
+  const voteResults = readProjectFile(
+    "app/components/moments/MomentVotingResults.vue",
+  );
   const managerPage = readProjectFile("app/pages/moments/index.vue");
   assert.match(voteService, /`account:\$\{user!\.id\}`/);
-  assert.match(voteService, /UnauthorizedException\('Log in to vote in this poll'\)/);
+  assert.match(
+    voteService,
+    /UnauthorizedException\('Log in to vote in this poll'\)/,
+  );
   assert.match(voteService, /momentVote\.upsert/);
   assert.match(voteService, /momentId_responseKey/);
   assert.match(voteController, /OptionalJwtAuthGuard/);
@@ -181,8 +205,14 @@ test("published Moment surfaces are unlisted and validate image content", () => 
   assert.match(imagePreparation, /"image\/heic"/);
   assert.match(imagePreparation, /"image\/heif"/);
   assert.match(imagePreparation, /import\("heic2any"\)/);
-  assert.match(imagePreparation, /Preserve the actual bytes and MIME type/);
-  assert.match(imagePreparation, /new File\(\[blob\], `\$\{base\}\.\$\{extension\}`, \{ type: outputType \}\)/);
+  assert.match(
+    imagePreparation,
+    /let the API normalize it to WebP before storage/,
+  );
+  assert.match(imagePreparation, /blob\.type === "image\/webp"/);
+  assert.match(imagePreparation, /blob\.type === "image\/png"/);
+  assert.match(service, /normalizeMomentImage\(file\.buffer, mimeType\)/);
+  assert.match(service, /canvas\.encode\('webp', 82\)/);
   assert.match(service, /MAX_ACTIVE_MOMENTS = 3/);
   assert.match(service, /randomBytes\(8\)/);
   assert.match(service, /where: \{ id: momentId, creatorId: userId \}/);
@@ -221,13 +251,14 @@ test("Moment creator keeps dark interaction states readable", () => {
   assert.match(creator, /html\.dark \.moments-creator \.success-copy/);
   assert.match(creator, /html\.dark \.moments-creator \.preview-link:hover/);
   assert.match(creator, /fetchError\.response\?\._data\?\.message/);
-  assert.doesNotMatch(creator, /if \(locale\.value === "km"\) return creatorCopy\.value\.errors\.publishFailed/);
+  assert.doesNotMatch(
+    creator,
+    /if \(locale\.value === "km"\) return creatorCopy\.value\.errors\.publishFailed/,
+  );
 });
 
 test("Khmer Moment headings use Khmer typography and spacing", () => {
-  const creator = readProjectFile(
-    "app/components/moments/MomentCreator.vue",
-  );
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
 
   assert.match(
     creator,
@@ -261,9 +292,7 @@ test("Khmer Moment detail applies Hanuman to nested text", () => {
 test("profile lists account-owned Moments with the shared summary card", () => {
   const profile = readProjectFile("app/pages/account.vue");
   const manager = readProjectFile("app/pages/moments/index.vue");
-  const card = readProjectFile(
-    "app/components/moments/MomentSummaryCard.vue",
-  );
+  const card = readProjectFile("app/components/moments/MomentSummaryCard.vue");
   const types = readProjectFile("app/types/moment.ts");
 
   assert.match(profile, /useFetch<MomentSummary\[]>\("\/api\/moments\/mine"/);
@@ -303,9 +332,13 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   const service = readProjectFile("api/src/moments/moments.service.ts");
   const controller = readProjectFile("api/src/moments/moments.controller.ts");
   const creator = readProjectFile("app/components/moments/MomentCreator.vue");
-  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
   const proxy = readProjectFile("server/api/moments/[id]/rsvp.post.ts");
-  const sql = readProjectFile("database/updates/2026-08-25-add-moment-invitations.sql");
+  const sql = readProjectFile(
+    "database/updates/2026-08-25-add-moment-invitations.sql",
+  );
 
   assert.match(schema, /INVITATION/);
   assert.match(schema, /model MomentRsvp/);
@@ -326,7 +359,10 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   assert.match(experience, /experienceCopy\.invitationGalleryTitle/);
   assert.match(experience, /v-if="isInvitation"[\s\S]*?invitationNoteTitle/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_rsvps"/);
-  assert.match(creator, /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/);
+  assert.match(
+    creator,
+    /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/,
+  );
   const locales = readProjectFile("app/data/moment-locales.ts");
   assert.match(locales, /INVITATION: \{ message: "យើងខ្ញុំមានសេចក្តីរីករាយ/);
   assert.match(locales, /INVITATION: \{ message: "We would be delighted/);
@@ -336,9 +372,13 @@ test("personalized invitation guest links keep names private and connect RSVP id
   const schema = readProjectFile("api/prisma/schema.prisma");
   const service = readProjectFile("api/src/moments/moments.service.ts");
   const controller = readProjectFile("api/src/moments/moments.controller.ts");
-  const manager = readProjectFile("app/components/moments/MomentInvitationGuests.vue");
+  const manager = readProjectFile(
+    "app/components/moments/MomentInvitationGuests.vue",
+  );
   const personalPage = readProjectFile("app/pages/i/[token].vue");
-  const sql = readProjectFile("database/updates/2026-08-25-add-personalized-invitation-guests.sql");
+  const sql = readProjectFile(
+    "database/updates/2026-08-25-add-personalized-invitation-guests.sql",
+  );
 
   assert.match(schema, /model MomentInvitationGuest/);
   assert.match(schema, /token\s+String\s+@unique/);
@@ -354,9 +394,17 @@ test("personalized invitation guest links keep names private and connect RSVP id
   assert.match(manager, /:global\(html\.dark \.guest-manager\)/);
   assert.doesNotMatch(manager, /:global\(html\.dark\) \.guest-manager/);
   assert.match(personalPage, /:invitation-guest="invitation\.invitationGuest"/);
-  const experience = readProjectFile("app/components/moments/MomentExperience.vue");
-  assert.match(experience, /props\.invitationGuest\?\.displayName \|\| heroTitle\.value/);
-  assert.doesNotMatch(experience, /<strong>\{\{ invitationGuest\.displayName \}\}<\/strong>/);
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
+  assert.match(
+    experience,
+    /props\.invitationGuest\?\.displayName \|\| heroTitle\.value/,
+  );
+  assert.doesNotMatch(
+    experience,
+    /<strong>\{\{ invitationGuest\.displayName \}\}<\/strong>/,
+  );
   assert.match(experience, /experienceCopy\.value\.invitationScroll/);
   assert.match(experience, /v-if="!invitationGuest" class="eyebrow"/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_invitation_guests"/);
