@@ -32,7 +32,8 @@ test("auth-dependent expense UI waits for client session readiness before render
   const expensePage = readFileSync("app/pages/tools/expense-tracker.vue", "utf8");
 
   assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
-  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /mobile-navigation-action/);
   assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
   assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);
 });
@@ -101,6 +102,46 @@ test("profile provides account-owned Expense Tracker access and status", () => {
   assert.match(account, /Quick add on/);
   assert.match(account, /to="\/tools\/expense-tracker"/);
   assert.match(account, /chlatwork:quick-expense-saved/);
+});
+
+test("mobile account UI uses only current profile capabilities", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+  const bottomNav = readFileSync("app/components/layout/MobileBottomNav.vue", "utf8");
+
+  assert.match(account, /Manage your profile, saved work, and tool activity\./);
+  assert.match(account, /id="account-menu-title"/);
+  assert.match(account, /openMobileAccountSection\('expenses'\)/);
+  assert.match(account, /openMobileAccountSection\('moments'\)/);
+  assert.match(account, /openMobileAccountSection\('payback'\)/);
+  assert.match(account, /openMobileAccountSection\('activity'\)/);
+  assert.match(account, /openMobileAccountSection\('favorite-tools'\)/);
+  assert.match(account, /openMobileAccountSection\('favorite-commands'\)/);
+  assert.match(account, /mobileAccountSection === 'expenses' \? 'block' : 'hidden sm:block'/);
+  assert.match(account, /Account menu/);
+  assert.doesNotMatch(account, /aria-label="Mobile primary navigation"/);
+  assert.match(layout, /<MobileBottomNav/);
+  assert.match(bottomNav, /isAccountActive/);
+  assert.match(bottomNav, /aria-label="Mobile primary navigation"/);
+  assert.match(account, /Sign out from your ChlatWork account/);
+  assert.match(layout, /routesWithEmbeddedMobileChrome/);
+  assert.doesNotMatch(account, /Free Plan|Upgrade to Pro|Billing & Plan|API Keys|Notifications/);
+});
+
+test("account expense summary uses saved decimal-safe tracker calculations", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+
+  assert.match(account, /collectExpenseItems\(state\.rows, state\.rangeMode\)/);
+  assert.match(account, /getTotalSpent\(items\)/);
+  assert.match(account, /getBudgetValue\(state\.budget\)/);
+  assert.match(account, /getBudgetRemaining\(budgetValue, totalSpent\)/);
+  assert.match(account, /getBudgetPercent\(totalSpent, budgetValue\)/);
+  assert.match(account, /aria-label="Saved expense summary"/);
+  assert.match(account, /Spent · \{\{ expenseSummary\.rangeLabel \}\}/);
+  assert.match(account, /\{\{ expenseState\.budget\.period \}\} budget/);
+  assert.match(account, /Over budget/);
+  assert.match(account, /Remaining/);
+  assert.match(account, /<MoneyAmount/);
 });
 
 test("PayBack data is protected and stored by account", () => {

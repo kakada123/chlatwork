@@ -5,7 +5,7 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "Privacy Policy - ChlatWork";
 const description =
   "How ChlatWork handles browser-based processing, data collection, cookies, analytics, ads, and third-party services.";
-const reviewedAt = "2026-08-24";
+const reviewedAt = "2026-08-27";
 
 useSeoMeta({
   title,
@@ -52,7 +52,7 @@ useHead({
         analytics, advertising, third-party services, and your choices.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 24, 2026
+        Last updated: August 27, 2026
       </p>
     </header>
 
@@ -80,7 +80,9 @@ useHead({
       <p class="text-gray-700 dark:text-white/75">
         While you are signed in, ChlatWork records the public identifier of each
         tool page you open, the event type, and the time. This account-linked
-        history powers the Most used tools section in your profile. It does not
+        history powers the Most used tools section in your profile and contributes
+        to an aggregate Popular tools ranking. The public ranking does not identify
+        individual accounts. Tool usage history does not
         include tool inputs, generated content, filenames, or URL query values.
       </p>
       <p class="text-gray-700 dark:text-white/75">

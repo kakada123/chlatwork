@@ -42,6 +42,21 @@ const ENABLED_TOOL_KEYS = new Set([
 export class ToolUsageService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getPopular() {
+    const grouped = await this.prisma.toolUsageEvent.groupBy({
+      by: ['toolKey'],
+      where: { event: 'OPEN' },
+      _count: { _all: true },
+      orderBy: { _count: { toolKey: 'desc' } },
+      take: 16,
+    });
+
+    // The public response is aggregate-only: account IDs and individual counts stay private.
+    return grouped
+      .filter((item) => ENABLED_TOOL_KEYS.has(item.toolKey))
+      .map((item) => ({ toolKey: item.toolKey }));
+  }
+
   async record(userId: string, dto: RecordToolUsageDto) {
     if (!ENABLED_TOOL_KEYS.has(dto.toolKey)) {
       throw new BadRequestException('Unknown tool');

@@ -216,7 +216,8 @@ test("money amount component and summary components include narrow-width overflo
   assert.match(cssSource, /\.money-amount[\s\S]*min-width: 0/);
   assert.match(cssSource, /\.money-amount[\s\S]*text-overflow: ellipsis/);
   assert.match(expenseSource, /<MoneyAmount/);
-  assert.match(expenseSource, /max-w-\[9rem\]/);
+  assert.match(expenseSource, /max-w-full truncate text-\[clamp\(/);
+  assert.match(expenseSource, /min-w-0 truncate/);
   assert.match(paybackSource, /<MoneyAmount/);
   assert.match(paybackSource, /max-w-\[9rem\]/);
   assert.match(paybackSource, /money-value-neutral/);

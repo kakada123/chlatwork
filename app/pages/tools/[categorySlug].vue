@@ -76,7 +76,7 @@ useHead(() => ({
     <header class="space-y-3 border-b border-slate-200 pb-5 dark:border-white/10">
       <NuxtLink
         to="/tools"
-        class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
+        class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex"
       >
         All tools
       </NuxtLink>

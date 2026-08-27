@@ -2,7 +2,7 @@
   <Teleport to="body">
     <section
       v-if="isNoticeVisible"
-      class="fixed inset-x-2 bottom-2 z-[70] mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-slate-800 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 dark:text-white sm:inset-x-4 sm:bottom-3 sm:px-4"
+      class="fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[70] mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-slate-800 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 dark:text-white sm:inset-x-4 sm:bottom-3 sm:px-4"
       role="region"
       aria-label="Cookie notice"
     >

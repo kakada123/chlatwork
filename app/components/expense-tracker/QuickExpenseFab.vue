@@ -17,6 +17,12 @@ type QuickExpenseResponse = {
   row: ExpenseRow;
 };
 
+const props = withDefaults(defineProps<{
+  mobileNavigationAction?: boolean;
+}>(), {
+  mobileNavigationAction: false,
+});
+
 const { user } = useAuth();
 const {
   currency,
@@ -210,7 +216,11 @@ onBeforeUnmount(() => {
       v-if="shouldShowTrigger"
       ref="trigger"
       type="button"
-      class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-[90] inline-flex min-h-14 items-center gap-2 rounded-2xl bg-sky-600 px-4 py-3 font-black text-white shadow-[0_14px_35px_rgba(2,132,199,0.38)] transition hover:-translate-y-0.5 hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 dark:bg-cyan-200 dark:text-slate-950 dark:shadow-[0_14px_35px_rgba(103,232,249,0.2)] dark:hover:bg-cyan-100 sm:right-6"
+      class="fixed z-[90] inline-flex items-center bg-sky-600 font-black text-white shadow-[0_14px_35px_rgba(2,132,199,0.38)] transition hover:-translate-y-0.5 hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300 dark:bg-cyan-200 dark:text-slate-950 dark:shadow-[0_14px_35px_rgba(103,232,249,0.2)] dark:hover:bg-cyan-100"
+      :class="props.mobileNavigationAction
+        ? 'bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 size-14 -translate-x-1/2 justify-center rounded-full border-4 border-white p-0 dark:border-black sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:translate-x-0 sm:gap-2 sm:rounded-2xl sm:border-0 sm:px-4 sm:py-3'
+        : 'bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 min-h-14 gap-2 rounded-2xl px-4 py-3 sm:right-6'"
+      aria-label="Add expense"
       aria-haspopup="dialog"
       @click="openDialog"
     >
@@ -219,7 +229,7 @@ onBeforeUnmount(() => {
         <Plus class="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-white p-0.5 text-sky-700 dark:bg-slate-950 dark:text-cyan-200" />
       </span>
       <span class="hidden sm:inline">Quick expense</span>
-      <span class="sm:hidden">Add expense</span>
+      <span v-if="!props.mobileNavigationAction" class="sm:hidden">Add expense</span>
     </button>
   </Transition>
 

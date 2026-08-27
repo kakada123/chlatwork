@@ -4,8 +4,9 @@ import {
   getToolsForDirectoryCategory,
 } from "~/data/tool-categories";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
-import { getToolIconImagePath } from "~/lib/icon-assets";
+import ToolIcon from "~/components/icons/ToolIcon.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
+import { getToolIconTone } from "~/lib/tool-icon-tones";
 
 const pdfCategory = TOOL_DIRECTORY_CATEGORIES.find(
   (category) => category.key === "pdf",
@@ -39,7 +40,7 @@ useHead({
     <header class="space-y-3">
       <NuxtLink
         to="/tools"
-        class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
+        class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex"
       >
         All tools
       </NuxtLink>
@@ -77,17 +78,11 @@ useHead({
         <NuxtLink :to="tool.route" class="flex h-full flex-col rounded-[22px] border border-white/80 bg-white/75 p-4 pr-12 text-left shadow-lg shadow-sky-100/80 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:bg-white/95 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/10 dark:bg-white/[0.09] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.14]">
         <div class="flex items-start gap-3">
           <span
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 dark:bg-white/[0.08] dark:ring-white/10"
+            class="flex size-12 shrink-0 items-center justify-center rounded-2xl transition-colors"
+            :class="getToolIconTone(tool.key)"
             aria-hidden="true"
           >
-            <img
-              :src="getToolIconImagePath(tool.key)"
-              alt=""
-              aria-hidden="true"
-              class="h-11 w-11 rounded-xl object-contain"
-              loading="lazy"
-              decoding="async"
-            />
+            <ToolIcon :name="tool.key" class="size-7" />
           </span>
 
           <div class="min-w-0">

@@ -8,6 +8,7 @@ import { LANDING_TOOLS } from "~/data/tools";
 import ToolDirectoryCard from "~/components/tools/ToolDirectoryCard.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeGlobalSearch from "~/components/landing/HomeGlobalSearch.vue";
+import MobileToolsDirectory from "~/components/tools/MobileToolsDirectory.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
 const { categoryLabel, copy, localizeTool } = useLanguage();
@@ -52,7 +53,10 @@ function groupTools(tools: ToolDef[]) {
 </script>
 
 <template>
-  <main ref="pageEl" class="mx-auto w-full max-w-[1200px] space-y-8">
+  <main ref="pageEl" class="mx-auto w-full max-w-[1200px]">
+    <MobileToolsDirectory class="sm:hidden" :tools="searchableTools" :categories="directoryCategories" />
+
+    <div class="hidden space-y-8 sm:block">
     <header class="sr-only" data-reveal>
       <h1>
         {{ copy.toolsPage.title }}
@@ -137,6 +141,6 @@ function groupTools(tools: ToolDef[]) {
         </li>
       </ul>
     </section>
-
+    </div>
   </main>
 </template>

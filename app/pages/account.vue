@@ -1,22 +1,33 @@
 <script setup lang="ts">
 import {
   BarChart3,
+  ChevronLeft,
+  ChevronRight,
   Heart,
   History,
   LogOut,
+  Moon,
   ReceiptText,
   Sparkles,
+  Sun,
   UserRound,
 } from "lucide-vue-next";
 import CommandQuickCard from "~/components/developer-commands/CommandQuickCard.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeToolCard from "~/components/landing/HomeToolCard.vue";
+import MoneyAmount from "~/components/MoneyAmount.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
 import {
+  collectExpenseItems,
+  getBudgetPercent,
+  getBudgetRemaining,
+  getBudgetValue,
+  getExpenseRangeLabel,
+  getTotalSpent,
   hasCompleteExpenseStoredRows,
   normalizeExpenseStoredState,
   type ExpenseStoredState,
@@ -26,18 +37,33 @@ import { getToolIconTone } from "~/lib/tool-icon-tones";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
 import type { MomentSummary } from "~/types/moment";
 
+type MobileAccountSection =
+  | "expenses"
+  | "moments"
+  | "payback"
+  | "activity"
+  | "favorite-tools"
+  | "favorite-commands";
+
 definePageMeta({ middleware: "auth" });
 useSeoMeta({ title: "Profile | ChlatWork", robots: "noindex, nofollow" });
 
 const { user, logout } = useAuth();
+const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { localizeTool } = useLanguage();
 const { localizeMomentPath } = useMomentLanguage();
 const { favoriteToolKeys } = useToolFavorites();
 const { favoriteCommandIds, toggleCommandFavorite } = useCommandFavorites();
 const { clearToolUsage, getToolUsageSummary } = useToolUsage();
+const {
+  enabled: quickExpenseEnabled,
+  isLoading: quickExpenseSettingLoading,
+  updateEnabled: updateQuickExpenseEnabled,
+} = useQuickExpense();
 
 const isLoggingOut = ref(false);
 const signOutDialogOpen = ref(false);
+const mobileAccountSection = ref<MobileAccountSection | null>(null);
 const historyItems = ref<PaybackHistoryItem[]>([]);
 const historyCount = ref(0);
 const historyLoading = ref(true);
@@ -45,6 +71,8 @@ const historyDeletingId = ref("");
 const usageItems = ref<ToolUsageSummaryItem[]>([]);
 const usageLoading = ref(true);
 const usageClearing = ref(false);
+const quickExpenseSettingSaving = ref(false);
+const quickExpenseSettingError = ref("");
 const expenseState = ref<ExpenseStoredState | null>(null);
 const expenseLoading = ref(true);
 const expenseLoadFailed = ref(false);
@@ -60,6 +88,23 @@ const moments = computed(() => momentData.value ?? []);
 const savedExpenseCount = computed(() =>
   (expenseState.value?.rows ?? []).filter((row) => (row.type ?? "expense") === "expense").length,
 );
+const expenseSummary = computed(() => {
+  const state = expenseState.value;
+  if (!state) return null;
+
+  const { items } = collectExpenseItems(state.rows, state.rangeMode);
+  const totalSpent = getTotalSpent(items);
+  const budgetValue = getBudgetValue(state.budget);
+  const budgetRemaining = getBudgetRemaining(budgetValue, totalSpent);
+
+  return {
+    totalSpent,
+    budgetValue,
+    budgetRemaining,
+    budgetPercent: getBudgetPercent(totalSpent, budgetValue),
+    rangeLabel: getExpenseRangeLabel(state.rangeMode),
+  };
+});
 
 const favoriteTools = computed(() => favoriteToolKeys.value
   .map((key) => LANDING_TOOLS.find((tool) => tool.key === key))
@@ -172,6 +217,49 @@ async function signOut() {
   }
 }
 
+async function handleQuickExpenseSettingChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const nextEnabled = input.checked;
+  quickExpenseSettingSaving.value = true;
+  quickExpenseSettingError.value = "";
+
+  try {
+    const settings = await updateQuickExpenseEnabled(nextEnabled);
+    if (expenseState.value) {
+      expenseState.value = {
+        ...expenseState.value,
+        quickExpenseEnabled: settings.enabled,
+      };
+    }
+  } catch {
+    // Keep both the switch and floating action aligned with the last saved preference.
+    input.checked = quickExpenseEnabled.value === true;
+    quickExpenseSettingError.value = "Could not update the Quick Expense button. Please try again.";
+  } finally {
+    quickExpenseSettingSaving.value = false;
+  }
+}
+
+async function openMobileAccountSection(section: MobileAccountSection) {
+  mobileAccountSection.value = section;
+  await nextTick();
+  scrollMobileAccountToTop();
+}
+
+async function closeMobileAccountSection() {
+  mobileAccountSection.value = null;
+  await nextTick();
+  scrollMobileAccountToTop();
+}
+
+function scrollMobileAccountToTop() {
+  // Each menu choice starts at the page heading while honoring motion preferences.
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+  window.scrollTo({ top: 0, behavior });
+}
+
 function refreshHistoryWhenActive() {
   if (document.visibilityState === "visible") {
     void loadHistory();
@@ -203,17 +291,42 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="space-y-8 text-slate-950 dark:text-white">
-    <header class="border-b border-slate-200 pb-6 dark:border-white/10">
-      <p class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Your ChlatWork</p>
-      <h1 class="mt-2">Profile</h1>
-      <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">Manage your account, revisit your Moments and saved work, and quickly return to your favorite tools.</p>
+  <main class="space-y-8 pb-24 text-slate-950 sm:pb-0 dark:text-white">
+    <header class="border-b border-slate-200 pb-5 dark:border-white/10 sm:pb-6">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="hidden text-sm font-semibold text-sky-700 dark:text-cyan-300 sm:block">Your ChlatWork</p>
+          <h1 class="text-3xl font-semibold tracking-tight sm:mt-2">Account</h1>
+          <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">Manage your profile, saved work, and tool activity.</p>
+        </div>
+        <button
+          type="button"
+          class="grid size-12 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white sm:hidden"
+          :aria-label="nextColorModeLabel"
+          :title="nextColorModeLabel"
+          @click="toggleColorMode"
+        >
+          <Sun v-if="isDark" class="size-5" aria-hidden="true" />
+          <Moon v-else class="size-5" aria-hidden="true" />
+        </button>
+      </div>
+      <button
+        v-if="mobileAccountSection"
+        type="button"
+        class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white sm:hidden"
+        @click="closeMobileAccountSection"
+      >
+        <ChevronLeft class="size-4" aria-hidden="true" /> Account menu
+      </button>
     </header>
 
-    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#101214]">
+    <section
+      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#101214] sm:rounded-2xl"
+      :class="{ 'hidden sm:block': mobileAccountSection }"
+    >
       <div class="p-5 sm:p-6">
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
-          <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-2xl font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
+        <div class="flex items-center gap-4 sm:gap-5">
+          <div class="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-xl font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200 sm:size-20 sm:rounded-2xl sm:text-2xl">
             <img v-if="user?.avatarUrl" :src="user.avatarUrl" alt="" class="h-full w-full object-cover" referrerpolicy="no-referrer" />
             <span v-else>{{ initials }}</span>
           </div>
@@ -222,13 +335,13 @@ onBeforeUnmount(() => {
             <p class="mt-1 truncate text-sm text-slate-500 dark:text-white/50">{{ user?.email || user?.phone || "Signed-in account" }}</p>
             <span class="mt-3 inline-flex rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">Active account</span>
           </div>
-          <button type="button" :disabled="isLoggingOut" class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10" @click="signOutDialogOpen = true">
+          <button type="button" :disabled="isLoggingOut" class="hidden h-10 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10 sm:inline-flex" @click="signOutDialogOpen = true">
             <LogOut class="h-4 w-4" aria-hidden="true" /> {{ isLoggingOut ? "Signing out…" : "Sign out" }}
           </button>
         </div>
       </div>
 
-      <div class="grid border-t border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+      <div class="grid grid-cols-2 border-t border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
         <div class="flex items-center gap-3 border-b border-slate-200 p-4 dark:border-white/10 sm:border-r sm:p-5 lg:border-b-0">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200"><History class="h-5 w-5" aria-hidden="true" /></span>
           <div class="flex min-w-0 flex-col gap-1.5"><strong class="block text-xl leading-none">{{ historyLoading ? '—' : historyCount }}</strong><span class="block text-xs leading-4 text-slate-500 dark:text-white/45">{{ historyCount === 1 ? 'Saved calculation' : 'Saved calculations' }}</span></div>
@@ -248,7 +361,74 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:p-6" aria-labelledby="profile-expense-tracker">
+    <section v-if="!mobileAccountSection" class="sm:hidden" aria-labelledby="account-menu-title">
+      <h2 id="account-menu-title" class="text-lg font-semibold">Your account</h2>
+      <div class="mt-3 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-expense-section" @click="openMobileAccountSection('expenses')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200"><ReceiptText class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm">Expense Tracker</strong>
+            <span v-if="expenseLoading" class="mt-1 block text-xs text-slate-500 dark:text-white/50">Loading saved expenses…</span>
+            <span v-else-if="expenseSummary && expenseState" class="mt-1 flex min-w-0 flex-wrap gap-x-1 text-xs text-slate-500 dark:text-white/50">
+              <span>Spent <MoneyAmount :value="expenseSummary.totalSpent" :currency="expenseState.currency" /></span>
+              <span aria-hidden="true">·</span>
+              <span v-if="expenseSummary.budgetValue">Budget <MoneyAmount :value="expenseSummary.budgetValue" :currency="expenseState.currency" /></span>
+              <span v-else>No budget set</span>
+            </span>
+            <span v-else class="mt-1 block text-xs text-slate-500 dark:text-white/50">Expense summary unavailable</span>
+          </span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+        <label class="flex min-h-[72px] cursor-pointer items-center gap-3 border-b border-slate-200 px-4 dark:border-white/10">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300"><ReceiptText class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Quick Expense button</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">Show the center add-expense action</span></span>
+          <span class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition" :class="quickExpenseEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
+            <input :checked="quickExpenseEnabled === true" type="checkbox" class="peer sr-only" :disabled="quickExpenseSettingLoading || quickExpenseSettingSaving" aria-label="Show Quick Expense button" @change="handleQuickExpenseSettingChange" />
+            <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
+          </span>
+        </label>
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-moments" @click="openMobileAccountSection('moments')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Your Moments</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ momentsStatus === "pending" ? "Loading Moments…" : momentsError ? "Moments unavailable" : `${moments.length} ${moments.length === 1 ? "Moment" : "Moments"}` }}</span></span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-payback-history" @click="openMobileAccountSection('payback')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-sky-100 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200"><History class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">PayBack history</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ historyLoading ? "Loading calculations…" : `${historyCount} saved ${historyCount === 1 ? "calculation" : "calculations"}` }}</span></span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-most-used-tools" @click="openMobileAccountSection('activity')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-300"><BarChart3 class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Tool activity</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">Your most-used ChlatWork tools</span></span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="favorite-tools" @click="openMobileAccountSection('favorite-tools')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Heart class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Favorite tools</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ favoriteTools.length }} saved {{ favoriteTools.length === 1 ? "tool" : "tools" }}</span></span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500" aria-controls="favorite-commands" @click="openMobileAccountSection('favorite-commands')">
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300"><UserRound class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Favorite commands</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ favoriteCommands.length }} saved {{ favoriteCommands.length === 1 ? "command" : "commands" }}</span></span>
+          <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+      </div>
+      <p v-if="quickExpenseSettingError" role="alert" class="mt-2 px-1 text-xs font-semibold text-red-600 dark:text-red-300">{{ quickExpenseSettingError }}</p>
+    </section>
+
+    <section v-if="!mobileAccountSection" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
+      <span>
+        <strong class="block text-sm">Quick Expense button</strong>
+        <span class="mt-1 block text-xs text-slate-600 dark:text-white/55">Show the floating Add expense action while you are signed in.</span>
+        <span v-if="quickExpenseSettingError" class="mt-1 block text-xs font-semibold text-red-600 dark:text-red-300">{{ quickExpenseSettingError }}</span>
+      </span>
+      <label class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition" :class="quickExpenseEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
+        <input :checked="quickExpenseEnabled === true" type="checkbox" class="peer sr-only" :disabled="quickExpenseSettingLoading || quickExpenseSettingSaving" aria-label="Show Quick Expense button" @change="handleQuickExpenseSettingChange" />
+        <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
+      </label>
+    </section>
+
+    <section id="profile-expense-section" class="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:p-6" :class="mobileAccountSection === 'expenses' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-expense-tracker">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
         <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200" aria-hidden="true">
           <ReceiptText class="h-6 w-6" />
@@ -268,6 +448,34 @@ onBeforeUnmount(() => {
           <p v-else class="mt-2 text-sm text-slate-600 dark:text-white/55">
             {{ savedExpenseCount }} {{ savedExpenseCount === 1 ? "expense" : "expenses" }} saved to your account. Keep every entry easy to find in one place.
           </p>
+
+          <div v-if="expenseSummary && expenseState" class="mt-4 grid grid-cols-2 gap-2" aria-label="Saved expense summary">
+            <div class="min-w-0 rounded-xl bg-white/80 p-3 dark:bg-white/[0.06]">
+              <span class="block text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-white/45">Spent · {{ expenseSummary.rangeLabel }}</span>
+              <strong class="mt-1 block min-w-0 text-lg text-slate-950 dark:text-white"><MoneyAmount :value="expenseSummary.totalSpent" :currency="expenseState.currency" wrap /></strong>
+            </div>
+            <div class="min-w-0 rounded-xl bg-white/80 p-3 dark:bg-white/[0.06]">
+              <span class="block text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-white/45">{{ expenseState.budget.period }} budget</span>
+              <strong v-if="expenseSummary.budgetValue" class="mt-1 block min-w-0 text-lg text-slate-950 dark:text-white"><MoneyAmount :value="expenseSummary.budgetValue" :currency="expenseState.currency" wrap /></strong>
+              <strong v-else class="mt-1 block text-sm text-slate-500 dark:text-white/45">Not set</strong>
+            </div>
+            <div v-if="expenseSummary.budgetValue" class="col-span-2 rounded-xl bg-white/80 p-3 dark:bg-white/[0.06]">
+              <div class="flex items-center justify-between gap-3 text-xs font-semibold">
+                <span :class="expenseSummary.budgetRemaining < 0 ? 'text-red-600 dark:text-red-300' : 'text-emerald-700 dark:text-emerald-300'">
+                  {{ expenseSummary.budgetRemaining < 0 ? "Over budget" : "Remaining" }}
+                </span>
+                <MoneyAmount :value="Math.abs(expenseSummary.budgetRemaining)" :currency="expenseState.currency" />
+              </div>
+              <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10" aria-hidden="true">
+                <div
+                  class="h-full rounded-full transition-[width]"
+                  :class="expenseSummary.budgetRemaining < 0 ? 'bg-red-500' : 'bg-cyan-500'"
+                  :style="{ width: `${Math.min(100, Math.max(0, expenseSummary.budgetPercent))}%` }"
+                />
+              </div>
+              <p class="mt-1 text-right text-[10px] text-slate-500 dark:text-white/45">{{ expenseSummary.budgetPercent }}% used</p>
+            </div>
+          </div>
         </div>
         <NuxtLink to="/tools/expense-tracker" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100">
           Open tracker
@@ -275,7 +483,7 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="space-y-4" aria-labelledby="profile-moments">
+    <section class="space-y-4" :class="mobileAccountSection === 'moments' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-moments">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="h-5 w-5" aria-hidden="true" /></span>
@@ -319,13 +527,15 @@ onBeforeUnmount(() => {
       @confirm="signOut"
     />
 
-    <PaybackCalculatorHistory :items="historyItems" :loading="historyLoading" :deleting-id="historyDeletingId" @load="reopenHistory" @remove="removeHistory" />
+    <section id="profile-payback-history" class="scroll-mt-24" :class="mobileAccountSection === 'payback' ? 'block' : 'hidden sm:block'">
+      <PaybackCalculatorHistory :items="historyItems" :loading="historyLoading" :deleting-id="historyDeletingId" @load="reopenHistory" @remove="removeHistory" />
+    </section>
 
-    <section class="space-y-4" aria-labelledby="profile-most-used-tools">
+    <section id="profile-most-used-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'activity' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-most-used-tools-title">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-300"><BarChart3 class="h-5 w-5" aria-hidden="true" /></span>
-          <div><h2 id="profile-most-used-tools" class="text-xl font-semibold">Most used tools</h2><p class="mt-1 text-sm text-slate-500 dark:text-white/50">Based only on tool pages opened while signed in.</p></div>
+          <div><h2 id="profile-most-used-tools-title" class="text-xl font-semibold">Most used tools</h2><p class="mt-1 text-sm text-slate-500 dark:text-white/50">Based only on tool pages opened while signed in.</p></div>
         </div>
         <button v-if="mostUsedTools.length" type="button" :disabled="usageClearing" class="text-sm font-semibold text-red-600 hover:text-red-800 disabled:opacity-50 dark:text-red-300 dark:hover:text-red-200" @click="clearUsageHistory">{{ usageClearing ? 'Clearing…' : 'Clear history' }}</button>
       </div>
@@ -343,7 +553,7 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">Use a tool while signed in and it will appear here.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
     </section>
 
-    <section id="favorite-tools" class="scroll-mt-24 space-y-4" aria-labelledby="profile-favorite-tools">
+    <section id="favorite-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-tools' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-tools">
       <div class="flex items-center justify-between gap-4">
         <div><h2 id="profile-favorite-tools" class="text-xl font-semibold">Favorite tools</h2><p class="mt-1 text-sm text-slate-500 dark:text-white/50">Favorites saved in this browser.</p></div>
         <NuxtLink to="/tools" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools →</NuxtLink>
@@ -354,10 +564,22 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite tools yet.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
     </section>
 
-    <section class="space-y-4" aria-labelledby="profile-favorite-commands">
+    <section id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
       <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="text-xl font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
       <div v-if="favoriteCommands.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"><CommandQuickCard v-for="command in favoriteCommands" :key="command.id" :item="command" favorite @favorite="toggleCommandFavorite(command.id)" @copied="() => undefined" /></div>
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite commands yet.</p><NuxtLink to="/developer-commands" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse commands</NuxtLink></div>
     </section>
+
+    <button
+      v-if="!mobileAccountSection"
+      type="button"
+      :disabled="isLoggingOut"
+      class="flex min-h-16 w-full items-center gap-3 rounded-2xl border border-red-200 bg-red-50/70 px-4 text-left text-red-700 disabled:opacity-50 dark:border-red-400/20 dark:bg-red-400/[0.08] dark:text-red-300 sm:hidden"
+      @click="signOutDialogOpen = true"
+    >
+      <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-red-100 dark:bg-red-400/10"><LogOut class="size-5" aria-hidden="true" /></span>
+      <span><strong class="block text-sm">{{ isLoggingOut ? "Signing out…" : "Sign out" }}</strong><span class="mt-1 block text-xs font-medium opacity-70">Sign out from your ChlatWork account</span></span>
+    </button>
+
   </main>
 </template>

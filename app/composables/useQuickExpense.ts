@@ -44,11 +44,24 @@ export function useQuickExpense() {
     }
   }
 
+  async function updateEnabled(nextEnabled: boolean) {
+    const settings = await $fetch<QuickExpenseSettings>(
+      "/api/expenses/quick-entry/settings",
+      {
+        method: "PUT",
+        body: { enabled: nextEnabled },
+      },
+    );
+    syncSettings(settings);
+    return settings;
+  }
+
   return {
     currency,
     enabled,
     isLoading,
     refreshSettings,
     syncSettings,
+    updateEnabled,
   };
 }

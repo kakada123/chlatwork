@@ -4,9 +4,12 @@ import { filterTools } from "~/lib/tool-search";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   tools: LandingTool[];
-}>();
+  inputId?: string;
+}>(), {
+  inputId: "home-global-search",
+});
 
 type SearchResult = {
   key: string;
@@ -79,7 +82,7 @@ function openTopResult() {
         </svg>
 
         <input
-          id="home-global-search"
+          :id="props.inputId"
           ref="searchInput"
           v-model="globalSearch"
           type="search"

@@ -98,6 +98,37 @@ html[data-theme-transitioning] body *::after {
   margin-inline: auto;
 }
 
+@media (max-width: 639px) {
+  html {
+    scroll-padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .site-content {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .site-content :where(main, section, article, form, fieldset) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .site-content :where(img, video, canvas, pre, table) {
+    max-width: 100%;
+  }
+
+  .site-content pre {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+}
+
 /* Page titles stay consistent; section headings keep their local hierarchy. */
 html .site-content h1 {
   font-size: 1.75rem !important;

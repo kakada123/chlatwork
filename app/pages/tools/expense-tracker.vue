@@ -18,20 +18,6 @@
         @quick-add="saveQuickExpenseImmediately"
       />
 
-      <label
-        v-if="signedIn"
-        class="hidden cursor-pointer items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex"
-      >
-        <span>
-          <span class="block text-sm font-black text-slate-950 dark:text-white">Enable quick expense button</span>
-          <span class="mt-1 block text-xs leading-5 text-slate-600 dark:text-white/55">Show a floating Add expense button on ChlatWork while you are signed in.</span>
-        </span>
-        <span class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition" :class="quickExpenseEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
-          <input v-model="quickExpenseEnabled" type="checkbox" class="peer sr-only" @change="saveImmediately" />
-          <span class="ml-1 h-5 w-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
-        </span>
-      </label>
-
       <details v-if="signedIn" class="group rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#101214]">
         <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between px-4 text-sm font-black text-slate-700 dark:text-white/75">
           <span class="sm:hidden">View expense details</span>

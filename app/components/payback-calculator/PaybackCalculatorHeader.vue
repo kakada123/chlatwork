@@ -18,8 +18,8 @@ const isShareConfirmed = computed(() => ["copied", "shared", "ready"].includes(p
 
 <template>
   <header class="mb-6 border-b border-slate-200 pb-6 dark:border-white/10">
-    <NuxtLink to="/tools" class="text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200">← All tools</NuxtLink>
-    <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <NuxtLink to="/tools" class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex">← All tools</NuxtLink>
+    <div class="flex flex-col gap-4 sm:mt-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 class="text-3xl font-black tracking-tight text-slate-950 dark:text-white">PayBack Calculator</h1>
         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60">Add what each person paid. We’ll calculate the simplest way to settle up.</p>

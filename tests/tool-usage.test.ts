@@ -13,16 +13,38 @@ test("tool usage is account-owned and ships as standalone SQL", () => {
   assert.match(sql, /CHECK \(event IN \('OPEN', 'COMPLETE'\)\)/);
 });
 
-test("tool usage endpoints require authentication and scope queries by user", () => {
+test("account tool usage endpoints require authentication and scope queries by user", () => {
   const controller = readFileSync("api/src/tool-usage/tool-usage.controller.ts", "utf8");
   const service = readFileSync("api/src/tool-usage/tool-usage.service.ts", "utf8");
 
-  assert.match(controller, /@UseGuards\(JwtAuthGuard\)/);
-  assert.match(controller, /@Get\('summary'\)/);
-  assert.match(controller, /@Delete\(\)/);
+  assert.match(controller, /@Post\(\)\s+@UseGuards\(JwtAuthGuard\)/);
+  assert.match(controller, /@Get\('summary'\)\s+@UseGuards\(JwtAuthGuard\)/);
+  assert.match(controller, /@Delete\(\)\s+@UseGuards\(JwtAuthGuard\)/);
   assert.match(service, /ENABLED_TOOL_KEYS\.has\(dto\.toolKey\)/);
   assert.match(service, /where: \{ userId, event: 'OPEN' \}/);
   assert.match(service, /deleteMany\(\{ where: \{ userId \} \}\)/);
+});
+
+test("homepage popularity comes from aggregate database usage with safe fallbacks", () => {
+  const controller = readFileSync("api/src/tool-usage/tool-usage.controller.ts", "utf8");
+  const service = readFileSync("api/src/tool-usage/tool-usage.service.ts", "utf8");
+  const proxy = readFileSync("server/api/tool-usage/popular.get.ts", "utf8");
+  const landing = readFileSync("app/components/landing/LandingPage.vue", "utf8");
+  const popularMethod = service.slice(
+    service.indexOf("async getPopular"),
+    service.indexOf("async record"),
+  );
+
+  assert.match(controller, /@Get\('popular'\)\s+getPopular\(\)/);
+  assert.doesNotMatch(controller, /@Get\('popular'\)\s+@UseGuards/);
+  assert.match(service, /where: \{ event: 'OPEN' \}/);
+  assert.match(service, /orderBy: \{ _count: \{ toolKey: 'desc' \} \}/);
+  assert.match(service, /map\(\(item\) => \(\{ toolKey: item\.toolKey \}\)\)/);
+  assert.doesNotMatch(popularMethod, /userId/);
+  assert.match(proxy, /requestAuthApi\(event, "\/tool-usage\/popular"\)/);
+  assert.match(landing, /getPopularToolUsage/);
+  assert.match(landing, /shuffledToolKeys/);
+  assert.match(landing, /POPUL(?:AR)_TOOL_CARD_COUNT = 8/);
 });
 
 test("client tracking sends no tool inputs or query values", () => {

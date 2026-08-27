@@ -18,8 +18,8 @@ useHead(() => ({ link: [{ rel: "canonical", href: canonical.value }], script: gu
 
 <template>
   <main v-if="guide" class="mx-auto w-full max-w-[1000px] text-slate-950 dark:text-white">
-    <NuxtLink to="/developer-guides" class="text-sm font-bold text-sky-700 hover:underline dark:text-cyan-300">← All developer guides</NuxtLink>
-    <header class="mt-5 border-b border-slate-200 pb-7 dark:border-slate-700">
+    <NuxtLink to="/developer-guides" class="hidden text-sm font-bold text-sky-700 hover:underline dark:text-cyan-300 sm:inline-flex">← All developer guides</NuxtLink>
+    <header class="border-b border-slate-200 pb-7 dark:border-slate-700 sm:mt-5">
       <div class="flex flex-wrap gap-2 text-xs font-bold text-slate-500 dark:text-slate-400"><span>{{ guide.difficulty }}</span><span>•</span><span>{{ guide.duration }}</span></div>
       <h1 class="mt-3 text-3xl font-black leading-tight sm:text-5xl">{{ guide.title }}</h1>
       <p class="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">{{ guide.summary }}</p>

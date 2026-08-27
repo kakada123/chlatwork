@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { CurrentUser } from '../auth/types';
 import { CreateQuickExpenseDto } from './dto/create-quick-expense.dto';
 import { SaveExpenseStateDto } from './dto/save-expense-state.dto';
+import { UpdateQuickExpenseSettingsDto } from './dto/update-quick-expense-settings.dto';
 import { ExpensesService } from './expenses.service';
 
 @Controller('expenses')
@@ -24,6 +25,14 @@ export class ExpensesController {
   @Get('quick-entry/settings')
   getQuickEntrySettings(@CurrentAuthUser() user: CurrentUser) {
     return this.expenses.getQuickEntrySettings(user.id);
+  }
+
+  @Put('quick-entry/settings')
+  updateQuickEntrySettings(
+    @CurrentAuthUser() user: CurrentUser,
+    @Body() dto: UpdateQuickExpenseSettingsDto,
+  ) {
+    return this.expenses.updateQuickEntrySettings(user.id, dto);
   }
 
   @Post('quick-entry')

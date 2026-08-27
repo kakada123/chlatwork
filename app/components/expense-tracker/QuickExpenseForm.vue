@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ChevronDown, ReceiptText } from "lucide-vue-next";
+import { Check, ChevronDown, MessageSquarePlus, ReceiptText, X } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import {
   createExpenseRow,
@@ -32,15 +32,18 @@ const category = ref("Food");
 const customCategory = ref("");
 const date = ref(todayISO());
 const note = ref("");
+const showOptionalNote = ref(false);
 const error = ref("");
 const amountInput = ref<HTMLInputElement | null>(null);
 const categoryPicker = ref<HTMLDetailsElement | null>(null);
 const customCategoryInput = ref<HTMLInputElement | null>(null);
+const mobileNoteInput = ref<HTMLInputElement | null>(null);
 const formId = useId();
 const amountId = `${formId}-amount`;
 const currencyId = `${formId}-currency`;
 const errorId = `${formId}-error`;
-const noteId = `${formId}-note`;
+const desktopNoteId = `${formId}-desktop-note`;
+const mobileNoteId = `${formId}-mobile-note`;
 const customCategoryId = `${formId}-custom-category`;
 const categoryLabel = computed(() =>
   category.value === "__custom__"
@@ -55,8 +58,21 @@ function focusAmount() {
 function resetForm() {
   amount.value = "";
   note.value = "";
+  showOptionalNote.value = false;
   date.value = todayISO();
   error.value = "";
+}
+
+async function toggleOptionalNote() {
+  if (showOptionalNote.value) {
+    showOptionalNote.value = false;
+    note.value = "";
+    return;
+  }
+
+  showOptionalNote.value = true;
+  await nextTick();
+  mobileNoteInput.value?.focus();
 }
 
 async function selectMobileCategory(value: string) {
@@ -230,6 +246,34 @@ defineExpose({ focusAmount, resetForm });
       </div>
     </fieldset>
 
+    <div class="sm:hidden">
+      <button
+        type="button"
+        class="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-300"
+        :aria-expanded="showOptionalNote"
+        :aria-controls="mobileNoteId"
+        :disabled="props.busy"
+        @click="toggleOptionalNote"
+      >
+        <X v-if="showOptionalNote" class="size-4" aria-hidden="true" />
+        <MessageSquarePlus v-else class="size-4" aria-hidden="true" />
+        {{ showOptionalNote ? "Remove note" : "Add note (optional)" }}
+      </button>
+      <div v-if="showOptionalNote" class="mt-2">
+        <label :for="mobileNoteId" class="sr-only">Note (optional)</label>
+        <input
+          :id="mobileNoteId"
+          ref="mobileNoteInput"
+          v-model.trim="note"
+          type="text"
+          maxlength="500"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:focus:ring-cyan-300/10"
+          placeholder="What was this for?"
+          :disabled="props.busy"
+        />
+      </div>
+    </div>
+
     <details class="group hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
       <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font-bold text-slate-600 dark:text-white/65">
         Date and note
@@ -241,9 +285,9 @@ defineExpose({ focusAmount, resetForm });
           <ModernDateInput v-model="date" aria-label="Expense date" />
         </div>
         <div>
-          <label :for="noteId" class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Note (optional)</label>
+          <label :for="desktopNoteId" class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Note (optional)</label>
           <input
-            :id="noteId"
+            :id="desktopNoteId"
             v-model.trim="note"
             type="text"
             maxlength="500"

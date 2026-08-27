@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateQuickExpenseDto } from './dto/create-quick-expense.dto';
 import type { ExpenseRowDto, SaveExpenseStateDto } from './dto/save-expense-state.dto';
+import type { UpdateQuickExpenseSettingsDto } from './dto/update-quick-expense-settings.dto';
 
 @Injectable()
 export class ExpensesService {
@@ -84,6 +85,20 @@ export class ExpensesService {
     return {
       enabled: profile?.quickExpenseEnabled ?? false,
       currency: profile?.currency ?? ExpenseCurrency.USD,
+    };
+  }
+
+  async updateQuickEntrySettings(userId: string, dto: UpdateQuickExpenseSettingsDto) {
+    const profile = await this.prisma.expenseProfile.upsert({
+      where: { userId },
+      create: { userId, quickExpenseEnabled: dto.enabled },
+      update: { quickExpenseEnabled: dto.enabled },
+      select: { currency: true, quickExpenseEnabled: true },
+    });
+
+    return {
+      enabled: profile.quickExpenseEnabled,
+      currency: profile.currency,
     };
   }
 

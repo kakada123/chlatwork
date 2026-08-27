@@ -4,6 +4,10 @@ export type ToolUsageSummaryItem = {
   lastUsedAt: string;
 };
 
+export type PopularToolUsageItem = {
+  toolKey: string;
+};
+
 export function useToolUsage() {
   async function recordToolOpen(toolKey: string) {
     try {
@@ -21,9 +25,18 @@ export function useToolUsage() {
     return await $fetch<ToolUsageSummaryItem[]>("/api/tool-usage/summary");
   }
 
+  async function getPopularToolUsage() {
+    return await $fetch<PopularToolUsageItem[]>("/api/tool-usage/popular");
+  }
+
   async function clearToolUsage() {
     return await $fetch<{ deleted: number }>("/api/tool-usage", { method: "DELETE" });
   }
 
-  return { clearToolUsage, getToolUsageSummary, recordToolOpen };
+  return {
+    clearToolUsage,
+    getPopularToolUsage,
+    getToolUsageSummary,
+    recordToolOpen,
+  };
 }

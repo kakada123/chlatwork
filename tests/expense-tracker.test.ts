@@ -221,6 +221,10 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
     new URL("../app/pages/tools/expense-tracker.vue", import.meta.url),
     "utf8",
   );
+  const account = readFileSync(
+    new URL("../app/pages/account.vue", import.meta.url),
+    "utf8",
+  );
   const form = readFileSync(
     new URL("../app/components/expense-tracker/QuickExpenseForm.vue", import.meta.url),
     "utf8",
@@ -229,7 +233,9 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(input, /<QuickExpenseForm/);
   assert.match(input, /Review and manage saved entries/);
   assert.match(input, /<details class="group mt-5 hidden/);
-  assert.match(page, /Enable quick expense button/);
+  assert.match(account, /Quick Expense button/);
+  assert.match(account, /aria-label="Show Quick Expense button"/);
+  assert.doesNotMatch(page, /Enable quick expense button/);
   assert.match(page, /View expense details/);
   assert.match(page, /View spending summary and budget/);
   assert.match(page, /<details v-if="signedIn" class="group rounded-2xl/);
@@ -253,13 +259,20 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(form, /selectMobileCategory\(item\)/);
   assert.match(form, /Custom category…/);
   assert.match(form, /Enter your category/);
+  assert.match(form, /Add note \(optional\)/);
+  assert.match(form, /Remove note/);
+  assert.match(form, /showOptionalNote/);
+  assert.match(form, /mobileNoteInput\.value\?\.focus\(\)/);
+  assert.match(form, /showOptionalNote\.value = false;[\s\S]*note\.value = ""/);
+  assert.match(form, /desktop-note/);
+  assert.match(form, /mobile-note/);
   assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
   assert.match(input, /min-w-0 overflow-hidden rounded-3xl/);
   assert.match(page, /min-w-0 w-full[^\"]*overflow-x-clip/);
   assert.match(form, /relative mt-2 hidden sm:block/);
   assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);
   assert.match(form, /group hidden rounded-2xl/);
-  assert.match(page, /hidden cursor-pointer items-center.*sm:flex/);
+  assert.doesNotMatch(page, /Show a floating Add expense button/);
   assert.match(page, /mt-6 hidden space-y-3/);
   assert.doesNotMatch(header, /Share link|Reset|defineEmits/);
   assert.doesNotMatch(page, /shareLink|@share|@reset/);
@@ -277,15 +290,29 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
     "api/src/expenses/dto/save-expense-state.dto.ts",
     "utf8",
   );
+  const updateSettingsDto = readFileSync(
+    "api/src/expenses/dto/update-quick-expense-settings.dto.ts",
+    "utf8",
+  );
+  const settingsProxy = readFileSync(
+    "server/api/expenses/quick-entry/settings.put.ts",
+    "utf8",
+  );
+  const quickExpense = readFileSync("app/composables/useQuickExpense.ts", "utf8");
+  const account = readFileSync("app/pages/account.vue", "utf8");
   const schema = readFileSync("api/prisma/schema.prisma", "utf8");
   const sql = readFileSync(
     "database/updates/2026-08-26-add-quick-expense-setting.sql",
     "utf8",
   );
 
-  assert.match(layout, /<QuickExpenseFab v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /mobile-navigation-action/);
   assert.match(fab, /v-if="shouldShowTrigger"/);
   assert.match(fab, /\(\) => enabled\.value && !isOpen\.value/);
+  assert.match(fab, /mobileNavigationAction/);
+  assert.match(fab, /left-1\/2 size-14 -translate-x-1\/2/);
+  assert.match(fab, /<span v-if="!props\.mobileNavigationAction" class="sm:hidden">Add expense<\/span>/);
   assert.doesNotMatch(fab, /route\.path !== "\/tools\/expense-tracker"/);
   assert.match(fab, /import QuickExpenseForm from "~\/components\/expense-tracker\/QuickExpenseForm\.vue"/);
   assert.match(fab, /import \{ useAuth \} from "~\/composables\/useAuth"/);
@@ -300,6 +327,15 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /:style="dialogViewportStyle"/);
   assert.match(fab, /\/api\/expenses\/quick-entry/);
   assert.match(controller, /@Post\('quick-entry'\)/);
+  assert.match(controller, /@Put\('quick-entry\/settings'\)/);
+  assert.match(updateSettingsDto, /@IsBoolean\(\)[\s\S]*enabled!: boolean/);
+  assert.match(service, /updateQuickEntrySettings/);
+  assert.match(service, /update: \{ quickExpenseEnabled: dto\.enabled \}/);
+  assert.doesNotMatch(service, /updateQuickEntrySettings[\s\S]*expenseEntry\.deleteMany/);
+  assert.match(settingsProxy, /method: "PUT"/);
+  assert.match(quickExpense, /async function updateEnabled/);
+  assert.match(account, /updateEnabled: updateQuickExpenseEnabled/);
+  assert.match(account, /@change="handleQuickExpenseSettingChange"/);
   assert.match(service, /pg_advisory_xact_lock/);
   assert.match(service, /currentRowCount !== dto\.expectedRowCount/);
   assert.match(service, /Expense entries changed; reload before saving/);

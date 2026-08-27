@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import {
-  ALL_TOOLS_ICON_PATHS,
-  ENABLED_TOOLS,
-} from "~/lib/tool-registry";
+import { ENABLED_TOOLS } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import QuickExpenseFab from "~/components/expense-tracker/QuickExpenseFab.vue";
 import FooterMenuGroup from "~/components/layout/FooterMenuGroup.vue";
+import MobileAppHeader from "~/components/layout/MobileAppHeader.vue";
+import MobileBottomNav from "~/components/layout/MobileBottomNav.vue";
 import {
   STARTER_GUIDES,
   type StarterGuide,
@@ -194,6 +193,7 @@ const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
 const headerToolSearch = ref("");
 const isHeaderSearchOpen = ref(false);
 const headerSearchInput = ref<HTMLInputElement | null>(null);
+const mobileHeaderSearchInput = ref<HTMLInputElement | null>(null);
 const headerSearchButton = ref<HTMLButtonElement | null>(null);
 const headerSearchLabel = computed(() =>
   isKhmer.value ? "ស្វែងរកក្នុង ChlatWork" : "Search ChlatWork",
@@ -296,12 +296,12 @@ const headerSearchResults = computed(() => {
     ...pageResults,
   ].slice(0, 12);
 });
-const allToolsIconPaths = ALL_TOOLS_ICON_PATHS;
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const route = useRoute();
 const { user: authUser, isReady: isAuthReady, fetchMe: fetchAuthUser } = useAuth();
 // Do not branch on a session until the client has resolved it; server and hydration markup must match.
 const visibleAuthUser = computed(() => isAuthReady.value ? authUser.value : null);
+const { enabled: quickExpenseEnabled } = useQuickExpense();
 const { recordToolOpen } = useToolUsage();
 const showHeaderLogin = ref(false);
 const headerAvatarFailed = ref(false);
@@ -370,6 +370,55 @@ const currentToolGuide = computed(() => {
 const shouldShowToolPageDetails = computed(
   () => currentToolGuide.value?.tool.category !== "PDF Tools",
 );
+const routesWithEmbeddedMobileChrome = new Set(["/", "/km", "/account", "/tools"]);
+const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path));
+const mobilePageTitle = computed(() => {
+  const tool = localizedEnabledTools.value.find((item) => item.route === route.path);
+  if (tool) return tool.name;
+
+  const category = TOOL_DIRECTORY_CATEGORIES.find((item) => item.path === route.path);
+  if (category) return category.shortTitle;
+
+  const exactTitles: Record<string, string> = {
+    "/about": "About",
+    "/buy-me-coffee": "Support ChlatWork",
+    "/contact": "Contact",
+    "/cookies": "Cookie Policy",
+    "/developer-commands": "Command Hub",
+    "/developer-guides": "Developer Guides",
+    "/disclaimer": "Disclaimer",
+    "/editorial-policy": "Editorial Policy",
+    "/guides": "Guides",
+    "/login": "Sign in",
+    "/moments": "My Moments",
+    "/moments/create": "Create a Moment",
+    "/portfolio": "Portfolio",
+    "/posts": "Posts",
+    "/pricing": "Pricing",
+    "/privacy-policy": "Privacy Policy",
+    "/services/invoice-generator": "Invoice Service",
+    "/terms": "Terms",
+  };
+  if (exactTitles[route.path]) return exactTitles[route.path];
+  if (route.path.startsWith("/developer-guides/")) return "Developer Guide";
+  if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return "Guide";
+  if (route.path.startsWith("/moment/")) return "Moment";
+  if (route.path.startsWith("/posts/")) return "Post";
+  return "ChlatWork";
+});
+const mobileBackPath = computed(() => {
+  if (route.path.startsWith("/tools/")) return "/tools";
+  if (route.path.startsWith("/developer-guides/")) return "/developer-guides";
+  if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return "/guides";
+  if (route.path.startsWith("/posts/")) return "/posts";
+  if (route.path.startsWith("/moments/")) return "/moments";
+  return "/";
+});
+const showQuickExpenseNavigationSlot = computed(() => Boolean(
+  visibleAuthUser.value
+  && quickExpenseEnabled.value
+  && route.path !== "/tools/expense-tracker",
+));
 function getStarterGuideSearchText(guide: StarterGuide) {
   return [
     guide.title,
@@ -383,16 +432,16 @@ function getStarterGuideSearchText(guide: StarterGuide) {
   ].join(" ");
 }
 
-// ✅ mobile drawer state
-const isMenuOpen = ref(false);
-const closeMenu = () => (isMenuOpen.value = false);
-
 async function toggleHeaderSearch() {
   isHeaderSearchOpen.value = !isHeaderSearchOpen.value;
 
   if (isHeaderSearchOpen.value) {
     await nextTick();
-    headerSearchInput.value?.focus();
+    if (window.matchMedia("(max-width: 639px)").matches) {
+      mobileHeaderSearchInput.value?.focus();
+    } else {
+      headerSearchInput.value?.focus();
+    }
   }
 }
 
@@ -430,21 +479,9 @@ function openFirstHeaderSearchResult() {
 watch(
   () => route.fullPath,
   () => {
-    closeMenu();
     closeHeaderSearch();
   },
 );
-
-// ✅ lock background scroll when menu open
-watch(isMenuOpen, (open) => {
-  if (!process.client) return;
-  document.body.style.overflow = open ? "hidden" : "";
-});
-
-onBeforeUnmount(() => {
-  if (!process.client) return;
-  document.body.style.overflow = "";
-});
 </script>
 
 <template>
@@ -452,8 +489,17 @@ onBeforeUnmount(() => {
   <div
     class="flex min-h-[100dvh] flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
   >
+    <MobileAppHeader
+      v-if="showSharedMobileHeader"
+      :title="mobilePageTitle"
+      :back-to="mobileBackPath"
+      @search="toggleHeaderSearch"
+    />
+
     <!-- Top Task Bar -->
-    <header class="site-header sticky top-0 z-50 border-b backdrop-blur">
+    <header
+      class="site-header sticky top-0 z-50 hidden border-b backdrop-blur sm:block"
+    >
       <div
         class="site-container flex items-center justify-between py-3"
       >
@@ -462,7 +508,6 @@ onBeforeUnmount(() => {
           <NuxtLink
             :to="homePath"
             class="shrink-0 text-lg font-semibold tracking-tight leading-tight"
-            @click="closeMenu"
           >
             ChlatWork
           </NuxtLink>
@@ -663,204 +708,72 @@ onBeforeUnmount(() => {
             </svg>
           </button>
 
-          <!-- Mobile Hamburger -->
-          <button
-            class="inline-flex items-center justify-center rounded-xl border bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-50 sm:hidden"
-            aria-label="Open menu"
-            :aria-expanded="isMenuOpen"
-            @click="isMenuOpen = !isMenuOpen"
-          >
-            <!-- hamburger / close -->
-            <svg
-              v-if="!isMenuOpen"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
         </div>
       </div>
     </header>
 
-    <!-- ✅ Mobile Drawer + Overlay -->
-    <div v-show="isMenuOpen" class="fixed inset-0 z-40 sm:hidden">
-      <!-- overlay -->
-      <button
-        class="absolute inset-0 bg-black/40"
-        aria-label="Close menu"
-        @click="closeMenu"
-      />
-
-      <!-- drawer -->
-      <aside
-        class="absolute left-0 top-0 h-full w-[88%] max-w-[340px] bg-white shadow-2xl flex flex-col"
-      >
-        <!-- ✅ Sticky header -->
-        <div class="sticky top-0 z-10 border-b bg-white px-4 py-3">
-          <div class="flex items-center justify-between">
-            <p class="truncate text-sm font-semibold">ChlatWork</p>
-
-            <button
-              class="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
-              aria-label="Close menu"
-              @click="closeMenu"
-            >
-              ✕
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-150" enter-from-class="opacity-0" leave-active-class="transition duration-100" leave-to-class="opacity-0">
+        <div v-if="isHeaderSearchOpen" class="fixed inset-0 z-[105] bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white sm:hidden" role="search">
+          <div class="flex min-h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-white/10 dark:bg-black/95">
+            <label for="mobile-header-search-input" class="sr-only">{{ headerSearchLabel }}</label>
+            <input
+              id="mobile-header-search-input"
+              ref="mobileHeaderSearchInput"
+              v-model="headerToolSearch"
+              type="search"
+              class="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200 dark:border-white/15 dark:bg-white/[0.08] dark:text-white dark:focus:border-cyan-300 dark:focus:ring-cyan-300/15"
+              :placeholder="headerSearchLabel"
+              @keydown.enter.prevent="openFirstHeaderSearchResult"
+              @keydown.esc.prevent="closeHeaderSearch()"
+            />
+            <button type="button" class="min-h-11 shrink-0 rounded-xl px-2 text-sm font-semibold text-[#082552] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-300" @click="closeHeaderSearch()">
+              Cancel
             </button>
           </div>
-        </div>
 
-        <!-- ✅ Scroll ONLY here -->
-        <div class="flex-1 overflow-y-auto px-2 py-3">
-          <!-- Main -->
-          <nav class="space-y-1">
-            <NuxtLink
-              :to="homePath"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700"
-                aria-hidden="true"
+          <div class="h-[calc(100dvh-4rem)] overflow-y-auto px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-3">
+            <div v-if="headerToolSearch.trim()" class="space-y-1">
+              <NuxtLink
+                v-for="result in headerSearchResults"
+                :key="result.key"
+                :to="result.path"
+                class="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-transparent px-3 py-2.5 transition hover:border-slate-200 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:border-white/10 dark:hover:bg-white/[0.06]"
+                @click="closeHeaderSearch()"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M4 11.5 12 5l8 6.5" />
-                  <path d="M6.5 10.5V19h11v-8.5" />
-                  <path d="M10 19v-5h4v5" />
-                </svg>
-              </span>
-              {{ copy.nav.home }}
-            </NuxtLink>
+                <span class="min-w-0">
+                  <strong class="block truncate text-sm">{{ result.title }}</strong>
+                  <span class="mt-1 block truncate text-xs text-slate-500 dark:text-white/45">{{ result.description }}</span>
+                </span>
+                <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:bg-white/10 dark:text-white/60">{{ result.label }}</span>
+              </NuxtLink>
+              <p v-if="headerSearchResults.length === 0" class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-white/50">
+                {{ copy.nav.noToolsFound }}
+              </p>
+            </div>
 
-            <NuxtLink
-              to="/tools"
-              class="flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-bold text-sky-700 hover:bg-sky-100"
-              @click="closeMenu"
-            >
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700"
-                aria-hidden="true"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    v-for="path in allToolsIconPaths"
-                    :key="path"
-                    :d="path"
-                  />
-                </svg>
-              </span>
-              {{ copy.nav.allTools }}
-            </NuxtLink>
-
-            <NuxtLink
-              to="/about"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              About
-            </NuxtLink>
-
-            <NuxtLink
-              to="/moments/create"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-rose-50 hover:text-rose-700"
-              @click="closeMenu"
-            >
-              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600" aria-hidden="true">❤️</span>
-              Moments
-            </NuxtLink>
-
-            <NuxtLink
-              v-if="visibleAuthUser"
-              to="/account"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
-              @click="closeMenu"
-            >
-              <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-sky-50 text-xs font-semibold text-sky-700" aria-hidden="true">
-                <img
-                  v-if="authUser.avatarUrl && !headerAvatarFailed"
-                  :src="authUser.avatarUrl"
-                  alt=""
-                  class="h-full w-full object-cover"
-                  referrerpolicy="no-referrer"
-                  @error="handleHeaderAvatarError"
-                />
-                <span v-else>{{ authUserInitials }}</span>
-              </span>
-              Account
-            </NuxtLink>
-
-            <button
-              v-else
-              type="button"
-              class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-gray-900 hover:bg-sky-50 hover:text-sky-700"
-              @click="closeMenu(); showHeaderLogin = true"
-            >
-              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></svg>
-              </span>
-              Sign in
-            </button>
-
-            <NuxtLink
-              to="/guides"
-              class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              @click="closeMenu"
-            >
-              Guides
-            </NuxtLink>
-
-          </nav>
+            <div v-else>
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-white/45">Quick destinations</p>
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <NuxtLink v-for="destination in SITE_SEARCH_PAGES.slice(0, 8)" :key="destination.key" :to="destination.path" class="flex min-h-16 items-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white" @click="closeHeaderSearch()">
+                  {{ destination.title }}
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
         </div>
-      </aside>
-    </div>
+      </Transition>
+    </Teleport>
 
     <!-- ✅ Content wrapper grows to push footer to bottom -->
     <div class="flex-1">
       <!-- Layout body -->
-      <div class="site-container grid gap-6 py-5">
+      <div
+        class="site-container grid gap-6 pt-4 sm:py-5"
+        :class="routesWithEmbeddedMobileChrome.has(route.path)
+          ? 'pb-0'
+          : 'pb-[calc(6.5rem+env(safe-area-inset-bottom))]'"
+      >
         <!-- Page content stays focused; discovery remains in search and the tools directory. -->
         <main class="site-content min-w-0">
           <div
@@ -888,12 +801,21 @@ onBeforeUnmount(() => {
 
     <AuthLoginDialog :open="showHeaderLogin" @close="showHeaderLogin = false" />
     <!-- The tracker already exposes its primary form, so a second floating action would compete with it. -->
-    <QuickExpenseFab v-if="visibleAuthUser && route.path !== '/tools/expense-tracker'" />
+    <QuickExpenseFab
+      v-if="visibleAuthUser && route.path !== '/tools/expense-tracker'"
+      mobile-navigation-action
+    />
+
+    <MobileBottomNav
+      :route-path="route.path"
+      :account-to="visibleAuthUser ? '/account' : '/login'"
+      :show-quick-expense-slot="showQuickExpenseNavigationSlot"
+      @search="toggleHeaderSearch"
+    />
 
     <!-- The footer keeps trust and policy links visible on every public page. -->
     <footer
-      class="site-footer mt-0 border-t border-slate-200/70 py-4 dark:border-white/10 sm:py-8"
-      :class="{ 'hidden sm:block': route.path === '/tools/expense-tracker' }"
+      class="site-footer mt-0 hidden border-t border-slate-200/70 py-8 dark:border-white/10 sm:block"
     >
       <div
         class="site-container grid text-sm sm:gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.75fr)]"
