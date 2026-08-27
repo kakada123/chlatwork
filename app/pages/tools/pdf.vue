@@ -16,10 +16,10 @@ const pdfTools = pdfCategory ? getToolsForDirectoryCategory(pdfCategory) : [];
 useSeoMeta({
   title: "PDF Tools Online - ChlatWork",
   description:
-    "Free browser-side PDF tools for converting, merging, splitting, compressing, removing pages, reordering pages, and generating invoices.",
+    "Free browser-side PDF tools for converting, merging, splitting, removing pages, reordering pages, and generating invoices.",
   ogTitle: "PDF Tools Online - ChlatWork",
   ogDescription:
-    "Free browser-side PDF tools for converting, merging, splitting, compressing, removing pages, reordering pages, and generating invoices.",
+    "Free browser-side PDF tools for converting, merging, splitting, removing pages, reordering pages, and generating invoices.",
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/pdf",
   twitterCard: "summary_large_image",
@@ -53,7 +53,7 @@ useHead({
           PDF Tools
         </h1>
         <p class="max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
-          Convert, merge, split, compress, remove pages, reorder pages, and create
+          Convert, merge, split, remove pages, reorder pages, and create
           simple PDFs directly in your browser. Files stay on your device whenever
           the browser can process them safely.
         </p>

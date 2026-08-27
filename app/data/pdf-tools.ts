@@ -42,6 +42,7 @@ export type PdfToolDef = ToolDef & {
   howItWorks: string[];
   related: PdfToolKey[];
   betaNotice?: string;
+  comingSoonNotice?: string;
   evidence?: ToolEvidence;
 };
 
@@ -186,12 +187,13 @@ export const PDF_TOOLS: PdfToolDef[] = [
     key: "compress-pdf",
     name: "Compress PDF",
     route: "/tools/compress-pdf",
-    enabled: true,
-    status: "beta",
+    enabled: false,
+    status: "soon",
     category: "PDF Tools",
-    description: "Rebuild a PDF locally and remove safe metadata where possible.",
-    betaNotice:
-      "Beta: rebuilding may leave the file unchanged or make it larger. Compare the original and output sizes and inspect every page before using the result.",
+    description:
+      "A stronger PDF compression workflow with measurable size reduction is in development.",
+    comingSoonNotice:
+      "Beta paused: Compress PDF is coming back with real image downsampling, quality controls, and clear before-and-after results.",
     evidence: {
       knownFailureCases: [
         "An already optimized PDF may not become smaller.",
@@ -308,7 +310,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     route: "/tools/html-to-pdf",
     enabled: true,
     status: "beta",
-    category: "PDF Tools",
+    category: "Developer Tools",
     description: "Render simple HTML into a printable PDF page.",
     betaNotice:
       "Beta: intended for simple printable HTML. External assets, scripts, advanced CSS, and exact browser-to-PDF layout matching are not guaranteed.",
@@ -355,7 +357,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     key: "text-to-pdf",
     name: "Text to PDF",
     route: "/tools/text-to-pdf",
-    enabled: true,
+    enabled: false,
     status: "stable",
     category: "PDF Tools",
     description: "Convert plain text into a simple downloadable PDF.",
@@ -428,5 +430,8 @@ export const PDF_TOOL_BY_KEY = Object.fromEntries(
 ) as Record<PdfToolKey, PdfToolDef>;
 
 export function getPdfRelatedTools(tool: PdfToolDef) {
-  return tool.related.map((key) => PDF_TOOL_BY_KEY[key]).filter(Boolean);
+  // Hidden or paused tools keep their direct URLs without resurfacing through recommendations.
+  return tool.related
+    .map((key) => PDF_TOOL_BY_KEY[key])
+    .filter((relatedTool) => Boolean(relatedTool?.enabled));
 }

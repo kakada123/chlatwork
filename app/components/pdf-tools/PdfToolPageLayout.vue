@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import type { PdfToolDef } from "~/data/pdf-tools";
 
-defineProps<{
+const props = defineProps<{
   tool: PdfToolDef;
 }>();
+
+const parentDirectory = computed(() =>
+  props.tool.category === "Developer Tools"
+    ? { label: "Developer tools", path: "/tools/developer-tools" }
+    : { label: "PDF tools", path: "/tools/pdf" },
+);
 </script>
 
 <template>
   <main class="mx-auto w-full max-w-[1180px] space-y-6">
     <header class="space-y-2">
       <NuxtLink
-        to="/tools/pdf"
+        :to="parentDirectory.path"
         class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
       >
-        PDF tools
+        {{ parentDirectory.label }}
       </NuxtLink>
 
       <div class="space-y-2">
@@ -29,6 +35,13 @@ defineProps<{
           role="note"
         >
           {{ tool.betaNotice }}
+        </p>
+        <p
+          v-if="tool.status === 'soon' && tool.comingSoonNotice"
+          class="max-w-3xl rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium leading-6 text-sky-900 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100"
+          role="status"
+        >
+          {{ tool.comingSoonNotice }}
         </p>
       </div>
     </header>

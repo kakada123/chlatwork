@@ -52,14 +52,24 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   assert.match(landing, /<div class="hidden sm:block">/);
   assert.match(mobile, /aria-label="Mobile tool categories"/);
   assert.match(mobile, /Good morning/);
-  assert.match(mobile, /mobile-featured-tool-title/);
+  assert.match(mobile, /mobile-featured-item-title/);
   assert.match(mobile, /line-clamp-2 h-14 text-2xl/);
   assert.match(mobile, /line-clamp-2 h-10 text-sm/);
   assert.match(mobile, /FEATURED_ROTATION_INTERVAL_MS = 6_000/);
   assert.match(mobile, /setInterval/);
   assert.match(mobile, /prefers-reduced-motion: reduce/);
-  assert.match(mobile, /aria-label="Choose featured tool"/);
-  assert.match(mobile, /@click="selectFeaturedTool\(index\)"/);
+  assert.match(mobile, /aria-label="Choose featured item"/);
+  assert.match(mobile, /@click="selectFeaturedItem\(index\)"/);
+  assert.match(mobile, /name: "Create a Moment"/);
+  assert.match(mobile, /route: "\/moments\/create"/);
+  assert.match(mobile, /kind: "moment"/);
+  assert.doesNotMatch(
+    mobile.slice(
+      mobile.indexOf("const FEATURED_ITEM_IDS"),
+      mobile.indexOf("const FEATURED_ROTATION_INTERVAL_MS"),
+    ),
+    /image-compress/,
+  );
   assert.match(mobile, /Continue where you left off/);
   assert.match(mobile, /getToolUsageSummary/);
   assert.match(mobile, /id="mobile-favorite-tools-title"/);

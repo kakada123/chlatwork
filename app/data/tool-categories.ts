@@ -34,7 +34,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     path: "/tools/pdf",
     title: "PDF Tools",
     description:
-      "Convert, merge, split, compress, reorder, and create PDF files with practical browser-based tools.",
+      "Convert, merge, split, reorder, and create PDF files with practical browser-based tools.",
     intro:
       "Use ChlatWork PDF tools for quick document work such as creating PDFs from images, merging files, removing pages, and preparing simple invoices.",
     accent: "from-orange-300 via-rose-300 to-red-400",
@@ -43,11 +43,8 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "pdf-to-jpg",
       "merge-pdf",
       "split-pdf",
-      "compress-pdf",
       "remove-pdf-pages",
       "reorder-pdf-pages",
-      "html-to-pdf",
-      "text-to-pdf",
       "invoice-to-pdf",
     ],
   },
@@ -145,6 +142,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "cron-explainer",
       "hash-generator",
       "password-generator",
+      "html-to-pdf",
     ],
   },
   {
@@ -220,15 +218,13 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     path: "/tools/file-conversion",
     title: "File Conversion Tools",
     description:
-      "Convert images, PDFs, HTML, and text into practical file formats using focused browser tools.",
+      "Convert images and PDFs into practical file formats using focused browser tools.",
     intro:
       "Prepare common documents and images for sharing, archiving, upload, and everyday office workflows.",
     accent: "from-blue-300 via-indigo-300 to-violet-400",
     toolKeys: [
       "image-to-pdf",
       "pdf-to-jpg",
-      "html-to-pdf",
-      "text-to-pdf",
       "invoice-to-pdf",
     ],
   },

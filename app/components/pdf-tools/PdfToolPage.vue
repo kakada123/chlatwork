@@ -378,7 +378,34 @@ function removeInvoiceItem(index: number) {
 
 <template>
   <PdfToolPageLayout :tool="tool">
-    <section class="grid gap-4 lg:grid-cols-[1fr_340px]">
+    <section
+      v-if="tool.status === 'soon'"
+      class="rounded-2xl border border-sky-200 bg-sky-50 p-5 shadow-sm dark:border-cyan-300/20 dark:bg-cyan-300/10 sm:p-6"
+    >
+      <p class="text-xs font-black uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">
+        Beta · Coming back soon
+      </p>
+      <h2 class="mt-3 text-xl font-black text-slate-950 dark:text-white">
+        Real PDF compression is being rebuilt
+      </h2>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
+        The previous browser rebuild could leave an optimized PDF unchanged or make it larger, so compression is paused until the result can be measured confidently.
+      </p>
+      <ul class="mt-4 grid list-inside list-disc gap-2 text-sm text-slate-700 dark:text-white/75 sm:grid-cols-2">
+        <li>Image downsampling and DPI reduction</li>
+        <li>JPEG quality controls</li>
+        <li>Unused-object cleanup</li>
+        <li>Before/after size and saved percentage</li>
+      </ul>
+      <NuxtLink
+        to="/tools/pdf"
+        class="mt-5 inline-flex h-11 items-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 dark:ring-1 dark:ring-white/15"
+      >
+        Explore available PDF tools
+      </NuxtLink>
+    </section>
+
+    <section v-else class="grid gap-4 lg:grid-cols-[1fr_340px]">
       <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
         <PrivacyNotice />
 
@@ -622,7 +649,7 @@ function removeInvoiceItem(index: number) {
       </aside>
     </section>
 
-    <PdfResultDownload :results="results" />
+    <PdfResultDownload v-if="tool.status !== 'soon'" :results="results" />
     <PdfRelatedTools :tools="relatedTools" />
     <ToolPageDetails
       v-if="guide"
