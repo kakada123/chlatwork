@@ -34,13 +34,6 @@ const MOMENTS_FEATURED_ITEM: FeaturedHomeItem = {
   ctaLabel: "Create now",
   kind: "moment",
 };
-const FEATURED_ITEM_IDS = [
-  "qr",
-  "merge-pdf",
-  "create-moment",
-  "payback-calculator",
-] as const;
-const FEATURED_ROTATION_INTERVAL_MS = 6_000;
 
 const props = defineProps<{
   tools: LandingTool[];
@@ -56,11 +49,8 @@ const greeting = ref("Welcome");
 const avatarFailed = ref(false);
 const isMobileViewport = ref(false);
 const usageSummary = ref<ToolUsageSummaryItem[]>([]);
-const featuredIndex = ref(0);
 let loadedUsageForUserId = "";
-let featuredRotationTimer: ReturnType<typeof setInterval> | null = null;
 let mobileViewportQuery: MediaQueryList | null = null;
-let reducedMotionQuery: MediaQueryList | null = null;
 
 const visibleUser = computed(() => isReady.value ? user.value : null);
 const firstName = computed(() => visibleUser.value?.name?.trim().split(/\s+/)[0] ?? "");
@@ -91,28 +81,8 @@ const mobileCategories = computed(() => {
     .map((key) => props.categories.find((category) => category.key === key))
     .filter((category): category is LandingToolCategory => Boolean(category));
 });
-const featuredItems = computed<FeaturedHomeItem[]>(() =>
-  FEATURED_ITEM_IDS
-    .map((key) => {
-      if (key === MOMENTS_FEATURED_ITEM.key) return MOMENTS_FEATURED_ITEM;
-
-      const tool = props.tools.find((item) => item.key === key);
-      return tool
-        ? { ...tool, ctaLabel: "Try it now", kind: "tool" as const }
-        : null;
-    })
-    .filter((item): item is FeaturedHomeItem => Boolean(item)),
-);
-const featuredItem = computed(() =>
-  featuredItems.value[featuredIndex.value % featuredItems.value.length]
-    ?? (props.popularTools[0]
-      ? {
-          ...props.popularTools[0],
-          ctaLabel: "Try it now",
-          kind: "tool" as const,
-        }
-      : undefined),
-);
+// Moments remains the single focused campaign instead of competing in an auto-rotating tool carousel.
+const featuredItem = MOMENTS_FEATURED_ITEM;
 const recentTools = computed<RecentTool[]>(() =>
   usageSummary.value
     .map((usage) => ({
@@ -173,63 +143,21 @@ function handleAvatarError() {
   avatarFailed.value = true;
 }
 
-function stopFeaturedRotation() {
-  if (featuredRotationTimer) {
-    clearInterval(featuredRotationTimer);
-    featuredRotationTimer = null;
-  }
-}
-
-function startFeaturedRotation() {
-  stopFeaturedRotation();
-
-  if (
-    !isMobileViewport.value
-    || document.hidden
-    || reducedMotionQuery?.matches
-    || featuredItems.value.length < 2
-  ) {
-    return;
-  }
-
-  featuredRotationTimer = setInterval(() => {
-    featuredIndex.value = (featuredIndex.value + 1) % featuredItems.value.length;
-  }, FEATURED_ROTATION_INTERVAL_MS);
-}
-
-function selectFeaturedItem(index: number) {
-  featuredIndex.value = index;
-  // Restarting gives the selected slide a full reading interval before it advances.
-  startFeaturedRotation();
-}
-
 function handleViewportChange() {
   isMobileViewport.value = mobileViewportQuery?.matches ?? false;
-  startFeaturedRotation();
-}
-
-function handleRotationPreferenceChange() {
-  startFeaturedRotation();
 }
 
 onMounted(() => {
   mobileViewportQuery = window.matchMedia("(max-width: 639px)");
-  reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   isMobileViewport.value = mobileViewportQuery.matches;
   const hour = new Date().getHours();
   greeting.value = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   mobileViewportQuery.addEventListener("change", handleViewportChange);
-  reducedMotionQuery.addEventListener("change", handleRotationPreferenceChange);
-  document.addEventListener("visibilitychange", handleRotationPreferenceChange);
-  startFeaturedRotation();
   void loadRecentTools();
 });
 
 onBeforeUnmount(() => {
-  stopFeaturedRotation();
   mobileViewportQuery?.removeEventListener("change", handleViewportChange);
-  reducedMotionQuery?.removeEventListener("change", handleRotationPreferenceChange);
-  document.removeEventListener("visibilitychange", handleRotationPreferenceChange);
 });
 
 watch([isMobileViewport, isReady, user], () => {
@@ -311,84 +239,37 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     </nav>
 
     <section
-      v-if="featuredItem"
-      class="relative mt-6 overflow-hidden rounded-3xl border bg-gradient-to-br px-5 pb-12 pt-5 shadow-sm"
-      :class="featuredItem.kind === 'moment'
-        ? 'border-rose-100 from-rose-50 via-white to-amber-50 dark:border-rose-300/15 dark:from-rose-400/10 dark:via-white/[0.04] dark:to-amber-300/10'
-        : 'border-sky-100 from-sky-50 via-white to-blue-50 dark:border-cyan-300/15 dark:from-cyan-400/10 dark:via-white/[0.04] dark:to-blue-400/10'"
+      class="relative mt-6 overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-amber-50 px-5 py-5 shadow-sm dark:border-rose-300/15 dark:from-rose-400/10 dark:via-white/[0.04] dark:to-amber-300/10"
       aria-labelledby="mobile-featured-item-title"
-      aria-roledescription="carousel"
     >
       <div
-        class="absolute right-1 top-3 size-24 opacity-20 [background-size:10px_10px]"
-        :class="featuredItem.kind === 'moment'
-          ? '[background-image:radial-gradient(#e11d48_1.5px,transparent_1.5px)]'
-          : '[background-image:radial-gradient(#1d4ed8_1.5px,transparent_1.5px)]'"
+        class="absolute right-1 top-3 size-24 opacity-20 [background-image:radial-gradient(#e11d48_1.5px,transparent_1.5px)] [background-size:10px_10px]"
         aria-hidden="true"
       />
-      <Transition name="featured-tool" mode="out-in">
-        <div :key="featuredItem.key" class="relative z-10">
-          <div class="max-w-[58%]">
-            <p
-              class="inline-flex rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wide"
-              :class="featuredItem.kind === 'moment'
-                ? 'bg-rose-100 text-rose-700 dark:bg-rose-300/15 dark:text-rose-200'
-                : 'bg-blue-100 text-blue-700 dark:bg-blue-300/15 dark:text-blue-200'"
-            >
-              Featured
-            </p>
-            <h2 id="mobile-featured-item-title" class="mt-3 line-clamp-2 h-14 text-2xl font-semibold leading-7 text-[#082552] dark:text-white">
-              {{ featuredItem.name }}
-            </h2>
-            <p class="mt-2 line-clamp-2 h-10 text-sm leading-5 text-slate-600 dark:text-white/60">
-              {{ featuredItem.description }}
-            </p>
-            <NuxtLink
-              :to="featuredItem.route"
-              class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              :class="featuredItem.kind === 'moment'
-                ? 'bg-rose-600 hover:bg-rose-700 focus-visible:ring-rose-500'
-                : 'bg-[#082552] focus-visible:ring-sky-500'"
-            >
-              {{ featuredItem.ctaLabel }} <span aria-hidden="true">→</span>
-            </NuxtLink>
-          </div>
-          <div
-            class="absolute right-0 top-1/2 grid size-20 -translate-y-1/2 place-items-center rounded-2xl bg-white shadow-xl dark:bg-slate-950"
-            :class="featuredItem.kind === 'moment'
-              ? 'text-rose-600 dark:text-rose-300'
-              : 'text-blue-700 dark:text-cyan-300'"
-            aria-hidden="true"
+      <div class="relative z-10">
+        <div class="max-w-[58%]">
+          <p class="inline-flex rounded-lg bg-rose-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-700 dark:bg-rose-300/15 dark:text-rose-200">
+            Featured
+          </p>
+          <h2 id="mobile-featured-item-title" class="mt-3 line-clamp-2 h-14 text-2xl font-semibold leading-7 text-[#082552] dark:text-white">
+            {{ featuredItem.name }}
+          </h2>
+          <p class="mt-2 line-clamp-2 h-10 text-sm leading-5 text-slate-600 dark:text-white/60">
+            {{ featuredItem.description }}
+          </p>
+          <NuxtLink
+            :to="featuredItem.route"
+            class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
           >
-            <Heart
-              v-if="featuredItem.kind === 'moment'"
-              class="size-12 fill-current"
-            />
-            <ToolIcon v-else :name="featuredItem.key" class="size-12" />
-          </div>
+            {{ featuredItem.ctaLabel }} <span aria-hidden="true">→</span>
+          </NuxtLink>
         </div>
-      </Transition>
-
-      <div class="absolute inset-x-0 bottom-2 z-20 flex justify-center" aria-label="Choose featured item">
-        <button
-          v-for="(item, index) in featuredItems"
-          :key="item.key"
-          type="button"
-          class="grid size-8 place-items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-          :aria-label="`Show ${item.name}`"
-          :aria-current="featuredIndex === index ? 'true' : undefined"
-          @click="selectFeaturedItem(index)"
+        <div
+          class="absolute right-0 top-1/2 grid size-20 -translate-y-1/2 place-items-center rounded-2xl bg-white text-rose-600 shadow-xl dark:bg-slate-950 dark:text-rose-300"
+          aria-hidden="true"
         >
-          <span
-            class="h-1.5 rounded-full transition-[width,background-color]"
-            :class="featuredIndex === index
-              ? item.kind === 'moment'
-                ? 'w-4 bg-rose-600 dark:bg-rose-300'
-                : 'w-4 bg-[#082552] dark:bg-cyan-300'
-              : 'w-1.5 bg-slate-300 dark:bg-white/25'"
-            aria-hidden="true"
-          />
-        </button>
+          <Heart class="size-12 fill-current" />
+        </div>
       </div>
     </section>
 
@@ -454,27 +335,3 @@ watch(() => visibleUser.value?.avatarUrl, () => {
 
   </div>
 </template>
-
-<style scoped>
-.featured-tool-enter-active,
-.featured-tool-leave-active {
-  transition: opacity 180ms ease, transform 180ms ease;
-}
-
-.featured-tool-enter-from {
-  opacity: 0;
-  transform: translateX(0.75rem);
-}
-
-.featured-tool-leave-to {
-  opacity: 0;
-  transform: translateX(-0.75rem);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .featured-tool-enter-active,
-  .featured-tool-leave-active {
-    transition: none;
-  }
-}
-</style>
