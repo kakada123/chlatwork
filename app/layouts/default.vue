@@ -381,6 +381,7 @@ const mobilePageTitle = computed(() => {
 
   const exactTitles: Record<string, string> = {
     "/about": "About",
+    "/admin": "Admin activity",
     "/buy-me-coffee": "Support ChlatWork",
     "/contact": "Contact",
     "/cookies": "Cookie Policy",
@@ -541,6 +542,15 @@ watch(
               :class="route.path === '/about' ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               About
+            </NuxtLink>
+
+            <NuxtLink
+              v-if="visibleAuthUser?.role === 'ADMIN'"
+              to="/admin"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path.startsWith('/admin') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
+            >
+              Admin
             </NuxtLink>
 
           </nav>

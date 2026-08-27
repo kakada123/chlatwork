@@ -9,6 +9,7 @@ import { PaybackModule } from './payback/payback.module';
 import { validateEnvironment } from './config/environment';
 import { ToolUsageModule } from './tool-usage/tool-usage.module';
 import { MomentsModule } from './moments/moments.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MomentsModule } from './moments/moments.module';
     PaybackModule,
     ToolUsageModule,
     MomentsModule,
+    AdminModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
