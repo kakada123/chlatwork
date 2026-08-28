@@ -1,6 +1,18 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
-const DEFAULT_MAX_AGE_SECONDS = 60 * 60;
+const DEFAULT_MAX_AGE_SECONDS = 24 * 60 * 60;
+
+export type TelegramMiniAppDataErrorCode =
+  | 'invalid_data'
+  | 'invalid_signature'
+  | 'expired'
+  | 'invalid_user';
+
+export class TelegramMiniAppDataError extends Error {
+  constructor(readonly code: TelegramMiniAppDataErrorCode) {
+    super(code);
+  }
+}
 
 export interface TelegramMiniAppProfile {
   providerUserId: string;
@@ -19,7 +31,7 @@ export function verifyTelegramMiniAppData(
   const authDate = Number(params.get('auth_date'));
   const userJson = params.get('user');
   if (!/^[a-f0-9]{64}$/i.test(receivedHash) || !Number.isSafeInteger(authDate) || !userJson) {
-    throw new Error('Invalid Telegram Mini App data');
+    throw new TelegramMiniAppDataError('invalid_data');
   }
 
   const dataCheckString = [...params.entries()]
@@ -32,21 +44,21 @@ export function verifyTelegramMiniAppData(
   const expectedHash = createHmac('sha256', secretKey).update(dataCheckString).digest();
   const suppliedHash = Buffer.from(receivedHash, 'hex');
   if (suppliedHash.length !== expectedHash.length || !timingSafeEqual(suppliedHash, expectedHash)) {
-    throw new Error('Invalid Telegram Mini App signature');
+    throw new TelegramMiniAppDataError('invalid_signature');
   }
   if (authDate > nowSeconds + 30 || nowSeconds - authDate > maxAgeSeconds) {
-    throw new Error('Expired Telegram Mini App data');
+    throw new TelegramMiniAppDataError('expired');
   }
 
   let telegramUser: Record<string, unknown>;
   try {
     telegramUser = JSON.parse(userJson) as Record<string, unknown>;
   } catch {
-    throw new Error('Invalid Telegram Mini App user');
+    throw new TelegramMiniAppDataError('invalid_user');
   }
   const id = telegramUser.id;
   if ((typeof id !== 'number' && typeof id !== 'string') || !/^\d+$/.test(String(id))) {
-    throw new Error('Invalid Telegram Mini App user');
+    throw new TelegramMiniAppDataError('invalid_user');
   }
   const firstName = boundedString(telegramUser.first_name, 256);
   const lastName = boundedString(telegramUser.last_name, 256);

@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { TelegramCodeAuthDto } from './dto/telegram-code-auth.dto';
 import type { GoogleLinkCodeDto } from './dto/google-link-code.dto';
 import type { AccessTokenPayload, GoogleLinkTicketPayload } from './types';
-import { verifyTelegramMiniAppData } from './telegram-mini-app';
+import { TelegramMiniAppDataError, verifyTelegramMiniAppData } from './telegram-mini-app';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const TELEGRAM_JWKS = createRemoteJWKSet(new URL('https://oauth.telegram.org/.well-known/jwks.json'));
@@ -171,8 +171,14 @@ export class AuthService {
         this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
       );
       return { provider: AuthProvider.TELEGRAM, email: null, ...profile };
-    } catch {
-      throw new UnauthorizedException('Invalid Telegram Mini App data');
+    } catch (error) {
+      if (error instanceof TelegramMiniAppDataError && error.code === 'expired') {
+        throw new UnauthorizedException('Telegram Mini App session expired. Close and reopen the app from Telegram.');
+      }
+      if (error instanceof TelegramMiniAppDataError && error.code === 'invalid_signature') {
+        throw new UnauthorizedException('Telegram Mini App verification failed. Reopen it from the ChlatWork bot.');
+      }
+      throw new UnauthorizedException('Telegram Mini App did not provide valid user data.');
     }
   }
 
