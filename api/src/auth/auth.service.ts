@@ -278,7 +278,7 @@ export class AuthService {
     });
     let account = accounts.find((candidate) => candidate.providerUserId === profile.providerUserId) ?? accounts[0];
     if (new Set(accounts.map((candidate) => candidate.userId)).size > 1) {
-      account = await this.reconcileTelegramDuplicate(profile, accounts);
+      throw new ConflictException('This Telegram identity is connected to multiple ChlatWork accounts');
     }
     if (account && account.providerUserId !== profile.providerUserId) {
       try {
@@ -325,61 +325,6 @@ export class AuthService {
 
     if (!user.isActive) throw new UnauthorizedException('User is inactive');
     return this.issueTokens(user);
-  }
-
-  private async reconcileTelegramDuplicate(
-    profile: ProviderProfile,
-    accounts: Awaited<ReturnType<PrismaService['socialAccount']['findMany']>>,
-  ) {
-    const canonicalAccount = accounts.find((account) => account.providerUserId === profile.providerUserId);
-    const establishedAccount = accounts.find((account) => account.providerUserId === profile.legacyProviderUserId);
-    if (profile.provider !== AuthProvider.TELEGRAM || !canonicalAccount || !establishedAccount) {
-      throw new ConflictException('This Telegram identity is connected to multiple ChlatWork accounts');
-    }
-
-    const temporaryUser = await this.prisma.user.findUnique({
-      where: { id: canonicalAccount.userId },
-      select: {
-        expenseProfile: { select: { userId: true } },
-        paybackProfile: { select: { userId: true } },
-        _count: {
-          select: {
-            socialAccounts: true,
-            expenseEntries: true,
-            paybackEntries: true,
-            paybackCalculations: true,
-            toolUsageEvents: true,
-            moments: true,
-          },
-        },
-      },
-    });
-    const hasSavedData = !temporaryUser
-      || Boolean(temporaryUser.expenseProfile)
-      || Boolean(temporaryUser.paybackProfile)
-      || temporaryUser._count.socialAccounts !== 1
-      || temporaryUser._count.expenseEntries > 0
-      || temporaryUser._count.paybackEntries > 0
-      || temporaryUser._count.paybackCalculations > 0
-      || temporaryUser._count.toolUsageEvents > 0
-      || temporaryUser._count.moments > 0;
-    if (hasSavedData) {
-      throw new ConflictException('Both Telegram accounts contain saved data and require a reviewed merge');
-    }
-
-    return this.prisma.$transaction(async (tx) => {
-      // Telegram verified both identifiers; keep the established account and attach the empty accidental identity to it.
-      const reconciled = await tx.socialAccount.update({
-        where: { id: canonicalAccount.id },
-        data: { userId: establishedAccount.userId },
-        include: { user: true },
-      });
-      await tx.refreshToken.updateMany({
-        where: { userId: canonicalAccount.userId },
-        data: { userId: establishedAccount.userId },
-      });
-      return reconciled;
-    });
   }
 
   private async issueTokens(user: User) {

@@ -142,63 +142,15 @@ describe('AuthService Telegram identity compatibility', () => {
     );
   });
 
-  it('keeps the established web account when an empty Mini App account already exists', async () => {
-    const { service, refreshToken, socialAccount, userModel } = createService();
+  it('requires a reviewed merge when Telegram identifiers belong to different users', async () => {
+    const { service, socialAccount } = createService();
     const temporaryUser = { ...user, id: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470' };
-    const canonicalAccount = {
-      id: '7027bfdb-01d0-412b-a243-14dfc4b4c91a',
-      providerUserId: telegramProfile.providerUserId,
-      userId: temporaryUser.id,
-      user: temporaryUser,
-    };
-    const establishedAccount = {
-      id: '0a5fa027-e46d-4630-89d0-753af994b336',
-      providerUserId: telegramProfile.legacyProviderUserId,
-      userId: user.id,
-      user,
-    };
-    socialAccount.findMany.mockResolvedValueOnce([canonicalAccount, establishedAccount]).mockResolvedValueOnce([{ provider: AuthProvider.TELEGRAM }]);
-    socialAccount.update.mockResolvedValue({
-      ...canonicalAccount,
-      userId: user.id,
-      user,
-    });
-    userModel.findUnique.mockResolvedValue({
-      expenseProfile: null,
-      paybackProfile: null,
-      _count: {
-        socialAccounts: 1,
-        expenseEntries: 0,
-        paybackEntries: 0,
-        paybackCalculations: 0,
-        toolUsageEvents: 0,
-        moments: 0,
-      },
-    });
-
-    await expect(authenticateProvider(service)).resolves.toMatchObject({
-      user: { id: user.id },
-    });
-    expect(socialAccount.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: canonicalAccount.id },
-        data: { userId: user.id },
-      }),
-    );
-    expect(refreshToken.updateMany).toHaveBeenCalledWith({
-      where: { userId: temporaryUser.id },
-      data: { userId: user.id },
-    });
-  });
-
-  it('does not overwrite either account when the accidental account has saved data', async () => {
-    const { service, socialAccount, userModel } = createService();
     socialAccount.findMany.mockResolvedValue([
       {
         id: '7027bfdb-01d0-412b-a243-14dfc4b4c91a',
         providerUserId: telegramProfile.providerUserId,
-        userId: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470',
-        user: { ...user, id: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470' },
+        userId: temporaryUser.id,
+        user: temporaryUser,
       },
       {
         id: '0a5fa027-e46d-4630-89d0-753af994b336',
@@ -207,18 +159,6 @@ describe('AuthService Telegram identity compatibility', () => {
         user,
       },
     ]);
-    userModel.findUnique.mockResolvedValue({
-      expenseProfile: null,
-      paybackProfile: null,
-      _count: {
-        socialAccounts: 1,
-        expenseEntries: 1,
-        paybackEntries: 0,
-        paybackCalculations: 0,
-        toolUsageEvents: 0,
-        moments: 0,
-      },
-    });
 
     await expect(authenticateProvider(service)).rejects.toBeInstanceOf(ConflictException);
     expect(socialAccount.update).not.toHaveBeenCalled();
