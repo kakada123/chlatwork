@@ -21,7 +21,8 @@ function createService() {
     create: jest.fn().mockResolvedValue({}),
     deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
   };
-  const prisma = { refreshToken };
+  const socialAccount = { findMany: jest.fn().mockResolvedValue([]) };
+  const prisma = { refreshToken, socialAccount };
   const jwt = { signAsync: jest.fn().mockResolvedValue('new-access-token') };
   const service = new AuthService({} as never, jwt as never, prisma as never);
 

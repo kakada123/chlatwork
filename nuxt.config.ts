@@ -96,6 +96,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     authApiBaseUrl: nodeEnv.NUXT_AUTH_API_BASE_URL || "",
+    appOrigin: nodeEnv.NUXT_APP_ORIGIN || "",
+    telegramBotUsername: nodeEnv.NUXT_TELEGRAM_BOT_USERNAME || "",
+    telegramMiniAppShortName: nodeEnv.NUXT_TELEGRAM_MINI_APP_SHORT_NAME || "",
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
       adsenseClientId: "ca-pub-3732801458368248",
@@ -203,6 +206,10 @@ export default defineNuxtConfig({
         },
       ],
       script: [
+        {
+          key: "telegram-mini-app",
+          src: "https://telegram.org/js/telegram-web-app.js?63",
+        },
         {
           key: "color-mode-init",
           innerHTML: colorModeScript,

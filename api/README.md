@@ -1,6 +1,6 @@
 # ChlatWork Auth API
 
-NestJS authentication and account-data service for ChlatWork. It accepts only Google and Telegram identity tokens, stores provider links, hashed refresh tokens, and user-owned Expense Tracker records in PostgreSQL, and returns short-lived access tokens to the Nuxt server. Browser code never receives these tokens directly.
+NestJS authentication and account-data service for ChlatWork. It verifies Google identity tokens, Telegram Mini App `initData`, and Telegram OIDC tokens; stores provider links, hashed refresh tokens, and user-owned account data in PostgreSQL; and returns short-lived access tokens to the Nuxt server. Browser code never receives these tokens directly.
 
 ## Local setup
 
@@ -16,6 +16,8 @@ The API binds to `0.0.0.0` using Railway's `PORT` value, with `3002` as the loca
 - `POST /auth/google`
 - `POST /auth/telegram`
 - `POST /auth/telegram/code`
+- `POST /auth/google/link-ticket` (authenticated)
+- `POST /auth/google/link-code`
 - `POST /auth/refresh`
 - `POST /auth/logout`
 - `GET /auth/me`
@@ -24,4 +26,4 @@ The API binds to `0.0.0.0` using Railway's `PORT` value, with `3002` as the loca
 - `GET /payback/state` (authenticated)
 - `PUT /payback/state` (authenticated)
 
-Google and Telegram callback/origin values must be registered with their providers. Provider secrets and `JWT_ACCESS_SECRET` belong only in the auth API runtime environment.
+Google and Telegram callback/origin values must be registered with their providers. For production, Google Cloud must contain the JavaScript origin `https://chlatwork.com` and redirect URI `https://chlatwork.com/api/auth/google/callback`. Provider secrets, the Telegram bot token, and `JWT_ACCESS_SECRET` belong only in the auth API runtime environment.

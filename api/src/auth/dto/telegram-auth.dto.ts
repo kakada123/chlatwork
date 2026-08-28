@@ -4,5 +4,5 @@ export class TelegramAuthDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(10_000)
-  idToken!: string;
+  initData!: string;
 }

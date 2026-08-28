@@ -5,6 +5,7 @@ export interface AuthUser {
   name: string | null;
   avatarUrl: string | null;
   role: string;
+  providers: Array<"GOOGLE" | "TELEGRAM">;
 }
 
 interface AuthUserResponse {
@@ -56,10 +57,10 @@ export function useAuth() {
     return response.user;
   }
 
-  async function loginWithTelegram(idToken: string) {
+  async function loginWithTelegram(initData: string) {
     const response = await $fetch<AuthUserResponse>("/api/auth/telegram", {
       method: "POST",
-      body: { idToken },
+      body: { initData },
     });
     user.value = response.user;
     isReady.value = true;

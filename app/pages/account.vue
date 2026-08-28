@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Heart,
   History,
+  Link2,
   LogOut,
   Moon,
   ReceiptText,
@@ -49,6 +50,7 @@ definePageMeta({ middleware: "auth" });
 useSeoMeta({ title: "Profile | ChlatWork", robots: "noindex, nofollow" });
 
 const { user, logout } = useAuth();
+const route = useRoute();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { localizeTool } = useLanguage();
 const { localizeMomentPath } = useMomentLanguage();
@@ -76,6 +78,10 @@ const quickExpenseSettingError = ref("");
 const expenseState = ref<ExpenseStoredState | null>(null);
 const expenseLoading = ref(true);
 const expenseLoadFailed = ref(false);
+const isTelegramMiniApp = ref(false);
+const googleLinkUrl = ref("");
+const googleLinkError = ref("");
+let googleLinkRefreshTimer: ReturnType<typeof setInterval> | undefined;
 const {
   data: momentData,
   status: momentsStatus,
@@ -127,6 +133,30 @@ const initials = computed(() => {
   const source = user.value?.name || user.value?.email || user.value?.phone || "U";
   return source.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 });
+const needsGoogleLink = computed(() =>
+  isTelegramMiniApp.value && !user.value?.providers?.includes("GOOGLE"),
+);
+
+async function prepareGoogleLink() {
+  if (!needsGoogleLink.value) return;
+  try {
+    const response = await $fetch<{ url: string }>("/api/auth/google/link/start", { method: "POST" });
+    googleLinkUrl.value = response.url;
+    googleLinkError.value = "";
+  } catch {
+    googleLinkUrl.value = "";
+    googleLinkError.value = "Google linking is temporarily unavailable.";
+  }
+}
+
+function openGoogleLink() {
+  const telegram = getTelegramMiniApp();
+  if (!telegram || !googleLinkUrl.value) return;
+  // Telegram permits external navigation only while handling the user's click.
+  telegram.openLink(googleLinkUrl.value);
+  googleLinkUrl.value = "";
+  window.setTimeout(() => void prepareGoogleLink(), 1_000);
+}
 
 async function loadHistory() {
   historyLoading.value = true;
@@ -275,6 +305,15 @@ function refreshExpensesAfterQuickSave() {
 }
 
 onMounted(() => {
+  const telegram = getTelegramMiniApp();
+  isTelegramMiniApp.value = Boolean(telegram?.initData);
+  if (route.query.google === "failed") {
+    googleLinkError.value = "Google account linking was not completed. Please try again.";
+  }
+  if (needsGoogleLink.value) {
+    void prepareGoogleLink();
+    googleLinkRefreshTimer = window.setInterval(() => void prepareGoogleLink(), 4 * 60 * 1000);
+  }
   void loadHistory();
   void loadToolUsage();
   void loadExpenseState();
@@ -284,6 +323,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  if (googleLinkRefreshTimer) window.clearInterval(googleLinkRefreshTimer);
   window.removeEventListener("focus", refreshHistoryWhenActive);
   window.removeEventListener("chlatwork:quick-expense-saved", refreshExpensesAfterQuickSave);
   document.removeEventListener("visibilitychange", refreshHistoryWhenActive);
@@ -333,7 +373,20 @@ onBeforeUnmount(() => {
           <div class="min-w-0 flex-1">
             <h2 class="truncate text-xl font-semibold">{{ user?.name || "ChlatWork user" }}</h2>
             <p class="mt-1 truncate text-sm text-slate-500 dark:text-white/50">{{ user?.email || user?.phone || "Signed-in account" }}</p>
-            <span class="mt-3 inline-flex rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">Active account</span>
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <span class="inline-flex rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">Active account</span>
+              <span v-if="user?.providers?.includes('GOOGLE')" class="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-300/10 dark:text-blue-200">Google connected</span>
+              <button
+                v-else-if="needsGoogleLink"
+                type="button"
+                :disabled="!googleLinkUrl"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 disabled:cursor-wait disabled:opacity-60 dark:border-blue-300/25 dark:text-blue-200 dark:hover:bg-blue-300/10"
+                @click="openGoogleLink"
+              >
+                <Link2 class="size-3.5" aria-hidden="true" /> {{ googleLinkUrl ? "Link Google" : "Preparing Google…" }}
+              </button>
+            </div>
+            <p v-if="googleLinkError" role="alert" class="mt-2 text-xs font-semibold text-red-600 dark:text-red-300">{{ googleLinkError }}</p>
           </div>
           <button type="button" :disabled="isLoggingOut" class="hidden h-10 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10 sm:inline-flex" @click="signOutDialogOpen = true">
             <LogOut class="h-4 w-4" aria-hidden="true" /> {{ isLoggingOut ? "Signing out…" : "Sign out" }}

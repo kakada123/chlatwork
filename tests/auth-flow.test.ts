@@ -52,20 +52,42 @@ test("login offers only Google and Telegram", () => {
   assert.doesNotMatch(login, /type="password"|\/signup|Facebook/i);
   assert.doesNotMatch(auth, /loginWithFacebook|async function login\(|async function signup\(/);
   assert.match(auth, /loginWithGoogle/);
+  assert.match(auth, /body: \{ initData \}/);
   assert.match(auth, /startTelegramCodeLogin/);
 });
 
 test("the ChlatWork Nest API owns Google and Telegram authentication", () => {
   const controller = readFileSync("api/src/auth/auth.controller.ts", "utf8");
   const service = readFileSync("api/src/auth/auth.service.ts", "utf8");
+  const telegramMiniApp = readFileSync("api/src/auth/telegram-mini-app.ts", "utf8");
   const schema = readFileSync("api/prisma/schema.prisma", "utf8");
   assert.match(controller, /@Post\('google'\)/);
   assert.match(controller, /@Post\('telegram\/code'\)/);
+  assert.match(controller, /@Post\('google\/link-ticket'\)/);
+  assert.match(controller, /@Post\('google\/link-code'\)/);
   assert.doesNotMatch(controller, /login|signup|facebook/i);
   assert.match(service, /jwtVerify\(token, GOOGLE_JWKS/);
-  assert.match(service, /jwtVerify\(idToken, TELEGRAM_JWKS/);
+  assert.match(telegramMiniApp, /createHmac\('sha256', 'WebAppData'\)/);
+  assert.match(telegramMiniApp, /timingSafeEqual/);
   assert.match(service, /createHash\('sha256'\)/);
   assert.match(schema, /GOOGLE\s+TELEGRAM/);
+});
+
+test("Telegram Mini App Google linking opens only from a user click and returns through a deep link", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+  const authorize = readFileSync("server/api/auth/google/link/authorize.get.ts", "utf8");
+  const callback = readFileSync("server/api/auth/google/callback.get.ts", "utf8");
+  const googleLink = readFileSync("server/utils/google-link.ts", "utf8");
+  const telegramReturn = readFileSync("app/plugins/telegram-oauth-return.client.ts", "utf8");
+
+  assert.match(account, /@click="openGoogleLink"/);
+  assert.match(account, /telegram\.openLink\(googleLinkUrl\.value\)/);
+  assert.match(authorize, /code_challenge_method.*S256/);
+  assert.match(callback, /google\/link-code/);
+  assert.match(callback, /telegramMiniAppDeepLink/);
+  assert.match(googleLink, /https:\/\/t\.me\//);
+  assert.match(telegramReturn, /start_param/);
+  assert.match(telegramReturn, /path: "\/account"/);
 });
 
 test("the API accepts traffic from its container network", () => {

@@ -6,6 +6,11 @@ export interface AccessTokenPayload {
   type: 'access';
 }
 
+export interface GoogleLinkTicketPayload {
+  sub: string;
+  type: 'google-link';
+}
+
 export interface CurrentUser {
   id: string;
   role: UserRole;

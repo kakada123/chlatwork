@@ -21,10 +21,11 @@ const props = withDefaults(defineProps<{ locale?: AppLocale }>(), {
 });
 const emit = defineEmits<{ success: []; error: [message: string] }>();
 const config = useRuntimeConfig();
-const { loginWithGoogle, startTelegramCodeLogin } = useAuth();
+const { loginWithGoogle, loginWithTelegram, startTelegramCodeLogin } = useAuth();
 const googleButton = ref<HTMLElement | null>(null);
 const googleClientId = computed(() => config.public.googleClientId);
 const telegramClientId = computed(() => config.public.telegramClientId);
+const isMiniAppAuthenticating = ref(false);
 const authCopy = computed(() =>
   props.locale === "km"
     ? {
@@ -77,6 +78,20 @@ async function startTelegramLogin() {
 }
 
 onMounted(async () => {
+  const telegram = getTelegramMiniApp();
+  if (telegram?.initData) {
+    isMiniAppAuthenticating.value = true;
+    telegram.ready();
+    try {
+      await loginWithTelegram(telegram.initData);
+      emit("success");
+    } catch (error) {
+      emit("error", getSocialAuthError(error));
+    } finally {
+      isMiniAppAuthenticating.value = false;
+    }
+    return;
+  }
   if (!googleClientId.value || !googleButton.value) return;
   try {
     await loadScript("google-identity-services", "https://accounts.google.com/gsi/client");
@@ -103,6 +118,10 @@ onMounted(async () => {
 
 <template>
   <div class="mt-6 space-y-3">
+    <p v-if="isMiniAppAuthenticating" role="status" class="rounded-xl bg-sky-50 px-4 py-3 text-center text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
+      Verifying your Telegram account…
+    </p>
+    <template v-else>
     <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
       <span class="h-px flex-1 bg-gray-200 dark:bg-white/15" />
       {{ authCopy.divider }}
@@ -133,5 +152,6 @@ onMounted(async () => {
     >
       {{ authCopy.telegramMissing }}
     </button>
+    </template>
   </div>
 </template>

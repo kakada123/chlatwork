@@ -20,6 +20,7 @@ export interface AuthUser {
   name: string | null;
   avatarUrl: string | null;
   role: string;
+  providers: Array<"GOOGLE" | "TELEGRAM">;
 }
 
 export interface AuthTokenResponse {

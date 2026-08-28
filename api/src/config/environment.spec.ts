@@ -5,6 +5,8 @@ const valid = {
   FRONTEND_ORIGIN: 'http://localhost:3001',
   JWT_ACCESS_SECRET: 'a'.repeat(32),
   GOOGLE_CLIENT_ID: 'google-client',
+  GOOGLE_CLIENT_SECRET: 'google-secret',
+  TELEGRAM_BOT_TOKEN: '123456789:test-token',
   TELEGRAM_CLIENT_ID: 'telegram-client',
   TELEGRAM_CLIENT_SECRET: 'telegram-secret',
 };

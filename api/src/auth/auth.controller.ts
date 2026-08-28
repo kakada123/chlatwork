@@ -3,6 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { CurrentAuthUser } from './current-user.decorator';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { GoogleLinkCodeDto } from './dto/google-link-code.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { TelegramAuthDto } from './dto/telegram-auth.dto';
@@ -23,7 +24,19 @@ export class AuthController {
   @Post('telegram')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   telegram(@Body() dto: TelegramAuthDto) {
-    return this.auth.telegram(dto.idToken);
+    return this.auth.telegramMiniApp(dto.initData);
+  }
+
+  @Post('google/link-ticket')
+  @UseGuards(JwtAuthGuard)
+  googleLinkTicket(@CurrentAuthUser() user: CurrentUser) {
+    return this.auth.createGoogleLinkTicket(user.id);
+  }
+
+  @Post('google/link-code')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  googleLinkCode(@Body() dto: GoogleLinkCodeDto) {
+    return this.auth.googleLinkCode(dto);
   }
 
   @Post('telegram/code')
