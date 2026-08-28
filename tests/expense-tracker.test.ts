@@ -252,7 +252,8 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(header, /<header class="mb-6 hidden sm:block">/);
   assert.match(input, /mb-5 hidden items-start justify-between gap-3 sm:flex/);
   assert.match(form, /fieldset class="min-w-0 max-w-full overflow-hidden"/);
-  assert.match(form, /sm:grid-cols-\[minmax\(0,1fr\)_18rem\]/);
+  assert.match(form, /sm:grid-cols-\[minmax\(12rem,1fr\)_minmax\(10rem,14rem\)\]/);
+  assert.match(form, /h-14 min-w-0 w-full/);
   assert.match(form, /hidden h-16 items-center[^"]*sm:inline-flex/);
   assert.match(form, /hidden w-full max-w-full gap-2 sm:grid sm:grid-cols-6/);
   assert.match(form, /ref="categoryPicker".*sm:hidden/);
@@ -325,6 +326,7 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /document\.body\.style\.position = "fixed"/);
   assert.match(fab, /unlockPageScroll\(\)/);
   assert.match(fab, /:style="dialogViewportStyle"/);
+  assert.match(fab, /sm:max-w-xl/);
   assert.match(fab, /\/api\/expenses\/quick-entry/);
   assert.match(controller, /@Post\('quick-entry'\)/);
   assert.match(controller, /@Put\('quick-entry\/settings'\)/);

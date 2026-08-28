@@ -124,7 +124,7 @@ defineExpose({ focusAmount, resetForm });
 
 <template>
   <form class="min-w-0 max-w-full space-y-3 sm:space-y-5" @submit.prevent="submit">
-    <div class="sm:grid sm:grid-cols-[minmax(0,1fr)_18rem] sm:items-end sm:gap-3">
+    <div class="sm:grid sm:grid-cols-[minmax(12rem,1fr)_minmax(10rem,14rem)] sm:items-end sm:gap-3">
       <div class="min-w-0">
         <label :for="amountId" class="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-sm sm:font-bold sm:text-slate-700 sm:dark:text-white/75">
           Amount
@@ -142,7 +142,7 @@ defineExpose({ focusAmount, resetForm });
             inputmode="decimal"
             autocomplete="off"
             maxlength="15"
-            class="h-14 w-full rounded-2xl border border-sky-200 bg-sky-50/70 pl-12 pr-20 text-right text-2xl font-black tabular-nums text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-cyan-300/20 dark:bg-cyan-300/[0.07] dark:text-white dark:placeholder:text-white/20 dark:focus:border-cyan-300/60 dark:focus:ring-cyan-300/10 sm:h-16 sm:text-3xl"
+            class="h-14 min-w-0 w-full rounded-2xl border border-sky-200 bg-sky-50/70 pl-12 pr-20 text-right text-2xl font-black tabular-nums text-slate-950 outline-none transition placeholder:text-slate-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-cyan-300/20 dark:bg-cyan-300/[0.07] dark:text-white dark:placeholder:text-white/20 dark:focus:border-cyan-300/60 dark:focus:ring-cyan-300/10 sm:h-16 sm:text-3xl"
             placeholder="0.00"
             :aria-describedby="error ? `${currencyId} ${errorId}` : currencyId"
             :disabled="props.busy"

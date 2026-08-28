@@ -5,6 +5,7 @@
 .nitro
 .cache
 .tmp-codex
+.codex-tmp
 dist
 
 # Node dependencies
