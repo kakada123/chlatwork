@@ -13,7 +13,7 @@ defineProps<{
   <div class="relative h-full min-w-0">
     <NuxtLink
       :to="tool.route"
-      class="flex min-h-[132px] h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-10 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
+      class="mobile-pressable flex min-h-[132px] h-full flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-10 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
       :aria-label="`Open ${tool.name}`"
     >
       <span class="grid size-11 shrink-0 place-items-center rounded-xl" :class="getToolIconTone(tool.key)" aria-hidden="true">

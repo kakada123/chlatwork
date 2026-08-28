@@ -49,6 +49,7 @@ const greeting = ref("Welcome");
 const avatarFailed = ref(false);
 const isMobileViewport = ref(false);
 const usageSummary = ref<ToolUsageSummaryItem[]>([]);
+const recentToolsLoading = ref(false);
 let loadedUsageForUserId = "";
 let mobileViewportQuery: MediaQueryList | null = null;
 
@@ -126,16 +127,28 @@ function formatRecentTime(value: string | null) {
 async function loadRecentTools() {
   const activeUserId = visibleUser.value?.id;
 
-  if (!isMobileViewport.value || !activeUserId || loadedUsageForUserId === activeUserId) {
+  if (!isMobileViewport.value || !activeUserId) {
+    recentToolsLoading.value = false;
+    if (!activeUserId) {
+      loadedUsageForUserId = "";
+      usageSummary.value = [];
+    }
+    return;
+  }
+
+  if (loadedUsageForUserId === activeUserId) {
     return;
   }
 
   loadedUsageForUserId = activeUserId;
+  recentToolsLoading.value = true;
   try {
     usageSummary.value = await getToolUsageSummary();
   } catch {
     // Recent activity is optional; favorites and popular tools keep the dashboard useful offline.
     usageSummary.value = [];
+  } finally {
+    recentToolsLoading.value = false;
   }
 }
 
@@ -184,7 +197,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
       <div class="flex shrink-0 items-center gap-2">
         <button
           type="button"
-          class="grid size-11 place-items-center rounded-full border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+          class="mobile-pressable grid size-11 place-items-center rounded-full border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
           :aria-label="nextColorModeLabel"
           :title="nextColorModeLabel"
           @click="toggleColorMode"
@@ -193,9 +206,15 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           <Moon v-else class="size-5" aria-hidden="true" />
         </button>
 
+        <span
+          v-if="!isReady"
+          class="mobile-skeleton size-11 rounded-full"
+          aria-hidden="true"
+        />
         <NuxtLink
+          v-else
           :to="visibleUser ? '/account' : '/login'"
-          class="grid size-11 place-items-center overflow-hidden rounded-full bg-[#082552] text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          class="mobile-pressable grid size-11 place-items-center overflow-hidden rounded-full bg-[#082552] text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           :aria-label="visibleUser ? 'Open account' : 'Sign in'"
         >
           <img
@@ -221,7 +240,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     >
       <NuxtLink
         to="/tools"
-        class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#082552] px-4 text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+        class="mobile-pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#082552] px-4 text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
       >
         <Shapes class="size-4" aria-hidden="true" /> All
       </NuxtLink>
@@ -229,7 +248,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
         v-for="category in mobileCategories"
         :key="category.key"
         :to="category.route"
-        class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white"
+        class="mobile-pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white"
       >
         <span class="grid size-6 place-items-center rounded-lg" :class="getToolIconTone(category.key)" aria-hidden="true">
           <ToolIcon :name="category.key" class="size-4" />
@@ -259,7 +278,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           </p>
           <NuxtLink
             :to="featuredItem.route"
-            class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+            class="mobile-pressable mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
           >
             {{ featuredItem.ctaLabel }} <span aria-hidden="true">→</span>
           </NuxtLink>
@@ -274,7 +293,26 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     </section>
 
     <section
-      v-if="recentTools.length"
+      v-if="recentToolsLoading"
+      class="mt-7"
+      aria-label="Loading recent tools"
+    >
+      <div class="flex items-center justify-between gap-3" aria-hidden="true">
+        <div class="mobile-skeleton h-5 w-48 rounded-md" />
+        <div class="mobile-skeleton h-3 w-12 rounded-full" />
+      </div>
+      <div class="-mx-4 mt-3 flex gap-2 overflow-hidden px-4" aria-hidden="true">
+        <div v-for="index in 3" :key="index" class="w-32 shrink-0 rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.05]">
+          <div class="mobile-skeleton size-10 rounded-xl" />
+          <div class="mobile-skeleton mt-3 h-4 w-20 rounded-md" />
+          <div class="mobile-skeleton mt-2 h-4 w-16 rounded-md" />
+          <div class="mobile-skeleton mt-5 h-3 w-12 rounded-md" />
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else-if="recentTools.length"
       class="mt-7"
       aria-labelledby="mobile-resume-tools-title"
     >
@@ -286,7 +324,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           View all →
         </NuxtLink>
       </div>
-      <ul class="sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1" aria-label="Recently used tools">
+      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1" aria-label="Recently used tools">
         <li v-for="item in recentTools" :key="item.tool.key" class="shrink-0">
           <MobileHomeToolCard
             :tool="item.tool"
@@ -310,7 +348,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           Manage →
         </NuxtLink>
       </div>
-      <ul class="sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1" aria-label="Favorite tools">
+      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1" aria-label="Favorite tools">
         <li v-for="item in favoriteTools" :key="item.tool.key" class="shrink-0">
           <MobileHomeToolCard :tool="item.tool" variant="recent" meta="Saved" />
         </li>
@@ -326,7 +364,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           See all →
         </NuxtLink>
       </div>
-      <ul class="mt-3 grid grid-cols-4 gap-2" aria-label="Popular tools">
+      <ul class="mobile-stagger-list mt-3 grid grid-cols-4 gap-2" aria-label="Popular tools">
         <li v-for="tool in visiblePopularTools" :key="tool.key">
           <MobileHomeToolCard :tool="tool" />
         </li>

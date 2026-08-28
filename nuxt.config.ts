@@ -155,6 +155,10 @@ export default defineNuxtConfig({
   },
 
   app: {
+    pageTransition: {
+      name: "mobile-page",
+      mode: "out-in",
+    },
     head: {
       title: "ChlatWork",
       meta: [

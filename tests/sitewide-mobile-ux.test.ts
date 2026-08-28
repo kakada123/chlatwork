@@ -88,6 +88,33 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /mobile-header-search-input/);
 });
 
+test("mobile navigation uses delayed skeletons and motion-safe app transitions", () => {
+  const layout = readFileSync("app/layouts/default.vue", "utf8");
+  const skeleton = readFileSync("app/components/layout/MobileRouteSkeleton.vue", "utf8");
+  const styles = readFileSync("app/assets/css/main.css", "utf8");
+  const config = readFileSync("nuxt.config.ts", "utf8");
+  const home = readFileSync("app/components/landing/MobileLandingPage.vue", "utf8");
+  const tools = readFileSync("app/components/tools/MobileToolsDirectory.vue", "utf8");
+
+  assert.match(layout, /import MobileRouteSkeleton from/);
+  assert.match(layout, /<MobileRouteSkeleton :has-shared-header="showSharedMobileHeader"/);
+  assert.match(layout, /<Transition name="mobile-sheet">/);
+  assert.match(skeleton, /REVEAL_DELAY_MS = 120/);
+  assert.match(skeleton, /MIN_VISIBLE_MS = 240/);
+  assert.match(skeleton, /nuxtApp\.hook\("page:start"/);
+  assert.match(skeleton, /nuxtApp\.hook\("page:finish"/);
+  assert.match(skeleton, /aria-label="Loading page"/);
+  assert.match(config, /pageTransition:\s*\{\s*name: "mobile-page",\s*mode: "out-in"/);
+  assert.match(styles, /\.mobile-skeleton/);
+  assert.match(styles, /@keyframes mobile-skeleton-shimmer/);
+  assert.match(styles, /\.mobile-page-enter-active/);
+  assert.match(styles, /\.mobile-pressable:active/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(home, /recentToolsLoading/);
+  assert.match(home, /aria-label="Loading recent tools"/);
+  assert.match(tools, /<TransitionGroup name="mobile-grid"/);
+});
+
 test("the shared mobile header is the only route-level back control", () => {
   const paybackHeader = readFileSync("app/components/payback-calculator/PaybackCalculatorHeader.vue", "utf8");
   const pdfCategory = readFileSync("app/pages/tools/pdf.vue", "utf8");

@@ -6,6 +6,7 @@ import QuickExpenseFab from "~/components/expense-tracker/QuickExpenseFab.vue";
 import FooterMenuGroup from "~/components/layout/FooterMenuGroup.vue";
 import MobileAppHeader from "~/components/layout/MobileAppHeader.vue";
 import MobileBottomNav from "~/components/layout/MobileBottomNav.vue";
+import MobileRouteSkeleton from "~/components/layout/MobileRouteSkeleton.vue";
 import {
   STARTER_GUIDES,
   type StarterGuide,
@@ -497,6 +498,8 @@ watch(
       @search="toggleHeaderSearch"
     />
 
+    <MobileRouteSkeleton :has-shared-header="showSharedMobileHeader" />
+
     <!-- Top Task Bar -->
     <header
       class="site-header sticky top-0 z-50 hidden border-b backdrop-blur sm:block"
@@ -723,7 +726,7 @@ watch(
     </header>
 
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-150" enter-from-class="opacity-0" leave-active-class="transition duration-100" leave-to-class="opacity-0">
+      <Transition name="mobile-sheet">
         <div v-if="isHeaderSearchOpen" class="fixed inset-0 z-[105] bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white sm:hidden" role="search">
           <div class="flex min-h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-white/10 dark:bg-black/95">
             <label for="mobile-header-search-input" class="sr-only">{{ headerSearchLabel }}</label>

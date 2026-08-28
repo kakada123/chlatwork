@@ -18,7 +18,7 @@ withDefaults(defineProps<{
   <div v-if="variant === 'recent'" class="group relative h-full w-32 shrink-0">
     <NuxtLink
       :to="tool.route"
-      class="flex h-full min-h-[138px] flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-9 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
+      class="mobile-pressable flex h-full min-h-[138px] flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-9 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
       :aria-label="`Continue with ${tool.name}`"
     >
       <span
@@ -46,7 +46,7 @@ withDefaults(defineProps<{
   <NuxtLink
     v-else
     :to="tool.route"
-    class="flex min-h-[108px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-2 text-center shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
+    class="mobile-pressable flex min-h-[108px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-2 text-center shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
     :aria-label="`Open ${tool.name}`"
   >
     <span

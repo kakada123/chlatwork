@@ -18,7 +18,7 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
     <div class="mx-auto flex min-h-16 w-full max-w-[1200px] items-center gap-3 px-4">
       <NuxtLink
         :to="backTo"
-        class="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+        class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
         aria-label="Go back"
       >
         <ChevronLeft class="size-5" aria-hidden="true" />
@@ -31,7 +31,7 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 
       <button
         type="button"
-        class="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+        class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
         aria-label="Search ChlatWork"
         @click="emit('search')"
       >
@@ -40,7 +40,7 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 
       <button
         type="button"
-        class="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+        class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
         :aria-label="nextColorModeLabel"
         :title="nextColorModeLabel"
         @click="toggleColorMode"
