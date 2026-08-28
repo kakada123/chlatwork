@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChevronRight, Search, X } from "lucide-vue-next";
 import { ENABLED_TOOLS } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
@@ -198,6 +199,12 @@ const mobileHeaderSearchInput = ref<HTMLInputElement | null>(null);
 const headerSearchButton = ref<HTMLButtonElement | null>(null);
 const headerSearchLabel = computed(() =>
   isKhmer.value ? "ស្វែងរកក្នុង ChlatWork" : "Search ChlatWork",
+);
+const headerSearchActionLabel = computed(() =>
+  isKhmer.value ? "ស្វែងរក" : "Search",
+);
+const closeHeaderSearchLabel = computed(() =>
+  isKhmer.value ? "បិទការស្វែងរក" : "Close search",
 );
 const headerSearchResults = computed(() => {
   const query = headerToolSearch.value.trim();
@@ -454,6 +461,12 @@ function closeHeaderSearch(restoreFocus = false) {
   if (restoreFocus) {
     nextTick(() => headerSearchButton.value?.focus());
   }
+}
+
+async function clearHeaderSearch() {
+  headerToolSearch.value = "";
+  await nextTick();
+  mobileHeaderSearchInput.value?.focus();
 }
 
 function handleHeaderSearchFocusout(event: FocusEvent) {
@@ -727,38 +740,74 @@ watch(
 
     <Teleport to="body">
       <Transition name="mobile-sheet">
-        <div v-if="isHeaderSearchOpen" class="fixed inset-0 z-[105] bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white sm:hidden" role="search">
-          <div class="flex min-h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-white/10 dark:bg-black/95">
-            <label for="mobile-header-search-input" class="sr-only">{{ headerSearchLabel }}</label>
-            <input
-              id="mobile-header-search-input"
-              ref="mobileHeaderSearchInput"
-              v-model="headerToolSearch"
-              type="search"
-              class="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200 dark:border-white/15 dark:bg-white/[0.08] dark:text-white dark:focus:border-cyan-300 dark:focus:ring-cyan-300/15"
-              :placeholder="headerSearchLabel"
-              @keydown.enter.prevent="openFirstHeaderSearchResult"
-              @keydown.esc.prevent="closeHeaderSearch()"
-            />
-            <button type="button" class="min-h-11 shrink-0 rounded-xl px-2 text-sm font-semibold text-[#082552] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-300" @click="closeHeaderSearch()">
-              Cancel
-            </button>
+        <div v-if="isHeaderSearchOpen" class="fixed inset-0 z-[105] flex flex-col bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white sm:hidden" role="search">
+          <div class="shrink-0 border-b border-slate-200 bg-white/95 px-4 pb-4 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur dark:border-white/10 dark:bg-black/95">
+            <div class="flex min-h-11 items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-sky-600 dark:text-cyan-300">ChlatWork</p>
+                <h2 class="mt-0.5 truncate text-lg font-semibold text-[#082552] dark:text-white">{{ headerSearchLabel }}</h2>
+              </div>
+              <button
+                type="button"
+                class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+                :aria-label="closeHeaderSearchLabel"
+                @click="closeHeaderSearch()"
+              >
+                <X class="size-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <form class="mt-3 flex items-stretch gap-2" @submit.prevent="openFirstHeaderSearchResult">
+              <div class="relative min-w-0 flex-1">
+                <label for="mobile-header-search-input" class="sr-only">{{ headerSearchLabel }}</label>
+                <Search class="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-slate-400 dark:text-white/45" aria-hidden="true" />
+                <input
+                  id="mobile-header-search-input"
+                  ref="mobileHeaderSearchInput"
+                  v-model="headerToolSearch"
+                  type="search"
+                  enterkeyhint="search"
+                  class="h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white pl-11 pr-11 text-base text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200 dark:border-white/15 dark:bg-white/[0.08] dark:text-white dark:focus:border-cyan-300 dark:focus:ring-cyan-300/15"
+                  :placeholder="headerSearchLabel"
+                  @keydown.esc.prevent="closeHeaderSearch()"
+                />
+                <button
+                  v-if="headerToolSearch"
+                  type="button"
+                  class="mobile-pressable absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-lg text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-white/55"
+                  :aria-label="copy.heroSearch.clear"
+                  @click="clearHeaderSearch"
+                >
+                  <X class="size-5" aria-hidden="true" />
+                </button>
+              </div>
+              <button
+                type="submit"
+                :disabled="headerSearchResults.length === 0"
+                class="mobile-pressable inline-flex h-12 min-w-[6.5rem] shrink-0 items-center justify-center gap-2 rounded-xl bg-[#082552] px-4 text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-45 dark:bg-cyan-300 dark:text-slate-950"
+              >
+                <Search class="size-4" aria-hidden="true" /> {{ headerSearchActionLabel }}
+              </button>
+            </form>
           </div>
 
-          <div class="h-[calc(100dvh-4rem)] overflow-y-auto px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-3">
-            <div v-if="headerToolSearch.trim()" class="space-y-1">
+          <div class="min-h-0 flex-1 overflow-y-auto px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-3">
+            <div v-if="headerToolSearch.trim()" class="space-y-2">
               <NuxtLink
                 v-for="result in headerSearchResults"
                 :key="result.key"
                 :to="result.path"
-                class="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-transparent px-3 py-2.5 transition hover:border-slate-200 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:border-white/10 dark:hover:bg-white/[0.06]"
+                class="mobile-pressable flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05]"
                 @click="closeHeaderSearch()"
               >
                 <span class="min-w-0">
                   <strong class="block truncate text-sm">{{ result.title }}</strong>
                   <span class="mt-1 block truncate text-xs text-slate-500 dark:text-white/45">{{ result.description }}</span>
                 </span>
-                <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:bg-white/10 dark:text-white/60">{{ result.label }}</span>
+                <span class="flex shrink-0 items-center gap-2">
+                  <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:bg-white/10 dark:text-white/60">{{ result.label }}</span>
+                  <ChevronRight class="size-4 text-slate-400 dark:text-white/35" aria-hidden="true" />
+                </span>
               </NuxtLink>
               <p v-if="headerSearchResults.length === 0" class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-white/50">
                 {{ copy.nav.noToolsFound }}

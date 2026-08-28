@@ -9,6 +9,7 @@ import type { TelegramCodeAuthDto } from './dto/telegram-code-auth.dto';
 import type { GoogleLinkCodeDto } from './dto/google-link-code.dto';
 import type { AccessTokenPayload, GoogleLinkTicketPayload } from './types';
 import { TelegramMiniAppDataError, verifyTelegramMiniAppData } from './telegram-mini-app';
+import { getTelegramOidcIdentity } from './telegram-identity';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const TELEGRAM_JWKS = createRemoteJWKSet(new URL('https://oauth.telegram.org/.well-known/jwks.json'));
@@ -19,6 +20,7 @@ const GOOGLE_LINK_TICKET_AUDIENCE = 'chlatwork-google-link';
 interface ProviderProfile {
   provider: AuthProvider;
   providerUserId: string;
+  legacyProviderUserId?: string | null;
   email: string | null;
   name: string | null;
   avatarUrl: string | null;
@@ -189,9 +191,10 @@ export class AuthService {
         audience: this.config.getOrThrow<string>('TELEGRAM_CLIENT_ID'),
       });
       if (!payload.sub) throw new UnauthorizedException('Invalid Telegram login token');
+      const identity = getTelegramOidcIdentity(payload);
       return await this.authenticateProvider({
         provider: AuthProvider.TELEGRAM,
-        providerUserId: payload.sub,
+        ...identity,
         email: payload.email_verified === true ? this.stringClaim(payload, 'email') : null,
         name: this.stringClaim(payload, 'name') ?? this.stringClaim(payload, 'preferred_username'),
         avatarUrl: this.stringClaim(payload, 'picture'),
@@ -265,10 +268,41 @@ export class AuthService {
   }
 
   private async authenticateProvider(profile: ProviderProfile) {
-    const account = await this.prisma.socialAccount.findUnique({
-      where: { provider_providerUserId: { provider: profile.provider, providerUserId: profile.providerUserId } },
+    const providerUserIds = [...new Set([profile.providerUserId, profile.legacyProviderUserId].filter((value): value is string => Boolean(value)))];
+    const accounts = await this.prisma.socialAccount.findMany({
+      where: {
+        provider: profile.provider,
+        providerUserId: { in: providerUserIds },
+      },
       include: { user: true },
     });
+    if (new Set(accounts.map((account) => account.userId)).size > 1) {
+      throw new ConflictException('This Telegram identity is connected to multiple ChlatWork accounts');
+    }
+
+    let account = accounts.find((candidate) => candidate.providerUserId === profile.providerUserId) ?? accounts[0];
+    if (account && account.providerUserId !== profile.providerUserId) {
+      try {
+        account = await this.prisma.socialAccount.update({
+          where: { id: account.id },
+          data: { providerUserId: profile.providerUserId },
+          include: { user: true },
+        });
+      } catch (error) {
+        // A concurrent login may have completed the same legacy-ID migration first.
+        const migrated = await this.prisma.socialAccount.findUnique({
+          where: {
+            provider_providerUserId: {
+              provider: profile.provider,
+              providerUserId: profile.providerUserId,
+            },
+          },
+          include: { user: true },
+        });
+        if (!migrated || migrated.userId !== account.userId) throw error;
+        account = migrated;
+      }
+    }
     let user = account?.user;
 
     if (!user) {

@@ -60,6 +60,7 @@ test("the ChlatWork Nest API owns Google and Telegram authentication", () => {
   const controller = readFileSync("api/src/auth/auth.controller.ts", "utf8");
   const service = readFileSync("api/src/auth/auth.service.ts", "utf8");
   const telegramMiniApp = readFileSync("api/src/auth/telegram-mini-app.ts", "utf8");
+  const telegramIdentity = readFileSync("api/src/auth/telegram-identity.ts", "utf8");
   const schema = readFileSync("api/prisma/schema.prisma", "utf8");
   assert.match(controller, /@Post\('google'\)/);
   assert.match(controller, /@Post\('telegram\/code'\)/);
@@ -69,6 +70,8 @@ test("the ChlatWork Nest API owns Google and Telegram authentication", () => {
   assert.match(service, /jwtVerify\(token, GOOGLE_JWKS/);
   assert.match(telegramMiniApp, /createHmac\('sha256', 'WebAppData'\)/);
   assert.match(telegramMiniApp, /timingSafeEqual/);
+  assert.match(telegramIdentity, /payload\.id/);
+  assert.match(service, /legacyProviderUserId/);
   assert.match(service, /createHash\('sha256'\)/);
   assert.match(schema, /GOOGLE\s+TELEGRAM/);
 });

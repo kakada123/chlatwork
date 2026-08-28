@@ -86,6 +86,11 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /fixed inset-0 z-\[105\]/);
   assert.match(layout, /Quick destinations/);
   assert.match(layout, /mobile-header-search-input/);
+  assert.match(layout, /enterkeyhint="search"/);
+  assert.match(layout, /type="submit"/);
+  assert.match(layout, /headerSearchActionLabel/);
+  assert.match(layout, /mobile-pressable flex min-h-16/);
+  assert.match(layout, /<ChevronRight/);
 });
 
 test("mobile navigation uses delayed skeletons and motion-safe app transitions", () => {
