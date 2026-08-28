@@ -31,11 +31,18 @@ function createService() {
     findUnique: jest.fn(),
     update: jest.fn(),
   };
-  const prisma = { refreshToken, socialAccount };
+  const userModel = { findUnique: jest.fn() };
+  const prisma = {
+    refreshToken,
+    socialAccount,
+    user: userModel,
+    $transaction: jest.fn(),
+  };
+  prisma.$transaction.mockImplementation(async (work) => work(prisma));
   const jwt = { signAsync: jest.fn().mockResolvedValue('new-access-token') };
   const service = new AuthService({} as never, jwt as never, prisma as never);
 
-  return { service, refreshToken, socialAccount };
+  return { service, refreshToken, socialAccount, userModel, prisma };
 }
 
 function storedToken(revokedAt: Date | null) {
@@ -135,16 +142,83 @@ describe('AuthService Telegram identity compatibility', () => {
     );
   });
 
-  it('refuses to guess when canonical and legacy IDs belong to different accounts', async () => {
-    const { service, socialAccount } = createService();
+  it('keeps the established web account when an empty Mini App account already exists', async () => {
+    const { service, refreshToken, socialAccount, userModel } = createService();
+    const temporaryUser = { ...user, id: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470' };
+    const canonicalAccount = {
+      id: '7027bfdb-01d0-412b-a243-14dfc4b4c91a',
+      providerUserId: telegramProfile.providerUserId,
+      userId: temporaryUser.id,
+      user: temporaryUser,
+    };
+    const establishedAccount = {
+      id: '0a5fa027-e46d-4630-89d0-753af994b336',
+      providerUserId: telegramProfile.legacyProviderUserId,
+      userId: user.id,
+      user,
+    };
+    socialAccount.findMany.mockResolvedValueOnce([canonicalAccount, establishedAccount]).mockResolvedValueOnce([{ provider: AuthProvider.TELEGRAM }]);
+    socialAccount.update.mockResolvedValue({
+      ...canonicalAccount,
+      userId: user.id,
+      user,
+    });
+    userModel.findUnique.mockResolvedValue({
+      expenseProfile: null,
+      paybackProfile: null,
+      _count: {
+        socialAccounts: 1,
+        expenseEntries: 0,
+        paybackEntries: 0,
+        paybackCalculations: 0,
+        toolUsageEvents: 0,
+        moments: 0,
+      },
+    });
+
+    await expect(authenticateProvider(service)).resolves.toMatchObject({
+      user: { id: user.id },
+    });
+    expect(socialAccount.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: canonicalAccount.id },
+        data: { userId: user.id },
+      }),
+    );
+    expect(refreshToken.updateMany).toHaveBeenCalledWith({
+      where: { userId: temporaryUser.id },
+      data: { userId: user.id },
+    });
+  });
+
+  it('does not overwrite either account when the accidental account has saved data', async () => {
+    const { service, socialAccount, userModel } = createService();
     socialAccount.findMany.mockResolvedValue([
-      { providerUserId: telegramProfile.providerUserId, userId: user.id, user },
       {
-        providerUserId: telegramProfile.legacyProviderUserId,
+        id: '7027bfdb-01d0-412b-a243-14dfc4b4c91a',
+        providerUserId: telegramProfile.providerUserId,
         userId: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470',
         user: { ...user, id: 'f64300df-0f20-49d6-8fa0-e8f68ccaa470' },
       },
+      {
+        id: '0a5fa027-e46d-4630-89d0-753af994b336',
+        providerUserId: telegramProfile.legacyProviderUserId,
+        userId: user.id,
+        user,
+      },
     ]);
+    userModel.findUnique.mockResolvedValue({
+      expenseProfile: null,
+      paybackProfile: null,
+      _count: {
+        socialAccounts: 1,
+        expenseEntries: 1,
+        paybackEntries: 0,
+        paybackCalculations: 0,
+        toolUsageEvents: 0,
+        moments: 0,
+      },
+    });
 
     await expect(authenticateProvider(service)).rejects.toBeInstanceOf(ConflictException);
     expect(socialAccount.update).not.toHaveBeenCalled();
