@@ -1,3 +1,4 @@
+import type { MomentCategory } from "./moments.ts";
 import type { MomentOccasion, MomentTheme } from "../types/moment.ts";
 
 export type MomentLocale = "en" | "km";
@@ -45,6 +46,7 @@ const EN = {
     loginVote: "Login required",
     loginVoteHelp: "Track one vote per ChlatWork account.",
     chooseOccasion: "Choose an occasion",
+    categoryLabel: "Moment category",
     photosTitle: "Choose your favorite photos",
     photosDescription:
       "Add 1–10 JPG, PNG, WebP, HEIC, or HEIF photos. We resize them and remove location/device metadata before upload.",
@@ -77,6 +79,7 @@ const EN = {
     schedulePlaceholder: "5:30 PM — Guest arrival\n6:00 PM — Dinner\n7:30 PM — Cake and photos",
     previewTitle: "Choose the feeling, then preview",
     themeLabel: "Theme",
+    themeCount: "8 distinct looks",
     receiverPreview: "Receiver preview",
     previewHelp: "Scroll inside the preview to experience the complete Moment.",
     privateTitle: "Private by default",
@@ -318,6 +321,7 @@ const KM = {
     loginVote: "តម្រូវឱ្យចូលគណនី",
     loginVoteHelp: "តាមដានមួយសំឡេងសម្រាប់គណនី ChlatWork នីមួយៗ។",
     chooseOccasion: "ជ្រើសរើសឱកាស",
+    categoryLabel: "ប្រភេទ Moment",
     photosTitle: "ជ្រើសរើសរូបថតដែលអ្នកពេញចិត្ត",
     photosDescription:
       "បន្ថែមរូបថត JPG, PNG, WebP, HEIC ឬ HEIF ចំនួន ១–១០។ យើងនឹងបន្ថយទំហំ និងដកព័ត៌មានទីតាំង ឬឧបករណ៍ មុនពេល upload។",
@@ -350,6 +354,7 @@ const KM = {
     schedulePlaceholder: "5:30 PM — ភ្ញៀវមកដល់\n6:00 PM — អាហារពេលល្ងាច\n7:30 PM — កាត់នំ និងថតរូប",
     previewTitle: "ជ្រើសរើសរចនាប័ទ្ម រួចមើលជាមុន",
     themeLabel: "រចនាប័ទ្ម",
+    themeCount: "រចនាប័ទ្មខុសគ្នា ៨",
     receiverPreview: "ទិដ្ឋភាពសម្រាប់អ្នកទទួល",
     previewHelp: "អូសមើលនៅក្នុងផ្ទាំងនេះ ដើម្បីសាកល្បង Moment ទាំងមូល។",
     privateTitle: "ឯកជនតាមលំនាំដើម",
@@ -584,6 +589,7 @@ const KHMER_OCCASIONS: Record<
   },
   HOLIDAY: { label: "ថ្ងៃឈប់សម្រាក", title: (name) => `🎄 សូមជូនពរ ${name}!` },
   FAREWELL: { label: "លាគ្នា", title: (name) => `👋 សម្រាប់ ${name}` },
+  SURPRISE: { label: "កាដូភ្ញាក់ផ្អើល", title: (name) => `🎁 កាដូភ្ញាក់ផ្អើលសម្រាប់ ${name}!` },
   INVITATION: { label: "ការអញ្ជើញ", title: (name) => `💌 ${name}` },
   VOTING: { label: "បោះឆ្នោតជាមួយគ្នា", title: (name) => `🗳️ ${name}` },
   OTHER: { label: "ឱកាសផ្សេងទៀត", title: (name) => `✨ សម្រាប់ ${name}` },
@@ -601,6 +607,22 @@ const KHMER_THEMES: Record<
     label: "គួរឱ្យស្រឡាញ់",
     description: "ពណ៌ផ្លែប៉ែស ស្វាយឡាវេនឌ័រ និងពន្លឺថ្ងៃ",
   },
+  CELEBRATION: {
+    label: "ពិធីអបអរ",
+    description: "ពណ៌ក្រដាសអបអរ ទំពាំងបាយជូរ និងពណ៌កម្មវិធីភ្លឺចែងចាំង",
+  },
+  SUNSET: {
+    label: "ថ្ងៃលិច",
+    description: "ផ្កាថ្ម អាព្រីកូត និងពន្លឺល្ងាចកក់ក្តៅ",
+  },
+  BOTANICAL: {
+    label: "សួនធម្មជាតិ",
+    description: "បៃតងទន់ ពណ៌ក្រណាត់ និងសួនស្រស់",
+  },
+  OCEAN: {
+    label: "មហាសមុទ្រ",
+    description: "កញ្ចក់សមុទ្រ មេឃខៀវ និងទឹកជ្រៅ",
+  },
   MINIMAL: {
     label: "សាមញ្ញ",
     description: "ស្រទន់ ទូលាយ និងផ្តោតលើរូបថត",
@@ -609,6 +631,14 @@ const KHMER_THEMES: Record<
     label: "ប្រណីត",
     description: "ពណ៌រាត្រី ក្រែម និងមាស",
   },
+};
+
+const KHMER_CATEGORIES: Record<MomentCategory, string> = {
+  CELEBRATIONS: "ការអបអរ",
+  LOVE_AND_FAMILY: "ក្តីស្រឡាញ់ និងគ្រួសារ",
+  MEMORIES: "មិត្តភាព និងអនុស្សាវរីយ៍",
+  SURPRISES: "ការភ្ញាក់ផ្អើល",
+  COMMUNITY: "រៀបចំជាមួយគ្នា",
 };
 
 export function getMomentOccasionCopy(
@@ -620,6 +650,10 @@ export function getMomentOccasionCopy(
 
 export function getMomentThemeCopy(theme: MomentTheme, locale: MomentLocale) {
   return locale === "km" ? KHMER_THEMES[theme] : null;
+}
+
+export function getMomentCategoryLabel(category: MomentCategory, locale: MomentLocale) {
+  return locale === "km" ? KHMER_CATEGORIES[category] : null;
 }
 
 export function buildKhmerMomentTitle(
@@ -649,6 +683,7 @@ export function getMomentDefaultStory(
       FATHERS_DAY: { message: `រីករាយទិវាបិតា ${name}! អរគុណសម្រាប់ការណែនាំ ការការពារ និងការគាំទ្រដែលប៉ាផ្តល់ឱ្យជានិច្ច។`, secret: "ប៉ាគឺជាគំរូ និងជាកម្លាំងចិត្តដ៏សំខាន់របស់ខ្ញុំ។ 💙" },
       HOLIDAY: { message: `${name} សូមជូនពរឱ្យរដូវកាលនេះពោរពេញដោយភាពកក់ក្តៅ សុភមង្គល និងពេលវេលាល្អៗជាមួយមនុស្សជាទីស្រឡាញ់។`, secret: "សូមឱ្យថ្ងៃឈប់សម្រាកនេះនាំមកនូវសន្តិភាព និងការចាប់ផ្តើមដ៏ស្រស់ស្អាត។ 🎄" },
       FAREWELL: { message: `${name} អរគុណសម្រាប់ពេលវេលា ការចងចាំ និងអ្វីៗល្អៗដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ទោះបីយើងត្រូវបែកគ្នាក៏ដោយ អនុស្សាវរីយ៍ល្អៗនឹងនៅជាមួយយើងជានិច្ច។ 👋" },
+      SURPRISE: { message: `${name} មានកាដូតូចមួយ និងក្តីស្រឡាញ់ជាច្រើនកំពុងរង់ចាំអ្នកនៅទីនេះ។`, secret: "Surprise! កាដូនេះត្រូវបានជ្រើសរើសជាពិសេសសម្រាប់អ្នក។ សូមបើកវាដោយស្នាមញញឹម។ 🎁" },
       INVITATION: { message: "យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញលោកអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់លោកអ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។", secret: "យើងខ្ញុំរង់ចាំស្វាគមន៍លោកអ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌" },
       VOTING: { message: "ជួយបោះឆ្នោត ដើម្បីឱ្យយើងអាចសម្រេចជាមួយគ្នាបានលឿន និងងាយស្រួល។", secret: "អរគុណដែលបានជួយជ្រើសរើស។ សំឡេងរបស់អ្នកមានន័យសម្រាប់ការសម្រេចចិត្តនេះ។ 🗳️" },
       OTHER: { message: `${name} ទំព័រតូចមួយនេះត្រូវបានបង្កើតឡើងជាពិសេសសម្រាប់អ្នក និងពេលវេលាដ៏មានអត្ថន័យនេះ។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃពេលវេលាពិសេសនេះ។ ✨" },
@@ -668,6 +703,7 @@ export function getMomentDefaultStory(
     FATHERS_DAY: { message: `Happy Father’s Day, ${name}! Thank you for your guidance, protection, and constant support.`, secret: "You are an incredible role model and a source of strength every day. 💙" },
     HOLIDAY: { message: `${name}, may this season bring warmth, happiness, and meaningful time with the people you love.`, secret: "Wishing you peace, joy, and a beautiful new beginning. 🎄" },
     FAREWELL: { message: `${name}, thank you for the time, memories, and wonderful experiences we have shared.`, secret: "Distance may change where we are, but the best memories will always stay with us. 👋" },
+    SURPRISE: { message: `${name}, a little gift and a lot of love are waiting for you here.`, secret: "Surprise! This gift was chosen especially for you. Open it with a smile. 🎁" },
     INVITATION: { message: "We would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.", secret: "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌" },
     VOTING: { message: "Cast your vote so we can make this decision together quickly and easily.", secret: "Thanks for helping us choose. Your vote matters in this decision. 🗳️" },
     OTHER: { message: `${name}, this little page was made especially for you and this meaningful moment.`, secret: "Thank you for being part of this special occasion. ✨" },

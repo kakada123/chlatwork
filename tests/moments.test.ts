@@ -6,6 +6,11 @@ import {
   getMomentDefaultStory,
 } from "../app/data/moment-locales.ts";
 import {
+  MOMENT_CATEGORIES,
+  MOMENT_OCCASIONS,
+  MOMENT_THEMES,
+} from "../app/data/moments.ts";
+import {
   buildMomentTitle,
   buildPreviewMoment,
   getMomentCounterCopy,
@@ -43,6 +48,10 @@ test("Moment titles and dates are deterministic", () => {
     buildMomentTitle("Neth", "BIRTHDAY"),
     "🎂 Happy Birthday, Neth!",
   );
+  assert.equal(
+    buildMomentTitle("Neth", "SURPRISE"),
+    "🎁 A surprise for Neth!",
+  );
   assert.equal(isValidMomentDate("2026-02-29"), false);
   assert.equal(isValidMomentDate("2024-02-29"), true);
   assert.deepEqual(getMomentCounterCopy("2025-05-22", new Date(2025, 4, 24)), {
@@ -55,13 +64,77 @@ test("Moment titles and dates are deterministic", () => {
 test("default story copy follows the selected Moment occasion", () => {
   const invitation = getMomentDefaultStory("INVITATION", "en", "Neth");
   const birthday = getMomentDefaultStory("BIRTHDAY", "en", "Neth");
+  const surprise = getMomentDefaultStory("SURPRISE", "en", "Neth");
   const khmerInvitation = getMomentDefaultStory("INVITATION", "km", "ណែត");
 
   assert.match(invitation.message, /We would be delighted/);
   assert.match(invitation.secret, /RSVP/);
   assert.match(birthday.message, /Happy birthday, Neth/);
+  assert.match(surprise.secret, /This gift was chosen especially for you/);
   assert.match(khmerInvitation.message, /សូមអញ្ជើញ/);
   assert.notEqual(invitation.message, birthday.message);
+});
+
+test("Moment categories cover every occasion once and themes offer distinct choices", () => {
+  const categorizedOccasions = MOMENT_CATEGORIES.flatMap(
+    (category) => category.occasions,
+  );
+  assert.equal(MOMENT_CATEGORIES.length, 5);
+  assert.deepEqual(
+    [...categorizedOccasions].sort(),
+    MOMENT_OCCASIONS.map((occasion) => occasion.value).sort(),
+  );
+  assert.equal(new Set(categorizedOccasions).size, MOMENT_OCCASIONS.length);
+  assert.equal(MOMENT_THEMES.length, 8);
+  assert.equal(new Set(MOMENT_THEMES.map((theme) => theme.value)).size, 8);
+});
+
+test("occasion and category change the receiver experience, not only its colors", () => {
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
+  const dto = readProjectFile("api/src/moments/dto/create-moment.dto.ts");
+  const schema = readProjectFile("api/prisma/schema.prisma");
+  const migration = readProjectFile(
+    "database/updates/2026-08-28-add-surprise-moment-occasion.sql",
+  );
+
+  assert.match(experience, /occasionClass/);
+  assert.match(experience, /categoryClass/);
+  assert.match(experience, /class="occasion-atmosphere"/);
+  assert.match(experience, /moment-occasion-birthday \.occasion-atmosphere span::before/);
+  assert.match(experience, /content: "🎈"/);
+  assert.match(experience, /@keyframes occasion-confetti-fall/);
+  assert.match(experience, /moment-occasion-invitation \.event-section/);
+  assert.match(experience, /moment-category-memories \.photo-grid/);
+  assert.match(experience, /moment-category-surprises \.secret-section/);
+  assert.match(experience, /moment-theme-sunset \.moment-hero/);
+  assert.match(experience, /moment-theme-ocean \.hero-photo-wrap/);
+  assert.match(experience, /prefers-reduced-motion/);
+  assert.match(dto, /'SURPRISE'/);
+  assert.match(schema, /\bSURPRISE\b/);
+  assert.match(migration, /'SURPRISE'/);
+});
+
+test("expanded Moment themes stay aligned across UI, API, schema, and SQL", () => {
+  const creator = readProjectFile("app/components/moments/MomentCreator.vue");
+  const experience = readProjectFile(
+    "app/components/moments/MomentExperience.vue",
+  );
+  const dto = readProjectFile("api/src/moments/dto/create-moment.dto.ts");
+  const schema = readProjectFile("api/prisma/schema.prisma");
+  const migration = readProjectFile(
+    "database/updates/2026-08-28-add-moment-themes.sql",
+  );
+
+  for (const theme of ["CELEBRATION", "SUNSET", "BOTANICAL", "OCEAN"]) {
+    assert.match(dto, new RegExp(`'${theme}'`));
+    assert.match(schema, new RegExp(`\\b${theme}\\b`));
+    assert.match(migration, new RegExp(`'${theme}'`));
+    assert.match(experience, new RegExp(`moment-theme-${theme.toLowerCase()}`));
+  }
+  assert.match(creator, /v-for="category in localizedCategories"/);
+  assert.match(creator, /v-for="occasion in visibleOccasions"/);
 });
 
 test("Khmer Moment copy covers creation and receiver experiences", () => {

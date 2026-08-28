@@ -10,11 +10,14 @@ export type MomentOccasion =
   | "FATHERS_DAY"
   | "HOLIDAY"
   | "FAREWELL"
+  | "SURPRISE"
   | "INVITATION"
   | "VOTING"
   | "OTHER";
 
-export type MomentTheme = "ROMANTIC" | "CUTE" | "MINIMAL" | "ELEGANT";
+export type MomentTheme =
+  | "ROMANTIC" | "CUTE" | "CELEBRATION" | "SUNSET"
+  | "BOTANICAL" | "OCEAN" | "MINIMAL" | "ELEGANT";
 export type MomentBlockType =
   | "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET"
   | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP" | "POLL";

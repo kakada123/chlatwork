@@ -17,10 +17,12 @@ import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import {
   getMomentDefaultStory,
+  getMomentCategoryLabel,
   getMomentOccasionCopy,
   getMomentThemeCopy,
 } from "~/data/moment-locales";
-import { MOMENT_OCCASIONS, MOMENT_THEMES } from "~/data/moments";
+import { MOMENT_CATEGORIES, MOMENT_OCCASIONS, MOMENT_THEMES } from "~/data/moments";
+import type { MomentCategory } from "~/data/moments";
 import { prepareMomentImage } from "~/lib/moment-image";
 import {
   MAX_MOMENT_PHOTOS,
@@ -52,6 +54,7 @@ const publishedSlug = ref("");
 const shareUrl = ref("");
 const qrDataUrl = ref("");
 const copied = ref(false);
+const selectedCategory = ref<MomentCategory>("CELEBRATIONS");
 const draft = reactive<MomentDraft>({
   recipientName: "",
   occasion: "BIRTHDAY",
@@ -104,6 +107,16 @@ const localizedThemes = computed(() =>
     ...(getMomentThemeCopy(theme.value, locale.value) ?? {}),
   })),
 );
+const localizedCategories = computed(() =>
+  MOMENT_CATEGORIES.map((category) => ({
+    ...category,
+    label: getMomentCategoryLabel(category.value, locale.value) ?? category.label,
+  })),
+);
+const visibleOccasions = computed(() => {
+  const category = MOMENT_CATEGORIES.find((item) => item.value === selectedCategory.value);
+  return localizedOccasions.value.filter((occasion) => category?.occasions.includes(occasion.value));
+});
 
 const previewMoment = computed(() =>
   buildPreviewMoment(
@@ -129,6 +142,11 @@ const minimumUnlockDate = computed(() => {
   const offset = date.getTimezoneOffset() * 60_000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 });
+
+function selectCategory(category: (typeof MOMENT_CATEGORIES)[number]) {
+  selectedCategory.value = category.value;
+  if (!category.occasions.includes(draft.occasion)) draft.occasion = category.occasions[0]!;
+}
 
 function nextStep() {
   formError.value = "";
@@ -513,9 +531,20 @@ onBeforeUnmount(() => {
           </div>
           <fieldset class="mt-7">
             <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
+            <p class="category-label">{{ creatorCopy.categoryLabel }}</p>
+            <div class="category-tabs" role="group" :aria-label="creatorCopy.categoryLabel">
+              <button
+                v-for="category in localizedCategories"
+                :key="category.value"
+                type="button"
+                :class="{ selected: selectedCategory === category.value }"
+                :aria-pressed="selectedCategory === category.value"
+                @click="selectCategory(category)"
+              >{{ category.label }}</button>
+            </div>
             <div class="occasion-grid mt-3">
               <label
-                v-for="occasion in localizedOccasions"
+                v-for="occasion in visibleOccasions"
                 :key="occasion.value"
                 class="choice-card"
                 :class="{ selected: draft.occasion === occasion.value }"
@@ -728,7 +757,7 @@ onBeforeUnmount(() => {
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-four-title">{{ creatorCopy.previewTitle }}</h2>
           <fieldset class="mt-6">
-            <legend class="field-label">{{ creatorCopy.themeLabel }}</legend>
+            <legend class="field-label">{{ creatorCopy.themeLabel }} <span class="theme-count">{{ creatorCopy.themeCount }}</span></legend>
             <div class="theme-grid mt-3">
               <label
                 v-for="theme in localizedThemes"
@@ -1004,6 +1033,11 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
 }
+.category-label { margin-top: .75rem; color: #8b93a2; font-size: .72rem; font-weight: 700; }
+.category-tabs { display: flex; margin-top: .45rem; gap: .45rem; overflow-x: auto; padding: .15rem .1rem .4rem; scrollbar-width: thin; }
+.category-tabs button { flex: none; border: 1px solid #e0e3e9; border-radius: 999px; background: white; padding: .55rem .8rem; color: #697386; font-size: .72rem; font-weight: 800; transition: .15s ease; }
+.category-tabs button:hover,
+.category-tabs button.selected { border-color: #dc4f76; background: #fff1f5; color: #a72c50; }
 .invitation-fields {
   border: 1px solid rgb(251 113 133 / 0.28);
   border-radius: 1rem;
@@ -1105,6 +1139,7 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
+.theme-count { margin-left: .4rem; color: #8b93a2; font-size: .7rem; font-weight: 600; }
 .theme-card {
   display: flex;
   cursor: pointer;
@@ -1346,12 +1381,16 @@ button:disabled {
   box-shadow: 0 0 0 3px rgba(240, 139, 170, 0.2);
 }
 :global(html.dark .moments-creator .field-label span),
+:global(html.dark .moments-creator .category-label),
 :global(html.dark .moments-creator .field-help),
 :global(html.dark .moments-creator .character-count),
 :global(html.dark .moments-creator .theme-card small),
 :global(html.dark .moments-creator .preview-heading p:last-child) {
   color: #aeb4c0;
 }
+:global(html.dark .moments-creator .category-tabs button) { border-color: rgba(255, 255, 255, .14); background: #111318; color: #c6cad2; }
+:global(html.dark .moments-creator .category-tabs button:hover),
+:global(html.dark .moments-creator .category-tabs button.selected) { border-color: #f08baa; background: rgba(220, 79, 118, .12); color: #ffabc2; }
 :global(html.dark .moments-creator .choice-card),
 :global(html.dark .moments-creator .theme-card) {
   border-color: rgba(255, 255, 255, 0.14);

@@ -25,6 +25,7 @@ export function buildMomentTitle(
   const name = recipientName.trim() || "Someone special";
   const option = getMomentOccasion(occasion);
   if (occasion === "INVITATION") return `${option.emoji} ${name}`;
+  if (occasion === "SURPRISE") return `${option.emoji} A surprise for ${name}!`;
   if (option.titlePrefix === "For") return `${option.emoji} For ${name}`;
   if (option.titlePrefix === "For my friend") {
     return `${option.emoji} For my friend ${name}!`;

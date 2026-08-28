@@ -23,12 +23,16 @@ const OCCASIONS = [
   'FATHERS_DAY',
   'HOLIDAY',
   'FAREWELL',
+  'SURPRISE',
   'INVITATION',
   'VOTING',
   'OTHER',
 ] as const;
 
-const THEMES = ['ROMANTIC', 'CUTE', 'MINIMAL', 'ELEGANT'] as const;
+const THEMES = [
+  'ROMANTIC', 'CUTE', 'CELEBRATION', 'SUNSET',
+  'BOTANICAL', 'OCEAN', 'MINIMAL', 'ELEGANT',
+] as const;
 
 export class CreateMomentDto {
   @IsString()

@@ -6,7 +6,7 @@ import {
   getMomentOccasionCopy,
   type MomentLocale,
 } from "~/data/moment-locales";
-import { getMomentOccasion } from "~/data/moments";
+import { getMomentCategory, getMomentOccasion } from "~/data/moments";
 import { getMomentCounterCopy, readMomentBlockText } from "~/lib/moments";
 import type { InvitationGuestIdentity, MomentPollSummary, MomentRsvpChoice, ReadyMoment } from "~/types/moment";
 
@@ -119,6 +119,12 @@ const photos = computed(() =>
 const heroPhoto = computed(() => photos.value[0]);
 const themeClass = computed(
   () => `moment-theme-${props.moment.theme.toLowerCase()}`,
+);
+const occasionClass = computed(
+  () => `moment-occasion-${props.moment.occasion.toLowerCase().replaceAll("_", "-")}`,
+);
+const categoryClass = computed(
+  () => `moment-category-${getMomentCategory(props.moment.occasion).value.toLowerCase().replaceAll("_", "-")}`,
 );
 const eventDate = computed(() => readMomentBlockText(eventBlock.value, "date"));
 const venueName = computed(() => readMomentBlockText(locationBlock.value, "venueName") || readMomentBlockText(eventBlock.value, "venueName"));
@@ -292,12 +298,18 @@ onBeforeUnmount(cancelHold);
     class="moment-experience"
     :class="[
       themeClass,
+      occasionClass,
+      categoryClass,
       { 'is-preview': preview, 'is-khmer': locale === 'km' },
     ]"
     :lang="locale === 'km' ? 'km' : 'en'"
   >
     <div class="moment-glow moment-glow-one" aria-hidden="true" />
     <div class="moment-glow moment-glow-two" aria-hidden="true" />
+    <div class="occasion-atmosphere" aria-hidden="true">
+      <i v-for="index in 12" :key="`particle-${index}`" :style="{ '--particle-index': index }" />
+      <span v-for="index in 6" :key="`symbol-${index}`" :style="{ '--symbol-index': index }" />
+    </div>
 
     <header v-if="!isVoting" class="moment-hero">
       <div class="occasion-pill">
@@ -580,6 +592,31 @@ onBeforeUnmount(cancelHold);
   --moment-accent-soft: #ffe1e9;
   --moment-border: rgba(139, 92, 196, 0.16);
   --moment-shadow: rgba(113, 64, 142, 0.16);
+}
+
+.moment-theme-celebration {
+  --moment-bg: #fffaf1; --moment-surface: rgba(255, 255, 255, .86);
+  --moment-ink: #3b1d5d; --moment-muted: #725786; --moment-accent: #7c3aed;
+  --moment-accent-soft: #fde68a; --moment-border: rgba(124, 58, 237, .18);
+  --moment-shadow: rgba(91, 33, 182, .16);
+}
+.moment-theme-sunset {
+  --moment-bg: #fff7ed; --moment-surface: rgba(255, 252, 247, .82);
+  --moment-ink: #5f2118; --moment-muted: #9a5344; --moment-accent: #e94f64;
+  --moment-accent-soft: #fed7aa; --moment-border: rgba(194, 65, 12, .17);
+  --moment-shadow: rgba(154, 52, 18, .15);
+}
+.moment-theme-botanical {
+  --moment-bg: #f4f7ef; --moment-surface: rgba(252, 253, 248, .84);
+  --moment-ink: #244436; --moment-muted: #63766b; --moment-accent: #527b5c;
+  --moment-accent-soft: #d9e5cf; --moment-border: rgba(55, 91, 67, .17);
+  --moment-shadow: rgba(42, 74, 53, .14);
+}
+.moment-theme-ocean {
+  --moment-bg: #ecfeff; --moment-surface: rgba(248, 254, 255, .82);
+  --moment-ink: #164e63; --moment-muted: #527b89; --moment-accent: #0284c7;
+  --moment-accent-soft: #bae6fd; --moment-border: rgba(2, 132, 199, .17);
+  --moment-shadow: rgba(8, 99, 132, .15);
 }
 
 .moment-theme-minimal {
@@ -917,6 +954,254 @@ onBeforeUnmount(cancelHold);
   font-size: clamp(1.35rem, 4vw, 2rem);
   line-height: 1.5;
 }
+
+/* Themes change composition as well as color while sharing content and actions. */
+.moment-theme-cute .moment-hero { max-width: 780px; }
+.moment-theme-cute .hero-photo-wrap,
+.moment-theme-cute .hero-photo,
+.moment-theme-cute .hero-placeholder {
+  aspect-ratio: 1;
+  max-width: 34rem;
+  border-radius: 42% 58% 46% 54% / 52% 42% 58% 48%;
+}
+.moment-theme-cute .message-section,
+.moment-theme-cute .secret-section {
+  margin-block: 2rem;
+  border: 1px solid var(--moment-border);
+  border-radius: 3rem;
+  background: var(--moment-surface);
+  padding-inline: clamp(1.5rem, 6vw, 4rem);
+  box-shadow: 0 1rem 3rem var(--moment-shadow);
+}
+.moment-theme-cute .memory-photo { border-radius: 2rem; transform: none; }
+.moment-theme-cute .memory-photo img { border-radius: 1.25rem; }
+
+.moment-theme-celebration .moment-hero h1 {
+  max-width: 900px;
+  font-family: ui-rounded, "Arial Rounded MT Bold", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800 !important;
+  line-height: .92;
+}
+.moment-theme-celebration .hero-photo,
+.moment-theme-celebration .hero-placeholder { aspect-ratio: 16 / 9; border-radius: .5rem; }
+.moment-theme-celebration .photo-tape { display: none; }
+.moment-theme-celebration .message-section {
+  max-width: 960px;
+  border-block: 3px solid var(--moment-accent);
+}
+.moment-theme-celebration .memory-photo:nth-child(3n) { transform: rotate(2deg); }
+.moment-theme-celebration .counter-section {
+  border-radius: 2rem;
+  background: var(--moment-accent);
+  color: white;
+  transform: rotate(-1deg);
+}
+.moment-theme-celebration .counter-section :where(.section-kicker, .counter-value, .counter-label) { color: white; }
+
+.moment-theme-botanical .hero-photo-wrap,
+.moment-theme-botanical .hero-photo,
+.moment-theme-botanical .hero-placeholder {
+  aspect-ratio: 3 / 4;
+  max-width: 33rem;
+  border-radius: 48% 48% 1.5rem 1.5rem;
+}
+.moment-theme-botanical .message-section {
+  max-width: 840px;
+  border-left: .35rem solid var(--moment-accent);
+  padding-left: clamp(1.5rem, 6vw, 4rem);
+  text-align: left;
+}
+.moment-theme-botanical .message-section .section-icon,
+.moment-theme-botanical .message-section .mx-auto { margin-left: 0; }
+.moment-theme-botanical .moment-section { border-radius: 2rem; }
+.moment-theme-botanical .memory-photo {
+  border: 0;
+  border-radius: 45% 45% 1rem 1rem;
+  box-shadow: none;
+  transform: none;
+}
+.moment-theme-botanical .memory-photo:nth-child(even) img { aspect-ratio: 4 / 5; }
+
+.moment-theme-ocean .moment-hero {
+  display: flex;
+  max-width: none;
+  flex-direction: column;
+  padding: 0 0 4rem;
+}
+.moment-theme-ocean .hero-photo-wrap,
+.moment-theme-ocean .hero-placeholder {
+  order: -1;
+  margin: 0 0 3.5rem;
+  width: 100%;
+  max-width: none;
+  transform: none;
+}
+.moment-theme-ocean .hero-photo,
+.moment-theme-ocean .hero-placeholder {
+  aspect-ratio: 16 / 8;
+  border: 0;
+  border-radius: 0 0 3rem 3rem;
+}
+.moment-theme-ocean .photo-tape { display: none; }
+.moment-theme-ocean .moment-hero > :not(.hero-photo-wrap, .hero-placeholder) {
+  margin-inline: auto;
+  max-width: min(90%, 760px);
+}
+.moment-theme-ocean .photo-grid { gap: .35rem; }
+.moment-theme-ocean .memory-photo { border: 0; border-radius: .25rem; transform: none; }
+.moment-theme-ocean .memory-photo figcaption { display: none; }
+
+.moment-theme-minimal .moment-glow,
+.moment-theme-minimal .photo-tape,
+.moment-theme-minimal .section-icon { display: none; }
+.moment-theme-minimal .moment-hero,
+.moment-theme-minimal .moment-section { max-width: 1100px; text-align: left; }
+.moment-theme-minimal .moment-hero h1 {
+  margin-left: 0;
+  max-width: 900px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.5rem, 7vw, 5rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -.04em;
+}
+.moment-theme-minimal .hero-photo-wrap { width: 100%; max-width: none; transform: none; }
+.moment-theme-minimal .hero-photo,
+.moment-theme-minimal .hero-placeholder { aspect-ratio: 16 / 9; border-width: 1px; border-radius: 0; }
+.moment-theme-minimal .memory-photo {
+  border-width: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+.moment-theme-minimal .memory-photo figcaption { text-align: left; }
+
+.moment-theme-elegant .moment-hero h1 { max-width: 680px; letter-spacing: .02em; }
+.moment-theme-elegant .hero-photo-wrap { max-width: 580px; transform: none; }
+.moment-theme-elegant .hero-photo,
+.moment-theme-elegant .hero-placeholder {
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--moment-accent);
+  border-radius: 0;
+  padding: .6rem;
+}
+.moment-theme-elegant .photo-tape { display: none; }
+.moment-theme-elegant .moment-section { border-top: 1px solid var(--moment-border); }
+.moment-theme-elegant .photo-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+.moment-theme-elegant .memory-photo {
+  border: 1px solid var(--moment-accent);
+  border-radius: 0;
+  padding: .5rem .5rem 2.5rem;
+  transform: none;
+}
+.moment-theme-elegant .memory-photo figcaption {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: .16em;
+}
+
+/* Occasion and category define the story atmosphere; theme remains its skin. */
+.occasion-atmosphere {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.occasion-atmosphere :where(i, span) { position: absolute; display: none; will-change: transform; }
+.moment-category-celebrations .occasion-atmosphere i,
+.moment-category-surprises .occasion-atmosphere i {
+  display: block;
+  top: -2rem;
+  left: calc((var(--particle-index) * 8%) - 4%);
+  width: .5rem;
+  height: 1rem;
+  border-radius: .15rem;
+  background: hsl(calc(var(--particle-index) * 31deg) 78% 58%);
+  animation: occasion-confetti-fall calc(5s + var(--particle-index) * .22s) linear infinite;
+  animation-delay: calc(var(--particle-index) * -.55s);
+}
+.moment-occasion-birthday .occasion-atmosphere span,
+.moment-occasion-surprise .occasion-atmosphere span,
+.moment-occasion-graduation .occasion-atmosphere span,
+.moment-occasion-holiday .occasion-atmosphere span,
+.moment-category-love-and-family .occasion-atmosphere span,
+.moment-category-memories .occasion-atmosphere span {
+  display: block;
+  left: calc((var(--symbol-index) * 17%) - 5%);
+  animation: occasion-symbol-drift calc(10s + var(--symbol-index) * 1s) ease-in-out infinite;
+  animation-delay: calc(var(--symbol-index) * -1.7s);
+  font-size: clamp(1.4rem, 4vw, 2.5rem);
+  opacity: .45;
+}
+.moment-occasion-birthday .occasion-atmosphere span::before { content: "🎈"; }
+.moment-occasion-surprise .occasion-atmosphere span::before { content: "🎁"; }
+.moment-occasion-graduation .occasion-atmosphere span::before { content: "🎓"; }
+.moment-occasion-holiday .occasion-atmosphere span::before { content: "❄"; }
+.moment-occasion-anniversary .occasion-atmosphere span::before,
+.moment-occasion-love .occasion-atmosphere span::before,
+.moment-occasion-wedding .occasion-atmosphere span::before { content: "♡"; color: var(--moment-accent); }
+.moment-occasion-baby .occasion-atmosphere span::before { content: "◌"; color: var(--moment-accent); }
+.moment-occasion-mothers-day .occasion-atmosphere span::before { content: "🌸"; }
+.moment-occasion-fathers-day .occasion-atmosphere span::before,
+.moment-occasion-friendship .occasion-atmosphere span::before { content: "✦"; color: var(--moment-accent); }
+.moment-occasion-farewell .occasion-atmosphere span::before { content: "🍂"; }
+
+.moment-category-celebrations .moment-hero h1::after {
+  display: block;
+  margin-top: 1rem;
+  color: var(--moment-accent);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .85rem;
+  font-weight: 800;
+  letter-spacing: .35em;
+  content: "✦  ✦  ✦";
+}
+.moment-category-love-and-family .message-section {
+  max-width: 860px;
+  border-radius: 3rem;
+  background: color-mix(in srgb, var(--moment-surface) 72%, transparent);
+}
+.moment-category-memories .message-section { border-block: 1px solid var(--moment-border); }
+.moment-category-surprises .secret-section {
+  margin-block: 3rem;
+  border: 2px dashed var(--moment-accent);
+  border-radius: 2rem;
+  background: var(--moment-surface);
+  box-shadow: 0 1.5rem 4rem var(--moment-shadow);
+}
+.moment-category-surprises .gift-icon { height: 5rem; width: 5rem; transform: rotate(-8deg); }
+.moment-category-surprises .secret-button { border-radius: 1rem; background: var(--moment-accent); color: white; }
+.moment-occasion-invitation .moment-hero { padding-bottom: 1rem; }
+.moment-occasion-invitation .event-section {
+  margin-block: 3rem;
+  border: 1px solid var(--moment-border);
+  border-radius: 2rem;
+  background: var(--moment-surface);
+  box-shadow: 0 1.5rem 4rem var(--moment-shadow);
+}
+.moment-occasion-invitation .occasion-atmosphere span {
+  display: block;
+  left: calc((var(--symbol-index) * 17%) - 5%);
+  color: var(--moment-accent);
+  font-size: 1.5rem;
+  opacity: .25;
+  animation: occasion-symbol-drift calc(14s + var(--symbol-index) * 1s) ease-in-out infinite;
+}
+.moment-occasion-invitation .occasion-atmosphere span::before { content: "✦"; }
+.moment-occasion-farewell .counter-section { display: none; }
+.moment-occasion-farewell .secret-section .gift-icon { transform: none; border-radius: 999px; }
+
+@keyframes occasion-confetti-fall {
+  from { transform: translate3d(0, -3rem, 0) rotate(0); }
+  to { transform: translate3d(4rem, 105vh, 0) rotate(720deg); }
+}
+@keyframes occasion-symbol-drift {
+  0% { top: 10%; transform: translate3d(-1rem, 0, 0) rotate(-8deg); }
+  50% { transform: translate3d(2rem, 35vh, 0) rotate(8deg); }
+  100% { top: 85%; transform: translate3d(-1rem, 0, 0) rotate(-8deg); }
+}
 .moment-footer {
   display: flex;
   align-items: center;
@@ -956,10 +1241,45 @@ onBeforeUnmount(cancelHold);
   .moment-hero {
     padding-top: 7rem;
   }
+  .moment-theme-sunset .moment-hero {
+    display: grid;
+    max-width: 1120px;
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: 1rem 4rem;
+    text-align: left;
+  }
+  .moment-theme-sunset .moment-hero :where(.occasion-pill, .eyebrow, .personal-invitation-eyebrow, h1, .scroll-note) {
+    grid-column: 1;
+    margin-left: 0;
+    justify-self: start;
+  }
+  .moment-theme-sunset .hero-photo-wrap,
+  .moment-theme-sunset .hero-placeholder {
+    grid-column: 2;
+    grid-row: 1 / 6;
+    margin-top: 0;
+    transform: rotate(2deg);
+  }
+  .moment-theme-sunset .hero-photo,
+  .moment-theme-sunset .hero-placeholder { aspect-ratio: 3 / 4; }
+  .moment-theme-celebration .memory-photo:first-child { grid-column: span 2; }
+  .moment-theme-celebration .memory-photo:first-child img { aspect-ratio: 2 / 1; }
+  .moment-category-memories .photo-grid {
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: auto;
+    max-width: 720px;
+  }
+  .moment-category-memories .memory-photo:nth-child(even) { margin-left: 18%; }
+  .moment-category-memories .memory-photo:nth-child(odd) { margin-right: 18%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .secret-button.is-holding .secret-progress {
     animation-duration: 0s;
+  }
+  .occasion-atmosphere :where(i, span) {
+    animation: none;
+    opacity: .12;
   }
 }
 </style>
