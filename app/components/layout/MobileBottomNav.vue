@@ -15,9 +15,16 @@ const emit = defineEmits<{
 const baseClass = "mobile-pressable flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-[background-color,color,transform] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500";
 const inactiveClass = "font-medium text-slate-600 dark:text-white/60";
 const activeClass = "bg-sky-50 font-semibold text-[#082552] dark:bg-white/[0.10] dark:text-white";
-const isHomeActive = computed(() => props.routePath === "/" || props.routePath === "/km");
-const isToolsActive = computed(() => props.routePath.startsWith("/tools"));
-const isAccountActive = computed(() => props.routePath === "/account" || props.routePath === "/login");
+// Search is a shell-level destination, so it exclusively owns the active state while open.
+const isHomeActive = computed(
+  () => !props.searchActive && (props.routePath === "/" || props.routePath === "/km"),
+);
+const isToolsActive = computed(
+  () => !props.searchActive && props.routePath.startsWith("/tools"),
+);
+const isAccountActive = computed(
+  () => !props.searchActive && (props.routePath === "/account" || props.routePath === "/login"),
+);
 </script>
 
 <template>
