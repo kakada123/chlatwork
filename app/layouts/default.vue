@@ -893,6 +893,7 @@ watch(
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
       :show-quick-expense-slot="showQuickExpenseNavigationSlot"
+      force-document-navigation
       @search="toggleHeaderSearch"
     />
 

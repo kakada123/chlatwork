@@ -54,6 +54,10 @@ test("the default layout provides one mobile app shell to every standard page", 
     bottomNav.match(/:external="props\.forceDocumentNavigation"/g)?.length,
     3,
   );
+  assert.equal(
+    layout.match(/force-document-navigation/g)?.length,
+    2,
+  );
   assert.match(bottomNav, /bg-slate-200\/90[^"]*text-sky-600/);
   assert.match(bottomNav, /dark:bg-white\/\[0\.14\] dark:text-sky-400/);
   assert.doesNotMatch(bottomNav, /dark:bg-cyan-300|dark:text-slate-950/);
@@ -111,6 +115,10 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+force-document-navigation\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
   assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"/);
+  assert.match(
+    layout,
+    /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"[\s\S]*?force-document-navigation[\s\S]*?@search="toggleHeaderSearch"/,
+  );
   assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
 });
 
