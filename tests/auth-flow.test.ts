@@ -143,7 +143,16 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(account, /openMobileAccountSection\('favorite-tools'\)/);
   assert.match(account, /openMobileAccountSection\('favorite-commands'\)/);
   assert.match(account, /mobileAccountSection === 'expenses' \? 'block' : 'hidden sm:block'/);
-  assert.match(account, /aria-label="Back to Account menu"/);
+  assert.match(account, /MOBILE_ACCOUNT_SECTION_TITLES/);
+  assert.match(account, /expenses: "Expense Tracker"/);
+  assert.match(account, /moments: "Your Moments"/);
+  assert.match(account, /payback: "PayBack history"/);
+  assert.match(account, /activity: "Tool activity"/);
+  assert.match(account, /"favorite-tools": "Favorite tools"/);
+  assert.match(account, /"favorite-commands": "Favorite commands"/);
+  assert.match(account, /Back to Account from \$\{mobileAccountSectionTitle\}/);
+  assert.match(account, /\{\{ mobileAccountSectionTitle \}\}/);
+  assert.doesNotMatch(account, />Back<|>Account menu</);
   assert.match(account, /mobileAccountSection \? 'hidden sm:flex' : 'flex'/);
   assert.match(account, />Appearance</);
   assert.match(account, /Choose how ChlatWork looks/);

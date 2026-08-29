@@ -60,6 +60,15 @@ type MobileAccountSection =
   | "favorite-tools"
   | "favorite-commands";
 
+const MOBILE_ACCOUNT_SECTION_TITLES: Record<MobileAccountSection, string> = {
+  expenses: "Expense Tracker",
+  moments: "Your Moments",
+  payback: "PayBack history",
+  activity: "Tool activity",
+  "favorite-tools": "Favorite tools",
+  "favorite-commands": "Favorite commands",
+};
+
 type AccountInformationItem = {
   label: string;
   icon: LucideIcon;
@@ -136,6 +145,11 @@ const {
 const isLoggingOut = ref(false);
 const signOutDialogOpen = ref(false);
 const mobileAccountSection = ref<MobileAccountSection | null>(null);
+const mobileAccountSectionTitle = computed(() =>
+  mobileAccountSection.value
+    ? MOBILE_ACCOUNT_SECTION_TITLES[mobileAccountSection.value]
+    : "",
+);
 const historyItems = ref<PaybackHistoryItem[]>([]);
 const historyCount = ref(0);
 const historyLoading = ref(true);
@@ -411,16 +425,13 @@ onBeforeUnmount(() => {
         v-if="mobileAccountSection"
         type="button"
         class="flex min-h-12 items-center gap-3 rounded-2xl pr-4 text-left text-[#082552] transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-white sm:hidden"
-        aria-label="Back to Account menu"
+        :aria-label="`Back to Account from ${mobileAccountSectionTitle}`"
         @click="closeMobileAccountSection"
       >
         <span class="grid size-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <ChevronLeft class="size-5" aria-hidden="true" />
         </span>
-        <span>
-          <span class="block text-[0.65rem] font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-white/40">Back</span>
-          <strong class="mt-0.5 block text-sm">Account menu</strong>
-        </span>
+        <strong class="truncate text-base">{{ mobileAccountSectionTitle }}</strong>
       </button>
       <div :class="mobileAccountSection ? 'hidden sm:flex' : 'flex'" class="items-start justify-between gap-4">
         <div>
