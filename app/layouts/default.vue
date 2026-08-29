@@ -427,8 +427,7 @@ const mobileBackPath = computed(() => {
 });
 const showQuickExpenseNavigationSlot = computed(() => Boolean(
   visibleAuthUser.value
-  && quickExpenseEnabled.value
-  && route.path !== "/tools/expense-tracker",
+  && quickExpenseEnabled.value,
 ));
 function getStarterGuideSearchText(guide: StarterGuide) {
   return [
@@ -832,13 +831,11 @@ watch(
             </div>
           </div>
 
-          <!-- A document navigation prevents an older open deployment from importing removed route chunks. -->
-          <!-- Search still keeps the authenticated Quick Expense slot from the shared mobile shell. -->
+          <!-- Client-side links preserve shared app state while the search sheet is open. -->
           <MobileBottomNav
             :route-path="route.path"
             :account-to="visibleAuthUser ? '/account' : '/login'"
             :show-quick-expense-slot="showQuickExpenseNavigationSlot"
-            force-document-navigation
             search-active
             @search="focusMobileHeaderSearch"
           />
@@ -881,9 +878,9 @@ watch(
     </div>
 
     <AuthLoginDialog :open="showHeaderLogin" @close="showHeaderLogin = false" />
-    <!-- The tracker already exposes its primary form, so a second floating action would compete with it. -->
+    <!-- Keep the opt-in action mounted across routes so fast tab changes preserve its shared state. -->
     <QuickExpenseFab
-      v-if="visibleAuthUser && route.path !== '/tools/expense-tracker'"
+      v-if="visibleAuthUser"
       mobile-navigation-action
       :overlay-active="isHeaderSearchOpen"
     />
@@ -893,7 +890,6 @@ watch(
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
       :show-quick-expense-slot="showQuickExpenseNavigationSlot"
-      force-document-navigation
       @search="toggleHeaderSearch"
     />
 

@@ -30,12 +30,16 @@ test("signed-in navigation displays the user avatar with an initials fallback", 
 test("auth-dependent expense UI waits for client session readiness before rendering", () => {
   const layout = readFileSync("app/layouts/default.vue", "utf8");
   const expensePage = readFileSync("app/pages/tools/expense-tracker.vue", "utf8");
+  const auth = readFileSync("app/composables/useAuth.ts", "utf8");
 
   assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
-  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
   assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);
+  assert.match(auth, /new WeakMap<object, Promise<AuthUser \| null>>\(\)/);
+  assert.match(auth, /fetchMeRequests\.get\(nuxtApp\)/);
+  assert.match(auth, /share one request per Nuxt app/);
 });
 
 test("auth endpoints never return tokens to the browser", () => {

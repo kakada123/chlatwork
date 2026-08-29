@@ -246,6 +246,8 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(page, /finishInitialStateLoad\(receivedCompleteState\)/);
   assert.match(page, /expectedRowCount: persistedRowCount\.value/);
   assert.match(page, /rows\.value = \[\.\.\.accountRows, \.\.\.savedDraft\.rows\]/);
+  assert.match(page, /quick-entry endpoint already appended this row/);
+  assert.match(page, /persistedRowCount\.value = rows\.value\.length;[\s\S]*void saveImmediately\(\)/);
   assert.match(page, /Keep the draft recoverable/);
   assert.match(page, /v-if="signedIn"/);
   assert.match(page, /v-else-if="isAuthReady"/);
@@ -307,7 +309,7 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
     "utf8",
   );
 
-  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(fab, /v-if="shouldShowTrigger"/);
   assert.match(quickExpense, /QUICK_EXPENSE_OPEN_EVENT = "chlatwork:open-quick-expense"/);

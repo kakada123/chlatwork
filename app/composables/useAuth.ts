@@ -12,6 +12,8 @@ interface AuthUserResponse {
   user: AuthUser;
 }
 
+const fetchMeRequests = new WeakMap<object, Promise<AuthUser | null>>();
+
 export function getAuthErrorMessage(error: unknown) {
   const fetchError = error as {
     data?: { message?: string | string[]; statusMessage?: string };
@@ -30,21 +32,34 @@ export function getAuthErrorMessage(error: unknown) {
 }
 
 export function useAuth() {
+  const nuxtApp = useNuxtApp();
   const user = useState<AuthUser | null>("auth:user", () => null);
   const isReady = useState("auth:is-ready", () => false);
 
-  async function fetchMe() {
-    try {
-      const headers = import.meta.server ? useRequestHeaders(["cookie"]) : {};
-      const response = await $fetch<AuthUserResponse>("/api/auth/me", { headers });
-      user.value = response.user;
-      return response.user;
-    } catch {
-      user.value = null;
-      return null;
-    } finally {
-      isReady.value = true;
-    }
+  function fetchMe() {
+    const activeRequest = fetchMeRequests.get(nuxtApp);
+    if (activeRequest) return activeRequest;
+
+    // Layouts and pages can resolve auth together during startup; share one request per Nuxt app.
+    const request = (async () => {
+      try {
+        const headers = import.meta.server ? useRequestHeaders(["cookie"]) : {};
+        const response = await $fetch<AuthUserResponse>("/api/auth/me", { headers });
+        user.value = response.user;
+        return response.user;
+      } catch {
+        user.value = null;
+        return null;
+      } finally {
+        isReady.value = true;
+        if (fetchMeRequests.get(nuxtApp) === request) {
+          fetchMeRequests.delete(nuxtApp);
+        }
+      }
+    })();
+
+    fetchMeRequests.set(nuxtApp, request);
+    return request;
   }
 
   async function loginWithGoogle(token: string) {

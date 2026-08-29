@@ -6,7 +6,6 @@ const props = defineProps<{
   accountTo: string;
   showQuickExpenseSlot: boolean;
   searchActive?: boolean;
-  forceDocumentNavigation?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -40,7 +39,6 @@ const isAccountActive = computed(
     >
       <NuxtLink
         to="/"
-        :external="props.forceDocumentNavigation"
         :class="[baseClass, isHomeActive ? activeClass : inactiveClass]"
         :aria-current="isHomeActive ? 'page' : undefined"
       >
@@ -49,7 +47,6 @@ const isAccountActive = computed(
 
       <NuxtLink
         to="/tools"
-        :external="props.forceDocumentNavigation"
         :class="[baseClass, isToolsActive ? activeClass : inactiveClass]"
         :aria-current="isToolsActive ? 'page' : undefined"
       >
@@ -71,7 +68,6 @@ const isAccountActive = computed(
 
       <NuxtLink
         :to="accountTo"
-        :external="props.forceDocumentNavigation"
         :class="[baseClass, isAccountActive ? activeClass : inactiveClass]"
         :aria-current="isAccountActive ? 'page' : undefined"
       >

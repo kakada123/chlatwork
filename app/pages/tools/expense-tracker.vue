@@ -463,6 +463,8 @@ function handleFloatingQuickExpense(event: Event) {
   const row = (event as CustomEvent<ExpenseRow>).detail;
   if (!row || row.type !== "expense" || !row.amount) return;
   rows.value = [...rows.value, row];
+  // The quick-entry endpoint already appended this row, so advance the concurrency token before syncing local edits.
+  persistedRowCount.value = rows.value.length;
   void saveImmediately();
 }
 

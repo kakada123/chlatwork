@@ -50,14 +50,8 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(bottomNav, /!props\.searchActive && \(props\.routePath === "\/"/);
   assert.match(bottomNav, /!props\.searchActive && props\.routePath\.startsWith\("\/tools"\)/);
   assert.match(bottomNav, /!props\.searchActive && \(props\.routePath === "\/account"/);
-  assert.equal(
-    bottomNav.match(/:external="props\.forceDocumentNavigation"/g)?.length,
-    3,
-  );
-  assert.equal(
-    layout.match(/force-document-navigation/g)?.length,
-    2,
-  );
+  assert.doesNotMatch(bottomNav, /forceDocumentNavigation|\bexternal\b/);
+  assert.doesNotMatch(layout, /force-document-navigation/);
   assert.match(bottomNav, /bg-slate-200\/90[^"]*text-sky-600/);
   assert.match(bottomNav, /dark:bg-white\/\[0\.14\] dark:text-sky-400/);
   assert.doesNotMatch(bottomNav, /dark:bg-cyan-300|dark:text-slate-950/);
@@ -112,19 +106,17 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /headerSearchActionLabel/);
   assert.match(layout, /mobile-pressable flex min-h-16/);
   assert.match(layout, /<ChevronRight/);
-  assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+force-document-navigation\s+search-active/);
+  assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
   assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"/);
-  assert.match(
-    layout,
-    /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"[\s\S]*?force-document-navigation[\s\S]*?@search="toggleHeaderSearch"/,
-  );
+  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"[\s\S]*?@search="toggleHeaderSearch"/);
   assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
 });
 
 test("mobile navigation uses delayed skeletons and motion-safe app transitions", () => {
   const layout = readFileSync("app/layouts/default.vue", "utf8");
   const skeleton = readFileSync("app/components/layout/MobileRouteSkeleton.vue", "utf8");
+  const chunkRecovery = readFileSync("app/plugins/route-chunk-recovery.client.ts", "utf8");
   const styles = readFileSync("app/assets/css/main.css", "utf8");
   const config = readFileSync("nuxt.config.ts", "utf8");
   const home = readFileSync("app/components/landing/MobileLandingPage.vue", "utf8");
@@ -147,6 +139,10 @@ test("mobile navigation uses delayed skeletons and motion-safe app transitions",
   assert.match(home, /recentToolsLoading/);
   assert.match(home, /aria-label="Loading recent tools"/);
   assert.match(tools, /<TransitionGroup name="mobile-grid"/);
+  assert.match(chunkRecovery, /addEventListener\("vite:preloadError"/);
+  assert.match(chunkRecovery, /event\.preventDefault\(\)/);
+  assert.match(chunkRecovery, /window\.location\.reload\(\)/);
+  assert.match(chunkRecovery, /RELOAD_COOLDOWN_MS/);
 });
 
 test("the shared mobile header is the only route-level back control", () => {
