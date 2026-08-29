@@ -16,6 +16,7 @@ import {
   Map,
   Moon,
   Newspaper,
+  Plus,
   ReceiptText,
   Scale,
   ShieldCheck,
@@ -33,6 +34,7 @@ import MoneyAmount from "~/components/MoneyAmount.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import type { PaybackHistoryItem } from "~/components/payback-calculator/PaybackCalculatorHistory.vue";
+import { openQuickExpense } from "~/composables/useQuickExpense";
 import { DEVELOPER_COMMANDS } from "~/data/developer-commands";
 import { LANDING_TOOLS } from "~/data/tools";
 import {
@@ -421,18 +423,17 @@ onBeforeUnmount(() => {
   >
     <header class="border-b border-slate-200 dark:border-white/10" :class="mobileAccountSection ? 'pb-3 sm:pb-6' : 'pb-5 sm:pb-6'">
       <!-- Mobile sub-sections use a focused back header; desktop keeps the account context visible. -->
-      <button
-        v-if="mobileAccountSection"
-        type="button"
-        class="flex min-h-12 items-center gap-3 rounded-2xl pr-4 text-left text-[#082552] transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-white sm:hidden"
-        :aria-label="`Back to Account from ${mobileAccountSectionTitle}`"
-        @click="closeMobileAccountSection"
-      >
-        <span class="grid size-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+      <div v-if="mobileAccountSection" class="flex min-h-12 items-center gap-3 sm:hidden">
+        <button
+          type="button"
+          class="grid size-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-[#082552] shadow-sm transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+          :aria-label="`Back to Account from ${mobileAccountSectionTitle}`"
+          @click="closeMobileAccountSection"
+        >
           <ChevronLeft class="size-5" aria-hidden="true" />
-        </span>
-        <strong class="truncate text-base">{{ mobileAccountSectionTitle }}</strong>
-      </button>
+        </button>
+        <h1 class="min-w-0 truncate text-lg font-semibold">{{ mobileAccountSectionTitle }}</h1>
+      </div>
       <div :class="mobileAccountSection ? 'hidden sm:flex' : 'flex'" class="items-start justify-between gap-4">
         <div>
           <p class="hidden text-sm font-semibold text-sky-700 dark:text-cyan-300 sm:block">Your ChlatWork</p>
@@ -580,8 +581,76 @@ onBeforeUnmount(() => {
       </label>
     </section>
 
-    <section id="profile-expense-section" class="rounded-2xl border border-cyan-200 bg-cyan-50/60 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:p-6" :class="mobileAccountSection === 'expenses' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-expense-tracker">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <section
+      id="profile-expense-section"
+      class="sm:rounded-2xl sm:border sm:border-cyan-200 sm:bg-cyan-50/60 sm:p-6 dark:sm:border-cyan-300/20 dark:sm:bg-cyan-300/[0.06]"
+      :class="mobileAccountSection === 'expenses' ? 'block' : 'hidden sm:block'"
+      aria-label="Expense Tracker"
+    >
+      <div class="space-y-3 sm:hidden">
+        <div v-if="expenseLoading" class="space-y-3" aria-label="Loading expense summary">
+          <div class="h-44 animate-pulse rounded-3xl bg-slate-100 dark:bg-white/[0.06]" />
+          <div class="grid grid-cols-2 gap-2"><div class="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-white/[0.06]" /><div class="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-white/[0.06]" /></div>
+        </div>
+
+        <div v-else-if="expenseLoadFailed" class="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-200" role="alert">
+          Your expense summary is temporarily unavailable. You can still open the tracker and manage your entries.
+        </div>
+
+        <div v-else-if="expenseSummary && expenseState" class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.05]" aria-label="Saved expense summary">
+          <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-white/10">
+            <span class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-white/45">{{ expenseSummary.rangeLabel }}</span>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-white/60">{{ savedExpenseCount }} saved</span>
+          </div>
+
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <span class="text-xs font-semibold text-slate-500 dark:text-white/45">Total spent</span>
+                <strong class="mt-1 block text-3xl tracking-tight text-slate-950 dark:text-white"><MoneyAmount :value="expenseSummary.totalSpent" :currency="expenseState.currency" wrap /></strong>
+              </div>
+              <span class="rounded-xl bg-cyan-100 px-2.5 py-1.5 text-xs font-bold text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">{{ expenseState.currency }}</span>
+            </div>
+
+            <div v-if="expenseSummary.budgetValue" class="mt-5">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <span class="block text-xs text-slate-500 dark:text-white/45">{{ expenseState.budget.period }} budget</span>
+                  <strong class="mt-1 block text-base"><MoneyAmount :value="expenseSummary.budgetValue" :currency="expenseState.currency" wrap /></strong>
+                </div>
+                <div class="text-right">
+                  <span class="block text-xs" :class="expenseSummary.budgetRemaining < 0 ? 'text-red-600 dark:text-red-300' : 'text-emerald-700 dark:text-emerald-300'">{{ expenseSummary.budgetRemaining < 0 ? "Over budget" : "Remaining" }}</span>
+                  <strong class="mt-1 block text-base"><MoneyAmount :value="Math.abs(expenseSummary.budgetRemaining)" :currency="expenseState.currency" wrap /></strong>
+                </div>
+              </div>
+              <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" aria-hidden="true">
+                <div class="h-full rounded-full transition-[width]" :class="expenseSummary.budgetRemaining < 0 ? 'bg-red-500' : 'bg-cyan-500'" :style="{ width: `${Math.min(100, Math.max(0, expenseSummary.budgetPercent))}%` }" />
+              </div>
+              <p class="mt-1.5 text-right text-[11px] text-slate-500 dark:text-white/45">{{ expenseSummary.budgetPercent }}% used</p>
+            </div>
+
+            <div v-else class="mt-5 rounded-2xl bg-slate-50 px-3.5 py-3 text-sm text-slate-600 dark:bg-white/[0.05] dark:text-white/55">
+              No budget set yet. Open the tracker to add one.
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-2" :class="quickExpenseEnabled ? 'grid-cols-2' : 'grid-cols-1'">
+          <button
+            v-if="quickExpenseEnabled"
+            type="button"
+            class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-cyan-600 px-3 text-sm font-bold text-white shadow-sm transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-cyan-200 dark:text-slate-950"
+            @click="openQuickExpense"
+          >
+            <Plus class="size-4" aria-hidden="true" /> Add expense
+          </button>
+          <NuxtLink to="/tools/expense-tracker" class="inline-flex min-h-12 items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-[#082552] shadow-sm transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white">
+            Open tracker <ChevronRight class="size-4" aria-hidden="true" />
+          </NuxtLink>
+        </div>
+      </div>
+
+      <div class="hidden gap-4 sm:flex sm:flex-row sm:items-center">
         <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200" aria-hidden="true">
           <ReceiptText class="h-6 w-6" />
         </span>
@@ -640,8 +709,8 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="h-5 w-5" aria-hidden="true" /></span>
           <div>
-            <h2 id="profile-moments" class="text-xl font-semibold">Your Moments</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-white/50">Celebration pages you created for someone special.</p>
+            <h2 id="profile-moments" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Your Moments</h2>
+            <p class="text-sm text-slate-500 dark:text-white/50 sm:mt-1">Celebration pages you created for someone special.</p>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">
@@ -707,7 +776,7 @@ onBeforeUnmount(() => {
 
     <section id="favorite-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-tools' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-tools">
       <div class="flex items-center justify-between gap-4">
-        <div><h2 id="profile-favorite-tools" class="text-xl font-semibold">Favorite tools</h2><p class="mt-1 text-sm text-slate-500 dark:text-white/50">Favorites saved in this browser.</p></div>
+        <div><h2 id="profile-favorite-tools" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite tools</h2><p class="text-sm text-slate-500 dark:text-white/50 sm:mt-1">Favorites saved in this browser.</p></div>
         <NuxtLink to="/tools" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools →</NuxtLink>
       </div>
       <ul v-if="favoriteTools.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -717,7 +786,7 @@ onBeforeUnmount(() => {
     </section>
 
     <section id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
-      <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="text-xl font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
+      <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
       <div v-if="favoriteCommands.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"><CommandQuickCard v-for="command in favoriteCommands" :key="command.id" :item="command" favorite @favorite="toggleCommandFavorite(command.id)" @copied="() => undefined" /></div>
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite commands yet.</p><NuxtLink to="/developer-commands" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse commands</NuxtLink></div>
     </section>

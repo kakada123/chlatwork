@@ -151,8 +151,15 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(account, /"favorite-tools": "Favorite tools"/);
   assert.match(account, /"favorite-commands": "Favorite commands"/);
   assert.match(account, /Back to Account from \$\{mobileAccountSectionTitle\}/);
-  assert.match(account, /\{\{ mobileAccountSectionTitle \}\}/);
+  assert.match(account, /<h1[^>]*>\{\{ mobileAccountSectionTitle \}\}<\/h1>/);
   assert.doesNotMatch(account, />Back<|>Account menu</);
+  assert.match(account, /aria-label="Expense Tracker"/);
+  assert.match(account, /class="space-y-3 sm:hidden"/);
+  assert.match(account, /@click="openQuickExpense"/);
+  assert.match(account, /> Add expense/);
+  assert.match(account, /id="profile-moments" class="sr-only sm:not-sr-only/);
+  assert.match(account, /id="profile-favorite-tools" class="sr-only sm:not-sr-only/);
+  assert.match(account, /id="profile-favorite-commands" class="sr-only sm:not-sr-only/);
   assert.match(account, /mobileAccountSection \? 'hidden sm:flex' : 'flex'/);
   assert.match(account, />Appearance</);
   assert.match(account, /Choose how ChlatWork looks/);

@@ -2,7 +2,10 @@
 import { CheckCircle2, Plus, ReceiptText, X } from "lucide-vue-next";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
 import { useAuth } from "~/composables/useAuth";
-import { useQuickExpense } from "~/composables/useQuickExpense";
+import {
+  QUICK_EXPENSE_OPEN_EVENT,
+  useQuickExpense,
+} from "~/composables/useQuickExpense";
 import {
   EXPENSE_SAVE_MOTIVATION,
   type ExpenseRow,
@@ -182,6 +185,8 @@ watch(isOpen, async (open) => {
 });
 
 onMounted(() => {
+  // Account summaries can open the same dialog without duplicating its save workflow.
+  window.addEventListener(QUICK_EXPENSE_OPEN_EVENT, openDialog);
   window.visualViewport?.addEventListener("resize", syncVisualViewport);
   window.visualViewport?.addEventListener("scroll", syncVisualViewport);
 });
@@ -189,6 +194,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (noticeTimer) clearTimeout(noticeTimer);
   if (import.meta.client) {
+    window.removeEventListener(QUICK_EXPENSE_OPEN_EVENT, openDialog);
     window.visualViewport?.removeEventListener("resize", syncVisualViewport);
     window.visualViewport?.removeEventListener("scroll", syncVisualViewport);
     unlockPageScroll();

@@ -6,6 +6,13 @@ type QuickExpenseSettings = {
   currency: ExpenseCurrency;
 };
 
+export const QUICK_EXPENSE_OPEN_EVENT = "chlatwork:open-quick-expense";
+
+export function openQuickExpense() {
+  if (!import.meta.client) return;
+  window.dispatchEvent(new Event(QUICK_EXPENSE_OPEN_EVENT));
+}
+
 export function useQuickExpense() {
   const { user } = useAuth();
   const enabled = useState<boolean | null>("quick-expense-enabled", () => null);

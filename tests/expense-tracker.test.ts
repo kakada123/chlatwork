@@ -310,6 +310,11 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && route\.path !== '\/tools\/expense-tracker'"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(fab, /v-if="shouldShowTrigger"/);
+  assert.match(quickExpense, /QUICK_EXPENSE_OPEN_EVENT = "chlatwork:open-quick-expense"/);
+  assert.match(quickExpense, /window\.dispatchEvent\(new Event\(QUICK_EXPENSE_OPEN_EVENT\)\)/);
+  assert.match(fab, /window\.addEventListener\(QUICK_EXPENSE_OPEN_EVENT, openDialog\)/);
+  assert.match(fab, /window\.removeEventListener\(QUICK_EXPENSE_OPEN_EVENT, openDialog\)/);
+  assert.match(account, /@click="openQuickExpense"/);
   assert.match(fab, /\(\) => enabled\.value && !isOpen\.value/);
   assert.match(fab, /mobileNavigationAction/);
   assert.match(fab, /props\.overlayActive \? 'z-\[110\]' : 'z-\[90\]'/);
