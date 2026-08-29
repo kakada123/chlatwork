@@ -96,9 +96,10 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /headerSearchActionLabel/);
   assert.match(layout, /mobile-pressable flex min-h-16/);
   assert.match(layout, /<ChevronRight/);
-  assert.match(layout, /:show-quick-expense-slot="false"\s+search-active/);
+  assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
   assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"/);
+  assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
 });
 
 test("mobile navigation uses delayed skeletons and motion-safe app transitions", () => {

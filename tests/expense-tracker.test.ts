@@ -312,6 +312,7 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /v-if="shouldShowTrigger"/);
   assert.match(fab, /\(\) => enabled\.value && !isOpen\.value/);
   assert.match(fab, /mobileNavigationAction/);
+  assert.match(fab, /props\.overlayActive \? 'z-\[110\]' : 'z-\[90\]'/);
   assert.match(fab, /left-1\/2 size-14 -translate-x-1\/2/);
   assert.match(fab, /<span v-if="!props\.mobileNavigationAction" class="sm:hidden">Add expense<\/span>/);
   assert.doesNotMatch(fab, /route\.path !== "\/tools\/expense-tracker"/);

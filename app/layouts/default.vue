@@ -829,11 +829,11 @@ watch(
             </div>
           </div>
 
-          <!-- Search remains part of the mobile app shell, with the requested four primary actions. -->
+          <!-- Search keeps the same authenticated Quick Expense slot as the shared mobile shell. -->
           <MobileBottomNav
             :route-path="route.path"
             :account-to="visibleAuthUser ? '/account' : '/login'"
-            :show-quick-expense-slot="false"
+            :show-quick-expense-slot="showQuickExpenseNavigationSlot"
             search-active
             @search="focusMobileHeaderSearch"
           />
@@ -880,6 +880,7 @@ watch(
     <QuickExpenseFab
       v-if="visibleAuthUser && route.path !== '/tools/expense-tracker'"
       mobile-navigation-action
+      :overlay-active="isHeaderSearchOpen"
     />
 
     <MobileBottomNav
