@@ -172,11 +172,12 @@ const {
   data: momentData,
   status: momentsStatus,
   error: momentsError,
-  refresh: refreshMoments,
 } = await useFetch<MomentSummary[]>("/api/moments/mine", {
   key: "profile-moments",
 });
 const moments = computed(() => momentData.value ?? []);
+const momentsInitialLoading = computed(() => momentsStatus.value === "pending" && !momentData.value);
+const momentsUnavailable = computed(() => Boolean(momentsError.value) && !momentData.value);
 const savedExpenseCount = computed(() =>
   (expenseState.value?.rows ?? []).filter((row) => (row.type ?? "expense") === "expense").length,
 );
@@ -272,20 +273,25 @@ async function loadToolUsage() {
   }
 }
 
-async function loadExpenseState() {
-  expenseLoading.value = true;
-  expenseLoadFailed.value = false;
+async function loadExpenseState(preserveSnapshot = false) {
+  if (!preserveSnapshot) {
+    expenseLoading.value = true;
+    expenseLoadFailed.value = false;
+  }
   try {
     const response = await $fetch<unknown>("/api/expenses/state");
     if (!hasCompleteExpenseStoredRows(response)) {
       throw new Error("Expense state response is missing saved rows");
     }
     expenseState.value = normalizeExpenseStoredState(response);
+    expenseLoadFailed.value = false;
   } catch {
-    expenseState.value = null;
-    expenseLoadFailed.value = true;
+    if (!preserveSnapshot) {
+      expenseState.value = null;
+      expenseLoadFailed.value = true;
+    }
   } finally {
-    expenseLoading.value = false;
+    if (!preserveSnapshot) expenseLoading.value = false;
   }
 }
 
@@ -376,18 +382,17 @@ function scrollMobileAccountToTop() {
   window.scrollTo({ top: 0, behavior });
 }
 
-function refreshHistoryWhenActive() {
-  if (document.visibilityState === "visible") {
-    void loadHistory();
-    void loadToolUsage();
-    void loadExpenseState();
-    void refreshMoments();
-  }
+async function loadProfileData() {
+  await Promise.allSettled([
+    loadHistory(),
+    loadToolUsage(),
+    loadExpenseState(),
+  ]);
 }
 
 function refreshExpensesAfterQuickSave() {
   // The global quick form can save while the profile remains open, so refresh its account summary in place.
-  void loadExpenseState();
+  void loadExpenseState(true);
 }
 
 onMounted(() => {
@@ -400,19 +405,13 @@ onMounted(() => {
     void prepareGoogleLink();
     googleLinkRefreshTimer = window.setInterval(() => void prepareGoogleLink(), 4 * 60 * 1000);
   }
-  void loadHistory();
-  void loadToolUsage();
-  void loadExpenseState();
-  window.addEventListener("focus", refreshHistoryWhenActive);
+  void loadProfileData();
   window.addEventListener("chlatwork:quick-expense-saved", refreshExpensesAfterQuickSave);
-  document.addEventListener("visibilitychange", refreshHistoryWhenActive);
 });
 
 onBeforeUnmount(() => {
   if (googleLinkRefreshTimer) window.clearInterval(googleLinkRefreshTimer);
-  window.removeEventListener("focus", refreshHistoryWhenActive);
   window.removeEventListener("chlatwork:quick-expense-saved", refreshExpensesAfterQuickSave);
-  document.removeEventListener("visibilitychange", refreshHistoryWhenActive);
 });
 </script>
 
@@ -492,7 +491,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="flex items-center gap-3 p-4 sm:p-5">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="h-5 w-5" aria-hidden="true" /></span>
-          <div class="flex min-w-0 flex-col gap-1.5"><strong class="block text-xl leading-none">{{ momentsStatus === 'pending' || momentsError ? '—' : moments.length }}</strong><span class="block text-xs leading-4 text-slate-500 dark:text-white/45">{{ moments.length === 1 ? 'Moment' : 'Moments' }}</span></div>
+          <div class="flex min-w-0 flex-col gap-1.5"><strong class="block text-xl leading-none">{{ momentsInitialLoading || momentsUnavailable ? '—' : moments.length }}</strong><span class="block text-xs leading-4 text-slate-500 dark:text-white/45">{{ moments.length === 1 ? 'Moment' : 'Moments' }}</span></div>
         </div>
       </div>
     </section>
@@ -542,7 +541,7 @@ onBeforeUnmount(() => {
         </button>
         <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-moments" @click="openMobileAccountSection('moments')">
           <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="size-5" aria-hidden="true" /></span>
-          <span class="min-w-0 flex-1"><strong class="block text-sm">Your Moments</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ momentsStatus === "pending" ? "Loading Moments…" : momentsError ? "Moments unavailable" : `${moments.length} ${moments.length === 1 ? "Moment" : "Moments"}` }}</span></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Your Moments</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ momentsInitialLoading ? "Loading Moments…" : momentsUnavailable ? "Moments unavailable" : `${moments.length} ${moments.length === 1 ? "Moment" : "Moments"}` }}</span></span>
           <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
         </button>
         <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-payback-history" @click="openMobileAccountSection('payback')">
@@ -719,10 +718,10 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div v-if="momentsStatus === 'pending'" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading Moments">
+      <div v-if="momentsInitialLoading" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading Moments">
         <div v-for="index in 3" :key="index" class="h-52 animate-pulse rounded-2xl bg-slate-100 dark:bg-white/[0.06]" />
       </div>
-      <div v-else-if="momentsError" class="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-200" role="alert">
+      <div v-else-if="momentsUnavailable" class="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-200" role="alert">
         Your Moments could not be loaded. Refresh the page and try again.
       </div>
       <ul v-else-if="moments.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

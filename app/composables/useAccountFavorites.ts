@@ -17,7 +17,6 @@ export function useAccountFavorites() {
   const favoritesReady = useState<boolean>("account-favorites-ready", () => false);
   const favoritesLoadedForUserId = useState<string>("account-favorites-user-id", () => "");
   const favoritesLoadingForUserId = useState<string>("account-favorites-loading-user-id", () => "");
-  const favoritesLastLoadedAt = useState<number>("account-favorites-loaded-at", () => 0);
   const favoriteSavingKeys = useState<string[]>("account-favorites-saving-keys", () => []);
   const favoriteError = useState<string>("account-favorites-error", () => "");
 
@@ -25,11 +24,10 @@ export function useAccountFavorites() {
     favoriteToolKeys.value = [];
     favoriteCommandIds.value = [];
     favoritesLoadedForUserId.value = "";
-    favoritesLastLoadedAt.value = 0;
     favoriteSavingKeys.value = [];
   }
 
-  async function loadFavorites(force = false) {
+  async function loadFavorites() {
     if (!authReady.value) return;
 
     const userId = user.value?.id;
@@ -40,13 +38,11 @@ export function useAccountFavorites() {
       return;
     }
 
-    const hasCurrentFavorites = favoritesLoadedForUserId.value === userId && favoritesReady.value;
-    if (!force && hasCurrentFavorites) return;
+    if (favoritesLoadedForUserId.value === userId && favoritesReady.value) return;
     if (favoritesLoadingForUserId.value === userId) return;
 
     favoritesLoadingForUserId.value = userId;
-    // Focus revalidation must not replace a usable account snapshot with a loading state.
-    if (!hasCurrentFavorites) favoritesReady.value = false;
+    favoritesReady.value = false;
     favoriteError.value = "";
     if (favoritesLoadedForUserId.value !== userId) {
       // Never show one account's favorites while a different account is loading.
@@ -61,17 +57,11 @@ export function useAccountFavorites() {
       favoriteToolKeys.value = response.toolKeys;
       favoriteCommandIds.value = response.commandIds;
       favoritesLoadedForUserId.value = userId;
-      favoritesLastLoadedAt.value = Date.now();
     } catch {
       if (user.value?.id !== userId) return;
-      if (hasCurrentFavorites) {
-        // A transient resume-time failure must not make saved favorites appear deleted.
-        favoriteError.value = "Favorites could not be refreshed. Showing your last saved list.";
-      } else {
-        favoriteToolKeys.value = [];
-        favoriteCommandIds.value = [];
-        favoriteError.value = "Favorites could not be loaded from your account. Please try again.";
-      }
+      favoriteToolKeys.value = [];
+      favoriteCommandIds.value = [];
+      favoriteError.value = "Favorites could not be loaded from your account. Please try again.";
     } finally {
       if (favoritesLoadingForUserId.value === userId) {
         favoritesLoadingForUserId.value = "";
@@ -140,7 +130,6 @@ export function useAccountFavorites() {
     favoriteToolKeys,
     favoriteCommandIds,
     favoritesReady,
-    favoritesLastLoadedAt,
     favoriteError,
     loadFavorites,
     setFavorite,

@@ -129,6 +129,18 @@ test("profile provides account-owned Expense Tracker access and status", () => {
   assert.match(account, /chlatwork:quick-expense-saved/);
 });
 
+test("profile does not mutate account data during app resume", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+
+  assert.match(account, /Promise\.allSettled\(\[/);
+  assert.match(account, /loadExpenseState\(true\)/);
+  assert.match(account, /momentsStatus\.value === "pending" && !momentData\.value/);
+  assert.match(account, /Boolean\(momentsError\.value\) && !momentData\.value/);
+  assert.doesNotMatch(account, /addEventListener\("focus"/);
+  assert.doesNotMatch(account, /visibilitychange/);
+  assert.doesNotMatch(account, /refreshProfileWhenActive|refreshHistoryWhenActive/);
+});
+
 test("mobile account UI uses only current profile capabilities", () => {
   const account = readFileSync("app/pages/account.vue", "utf8");
   const layout = readFileSync("app/layouts/default.vue", "utf8");

@@ -1,27 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 test("favorites require login and use account APIs without browser storage fallback", () => {
   const accountFavorites = readFileSync(new URL("../app/composables/useAccountFavorites.ts", import.meta.url), "utf8");
   const toolFavorites = readFileSync(new URL("../app/composables/useToolFavorites.ts", import.meta.url), "utf8");
   const commandFavorites = readFileSync(new URL("../app/composables/useCommandFavorites.ts", import.meta.url), "utf8");
-  const syncPlugin = readFileSync(new URL("../app/plugins/favorites-sync.client.ts", import.meta.url), "utf8");
+  const syncPluginUrl = new URL("../app/plugins/favorites-sync.client.ts", import.meta.url);
 
   assert.match(accountFavorites, /\$fetch<FavoritesResponse>\("\/api\/favorites"\)/);
   assert.match(accountFavorites, /method: "PUT"/);
   assert.match(accountFavorites, /path: "\/login"/);
   assert.match(accountFavorites, /favoritesLoadedForUserId\.value !== userId/);
-  assert.match(syncPlugin, /window\.addEventListener\("focus", refreshFocusedAccount\)/);
-  assert.match(syncPlugin, /loadFavorites\(true\)/);
-  assert.match(syncPlugin, /focusRefreshMaxAgeMs = 60_000/);
-  assert.match(syncPlugin, /Date\.now\(\) - favoritesLastLoadedAt\.value < focusRefreshMaxAgeMs/);
-  assert.match(accountFavorites, /if \(!hasCurrentFavorites\) favoritesReady\.value = false/);
-  assert.match(accountFavorites, /Favorites could not be refreshed\. Showing your last saved list\./);
-  assert.doesNotMatch(
-    accountFavorites,
-    /catch \{[\s\S]*favoriteToolKeys\.value = \[\];[\s\S]*favoriteError\.value = "Favorites could not be refreshed/,
-  );
+  assert.equal(existsSync(syncPluginUrl), false);
+  assert.doesNotMatch(accountFavorites, /addEventListener\("focus"|visibilitychange/);
   assert.match(toolFavorites, /validToolKeys\.has\(toolKey\)/);
   assert.match(commandFavorites, /validCommandIds\.has\(id\)/);
   assert.doesNotMatch(accountFavorites + toolFavorites + commandFavorites, /localStorage|sessionStorage/);
