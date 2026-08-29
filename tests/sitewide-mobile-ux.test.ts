@@ -108,8 +108,13 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /<ChevronRight/);
   assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
-  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"/);
-  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"[\s\S]*?@search="toggleHeaderSearch"/);
+  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen && !mobileKeyboardActive"/);
+  assert.match(layout, /!isHeaderSearchOpen && !mobileKeyboardActive/);
+  assert.match(layout, /:hide-trigger="mobileKeyboardActive"/);
+  assert.match(layout, /document\.addEventListener\("focusin", scheduleMobileKeyboardSync\)/);
+  assert.match(layout, /window\.visualViewport\?\.addEventListener\("resize", scheduleMobileKeyboardSync\)/);
+  assert.match(layout, /viewportHeight < keyboardViewportBaseline - 40/);
+  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen && !mobileKeyboardActive"[\s\S]*?@search="toggleHeaderSearch"/);
   assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
 });
 

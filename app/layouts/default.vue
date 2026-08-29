@@ -313,7 +313,74 @@ const { enabled: quickExpenseEnabled } = useQuickExpense();
 const { recordToolOpen } = useToolUsage();
 const showHeaderLogin = ref(false);
 const headerAvatarFailed = ref(false);
+const mobileKeyboardActive = ref(false);
 let lastTrackedToolPath = "";
+let keyboardViewportBaseline = 0;
+let keyboardSyncFrame: number | undefined;
+
+const NON_TYPING_INPUT_TYPES = new Set([
+  "button",
+  "checkbox",
+  "color",
+  "file",
+  "hidden",
+  "image",
+  "radio",
+  "range",
+  "reset",
+  "submit",
+]);
+
+function getMobileViewportHeight() {
+  return window.visualViewport?.height ?? window.innerHeight;
+}
+
+function isTypingControl(element: Element | null) {
+  if (element instanceof HTMLTextAreaElement) {
+    return !element.disabled && !element.readOnly;
+  }
+
+  if (element instanceof HTMLInputElement) {
+    return !element.disabled
+      && !element.readOnly
+      && !NON_TYPING_INPUT_TYPES.has(element.type);
+  }
+
+  return element instanceof HTMLElement && element.isContentEditable;
+}
+
+function syncMobileKeyboardState() {
+  keyboardSyncFrame = undefined;
+  const viewportHeight = getMobileViewportHeight();
+  const isMobile = window.matchMedia("(max-width: 639px)").matches;
+  const hasTypingFocus = isTypingControl(document.activeElement);
+
+  if (!isMobile || !hasTypingFocus) {
+    mobileKeyboardActive.value = false;
+    keyboardViewportBaseline = Math.max(keyboardViewportBaseline, viewportHeight);
+    return;
+  }
+
+  if (!keyboardViewportBaseline) {
+    keyboardViewportBaseline = Math.max(window.innerHeight, viewportHeight);
+  }
+
+  const viewportIsReduced = keyboardViewportBaseline - viewportHeight > 100;
+  if (viewportIsReduced || !mobileKeyboardActive.value) {
+    mobileKeyboardActive.value = true;
+    return;
+  }
+
+  // iOS can dismiss its keyboard without blurring the field, so restore the dock when the viewport returns.
+  mobileKeyboardActive.value = viewportHeight < keyboardViewportBaseline - 40;
+}
+
+function scheduleMobileKeyboardSync() {
+  if (keyboardSyncFrame !== undefined) {
+    window.cancelAnimationFrame(keyboardSyncFrame);
+  }
+  keyboardSyncFrame = window.requestAnimationFrame(syncMobileKeyboardState);
+}
 
 const authUserInitials = computed(() => {
   const source = authUser.value?.name
@@ -337,6 +404,21 @@ function handleHeaderAvatarError() {
 
 onMounted(() => {
   if (!isAuthReady.value) void fetchAuthUser();
+  keyboardViewportBaseline = getMobileViewportHeight();
+  document.addEventListener("focusin", scheduleMobileKeyboardSync);
+  document.addEventListener("focusout", scheduleMobileKeyboardSync);
+  window.addEventListener("resize", scheduleMobileKeyboardSync);
+  window.visualViewport?.addEventListener("resize", scheduleMobileKeyboardSync);
+});
+
+onBeforeUnmount(() => {
+  if (keyboardSyncFrame !== undefined) {
+    window.cancelAnimationFrame(keyboardSyncFrame);
+  }
+  document.removeEventListener("focusin", scheduleMobileKeyboardSync);
+  document.removeEventListener("focusout", scheduleMobileKeyboardSync);
+  window.removeEventListener("resize", scheduleMobileKeyboardSync);
+  window.visualViewport?.removeEventListener("resize", scheduleMobileKeyboardSync);
 });
 
 watch(
@@ -833,6 +915,7 @@ watch(
 
           <!-- Client-side links preserve shared app state while the search sheet is open. -->
           <MobileBottomNav
+            v-if="!mobileKeyboardActive"
             :route-path="route.path"
             :account-to="visibleAuthUser ? '/account' : '/login'"
             :show-quick-expense-slot="showQuickExpenseNavigationSlot"
@@ -883,10 +966,11 @@ watch(
       v-if="visibleAuthUser"
       mobile-navigation-action
       :overlay-active="isHeaderSearchOpen"
+      :hide-trigger="mobileKeyboardActive"
     />
 
     <MobileBottomNav
-      v-if="!isHeaderSearchOpen"
+      v-if="!isHeaderSearchOpen && !mobileKeyboardActive"
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
       :show-quick-expense-slot="showQuickExpenseNavigationSlot"

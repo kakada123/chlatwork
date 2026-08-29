@@ -23,9 +23,11 @@ type QuickExpenseResponse = {
 const props = withDefaults(defineProps<{
   mobileNavigationAction?: boolean;
   overlayActive?: boolean;
+  hideTrigger?: boolean;
 }>(), {
   mobileNavigationAction: false,
   overlayActive: false,
+  hideTrigger: false,
 });
 
 const { user } = useAuth();
@@ -44,7 +46,7 @@ const form = ref<QuickExpenseFormHandle | null>(null);
 const visualViewportHeight = ref<number | null>(null);
 const visualViewportOffsetTop = ref(0);
 const shouldShowTrigger = computed(
-  () => enabled.value && !isOpen.value,
+  () => enabled.value && !isOpen.value && !props.hideTrigger,
 );
 const dialogViewportStyle = computed(() => visualViewportHeight.value
   ? {

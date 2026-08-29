@@ -312,6 +312,7 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(fab, /v-if="shouldShowTrigger"/);
+  assert.match(fab, /!props\.hideTrigger/);
   assert.match(quickExpense, /QUICK_EXPENSE_OPEN_EVENT = "chlatwork:open-quick-expense"/);
   assert.match(quickExpense, /window\.dispatchEvent\(new Event\(QUICK_EXPENSE_OPEN_EVENT\)\)/);
   assert.match(fab, /window\.addEventListener\(QUICK_EXPENSE_OPEN_EVENT, openDialog\)/);
