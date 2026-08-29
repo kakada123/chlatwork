@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { ChevronLeft, Moon, Search, Sun } from "lucide-vue-next";
+import { ChevronLeft, Search } from "lucide-vue-next";
 
-defineProps<{
+const props = defineProps<{
   title: string;
   backTo: string;
+  backAriaLabel?: string;
 }>();
 
 const emit = defineEmits<{
   search: [];
 }>();
-
-const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 </script>
 
 <template>
@@ -19,14 +18,13 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
       <NuxtLink
         :to="backTo"
         class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
-        aria-label="Go back"
+        :aria-label="props.backAriaLabel ?? 'Go back'"
       >
         <ChevronLeft class="size-5" aria-hidden="true" />
       </NuxtLink>
 
-      <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-sky-600 dark:text-cyan-300">ChlatWork</p>
-        <p class="mt-0.5 truncate text-base font-semibold text-[#082552] dark:text-white">{{ title }}</p>
+      <div class="min-w-0 flex-1 text-center">
+        <p class="truncate text-base font-semibold text-[#082552] dark:text-white">{{ title }}</p>
       </div>
 
       <button
@@ -36,17 +34,6 @@ const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
         @click="emit('search')"
       >
         <Search class="size-5" aria-hidden="true" />
-      </button>
-
-      <button
-        type="button"
-        class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
-        :aria-label="nextColorModeLabel"
-        :title="nextColorModeLabel"
-        @click="toggleColorMode"
-      >
-        <Sun v-if="isDark" class="size-5" aria-hidden="true" />
-        <Moon v-else class="size-5" aria-hidden="true" />
       </button>
     </div>
   </header>

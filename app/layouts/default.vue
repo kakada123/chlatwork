@@ -380,6 +380,7 @@ const shouldShowToolPageDetails = computed(
 );
 const routesWithEmbeddedMobileChrome = new Set(["/", "/km", "/account", "/tools"]);
 const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path));
+const mobileHeaderReturnsToAccount = computed(() => route.query.from === "account");
 const mobilePageTitle = computed(() => {
   const tool = localizedEnabledTools.value.find((item) => item.route === route.path);
   if (tool) return tool.name;
@@ -416,6 +417,7 @@ const mobilePageTitle = computed(() => {
   return "ChlatWork";
 });
 const mobileBackPath = computed(() => {
+  if (mobileHeaderReturnsToAccount.value) return "/account";
   if (route.path.startsWith("/tools/")) return "/tools";
   if (route.path.startsWith("/developer-guides/")) return "/developer-guides";
   if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return "/guides";
@@ -513,6 +515,7 @@ watch(
       v-if="showSharedMobileHeader"
       :title="mobilePageTitle"
       :back-to="mobileBackPath"
+      :back-aria-label="mobileHeaderReturnsToAccount ? 'Back to Account' : 'Go back'"
       @search="toggleHeaderSearch"
     />
 

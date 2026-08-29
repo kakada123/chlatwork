@@ -156,6 +156,8 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(account, /label: "Privacy & cookie settings", action: "cookie-settings"/);
   assert.match(account, /label: "Support ChlatWork", to: "\/buy-me-coffee"/);
   assert.match(account, /@click="openPrivacyCookieSettings"/);
+  assert.match(account, /query: \{ from: "account" \}/);
+  assert.match(account, /:to="accountInformationRoute\(item\.to\)"/);
   assert.doesNotMatch(account, /aria-label="Mobile primary navigation"/);
   assert.match(layout, /<MobileBottomNav/);
   assert.match(bottomNav, /isAccountActive/);

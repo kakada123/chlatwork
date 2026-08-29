@@ -68,6 +68,13 @@ type AccountInformationItem = {
   action?: "cookie-settings";
 };
 
+function accountInformationRoute(path?: string) {
+  return {
+    path: path ?? "/account",
+    query: { from: "account" },
+  };
+}
+
 const accountInformationGroups: Array<{
   key: string;
   title: string;
@@ -730,7 +737,7 @@ onBeforeUnmount(() => {
             </a>
             <NuxtLink
               v-else
-              :to="item.to"
+              :to="accountInformationRoute(item.to)"
               class="flex min-h-[68px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500"
             >
               <span class="grid size-10 shrink-0 place-items-center rounded-xl" :class="group.iconTone"><component :is="item.icon" class="size-5" aria-hidden="true" /></span>

@@ -29,8 +29,13 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(header, /sticky top-0/);
   assert.match(header, /min-h-16/);
   assert.match(header, /size-11/);
-  assert.match(header, /aria-label="Go back"/);
+  assert.match(header, /props\.backAriaLabel \?\? 'Go back'/);
   assert.match(header, /aria-label="Search ChlatWork"/);
+  assert.match(header, /flex-1 text-center/);
+  assert.doesNotMatch(header, />ChlatWork</);
+  assert.doesNotMatch(header, /toggleColorMode|nextColorModeLabel/);
+  assert.match(layout, /route\.query\.from === "account"/);
+  assert.match(layout, /:back-aria-label="mobileHeaderReturnsToAccount \? 'Back to Account' : 'Go back'"/);
 
   assert.match(bottomNav, /fixed inset-x-0 bottom-0/);
   assert.match(bottomNav, /env\(safe-area-inset-bottom\)/);
