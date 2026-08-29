@@ -829,11 +829,13 @@ watch(
             </div>
           </div>
 
-          <!-- Search keeps the same authenticated Quick Expense slot as the shared mobile shell. -->
+          <!-- A document navigation prevents an older open deployment from importing removed route chunks. -->
+          <!-- Search still keeps the authenticated Quick Expense slot from the shared mobile shell. -->
           <MobileBottomNav
             :route-path="route.path"
             :account-to="visibleAuthUser ? '/account' : '/login'"
             :show-quick-expense-slot="showQuickExpenseNavigationSlot"
+            force-document-navigation
             search-active
             @search="focusMobileHeaderSearch"
           />

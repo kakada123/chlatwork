@@ -43,6 +43,10 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(bottomNav, /!props\.searchActive && \(props\.routePath === "\/"/);
   assert.match(bottomNav, /!props\.searchActive && props\.routePath\.startsWith\("\/tools"\)/);
   assert.match(bottomNav, /!props\.searchActive && \(props\.routePath === "\/account"/);
+  assert.equal(
+    bottomNav.match(/:external="props\.forceDocumentNavigation"/g)?.length,
+    3,
+  );
   assert.match(bottomNav, /dark:bg-white\/\[0\.10\] dark:text-white/);
   assert.doesNotMatch(bottomNav, /dark:bg-cyan-300|dark:text-slate-950/);
 });
@@ -96,7 +100,7 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /headerSearchActionLabel/);
   assert.match(layout, /mobile-pressable flex min-h-16/);
   assert.match(layout, /<ChevronRight/);
-  assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+search-active/);
+  assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot"\s+force-document-navigation\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
   assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen"/);
   assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
