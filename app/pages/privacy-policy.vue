@@ -5,7 +5,7 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "Privacy Policy - ChlatWork";
 const description =
   "How ChlatWork handles browser-based processing, data collection, cookies, analytics, ads, and third-party services.";
-const reviewedAt = "2026-08-27";
+const reviewedAt = "2026-08-29";
 
 useSeoMeta({
   title,
@@ -52,7 +52,7 @@ useHead({
         analytics, advertising, third-party services, and your choices.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 27, 2026
+        Last updated: August 29, 2026
       </p>
     </header>
 
@@ -84,6 +84,11 @@ useHead({
         to an aggregate Popular tools ranking. The public ranking does not identify
         individual accounts. Tool usage history does not
         include tool inputs, generated content, filenames, or URL query values.
+      </p>
+      <p class="text-gray-700 dark:text-white/75">
+        Favorite tool keys and favorite developer-command identifiers are stored
+        with your signed-in ChlatWork account. Favorite records do not contain
+        tool inputs, generated content, or customized command values.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         We do not sell personal information.
@@ -214,7 +219,7 @@ useHead({
         <li>Google Identity Services and Telegram for optional account login.</li>
         <li>
           PostgreSQL and the infrastructure provider hosting the database for
-          account, session, Expense Tracker, PayBack, and tool-usage records.
+          account, session, favorites, Expense Tracker, PayBack, and tool-usage records.
         </li>
         <li>
           Browser-side JavaScript libraries for PDF, image, QR, barcode, and
@@ -231,9 +236,9 @@ useHead({
       <h2 class="text-lg font-semibold">Your choices</h2>
       <p class="text-gray-700 dark:text-white/75">
         You can block or delete cookies and local storage through your browser
-        settings. Favorite tools, favorite commands, color mode, language, and
-        cookie notice state are stored only in your browser and may reset if
-        local storage is cleared.
+        settings. Color mode, language, and cookie notice state are stored only
+        in your browser and may reset if local storage is cleared. Favorites
+        require sign-in and are stored with your ChlatWork account instead.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         You may ask to access, correct, or delete your ChlatWork account data by
@@ -286,7 +291,7 @@ useHead({
         operational logs, we retain data only as long as needed for the feature,
         security, reliability, or legal requirements. Refresh sessions expire
         after 30 days unless revoked earlier. Expense Tracker records, PayBack
-        records, account records, and provider links remain while the account is
+        records, favorites, account records, and provider links remain while the account is
         active. They may be retained afterward only where required for security,
         dispute resolution, backups, or legal compliance.
       </p>

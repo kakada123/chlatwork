@@ -135,8 +135,8 @@ const route = useRoute();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { localizeTool } = useLanguage();
 const { localizeMomentPath } = useMomentLanguage();
-const { favoriteToolKeys } = useToolFavorites();
-const { favoriteCommandIds, toggleCommandFavorite } = useCommandFavorites();
+const { favoriteToolKeys, favoritesReady, favoriteError } = useToolFavorites();
+const { favoriteCommandIds, toggleCommandFavorite, isFavoriteSaving: isCommandFavoriteSaving } = useCommandFavorites();
 const { clearToolUsage, getToolUsageSummary } = useToolUsage();
 const {
   enabled: quickExpenseEnabled,
@@ -776,10 +776,12 @@ onBeforeUnmount(() => {
 
     <section id="favorite-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-tools' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-tools">
       <div class="flex items-center justify-between gap-4">
-        <div><h2 id="profile-favorite-tools" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite tools</h2><p class="text-sm text-slate-500 dark:text-white/50 sm:mt-1">Favorites saved in this browser.</p></div>
+        <div><h2 id="profile-favorite-tools" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite tools</h2><p class="text-sm text-slate-500 dark:text-white/50 sm:mt-1">Synced securely to your signed-in account.</p></div>
         <NuxtLink to="/tools" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools →</NuxtLink>
       </div>
-      <ul v-if="favoriteTools.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-if="!favoritesReady" class="h-28 animate-pulse rounded-2xl bg-slate-100 motion-reduce:animate-none dark:bg-white/[0.06]" aria-label="Loading favorite tools" />
+      <div v-else-if="favoriteError" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300">{{ favoriteError }}</div>
+      <ul v-else-if="favoriteTools.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <li v-for="tool in favoriteTools" :key="tool.key"><HomeToolCard :tool="tool" /></li>
       </ul>
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite tools yet.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
@@ -787,7 +789,9 @@ onBeforeUnmount(() => {
 
     <section id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
       <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
-      <div v-if="favoriteCommands.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"><CommandQuickCard v-for="command in favoriteCommands" :key="command.id" :item="command" favorite @favorite="toggleCommandFavorite(command.id)" @copied="() => undefined" /></div>
+      <div v-if="!favoritesReady" class="h-24 animate-pulse rounded-2xl bg-slate-100 motion-reduce:animate-none dark:bg-white/[0.06]" aria-label="Loading favorite commands" />
+      <div v-else-if="favoriteError" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300">{{ favoriteError }}</div>
+      <div v-else-if="favoriteCommands.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"><CommandQuickCard v-for="command in favoriteCommands" :key="command.id" :item="command" favorite :saving="isCommandFavoriteSaving(command.id)" @favorite="toggleCommandFavorite(command.id)" @copied="() => undefined" /></div>
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite commands yet.</p><NuxtLink to="/developer-commands" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse commands</NuxtLink></div>
     </section>
 

@@ -2,7 +2,7 @@
 const title = "Terms of Use - ChlatWork";
 const description =
   "Terms for using ChlatWork online tools, guide pages, generated outputs, advertising, and browser-based workflows.";
-const reviewedAt = "2026-08-21";
+const reviewedAt = "2026-08-29";
 
 useSeoMeta({
   title,
@@ -49,7 +49,7 @@ useHead({
         checking results before using them.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 21, 2026
+        Last updated: August 29, 2026
       </p>
     </header>
 
@@ -90,7 +90,7 @@ useHead({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Shared links and stored content</h2>
       <p class="text-gray-700 dark:text-white/75">
-        Signed-in Expense Tracker and PayBack data is stored with your ChlatWork account.
+        Signed-in favorites, Expense Tracker, and PayBack data are stored with your ChlatWork account.
         PayBack and Expense Tracker share links encode their contents in the URL:
         anyone who receives the link may view that content. Do not place secrets
         or highly sensitive personal information in expense notes or shared

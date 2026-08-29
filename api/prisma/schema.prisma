@@ -17,6 +17,11 @@ enum UserRole {
   ADMIN
 }
 
+enum FavoriteKind {
+  TOOL
+  COMMAND
+}
+
 enum ExpenseCurrency {
   USD
   KHR
@@ -126,6 +131,7 @@ model User {
   paybackEntries PaybackEntry[]
   paybackCalculations PaybackCalculation[]
   toolUsageEvents ToolUsageEvent[]
+  favorites       UserFavorite[]
   moments         Moment[]
 
   @@map("users")
@@ -250,6 +256,19 @@ model ToolUsageEvent {
   @@index([userId, toolKey, createdAt(sort: Desc)])
   @@index([userId, createdAt(sort: Desc)])
   @@map("tool_usage_events")
+}
+
+model UserFavorite {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @db.Uuid
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      FavoriteKind
+  itemKey   String       @db.VarChar(100)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, kind, itemKey])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("user_favorites")
 }
 
 model PaybackProfile {

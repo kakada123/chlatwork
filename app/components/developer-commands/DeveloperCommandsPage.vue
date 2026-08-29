@@ -9,12 +9,15 @@ import CommandCategoryIcon from "~/components/developer-commands/CommandCategory
 import { DEVELOPER_GUIDES } from "~/data/developer-guides";
 
 const RECENTS_KEY = "chlatwork_developer_command_recents";
+const route = useRoute();
 const search = ref("");
 const category = ref("All");
 const platform = ref<"all" | CommandPlatform>("all");
 const favoritesOnly = ref(false);
 const viewMode = ref<"quick" | "detailed">("quick");
-const { favoriteCommandIds: favorites, toggleCommandFavorite: toggleFavorite } = useCommandFavorites();
+const { user, isReady: authReady, fetchMe } = useAuth();
+const { favoriteCommandIds: favorites, favoriteError, toggleCommandFavorite, isFavoriteSaving } = useCommandFavorites();
+const requiresFavoriteLogin = computed(() => authReady.value && !user.value);
 const recentIds = ref<string[]>([]);
 const copyNotice = ref(false);
 let noticeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -92,6 +95,19 @@ function recordCopy(id: string) {
   if (noticeTimer) clearTimeout(noticeTimer);
   noticeTimer = setTimeout(() => (copyNotice.value = false), 1400);
 }
+
+async function toggleFavorite(id: string) {
+  await toggleCommandFavorite(id);
+}
+
+async function toggleFavoritesFilter() {
+  if (!authReady.value) await fetchMe();
+  if (!user.value) {
+    await navigateTo({ path: "/login", query: { redirect: route.fullPath } });
+    return;
+  }
+  favoritesOnly.value = !favoritesOnly.value;
+}
 </script>
 
 <template>
@@ -159,7 +175,7 @@ function recordCopy(id: string) {
             <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'quick' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'quick'" @click="viewMode = 'quick'">Quick view</button>
             <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'detailed' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'detailed'" @click="viewMode = 'detailed'">Detailed</button>
           </div>
-          <button type="button" class="h-10 rounded-xl border px-3 text-sm font-bold transition" :class="favoritesOnly ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-400/60 dark:bg-amber-400/15 dark:text-amber-200' : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-slate-500'" :aria-pressed="favoritesOnly" @click="favoritesOnly = !favoritesOnly">★ Favorites {{ favorites.length ? `(${favorites.length})` : "" }}</button>
+          <button type="button" class="h-10 rounded-xl border px-3 text-sm font-bold transition" :class="favoritesOnly ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-400/60 dark:bg-amber-400/15 dark:text-amber-200' : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-slate-500'" :aria-pressed="favoritesOnly" :title="requiresFavoriteLogin ? 'Sign in to view favorites' : undefined" @click="toggleFavoritesFilter">★ Favorites {{ favorites.length ? `(${favorites.length})` : "" }}</button>
         </div>
       </div>
     </section>
@@ -171,10 +187,10 @@ function recordCopy(id: string) {
 
     <section v-if="!isCategoryOverview && filteredCommands.length" class="grid items-start gap-2" :class="viewMode === 'quick' ? 'sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4' : 'md:grid-cols-2 xl:grid-cols-3'" aria-live="polite">
       <template v-if="viewMode === 'quick'">
-        <CommandQuickCard v-for="item in visibleCommands" :key="item.id" :item="item" :favorite="favorites.includes(item.id)" @favorite="toggleFavorite(item.id)" @copied="recordCopy(item.id)" />
+        <CommandQuickCard v-for="item in visibleCommands" :key="item.id" :item="item" :favorite="favorites.includes(item.id)" :requires-login="requiresFavoriteLogin" :saving="isFavoriteSaving(item.id)" @favorite="toggleFavorite(item.id)" @copied="recordCopy(item.id)" />
       </template>
       <template v-else>
-        <CommandCard v-for="item in visibleCommands" :key="item.id" :item="item" :favorite="favorites.includes(item.id)" @favorite="toggleFavorite(item.id)" @copied="recordCopy(item.id)" />
+        <CommandCard v-for="item in visibleCommands" :key="item.id" :item="item" :favorite="favorites.includes(item.id)" :requires-login="requiresFavoriteLogin" :saving="isFavoriteSaving(item.id)" @favorite="toggleFavorite(item.id)" @copied="recordCopy(item.id)" />
       </template>
     </section>
     <section v-else-if="!isCategoryOverview" class="rounded-[22px] border border-dashed border-slate-300 bg-white/60 p-10 text-center dark:border-slate-700 dark:bg-slate-900/80">
@@ -183,5 +199,6 @@ function recordCopy(id: string) {
     </section>
 
     <div v-if="copyNotice" role="status" class="fixed bottom-5 right-5 z-50 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-2xl dark:bg-white dark:text-slate-950">Copied!</div>
+    <div v-else-if="favoriteError" role="alert" class="fixed bottom-5 right-5 z-50 max-w-sm rounded-xl bg-red-700 px-4 py-3 text-sm font-bold text-white shadow-2xl">{{ favoriteError }}</div>
   </main>
 </template>

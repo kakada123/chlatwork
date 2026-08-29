@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { LoaderCircle } from "lucide-vue-next";
 import type { DeveloperCommand } from "~/types/developer-command";
 import CommandCopyButton from "~/components/developer-commands/CommandCopyButton.vue";
 import CommandCustomizer from "~/components/developer-commands/CommandCustomizer.vue";
 
-const props = defineProps<{ item: DeveloperCommand; favorite: boolean }>();
+const props = withDefaults(
+  defineProps<{ item: DeveloperCommand; favorite: boolean; requiresLogin?: boolean; saving?: boolean }>(),
+  { requiresLogin: false, saving: false },
+);
 const emit = defineEmits<{ favorite: []; copied: [command: string] }>();
 const isCustomizing = ref(false);
 const isExpanded = ref(false);
@@ -27,7 +31,7 @@ const dangerClass = computed(() => ({ safe: "border-emerald-200 bg-emerald-50 te
         </div>
         <h2 class="mt-1 truncate text-sm font-black text-slate-950 dark:text-white">{{ item.title }}</h2>
       </button>
-      <button type="button" class="shrink-0 rounded-lg p-1 text-lg leading-none transition hover:bg-slate-100 dark:hover:bg-slate-800" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 dark:text-slate-600'" :aria-label="favorite ? 'Remove from favorites' : 'Add to favorites'" :aria-pressed="favorite" @click="emit('favorite')">★</button>
+      <button type="button" class="shrink-0 rounded-lg p-1 text-lg leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-slate-800" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 dark:text-slate-600'" :aria-label="requiresLogin ? 'Sign in to add favorites' : favorite ? 'Remove from favorites' : 'Add to favorites'" :aria-pressed="favorite" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? 'Sign in to save favorites' : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
     </div>
 
     <p v-if="isExpanded && item.consequence" class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold leading-5 text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300"><span class="font-black">Consequence:</span> {{ item.consequence }}</p>

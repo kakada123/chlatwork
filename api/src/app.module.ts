@@ -10,6 +10,7 @@ import { validateEnvironment } from './config/environment';
 import { ToolUsageModule } from './tool-usage/tool-usage.module';
 import { MomentsModule } from './moments/moments.module';
 import { AdminModule } from './admin/admin.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdminModule } from './admin/admin.module';
     ToolUsageModule,
     MomentsModule,
     AdminModule,
+    FavoritesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

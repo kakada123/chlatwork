@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { LoaderCircle } from "lucide-vue-next";
 import type { DeveloperCommand } from "~/types/developer-command";
 import CommandCopyButton from "~/components/developer-commands/CommandCopyButton.vue";
 
-const props = defineProps<{ item: DeveloperCommand; favorite: boolean }>();
+const props = withDefaults(
+  defineProps<{ item: DeveloperCommand; favorite: boolean; requiresLogin?: boolean; saving?: boolean }>(),
+  { requiresLogin: false, saving: false },
+);
 const emit = defineEmits<{ favorite: []; copied: [command: string] }>();
 
 const generatedCommand = computed(() => {
@@ -28,7 +32,7 @@ const dangerDot = computed(() => ({
         <code class="block truncate rounded-md bg-slate-100/80 px-1.5 py-1 font-mono text-xs font-bold text-slate-950 dark:bg-black/20 dark:text-slate-100" :title="generatedCommand">{{ generatedCommand }}</code>
         <p class="mt-1 truncate text-[11px] leading-4 text-slate-500 dark:text-white/50" :title="item.description">{{ item.description }}</p>
       </div>
-      <button type="button" class="shrink-0 rounded p-1 text-sm leading-none transition hover:bg-slate-100 dark:hover:bg-white/10" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 opacity-0 group-hover:opacity-100 focus:opacity-100 dark:text-white/25'" :aria-label="favorite ? 'Remove from favorites' : 'Add to favorites'" @click="emit('favorite')">★</button>
+      <button type="button" class="shrink-0 rounded p-1 text-sm leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-white/10" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 opacity-0 group-hover:opacity-100 focus:opacity-100 dark:text-white/25'" :aria-label="requiresLogin ? 'Sign in to add favorites' : favorite ? 'Remove from favorites' : 'Add to favorites'" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? 'Sign in to save favorites' : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
     </div>
     <div class="mt-2 flex items-center justify-between gap-2 border-t border-slate-100 pt-2 dark:border-white/10">
       <span class="truncate text-[10px] font-bold uppercase tracking-wide text-sky-700 dark:text-white/55">{{ item.title }}</span>
