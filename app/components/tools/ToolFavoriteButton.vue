@@ -52,6 +52,6 @@ async function handleToggle() {
     <span v-if="showLabel" class="text-xs font-semibold">
       {{ saving ? "Saving…" : favorite ? "Favorited" : "Favorite" }}
     </span>
+    <span v-if="saveFailed" class="sr-only" role="alert">{{ favoriteError }}</span>
   </button>
-  <span v-if="saveFailed" class="sr-only" role="alert">{{ favoriteError }}</span>
 </template>

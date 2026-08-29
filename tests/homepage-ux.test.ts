@@ -42,6 +42,10 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
     "app/components/landing/MobileHomeToolCard.vue",
     "utf8",
   );
+  const favoriteButton = readFileSync(
+    "app/components/tools/ToolFavoriteButton.vue",
+    "utf8",
+  );
   const bottomNav = readFileSync(
     "app/components/layout/MobileBottomNav.vue",
     "utf8",
@@ -78,6 +82,14 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   assert.match(mobile, /MobileHomeToolCard/);
   assert.match(mobileCard, /variant === 'recent'/);
   assert.match(mobileCard, /min-h-\[108px\][^\"]*flex-col/);
+  assert.match(
+    mobileCard,
+    /<ToolFavoriteButton\s+class="absolute right-2 top-2 z-10"/,
+  );
+  assert.match(
+    favoriteButton,
+    /<template>\s*<button[\s\S]*role="alert"[\s\S]*<\/button>\s*<\/template>/,
+  );
 });
 
 test("new visitors receive the light-first theme while saved preferences still win", () => {
