@@ -97,6 +97,36 @@ test("Telegram Mini App Google linking opens only from a user click and returns 
   assert.match(telegramReturn, /path: "\/account"/);
 });
 
+test("Telegram notifications require native write access and a verified account match", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+  const webAppTypes = readFileSync("app/types/telegram-web-app.d.ts", "utf8");
+  const controller = readFileSync("api/src/notifications/notifications.controller.ts", "utf8");
+  const service = readFileSync("api/src/notifications/notifications.service.ts", "utf8");
+  const schema = readFileSync("api/prisma/schema.prisma", "utf8");
+  const sql = readFileSync("database/2026-08-29-add-telegram-notification-preference.sql", "utf8");
+  const getProxy = readFileSync("server/api/notifications/telegram/settings.get.ts", "utf8");
+  const putProxy = readFileSync("server/api/notifications/telegram/settings.put.ts", "utf8");
+
+  assert.match(webAppTypes, /requestWriteAccess/);
+  assert.match(account, /telegram\.requestWriteAccess/);
+  assert.match(account, /updateTelegramNotificationSettings\(true, telegram\.initData\)/);
+  assert.match(controller, /@UseGuards\(JwtAuthGuard\)/);
+  assert.match(controller, /@Get\('telegram\/settings'\)/);
+  assert.match(controller, /@Put\('telegram\/settings'\)/);
+  assert.match(controller, /@Throttle\(\{ default: \{ limit: 5, ttl: 60_000 \} \}\)/);
+  assert.match(service, /verifyTelegramMiniAppData/);
+  assert.match(service, /profile\.providerUserId !== telegramAccount\.providerUserId/);
+  assert.ok(
+    service.indexOf("await this.setTelegramNotificationsEnabled(userId, true)")
+      > service.indexOf("await this.sendTelegramMessage"),
+  );
+  assert.match(schema, /telegramNotificationsEnabled\s+Boolean\s+@default\(false\)/);
+  assert.match(sql, /ADD COLUMN IF NOT EXISTS telegram_notifications_enabled/);
+  assert.match(getProxy, /requestAuthenticatedApi/);
+  assert.match(putProxy, /requestAuthenticatedApi/);
+  assert.doesNotMatch(service, /console\.(?:log|error|warn)/);
+});
+
 test("the API accepts traffic from its container network", () => {
   const main = readFileSync("api/src/main.ts", "utf8");
 
@@ -196,7 +226,8 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(bottomNav, /aria-label="Mobile primary navigation"/);
   assert.match(account, /Sign out from your ChlatWork account/);
   assert.match(layout, /routesWithEmbeddedMobileChrome/);
-  assert.doesNotMatch(account, /Free Plan|Upgrade to Pro|Billing & Plan|API Keys|Notifications/);
+  assert.doesNotMatch(account, /Free Plan|Upgrade to Pro|Billing & Plan|API Keys/);
+  assert.match(account, /Telegram notifications/);
 });
 
 test("account expense summary uses saved decimal-safe tracker calculations", () => {

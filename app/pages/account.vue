@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   BarChart3,
+  BellRing,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -143,6 +144,12 @@ const {
   isLoading: quickExpenseSettingLoading,
   updateEnabled: updateQuickExpenseEnabled,
 } = useQuickExpense();
+const {
+  settings: telegramNotificationSettings,
+  isLoading: telegramNotificationLoading,
+  load: loadTelegramNotificationSettings,
+  update: updateTelegramNotificationSettings,
+} = useTelegramNotifications();
 
 const isLoggingOut = ref(false);
 const signOutDialogOpen = ref(false);
@@ -167,6 +174,9 @@ const expenseLoadFailed = ref(false);
 const isTelegramMiniApp = ref(false);
 const googleLinkUrl = ref("");
 const googleLinkError = ref("");
+const telegramNotificationSaving = ref(false);
+const telegramNotificationError = ref("");
+const telegramNotificationStatus = ref("");
 let googleLinkRefreshTimer: ReturnType<typeof setInterval> | undefined;
 const {
   data: momentData,
@@ -222,6 +232,22 @@ const initials = computed(() => {
 });
 const needsGoogleLink = computed(() =>
   isTelegramMiniApp.value && !user.value?.providers?.includes("GOOGLE"),
+);
+const telegramNotificationsEnabled = computed(() => telegramNotificationSettings.value?.enabled === true);
+const telegramNotificationsAvailable = computed(() => telegramNotificationSettings.value?.available === true);
+const telegramNotificationDescription = computed(() => {
+  if (telegramNotificationLoading.value) return "Loading notification settings…";
+  if (!telegramNotificationSettings.value) return "Notification settings are temporarily unavailable.";
+  if (telegramNotificationsEnabled.value) return "Enabled — a confirmation was sent in Telegram.";
+  if (!telegramNotificationsAvailable.value) return "Connect a Telegram account to use notifications.";
+  if (!isTelegramMiniApp.value) return "Open ChlatWork in Telegram to enable notifications.";
+  return "Receive important ChlatWork updates in Telegram.";
+});
+const telegramNotificationDisabled = computed(() =>
+  telegramNotificationLoading.value
+  || telegramNotificationSaving.value
+  || !telegramNotificationSettings.value
+  || (!telegramNotificationsEnabled.value && (!telegramNotificationsAvailable.value || !isTelegramMiniApp.value)),
 );
 
 async function prepareGoogleLink() {
@@ -362,6 +388,48 @@ async function handleQuickExpenseSettingChange(event: Event) {
   }
 }
 
+async function toggleTelegramNotifications() {
+  if (telegramNotificationDisabled.value) return;
+  telegramNotificationSaving.value = true;
+  telegramNotificationError.value = "";
+  telegramNotificationStatus.value = "";
+
+  try {
+    if (telegramNotificationsEnabled.value) {
+      await updateTelegramNotificationSettings(false);
+      telegramNotificationStatus.value = "Telegram notifications are off.";
+      return;
+    }
+
+    const telegram = getTelegramMiniApp();
+    if (!telegram?.initData || typeof telegram.requestWriteAccess !== "function") {
+      throw new Error("Telegram write access is unavailable");
+    }
+
+    // Telegram requires this native permission prompt to originate from the user's click.
+    const allowed = await new Promise<boolean>((resolve, reject) => {
+      const timeout = window.setTimeout(() => reject(new Error("Telegram permission request timed out")), 15_000);
+      telegram.requestWriteAccess?.((granted) => {
+        window.clearTimeout(timeout);
+        resolve(granted);
+      });
+    });
+    if (!allowed) {
+      telegramNotificationError.value = "Telegram notification permission was not granted.";
+      return;
+    }
+
+    await updateTelegramNotificationSettings(true, telegram.initData);
+    telegramNotificationStatus.value = "Notifications enabled. Check Telegram for confirmation.";
+  } catch {
+    telegramNotificationError.value = telegramNotificationsEnabled.value
+      ? "Could not turn off Telegram notifications. Please try again."
+      : "Could not enable Telegram notifications. Please try again.";
+  } finally {
+    telegramNotificationSaving.value = false;
+  }
+}
+
 async function openMobileAccountSection(section: MobileAccountSection) {
   mobileAccountSection.value = section;
   await nextTick();
@@ -387,6 +455,7 @@ async function loadProfileData() {
     loadHistory(),
     loadToolUsage(),
     loadExpenseState(),
+    loadTelegramNotificationSettings(),
   ]);
 }
 
@@ -524,6 +593,20 @@ onBeforeUnmount(() => {
         </label>
         <button
           type="button"
+          role="switch"
+          :aria-checked="telegramNotificationsEnabled"
+          :disabled="telegramNotificationDisabled"
+          class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10"
+          @click="toggleTelegramNotifications"
+        >
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-300/10 dark:text-blue-200"><BellRing class="size-5" aria-hidden="true" /></span>
+          <span class="min-w-0 flex-1"><strong class="block text-sm">Telegram notifications</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ telegramNotificationDescription }}</span></span>
+          <span class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition" :class="telegramNotificationsEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
+            <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition" :class="telegramNotificationsEnabled ? 'translate-x-5 dark:bg-slate-950' : ''" aria-hidden="true" />
+          </span>
+        </button>
+        <button
+          type="button"
           class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10"
           :aria-label="nextColorModeLabel"
           :title="nextColorModeLabel"
@@ -566,6 +649,8 @@ onBeforeUnmount(() => {
         </button>
       </div>
       <p v-if="quickExpenseSettingError" role="alert" class="mt-2 px-1 text-xs font-semibold text-red-600 dark:text-red-300">{{ quickExpenseSettingError }}</p>
+      <p v-if="telegramNotificationError" role="alert" class="mt-2 px-1 text-xs font-semibold text-red-600 dark:text-red-300">{{ telegramNotificationError }}</p>
+      <p v-else-if="telegramNotificationStatus" role="status" class="mt-2 px-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ telegramNotificationStatus }}</p>
     </section>
 
     <section v-if="!mobileAccountSection" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
@@ -578,6 +663,30 @@ onBeforeUnmount(() => {
         <input :checked="quickExpenseEnabled === true" type="checkbox" class="peer sr-only" :disabled="quickExpenseSettingLoading || quickExpenseSettingSaving" aria-label="Show Quick Expense button" @change="handleQuickExpenseSettingChange" />
         <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
       </label>
+    </section>
+
+    <section v-if="!mobileAccountSection" class="hidden items-center justify-between gap-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-300/20 dark:bg-blue-300/[0.06] sm:flex">
+      <span class="flex min-w-0 items-center gap-3">
+        <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-300/10 dark:text-blue-200"><BellRing class="size-5" aria-hidden="true" /></span>
+        <span class="min-w-0">
+          <strong class="block text-sm">Telegram notifications</strong>
+          <span class="mt-1 block text-xs text-slate-600 dark:text-white/55">{{ telegramNotificationDescription }}</span>
+          <span v-if="telegramNotificationError" role="alert" class="mt-1 block text-xs font-semibold text-red-600 dark:text-red-300">{{ telegramNotificationError }}</span>
+          <span v-else-if="telegramNotificationStatus" role="status" class="mt-1 block text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ telegramNotificationStatus }}</span>
+        </span>
+      </span>
+      <button
+        type="button"
+        role="switch"
+        :aria-checked="telegramNotificationsEnabled"
+        :disabled="telegramNotificationDisabled"
+        class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-60"
+        :class="telegramNotificationsEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'"
+        aria-label="Telegram notifications"
+        @click="toggleTelegramNotifications"
+      >
+        <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition" :class="telegramNotificationsEnabled ? 'translate-x-5 dark:bg-slate-950' : ''" aria-hidden="true" />
+      </button>
     </section>
 
     <section

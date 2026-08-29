@@ -11,6 +11,7 @@ import { ToolUsageModule } from './tool-usage/tool-usage.module';
 import { MomentsModule } from './moments/moments.module';
 import { AdminModule } from './admin/admin.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FavoritesModule } from './favorites/favorites.module';
     MomentsModule,
     AdminModule,
     FavoritesModule,
+    NotificationsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
