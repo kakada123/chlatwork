@@ -1,6 +1,8 @@
 export interface TelegramNotificationSettings {
   available: boolean;
   enabled: boolean;
+  timeZone: string;
+  dailyExpenseSummaryHour: number;
 }
 
 export function useTelegramNotifications() {
@@ -19,12 +21,16 @@ export function useTelegramNotifications() {
     }
   }
 
-  async function update(enabled: boolean, initData?: string) {
+  async function update(enabled: boolean, initData?: string, timeZone?: string) {
     settings.value = await $fetch<TelegramNotificationSettings>(
       "/api/notifications/telegram/settings",
       {
         method: "PUT",
-        body: { enabled, ...(initData ? { initData } : {}) },
+        body: {
+          enabled,
+          ...(initData ? { initData } : {}),
+          ...(timeZone ? { timeZone } : {}),
+        },
       },
     );
     return settings.value;

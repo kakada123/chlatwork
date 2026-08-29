@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class UpdateTelegramNotificationsDto {
   @IsBoolean()
@@ -8,4 +8,9 @@ export class UpdateTelegramNotificationsDto {
   @IsString()
   @MaxLength(16_384)
   initData?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  timeZone?: string;
 }

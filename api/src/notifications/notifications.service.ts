@@ -3,22 +3,28 @@ import {
   ForbiddenException,
   Injectable,
   ServiceUnavailableException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { AuthProvider } from '@prisma/client';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { AuthProvider } from "@prisma/client";
 import {
   TelegramMiniAppDataError,
   verifyTelegramMiniAppData,
-} from '../auth/telegram-mini-app';
-import { PrismaService } from '../prisma/prisma.service';
-import type { UpdateTelegramNotificationsDto } from './dto/update-telegram-notifications.dto';
+} from "../auth/telegram-mini-app";
+import { PrismaService } from "../prisma/prisma.service";
+import type { UpdateTelegramNotificationsDto } from "./dto/update-telegram-notifications.dto";
 
 const TELEGRAM_USER_ID_PATTERN = /^[1-9]\d{0,19}$/;
-const ENABLED_CONFIRMATION =
-  'ChlatWork notifications are enabled. You can turn them off anytime from Account settings.';
+const DEFAULT_TIME_ZONE = "Asia/Phnom_Penh";
+const DAILY_EXPENSE_SUMMARY_HOUR = 22;
 
 interface TelegramBotApiResponse {
   ok?: boolean;
+}
+
+interface TelegramSettingsState {
+  enabled: boolean;
+  timeZone: string;
+  dailyExpenseSummaryHour: number;
 }
 
 @Injectable()
@@ -29,8 +35,8 @@ export class NotificationsService {
   ) {}
 
   async getTelegramSettings(userId: string) {
-    const [enabled, telegramAccount] = await Promise.all([
-      this.getTelegramNotificationsEnabled(userId),
+    const [settings, telegramAccount] = await Promise.all([
+      this.getTelegramSettingsState(userId),
       this.findTelegramAccount(userId),
     ]);
 
@@ -41,7 +47,7 @@ export class NotificationsService {
 
     return {
       available,
-      enabled,
+      ...settings,
     };
   }
 
@@ -51,19 +57,24 @@ export class NotificationsService {
   ) {
     if (!dto.enabled) {
       await this.setTelegramNotificationsEnabled(userId, false);
-      const telegramAccount = await this.findTelegramAccount(userId);
+      const [settings, telegramAccount] = await Promise.all([
+        this.getTelegramSettingsState(userId),
+        this.findTelegramAccount(userId),
+      ]);
       return {
         available: Boolean(
           telegramAccount &&
           TELEGRAM_USER_ID_PATTERN.test(telegramAccount.providerUserId),
         ),
-        enabled: false,
+        ...settings,
       };
     }
 
     if (!dto.initData) {
-      throw new BadRequestException('Telegram Mini App data is required');
+      throw new BadRequestException("Telegram Mini App data is required");
     }
+
+    const timeZone = this.normalizeTimeZone(dto.timeZone);
 
     const telegramAccount = await this.findTelegramAccount(userId);
     if (
@@ -71,29 +82,37 @@ export class NotificationsService {
       !TELEGRAM_USER_ID_PATTERN.test(telegramAccount.providerUserId)
     ) {
       throw new BadRequestException(
-        'A Telegram account must be connected first',
+        "A Telegram account must be connected first",
       );
     }
 
     const profile = this.verifyMiniAppIdentity(dto.initData);
     if (profile.providerUserId !== telegramAccount.providerUserId) {
       throw new ForbiddenException(
-        'Telegram account does not match the signed-in account',
+        "Telegram account does not match the signed-in account",
       );
     }
 
     // Confirm delivery before persisting opt-in so a blocked bot never appears enabled in ChlatWork.
+    const confirmation =
+      `ChlatWork daily expense summaries are enabled for 10:00 PM (${timeZone}). ` +
+      "You can turn them off anytime from Account settings.";
     await this.sendTelegramMessage(
       telegramAccount.providerUserId,
-      ENABLED_CONFIRMATION,
+      confirmation,
     );
-    await this.setTelegramNotificationsEnabled(userId, true);
+    await this.setTelegramNotificationsEnabled(userId, true, timeZone);
 
-    return { available: true, enabled: true };
+    return {
+      available: true,
+      enabled: true,
+      timeZone,
+      dailyExpenseSummaryHour: DAILY_EXPENSE_SUMMARY_HOUR,
+    };
   }
 
   async sendToUser(userId: string, text: string) {
-    if (!(await this.getTelegramNotificationsEnabled(userId))) return false;
+    if (!(await this.getTelegramSettingsState(userId)).enabled) return false;
 
     const telegramAccount = await this.findTelegramAccount(userId);
     if (
@@ -114,41 +133,65 @@ export class NotificationsService {
     });
   }
 
-  private async getTelegramNotificationsEnabled(userId: string) {
+  private async getTelegramSettingsState(
+    userId: string,
+  ): Promise<TelegramSettingsState> {
     // Raw SQL keeps this deploy-safe before the generated Prisma client is refreshed with the migration.
-    const rows = await this.prisma.$queryRaw<Array<{ enabled: boolean }>>`
-      SELECT telegram_notifications_enabled AS "enabled"
+    const rows = await this.prisma.$queryRaw<TelegramSettingsState[]>`
+      SELECT
+        telegram_notifications_enabled AS "enabled",
+        telegram_notification_time_zone AS "timeZone",
+        telegram_daily_expense_summary_hour AS "dailyExpenseSummaryHour"
       FROM users
       WHERE id = ${userId}::uuid
       LIMIT 1
     `;
-    return rows[0]?.enabled ?? false;
+    return (
+      rows[0] ?? {
+        enabled: false,
+        timeZone: DEFAULT_TIME_ZONE,
+        dailyExpenseSummaryHour: DAILY_EXPENSE_SUMMARY_HOUR,
+      }
+    );
   }
 
   private async setTelegramNotificationsEnabled(
     userId: string,
     enabled: boolean,
+    timeZone?: string,
   ) {
     const enabledAt = enabled ? new Date() : null;
     await this.prisma.$executeRaw`
       UPDATE users
       SET telegram_notifications_enabled = ${enabled},
           telegram_notifications_enabled_at = ${enabledAt},
+          telegram_notification_time_zone = COALESCE(${timeZone ?? null}, telegram_notification_time_zone),
           "updatedAt" = NOW()
       WHERE id = ${userId}::uuid
     `;
+  }
+
+  private normalizeTimeZone(timeZone?: string) {
+    const candidate = timeZone?.trim() || DEFAULT_TIME_ZONE;
+    try {
+      return new Intl.DateTimeFormat("en-US", {
+        timeZone: candidate,
+      }).resolvedOptions().timeZone;
+    } catch {
+      throw new BadRequestException("Notification timezone is invalid");
+    }
   }
 
   private verifyMiniAppIdentity(initData: string) {
     try {
       return verifyTelegramMiniAppData(
         initData,
-        this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
+        this.config.getOrThrow<string>("TELEGRAM_BOT_TOKEN"),
       );
     } catch (error) {
       if (error instanceof TelegramMiniAppDataError) {
         throw new ForbiddenException(
-          'Telegram Mini App data is invalid or expired',
+          "Telegram Mini App data is invalid or expired",
         );
       }
       throw error;
@@ -157,18 +200,18 @@ export class NotificationsService {
 
   private async sendTelegramMessage(chatId: string, text: string) {
     if (!text.trim() || text.length > 4_096) {
-      throw new BadRequestException('Telegram notification text is invalid');
+      throw new BadRequestException("Telegram notification text is invalid");
     }
 
-    const token = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
+    const token = this.config.getOrThrow<string>("TELEGRAM_BOT_TOKEN");
     let response: Response;
 
     try {
       response = await fetch(
         `https://api.telegram.org/bot${token}/sendMessage`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ chat_id: chatId, text }),
           signal: AbortSignal.timeout(8_000),
         },
@@ -176,7 +219,7 @@ export class NotificationsService {
     } catch {
       // Never surface fetch details because they can contain the bot token URL.
       throw new ServiceUnavailableException(
-        'Telegram notification could not be sent',
+        "Telegram notification could not be sent",
       );
     }
 
@@ -188,7 +231,7 @@ export class NotificationsService {
     }
     if (!response.ok || result.ok !== true) {
       throw new ServiceUnavailableException(
-        'Telegram notification could not be sent',
+        "Telegram notification could not be sent",
       );
     }
   }

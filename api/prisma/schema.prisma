@@ -123,6 +123,9 @@ model User {
   isActive       Boolean         @default(true)
   telegramNotificationsEnabled Boolean @default(false) @map("telegram_notifications_enabled")
   telegramNotificationsEnabledAt DateTime? @map("telegram_notifications_enabled_at")
+  telegramNotificationTimeZone String @default("Asia/Phnom_Penh") @db.VarChar(64) @map("telegram_notification_time_zone")
+  telegramDailyExpenseSummaryHour Int @default(22) @map("telegram_daily_expense_summary_hour")
+  telegramDailyExpenseSummaryLastAttemptDate DateTime? @db.Date @map("telegram_daily_expense_summary_last_attempt_date")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   socialAccounts SocialAccount[]

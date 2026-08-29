@@ -109,22 +109,45 @@ test("Telegram notifications require native write access and a verified account 
 
   assert.match(webAppTypes, /requestWriteAccess/);
   assert.match(account, /telegram\.requestWriteAccess/);
-  assert.match(account, /updateTelegramNotificationSettings\(true, telegram\.initData\)/);
+  assert.match(account, /updateTelegramNotificationSettings\(true, telegram\.initData, timeZone\)/);
   assert.match(controller, /@UseGuards\(JwtAuthGuard\)/);
   assert.match(controller, /@Get\('telegram\/settings'\)/);
   assert.match(controller, /@Put\('telegram\/settings'\)/);
   assert.match(controller, /@Throttle\(\{ default: \{ limit: 5, ttl: 60_000 \} \}\)/);
   assert.match(service, /verifyTelegramMiniAppData/);
   assert.match(service, /profile\.providerUserId !== telegramAccount\.providerUserId/);
-  assert.ok(
-    service.indexOf("await this.setTelegramNotificationsEnabled(userId, true)")
-      > service.indexOf("await this.sendTelegramMessage"),
+  assert.match(
+    service,
+    /await this\.sendTelegramMessage\([\s\S]*?await this\.setTelegramNotificationsEnabled\(\s*userId,\s*true,\s*timeZone/,
   );
   assert.match(schema, /telegramNotificationsEnabled\s+Boolean\s+@default\(false\)/);
   assert.match(sql, /ADD COLUMN IF NOT EXISTS telegram_notifications_enabled/);
   assert.match(getProxy, /requestAuthenticatedApi/);
   assert.match(putProxy, /requestAuthenticatedApi/);
   assert.doesNotMatch(service, /console\.(?:log|error|warn)/);
+});
+
+test("Telegram sends one local-day expense summary at 10 PM", () => {
+  const account = readFileSync("app/pages/account.vue", "utf8");
+  const scheduler = readFileSync(
+    "api/src/notifications/daily-expense-summary.scheduler.ts",
+    "utf8",
+  );
+  const schema = readFileSync("api/prisma/schema.prisma", "utf8");
+  const sql = readFileSync(
+    "database/2026-08-29-add-daily-expense-telegram-summary.sql",
+    "utf8",
+  );
+
+  assert.match(account, /Daily expense total at 10:00 PM/);
+  assert.match(account, /Intl\.DateTimeFormat\(\)\.resolvedOptions\(\)\.timeZone/);
+  assert.match(scheduler, /FOR UPDATE SKIP LOCKED/);
+  assert.match(scheduler, /entry\.type = 'EXPENSE'/);
+  assert.match(scheduler, /entry\."entryDate" = \$\{recipient\.localDate\}::date/);
+  assert.match(schema, /telegramDailyExpenseSummaryHour\s+Int\s+@default\(22\)/);
+  assert.match(schema, /telegramDailyExpenseSummaryLastAttemptDate/);
+  assert.match(sql, /telegram_daily_expense_summary_hour SMALLINT NOT NULL DEFAULT 22/);
+  assert.match(sql, /telegram_daily_expense_summary_last_attempt_date DATE/);
 });
 
 test("the API accepts traffic from its container network", () => {

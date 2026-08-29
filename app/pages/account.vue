@@ -238,10 +238,11 @@ const telegramNotificationsAvailable = computed(() => telegramNotificationSettin
 const telegramNotificationDescription = computed(() => {
   if (telegramNotificationLoading.value) return "Loading notification settings…";
   if (!telegramNotificationSettings.value) return "Notification settings are temporarily unavailable.";
-  if (telegramNotificationsEnabled.value) return "Enabled — a confirmation was sent in Telegram.";
+  const schedule = `Daily expense total at 10:00 PM (${telegramNotificationSettings.value.timeZone}).`;
+  if (telegramNotificationsEnabled.value) return `Enabled — ${schedule}`;
   if (!telegramNotificationsAvailable.value) return "Connect a Telegram account to use notifications.";
   if (!isTelegramMiniApp.value) return "Open ChlatWork in Telegram to enable notifications.";
-  return "Receive important ChlatWork updates in Telegram.";
+  return schedule;
 });
 const telegramNotificationDisabled = computed(() =>
   telegramNotificationLoading.value
@@ -419,8 +420,14 @@ async function toggleTelegramNotifications() {
       return;
     }
 
-    await updateTelegramNotificationSettings(true, telegram.initData);
-    telegramNotificationStatus.value = "Notifications enabled. Check Telegram for confirmation.";
+    let timeZone = "Asia/Phnom_Penh";
+    try {
+      timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || timeZone;
+    } catch {
+      // Cambodia time is the safe product default when a WebView cannot expose its timezone.
+    }
+    await updateTelegramNotificationSettings(true, telegram.initData, timeZone);
+    telegramNotificationStatus.value = "Daily 10:00 PM expense summary enabled. Check Telegram for confirmation.";
   } catch {
     telegramNotificationError.value = telegramNotificationsEnabled.value
       ? "Could not turn off Telegram notifications. Please try again."
