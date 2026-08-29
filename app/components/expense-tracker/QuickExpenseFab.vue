@@ -228,7 +228,7 @@ onBeforeUnmount(() => {
       :class="[
         props.overlayActive ? 'z-[110]' : 'z-[90]',
         props.mobileNavigationAction
-          ? 'bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-1/2 size-14 -translate-x-1/2 justify-center rounded-full border-4 border-white p-0 dark:border-black sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:translate-x-0 sm:gap-2 sm:rounded-2xl sm:border-0 sm:px-4 sm:py-3'
+          ? 'bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 size-14 -translate-x-1/2 justify-center rounded-full border-4 border-slate-100/90 p-0 dark:border-[#17191d] sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:translate-x-0 sm:gap-2 sm:rounded-2xl sm:border-0 sm:px-4 sm:py-3'
           : 'bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 min-h-14 gap-2 rounded-2xl px-4 py-3 sm:right-6',
       ]"
       aria-label="Add expense"

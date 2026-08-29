@@ -14,6 +14,14 @@ test("favorites require login and use account APIs without browser storage fallb
   assert.match(accountFavorites, /favoritesLoadedForUserId\.value !== userId/);
   assert.match(syncPlugin, /window\.addEventListener\("focus", refreshFocusedAccount\)/);
   assert.match(syncPlugin, /loadFavorites\(true\)/);
+  assert.match(syncPlugin, /focusRefreshMaxAgeMs = 60_000/);
+  assert.match(syncPlugin, /Date\.now\(\) - favoritesLastLoadedAt\.value < focusRefreshMaxAgeMs/);
+  assert.match(accountFavorites, /if \(!hasCurrentFavorites\) favoritesReady\.value = false/);
+  assert.match(accountFavorites, /Favorites could not be refreshed\. Showing your last saved list\./);
+  assert.doesNotMatch(
+    accountFavorites,
+    /catch \{[\s\S]*favoriteToolKeys\.value = \[\];[\s\S]*favoriteError\.value = "Favorites could not be refreshed/,
+  );
   assert.match(toolFavorites, /validToolKeys\.has\(toolKey\)/);
   assert.match(commandFavorites, /validCommandIds\.has\(id\)/);
   assert.doesNotMatch(accountFavorites + toolFavorites + commandFavorites, /localStorage|sessionStorage/);

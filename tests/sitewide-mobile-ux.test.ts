@@ -37,8 +37,10 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(layout, /route\.query\.from === "account"/);
   assert.match(layout, /:back-aria-label="mobileHeaderReturnsToAccount \? 'Back to Account' : 'Go back'"/);
 
-  assert.match(bottomNav, /fixed inset-x-0 bottom-0/);
+  assert.match(bottomNav, /fixed inset-x-3/);
   assert.match(bottomNav, /env\(safe-area-inset-bottom\)/);
+  assert.match(bottomNav, /rounded-\[2rem\]/);
+  assert.match(bottomNav, /bg-white\/80[^"]*backdrop-blur-2xl/);
   assert.match(bottomNav, /to="\/"/);
   assert.match(bottomNav, /to="\/tools"/);
   assert.match(bottomNav, /> Search/);
@@ -52,7 +54,8 @@ test("the default layout provides one mobile app shell to every standard page", 
     bottomNav.match(/:external="props\.forceDocumentNavigation"/g)?.length,
     3,
   );
-  assert.match(bottomNav, /dark:bg-white\/\[0\.10\] dark:text-white/);
+  assert.match(bottomNav, /bg-slate-200\/90[^"]*text-sky-600/);
+  assert.match(bottomNav, /dark:bg-white\/\[0\.14\] dark:text-sky-400/);
   assert.doesNotMatch(bottomNav, /dark:bg-cyan-300|dark:text-slate-950/);
 });
 

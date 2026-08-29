@@ -75,6 +75,9 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   assert.doesNotMatch(mobile, /recentTools\.value\.length \? recentTools\.value : favoriteTools\.value/);
   assert.match(bottomNav, /aria-label="Mobile primary navigation"/);
   assert.match(bottomNav, /env\(safe-area-inset-bottom\)/);
+  assert.match(bottomNav, /rounded-\[2rem\]/);
+  assert.match(bottomNav, /rounded-\[1\.35rem\]/);
+  assert.match(bottomNav, /dark:bg-white\/\[0\.14\] dark:text-sky-400/);
   assert.match(mobile, /input-id="mobile-home-global-search"/);
   assert.doesNotMatch(mobile, /aria-label="Mobile primary navigation"/);
   assert.match(landing, /pb-24[^\"]*sm:pb-0/);

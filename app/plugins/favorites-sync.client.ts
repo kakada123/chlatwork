@@ -1,12 +1,15 @@
 export default defineNuxtPlugin(() => {
   const { user, isReady } = useAuth();
-  const { loadFavorites } = useAccountFavorites();
+  const { favoritesLastLoadedAt, loadFavorites } = useAccountFavorites();
+  const focusRefreshMaxAgeMs = 60_000;
 
   function refreshFocusedAccount() {
-    if (isReady.value && user.value) void loadFavorites(true);
+    if (!isReady.value || !user.value) return;
+    if (Date.now() - favoritesLastLoadedAt.value < focusRefreshMaxAgeMs) return;
+    void loadFavorites(true);
   }
 
-  // Revalidate after another tab or device may have changed the account's server-owned favorites.
+  // Revalidate stale account data without refetching on every Telegram focus transition.
   window.addEventListener("focus", refreshFocusedAccount);
   onScopeDispose(() => window.removeEventListener("focus", refreshFocusedAccount));
 });
