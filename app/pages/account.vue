@@ -1,17 +1,30 @@
 <script setup lang="ts">
 import {
   BarChart3,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
+  Coffee,
+  Cookie,
+  FileText,
   Heart,
   History,
+  Info,
   Link2,
   LogOut,
+  Mail,
+  Map,
   Moon,
+  Newspaper,
   ReceiptText,
+  Scale,
+  ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   Sun,
+  TriangleAlert,
   UserRound,
+  type LucideIcon,
 } from "lucide-vue-next";
 import CommandQuickCard from "~/components/developer-commands/CommandQuickCard.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
@@ -34,6 +47,7 @@ import {
   type ExpenseStoredState,
 } from "~/lib/expense-tracker";
 import { buildPaybackRawFromRows, buildPaybackSharePayload } from "~/lib/payback-calculator";
+import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
 import type { MomentSummary } from "~/types/moment";
@@ -45,6 +59,55 @@ type MobileAccountSection =
   | "activity"
   | "favorite-tools"
   | "favorite-commands";
+
+type AccountInformationItem = {
+  label: string;
+  icon: LucideIcon;
+  to?: string;
+  href?: string;
+  action?: "cookie-settings";
+};
+
+const accountInformationGroups: Array<{
+  key: string;
+  title: string;
+  iconTone: string;
+  items: AccountInformationItem[];
+}> = [
+  {
+    key: "site",
+    title: "Site",
+    iconTone: "bg-sky-100 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200",
+    items: [
+      { label: "About", to: "/about", icon: Info },
+      { label: "Contact", to: "/contact", icon: Mail },
+      { label: "Guides", to: "/guides", icon: BookOpen },
+      { label: "Posts", to: "/posts", icon: Newspaper },
+      { label: "Sitemap", href: "/sitemap.xml", icon: Map },
+    ],
+  },
+  {
+    key: "policies",
+    title: "Policies",
+    iconTone: "bg-violet-100 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200",
+    items: [
+      { label: "Editorial policy", to: "/editorial-policy", icon: FileText },
+      { label: "Privacy Policy", to: "/privacy-policy", icon: ShieldCheck },
+      { label: "Terms of Use", to: "/terms", icon: Scale },
+      { label: "Cookie Policy", to: "/cookies", icon: Cookie },
+      { label: "Disclaimer", to: "/disclaimer", icon: TriangleAlert },
+    ],
+  },
+  {
+    key: "support",
+    title: "Support",
+    iconTone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200",
+    items: [
+      { label: "Privacy & cookie settings", action: "cookie-settings", icon: SlidersHorizontal },
+      { label: "Support ChlatWork", to: "/buy-me-coffee", icon: Coffee },
+    ],
+  },
+];
 
 definePageMeta({ middleware: "auth" });
 useSeoMeta({ title: "Profile | ChlatWork", robots: "noindex, nofollow" });
@@ -331,33 +394,34 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="space-y-8 pb-24 text-slate-950 sm:pb-0 dark:text-white">
-    <header class="border-b border-slate-200 pb-5 dark:border-white/10 sm:pb-6">
-      <div class="flex items-start justify-between gap-4">
+  <main
+    class="pb-24 text-slate-950 sm:space-y-8 sm:pb-0 dark:text-white"
+    :class="mobileAccountSection ? 'space-y-4' : 'space-y-8'"
+  >
+    <header class="border-b border-slate-200 dark:border-white/10" :class="mobileAccountSection ? 'pb-3 sm:pb-6' : 'pb-5 sm:pb-6'">
+      <!-- Mobile sub-sections use a focused back header; desktop keeps the account context visible. -->
+      <button
+        v-if="mobileAccountSection"
+        type="button"
+        class="flex min-h-12 items-center gap-3 rounded-2xl pr-4 text-left text-[#082552] transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-white sm:hidden"
+        aria-label="Back to Account menu"
+        @click="closeMobileAccountSection"
+      >
+        <span class="grid size-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <ChevronLeft class="size-5" aria-hidden="true" />
+        </span>
+        <span>
+          <span class="block text-[0.65rem] font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-white/40">Back</span>
+          <strong class="mt-0.5 block text-sm">Account menu</strong>
+        </span>
+      </button>
+      <div :class="mobileAccountSection ? 'hidden sm:flex' : 'flex'" class="items-start justify-between gap-4">
         <div>
           <p class="hidden text-sm font-semibold text-sky-700 dark:text-cyan-300 sm:block">Your ChlatWork</p>
           <h1 class="text-3xl font-semibold tracking-tight sm:mt-2">Account</h1>
           <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">Manage your profile, saved work, and tool activity.</p>
         </div>
-        <button
-          type="button"
-          class="grid size-12 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white sm:hidden"
-          :aria-label="nextColorModeLabel"
-          :title="nextColorModeLabel"
-          @click="toggleColorMode"
-        >
-          <Sun v-if="isDark" class="size-5" aria-hidden="true" />
-          <Moon v-else class="size-5" aria-hidden="true" />
-        </button>
       </div>
-      <button
-        v-if="mobileAccountSection"
-        type="button"
-        class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white sm:hidden"
-        @click="closeMobileAccountSection"
-      >
-        <ChevronLeft class="size-4" aria-hidden="true" /> Account menu
-      </button>
     </header>
 
     <section
@@ -440,6 +504,23 @@ onBeforeUnmount(() => {
             <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5 dark:peer-checked:bg-slate-950" aria-hidden="true" />
           </span>
         </label>
+        <button
+          type="button"
+          class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10"
+          :aria-label="nextColorModeLabel"
+          :title="nextColorModeLabel"
+          @click="toggleColorMode"
+        >
+          <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700 dark:bg-indigo-300/10 dark:text-indigo-200">
+            <Moon v-if="isDark" class="size-5" aria-hidden="true" />
+            <Sun v-else class="size-5" aria-hidden="true" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <strong class="block text-sm">Appearance</strong>
+            <span class="mt-1 block text-xs text-slate-500 dark:text-white/50">Choose how ChlatWork looks</span>
+          </span>
+          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-white/65">{{ isDark ? "Dark" : "Light" }}</span>
+        </button>
         <button type="button" class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10" aria-controls="profile-moments" @click="openMobileAccountSection('moments')">
           <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="size-5" aria-hidden="true" /></span>
           <span class="min-w-0 flex-1"><strong class="block text-sm">Your Moments</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ momentsStatus === "pending" ? "Loading Moments…" : momentsError ? "Moments unavailable" : `${moments.length} ${moments.length === 1 ? "Moment" : "Moments"}` }}</span></span>
@@ -621,6 +702,44 @@ onBeforeUnmount(() => {
       <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="text-xl font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
       <div v-if="favoriteCommands.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"><CommandQuickCard v-for="command in favoriteCommands" :key="command.id" :item="command" favorite @favorite="toggleCommandFavorite(command.id)" @copied="() => undefined" /></div>
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite commands yet.</p><NuxtLink to="/developer-commands" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse commands</NuxtLink></div>
+    </section>
+
+    <section v-if="!mobileAccountSection" class="space-y-6 sm:hidden" aria-label="ChlatWork information">
+      <section v-for="group in accountInformationGroups" :key="group.key" :aria-labelledby="`account-${group.key}-title`">
+        <h2 :id="`account-${group.key}-title`" class="px-1 text-lg font-semibold">{{ group.title }}</h2>
+        <div class="mt-3 divide-y divide-slate-200 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.05]">
+          <template v-for="item in group.items" :key="item.label">
+            <button
+              v-if="item.action"
+              type="button"
+              class="flex min-h-[68px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500"
+              @click="openPrivacyCookieSettings"
+            >
+              <span class="grid size-10 shrink-0 place-items-center rounded-xl" :class="group.iconTone"><component :is="item.icon" class="size-5" aria-hidden="true" /></span>
+              <span class="min-w-0 flex-1 text-sm font-semibold">{{ item.label }}</span>
+              <ChevronRight class="size-5 shrink-0 text-slate-400 dark:text-white/35" aria-hidden="true" />
+            </button>
+            <a
+              v-else-if="item.href"
+              :href="item.href"
+              class="flex min-h-[68px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500"
+            >
+              <span class="grid size-10 shrink-0 place-items-center rounded-xl" :class="group.iconTone"><component :is="item.icon" class="size-5" aria-hidden="true" /></span>
+              <span class="min-w-0 flex-1 text-sm font-semibold">{{ item.label }}</span>
+              <ChevronRight class="size-5 shrink-0 text-slate-400 dark:text-white/35" aria-hidden="true" />
+            </a>
+            <NuxtLink
+              v-else
+              :to="item.to"
+              class="flex min-h-[68px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500"
+            >
+              <span class="grid size-10 shrink-0 place-items-center rounded-xl" :class="group.iconTone"><component :is="item.icon" class="size-5" aria-hidden="true" /></span>
+              <span class="min-w-0 flex-1 text-sm font-semibold">{{ item.label }}</span>
+              <ChevronRight class="size-5 shrink-0 text-slate-400 dark:text-white/35" aria-hidden="true" />
+            </NuxtLink>
+          </template>
+        </div>
+      </section>
     </section>
 
     <button
