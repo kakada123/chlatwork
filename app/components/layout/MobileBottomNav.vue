@@ -5,6 +5,7 @@ const props = defineProps<{
   routePath: string;
   accountTo: string;
   showQuickExpenseSlot: boolean;
+  searchActive?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -47,8 +48,9 @@ const isAccountActive = computed(() => props.routePath === "/account" || props.r
 
       <button
         type="button"
-        :class="[baseClass, inactiveClass, 'w-full']"
+        :class="[baseClass, props.searchActive ? activeClass : inactiveClass, 'w-full']"
         aria-label="Search ChlatWork"
+        :aria-pressed="props.searchActive === true"
         @click="emit('search')"
       >
         <Search class="size-5" aria-hidden="true" /> Search

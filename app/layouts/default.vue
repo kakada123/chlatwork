@@ -469,6 +469,11 @@ async function clearHeaderSearch() {
   mobileHeaderSearchInput.value?.focus();
 }
 
+async function focusMobileHeaderSearch() {
+  await nextTick();
+  mobileHeaderSearchInput.value?.focus();
+}
+
 function handleHeaderSearchFocusout(event: FocusEvent) {
   const searchContainer = event.currentTarget as HTMLElement;
   const nextTarget = event.relatedTarget as Node | null;
@@ -823,6 +828,15 @@ watch(
               </div>
             </div>
           </div>
+
+          <!-- Search remains part of the mobile app shell, with the requested four primary actions. -->
+          <MobileBottomNav
+            :route-path="route.path"
+            :account-to="visibleAuthUser ? '/account' : '/login'"
+            :show-quick-expense-slot="false"
+            search-active
+            @search="focusMobileHeaderSearch"
+          />
         </div>
       </Transition>
     </Teleport>
@@ -869,6 +883,7 @@ watch(
     />
 
     <MobileBottomNav
+      v-if="!isHeaderSearchOpen"
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
       :show-quick-expense-slot="showQuickExpenseNavigationSlot"
