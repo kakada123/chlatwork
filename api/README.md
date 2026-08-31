@@ -33,7 +33,8 @@ The API binds to `0.0.0.0` using Railway's `PORT` value, with `3002` as the loca
 
 The long-running API checks once per minute for opted-in users whose local time
 has reached 10:00 PM, atomically claims that local calendar day, and sends the
-day's Expense Tracker total through the Telegram bot. The API process must stay
-running for scheduled delivery; serverless request-only execution is not enough.
+saved Expense Tracker range, totals, budget, insights, and category breakdown
+through the Telegram bot. The API process must stay running for scheduled
+delivery; serverless request-only execution is not enough.
 
 Google and Telegram callback/origin values must be registered with their providers. For production, Google Cloud must contain the JavaScript origin `https://chlatwork.com` and redirect URI `https://chlatwork.com/api/auth/google/callback`. Provider secrets, the Telegram bot token, and `JWT_ACCESS_SECRET` belong only in the auth API runtime environment.

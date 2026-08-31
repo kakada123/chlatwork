@@ -127,7 +127,7 @@ test("Telegram notifications require native write access and a verified account 
   assert.doesNotMatch(service, /console\.(?:log|error|warn)/);
 });
 
-test("Telegram sends one local-day expense summary at 10 PM", () => {
+test("Telegram sends one detailed spending overview at 10 PM", () => {
   const account = readFileSync("app/pages/account.vue", "utf8");
   const scheduler = readFileSync(
     "api/src/notifications/daily-expense-summary.scheduler.ts",
@@ -139,11 +139,13 @@ test("Telegram sends one local-day expense summary at 10 PM", () => {
     "utf8",
   );
 
-  assert.match(account, /Daily expense total at 10:00 PM/);
+  assert.match(account, /Daily spending overview at 10:00 PM/);
   assert.match(account, /Intl\.DateTimeFormat\(\)\.resolvedOptions\(\)\.timeZone/);
   assert.match(scheduler, /FOR UPDATE SKIP LOCKED/);
-  assert.match(scheduler, /entry\.type = 'EXPENSE'/);
-  assert.match(scheduler, /entry\."entryDate" = \$\{recipient\.localDate\}::date/);
+  assert.match(scheduler, /profile\."rangeMode"::text/);
+  assert.match(scheduler, /profile\."budgetInput"/);
+  assert.match(scheduler, /entry\.type::text AS "entryType"/);
+  assert.match(scheduler, /buildSpendingOverviewMessage\(recipient\.localDate, rows\)/);
   assert.match(schema, /telegramDailyExpenseSummaryHour\s+Int\s+@default\(22\)/);
   assert.match(schema, /telegramDailyExpenseSummaryLastAttemptDate/);
   assert.match(sql, /telegram_daily_expense_summary_hour SMALLINT NOT NULL DEFAULT 22/);

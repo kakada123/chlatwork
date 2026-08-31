@@ -95,7 +95,7 @@ export class NotificationsService {
 
     // Confirm delivery before persisting opt-in so a blocked bot never appears enabled in ChlatWork.
     const confirmation =
-      `ChlatWork daily expense summaries are enabled for 10:00 PM (${timeZone}). ` +
+      `ChlatWork daily spending overviews are enabled for 10:00 PM (${timeZone}). ` +
       "You can turn them off anytime from Account settings.";
     await this.sendTelegramMessage(
       telegramAccount.providerUserId,
