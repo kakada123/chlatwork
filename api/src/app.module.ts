@@ -12,6 +12,7 @@ import { MomentsModule } from './moments/moments.module';
 import { AdminModule } from './admin/admin.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     AdminModule,
     FavoritesModule,
     NotificationsModule,
+    TelegramBotModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

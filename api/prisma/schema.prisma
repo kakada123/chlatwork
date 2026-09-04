@@ -44,6 +44,13 @@ enum ExpenseEntryType {
   INCOME
 }
 
+enum TelegramBotPendingExpenseStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  UNDONE
+}
+
 enum PaybackRemainderMode {
   LEFTOVER_ONLY
   ASSIGN_TO_PERSON
@@ -138,6 +145,7 @@ model User {
   toolUsageEvents ToolUsageEvent[]
   favorites       UserFavorite[]
   moments         Moment[]
+  telegramBotPendingExpenses TelegramBotPendingExpense[]
 
   @@map("users")
 }
@@ -363,10 +371,46 @@ model ExpenseEntry {
   amountInput    String           @default("") @db.VarChar(64)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  telegramBotPendingExpense TelegramBotPendingExpense?
 
   @@unique([userId, position])
   @@index([userId, entryDate])
   @@map("expense_entries")
+}
+
+model TelegramBotUpdate {
+  updateId    BigInt    @id @map("update_id")
+  receivedAt DateTime  @default(now()) @map("received_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@index([receivedAt])
+  @@map("telegram_bot_updates")
+}
+
+model TelegramBotPendingExpense {
+  id              String                          @id @default(uuid()) @db.Uuid
+  userId          String                          @map("user_id") @db.Uuid
+  user            User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  telegramUserId  String                          @map("telegram_user_id") @db.VarChar(20)
+  chatId          BigInt                          @map("chat_id")
+  sourceMessageId BigInt                          @map("source_message_id")
+  amountInput     String                          @map("amount_input") @db.VarChar(64)
+  currency        ExpenseCurrency
+  category        String                          @db.VarChar(120)
+  note            String                          @db.VarChar(500)
+  entryDate       DateTime                        @map("entry_date") @db.Date
+  status          TelegramBotPendingExpenseStatus @default(PENDING)
+  expenseEntryId  String?                         @unique @map("expense_entry_id") @db.Uuid
+  expenseEntry    ExpenseEntry?                   @relation(fields: [expenseEntryId], references: [id], onDelete: SetNull)
+  expiresAt       DateTime                        @map("expires_at")
+  confirmedAt     DateTime?                       @map("confirmed_at")
+  createdAt       DateTime                        @default(now()) @map("created_at")
+  updatedAt       DateTime                        @updatedAt @map("updated_at")
+
+  @@unique([chatId, sourceMessageId])
+  @@index([userId])
+  @@index([telegramUserId, status, expiresAt])
+  @@map("telegram_bot_pending_expenses")
 }
 
 model SocialAccount {

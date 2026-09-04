@@ -10,6 +10,7 @@
     "start": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",
+    "pretest": "prisma generate",
     "test": "jest --runInBand"
   },
   "dependencies": {
