@@ -10,6 +10,7 @@ import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeGlobalSearch from "~/components/landing/HomeGlobalSearch.vue";
 import MobileToolsDirectory from "~/components/tools/MobileToolsDirectory.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
+import { ArrowRight, Sparkles } from "lucide-vue-next";
 
 const { categoryLabel, copy, localizeTool } = useLanguage();
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
@@ -66,6 +67,16 @@ function groupTools(tools: ToolDef[]) {
     <section class="mx-auto w-full max-w-3xl" data-reveal aria-label="Search tools">
       <HomeGlobalSearch :tools="searchableTools" />
     </section>
+
+    <NuxtLink
+      to="/creator"
+      class="group flex min-h-20 items-center gap-4 rounded-2xl border border-violet-200 bg-white p-4 transition hover:border-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-violet-300/20 dark:bg-white/[0.06] dark:hover:border-violet-300/40"
+      data-reveal
+    >
+      <span class="tool-icon-tone tool-icon-tone-violet grid size-12 shrink-0 place-items-center rounded-2xl" aria-hidden="true"><Sparkles class="size-6" /></span>
+      <span class="min-w-0 flex-1"><strong class="block text-base text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block text-sm text-slate-500 dark:text-white/55">Create posts, scripts, hooks, Khmer content, and complete video content packs.</span></span>
+      <span class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200">Open Creator <ArrowRight class="size-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
+    </NuxtLink>
 
     <section class="space-y-3" data-reveal>
       <div>

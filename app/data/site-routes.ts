@@ -1,6 +1,7 @@
 import { STARTER_GUIDE_PATHS } from "./guides.ts";
 import { DEVELOPER_GUIDE_PATHS } from "./developer-guides.ts";
 import { POST_PATHS } from "./posts.ts";
+import { CREATOR_ROUTE_PATHS } from "./creator-tools.ts";
 
 export const LEGAL_PAGE_PATHS = [
   "/privacy-policy",
@@ -24,6 +25,7 @@ export const NAVIGATION_ONLY_PAGE_PATHS = [
   "/tools",
   "/guides",
   "/posts",
+  ...CREATOR_ROUTE_PATHS,
   "/tools/pdf",
   "/tools/image",
   "/tools/qr-barcode",

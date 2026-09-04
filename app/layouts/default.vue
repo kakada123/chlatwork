@@ -20,6 +20,7 @@ import { TOOL_DIRECTORY_CATEGORIES } from "~/data/tool-categories";
 import { POSTS } from "~/data/posts";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools, searchTextMatches } from "~/lib/tool-search";
+import { CREATOR_TOOLS, getCreatorToolByRoute } from "~/data/creator-tools";
 
 type HeaderSearchResult = {
   key: string;
@@ -46,6 +47,14 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
     path: "/tools",
     label: "Page",
     searchText: "all tools directory utilities pdf developer tools",
+  },
+  {
+    key: "page-creator",
+    title: "ChlatWork Creator",
+    description: "Create social posts, scripts, hooks, Khmer content, and video content packs.",
+    path: "/creator",
+    label: "Creator",
+    searchText: "creator AI Khmer post script hook subtitle caption content pack Cambodia",
   },
   {
     key: "page-developer-commands",
@@ -288,6 +297,19 @@ const headerSearchResults = computed(() => {
     label: "Category",
     searchText: "",
   }));
+  const creatorResults: HeaderSearchResult[] = CREATOR_TOOLS.filter((tool) =>
+    searchTextMatches(
+      [tool.title, tool.shortTitle, tool.description, tool.category, tool.route].join(" "),
+      query,
+    ),
+  ).map((tool) => ({
+    key: `creator-${tool.id}`,
+    title: tool.title,
+    description: tool.description,
+    path: tool.route,
+    label: "Creator",
+    searchText: "",
+  }));
   const pageResults = SITE_SEARCH_PAGES.filter((page) =>
     searchTextMatches(
       [page.title, page.description, page.path, page.searchText].join(" "),
@@ -301,6 +323,7 @@ const headerSearchResults = computed(() => {
     ...developerGuideResults,
     ...postResults,
     ...categoryResults,
+    ...creatorResults,
     ...pageResults,
   ].slice(0, 12);
 });
@@ -464,6 +487,10 @@ const routesWithEmbeddedMobileChrome = new Set(["/", "/km", "/account", "/tools"
 const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path));
 const mobileHeaderReturnsToAccount = computed(() => route.query.from === "account");
 const mobilePageTitle = computed(() => {
+  if (route.path === "/creator") return "Creator";
+  const creatorTool = getCreatorToolByRoute(route.path);
+  if (creatorTool) return creatorTool.shortTitle;
+
   const tool = localizedEnabledTools.value.find((item) => item.route === route.path);
   if (tool) return tool.name;
 
@@ -500,6 +527,7 @@ const mobilePageTitle = computed(() => {
 });
 const mobileBackPath = computed(() => {
   if (mobileHeaderReturnsToAccount.value) return "/account";
+  if (route.path.startsWith("/creator/")) return "/creator";
   if (route.path.startsWith("/tools/")) return "/tools";
   if (route.path.startsWith("/developer-guides/")) return "/developer-guides";
   if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return "/guides";
@@ -626,6 +654,13 @@ watch(
               :class="route.path.startsWith('/tools') ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
               {{ copy.nav.tools }}
+            </NuxtLink>
+            <NuxtLink
+              to="/creator"
+              class="rounded-lg px-3 py-2 font-medium transition"
+              :class="route.path.startsWith('/creator') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
+            >
+              Creator
             </NuxtLink>
             <NuxtLink
               to="/guides"

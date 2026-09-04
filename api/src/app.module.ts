@@ -13,6 +13,7 @@ import { AdminModule } from './admin/admin.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
+import { CreatorAiModule } from './creator-ai/creator-ai.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
     FavoritesModule,
     NotificationsModule,
     TelegramBotModule,
+    CreatorAiModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -83,6 +83,18 @@ export async function requestAuthApi<T>(
 export const getAccessToken = (event: H3Event) => getCookie(event, ACCESS_TOKEN_COOKIE);
 export const getRefreshToken = (event: H3Event) => getCookie(event, REFRESH_TOKEN_COOKIE);
 
+export async function getFreshAccessToken(event: H3Event) {
+  let accessToken = getAccessToken(event);
+  if (!accessToken || tokenExpiresSoon(accessToken)) {
+    accessToken = (await refreshAuthCookies(event).catch(() => null))?.accessToken;
+  }
+  if (!accessToken) {
+    clearAuthCookies(event);
+    throw createError({ statusCode: 401, statusMessage: "Authentication required" });
+  }
+  return accessToken;
+}
+
 export function setAuthCookies(event: H3Event, tokens: AuthTokenResponse) {
   // Tokens remain inaccessible to client-side scripts; the Nuxt server owns refresh and forwarding.
   setCookie(event, ACCESS_TOKEN_COOKIE, tokens.accessToken, cookieOptions(event, ACCESS_TOKEN_MAX_AGE));
@@ -159,4 +171,18 @@ export async function requestOptionallyAuthenticatedApi<T>(
   const headers = new Headers(options.headers as HeadersInit | undefined);
   headers.set("Authorization", `Bearer ${accessToken}`);
   return requestAuthApi<T>(event, path, { ...options, headers });
+}
+
+function tokenExpiresSoon(token: string) {
+  try {
+    const encoded = (token.split(".")[1] ?? "")
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const payload = JSON.parse(
+      atob(encoded.padEnd(Math.ceil(encoded.length / 4) * 4, "=")),
+    ) as { exp?: unknown };
+    return typeof payload.exp !== "number" || payload.exp * 1000 < Date.now() + 30_000;
+  } catch {
+    return true;
+  }
 }

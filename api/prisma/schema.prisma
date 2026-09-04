@@ -120,6 +120,57 @@ enum InvitationRecipientType {
   GROUP
 }
 
+enum AiFeature {
+  POST
+  SCRIPT
+  HOOK
+  CONTENT_IDEAS
+  KHMER_GRAMMAR
+  KHMER_REWRITE
+  LATIN_TO_KHMER
+  HUMANIZE
+  FACEBOOK_TO_TIKTOK
+  LONG_TO_SHORT
+  VIDEO_SUBTITLE
+  VIDEO_CAPTION
+  VIDEO_SUMMARY
+  VIDEO_CONTENT_PACK
+  VIDEO_TO_SOCIAL
+}
+
+enum AiCreditTransactionType {
+  GRANT
+  RESERVE
+  CHARGE
+  REFUND
+  PURCHASE
+  EXPIRE
+  ADMIN_ADJUSTMENT
+}
+
+enum AiGenerationStatus {
+  RESERVED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AiUsageStatus {
+  SUCCEEDED
+  FAILED
+}
+
+enum AiVideoJobStatus {
+  QUEUED
+  PROCESSING
+  TRANSCRIBING
+  CLEANING
+  GENERATING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 model User {
   id             String          @id @default(uuid()) @db.Uuid
   email          String?         @unique
@@ -153,8 +204,123 @@ model User {
   telegramBotConversationState TelegramBotConversationState?
   telegramBudgetAlertState TelegramBudgetAlertState?
   telegramGroupSplits TelegramGroupSplit[]
+  aiWallet        AiWallet?
+  aiCreditTransactions AiCreditTransaction[]
+  aiGenerations   AiGeneration[]
+  aiUsageLogs     AiUsageLog[]
+  aiVideoJobs     AiVideoJob[]
 
   @@map("users")
+}
+
+model AiWallet {
+  userId    String   @id @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ai_wallets")
+}
+
+model AiCreditTransaction {
+  id            String                    @id @default(uuid()) @db.Uuid
+  userId        String                    @map("user_id") @db.Uuid
+  user          User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          AiCreditTransactionType
+  amount        Int
+  feature       AiFeature?
+  referenceId   String                    @map("reference_id") @db.VarChar(128)
+  balanceBefore Int                       @map("balance_before")
+  balanceAfter  Int                       @map("balance_after")
+  metadata      Json?
+  createdAt     DateTime                  @default(now()) @map("created_at")
+
+  @@unique([userId, type, referenceId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([referenceId])
+  @@map("ai_credit_transactions")
+}
+
+model AiGeneration {
+  id                       String             @id @default(uuid()) @db.Uuid
+  userId                   String             @map("user_id") @db.Uuid
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature                  AiFeature
+  idempotencyKey           String             @map("idempotency_key") @db.VarChar(128)
+  requestHash              String             @map("request_hash") @db.Char(64)
+  inputSummary             String?            @map("input_summary") @db.VarChar(160)
+  status                   AiGenerationStatus @default(RESERVED)
+  creditCost               Int                @map("credit_cost")
+  estimatedProviderCostUsd Decimal            @default(0) @map("estimated_provider_cost_usd") @db.Decimal(12, 6)
+  result                   Json?
+  errorCode                String?            @map("error_code") @db.VarChar(64)
+  providerRequestId        String?            @map("provider_request_id") @db.VarChar(128)
+  createdAt                DateTime           @default(now()) @map("created_at")
+  updatedAt                DateTime           @updatedAt @map("updated_at")
+  completedAt              DateTime?          @map("completed_at")
+  usage                    AiUsageLog?
+  videoJob                 AiVideoJob?
+
+  @@unique([userId, feature, idempotencyKey])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, feature, createdAt(sort: Desc)])
+  @@index([status, createdAt])
+  @@map("ai_generations")
+}
+
+model AiUsageLog {
+  id                       String        @id @default(uuid()) @db.Uuid
+  generationId             String        @unique @map("generation_id") @db.Uuid
+  generation               AiGeneration  @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  userId                   String        @map("user_id") @db.Uuid
+  user                     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature                  AiFeature
+  provider                 String        @db.VarChar(32)
+  model                    String        @db.VarChar(80)
+  inputTokens              Int?          @map("input_tokens")
+  cachedInputTokens        Int?          @map("cached_input_tokens")
+  outputTokens             Int?          @map("output_tokens")
+  audioSeconds             Int?          @map("audio_seconds")
+  creditsCharged           Int           @map("credits_charged")
+  estimatedProviderCostUsd Decimal       @default(0) @map("estimated_provider_cost_usd") @db.Decimal(12, 6)
+  providerRequestId        String?       @map("provider_request_id") @db.VarChar(128)
+  durationMs               Int           @map("duration_ms")
+  status                   AiUsageStatus
+  errorCode                String?       @map("error_code") @db.VarChar(64)
+  createdAt                DateTime      @default(now()) @map("created_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([feature, createdAt(sort: Desc)])
+  @@index([status, createdAt])
+  @@map("ai_usage_logs")
+}
+
+model AiVideoJob {
+  id             String           @id @default(uuid()) @db.Uuid
+  generationId   String           @unique @map("generation_id") @db.Uuid
+  generation     AiGeneration     @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  userId         String           @map("user_id") @db.Uuid
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature        AiFeature
+  status         AiVideoJobStatus @default(QUEUED)
+  stage          String           @default("QUEUED") @db.VarChar(32)
+  originalName   String           @map("original_name") @db.VarChar(180)
+  mimeType       String           @map("mime_type") @db.VarChar(64)
+  byteSize       BigInt           @map("byte_size")
+  durationSeconds Int             @map("duration_seconds")
+  tempFilePath   String?          @map("temp_file_path") @db.VarChar(500)
+  attempts       Int              @default(0)
+  errorCode      String?          @map("error_code") @db.VarChar(64)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  startedAt      DateTime?        @map("started_at")
+  completedAt    DateTime?        @map("completed_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@map("ai_video_jobs")
 }
 
 model Moment {

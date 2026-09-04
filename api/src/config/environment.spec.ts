@@ -17,6 +17,33 @@ describe('validateEnvironment', () => {
     expect(validateEnvironment({ ...valid })).toEqual(valid);
   });
 
+  it('keeps Creator AI safely disabled without provider configuration', () => {
+    expect(validateEnvironment({ ...valid, AI_ENABLED: 'false' })).toEqual({
+      ...valid,
+      AI_ENABLED: 'false',
+    });
+  });
+
+  it('requires provider and budget safeguards when Creator AI is enabled', () => {
+    expect(() =>
+      validateEnvironment({ ...valid, AI_ENABLED: 'true' }),
+    ).toThrow('OPENAI_API_KEY is required');
+  });
+
+  it('requires a public Creator API URL for direct video uploads', () => {
+    expect(() =>
+      validateEnvironment({
+        ...valid,
+        AI_ENABLED: 'true',
+        OPENAI_API_KEY: 'test-api-key',
+        OPENAI_TEXT_MODEL: 'test-text-model',
+        OPENAI_TRANSCRIPTION_MODEL: 'test-transcription-model',
+        AI_DAILY_PROVIDER_BUDGET_USD: '1',
+        AI_MONTHLY_PROVIDER_BUDGET_USD: '10',
+      }),
+    ).toThrow('CREATOR_PUBLIC_API_BASE_URL is required');
+  });
+
   it('rejects missing provider configuration', () => {
     expect(() => validateEnvironment({ ...valid, GOOGLE_CLIENT_ID: '' })).toThrow(
       'GOOGLE_CLIENT_ID is required',

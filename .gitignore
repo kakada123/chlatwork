@@ -11,8 +11,11 @@
 .codex-validate
 .codex-schema
 .codex-test-tmp
+.codex-build-*
+.codex-build-*.tsbuildinfo
 node-compile-cache
 dist
+/prompt.txt
 
 # Node dependencies
 node_modules

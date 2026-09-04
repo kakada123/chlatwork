@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Moon, Sun, Wrench } from "lucide-vue-next";
+import { ArrowRight, Moon, Sparkles, Sun, Wrench } from "lucide-vue-next";
 import HomeGlobalSearch from "~/components/landing/HomeGlobalSearch.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import MobileToolDirectoryCard from "~/components/tools/MobileToolDirectoryCard.vue";
@@ -70,6 +70,15 @@ watch(() => visibleUser.value?.avatarUrl, () => {
         </NuxtLink>
       </div>
     </header>
+
+    <NuxtLink
+      to="/creator"
+      class="mobile-pressable mt-5 flex min-h-20 items-center gap-3 rounded-2xl border border-violet-200 bg-white p-3.5 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-violet-300/20 dark:bg-white/[0.06]"
+    >
+      <span class="tool-icon-tone tool-icon-tone-violet grid size-11 shrink-0 place-items-center rounded-xl" aria-hidden="true"><Sparkles class="size-5" /></span>
+      <span class="min-w-0 flex-1"><strong class="block text-sm text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block truncate text-xs text-slate-500 dark:text-white/50">Posts, scripts, video AI, and Khmer writing</span></span>
+      <ArrowRight class="size-4 shrink-0 text-violet-600 dark:text-violet-300" aria-hidden="true" />
+    </NuxtLink>
 
     <section class="mt-6" aria-label="Search tools">
       <HomeGlobalSearch input-id="mobile-tools-global-search" :tools="props.tools" />
