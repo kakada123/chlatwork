@@ -15,6 +15,11 @@ const user: User = {
   avatarUrl: null,
   role: UserRole.USER,
   isActive: true,
+  telegramNotificationsEnabled: false,
+  telegramNotificationsEnabledAt: null,
+  telegramNotificationTimeZone: 'Asia/Phnom_Penh',
+  telegramDailyExpenseSummaryHour: 22,
+  telegramDailyExpenseSummaryLastAttemptDate: null,
   createdAt: new Date('2026-08-21T00:00:00.000Z'),
   updatedAt: new Date('2026-08-21T00:00:00.000Z'),
 };

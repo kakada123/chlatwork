@@ -39,6 +39,33 @@ export interface MomentUpload {
   size: number;
 }
 
+type MomentPollIdentityMode =
+  | 'ANONYMOUS'
+  | 'NAME_REQUIRED'
+  | 'LOGIN_REQUIRED';
+
+interface MomentPollDefinition {
+  question: string;
+  identityMode: MomentPollIdentityMode;
+  options: Array<{ id: string; label: string }>;
+}
+
+export interface TelegramMomentVoter {
+  telegramUserId: string;
+  linkedUserId?: string;
+  displayName: string;
+}
+
+export interface TelegramMomentPoll {
+  id: string;
+  slug: string;
+  title: string;
+  question: string;
+  identityMode: MomentPollIdentityMode;
+  totalVotes: number;
+  results: Array<{ optionId: string; label: string; votes: number }>;
+}
+
 @Injectable()
 export class MomentsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -346,6 +373,57 @@ export class MomentsService {
     );
   }
 
+  async listTelegramVotingMoments(
+    userId: string,
+  ): Promise<TelegramMomentPoll[]> {
+    const now = new Date();
+    const moments = await this.prisma.moment.findMany({
+      where: {
+        creatorId: userId,
+        occasion: MomentOccasion.VOTING,
+        status: MomentStatus.PUBLISHED,
+        AND: [
+          { OR: [{ publishAt: null }, { publishAt: { lte: now } }] },
+          { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        blocks: {
+          where: { type: MomentBlockType.POLL },
+          select: { data: true },
+          take: 1,
+        },
+      },
+    });
+
+    const polls = await Promise.all(
+      moments.map(async (moment) => {
+        const poll = this.readPollDefinition(moment.blocks[0]?.data);
+        return poll ? this.toTelegramPollView(moment, poll) : null;
+      }),
+    );
+    return polls.filter((poll): poll is TelegramMomentPoll => poll !== null);
+  }
+
+  async getOwnedTelegramVotingMoment(
+    userId: string,
+    momentId: string,
+  ): Promise<TelegramMomentPoll> {
+    const moment = await this.prisma.moment.findFirst({
+      where: { id: momentId, creatorId: userId },
+      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
+    });
+    this.assertVotingOpen(moment);
+    const poll = this.readPollDefinition(moment.blocks[0]?.data);
+    if (!poll) throw new NotFoundException('Poll not found');
+    return this.toTelegramPollView(moment, poll);
+  }
+
   async addInvitationGuests(
     userId: string,
     momentId: string,
@@ -538,21 +616,12 @@ export class MomentsService {
       where: { slug },
       include: { blocks: { where: { type: MomentBlockType.POLL } } },
     });
-    this.assertPublic(moment);
-    if (moment.occasion !== MomentOccasion.VOTING)
-      throw new NotFoundException('Poll not found');
-    const poll = moment.blocks[0]?.data as
-      | {
-          identityMode?: string;
-          requireName?: boolean;
-          options?: Array<{ id: string; label?: string }>;
-        }
-      | undefined;
-    if (!poll?.options?.some((option) => option.id === dto.optionId)) {
+    this.assertVotingOpen(moment);
+    const poll = this.readPollDefinition(moment.blocks[0]?.data);
+    if (!poll || !poll.options.some((option) => option.id === dto.optionId)) {
       throw new BadRequestException('Choose a valid poll option');
     }
-    const identityMode =
-      poll.identityMode ?? (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS');
+    const identityMode = poll.identityMode;
     if (identityMode === 'LOGIN_REQUIRED' && !user) {
       throw new UnauthorizedException('Log in to vote in this poll');
     }
@@ -574,22 +643,55 @@ export class MomentsService {
       identityMode === 'LOGIN_REQUIRED'
         ? `account:${user!.id}`
         : dto.responseToken!;
-    const responseKey = createHash('sha256').update(identityKey).digest('hex');
-    await this.prisma.momentVote.upsert({
-      where: { momentId_responseKey: { momentId: moment.id, responseKey } },
-      // The stable identity key updates an existing choice without increasing participation.
-      create: {
-        momentId: moment.id,
-        responseKey,
-        optionId: dto.optionId,
-        voterName: identityMode === 'ANONYMOUS' ? null : voterName,
-      },
-      update: {
-        optionId: dto.optionId,
-        voterName: identityMode === 'ANONYMOUS' ? null : voterName,
-      },
+    return this.savePollVote(
+      moment.id,
+      poll,
+      dto.optionId,
+      identityKey,
+      voterName,
+    );
+  }
+
+  async respondToTelegramVote(
+    momentId: string,
+    optionId: string,
+    voter: TelegramMomentVoter,
+  ): Promise<TelegramMomentPoll> {
+    const moment = await this.prisma.moment.findUnique({
+      where: { id: momentId },
+      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
     });
-    return this.getPollSummary(moment.id, poll.options, identityMode);
+    this.assertVotingOpen(moment);
+    const poll = this.readPollDefinition(moment.blocks[0]?.data);
+    if (!poll || !poll.options.some((option) => option.id === optionId)) {
+      throw new BadRequestException('Choose a valid poll option');
+    }
+    if (poll.identityMode === 'LOGIN_REQUIRED' && !voter.linkedUserId) {
+      throw new UnauthorizedException(
+        'Connect your ChlatWork account to vote in this poll',
+      );
+    }
+
+    let voterName = voter.displayName.trim() || 'Telegram voter';
+    if (poll.identityMode === 'LOGIN_REQUIRED') {
+      const account = await this.prisma.user.findUnique({
+        where: { id: voter.linkedUserId! },
+        select: { name: true },
+      });
+      voterName = account?.name?.trim() || 'ChlatWork member';
+    }
+    const identityKey =
+      poll.identityMode === 'LOGIN_REQUIRED'
+        ? `account:${voter.linkedUserId!}`
+        : `telegram:${voter.telegramUserId}`;
+    await this.savePollVote(
+      moment.id,
+      poll,
+      optionId,
+      identityKey,
+      voterName,
+    );
+    return this.toTelegramPollView(moment, poll);
   }
 
   async remove(userId: string, momentId: string) {
@@ -701,6 +803,75 @@ export class MomentsService {
     };
   }
 
+  private async savePollVote(
+    momentId: string,
+    poll: MomentPollDefinition,
+    optionId: string,
+    identityKey: string,
+    voterName: string,
+  ) {
+    const responseKey = createHash('sha256').update(identityKey).digest('hex');
+    const storedName =
+      poll.identityMode === 'ANONYMOUS' ? null : voterName.trim() || null;
+    await this.prisma.momentVote.upsert({
+      where: { momentId_responseKey: { momentId, responseKey } },
+      // A stable cross-channel identity changes a choice without adding a voter.
+      create: { momentId, responseKey, optionId, voterName: storedName },
+      update: { optionId, voterName: storedName },
+    });
+    return this.getPollSummary(momentId, poll.options, poll.identityMode);
+  }
+
+  private async toTelegramPollView(
+    moment: { id: string; slug: string; title: string },
+    poll: MomentPollDefinition,
+  ): Promise<TelegramMomentPoll> {
+    const summary = await this.getPollSummary(
+      moment.id,
+      poll.options,
+      poll.identityMode,
+    );
+    return {
+      id: moment.id,
+      slug: moment.slug,
+      title: moment.title,
+      question: poll.question,
+      identityMode: poll.identityMode,
+      totalVotes: summary.totalVotes,
+      results: summary.results.map(({ optionId, label, votes }) => ({
+        optionId,
+        label,
+        votes,
+      })),
+    };
+  }
+
+  private readPollDefinition(value: Prisma.JsonValue | undefined) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const record = value as Prisma.JsonObject;
+    const question =
+      typeof record.question === 'string' ? record.question.trim() : '';
+    const rawOptions = Array.isArray(record.options) ? record.options : [];
+    const options = rawOptions.flatMap((option) => {
+      if (!option || typeof option !== 'object' || Array.isArray(option))
+        return [];
+      const candidate = option as Prisma.JsonObject;
+      const id = typeof candidate.id === 'string' ? candidate.id : '';
+      const label =
+        typeof candidate.label === 'string' ? candidate.label.trim() : '';
+      return /^option-\d+$/.test(id) && label ? [{ id, label }] : [];
+    });
+    const rawIdentityMode = record.identityMode;
+    const identityMode: MomentPollIdentityMode =
+      rawIdentityMode === 'NAME_REQUIRED' || rawIdentityMode === 'LOGIN_REQUIRED'
+        ? rawIdentityMode
+        : record.requireName === true
+          ? 'NAME_REQUIRED'
+          : 'ANONYMOUS';
+    if (!question || options.length < 2 || options.length > 10) return null;
+    return { question, identityMode, options };
+  }
+
   async getPublicMedia(slug: string, mediaId: string) {
     const media = await this.prisma.momentMedia.findFirst({
       where: { id: mediaId, moment: { slug } },
@@ -724,6 +895,25 @@ export class MomentsService {
     }
     if (moment.expiresAt && moment.expiresAt <= new Date()) {
       throw new GoneException('This Moment has expired');
+    }
+  }
+
+  private assertVotingOpen(
+    moment:
+      | {
+          status: MomentStatus;
+          expiresAt: Date | null;
+          publishAt: Date | null;
+          occasion: MomentOccasion;
+        }
+      | null,
+  ): asserts moment is NonNullable<typeof moment> {
+    this.assertPublic(moment);
+    if (moment.occasion !== MomentOccasion.VOTING) {
+      throw new NotFoundException('Poll not found');
+    }
+    if (moment.publishAt && moment.publishAt > new Date()) {
+      throw new BadRequestException('Voting has not opened yet');
     }
   }
 

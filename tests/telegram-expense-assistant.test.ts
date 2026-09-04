@@ -12,6 +12,11 @@ const service = readFileSync(
   'utf8',
 );
 const proxy = readFileSync('server/api/telegram/webhook.post.ts', 'utf8');
+const moments = readFileSync('api/src/moments/moments.service.ts', 'utf8');
+const client = readFileSync(
+  'api/src/telegram-bot/telegram-bot.client.ts',
+  'utf8',
+);
 
 test('Telegram webhook is proxied to the API and verifies its secret there', () => {
   assert.match(apiModule, /TelegramBotModule/);
@@ -27,4 +32,16 @@ test('expense writes require confirmation and provide undo', () => {
   assert.match(service, /pg_advisory_xact_lock/);
   assert.match(service, /expense:undo:/);
   assert.match(service, /ExpenseEntryType\.EXPENSE/);
+});
+
+test('published Moment polls can be shared and voted through Telegram', () => {
+  assert.match(service, /command === 'vote'/);
+  assert.match(service, /switch_inline_query/);
+  assert.match(service, /poll:vote:/);
+  assert.match(service, /respondToTelegramVote/);
+  assert.match(service, /inline_message_id/);
+  assert.match(client, /answerInlineQuery/);
+  assert.match(client, /editInlineMessage/);
+  assert.match(moments, /telegram:\$\{voter\.telegramUserId\}/);
+  assert.match(moments, /account:\$\{voter\.linkedUserId!/);
 });

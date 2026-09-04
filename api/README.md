@@ -42,13 +42,19 @@ delivery; serverless request-only execution is not enough.
 
 Google and Telegram callback/origin values must be registered with their providers. For production, Google Cloud must contain the JavaScript origin `https://chlatwork.com` and redirect URI `https://chlatwork.com/api/auth/google/callback`. Provider secrets, the Telegram bot token, and `JWT_ACCESS_SECRET` belong only in the auth API runtime environment.
 
-## Telegram expense assistant
+## Telegram assistant
 
-The webhook supports private-chat `/start`, `/help`, `/today`, and `/cancel`
+The webhook supports private-chat `/start`, `/help`, `/today`, `/vote`, and `/cancel`
 commands. A normal message such as `Lunch 4.50` or `បាយ 15000៛` creates a
 30-minute confirmation with Save, Edit, and Cancel buttons. Saving is
 idempotent, and the confirmation changes to an Undo action after the expense is
 stored.
+
+`/vote` lists the signed-in user's open, published Voting Moments. Choosing one
+opens Telegram's chat picker and shares an inline poll whose buttons update the
+same Moment vote records as the web experience. Anonymous and name-required
+polls use a stable Telegram identity; login-required polls accept votes only
+from Telegram accounts linked to ChlatWork.
 
 Configure a random 16-256 character `TELEGRAM_WEBHOOK_SECRET` in the API runtime,
 then register the HTTPS endpoint with Telegram. Keep both values in the runtime
@@ -58,14 +64,19 @@ secret store; do not commit them:
 POST https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook
 url=https://chlatwork.com/api/telegram/webhook
 secret_token=<TELEGRAM_WEBHOOK_SECRET>
-allowed_updates=["message","callback_query"]
+allowed_updates=["message","callback_query","inline_query"]
 ```
+
+Enable inline mode in BotFather with `/setinline` and use a placeholder such as
+`Share a ChlatWork vote`. Without inline mode, the `/vote` share buttons cannot
+insert the poll into another Telegram chat.
 
 Configure these commands through BotFather or the Bot API:
 
 ```text
 start - Open the ChlatWork assistant
 today - Show today's expenses
+vote - Share a published voting Moment
 cancel - Cancel the latest pending expense
 help - Show the assistant menu
 ```

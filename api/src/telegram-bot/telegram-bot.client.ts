@@ -47,6 +47,33 @@ export class TelegramBotClient {
     });
   }
 
+  editInlineMessage(
+    inlineMessageId: string,
+    text: string,
+    replyMarkup: TelegramInlineKeyboard,
+  ) {
+    if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
+      throw new BadRequestException('Telegram bot message is invalid');
+    }
+    return this.call('editMessageText', {
+      inline_message_id: inlineMessageId,
+      text,
+      reply_markup: replyMarkup,
+    });
+  }
+
+  answerInlineQuery(
+    inlineQueryId: string,
+    results: Array<Record<string, unknown>>,
+  ) {
+    return this.call('answerInlineQuery', {
+      inline_query_id: inlineQueryId,
+      results,
+      cache_time: 0,
+      is_personal: true,
+    });
+  }
+
   async answerCallback(callbackQueryId: string, text?: string) {
     try {
       return await this.call('answerCallbackQuery', {

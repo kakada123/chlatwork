@@ -1,6 +1,9 @@
 import {
   BadRequestException,
+  GoneException,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -12,6 +15,7 @@ import {
 } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { MomentsService } from '../moments/moments.service';
 import {
   formatTelegramExpenseAmount,
   parseTelegramExpense,
@@ -20,16 +24,23 @@ import {
 import { TelegramBotClient } from './telegram-bot.client';
 import type {
   TelegramCallbackQuery,
+  TelegramInlineQuery,
   TelegramInlineKeyboard,
   TelegramMessage,
   TelegramUpdate,
 } from './telegram-bot.types';
 import { buildTelegramTodaySummary } from './telegram-today-summary';
+import {
+  buildTelegramPollKeyboard,
+  buildTelegramPollMessage,
+} from './telegram-vote';
 
 const DEFAULT_TIME_ZONE = 'Asia/Phnom_Penh';
 const PENDING_EXPENSE_LIFETIME_MS = 30 * 60 * 1_000;
 const RETAIN_BOT_STATE_MS = 7 * 24 * 60 * 60 * 1_000;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const POLL_OPTION_PATTERN = /^option-(?:[1-9]|10)$/;
 
 interface LinkedTelegramUser {
   user: {
@@ -46,6 +57,7 @@ export class TelegramBotService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly bot: TelegramBotClient,
+    private readonly moments: MomentsService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -61,7 +73,9 @@ export class TelegramBotService {
     if (!(await this.claimUpdate(update.update_id))) return;
 
     try {
-      if (update.callback_query) {
+      if (update.inline_query) {
+        await this.handleInlineQuery(update.inline_query);
+      } else if (update.callback_query) {
         await this.handleCallback(update.callback_query);
       } else if (update.message) {
         await this.handleMessage(update.message);
@@ -104,7 +118,8 @@ export class TelegramBotService {
   }
 
   private async handleMessage(message: TelegramMessage) {
-    if (!this.isPrivateMessage(message) || typeof message.text !== 'string') return;
+    if (!this.isPrivateMessage(message) || typeof message.text !== 'string')
+      return;
 
     const telegramUserId = String(message.from.id);
     const linked = await this.findLinkedUser(telegramUserId);
@@ -122,15 +137,23 @@ export class TelegramBotService {
       await this.sendToday(message.chat.id, linked);
       return;
     }
+    if (command === 'vote') {
+      await this.sendVotingMoments(message.chat.id, linked.user.id);
+      return;
+    }
     if (command === 'cancel') {
-      await this.cancelLatestPending(message.chat.id, telegramUserId, linked.user.id);
+      await this.cancelLatestPending(
+        message.chat.id,
+        telegramUserId,
+        linked.user.id,
+      );
       return;
     }
     if (command) {
       await this.bot.sendMessage(
         message.chat.id,
-        'Unknown command. Use /today for today’s spending or send an expense ' +
-          'such as “Lunch 4.50”.',
+        'Unknown command. Use /today for spending, /vote to share a poll, ' +
+          'or send an expense such as “Lunch 4.50”.',
         this.mainMenuKeyboard(),
       );
       return;
@@ -140,15 +163,23 @@ export class TelegramBotService {
   }
 
   private async handleCallback(callback: TelegramCallbackQuery) {
-    const message = callback.message;
-    if (!message || !this.isPrivateCallback(callback, message)) return;
     const data = typeof callback.data === 'string' ? callback.data : '';
     if (!data || data.length > 64) return;
+    if (data.startsWith('poll:vote:')) {
+      await this.handlePollVote(callback, data);
+      return;
+    }
+
+    const message = callback.message;
+    if (!message || !this.isPrivateCallback(callback, message)) return;
 
     const telegramUserId = String(callback.from.id);
     const linked = await this.findLinkedUser(telegramUserId);
     if (!linked) {
-      await this.bot.answerCallback(callback.id, 'Connect your ChlatWork account first.');
+      await this.bot.answerCallback(
+        callback.id,
+        'Connect your ChlatWork account first.',
+      );
       await this.sendConnectAccount(message.chat.id);
       return;
     }
@@ -165,6 +196,11 @@ export class TelegramBotService {
     if (data === 'summary:today') {
       await this.bot.answerCallback(callback.id);
       await this.sendToday(message.chat.id, linked);
+      return;
+    }
+    if (data === 'poll:list') {
+      await this.bot.answerCallback(callback.id);
+      await this.sendVotingMoments(message.chat.id, linked.user.id);
       return;
     }
 
@@ -187,7 +223,120 @@ export class TelegramBotService {
     }
   }
 
-  private async prepareExpense(message: TelegramMessage, linked: LinkedTelegramUser) {
+  private async handleInlineQuery(query: TelegramInlineQuery) {
+    if (!this.isValidInlineQuery(query)) return;
+    const match = /^vote:([0-9a-f-]+)$/i.exec(query.query.trim());
+    if (!match || !UUID_PATTERN.test(match[1])) {
+      await this.bot.answerInlineQuery(query.id, []);
+      return;
+    }
+    const linked = await this.findLinkedUser(String(query.from.id));
+    if (!linked) {
+      await this.bot.answerInlineQuery(query.id, []);
+      return;
+    }
+
+    try {
+      // Only the creator can turn a private inline query into a shareable poll.
+      const poll = await this.moments.getOwnedTelegramVotingMoment(
+        linked.user.id,
+        match[1],
+      );
+      await this.bot.answerInlineQuery(query.id, [
+        {
+          type: 'article',
+          id: `vote-${poll.id}`,
+          title: poll.question,
+          description: `${poll.totalVotes} votes · ${poll.title}`,
+          input_message_content: {
+            message_text: buildTelegramPollMessage(poll),
+          },
+          reply_markup: buildTelegramPollKeyboard(
+            poll,
+            this.appUrl(`/m/${poll.slug}`),
+          ),
+        },
+      ]);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof GoneException ||
+        error instanceof BadRequestException
+      ) {
+        await this.bot.answerInlineQuery(query.id, []);
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async handlePollVote(callback: TelegramCallbackQuery, data: string) {
+    if (!this.isValidPollCallback(callback)) return;
+    const [scope, action, momentId, optionId, extra] = data.split(':');
+    if (
+      scope !== 'poll' ||
+      action !== 'vote' ||
+      extra !== undefined ||
+      !UUID_PATTERN.test(momentId ?? '') ||
+      !POLL_OPTION_PATTERN.test(optionId ?? '')
+    ) {
+      await this.bot.answerCallback(callback.id, 'This poll action is invalid.');
+      return;
+    }
+
+    const telegramUserId = String(callback.from.id);
+    const linked = await this.findLinkedUser(telegramUserId);
+    const displayName = this.telegramDisplayName(callback.from);
+    try {
+      const poll = await this.moments.respondToTelegramVote(momentId, optionId, {
+        telegramUserId,
+        linkedUserId: linked?.user.id,
+        displayName,
+      });
+      await this.bot.answerCallback(callback.id, 'Vote saved.');
+      const keyboard = buildTelegramPollKeyboard(
+        poll,
+        this.appUrl(`/m/${poll.slug}`),
+      );
+      const text = buildTelegramPollMessage(poll);
+      if (callback.inline_message_id) {
+        await this.bot.editInlineMessage(
+          callback.inline_message_id,
+          text,
+          keyboard,
+        );
+      } else if (callback.message) {
+        await this.bot.editMessage(
+          callback.message.chat.id,
+          callback.message.message_id,
+          text,
+          keyboard,
+        );
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        await this.bot.answerCallback(
+          callback.id,
+          'Open ChlatWork and connect Telegram to vote.',
+        );
+        return;
+      }
+      if (
+        error instanceof NotFoundException ||
+        error instanceof GoneException ||
+        error instanceof BadRequestException
+      ) {
+        await this.bot.answerCallback(callback.id, 'This poll is unavailable.');
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async prepareExpense(
+    message: TelegramMessage,
+    linked: LinkedTelegramUser,
+  ) {
     const currency = linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
     let parsed;
     try {
@@ -545,12 +694,55 @@ export class TelegramBotService {
     );
   }
 
+  private async sendVotingMoments(chatId: number, userId: string) {
+    const polls = await this.moments.listTelegramVotingMoments(userId);
+    if (!polls.length) {
+      await this.bot.sendMessage(
+        chatId,
+        'You do not have an open published Voting Moment yet. Create and publish one first.',
+        {
+          inline_keyboard: [
+            [
+              {
+                text: 'Create Voting Moment',
+                web_app: { url: this.appUrl('/moments/create') },
+              },
+            ],
+          ],
+        },
+      );
+      return;
+    }
+
+    await this.bot.sendMessage(
+      chatId,
+      'Choose a poll, then choose the Telegram chat where you want to share it.',
+      {
+        inline_keyboard: [
+          ...polls.map((poll) => [
+            {
+              text: `Share: ${this.truncateButtonText(poll.question)}`,
+              switch_inline_query: `vote:${poll.id}`,
+            },
+          ]),
+          [
+            {
+              text: 'Manage Moments',
+              web_app: { url: this.appUrl('/moments') },
+            },
+          ],
+        ],
+      },
+    );
+  }
+
   private async sendMenu(chatId: number, linked: boolean) {
     await this.bot.sendMessage(
       chatId,
       linked
-        ? '👋 ChlatWork Money Assistant\n\nSend an expense like “Lunch 4.50”, ' +
-          'or choose an action below. Nothing is saved without your confirmation.'
+        ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
+          'or use /vote to share a published poll. Expenses are never saved ' +
+          'without your confirmation.'
         : '👋 Welcome to ChlatWork. Open the Mini App and sign in with Telegram ' +
           'before using private expense data.',
       linked ? this.mainMenuKeyboard() : this.connectKeyboard(),
@@ -574,6 +766,7 @@ export class TelegramBotService {
           { text: '📊 Today', callback_data: 'summary:today' },
         ],
         [this.openTrackerButton()],
+        [{ text: '🗳 Share a vote', callback_data: 'poll:list' }],
         [{ text: '⚙️ Settings', web_app: { url: this.appUrl('/account') } }],
       ],
     };
@@ -595,7 +788,10 @@ export class TelegramBotService {
   }
 
   private appUrl(path: string) {
-    return new URL(path, this.config.getOrThrow<string>('FRONTEND_ORIGIN')).toString();
+    return new URL(
+      path,
+      this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+    ).toString();
   }
 
   private pendingExpenseText(
@@ -622,6 +818,20 @@ export class TelegramBotService {
     const trimmed = text.trim();
     if (!trimmed.startsWith('/')) return null;
     return trimmed.slice(1).split(/[@\s]/, 1)[0]?.toLowerCase() || null;
+  }
+
+  private telegramDisplayName(user: TelegramCallbackQuery['from']) {
+    const name = [user.first_name, user.last_name]
+      .filter((part): part is string => Boolean(part?.trim()))
+      .join(' ')
+      .trim();
+    return (
+      name || (user.username ? `@${user.username}` : 'Telegram voter')
+    ).slice(0, 80);
+  }
+
+  private truncateButtonText(value: string) {
+    return value.length > 48 ? `${value.slice(0, 47)}…` : value;
   }
 
   private localDate(timeZone: string | null | undefined) {
@@ -689,6 +899,43 @@ export class TelegramBotService {
         typeof callback.id === 'string' &&
         callback.id.length > 0 &&
         callback.id.length <= 128,
+    );
+  }
+
+  private isValidInlineQuery(query: TelegramInlineQuery) {
+    return Boolean(
+      Number.isSafeInteger(query.from?.id) &&
+        query.from.id > 0 &&
+        !query.from.is_bot &&
+        typeof query.id === 'string' &&
+        query.id.length > 0 &&
+        query.id.length <= 128 &&
+        typeof query.query === 'string' &&
+        query.query.length <= 256,
+    );
+  }
+
+  private isValidPollCallback(callback: TelegramCallbackQuery) {
+    const hasInlineMessage =
+      typeof callback.inline_message_id === 'string' &&
+      callback.inline_message_id.length > 0 &&
+      callback.inline_message_id.length <= 256;
+    const message = callback.message;
+    const hasChatMessage = Boolean(
+      message &&
+        Number.isSafeInteger(message.chat?.id) &&
+        message.chat.id !== 0 &&
+        Number.isSafeInteger(message.message_id) &&
+        message.message_id >= 0,
+    );
+    return Boolean(
+      Number.isSafeInteger(callback.from?.id) &&
+        callback.from.id > 0 &&
+        !callback.from.is_bot &&
+        typeof callback.id === 'string' &&
+        callback.id.length > 0 &&
+        callback.id.length <= 128 &&
+        (hasInlineMessage || hasChatMessage),
     );
   }
 
