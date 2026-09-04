@@ -8,6 +8,8 @@
 .cache
 .tmp-codex
 .codex-tmp
+.codex-validate
+node-compile-cache
 dist
 
 # Node dependencies
