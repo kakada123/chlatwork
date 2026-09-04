@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { diskStorage, type Options as MulterOptions } from 'multer';
+import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { CreatorAiException } from './creator-ai.errors';
 
-const ABSOLUTE_MAX_VIDEO_BYTES = 500 * 1024 * 1024;
 const MIME_EXTENSIONS: Record<string, string[]> = {
   'video/mp4': ['.mp4', '.m4v'],
   'video/quicktime': ['.mov'],
@@ -40,11 +40,14 @@ export class CreatorVideoUploadExceptionFilter implements ExceptionFilter {
 }
 
 export function creatorVideoTempDirectory() {
-  return process.env.AI_VIDEO_TEMP_DIR?.trim() || join(tmpdir(), 'chlatwork-creator');
+  return (
+    process.env.AI_VIDEO_TEMP_DIR?.trim() ||
+    join(tmpdir(), CREATOR_AI_DEFAULTS.videoTempDirectoryName)
+  );
 }
 
 export const creatorVideoUploadOptions: MulterOptions = {
-  limits: { files: 1, fileSize: ABSOLUTE_MAX_VIDEO_BYTES },
+  limits: { files: 1, fileSize: CREATOR_AI_DEFAULTS.absoluteMaxVideoBytes },
   fileFilter: (_request, file, callback) => {
     const extension = extname(file.originalname).toLowerCase();
     const allowed = MIME_EXTENSIONS[file.mimetype];

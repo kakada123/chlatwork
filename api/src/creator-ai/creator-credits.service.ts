@@ -9,6 +9,7 @@ import {
   type AiGeneration,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { CreatorAiException } from './creator-ai.errors';
 import { CreatorPricingService } from './creator-pricing.service';
 import { CreatorProtectionService } from './creator-protection.service';
@@ -330,7 +331,10 @@ export class CreatorCreditsService {
   private async ensureWallet(tx: Prisma.TransactionClient, userId: string) {
     const existing = await tx.aiWallet.findUnique({ where: { userId } });
     if (existing) return existing;
-    const initialCredits = this.number('AI_INITIAL_CREDITS', 20);
+    const initialCredits = this.number(
+      'AI_INITIAL_CREDITS',
+      CREATOR_AI_DEFAULTS.initialCredits,
+    );
     const wallet = await tx.aiWallet.create({
       data: { userId, balance: initialCredits },
     });

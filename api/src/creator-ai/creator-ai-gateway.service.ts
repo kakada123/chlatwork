@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { createReadStream } from 'node:fs';
 import OpenAI from 'openai';
 import type { AiFeature } from '@prisma/client';
+import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
 import type {
@@ -185,7 +186,10 @@ export class CreatorAiGatewayService {
       }
       this.client = new OpenAI({
         apiKey,
-        timeout: this.number('AI_PROVIDER_TIMEOUT_MS', 60_000),
+        timeout: this.number(
+          'AI_PROVIDER_TIMEOUT_MS',
+          CREATOR_AI_DEFAULTS.providerTimeoutMs,
+        ),
         // Automatic retries can create an untracked second provider request.
         maxRetries: 0,
       });

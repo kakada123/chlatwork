@@ -15,7 +15,11 @@ describe('Creator video upload tickets', () => {
       validateIdempotencyKey: jest.fn((value: string) => value),
     };
     const config = {
-      getOrThrow: jest.fn().mockReturnValue('https://creator-api.example.com/'),
+      get: jest.fn((key: string) =>
+        key === 'RAILWAY_PUBLIC_DOMAIN'
+          ? 'creator-api.example.com'
+          : undefined,
+      ),
     };
     const service = new CreatorVideoUploadTicketService(
       config as unknown as ConfigService,
@@ -43,6 +47,32 @@ describe('Creator video upload tickets', () => {
       }),
       expect.objectContaining({ expiresIn: '5m' }),
     );
+  });
+
+  it('uses the local API port when Railway has no public domain', async () => {
+    const service = new CreatorVideoUploadTicketService(
+      {
+        get: jest.fn((key: string, fallback?: unknown) =>
+          key === 'PORT' ? 4010 : fallback,
+        ),
+      } as unknown as ConfigService,
+      {
+        signAsync: jest.fn().mockResolvedValue('scoped-ticket'),
+      } as unknown as JwtService,
+      {
+        validateIdempotencyKey: jest.fn((value: string) => value),
+      } as unknown as CreatorCreditsService,
+    );
+
+    await expect(
+      service.issue(
+        'user-id',
+        AiFeature.VIDEO_CAPTION,
+        'idempotency-key-1234',
+      ),
+    ).resolves.toMatchObject({
+      uploadUrl: 'http://localhost:4010/creator-ai/direct/video/caption',
+    });
   });
 
   it('rejects a valid ticket when its idempotency key does not match the upload', async () => {

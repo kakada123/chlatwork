@@ -92,7 +92,6 @@ export function validateEnvironment(config: Record<string, unknown>) {
       'OPENAI_API_KEY',
       'OPENAI_TEXT_MODEL',
       'OPENAI_TRANSCRIPTION_MODEL',
-      'CREATOR_PUBLIC_API_BASE_URL',
       'AI_DAILY_PROVIDER_BUDGET_USD',
       'AI_MONTHLY_PROVIDER_BUDGET_USD',
     ] as const) {
@@ -101,8 +100,24 @@ export function validateEnvironment(config: Record<string, unknown>) {
         throw new Error(`${key} is required when AI_ENABLED=true`);
       }
     }
+
+    if (
+      String(config.NODE_ENV).toLowerCase() === 'production' &&
+      !String(config.RAILWAY_PUBLIC_DOMAIN ?? '').trim() &&
+      !String(config.CREATOR_PUBLIC_API_BASE_URL ?? '').trim()
+    ) {
+      throw new Error(
+        'RAILWAY_PUBLIC_DOMAIN or CREATOR_PUBLIC_API_BASE_URL is required for production video uploads',
+      );
+    }
+  }
+
+  const creatorPublicApiBaseUrl = String(
+    config.CREATOR_PUBLIC_API_BASE_URL ?? '',
+  ).trim();
+  if (creatorPublicApiBaseUrl) {
     try {
-      new URL(String(config.CREATOR_PUBLIC_API_BASE_URL));
+      new URL(creatorPublicApiBaseUrl);
     } catch {
       throw new Error('CREATOR_PUBLIC_API_BASE_URL must be a valid URL');
     }

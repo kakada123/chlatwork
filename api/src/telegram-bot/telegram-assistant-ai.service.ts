@@ -4,6 +4,8 @@ import type { ExpenseCurrency } from '@prisma/client';
 import type { ParsedTelegramExpense } from './telegram-expense-parser';
 
 const OPENAI_API_URL = 'https://api.openai.com/v1';
+const OPENAI_TELEGRAM_TRANSCRIPTION_MODEL = 'gpt-transcribe';
+const OPENAI_TELEGRAM_VISION_MODEL = 'gpt-5-mini';
 const AI_TIMEOUT_MS = 30_000;
 const MAX_TRANSCRIPT_LENGTH = 500;
 const RECEIPT_CATEGORIES = [
@@ -69,7 +71,7 @@ export class TelegramAssistantAiService {
     form.append(
       'model',
       this.config.get<string>('OPENAI_TELEGRAM_TRANSCRIPTION_MODEL')?.trim() ||
-        'gpt-transcribe',
+        OPENAI_TELEGRAM_TRANSCRIPTION_MODEL,
     );
     form.append(
       'prompt',
@@ -110,7 +112,7 @@ export class TelegramAssistantAiService {
         body: JSON.stringify({
           model:
             this.config.get<string>('OPENAI_TELEGRAM_VISION_MODEL')?.trim() ||
-            'gpt-5-mini',
+            OPENAI_TELEGRAM_VISION_MODEL,
           store: false,
           max_output_tokens: 400,
           input: [

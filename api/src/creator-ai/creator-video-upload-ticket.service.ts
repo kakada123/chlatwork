@@ -55,13 +55,29 @@ export class CreatorVideoUploadTicketService {
       },
       { expiresIn: '5m', audience: CREATOR_VIDEO_UPLOAD_AUDIENCE },
     );
-    const baseUrl = this.config
-      .getOrThrow<string>('CREATOR_PUBLIC_API_BASE_URL')
-      .replace(/\/$/, '');
+    const baseUrl = this.publicApiBaseUrl();
     return {
       ticket,
       uploadUrl: `${baseUrl}/creator-ai/direct/${path}`,
       expiresInSeconds: 300,
     };
+  }
+
+  private publicApiBaseUrl() {
+    const override = this.config
+      .get<string>('CREATOR_PUBLIC_API_BASE_URL')
+      ?.trim();
+    if (override) return override.replace(/\/$/, '');
+
+    // Railway owns the public service domain, so deployments stay in sync
+    // without copying that same URL into another environment variable.
+    const railwayDomain = this.config
+      .get<string>('RAILWAY_PUBLIC_DOMAIN')
+      ?.trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+    if (railwayDomain) return `https://${railwayDomain}`;
+
+    return `http://localhost:${this.config.get<number>('PORT', 3002)}`;
   }
 }

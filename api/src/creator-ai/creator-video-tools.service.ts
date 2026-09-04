@@ -5,6 +5,7 @@ import { basename, dirname, join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import type { TranscriptSegment } from './creator-ai.types';
 
 @Injectable()
@@ -26,7 +27,8 @@ export class CreatorVideoToolsService {
 
   async duration(path: string) {
     const output = await this.run(
-      this.config.get<string>('FFPROBE_PATH')?.trim() || 'ffprobe',
+      this.config.get<string>('FFPROBE_PATH')?.trim() ||
+        CREATOR_AI_DEFAULTS.ffprobePath,
       [
         '-v',
         'error',
@@ -49,7 +51,8 @@ export class CreatorVideoToolsService {
     const outputPath = join(dirname(videoPath), `${randomUUID()}.mp3`);
     try {
       await this.run(
-        this.config.get<string>('FFMPEG_PATH')?.trim() || 'ffmpeg',
+        this.config.get<string>('FFMPEG_PATH')?.trim() ||
+          CREATOR_AI_DEFAULTS.ffmpegPath,
         [
           '-nostdin',
           '-v',

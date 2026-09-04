@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CREATOR_FREE_PLAN_LIMITS } from './creator-ai.config';
 
 export interface CreatorPlanLimits {
   ratePerMinute: number;
@@ -18,14 +19,30 @@ export class CreatorPlanLimitsService {
   // configured FREE safeguards rather than scattered plan checks.
   forUser(_userId: string): CreatorPlanLimits {
     return {
-      ratePerMinute: this.number('AI_FREE_RATE_LIMIT_PER_MINUTE', 5),
-      ratePerHour: this.number('AI_FREE_RATE_LIMIT_PER_HOUR', 20),
-      dailyCredits: this.number('AI_FREE_DAILY_CREDIT_LIMIT', 10),
-      maxVideoSeconds: this.number('AI_FREE_MAX_VIDEO_MINUTES', 3) * 60,
-      maxVideoBytes: this.number('AI_FREE_MAX_VIDEO_BYTES', 100 * 1024 * 1024),
+      ratePerMinute: this.number(
+        'AI_FREE_RATE_LIMIT_PER_MINUTE',
+        CREATOR_FREE_PLAN_LIMITS.ratePerMinute,
+      ),
+      ratePerHour: this.number(
+        'AI_FREE_RATE_LIMIT_PER_HOUR',
+        CREATOR_FREE_PLAN_LIMITS.ratePerHour,
+      ),
+      dailyCredits: this.number(
+        'AI_FREE_DAILY_CREDIT_LIMIT',
+        CREATOR_FREE_PLAN_LIMITS.dailyCredits,
+      ),
+      maxVideoSeconds:
+        this.number(
+          'AI_FREE_MAX_VIDEO_MINUTES',
+          CREATOR_FREE_PLAN_LIMITS.maxVideoMinutes,
+        ) * 60,
+      maxVideoBytes: this.number(
+        'AI_FREE_MAX_VIDEO_BYTES',
+        CREATOR_FREE_PLAN_LIMITS.maxVideoBytes,
+      ),
       maxConcurrentVideoJobs: this.number(
         'AI_FREE_MAX_CONCURRENT_VIDEO_JOBS',
-        1,
+        CREATOR_FREE_PLAN_LIMITS.maxConcurrentVideoJobs,
       ),
     };
   }

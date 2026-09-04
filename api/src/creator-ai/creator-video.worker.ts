@@ -13,6 +13,7 @@ import {
   type AiVideoJob,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { CreatorAiGatewayService } from './creator-ai-gateway.service';
 import { CreatorCreditsService } from './creator-credits.service';
 import {
@@ -57,13 +58,16 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
     void this.recoverStaleWork();
     this.maintenanceTimer = setInterval(
       () => void this.recoverStaleWork(),
-      60 * 60_000,
+      CREATOR_AI_DEFAULTS.videoMaintenanceMs,
     );
     this.maintenanceTimer.unref();
     if (String(this.config.get('AI_ENABLED')).toLowerCase() !== 'true') return;
     this.timer = setInterval(
       () => void this.tick(),
-      this.number('AI_VIDEO_WORKER_POLL_MS', 1_500),
+      this.number(
+        'AI_VIDEO_WORKER_POLL_MS',
+        CREATOR_AI_DEFAULTS.videoWorkerPollMs,
+      ),
     );
     this.timer.unref();
   }
@@ -248,7 +252,12 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
   private async recoverStaleWork() {
     try {
       const cutoff = new Date(
-        Date.now() - this.number('AI_VIDEO_STALE_MINUTES', 30) * 60_000,
+        Date.now() -
+          this.number(
+            'AI_VIDEO_STALE_MINUTES',
+            CREATOR_AI_DEFAULTS.videoStaleMinutes,
+          ) *
+            60_000,
       );
       const jobs = await this.prisma.aiVideoJob.findMany({
         where: { status: { in: ACTIVE_JOB_STATUSES }, updatedAt: { lt: cutoff } },
@@ -283,7 +292,12 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
       }
 
       const retentionCutoff = new Date(
-        Date.now() - this.number('AI_GENERATION_RETENTION_DAYS', 30) * 86_400_000,
+        Date.now() -
+          this.number(
+            'AI_GENERATION_RETENTION_DAYS',
+            CREATOR_AI_DEFAULTS.generationRetentionDays,
+          ) *
+            86_400_000,
       );
       await this.prisma.aiGeneration.updateMany({
         where: { completedAt: { lt: retentionCutoff }, result: { not: Prisma.DbNull } },

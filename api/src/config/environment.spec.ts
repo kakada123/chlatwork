@@ -30,18 +30,20 @@ describe('validateEnvironment', () => {
     ).toThrow('OPENAI_API_KEY is required');
   });
 
-  it('requires a public Creator API URL for direct video uploads', () => {
-    expect(() =>
-      validateEnvironment({
-        ...valid,
-        AI_ENABLED: 'true',
-        OPENAI_API_KEY: 'test-api-key',
-        OPENAI_TEXT_MODEL: 'test-text-model',
-        OPENAI_TRANSCRIPTION_MODEL: 'test-transcription-model',
-        AI_DAILY_PROVIDER_BUDGET_USD: '1',
-        AI_MONTHLY_PROVIDER_BUDGET_USD: '10',
-      }),
-    ).toThrow('CREATOR_PUBLIC_API_BASE_URL is required');
+  it('accepts Railway public domain without duplicate Creator URL configuration', () => {
+    const config = {
+      ...valid,
+      NODE_ENV: 'production',
+      RAILWAY_PUBLIC_DOMAIN: 'creator-api.example.com',
+      AI_ENABLED: 'true',
+      OPENAI_API_KEY: 'test-api-key',
+      OPENAI_TEXT_MODEL: 'test-text-model',
+      OPENAI_TRANSCRIPTION_MODEL: 'test-transcription-model',
+      AI_DAILY_PROVIDER_BUDGET_USD: '1',
+      AI_MONTHLY_PROVIDER_BUDGET_USD: '10',
+    };
+
+    expect(validateEnvironment(config)).toEqual(config);
   });
 
   it('rejects missing provider configuration', () => {
