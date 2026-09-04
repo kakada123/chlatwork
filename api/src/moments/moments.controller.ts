@@ -107,6 +107,15 @@ export class MomentsController {
     return this.moments.remove(user.id, id);
   }
 
+  @Delete(':id/votes')
+  @UseGuards(JwtAuthGuard)
+  resetVotes(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.moments.resetVotes(user.id, id);
+  }
+
   @Get(':slug/media/:mediaId')
   async getMedia(
     @Param('slug') slug: string,

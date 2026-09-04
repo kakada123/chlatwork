@@ -245,6 +245,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
     "api/src/moments/moments.controller.ts",
   );
   const voteProxy = readProjectFile("server/api/moments/[id]/vote.post.ts");
+  const resetVoteProxy = readProjectFile("server/api/moments/[id]/votes.delete.ts");
   const voteResults = readProjectFile(
     "app/components/moments/MomentVotingResults.vue",
   );
@@ -261,6 +262,13 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(voteService, /pollSummary: await this\.getPollSummary/);
   assert.match(managerPage, /<MomentVotingResults/);
   assert.match(voteResults, /result\.voters\.join/);
+  assert.match(voteController, /@Delete\(':id\/votes'\)/);
+  assert.match(voteService, /async resetVotes/);
+  assert.match(voteService, /momentVote\.deleteMany/);
+  assert.match(resetVoteProxy, /requestAuthenticatedApi/);
+  assert.match(managerPage, /@reset="requestVoteReset"/);
+  assert.match(managerPage, /@confirm="resetVotes"/);
+  assert.match(voteResults, /managerCopy\.resetVotes/);
 });
 
 test("published Moment surfaces are unlisted and validate image content", () => {

@@ -255,6 +255,13 @@ const EN = {
     namedMode: "Names required",
     loginMode: "Login required",
     votersForOption: "Voters",
+    resetVotes: "Reset votes",
+    resettingVotes: "Resetting…",
+    resetVotesDialogTitle: "Reset all votes?",
+    resetVotesConfirm: (title: string, count: number) =>
+      `Reset all ${count} votes for “${title}”? This permanently removes the current results, but keeps the poll open for new votes.`,
+    keepVotes: "Keep votes",
+    resetVotesError: "The votes could not be reset. Please try again.",
   },
   publicPage: {
     metaWaiting: "A Moment is waiting for you | ChlatWork",
@@ -531,6 +538,13 @@ const KM = {
     namedMode: "តម្រូវឱ្យបញ្ចូលឈ្មោះ",
     loginMode: "តម្រូវឱ្យចូលគណនី",
     votersForOption: "អ្នកបានបោះឆ្នោត",
+    resetVotes: "កំណត់សំឡេងឡើងវិញ",
+    resettingVotes: "កំពុងកំណត់ឡើងវិញ…",
+    resetVotesDialogTitle: "កំណត់សំឡេងទាំងអស់ឡើងវិញមែនទេ?",
+    resetVotesConfirm: (title: string, count: number) =>
+      `លុបសំឡេងទាំង ${count} សម្រាប់ “${title}” មែនទេ? សកម្មភាពនេះនឹងលុបលទ្ធផលបច្ចុប្បន្នជាអចិន្ត្រៃយ៍ ប៉ុន្តែការបោះឆ្នោតនៅតែបើកទទួលសំឡេងថ្មី។`,
+    keepVotes: "រក្សាទុកសំឡេង",
+    resetVotesError: "មិនអាចកំណត់សំឡេងឡើងវិញបានទេ។ សូមព្យាយាមម្តងទៀត។",
   },
   publicPage: {
     metaWaiting: "មាន Moment មួយកំពុងរង់ចាំអ្នក | ChlatWork",

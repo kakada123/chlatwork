@@ -694,6 +694,30 @@ export class MomentsService {
     return this.toTelegramPollView(moment, poll);
   }
 
+  async resetVotes(userId: string, momentId: string) {
+    const moment = await this.prisma.moment.findFirst({
+      where: {
+        id: momentId,
+        creatorId: userId,
+        occasion: MomentOccasion.VOTING,
+      },
+      select: {
+        id: true,
+        blocks: {
+          where: { type: MomentBlockType.POLL },
+          select: { data: true },
+          take: 1,
+        },
+      },
+    });
+    const poll = this.readPollDefinition(moment?.blocks[0]?.data);
+    if (!moment || !poll) throw new NotFoundException('Poll not found');
+
+    // Reset responses only; the published poll and its share link remain active.
+    await this.prisma.momentVote.deleteMany({ where: { momentId: moment.id } });
+    return this.getPollSummary(moment.id, poll.options, poll.identityMode);
+  }
+
   async remove(userId: string, momentId: string) {
     const result = await this.prisma.moment.deleteMany({
       where: { id: momentId, creatorId: userId },

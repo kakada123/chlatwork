@@ -5,7 +5,7 @@ import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
 import MomentInvitationGuests from "~/components/moments/MomentInvitationGuests.vue";
 import MomentVotingResults from "~/components/moments/MomentVotingResults.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
-import type { MomentSummary } from "~/types/moment";
+import type { MomentPollSummary, MomentSummary } from "~/types/moment";
 
 definePageMeta({ middleware: "auth" });
 
@@ -23,10 +23,20 @@ const moments = computed(() => data.value ?? []);
 const deletingId = ref("");
 const deleteError = ref("");
 const momentPendingDelete = ref<MomentSummary | null>(null);
+const resettingVoteId = ref("");
+const voteResetError = ref("");
+const momentPendingVoteReset = ref<MomentSummary | null>(null);
 
 function requestMomentDelete(moment: MomentSummary) {
+  momentPendingVoteReset.value = null;
   momentPendingDelete.value = moment;
   deleteError.value = "";
+}
+
+function requestVoteReset(moment: MomentSummary) {
+  momentPendingDelete.value = null;
+  momentPendingVoteReset.value = moment;
+  voteResetError.value = "";
 }
 
 async function removeMoment() {
@@ -42,6 +52,22 @@ async function removeMoment() {
     deleteError.value = managerCopy.value.deleteError;
   } finally {
     deletingId.value = "";
+  }
+}
+
+async function resetVotes() {
+  const moment = momentPendingVoteReset.value;
+  if (!moment) return;
+  resettingVoteId.value = moment.id;
+  voteResetError.value = "";
+  try {
+    const pollSummary = await $fetch<MomentPollSummary>(`/api/moments/${moment.id}/votes`, { method: "DELETE" });
+    data.value = moments.value.map((item) => item.id === moment.id ? { ...item, pollSummary } : item);
+    momentPendingVoteReset.value = null;
+  } catch {
+    voteResetError.value = managerCopy.value.resetVotesError;
+  } finally {
+    resettingVoteId.value = "";
   }
 }
 </script>
@@ -77,11 +103,11 @@ async function removeMoment() {
     </header>
 
     <p
-      v-if="deleteError"
+      v-if="deleteError || voteResetError"
       class="mt-5 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700 dark:bg-red-400/10 dark:text-red-300"
       role="alert"
     >
-      {{ deleteError }}
+      {{ deleteError || voteResetError }}
     </p>
 
     <div v-if="status === 'pending'" class="mt-8 grid gap-4 sm:grid-cols-2">
@@ -135,7 +161,7 @@ async function removeMoment() {
           @delete="requestMomentDelete"
         />
         <MomentInvitationGuests v-if="moment.occasion === 'INVITATION' && moment.status === 'PUBLISHED'" :moment="moment" />
-        <MomentVotingResults v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'" :moment="moment" />
+        <MomentVotingResults v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'" :moment="moment" :resetting="resettingVoteId === moment.id" @reset="requestVoteReset" />
       </li>
     </ul>
 
@@ -150,6 +176,18 @@ async function removeMoment() {
       :locale="isKhmer ? 'km' : 'en'"
       @close="momentPendingDelete = null"
       @confirm="removeMoment"
+    />
+    <ConfirmDialog
+      :open="Boolean(momentPendingVoteReset)"
+      :title="managerCopy.resetVotesDialogTitle"
+      :description="managerCopy.resetVotesConfirm(momentPendingVoteReset?.title ?? '', momentPendingVoteReset?.pollSummary?.totalVotes ?? 0)"
+      :confirm-label="managerCopy.resetVotes"
+      :cancel-label="managerCopy.keepVotes"
+      :busy="Boolean(resettingVoteId)"
+      :busy-label="managerCopy.resettingVotes"
+      :locale="isKhmer ? 'km' : 'en'"
+      @close="momentPendingVoteReset = null"
+      @confirm="resetVotes"
     />
   </div>
 </template>
