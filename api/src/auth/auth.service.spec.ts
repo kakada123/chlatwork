@@ -20,6 +20,10 @@ const user: User = {
   telegramNotificationTimeZone: 'Asia/Phnom_Penh',
   telegramDailyExpenseSummaryHour: 22,
   telegramDailyExpenseSummaryLastAttemptDate: null,
+  telegramBudgetAlertsEnabled: false,
+  telegramWeeklyDigestEnabled: false,
+  telegramWeeklyDigestHour: 20,
+  telegramWeeklyDigestLastAttemptDate: null,
   createdAt: new Date('2026-08-21T00:00:00.000Z'),
   updatedAt: new Date('2026-08-21T00:00:00.000Z'),
 };

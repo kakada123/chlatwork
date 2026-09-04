@@ -5,6 +5,10 @@ describe('Telegram expense assistant schema', () => {
     '../database/updates/2026-09-04-add-telegram-expense-assistant.sql',
     'utf8',
   );
+  const utilitiesSql = readFileSync(
+    '../database/updates/2026-09-04-add-telegram-assistant-utilities.sql',
+    'utf8',
+  );
 
   it('deduplicates webhook updates and pending source messages', () => {
     expect(sql).toMatch(/update_id BIGINT PRIMARY KEY/);
@@ -12,10 +16,25 @@ describe('Telegram expense assistant schema', () => {
   });
 
   it('stores confirmation state and links only the created expense', () => {
-    expect(sql).toMatch(/'PENDING',[\s\S]*'CONFIRMED',[\s\S]*'CANCELLED',[\s\S]*'UNDONE'/);
+    expect(sql).toMatch(
+      /'PENDING',[\s\S]*'CONFIRMED',[\s\S]*'CANCELLED',[\s\S]*'UNDONE'/,
+    );
     expect(sql).toMatch(
       /expense_entry_id UUID UNIQUE REFERENCES expense_entries\(id\) ON DELETE SET NULL/,
     );
-    expect(sql).toMatch(/user_id UUID NOT NULL REFERENCES users\(id\) ON DELETE CASCADE/);
+    expect(sql).toMatch(
+      /user_id UUID NOT NULL REFERENCES users\(id\) ON DELETE CASCADE/,
+    );
+  });
+
+  it('keeps new notifications opt-in and group payment claims unique', () => {
+    expect(utilitiesSql).toMatch(
+      /telegram_budget_alerts_enabled BOOLEAN NOT NULL DEFAULT FALSE/,
+    );
+    expect(utilitiesSql).toMatch(
+      /telegram_weekly_digest_enabled BOOLEAN NOT NULL DEFAULT FALSE/,
+    );
+    expect(utilitiesSql).toMatch(/UNIQUE \(split_id, telegram_user_id\)/);
+    expect(utilitiesSql).toMatch(/edit_target_expense_entry_id UUID/);
   });
 });

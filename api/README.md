@@ -11,6 +11,9 @@ NestJS authentication and account-data service for ChlatWork. It verifies Google
    `database/2026-08-29-add-daily-expense-telegram-summary.sql` in that order.
    For interactive Telegram expense commands, then review and manually execute
    `database/updates/2026-09-04-add-telegram-expense-assistant.sql`.
+   For recent-expense editing, finance alerts, and group splits, then review and
+   manually execute
+   `database/updates/2026-09-04-add-telegram-assistant-utilities.sql`.
    For daily Voting Moments, also review and manually execute
    `database/updates/2026-09-04-add-daily-moment-voting.sql`.
 3. From `api/`, run `npm install`, `npm run prisma:generate`, then `npm run dev`.
@@ -46,11 +49,29 @@ Google and Telegram callback/origin values must be registered with their provide
 
 ## Telegram assistant
 
-The webhook supports private-chat `/start`, `/help`, `/today`, `/vote`, and `/cancel`
-commands. A normal message such as `Lunch 4.50` or `បាយ 15000៛` creates a
+The webhook supports private-chat `/start`, `/menu`, `/help`, `/today`, `/recent`,
+`/spend`, `/alerts`, `/weekly`, `/vote`, and `/cancel` commands. A normal message
+such as `Lunch 4.50` or `បាយ 15000៛` creates a
 30-minute confirmation with Save, Edit, and Cancel buttons. Saving is
 idempotent, and the confirmation changes to an Undo action after the expense is
 stored.
+
+`/start` also configures a persistent `Open ChlatWork` Mini App menu button for
+that private chat. `/recent` shows the five newest expenses with guarded Edit
+and Delete actions. `/spend Food week` and natural questions such as
+`How much did I spend on Food this week?` are read-only.
+
+Voice notes up to 60 seconds and receipt photos up to 10 MB become expense
+drafts when `OPENAI_API_KEY` is configured. Voice uses
+`OPENAI_TELEGRAM_TRANSCRIPTION_MODEL` (default `gpt-transcribe`) and receipts use
+`OPENAI_TELEGRAM_VISION_MODEL` (default `gpt-5-mini`). Receipt images are sent
+for one non-stored API response and are never written to ChlatWork storage.
+Every AI result still requires the normal Save confirmation.
+
+`/alerts on` enables one budget alert at 50%, 80%, and 100% for each saved
+weekly or monthly budget period. `/weekly on 20` enables a Sunday digest at
+20:00 in the user's saved timezone; both require the existing Telegram
+notification opt-in. Use `/alerts off` or `/weekly off` to stop them.
 
 `/vote` lists the signed-in user's open, published Voting Moments. Choosing one
 opens Telegram's chat picker and shares an inline poll whose buttons update the
@@ -64,6 +85,10 @@ and starts a fresh local-date round every day at 10:00 while keeping prior
 rounds for history and most-selected-place insights. Use `/votetime 11:30` to
 change the local delivery time and `/stopdailyvote` to pause delivery without
 deleting history. The API process must remain running for scheduled delivery.
+
+Any linked group member can create a payment tracker with
+`/split 60 Alice, Bob, Carol`. Each participant taps their own name to mark paid
+and can tap again to undo; one Telegram user cannot claim two names in a split.
 
 Configure a random 16-256 character `TELEGRAM_WEBHOOK_SECRET` in the API runtime,
 then register the HTTPS endpoint with Telegram. Keep both values in the runtime
@@ -85,10 +110,16 @@ Configure these commands through BotFather or the Bot API:
 ```text
 start - Open the ChlatWork assistant
 today - Show today's expenses
+recent - Edit or delete recent expenses
+spend - Ask about spending by category and date range
+alerts - Manage budget threshold alerts
+weekly - Manage the Sunday spending digest
 vote - Share a published voting Moment
 dailyvote - Set up a daily vote in this group
 votetime - Change this group's daily vote time (HH:MM)
 stopdailyvote - Stop this group's daily vote
+split - Split a group expense and track payments
 cancel - Cancel the latest pending expense
+menu - Show the assistant menu
 help - Show the assistant menu
 ```

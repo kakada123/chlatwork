@@ -2,6 +2,7 @@ import type { ConfigService } from '@nestjs/config';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { MomentsService } from '../moments/moments.service';
 import type { TelegramBotClient } from './telegram-bot.client';
+import type { TelegramAssistantAiService } from './telegram-assistant-ai.service';
 import { TelegramBotService } from './telegram-bot.service';
 
 describe('TelegramBotService', () => {
@@ -14,6 +15,7 @@ describe('TelegramBotService', () => {
       config as unknown as ConfigService,
       {} as TelegramBotClient,
       {} as MomentsService,
+      {} as TelegramAssistantAiService,
     );
 
     expect(service.isValidWebhookSecret('correct_webhook_secret_1234')).toBe(
@@ -78,6 +80,7 @@ describe('TelegramBotService', () => {
       config as unknown as ConfigService,
       bot as unknown as TelegramBotClient,
       moments as unknown as MomentsService,
+      {} as TelegramAssistantAiService,
     );
 
     await service.handleUpdate({

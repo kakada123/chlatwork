@@ -19,8 +19,14 @@ import { MomentsService } from '../moments/moments.service';
 import {
   formatTelegramExpenseAmount,
   parseTelegramExpense,
+  type ParsedTelegramExpense,
   TelegramExpenseParseError,
 } from './telegram-expense-parser';
+import {
+  TelegramAssistantAiProcessingError,
+  TelegramAssistantAiService,
+  TelegramAssistantAiUnavailableError,
+} from './telegram-assistant-ai.service';
 import { TelegramBotClient } from './telegram-bot.client';
 import type {
   TelegramCallbackQuery,
@@ -34,6 +40,19 @@ import {
   buildTelegramPollKeyboard,
   buildTelegramPollMessage,
 } from './telegram-vote';
+import {
+  buildTelegramSplitKeyboard,
+  buildTelegramSplitMessage,
+  parseTelegramSplit,
+  TelegramSplitParseError,
+} from './telegram-group-split';
+import {
+  buildRecentExpenses,
+  buildSpendingAnswer,
+  parseSpendingQuestion,
+  spendingDateRange,
+  type SpendingQuestion,
+} from './telegram-spending-query';
 
 const DEFAULT_TIME_ZONE = 'Asia/Phnom_Penh';
 const PENDING_EXPENSE_LIFETIME_MS = 30 * 60 * 1_000;
@@ -47,6 +66,10 @@ interface LinkedTelegramUser {
     id: string;
     isActive: boolean;
     telegramNotificationTimeZone: string;
+    telegramNotificationsEnabled: boolean;
+    telegramBudgetAlertsEnabled: boolean;
+    telegramWeeklyDigestEnabled: boolean;
+    telegramWeeklyDigestHour: number;
     expenseProfile: { currency: ExpenseCurrency } | null;
   };
 }
@@ -58,6 +81,7 @@ export class TelegramBotService {
     private readonly config: ConfigService,
     private readonly bot: TelegramBotClient,
     private readonly moments: MomentsService,
+    private readonly ai: TelegramAssistantAiService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -121,12 +145,13 @@ export class TelegramBotService {
   }
 
   private async handleMessage(message: TelegramMessage) {
-    if (typeof message.text !== 'string') return;
-
-    const command = this.readCommand(message.text);
+    const command =
+      typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
       if (['dailyvote', 'votetime', 'stopdailyvote'].includes(command ?? '')) {
         await this.handleGroupVoteCommand(message, command!);
+      } else if (command === 'split') {
+        await this.handleGroupSplitCommand(message);
       }
       return;
     }
@@ -135,7 +160,8 @@ export class TelegramBotService {
     const telegramUserId = String(message.from.id);
     const linked = await this.findLinkedUser(telegramUserId);
 
-    if (command === 'start' || command === 'help') {
+    if (command === 'start' || command === 'help' || command === 'menu') {
+      await this.ensurePersistentMenu(message.chat.id);
       await this.sendMenu(message.chat.id, Boolean(linked));
       return;
     }
@@ -147,8 +173,16 @@ export class TelegramBotService {
       await this.sendToday(message.chat.id, linked);
       return;
     }
+    if (command === 'recent') {
+      await this.sendRecentExpenses(message.chat.id, linked);
+      return;
+    }
     if (command === 'vote') {
       await this.sendVotingMoments(message.chat.id, linked.user.id);
+      return;
+    }
+    if (command === 'alerts' || command === 'weekly') {
+      await this.handleNotificationCommand(message, linked, command);
       return;
     }
     if (command === 'cancel') {
@@ -159,17 +193,32 @@ export class TelegramBotService {
       );
       return;
     }
+    const spendingQuestion = parseSpendingQuestion(message.text ?? '');
+    if (spendingQuestion) {
+      await this.sendSpendingAnswer(message.chat.id, linked, spendingQuestion);
+      return;
+    }
     if (command) {
       await this.bot.sendMessage(
         message.chat.id,
-        'Unknown command. Use /today for spending, /vote to share a poll, ' +
-          'or send an expense such as “Lunch 4.50”.',
+        'Unknown command. Use /today, /recent, /spend, /vote, or send an ' +
+          'expense such as “Lunch 4.50”.',
         this.mainMenuKeyboard(),
       );
       return;
     }
 
-    await this.prepareExpense(message, linked);
+    if (message.voice) {
+      await this.prepareVoiceExpense(message, linked);
+      return;
+    }
+    if (message.photo?.length) {
+      await this.prepareReceiptExpense(message, linked);
+      return;
+    }
+    if (typeof message.text === 'string') {
+      await this.prepareExpense(message, linked);
+    }
   }
 
   private async handleCallback(callback: TelegramCallbackQuery) {
@@ -181,6 +230,10 @@ export class TelegramBotService {
     }
     if (data.startsWith('poll:daily:')) {
       await this.handleDailyVoteSchedule(callback, data);
+      return;
+    }
+    if (data.startsWith('split:toggle:')) {
+      await this.handleGroupSplitToggle(callback, data);
       return;
     }
 
@@ -206,6 +259,20 @@ export class TelegramBotService {
       );
       return;
     }
+    if (data === 'menu:recent' || data === 'recent:list') {
+      await this.bot.answerCallback(callback.id);
+      await this.sendRecentExpenses(message.chat.id, linked);
+      return;
+    }
+    if (data === 'menu:ask') {
+      await this.bot.answerCallback(callback.id);
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Ask a spending question, for example:\n• How much did I spend this week?\n' +
+          '• How much did I spend on Food this month?\n• /spend Coffee week',
+      );
+      return;
+    }
     if (data === 'summary:today') {
       await this.bot.answerCallback(callback.id);
       await this.sendToday(message.chat.id, linked);
@@ -214,6 +281,14 @@ export class TelegramBotService {
     if (data === 'poll:list') {
       await this.bot.answerCallback(callback.id);
       await this.sendVotingMoments(message.chat.id, linked.user.id);
+      return;
+    }
+    if (data.startsWith('settings:')) {
+      await this.handleNotificationCallback(callback, linked, data);
+      return;
+    }
+    if (data.startsWith('recent:')) {
+      await this.handleRecentExpenseCallback(callback, linked, data);
       return;
     }
 
@@ -463,6 +538,163 @@ export class TelegramBotService {
     }
   }
 
+  private async handleGroupSplitCommand(
+    message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
+  ) {
+    const linked = await this.findLinkedUser(String(message.from.id));
+    if (!linked) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Connect this Telegram account to ChlatWork before creating a split.',
+      );
+      return;
+    }
+
+    try {
+      const currency =
+        linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+      const parsed = parseTelegramSplit(message.text ?? '', currency);
+      const split = await this.prisma.telegramGroupSplit.create({
+        data: {
+          creatorUserId: linked.user.id,
+          telegramChatId: BigInt(message.chat.id),
+          total: new Prisma.Decimal(parsed.total),
+          currency: parsed.currency,
+          participants: {
+            create: parsed.participants.map((participant) => ({
+              position: participant.position,
+              name: participant.name,
+              amount: new Prisma.Decimal(participant.amount),
+            })),
+          },
+        },
+        include: { participants: { orderBy: { position: 'asc' } } },
+      });
+      await this.bot.sendMessage(
+        message.chat.id,
+        buildTelegramSplitMessage(split),
+        buildTelegramSplitKeyboard(split),
+      );
+    } catch (error) {
+      const guidance =
+        error instanceof TelegramSplitParseError
+          ? error.message
+          : 'The split could not be created.';
+      await this.bot.sendMessage(
+        message.chat.id,
+        `${guidance}\n\nExample: /split 60 Alice, Bob, Carol`,
+      );
+    }
+  }
+
+  private async handleGroupSplitToggle(
+    callback: TelegramCallbackQuery,
+    data: string,
+  ) {
+    const participantId = data.slice('split:toggle:'.length);
+    const message = callback.message;
+    if (
+      !UUID_PATTERN.test(participantId) ||
+      !message ||
+      !this.isGroupCallback(callback, message)
+    ) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This split action is invalid.',
+      );
+      return;
+    }
+
+    const telegramUserId = String(callback.from.id);
+    const displayName = this.telegramDisplayName(callback.from);
+    const result = await this.prisma.$transaction(async (tx) => {
+      const located = await tx.telegramGroupSplitParticipant.findUnique({
+        where: { id: participantId },
+        include: { split: true },
+      });
+      if (
+        !located ||
+        located.split.telegramChatId !== BigInt(message.chat.id) ||
+        located.split.status !== 'OPEN'
+      ) {
+        return { state: 'missing' as const };
+      }
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${located.splitId}))`;
+      // Re-read after the lock because another button click may have changed this participant.
+      const current = await tx.telegramGroupSplitParticipant.findUnique({
+        where: { id: participantId },
+        include: { split: true },
+      });
+      if (!current || current.split.status !== 'OPEN') {
+        return { state: 'missing' as const };
+      }
+
+      if (current.telegramUserId && current.telegramUserId !== telegramUserId) {
+        return { state: 'claimed' as const };
+      }
+      if (!current.telegramUserId) {
+        const other = await tx.telegramGroupSplitParticipant.findFirst({
+          where: { splitId: current.splitId, telegramUserId },
+          select: { id: true },
+        });
+        if (other) return { state: 'other' as const };
+      }
+
+      await tx.telegramGroupSplitParticipant.update({
+        where: { id: participantId },
+        data: current.telegramUserId
+          ? { telegramUserId: null, telegramDisplayName: null, paidAt: null }
+          : {
+              telegramUserId,
+              telegramDisplayName: displayName,
+              paidAt: new Date(),
+            },
+      });
+      const split = await tx.telegramGroupSplit.findUnique({
+        where: { id: current.splitId },
+        include: { participants: { orderBy: { position: 'asc' } } },
+      });
+      return split
+        ? {
+            state: current.telegramUserId
+              ? ('unpaid' as const)
+              : ('paid' as const),
+            split,
+          }
+        : { state: 'missing' as const };
+    });
+
+    if (result.state === 'missing') {
+      await this.bot.answerCallback(callback.id, 'This split is unavailable.');
+      return;
+    }
+    if (result.state === 'claimed') {
+      await this.bot.answerCallback(
+        callback.id,
+        'Someone else already marked this name.',
+      );
+      return;
+    }
+    if (result.state === 'other') {
+      await this.bot.answerCallback(
+        callback.id,
+        'You are already marked under another name.',
+      );
+      return;
+    }
+
+    await this.bot.answerCallback(
+      callback.id,
+      result.state === 'paid' ? 'Marked as paid.' : 'Payment mark removed.',
+    );
+    await this.bot.editMessage(
+      message.chat.id,
+      message.message_id,
+      buildTelegramSplitMessage(result.split),
+      buildTelegramSplitKeyboard(result.split),
+    );
+  }
+
   private async handleDailyVoteSchedule(
     callback: TelegramCallbackQuery,
     data: string,
@@ -554,8 +786,136 @@ export class TelegramBotService {
       return;
     }
 
+    await this.prepareParsedExpense(message, linked, parsed);
+  }
+
+  private async prepareVoiceExpense(
+    message: TelegramMessage,
+    linked: LinkedTelegramUser,
+  ) {
+    const voice = message.voice;
+    if (!voice) return;
+    if (voice.duration > 60 || (voice.file_size ?? 0) > 10 * 1024 * 1024) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Voice expenses must be 60 seconds or shorter and under 10 MB.',
+      );
+      return;
+    }
+
+    try {
+      await this.bot.sendChatAction(message.chat.id, 'typing');
+      const bytes = await this.bot.downloadFile(
+        voice.file_id,
+        10 * 1024 * 1024,
+      );
+      const transcript = await this.ai.transcribeVoice(
+        bytes,
+        voice.mime_type ?? 'audio/ogg',
+      );
+      await this.bot.sendMessage(
+        message.chat.id,
+        `🎙 I heard: “${transcript}”\nI will still ask before saving.`,
+      );
+      await this.prepareExpense({ ...message, text: transcript }, linked);
+    } catch (error) {
+      await this.sendAiExpenseError(message.chat.id, error, 'voice message');
+    }
+  }
+
+  private async prepareReceiptExpense(
+    message: TelegramMessage,
+    linked: LinkedTelegramUser,
+  ) {
+    const photo = [...(message.photo ?? [])].sort(
+      (left, right) => right.width * right.height - left.width * left.height,
+    )[0];
+    if (!photo) return;
+    if ((photo.file_size ?? 0) > 10 * 1024 * 1024) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Receipt photos must be under 10 MB.',
+      );
+      return;
+    }
+
+    try {
+      await this.bot.sendChatAction(message.chat.id, 'upload_photo');
+      const bytes = await this.bot.downloadFile(
+        photo.file_id,
+        10 * 1024 * 1024,
+      );
+      const currency =
+        linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+      const extracted = await this.ai.extractReceipt(
+        bytes,
+        'image/jpeg',
+        currency,
+      );
+      await this.bot.sendMessage(
+        message.chat.id,
+        `🧾 Receipt details extracted (${extracted.confidence}% confidence). ` +
+          'Check them carefully before saving.',
+      );
+      await this.prepareParsedExpense(message, linked, extracted.expense, {
+        entryDate: extracted.entryDate,
+        heading: 'Confirm receipt expense?',
+      });
+    } catch (error) {
+      await this.sendAiExpenseError(message.chat.id, error, 'receipt');
+    }
+  }
+
+  private async sendAiExpenseError(
+    chatId: number,
+    error: unknown,
+    source: string,
+  ) {
+    const message =
+      error instanceof TelegramAssistantAiUnavailableError
+        ? 'Voice and receipt capture are not configured yet.'
+        : error instanceof TelegramAssistantAiProcessingError
+          ? error.message
+          : `I could not process that ${source}.`;
+    await this.bot.sendMessage(
+      chatId,
+      `${message}\n\nYou can still send text like “Lunch 4.50”.`,
+    );
+  }
+
+  private async prepareParsedExpense(
+    message: TelegramMessage,
+    linked: LinkedTelegramUser,
+    parsed: ParsedTelegramExpense,
+    options: { entryDate?: string; heading?: string } = {},
+  ) {
     const localDate = this.localDate(linked.user.telegramNotificationTimeZone);
     const telegramUserId = String(message.from?.id);
+    const conversation =
+      await this.prisma.telegramBotConversationState.findFirst({
+        where: {
+          telegramUserId,
+          userId: linked.user.id,
+          chatId: BigInt(message.chat.id),
+          expiresAt: { gt: new Date() },
+        },
+      });
+    const editTarget = conversation
+      ? await this.prisma.expenseEntry.findFirst({
+          where: {
+            id: conversation.editTargetExpenseEntryId,
+            userId: linked.user.id,
+            type: ExpenseEntryType.EXPENSE,
+          },
+          select: { id: true },
+        })
+      : null;
+    const requestedDate = options.entryDate;
+    const entryDate =
+      requestedDate && this.isSafeExpenseDate(requestedDate, localDate)
+        ? requestedDate
+        : localDate;
+
     const pending = await this.prisma.telegramBotPendingExpense.upsert({
       where: {
         chatId_sourceMessageId: {
@@ -572,15 +932,26 @@ export class TelegramBotService {
         currency: parsed.currency,
         category: parsed.category,
         note: parsed.note,
-        entryDate: new Date(`${localDate}T00:00:00.000Z`),
+        entryDate: new Date(`${entryDate}T00:00:00.000Z`),
+        editTargetExpenseEntryId: editTarget?.id,
         expiresAt: new Date(Date.now() + PENDING_EXPENSE_LIFETIME_MS),
       },
       update: {},
     });
+    if (conversation) {
+      await this.prisma.telegramBotConversationState.deleteMany({
+        where: { telegramUserId, userId: linked.user.id },
+      });
+    }
 
     await this.bot.sendMessage(
       message.chat.id,
-      this.pendingExpenseText(pending, 'Confirm expense?'),
+      this.pendingExpenseText(
+        pending,
+        pending.editTargetExpenseEntryId
+          ? 'Confirm expense update?'
+          : (options.heading ?? 'Confirm expense?'),
+      ),
       {
         inline_keyboard: [
           [
@@ -633,6 +1004,39 @@ export class TelegramBotService {
         });
         return { state: 'currency-changed' as const };
       }
+      if (pending.editTargetExpenseEntryId) {
+        const updated = await tx.expenseEntry.updateMany({
+          where: {
+            id: pending.editTargetExpenseEntryId,
+            userId: linked.user.id,
+            type: ExpenseEntryType.EXPENSE,
+          },
+          data: {
+            entryDate: pending.entryDate,
+            category: pending.category,
+            customCategory: null,
+            note: pending.note,
+            showNote: Boolean(pending.note),
+            amount: new Prisma.Decimal(pending.amountInput),
+            amountInput: pending.amountInput,
+          },
+        });
+        if (updated.count !== 1) {
+          await tx.telegramBotPendingExpense.update({
+            where: { id: pending.id },
+            data: { status: TelegramBotPendingExpenseStatus.CANCELLED },
+          });
+          return { state: 'edit-target-missing' as const };
+        }
+        const saved = await tx.telegramBotPendingExpense.update({
+          where: { id: pending.id },
+          data: {
+            status: TelegramBotPendingExpenseStatus.CONFIRMED,
+            confirmedAt: new Date(),
+          },
+        });
+        return { state: 'edited' as const, pending: saved };
+      }
       const positions = await tx.expenseEntry.aggregate({
         where: { userId: linked.user.id },
         _max: { position: true },
@@ -664,14 +1068,30 @@ export class TelegramBotService {
 
     const callbackMessage = callback.message as TelegramMessage;
     if (result.state === 'confirmed') {
-      await this.bot.answerCallback(callback.id, 'Already saved.');
+      const edited = Boolean(result.pending.editTargetExpenseEntryId);
+      await this.bot.answerCallback(
+        callback.id,
+        edited ? 'Already updated.' : 'Already saved.',
+      );
       await this.bot.editMessage(
         callbackMessage.chat.id,
         callbackMessage.message_id,
-        this.pendingExpenseText(result.pending, '✅ Expense saved'),
+        this.pendingExpenseText(
+          result.pending,
+          edited ? '✅ Expense updated' : '✅ Expense saved',
+        ),
         {
           inline_keyboard: [
-            [{ text: '↩️ Undo', callback_data: `expense:undo:${pendingId}` }],
+            ...(edited
+              ? [[{ text: '🕘 Recent expenses', callback_data: 'recent:list' }]]
+              : [
+                  [
+                    {
+                      text: '↩️ Undo',
+                      callback_data: `expense:undo:${pendingId}`,
+                    },
+                  ],
+                ]),
             [this.openTrackerButton()],
           ],
         },
@@ -693,6 +1113,21 @@ export class TelegramBotService {
       );
       return;
     }
+    if (result.state === 'edited') {
+      await this.bot.answerCallback(callback.id, 'Expense updated.');
+      await this.bot.editMessage(
+        callbackMessage.chat.id,
+        callbackMessage.message_id,
+        this.pendingExpenseText(result.pending, '✅ Expense updated'),
+        {
+          inline_keyboard: [
+            [{ text: '🕘 Recent expenses', callback_data: 'recent:list' }],
+            [this.openTrackerButton()],
+          ],
+        },
+      );
+      return;
+    }
 
     const messages: Record<typeof result.state, string> = {
       missing: 'Expense confirmation was not found.',
@@ -700,6 +1135,8 @@ export class TelegramBotService {
       expired: 'This confirmation expired. Send the expense again.',
       'currency-changed':
         'Your tracker currency changed. Send the expense again.',
+      'edit-target-missing':
+        'That expense no longer exists. Nothing was changed.',
     };
     await this.bot.answerCallback(callback.id, messages[result.state]);
   }
@@ -709,6 +1146,14 @@ export class TelegramBotService {
     linked: LinkedTelegramUser,
     pendingId: string,
   ) {
+    const pending = await this.prisma.telegramBotPendingExpense.findFirst({
+      where: {
+        id: pendingId,
+        telegramUserId: String(callback.from.id),
+        userId: linked.user.id,
+      },
+      select: { editTargetExpenseEntryId: true },
+    });
     const changed = await this.cancelPendingExpense(
       pendingId,
       String(callback.from.id),
@@ -718,6 +1163,22 @@ export class TelegramBotService {
     if (!changed) return;
 
     const message = callback.message as TelegramMessage;
+    if (pending?.editTargetExpenseEntryId) {
+      await this.prisma.telegramBotConversationState.upsert({
+        where: { telegramUserId: String(callback.from.id) },
+        create: {
+          telegramUserId: String(callback.from.id),
+          userId: linked.user.id,
+          chatId: BigInt(message.chat.id),
+          editTargetExpenseEntryId: pending.editTargetExpenseEntryId,
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+        },
+        update: {
+          editTargetExpenseEntryId: pending.editTargetExpenseEntryId,
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+        },
+      });
+    }
     await this.bot.editMessage(
       message.chat.id,
       message.message_id,
@@ -859,6 +1320,374 @@ export class TelegramBotService {
     });
   }
 
+  private async sendRecentExpenses(chatId: number, linked: LinkedTelegramUser) {
+    const currency =
+      linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+    const entries = await this.prisma.expenseEntry.findMany({
+      where: {
+        userId: linked.user.id,
+        type: ExpenseEntryType.EXPENSE,
+        amount: { not: null },
+      },
+      orderBy: [{ entryDate: 'desc' }, { createdAt: 'desc' }],
+      take: 5,
+      select: {
+        id: true,
+        entryDate: true,
+        category: true,
+        customCategory: true,
+        note: true,
+        amount: true,
+      },
+    });
+    const recent = buildRecentExpenses(entries, currency);
+    await this.bot.sendMessage(chatId, recent.text, recent.keyboard);
+  }
+
+  private async handleRecentExpenseCallback(
+    callback: TelegramCallbackQuery,
+    linked: LinkedTelegramUser,
+    data: string,
+  ) {
+    if (data === 'recent:cancel-edit') {
+      await this.prisma.telegramBotConversationState.deleteMany({
+        where: {
+          telegramUserId: String(callback.from.id),
+          userId: linked.user.id,
+        },
+      });
+      await this.bot.answerCallback(callback.id, 'Edit cancelled.');
+      await this.sendRecentExpenses(callback.message!.chat.id, linked);
+      return;
+    }
+    const match = /^recent:(edit|delete|confirm-delete):([0-9a-f-]+)$/i.exec(
+      data,
+    );
+    const message = callback.message as TelegramMessage;
+    if (!match || !UUID_PATTERN.test(match[2])) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This expense action is invalid.',
+      );
+      return;
+    }
+    const action = match[1];
+    const entry = await this.prisma.expenseEntry.findFirst({
+      where: {
+        id: match[2],
+        userId: linked.user.id,
+        type: ExpenseEntryType.EXPENSE,
+      },
+    });
+    if (!entry) {
+      await this.bot.answerCallback(
+        callback.id,
+        'That expense no longer exists.',
+      );
+      return;
+    }
+
+    if (action === 'edit') {
+      await this.prisma.telegramBotConversationState.upsert({
+        where: { telegramUserId: String(callback.from.id) },
+        create: {
+          telegramUserId: String(callback.from.id),
+          userId: linked.user.id,
+          chatId: BigInt(message.chat.id),
+          editTargetExpenseEntryId: entry.id,
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+        },
+        update: {
+          userId: linked.user.id,
+          chatId: BigInt(message.chat.id),
+          editTargetExpenseEntryId: entry.id,
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+        },
+      });
+      await this.bot.answerCallback(callback.id);
+      await this.bot.editMessage(
+        message.chat.id,
+        message.message_id,
+        '✏️ Send the corrected expense within 10 minutes.\n\n' +
+          'Text and voice both work. Example: “Lunch 4.50”',
+        {
+          inline_keyboard: [
+            [{ text: 'Cancel edit', callback_data: 'recent:cancel-edit' }],
+          ],
+        },
+      );
+      return;
+    }
+
+    if (action === 'delete') {
+      const currency =
+        linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+      await this.bot.answerCallback(callback.id);
+      await this.bot.editMessage(
+        message.chat.id,
+        message.message_id,
+        [
+          'Delete this expense?',
+          '',
+          `Amount: ${formatTelegramExpenseAmount(
+            entry.amountInput || entry.amount?.toString() || '0',
+            currency,
+          )}`,
+          `Category: ${entry.category === '__custom__' ? entry.customCategory || 'Other' : entry.category}`,
+          `Date: ${entry.entryDate?.toISOString().slice(0, 10) ?? '—'}`,
+          '',
+          'This cannot be undone.',
+        ].join('\n'),
+        {
+          inline_keyboard: [
+            [
+              {
+                text: '🗑 Delete',
+                callback_data: `recent:confirm-delete:${entry.id}`,
+              },
+            ],
+            [{ text: 'Keep it', callback_data: 'recent:list' }],
+          ],
+        },
+      );
+      return;
+    }
+
+    const deleted = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${linked.user.id}))`;
+      return tx.expenseEntry.deleteMany({
+        where: { id: entry.id, userId: linked.user.id },
+      });
+    });
+    await this.bot.answerCallback(
+      callback.id,
+      deleted.count === 1
+        ? 'Expense deleted.'
+        : 'That expense no longer exists.',
+    );
+    if (deleted.count === 1) {
+      await this.bot.editMessage(
+        message.chat.id,
+        message.message_id,
+        '🗑 Expense deleted.',
+        {
+          inline_keyboard: [
+            [{ text: '🕘 Recent expenses', callback_data: 'recent:list' }],
+          ],
+        },
+      );
+    }
+  }
+
+  private async sendSpendingAnswer(
+    chatId: number,
+    linked: LinkedTelegramUser,
+    question: SpendingQuestion,
+  ) {
+    const localDate = this.localDate(linked.user.telegramNotificationTimeZone);
+    const range = spendingDateRange(question.range, localDate);
+    const entries = await this.prisma.expenseEntry.findMany({
+      where: {
+        userId: linked.user.id,
+        type: ExpenseEntryType.EXPENSE,
+        amount: { not: null },
+        ...(range.startDate
+          ? {
+              entryDate: {
+                gte: new Date(`${range.startDate}T00:00:00.000Z`),
+                lte: new Date(`${range.endDate}T00:00:00.000Z`),
+              },
+            }
+          : {}),
+        ...(question.category
+          ? {
+              OR: [
+                {
+                  category: {
+                    contains: question.category,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  customCategory: {
+                    contains: question.category,
+                    mode: 'insensitive',
+                  },
+                },
+                { note: { contains: question.category, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ entryDate: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true,
+        entryDate: true,
+        category: true,
+        customCategory: true,
+        note: true,
+        amount: true,
+      },
+    });
+    await this.bot.sendMessage(
+      chatId,
+      buildSpendingAnswer(
+        question,
+        localDate,
+        entries,
+        linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD,
+      ),
+      {
+        inline_keyboard: [
+          [{ text: '🕘 Recent expenses', callback_data: 'recent:list' }],
+        ],
+      },
+    );
+  }
+
+  private async handleNotificationCommand(
+    message: TelegramMessage,
+    linked: LinkedTelegramUser,
+    command: 'alerts' | 'weekly',
+  ) {
+    const args = (message.text ?? '').trim().split(/\s+/).slice(1);
+    const enabled = args[0]?.toLowerCase();
+    if (!['on', 'off'].includes(enabled ?? '')) {
+      await this.sendNotificationSettings(message.chat.id, linked);
+      return;
+    }
+    if (enabled === 'on' && !linked.user.telegramNotificationsEnabled) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Enable Telegram notifications from ChlatWork Account settings first.',
+        {
+          inline_keyboard: [
+            [
+              {
+                text: '⚙️ Account settings',
+                web_app: { url: this.appUrl('/account') },
+              },
+            ],
+          ],
+        },
+      );
+      return;
+    }
+
+    if (command === 'alerts') {
+      await this.prisma.user.update({
+        where: { id: linked.user.id },
+        data: { telegramBudgetAlertsEnabled: enabled === 'on' },
+      });
+    } else {
+      const requestedHour = args[1] === undefined ? 20 : Number(args[1]);
+      if (
+        !Number.isInteger(requestedHour) ||
+        requestedHour < 0 ||
+        requestedHour > 23
+      ) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'Use /weekly on 20 with an hour from 0-23.',
+        );
+        return;
+      }
+      await this.prisma.user.update({
+        where: { id: linked.user.id },
+        data: {
+          telegramWeeklyDigestEnabled: enabled === 'on',
+          ...(enabled === 'on'
+            ? { telegramWeeklyDigestHour: requestedHour }
+            : {}),
+        },
+      });
+    }
+    const refreshed = await this.findLinkedUser(String(message.from?.id));
+    if (refreshed)
+      await this.sendNotificationSettings(message.chat.id, refreshed);
+  }
+
+  private async handleNotificationCallback(
+    callback: TelegramCallbackQuery,
+    linked: LinkedTelegramUser,
+    data: string,
+  ) {
+    if (data === 'settings:notifications') {
+      await this.bot.answerCallback(callback.id);
+      await this.sendNotificationSettings(callback.message!.chat.id, linked);
+      return;
+    }
+    const match = /^settings:(alerts|weekly):(on|off)$/.exec(data);
+    if (!match) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This setting is unavailable.',
+      );
+      return;
+    }
+    if (match[2] === 'on' && !linked.user.telegramNotificationsEnabled) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Enable Telegram notifications in Account first.',
+      );
+      return;
+    }
+    await this.prisma.user.update({
+      where: { id: linked.user.id },
+      data:
+        match[1] === 'alerts'
+          ? { telegramBudgetAlertsEnabled: match[2] === 'on' }
+          : { telegramWeeklyDigestEnabled: match[2] === 'on' },
+    });
+    const refreshed = await this.findLinkedUser(String(callback.from.id));
+    await this.bot.answerCallback(callback.id, 'Settings updated.');
+    if (refreshed)
+      await this.sendNotificationSettings(callback.message!.chat.id, refreshed);
+  }
+
+  private async sendNotificationSettings(
+    chatId: number,
+    linked: LinkedTelegramUser,
+  ) {
+    await this.bot.sendMessage(
+      chatId,
+      [
+        '🔔 Bot notifications',
+        '',
+        `Delivery access: ${linked.user.telegramNotificationsEnabled ? 'Enabled' : 'Disabled in Account'}`,
+        `Budget alerts: ${linked.user.telegramBudgetAlertsEnabled ? 'On' : 'Off'}`,
+        `Weekly digest: ${linked.user.telegramWeeklyDigestEnabled ? `On · Sunday ${String(linked.user.telegramWeeklyDigestHour).padStart(2, '0')}:00` : 'Off'}`,
+        `Timezone: ${linked.user.telegramNotificationTimeZone}`,
+      ].join('\n'),
+      {
+        inline_keyboard: [
+          [
+            {
+              text: linked.user.telegramBudgetAlertsEnabled
+                ? 'Turn alerts off'
+                : 'Turn alerts on',
+              callback_data: `settings:alerts:${linked.user.telegramBudgetAlertsEnabled ? 'off' : 'on'}`,
+            },
+          ],
+          [
+            {
+              text: linked.user.telegramWeeklyDigestEnabled
+                ? 'Turn weekly off'
+                : 'Turn weekly on',
+              callback_data: `settings:weekly:${linked.user.telegramWeeklyDigestEnabled ? 'off' : 'on'}`,
+            },
+          ],
+          [
+            {
+              text: '⚙️ Account settings',
+              web_app: { url: this.appUrl('/account') },
+            },
+          ],
+        ],
+      },
+    );
+  }
+
   private async sendToday(chatId: number, linked: LinkedTelegramUser) {
     const currency =
       linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
@@ -944,8 +1773,8 @@ export class TelegramBotService {
       chatId,
       linked
         ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
-            'or use /vote to share a published poll. Expenses are never saved ' +
-            'without your confirmation.'
+            'send a voice note or receipt photo, or ask about your spending. ' +
+            'Expenses are never saved without your confirmation.'
         : '👋 Welcome to ChlatWork. Open the Mini App and sign in with Telegram ' +
             'before using private expense data.',
       linked ? this.mainMenuKeyboard() : this.connectKeyboard(),
@@ -968,11 +1797,38 @@ export class TelegramBotService {
           { text: '➕ Add expense', callback_data: 'menu:add' },
           { text: '📊 Today', callback_data: 'summary:today' },
         ],
+        [
+          { text: '🕘 Recent', callback_data: 'menu:recent' },
+          { text: '💬 Ask spending', callback_data: 'menu:ask' },
+        ],
         [this.openTrackerButton()],
         [{ text: '🗳 Share a vote', callback_data: 'poll:list' }],
-        [{ text: '⚙️ Settings', web_app: { url: this.appUrl('/account') } }],
+        [
+          {
+            text: '🔔 Alerts & weekly',
+            callback_data: 'settings:notifications',
+          },
+        ],
+        [
+          {
+            text: '⚙️ Account settings',
+            web_app: { url: this.appUrl('/account') },
+          },
+        ],
       ],
     };
+  }
+
+  private async ensurePersistentMenu(chatId: number) {
+    try {
+      await this.bot.setChatMenuButton(
+        chatId,
+        'Open ChlatWork',
+        this.appUrl('/'),
+      );
+    } catch {
+      // A temporary Bot API failure must not hide the normal /start response.
+    }
   }
 
   private connectKeyboard(): TelegramInlineKeyboard {
@@ -1049,6 +1905,14 @@ export class TelegramBotService {
     return `${get('year')}-${get('month')}-${get('day')}`;
   }
 
+  private isSafeExpenseDate(value: string, localDate: string) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value > localDate) return false;
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return (
+      !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+    );
+  }
+
   private findLinkedUser(telegramUserId: string) {
     return this.prisma.socialAccount
       .findUnique({
@@ -1064,6 +1928,10 @@ export class TelegramBotService {
               id: true,
               isActive: true,
               telegramNotificationTimeZone: true,
+              telegramNotificationsEnabled: true,
+              telegramBudgetAlertsEnabled: true,
+              telegramWeeklyDigestEnabled: true,
+              telegramWeeklyDigestHour: true,
               expenseProfile: { select: { currency: true } },
             },
           },
@@ -1191,6 +2059,9 @@ export class TelegramBotService {
       }),
       this.prisma.telegramBotPendingExpense.deleteMany({
         where: { expiresAt: { lt: cutoff } },
+      }),
+      this.prisma.telegramBotConversationState.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
       }),
     ]);
   }

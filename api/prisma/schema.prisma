@@ -133,6 +133,10 @@ model User {
   telegramNotificationTimeZone String @default("Asia/Phnom_Penh") @db.VarChar(64) @map("telegram_notification_time_zone")
   telegramDailyExpenseSummaryHour Int @default(22) @map("telegram_daily_expense_summary_hour")
   telegramDailyExpenseSummaryLastAttemptDate DateTime? @db.Date @map("telegram_daily_expense_summary_last_attempt_date")
+  telegramBudgetAlertsEnabled Boolean @default(false) @map("telegram_budget_alerts_enabled")
+  telegramWeeklyDigestEnabled Boolean @default(false) @map("telegram_weekly_digest_enabled")
+  telegramWeeklyDigestHour Int @default(20) @map("telegram_weekly_digest_hour")
+  telegramWeeklyDigestLastAttemptDate DateTime? @db.Date @map("telegram_weekly_digest_last_attempt_date")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   socialAccounts SocialAccount[]
@@ -146,6 +150,9 @@ model User {
   favorites       UserFavorite[]
   moments         Moment[]
   telegramBotPendingExpenses TelegramBotPendingExpense[]
+  telegramBotConversationState TelegramBotConversationState?
+  telegramBudgetAlertState TelegramBudgetAlertState?
+  telegramGroupSplits TelegramGroupSplit[]
 
   @@map("users")
 }
@@ -423,6 +430,7 @@ model TelegramBotPendingExpense {
   status          TelegramBotPendingExpenseStatus @default(PENDING)
   expenseEntryId  String?                         @unique @map("expense_entry_id") @db.Uuid
   expenseEntry    ExpenseEntry?                   @relation(fields: [expenseEntryId], references: [id], onDelete: SetNull)
+  editTargetExpenseEntryId String?                 @map("edit_target_expense_entry_id") @db.Uuid
   expiresAt       DateTime                        @map("expires_at")
   confirmedAt     DateTime?                       @map("confirmed_at")
   createdAt       DateTime                        @default(now()) @map("created_at")
@@ -430,8 +438,70 @@ model TelegramBotPendingExpense {
 
   @@unique([chatId, sourceMessageId])
   @@index([userId])
+  @@index([editTargetExpenseEntryId])
   @@index([telegramUserId, status, expiresAt])
   @@map("telegram_bot_pending_expenses")
+}
+
+model TelegramBotConversationState {
+  telegramUserId          String   @id @map("telegram_user_id") @db.VarChar(20)
+  userId                  String   @unique @map("user_id") @db.Uuid
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId                  BigInt   @map("chat_id")
+  editTargetExpenseEntryId String  @map("edit_target_expense_entry_id") @db.Uuid
+  expiresAt               DateTime @map("expires_at")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@index([expiresAt])
+  @@map("telegram_bot_conversation_states")
+}
+
+model TelegramBudgetAlertState {
+  userId        String   @id @map("user_id") @db.Uuid
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  periodKey     String   @map("period_key") @db.VarChar(32)
+  lastThreshold Int      @map("last_threshold")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("telegram_budget_alert_states")
+}
+
+model TelegramGroupSplit {
+  id              String   @id @default(uuid()) @db.Uuid
+  creatorUserId   String   @map("creator_user_id") @db.Uuid
+  creator         User     @relation(fields: [creatorUserId], references: [id], onDelete: Cascade)
+  telegramChatId  BigInt   @map("telegram_chat_id")
+  title           String   @default("Shared expense") @db.VarChar(120)
+  total           Decimal  @db.Decimal(20, 2)
+  currency        ExpenseCurrency
+  status          String   @default("OPEN") @db.VarChar(16)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  participants    TelegramGroupSplitParticipant[]
+
+  @@index([telegramChatId, status, createdAt(sort: Desc)])
+  @@index([creatorUserId, createdAt(sort: Desc)])
+  @@map("telegram_group_splits")
+}
+
+model TelegramGroupSplitParticipant {
+  id                  String   @id @default(uuid()) @db.Uuid
+  splitId             String   @map("split_id") @db.Uuid
+  split               TelegramGroupSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  position            Int
+  name                String   @db.VarChar(80)
+  amount              Decimal  @db.Decimal(20, 2)
+  telegramUserId      String?  @map("telegram_user_id") @db.VarChar(20)
+  telegramDisplayName String?  @map("telegram_display_name") @db.VarChar(80)
+  paidAt              DateTime? @map("paid_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@unique([splitId, position])
+  @@unique([splitId, telegramUserId])
+  @@index([splitId, paidAt])
+  @@map("telegram_group_split_participants")
 }
 
 model SocialAccount {

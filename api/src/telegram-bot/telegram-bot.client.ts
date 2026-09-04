@@ -10,6 +10,8 @@ import type {
 } from './telegram-bot.types';
 
 const TELEGRAM_MESSAGE_MAX_LENGTH = 4_096;
+const TELEGRAM_FILE_PATH_PATTERN =
+  /^(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9_./-]{1,512}$/;
 
 @Injectable()
 export class TelegramBotClient {
@@ -93,6 +95,60 @@ export class TelegramBotClient {
       user_id: userId,
     })) as { status?: string } | undefined;
     return result?.status === 'creator' || result?.status === 'administrator';
+  }
+
+  setChatMenuButton(chatId: number, text: string, webAppUrl: string) {
+    return this.call('setChatMenuButton', {
+      chat_id: chatId,
+      menu_button: { type: 'web_app', text, web_app: { url: webAppUrl } },
+    });
+  }
+
+  async sendChatAction(chatId: number, action: 'typing' | 'upload_photo') {
+    try {
+      return await this.call('sendChatAction', { chat_id: chatId, action });
+    } catch {
+      // Processing still continues when Telegram cannot display a temporary action.
+      return undefined;
+    }
+  }
+
+  async downloadFile(fileId: string, maxBytes: number) {
+    if (!fileId || fileId.length > 256 || maxBytes <= 0) {
+      throw new BadRequestException('Telegram file is invalid');
+    }
+    const file = (await this.call('getFile', { file_id: fileId })) as
+      { file_path?: string; file_size?: number } | undefined;
+    if (
+      !file?.file_path ||
+      !TELEGRAM_FILE_PATH_PATTERN.test(file.file_path) ||
+      (file.file_size !== undefined && file.file_size > maxBytes)
+    ) {
+      throw new BadRequestException(
+        'Telegram file is unavailable or too large',
+      );
+    }
+
+    const token = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
+    let response: Response;
+    try {
+      response = await fetch(
+        `https://api.telegram.org/file/bot${token}/${file.file_path}`,
+        { signal: AbortSignal.timeout(15_000) },
+      );
+    } catch {
+      throw new ServiceUnavailableException('Telegram file download failed');
+    }
+    if (!response.ok) {
+      throw new ServiceUnavailableException('Telegram file download failed');
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (!bytes.length || bytes.length > maxBytes) {
+      throw new BadRequestException(
+        'Telegram file is unavailable or too large',
+      );
+    }
+    return bytes;
   }
 
   private async call(method: string, payload: Record<string, unknown>) {

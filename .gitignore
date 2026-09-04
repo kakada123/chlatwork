@@ -9,6 +9,8 @@
 .tmp-codex
 .codex-tmp
 .codex-validate
+.codex-schema
+.codex-test-tmp
 node-compile-cache
 dist
 

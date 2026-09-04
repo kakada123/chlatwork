@@ -17,6 +17,14 @@ const client = readFileSync(
   'api/src/telegram-bot/telegram-bot.client.ts',
   'utf8',
 );
+const financeScheduler = readFileSync(
+  'api/src/telegram-bot/telegram-finance.scheduler.ts',
+  'utf8',
+);
+const utilitySql = readFileSync(
+  'database/updates/2026-09-04-add-telegram-assistant-utilities.sql',
+  'utf8',
+);
 
 test('Telegram webhook is proxied to the API and verifies its secret there', () => {
   assert.match(apiModule, /TelegramBotModule/);
@@ -32,6 +40,17 @@ test('expense writes require confirmation and provide undo', () => {
   assert.match(service, /pg_advisory_xact_lock/);
   assert.match(service, /expense:undo:/);
   assert.match(service, /ExpenseEntryType\.EXPENSE/);
+});
+
+test('assistant utilities preserve explicit confirmation and opt-in boundaries', () => {
+  assert.match(client, /setChatMenuButton/);
+  assert.match(service, /command === ["']recent["']/);
+  assert.match(service, /Confirm receipt expense\?/);
+  assert.match(service, /telegramNotificationsEnabled/);
+  assert.match(financeScheduler, /telegram_budget_alert_states/);
+  assert.match(financeScheduler, /telegram_weekly_digest_enabled = TRUE/);
+  assert.match(utilitySql, /DEFAULT FALSE/);
+  assert.match(utilitySql, /UNIQUE \(split_id, telegram_user_id\)/);
 });
 
 test('published Moment polls can be shared and voted through Telegram', () => {

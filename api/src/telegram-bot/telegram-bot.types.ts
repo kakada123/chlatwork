@@ -17,6 +17,18 @@ export interface TelegramMessage {
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  voice?: {
+    file_id: string;
+    duration: number;
+    mime_type?: string;
+    file_size?: number;
+  };
+  photo?: Array<{
+    file_id: string;
+    width: number;
+    height: number;
+    file_size?: number;
+  }>;
 }
 
 export interface TelegramCallbackQuery {
