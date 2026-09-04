@@ -1,11 +1,28 @@
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { AiFeature, AiGenerationStatus } from '@prisma/client';
-import type { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from './creator-credits.service';
-import type { CreatorPricingService } from './creator-pricing.service';
-import type { CreatorProtectionService } from './creator-protection.service';
+import { CreatorPricingService } from './creator-pricing.service';
+import { CreatorProtectionService } from './creator-protection.service';
 
 describe('CreatorCreditsService atomic reservation', () => {
+  it('exposes PrismaService as a runtime injection token', async () => {
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        CreatorCreditsService,
+        { provide: PrismaService, useValue: {} },
+        { provide: ConfigService, useValue: {} },
+        { provide: CreatorPricingService, useValue: {} },
+        { provide: CreatorProtectionService, useValue: {} },
+      ],
+    }).compile();
+
+    expect(moduleRef.get(CreatorCreditsService)).toBeInstanceOf(
+      CreatorCreditsService,
+    );
+  });
+
   function setup(initialBalance: number) {
     let balance = initialBalance;
     let serial = Promise.resolve();

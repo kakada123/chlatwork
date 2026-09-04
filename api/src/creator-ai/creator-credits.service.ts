@@ -8,6 +8,7 @@ import {
   Prisma,
   type AiGeneration,
 } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreatorAiException } from './creator-ai.errors';
 import { CreatorPricingService } from './creator-pricing.service';
 import { CreatorProtectionService } from './creator-protection.service';
@@ -20,7 +21,7 @@ import type {
 @Injectable()
 export class CreatorCreditsService {
   constructor(
-    private readonly prisma: import('../prisma/prisma.service').PrismaService,
+    private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly pricing: CreatorPricingService,
     private readonly protection: CreatorProtectionService,
