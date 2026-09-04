@@ -29,6 +29,8 @@ import type { CurrentUser } from '../auth/types';
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
 const MAX_INVITATION_GUESTS = 500;
+const ONE_TIME_POLL_DATE = new Date('1970-01-01T00:00:00.000Z');
+const POLL_HISTORY_DAY_LIMIT = 30;
 // Temporary higher ceiling while Moment media storage is being evaluated.
 export const MAX_MOMENT_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -39,10 +41,7 @@ export interface MomentUpload {
   size: number;
 }
 
-type MomentPollIdentityMode =
-  | 'ANONYMOUS'
-  | 'NAME_REQUIRED'
-  | 'LOGIN_REQUIRED';
+type MomentPollIdentityMode = 'ANONYMOUS' | 'NAME_REQUIRED' | 'LOGIN_REQUIRED';
 
 interface MomentPollDefinition {
   question: string;
@@ -62,8 +61,19 @@ export interface TelegramMomentPoll {
   title: string;
   question: string;
   identityMode: MomentPollIdentityMode;
+  voteDate?: string;
   totalVotes: number;
-  results: Array<{ optionId: string; label: string; votes: number }>;
+  results: Array<{
+    optionId: string;
+    label: string;
+    votes: number;
+    voters?: string[];
+  }>;
+}
+
+interface VoteScheduleContext {
+  enabled: boolean;
+  timeZone: string;
 }
 
 @Injectable()
@@ -314,12 +324,22 @@ export class MomentsService {
           select: { data: true },
           take: 1,
         },
+        voteSchedule: {
+          select: {
+            enabled: true,
+            telegramChatTitle: true,
+            timeZone: true,
+            sendHour: true,
+            sendMinute: true,
+            lastSentAt: true,
+          },
+        },
         _count: { select: { media: true, rsvps: true } },
       },
     });
     return Promise.all(
       moments.map(async (moment) => {
-        const { blocks, ...summary } = moment;
+        const { blocks, voteSchedule, ...summary } = moment;
         if (moment.occasion === MomentOccasion.VOTING) {
           const poll = blocks[0]?.data as
             | {
@@ -328,11 +348,30 @@ export class MomentsService {
                 options?: Array<{ id: string; label: string }>;
               }
             | undefined;
+          const voteDate = this.getActiveVoteDate(voteSchedule);
+          const pollSummary = poll?.options
+            ? await this.getPollSummary(
+                moment.id,
+                poll.options,
+                poll.identityMode ??
+                  (poll.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS'),
+                voteDate,
+              )
+            : undefined;
           return {
             ...summary,
+            ...(pollSummary ? { pollSummary } : {}),
+            ...(voteSchedule
+              ? {
+                  pollSchedule: {
+                    ...voteSchedule,
+                    lastSentAt: voteSchedule.lastSentAt?.toISOString() ?? null,
+                  },
+                }
+              : {}),
             ...(poll?.options
               ? {
-                  pollSummary: await this.getPollSummary(
+                  pollInsights: await this.getPollInsights(
                     moment.id,
                     poll.options,
                     poll.identityMode ??
@@ -398,6 +437,9 @@ export class MomentsService {
           select: { data: true },
           take: 1,
         },
+        voteSchedule: {
+          select: { enabled: true, timeZone: true },
+        },
       },
     });
 
@@ -416,12 +458,122 @@ export class MomentsService {
   ): Promise<TelegramMomentPoll> {
     const moment = await this.prisma.moment.findFirst({
       where: { id: momentId, creatorId: userId },
-      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
+      },
     });
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
     if (!poll) throw new NotFoundException('Poll not found');
     return this.toTelegramPollView(moment, poll);
+  }
+
+  async getScheduledTelegramVotingMoment(
+    momentId: string,
+  ): Promise<TelegramMomentPoll> {
+    const moment = await this.prisma.moment.findFirst({
+      where: { id: momentId, voteSchedule: { enabled: true } },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
+      },
+    });
+    this.assertVotingOpen(moment);
+    const poll = this.readPollDefinition(moment.blocks[0]?.data);
+    if (!poll) throw new NotFoundException('Poll not found');
+    return this.toTelegramPollView(moment, poll);
+  }
+
+  async configureDailyTelegramVote(
+    userId: string,
+    momentId: string,
+    telegramChatId: number,
+    telegramChatTitle?: string,
+  ) {
+    const [moment, user] = await Promise.all([
+      this.prisma.moment.findFirst({
+        where: { id: momentId, creatorId: userId },
+        select: {
+          id: true,
+          occasion: true,
+          status: true,
+          publishAt: true,
+          expiresAt: true,
+        },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { telegramNotificationTimeZone: true },
+      }),
+    ]);
+    this.assertVotingOpen(moment);
+    if (!Number.isSafeInteger(telegramChatId) || telegramChatId === 0) {
+      throw new BadRequestException('Telegram group is invalid');
+    }
+
+    const timeZone = user?.telegramNotificationTimeZone || 'Asia/Phnom_Penh';
+    await this.prisma.$transaction(async (tx) => {
+      // A group has one daily decision poll; choosing a new one moves the schedule cleanly.
+      await tx.momentVoteSchedule.deleteMany({
+        where: {
+          OR: [{ momentId }, { telegramChatId: BigInt(telegramChatId) }],
+        },
+      });
+      await tx.momentVoteSchedule.create({
+        data: {
+          momentId,
+          telegramChatId: BigInt(telegramChatId),
+          telegramChatTitle: telegramChatTitle?.trim().slice(0, 120) || null,
+          timeZone,
+          // Registration sends today's poll immediately, so the scheduler starts again tomorrow.
+          lastAttemptDate: new Date(
+            `${this.formatLocalDate(new Date(), timeZone)}T00:00:00.000Z`,
+          ),
+        },
+      });
+    });
+
+    return this.getOwnedTelegramVotingMoment(userId, momentId);
+  }
+
+  async updateDailyTelegramVoteTime(
+    userId: string,
+    telegramChatId: number,
+    sendHour: number,
+    sendMinute: number,
+  ) {
+    if (
+      !Number.isInteger(sendHour) ||
+      sendHour < 0 ||
+      sendHour > 23 ||
+      !Number.isInteger(sendMinute) ||
+      sendMinute < 0 ||
+      sendMinute > 59
+    ) {
+      throw new BadRequestException('Use a valid time such as 10:00');
+    }
+    const result = await this.prisma.momentVoteSchedule.updateMany({
+      where: {
+        telegramChatId: BigInt(telegramChatId),
+        moment: { creatorId: userId },
+      },
+      data: { sendHour, sendMinute, enabled: true },
+    });
+    if (!result.count) throw new NotFoundException('Daily poll not found');
+    return { updated: true };
+  }
+
+  async disableDailyTelegramVote(userId: string, telegramChatId: number) {
+    const result = await this.prisma.momentVoteSchedule.updateMany({
+      where: {
+        telegramChatId: BigInt(telegramChatId),
+        moment: { creatorId: userId },
+      },
+      data: { enabled: false },
+    });
+    if (!result.count) throw new NotFoundException('Daily poll not found');
+    return { disabled: true };
   }
 
   async addInvitationGuests(
@@ -567,7 +719,9 @@ export class MomentsService {
       throw new NotFoundException('Invitation guest not found');
     }
     const rawResponseToken = dto.guestToken ?? dto.responseToken!;
-    const responseKey = createHash('sha256').update(rawResponseToken).digest('hex');
+    const responseKey = createHash('sha256')
+      .update(rawResponseToken)
+      .digest('hex');
     const choice = dto.choice as MomentRsvpChoice;
     const guestCount = choice === MomentRsvpChoice.NO ? 0 : dto.guestCount;
     if (choice !== MomentRsvpChoice.NO && guestCount < 1) {
@@ -614,7 +768,10 @@ export class MomentsService {
   ) {
     const moment = await this.prisma.moment.findUnique({
       where: { slug },
-      include: { blocks: { where: { type: MomentBlockType.POLL } } },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL } },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
+      },
     });
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
@@ -649,6 +806,7 @@ export class MomentsService {
       dto.optionId,
       identityKey,
       voterName,
+      this.getActiveVoteDate(moment.voteSchedule),
     );
   }
 
@@ -659,7 +817,10 @@ export class MomentsService {
   ): Promise<TelegramMomentPoll> {
     const moment = await this.prisma.moment.findUnique({
       where: { id: momentId },
-      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
+      },
     });
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
@@ -690,6 +851,7 @@ export class MomentsService {
       optionId,
       identityKey,
       voterName,
+      this.getActiveVoteDate(moment.voteSchedule),
     );
     return this.toTelegramPollView(moment, poll);
   }
@@ -708,14 +870,23 @@ export class MomentsService {
           select: { data: true },
           take: 1,
         },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
       },
     });
     const poll = this.readPollDefinition(moment?.blocks[0]?.data);
     if (!moment || !poll) throw new NotFoundException('Poll not found');
 
-    // Reset responses only; the published poll and its share link remain active.
-    await this.prisma.momentVote.deleteMany({ where: { momentId: moment.id } });
-    return this.getPollSummary(moment.id, poll.options, poll.identityMode);
+    const voteDate = this.getActiveVoteDate(moment.voteSchedule);
+    // Daily history stays intact; reset affects only the currently active round.
+    await this.prisma.momentVote.deleteMany({
+      where: { momentId: moment.id, voteDate },
+    });
+    return this.getPollSummary(
+      moment.id,
+      poll.options,
+      poll.identityMode,
+      voteDate,
+    );
   }
 
   async remove(userId: string, momentId: string) {
@@ -735,6 +906,7 @@ export class MomentsService {
           orderBy: { position: 'asc' },
           select: { id: true, position: true },
         },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
       },
     });
     this.assertPublic(moment);
@@ -783,6 +955,7 @@ export class MomentsService {
               pollData.options,
               pollData.identityMode ??
                 (pollData.requireName ? 'NAME_REQUIRED' : 'ANONYMOUS'),
+              this.getActiveVoteDate(moment.voteSchedule),
             ),
           }
         : {}),
@@ -793,16 +966,17 @@ export class MomentsService {
     momentId: string,
     options: Array<{ id: string; label?: string }>,
     identityMode: string,
+    voteDate = ONE_TIME_POLL_DATE,
   ) {
     const groups = await this.prisma.momentVote.groupBy({
       by: ['optionId'],
-      where: { momentId },
+      where: { momentId, voteDate },
       _count: { _all: true },
     });
     const namedVotes =
       identityMode !== 'ANONYMOUS'
         ? await this.prisma.momentVote.findMany({
-            where: { momentId },
+            where: { momentId, voteDate },
             orderBy: { updatedAt: 'asc' },
             select: { optionId: true, voterName: true },
           })
@@ -823,8 +997,152 @@ export class MomentsService {
     return {
       totalVotes: results.reduce((total, result) => total + result.votes, 0),
       identityMode,
+      ...(voteDate.getTime() !== ONE_TIME_POLL_DATE.getTime()
+        ? { voteDate: voteDate.toISOString().slice(0, 10) }
+        : {}),
       results,
     };
+  }
+
+  private async getPollInsights(
+    momentId: string,
+    options: Array<{ id: string; label?: string }>,
+    identityMode: string,
+  ) {
+    const groupedVotes = await this.prisma.momentVote.groupBy({
+      by: ['voteDate', 'optionId'],
+      where: { momentId, voteDate: { gt: ONE_TIME_POLL_DATE } },
+      _count: { _all: true },
+      orderBy: { voteDate: 'desc' },
+    });
+    const allDates = [
+      ...new Set(
+        groupedVotes.map((group) => group.voteDate.toISOString().slice(0, 10)),
+      ),
+    ];
+    const recentDates = allDates.slice(0, POLL_HISTORY_DAY_LIMIT);
+    const namedVotes =
+      identityMode !== 'ANONYMOUS' && recentDates.length
+        ? await this.prisma.momentVote.findMany({
+            where: {
+              momentId,
+              voteDate: {
+                in: recentDates.map(
+                  (date) => new Date(`${date}T00:00:00.000Z`),
+                ),
+              },
+            },
+            orderBy: { updatedAt: 'asc' },
+            select: { voteDate: true, optionId: true, voterName: true },
+          })
+        : [];
+    const optionTotals = new Map<string, number>();
+    const daysLed = new Map<string, number>();
+
+    for (const group of groupedVotes) {
+      optionTotals.set(
+        group.optionId,
+        (optionTotals.get(group.optionId) ?? 0) + group._count._all,
+      );
+    }
+    for (const date of allDates) {
+      const dayGroups = groupedVotes.filter(
+        (group) => group.voteDate.toISOString().slice(0, 10) === date,
+      );
+      const highest = Math.max(...dayGroups.map((group) => group._count._all));
+      const leaders = dayGroups.filter(
+        (candidate) => candidate._count._all === highest,
+      );
+      if (leaders.length === 1) {
+        const winner = leaders[0]!;
+        daysLed.set(winner.optionId, (daysLed.get(winner.optionId) ?? 0) + 1);
+      }
+    }
+
+    const optionInsights = options
+      .map((option) => ({
+        optionId: option.id,
+        label: option.label ?? '',
+        votes: optionTotals.get(option.id) ?? 0,
+        daysLed: daysLed.get(option.id) ?? 0,
+      }))
+      .sort(
+        (left, right) =>
+          right.daysLed - left.daysLed ||
+          right.votes - left.votes ||
+          left.label.localeCompare(right.label),
+      );
+
+    const recentDays = recentDates.map((date) => {
+      const results = options.map((option) => {
+        const votes =
+          groupedVotes.find(
+            (group) =>
+              group.voteDate.toISOString().slice(0, 10) === date &&
+              group.optionId === option.id,
+          )?._count._all ?? 0;
+        return {
+          optionId: option.id,
+          label: option.label ?? '',
+          votes,
+          ...(identityMode !== 'ANONYMOUS'
+            ? {
+                voters: namedVotes
+                  .filter(
+                    (vote) =>
+                      vote.voteDate.toISOString().slice(0, 10) === date &&
+                      vote.optionId === option.id,
+                  )
+                  .flatMap((vote) => (vote.voterName ? [vote.voterName] : [])),
+              }
+            : {}),
+        };
+      });
+      return {
+        date,
+        totalVotes: results.reduce((total, result) => total + result.votes, 0),
+        results,
+      };
+    });
+
+    return {
+      daysTracked: allDates.length,
+      totalVotes: optionInsights.reduce(
+        (total, option) => total + option.votes,
+        0,
+      ),
+      topChoice: optionInsights[0]?.votes ? optionInsights[0] : null,
+      recentDays,
+    };
+  }
+
+  private isDailySchedule(
+    schedule?: VoteScheduleContext | null,
+  ): schedule is VoteScheduleContext {
+    return schedule?.enabled === true;
+  }
+
+  private getActiveVoteDate(schedule?: VoteScheduleContext | null) {
+    if (!this.isDailySchedule(schedule)) return new Date(ONE_TIME_POLL_DATE);
+    return new Date(
+      `${this.formatLocalDate(new Date(), schedule.timeZone)}T00:00:00.000Z`,
+    );
+  }
+
+  private formatLocalDate(date: Date, timeZone: string) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(date);
+      const get = (type: Intl.DateTimeFormatPartTypes) =>
+        parts.find((part) => part.type === type)?.value;
+      return `${get('year')}-${get('month')}-${get('day')}`;
+    } catch {
+      return date.toISOString().slice(0, 10);
+    }
   }
 
   private async savePollVote(
@@ -833,27 +1151,47 @@ export class MomentsService {
     optionId: string,
     identityKey: string,
     voterName: string,
+    voteDate: Date,
   ) {
     const responseKey = createHash('sha256').update(identityKey).digest('hex');
     const storedName =
       poll.identityMode === 'ANONYMOUS' ? null : voterName.trim() || null;
     await this.prisma.momentVote.upsert({
-      where: { momentId_responseKey: { momentId, responseKey } },
-      // A stable cross-channel identity changes a choice without adding a voter.
-      create: { momentId, responseKey, optionId, voterName: storedName },
+      where: {
+        momentId_responseKey_voteDate: { momentId, responseKey, voteDate },
+      },
+      // A stable cross-channel identity changes a choice without adding another vote that day.
+      create: {
+        momentId,
+        responseKey,
+        optionId,
+        voterName: storedName,
+        voteDate,
+      },
       update: { optionId, voterName: storedName },
     });
-    return this.getPollSummary(momentId, poll.options, poll.identityMode);
+    return this.getPollSummary(
+      momentId,
+      poll.options,
+      poll.identityMode,
+      voteDate,
+    );
   }
 
   private async toTelegramPollView(
-    moment: { id: string; slug: string; title: string },
+    moment: {
+      id: string;
+      slug: string;
+      title: string;
+      voteSchedule?: VoteScheduleContext | null;
+    },
     poll: MomentPollDefinition,
   ): Promise<TelegramMomentPoll> {
     const summary = await this.getPollSummary(
       moment.id,
       poll.options,
       poll.identityMode,
+      this.getActiveVoteDate(moment.voteSchedule),
     );
     return {
       id: moment.id,
@@ -861,17 +1199,27 @@ export class MomentsService {
       title: moment.title,
       question: poll.question,
       identityMode: poll.identityMode,
+      ...(this.isDailySchedule(moment.voteSchedule)
+        ? {
+            voteDate: this.formatLocalDate(
+              new Date(),
+              moment.voteSchedule.timeZone,
+            ),
+          }
+        : {}),
       totalVotes: summary.totalVotes,
-      results: summary.results.map(({ optionId, label, votes }) => ({
+      results: summary.results.map(({ optionId, label, votes, voters }) => ({
         optionId,
         label,
         votes,
+        ...(voters ? { voters } : {}),
       })),
     };
   }
 
   private readPollDefinition(value: Prisma.JsonValue | undefined) {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      return null;
     const record = value as Prisma.JsonObject;
     const question =
       typeof record.question === 'string' ? record.question.trim() : '';
@@ -887,7 +1235,8 @@ export class MomentsService {
     });
     const rawIdentityMode = record.identityMode;
     const identityMode: MomentPollIdentityMode =
-      rawIdentityMode === 'NAME_REQUIRED' || rawIdentityMode === 'LOGIN_REQUIRED'
+      rawIdentityMode === 'NAME_REQUIRED' ||
+      rawIdentityMode === 'LOGIN_REQUIRED'
         ? rawIdentityMode
         : record.requireName === true
           ? 'NAME_REQUIRED'
@@ -923,14 +1272,12 @@ export class MomentsService {
   }
 
   private assertVotingOpen(
-    moment:
-      | {
-          status: MomentStatus;
-          expiresAt: Date | null;
-          publishAt: Date | null;
-          occasion: MomentOccasion;
-        }
-      | null,
+    moment: {
+      status: MomentStatus;
+      expiresAt: Date | null;
+      publishAt: Date | null;
+      occasion: MomentOccasion;
+    } | null,
   ): asserts moment is NonNullable<typeof moment> {
     this.assertPublic(moment);
     if (moment.occasion !== MomentOccasion.VOTING) {

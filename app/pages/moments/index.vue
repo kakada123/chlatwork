@@ -17,7 +17,7 @@ useSeoMeta({
   description: () => managerCopy.value.description,
   robots: "noindex, nofollow",
 });
-const { data, status, error } =
+const { data, status, error, refresh } =
   await useFetch<MomentSummary[]>("/api/moments/mine");
 const moments = computed(() => data.value ?? []);
 const deletingId = ref("");
@@ -61,8 +61,14 @@ async function resetVotes() {
   resettingVoteId.value = moment.id;
   voteResetError.value = "";
   try {
-    const pollSummary = await $fetch<MomentPollSummary>(`/api/moments/${moment.id}/votes`, { method: "DELETE" });
-    data.value = moments.value.map((item) => item.id === moment.id ? { ...item, pollSummary } : item);
+    const pollSummary = await $fetch<MomentPollSummary>(
+      `/api/moments/${moment.id}/votes`,
+      { method: "DELETE" },
+    );
+    data.value = moments.value.map((item) =>
+      item.id === moment.id ? { ...item, pollSummary } : item,
+    );
+    await refresh();
     momentPendingVoteReset.value = null;
   } catch {
     voteResetError.value = managerCopy.value.resetVotesError;
@@ -151,7 +157,9 @@ async function resetVotes() {
         v-for="moment in moments"
         :key="moment.id"
         class="min-w-0"
-        :class="{ 'sm:col-span-2': ['INVITATION', 'VOTING'].includes(moment.occasion) }"
+        :class="{
+          'sm:col-span-2': ['INVITATION', 'VOTING'].includes(moment.occasion),
+        }"
       >
         <MomentSummaryCard
           :moment="moment"
@@ -160,8 +168,18 @@ async function resetVotes() {
           :stacked="['INVITATION', 'VOTING'].includes(moment.occasion)"
           @delete="requestMomentDelete"
         />
-        <MomentInvitationGuests v-if="moment.occasion === 'INVITATION' && moment.status === 'PUBLISHED'" :moment="moment" />
-        <MomentVotingResults v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'" :moment="moment" :resetting="resettingVoteId === moment.id" @reset="requestVoteReset" />
+        <MomentInvitationGuests
+          v-if="
+            moment.occasion === 'INVITATION' && moment.status === 'PUBLISHED'
+          "
+          :moment="moment"
+        />
+        <MomentVotingResults
+          v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'"
+          :moment="moment"
+          :resetting="resettingVoteId === moment.id"
+          @reset="requestVoteReset"
+        />
       </li>
     </ul>
 
@@ -180,7 +198,12 @@ async function resetVotes() {
     <ConfirmDialog
       :open="Boolean(momentPendingVoteReset)"
       :title="managerCopy.resetVotesDialogTitle"
-      :description="managerCopy.resetVotesConfirm(momentPendingVoteReset?.title ?? '', momentPendingVoteReset?.pollSummary?.totalVotes ?? 0)"
+      :description="
+        managerCopy.resetVotesConfirm(
+          momentPendingVoteReset?.title ?? '',
+          momentPendingVoteReset?.pollSummary?.totalVotes ?? 0,
+        )
+      "
       :confirm-label="managerCopy.resetVotes"
       :cancel-label="managerCopy.keepVotes"
       :busy="Boolean(resettingVoteId)"

@@ -9,6 +9,7 @@ export interface TelegramUser {
 export interface TelegramChat {
   id: number;
   type: string;
+  title?: string;
 }
 
 export interface TelegramMessage {

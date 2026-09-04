@@ -11,6 +11,8 @@ NestJS authentication and account-data service for ChlatWork. It verifies Google
    `database/2026-08-29-add-daily-expense-telegram-summary.sql` in that order.
    For interactive Telegram expense commands, then review and manually execute
    `database/updates/2026-09-04-add-telegram-expense-assistant.sql`.
+   For daily Voting Moments, also review and manually execute
+   `database/updates/2026-09-04-add-daily-moment-voting.sql`.
 3. From `api/`, run `npm install`, `npm run prisma:generate`, then `npm run dev`.
 4. Configure the Nuxt app with `NUXT_AUTH_API_BASE_URL=http://localhost:3002`.
 
@@ -56,6 +58,13 @@ same Moment vote records as the web experience. Anonymous and name-required
 polls use a stable Telegram identity; login-required polls accept votes only
 from Telegram accounts linked to ChlatWork.
 
+For a recurring group vote, add the bot as an administrator in the Telegram
+group and have a group administrator who owns the poll send `/dailyvote` there. The bot sends today's poll immediately
+and starts a fresh local-date round every day at 10:00 while keeping prior
+rounds for history and most-selected-place insights. Use `/votetime 11:30` to
+change the local delivery time and `/stopdailyvote` to pause delivery without
+deleting history. The API process must remain running for scheduled delivery.
+
 Configure a random 16-256 character `TELEGRAM_WEBHOOK_SECRET` in the API runtime,
 then register the HTTPS endpoint with Telegram. Keep both values in the runtime
 secret store; do not commit them:
@@ -77,6 +86,9 @@ Configure these commands through BotFather or the Bot API:
 start - Open the ChlatWork assistant
 today - Show today's expenses
 vote - Share a published voting Moment
+dailyvote - Set up a daily vote in this group
+votetime - Change this group's daily vote time (HH:MM)
+stopdailyvote - Stop this group's daily vote
 cancel - Cancel the latest pending expense
 help - Show the assistant menu
 ```

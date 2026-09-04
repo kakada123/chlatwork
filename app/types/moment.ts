@@ -16,16 +16,37 @@ export type MomentOccasion =
   | "OTHER";
 
 export type MomentTheme =
-  | "ROMANTIC" | "CUTE" | "CELEBRATION" | "SUNSET"
-  | "BOTANICAL" | "OCEAN" | "MINIMAL" | "ELEGANT";
+  | "ROMANTIC"
+  | "CUTE"
+  | "CELEBRATION"
+  | "SUNSET"
+  | "BOTANICAL"
+  | "OCEAN"
+  | "MINIMAL"
+  | "ELEGANT";
 export type MomentBlockType =
-  | "HERO" | "MESSAGE" | "GALLERY" | "COUNTER" | "SECRET"
-  | "EVENT_DETAILS" | "LOCATION" | "SCHEDULE" | "RSVP" | "POLL";
+  | "HERO"
+  | "MESSAGE"
+  | "GALLERY"
+  | "COUNTER"
+  | "SECRET"
+  | "EVENT_DETAILS"
+  | "LOCATION"
+  | "SCHEDULE"
+  | "RSVP"
+  | "POLL";
 
 export type MomentRsvpChoice = "YES" | "MAYBE" | "NO";
-export type MomentPollIdentityMode = "ANONYMOUS" | "NAME_REQUIRED" | "LOGIN_REQUIRED";
-export type InvitationRecipientType = "INDIVIDUAL" | "COUPLE" | "FAMILY" | "GROUP";
-export interface MomentRsvpSummary { yes: number; maybe: number; no: number; guests: number }
+export type MomentPollIdentityMode =
+  "ANONYMOUS" | "NAME_REQUIRED" | "LOGIN_REQUIRED";
+export type InvitationRecipientType =
+  "INDIVIDUAL" | "COUPLE" | "FAMILY" | "GROUP";
+export interface MomentRsvpSummary {
+  yes: number;
+  maybe: number;
+  no: number;
+  guests: number;
+}
 
 export interface MomentSummary {
   id: string;
@@ -41,6 +62,8 @@ export interface MomentSummary {
   _count: { media: number };
   rsvpSummary?: MomentRsvpSummary;
   pollSummary?: MomentPollSummary;
+  pollSchedule?: MomentPollSchedule;
+  pollInsights?: MomentPollInsights;
 }
 
 export interface MomentBlock {
@@ -68,8 +91,42 @@ export interface ReadyMoment {
   pollSummary?: MomentPollSummary;
 }
 
-export interface MomentPollResult { optionId: string; label: string; votes: number; voters?: string[] }
-export interface MomentPollSummary { totalVotes: number; identityMode?: MomentPollIdentityMode; results: MomentPollResult[] }
+export interface MomentPollResult {
+  optionId: string;
+  label: string;
+  votes: number;
+  voters?: string[];
+}
+export interface MomentPollSummary {
+  totalVotes: number;
+  identityMode?: MomentPollIdentityMode;
+  voteDate?: string;
+  results: MomentPollResult[];
+}
+export interface MomentPollSchedule {
+  enabled: boolean;
+  telegramChatTitle: string | null;
+  timeZone: string;
+  sendHour: number;
+  sendMinute: number;
+  lastSentAt: string | null;
+}
+export interface MomentPollDay {
+  date: string;
+  totalVotes: number;
+  results: MomentPollResult[];
+}
+export interface MomentPollInsights {
+  daysTracked: number;
+  totalVotes: number;
+  topChoice: null | {
+    optionId: string;
+    label: string;
+    votes: number;
+    daysLed: number;
+  };
+  recentDays: MomentPollDay[];
+}
 
 export interface LockedMoment {
   status: "locked";
@@ -86,7 +143,9 @@ export interface InvitationGuestIdentity {
   maxGuests: number;
 }
 
-export type PersonalInvitation = PublicMoment & { invitationGuest: InvitationGuestIdentity };
+export type PersonalInvitation = PublicMoment & {
+  invitationGuest: InvitationGuestIdentity;
+};
 
 export interface InvitationGuest {
   id: string;

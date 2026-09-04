@@ -171,6 +171,7 @@ model Moment {
   rsvps         MomentRsvp[]
   invitationGuests MomentInvitationGuest[]
   votes           MomentVote[]
+  voteSchedule    MomentVoteSchedule?
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
@@ -184,12 +185,32 @@ model MomentVote {
   responseKey String   @map("response_key") @db.Char(64)
   optionId    String   @map("option_id") @db.VarChar(40)
   voterName   String?  @map("voter_name") @db.VarChar(80)
+  voteDate    DateTime @default(dbgenerated("'1970-01-01'::date")) @map("vote_date") @db.Date
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@unique([momentId, responseKey])
-  @@index([momentId, optionId])
+  @@unique([momentId, responseKey, voteDate])
+  @@index([momentId, voteDate, optionId])
   @@map("moment_votes")
+}
+
+model MomentVoteSchedule {
+  id                  String   @id @default(uuid()) @db.Uuid
+  momentId            String   @unique @map("moment_id") @db.Uuid
+  moment              Moment   @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  telegramChatId      BigInt   @unique @map("telegram_chat_id")
+  telegramChatTitle   String?  @map("telegram_chat_title") @db.VarChar(120)
+  timeZone            String   @default("Asia/Phnom_Penh") @map("time_zone") @db.VarChar(64)
+  sendHour            Int      @default(10) @map("send_hour")
+  sendMinute          Int      @default(0) @map("send_minute")
+  enabled             Boolean  @default(true)
+  lastAttemptDate     DateTime? @map("last_attempt_date") @db.Date
+  lastSentAt          DateTime? @map("last_sent_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled, sendHour, sendMinute])
+  @@map("moment_vote_schedules")
 }
 
 model MomentRsvp {

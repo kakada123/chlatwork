@@ -76,7 +76,8 @@ const EN = {
     dressCode: "Dress code",
     dressCodePlaceholder: "Smart casual · Pink, cream, or white",
     eventSchedule: "Event schedule",
-    schedulePlaceholder: "5:30 PM — Guest arrival\n6:00 PM — Dinner\n7:30 PM — Cake and photos",
+    schedulePlaceholder:
+      "5:30 PM — Guest arrival\n6:00 PM — Dinner\n7:30 PM — Cake and photos",
     previewTitle: "Choose the feeling, then preview",
     themeLabel: "Theme",
     themeCount: "8 distinct looks",
@@ -132,8 +133,10 @@ const EN = {
         "This photo is still over 10MB after compression. Try a smaller image.",
       photoOpen: "This photo could not be opened.",
       photoCompress: "This photo could not be compressed.",
-      photoHeic: "This iPhone photo could not be converted. Try sharing it as JPEG.",
-      photoWebp: "This browser cannot create WebP photos. Update your browser and try again.",
+      photoHeic:
+        "This iPhone photo could not be converted. Try sharing it as JPEG.",
+      photoWebp:
+        "This browser cannot create WebP photos. Update your browser and try again.",
       copyFailed: "Could not copy the link. Select it manually.",
       publishFailed: "Your Moment could not be published. Please try again.",
     },
@@ -179,7 +182,8 @@ const EN = {
     guestNote: "Message for the host (optional)",
     sendRsvp: "Send response",
     sendingRsvp: "Saving…",
-    rsvpSaved: "Your response is saved. You can update it anytime from this device.",
+    rsvpSaved:
+      "Your response is saved. You can update it anytime from this device.",
     rsvpError: "Your response could not be saved. Please try again.",
     previewRsvp: "RSVP is enabled after publishing.",
     respectfullyInvited: "Respectfully invited",
@@ -227,7 +231,8 @@ const EN = {
     declined: (count: number) => `${count} declined`,
     expectedGuests: (count: number) => `${count} expected guests`,
     guestList: "Personalized guest list",
-    guestListHelp: "Paste one person, couple, family, or group per line. Each gets a private invitation link.",
+    guestListHelp:
+      "Paste one person, couple, family, or group per line. Each gets a private invitation link.",
     pasteGuests: "Paste guest names, one per line",
     recipientType: "Invitation type",
     individual: "Individual",
@@ -245,16 +250,40 @@ const EN = {
     markSent: "Mark sent",
     sent: "Sent",
     waitingResponse: "Waiting",
-    guestsAdded: (count: number) => `${count} personalized invitations created.`,
-    guestAddError: "The guest invitations could not be created. Please try again.",
-    invitationShareText: (name: string, title: string, url: string) => `You’re respectfully invited, ${name}\n\n${title}\n\nOpen your personal invitation and RSVP here:\n${url}`,
+    guestsAdded: (count: number) =>
+      `${count} personalized invitations created.`,
+    guestAddError:
+      "The guest invitations could not be created. Please try again.",
+    invitationShareText: (name: string, title: string, url: string) =>
+      `You’re respectfully invited, ${name}\n\n${title}\n\nOpen your personal invitation and RSVP here:\n${url}`,
     votingDetails: "Voting details",
-    totalParticipation: (count: number) => `${count} total ${count === 1 ? "vote" : "votes"}`,
+    totalParticipation: (count: number) =>
+      `${count} total ${count === 1 ? "vote" : "votes"}`,
     noVotes: "No votes yet. Share the link to start collecting responses.",
     anonymousMode: "Anonymous voting",
     namedMode: "Names required",
     loginMode: "Login required",
     votersForOption: "Voters",
+    todayRound: (date: string) => `Today’s round · ${date}`,
+    dailyVoting: "Daily Telegram vote",
+    telegramGroup: "Telegram group",
+    dailyScheduleActive: (group: string, time: string, timeZone: string) =>
+      `Sent to ${group} every day at ${time} (${timeZone}). Votes start fresh each day while history is kept.`,
+    dailyScheduleHelp:
+      "Add the bot as an admin in your Telegram group, then send this command in that group to choose this poll and start daily delivery.",
+    currentDecision: "Current decision",
+    noDecisionYet: "Waiting for today’s first vote.",
+    currentLeader: (label: string, votes: number, percentage: number) =>
+      `“${label}” leads with ${votes} ${votes === 1 ? "vote" : "votes"} (${percentage}%).`,
+    currentTie: (labels: string, votes: number) =>
+      `Tie between ${labels} at ${votes} ${votes === 1 ? "vote" : "votes"} each.`,
+    leading: "Leading",
+    tied: "Tied",
+    voteHistory: "Daily history",
+    historySummary: (days: number, votes: number) =>
+      `${days} ${days === 1 ? "day" : "days"} tracked · ${votes} total ${votes === 1 ? "vote" : "votes"}`,
+    mostSelected: "Top place across days",
+    daysLed: (days: number) => `Won on ${days} ${days === 1 ? "day" : "days"}`,
     resetVotes: "Reset votes",
     resettingVotes: "Resetting…",
     resetVotesDialogTitle: "Reset all votes?",
@@ -296,7 +325,8 @@ const KM = {
       "បញ្ចូលព័ត៌មាន និងរូបថតមួយចំនួន។ ChlatWork នឹងបង្កើតជាទំព័រអបអរដ៏ស្រស់ស្អាត និងមានអន្តរកម្ម ដោយមិនចាំបាច់រៀបចំទំព័រដោយខ្លួនឯង។",
     progressLabel: "ដំណើរការបង្កើត Moment",
     steps: ["មនុស្សពិសេស", "រូបថត", "រឿងរ៉ាវ", "មើលមុន"],
-    stepLabel: (step: number, total = 4) => `ជំហានទី ${step} ក្នុងចំណោម ${total}`,
+    stepLabel: (step: number, total = 4) =>
+      `ជំហានទី ${step} ក្នុងចំណោម ${total}`,
     defaultName: "មនុស្សពិសេស",
     defaultMessage:
       "អ្នកធ្វើឱ្យថ្ងៃធម្មតាៗក្លាយជាថ្ងៃពិសេស។ សង្ឃឹមថាទំព័រតូចមួយនេះ នឹងរំលឹកអ្នកថា អ្នកត្រូវបានគេស្រឡាញ់ និងឱ្យតម្លៃខ្លាំងប៉ុណ្ណា។",
@@ -358,7 +388,8 @@ const KM = {
     dressCode: "ការស្លៀកពាក់",
     dressCodePlaceholder: "Smart casual · ពណ៌ផ្កាឈូក ក្រែម ឬស",
     eventSchedule: "កាលវិភាគកម្មវិធី",
-    schedulePlaceholder: "5:30 PM — ភ្ញៀវមកដល់\n6:00 PM — អាហារពេលល្ងាច\n7:30 PM — កាត់នំ និងថតរូប",
+    schedulePlaceholder:
+      "5:30 PM — ភ្ញៀវមកដល់\n6:00 PM — អាហារពេលល្ងាច\n7:30 PM — កាត់នំ និងថតរូប",
     previewTitle: "ជ្រើសរើសរចនាប័ទ្ម រួចមើលជាមុន",
     themeLabel: "រចនាប័ទ្ម",
     themeCount: "រចនាប័ទ្មខុសគ្នា ៨",
@@ -415,8 +446,10 @@ const KM = {
         "រូបថតនេះនៅតែធំជាង 10MB បន្ទាប់ពីបង្រួម។ សូមសាកល្បងរូបថតតូចជាងនេះ។",
       photoOpen: "មិនអាចបើករូបថតនេះបានទេ។",
       photoCompress: "មិនអាចបង្រួមរូបថតនេះបានទេ។",
-      photoHeic: "មិនអាចបម្លែងរូបថត iPhone នេះបានទេ។ សូមសាកល្បងចែករំលែកជា JPEG។",
-      photoWebp: "Browser នេះមិនអាចបង្កើតរូបថត WebP បានទេ។ សូម update browser ហើយព្យាយាមម្តងទៀត។",
+      photoHeic:
+        "មិនអាចបម្លែងរូបថត iPhone នេះបានទេ។ សូមសាកល្បងចែករំលែកជា JPEG។",
+      photoWebp:
+        "Browser នេះមិនអាចបង្កើតរូបថត WebP បានទេ។ សូម update browser ហើយព្យាយាមម្តងទៀត។",
       copyFailed: "មិនអាចចម្លងតំណបានទេ។ សូមជ្រើសរើស និងចម្លងដោយផ្ទាល់។",
       publishFailed: "មិនអាចបោះពុម្ព Moment បានទេ។ សូមព្យាយាមម្តងទៀត។",
     },
@@ -510,7 +543,8 @@ const KM = {
     declined: (count: number) => `${count} នាក់មិនចូលរួម`,
     expectedGuests: (count: number) => `ភ្ញៀវរំពឹងទុក ${count} នាក់`,
     guestList: "បញ្ជីភ្ញៀវផ្ទាល់ខ្លួន",
-    guestListHelp: "បិទភ្ជាប់ឈ្មោះមនុស្ស គូស្វាមីភរិយា គ្រួសារ ឬក្រុម មួយក្នុងមួយបន្ទាត់។ ពួកគេនឹងទទួលបានតំណអញ្ជើញផ្ទាល់ខ្លួន។",
+    guestListHelp:
+      "បិទភ្ជាប់ឈ្មោះមនុស្ស គូស្វាមីភរិយា គ្រួសារ ឬក្រុម មួយក្នុងមួយបន្ទាត់។ ពួកគេនឹងទទួលបានតំណអញ្ជើញផ្ទាល់ខ្លួន។",
     pasteGuests: "បិទភ្ជាប់ឈ្មោះភ្ញៀវ មួយក្នុងមួយបន្ទាត់",
     recipientType: "ប្រភេទលិខិតអញ្ជើញ",
     individual: "បុគ្គល",
@@ -529,8 +563,10 @@ const KM = {
     sent: "បានផ្ញើ",
     waitingResponse: "កំពុងរង់ចាំ",
     guestsAdded: (count: number) => `បានបង្កើតលិខិតអញ្ជើញផ្ទាល់ខ្លួន ${count}។`,
-    guestAddError: "មិនអាចបង្កើតលិខិតអញ្ជើញសម្រាប់ភ្ញៀវបានទេ។ សូមព្យាយាមម្តងទៀត។",
-    invitationShareText: (name: string, title: string, url: string) => `សូមគោរពអញ្ជើញ ${name}\n\nចូលរួម ${title}\n\nសូមបើកលិខិតអញ្ជើញផ្ទាល់ខ្លួន និងបញ្ជាក់ការចូលរួមតាមតំណ៖\n${url}`,
+    guestAddError:
+      "មិនអាចបង្កើតលិខិតអញ្ជើញសម្រាប់ភ្ញៀវបានទេ។ សូមព្យាយាមម្តងទៀត។",
+    invitationShareText: (name: string, title: string, url: string) =>
+      `សូមគោរពអញ្ជើញ ${name}\n\nចូលរួម ${title}\n\nសូមបើកលិខិតអញ្ជើញផ្ទាល់ខ្លួន និងបញ្ជាក់ការចូលរួមតាមតំណ៖\n${url}`,
     votingDetails: "ព័ត៌មានលម្អិតនៃការបោះឆ្នោត",
     totalParticipation: (count: number) => `សរុប ${count} សំឡេង`,
     noVotes: "មិនទាន់មានអ្នកបោះឆ្នោតទេ។ សូមចែករំលែកតំណដើម្បីប្រមូលចម្លើយ។",
@@ -538,6 +574,26 @@ const KM = {
     namedMode: "តម្រូវឱ្យបញ្ចូលឈ្មោះ",
     loginMode: "តម្រូវឱ្យចូលគណនី",
     votersForOption: "អ្នកបានបោះឆ្នោត",
+    todayRound: (date: string) => `ការបោះឆ្នោតថ្ងៃនេះ · ${date}`,
+    dailyVoting: "ការបោះឆ្នោតប្រចាំថ្ងៃក្នុង Telegram",
+    telegramGroup: "ក្រុម Telegram",
+    dailyScheduleActive: (group: string, time: string, timeZone: string) =>
+      `ផ្ញើទៅ ${group} រៀងរាល់ថ្ងៃម៉ោង ${time} (${timeZone})។ សំឡេងចាប់ផ្តើមថ្មីរាល់ថ្ងៃ ហើយប្រវត្តិនៅតែរក្សាទុក។`,
+    dailyScheduleHelp:
+      "បន្ថែម bot ជា admin ក្នុងក្រុម Telegram របស់អ្នក រួចផ្ញើ command នេះក្នុងក្រុម ដើម្បីជ្រើស poll និងចាប់ផ្តើមផ្ញើប្រចាំថ្ងៃ។",
+    currentDecision: "លទ្ធផលបច្ចុប្បន្ន",
+    noDecisionYet: "កំពុងរង់ចាំសំឡេងដំបូងសម្រាប់ថ្ងៃនេះ។",
+    currentLeader: (label: string, votes: number, percentage: number) =>
+      `“${label}” កំពុងនាំមុខដោយ ${votes} សំឡេង (${percentage}%)។`,
+    currentTie: (labels: string, votes: number) =>
+      `សំឡេងស្មើគ្នារវាង ${labels} ដោយទទួលបាន ${votes} សំឡេងដូចគ្នា។`,
+    leading: "កំពុងនាំមុខ",
+    tied: "ស្មើគ្នា",
+    voteHistory: "ប្រវត្តិប្រចាំថ្ងៃ",
+    historySummary: (days: number, votes: number) =>
+      `បានតាមដាន ${days} ថ្ងៃ · សរុប ${votes} សំឡេង`,
+    mostSelected: "ទីកន្លែងដែលឈ្នះញឹកញាប់បំផុត",
+    daysLed: (days: number) => `ឈ្នះ ${days} ថ្ងៃ`,
     resetVotes: "កំណត់សំឡេងឡើងវិញ",
     resettingVotes: "កំពុងកំណត់ឡើងវិញ…",
     resetVotesDialogTitle: "កំណត់សំឡេងទាំងអស់ឡើងវិញមែនទេ?",
@@ -603,7 +659,10 @@ const KHMER_OCCASIONS: Record<
   },
   HOLIDAY: { label: "ថ្ងៃឈប់សម្រាក", title: (name) => `🎄 សូមជូនពរ ${name}!` },
   FAREWELL: { label: "លាគ្នា", title: (name) => `👋 សម្រាប់ ${name}` },
-  SURPRISE: { label: "កាដូភ្ញាក់ផ្អើល", title: (name) => `🎁 កាដូភ្ញាក់ផ្អើលសម្រាប់ ${name}!` },
+  SURPRISE: {
+    label: "កាដូភ្ញាក់ផ្អើល",
+    title: (name) => `🎁 កាដូភ្ញាក់ផ្អើលសម្រាប់ ${name}!`,
+  },
   INVITATION: { label: "ការអញ្ជើញ", title: (name) => `💌 ${name}` },
   VOTING: { label: "បោះឆ្នោតជាមួយគ្នា", title: (name) => `🗳️ ${name}` },
   OTHER: { label: "ឱកាសផ្សេងទៀត", title: (name) => `✨ សម្រាប់ ${name}` },
@@ -666,7 +725,10 @@ export function getMomentThemeCopy(theme: MomentTheme, locale: MomentLocale) {
   return locale === "km" ? KHMER_THEMES[theme] : null;
 }
 
-export function getMomentCategoryLabel(category: MomentCategory, locale: MomentLocale) {
+export function getMomentCategoryLabel(
+  category: MomentCategory,
+  locale: MomentLocale,
+) {
   return locale === "km" ? KHMER_CATEGORIES[category] : null;
 }
 
@@ -685,42 +747,157 @@ export function getMomentDefaultStory(
 ) {
   const name = recipientName.trim() || (locale === "km" ? "អ្នក" : "you");
   if (locale === "km") {
-    const stories: Record<MomentOccasion, { message: string; secret: string }> = {
-      BIRTHDAY: { message: `រីករាយថ្ងៃកំណើត ${name}! សូមឱ្យថ្ងៃពិសេសនេះពោរពេញដោយស្នាមញញឹម ក្តីស្រឡាញ់ និងអនុស្សាវរីយ៍ល្អៗ។`, secret: "សូមឱ្យឆ្នាំថ្មីនៃជីវិតនេះ នាំមកនូវសុភមង្គល និងរឿងអស្ចារ្យជាច្រើន។ 🎂" },
-      ANNIVERSARY: { message: `${name} អរគុណសម្រាប់គ្រប់ពេលវេលា និងអនុស្សាវរីយ៍ដ៏មានតម្លៃដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ខ្ញុំរង់ចាំបង្កើតអនុស្សាវរីយ៍ជាច្រើនទៀតជាមួយអ្នក។ ❤️" },
-      LOVE: { message: `${name} អ្នកធ្វើឱ្យថ្ងៃធម្មតាៗក្លាយជាថ្ងៃពិសេស ហើយខ្ញុំចង់ឱ្យអ្នកដឹងថា អ្នកមានតម្លៃខ្លាំងប៉ុណ្ណា។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកដ៏ស្រស់ស្អាតមួយនៃជីវិតរបស់ខ្ញុំ។ ❤️" },
-      FRIENDSHIP: { message: `${name} អរគុណសម្រាប់ការគាំទ្រ សំណើច និងអនុស្សាវរីយ៍ល្អៗទាំងអស់។ មិត្តភាពរបស់យើងមានតម្លៃខ្លាំងណាស់។`, secret: "សូមឱ្យយើងនៅតែជាមិត្តល្អ និងបង្កើតរឿងសប្បាយៗជាមួយគ្នាបន្តទៀត។ 👯" },
-      GRADUATION: { message: `អបអរសាទរ ${name}! ការខិតខំប្រឹងប្រែងរបស់អ្នកបាននាំមកដល់ថ្ងៃដ៏មោទនភាពនេះ។`, secret: "នេះគ្រាន់តែជាការចាប់ផ្តើមប៉ុណ្ណោះ។ អនាគតដ៏អស្ចារ្យកំពុងរង់ចាំអ្នក។ 🎓" },
-      WEDDING: { message: `សូមអបអរសាទរ ${name} ក្នុងថ្ងៃដ៏មានអត្ថន័យនេះ។ សូមឱ្យជីវិតគូពោរពេញដោយក្តីស្រឡាញ់ និងសុភមង្គល។`, secret: "សូមឱ្យដំណើរថ្មីនេះពោរពេញដោយការយល់ចិត្ត សំណើច និងក្តីស្រឡាញ់ជារៀងរហូត។ 💍" },
-      BABY: { message: `សូមស្វាគមន៍ ${name}! អ្នកបាននាំមកនូវក្តីស្រឡាញ់ និងសុភមង្គលដ៏ធំធេងដល់គ្រួសារ។`, secret: "សូមឱ្យកូនតូចលូតលាស់ដោយសុខភាពល្អ និងពោរពេញដោយក្តីស្រឡាញ់។ 👶" },
-      MOTHERS_DAY: { message: `រីករាយទិវាមាតា ${name}! អរគុណសម្រាប់ក្តីស្រឡាញ់ ការលះបង់ និងភាពកក់ក្តៅដែលម៉ាក់ផ្តល់ឱ្យជានិច្ច។`, secret: "ម៉ាក់គឺជាមនុស្សដ៏ពិសេស និងជាកម្លាំងចិត្តដ៏ធំបំផុតរបស់ខ្ញុំ។ 🌷" },
-      FATHERS_DAY: { message: `រីករាយទិវាបិតា ${name}! អរគុណសម្រាប់ការណែនាំ ការការពារ និងការគាំទ្រដែលប៉ាផ្តល់ឱ្យជានិច្ច។`, secret: "ប៉ាគឺជាគំរូ និងជាកម្លាំងចិត្តដ៏សំខាន់របស់ខ្ញុំ។ 💙" },
-      HOLIDAY: { message: `${name} សូមជូនពរឱ្យរដូវកាលនេះពោរពេញដោយភាពកក់ក្តៅ សុភមង្គល និងពេលវេលាល្អៗជាមួយមនុស្សជាទីស្រឡាញ់។`, secret: "សូមឱ្យថ្ងៃឈប់សម្រាកនេះនាំមកនូវសន្តិភាព និងការចាប់ផ្តើមដ៏ស្រស់ស្អាត។ 🎄" },
-      FAREWELL: { message: `${name} អរគុណសម្រាប់ពេលវេលា ការចងចាំ និងអ្វីៗល្អៗដែលយើងបានចែករំលែកជាមួយគ្នា។`, secret: "ទោះបីយើងត្រូវបែកគ្នាក៏ដោយ អនុស្សាវរីយ៍ល្អៗនឹងនៅជាមួយយើងជានិច្ច។ 👋" },
-      SURPRISE: { message: `${name} មានកាដូតូចមួយ និងក្តីស្រឡាញ់ជាច្រើនកំពុងរង់ចាំអ្នកនៅទីនេះ។`, secret: "Surprise! កាដូនេះត្រូវបានជ្រើសរើសជាពិសេសសម្រាប់អ្នក។ សូមបើកវាដោយស្នាមញញឹម។ 🎁" },
-      INVITATION: { message: "យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញលោកអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់លោកអ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។", secret: "យើងខ្ញុំរង់ចាំស្វាគមន៍លោកអ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌" },
-      VOTING: { message: "ជួយបោះឆ្នោត ដើម្បីឱ្យយើងអាចសម្រេចជាមួយគ្នាបានលឿន និងងាយស្រួល។", secret: "អរគុណដែលបានជួយជ្រើសរើស។ សំឡេងរបស់អ្នកមានន័យសម្រាប់ការសម្រេចចិត្តនេះ។ 🗳️" },
-      OTHER: { message: `${name} ទំព័រតូចមួយនេះត្រូវបានបង្កើតឡើងជាពិសេសសម្រាប់អ្នក និងពេលវេលាដ៏មានអត្ថន័យនេះ។`, secret: "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃពេលវេលាពិសេសនេះ។ ✨" },
-    };
+    const stories: Record<MomentOccasion, { message: string; secret: string }> =
+      {
+        BIRTHDAY: {
+          message: `រីករាយថ្ងៃកំណើត ${name}! សូមឱ្យថ្ងៃពិសេសនេះពោរពេញដោយស្នាមញញឹម ក្តីស្រឡាញ់ និងអនុស្សាវរីយ៍ល្អៗ។`,
+          secret:
+            "សូមឱ្យឆ្នាំថ្មីនៃជីវិតនេះ នាំមកនូវសុភមង្គល និងរឿងអស្ចារ្យជាច្រើន។ 🎂",
+        },
+        ANNIVERSARY: {
+          message: `${name} អរគុណសម្រាប់គ្រប់ពេលវេលា និងអនុស្សាវរីយ៍ដ៏មានតម្លៃដែលយើងបានចែករំលែកជាមួយគ្នា។`,
+          secret: "ខ្ញុំរង់ចាំបង្កើតអនុស្សាវរីយ៍ជាច្រើនទៀតជាមួយអ្នក។ ❤️",
+        },
+        LOVE: {
+          message: `${name} អ្នកធ្វើឱ្យថ្ងៃធម្មតាៗក្លាយជាថ្ងៃពិសេស ហើយខ្ញុំចង់ឱ្យអ្នកដឹងថា អ្នកមានតម្លៃខ្លាំងប៉ុណ្ណា។`,
+          secret: "អរគុណដែលបានក្លាយជាផ្នែកដ៏ស្រស់ស្អាតមួយនៃជីវិតរបស់ខ្ញុំ។ ❤️",
+        },
+        FRIENDSHIP: {
+          message: `${name} អរគុណសម្រាប់ការគាំទ្រ សំណើច និងអនុស្សាវរីយ៍ល្អៗទាំងអស់។ មិត្តភាពរបស់យើងមានតម្លៃខ្លាំងណាស់។`,
+          secret:
+            "សូមឱ្យយើងនៅតែជាមិត្តល្អ និងបង្កើតរឿងសប្បាយៗជាមួយគ្នាបន្តទៀត។ 👯",
+        },
+        GRADUATION: {
+          message: `អបអរសាទរ ${name}! ការខិតខំប្រឹងប្រែងរបស់អ្នកបាននាំមកដល់ថ្ងៃដ៏មោទនភាពនេះ។`,
+          secret:
+            "នេះគ្រាន់តែជាការចាប់ផ្តើមប៉ុណ្ណោះ។ អនាគតដ៏អស្ចារ្យកំពុងរង់ចាំអ្នក។ 🎓",
+        },
+        WEDDING: {
+          message: `សូមអបអរសាទរ ${name} ក្នុងថ្ងៃដ៏មានអត្ថន័យនេះ។ សូមឱ្យជីវិតគូពោរពេញដោយក្តីស្រឡាញ់ និងសុភមង្គល។`,
+          secret:
+            "សូមឱ្យដំណើរថ្មីនេះពោរពេញដោយការយល់ចិត្ត សំណើច និងក្តីស្រឡាញ់ជារៀងរហូត។ 💍",
+        },
+        BABY: {
+          message: `សូមស្វាគមន៍ ${name}! អ្នកបាននាំមកនូវក្តីស្រឡាញ់ និងសុភមង្គលដ៏ធំធេងដល់គ្រួសារ។`,
+          secret: "សូមឱ្យកូនតូចលូតលាស់ដោយសុខភាពល្អ និងពោរពេញដោយក្តីស្រឡាញ់។ 👶",
+        },
+        MOTHERS_DAY: {
+          message: `រីករាយទិវាមាតា ${name}! អរគុណសម្រាប់ក្តីស្រឡាញ់ ការលះបង់ និងភាពកក់ក្តៅដែលម៉ាក់ផ្តល់ឱ្យជានិច្ច។`,
+          secret:
+            "ម៉ាក់គឺជាមនុស្សដ៏ពិសេស និងជាកម្លាំងចិត្តដ៏ធំបំផុតរបស់ខ្ញុំ។ 🌷",
+        },
+        FATHERS_DAY: {
+          message: `រីករាយទិវាបិតា ${name}! អរគុណសម្រាប់ការណែនាំ ការការពារ និងការគាំទ្រដែលប៉ាផ្តល់ឱ្យជានិច្ច។`,
+          secret: "ប៉ាគឺជាគំរូ និងជាកម្លាំងចិត្តដ៏សំខាន់របស់ខ្ញុំ។ 💙",
+        },
+        HOLIDAY: {
+          message: `${name} សូមជូនពរឱ្យរដូវកាលនេះពោរពេញដោយភាពកក់ក្តៅ សុភមង្គល និងពេលវេលាល្អៗជាមួយមនុស្សជាទីស្រឡាញ់។`,
+          secret:
+            "សូមឱ្យថ្ងៃឈប់សម្រាកនេះនាំមកនូវសន្តិភាព និងការចាប់ផ្តើមដ៏ស្រស់ស្អាត។ 🎄",
+        },
+        FAREWELL: {
+          message: `${name} អរគុណសម្រាប់ពេលវេលា ការចងចាំ និងអ្វីៗល្អៗដែលយើងបានចែករំលែកជាមួយគ្នា។`,
+          secret:
+            "ទោះបីយើងត្រូវបែកគ្នាក៏ដោយ អនុស្សាវរីយ៍ល្អៗនឹងនៅជាមួយយើងជានិច្ច។ 👋",
+        },
+        SURPRISE: {
+          message: `${name} មានកាដូតូចមួយ និងក្តីស្រឡាញ់ជាច្រើនកំពុងរង់ចាំអ្នកនៅទីនេះ។`,
+          secret:
+            "Surprise! កាដូនេះត្រូវបានជ្រើសរើសជាពិសេសសម្រាប់អ្នក។ សូមបើកវាដោយស្នាមញញឹម។ 🎁",
+        },
+        INVITATION: {
+          message:
+            "យើងខ្ញុំមានសេចក្តីរីករាយ សូមអញ្ជើញលោកអ្នកមកចូលរួមកម្មវិធីពិសេសនេះ។ វត្តមានរបស់លោកអ្នកនឹងធ្វើឱ្យថ្ងៃនេះកាន់តែមានអត្ថន័យ។",
+          secret:
+            "យើងខ្ញុំរង់ចាំស្វាគមន៍លោកអ្នក និងចែករំលែកពេលវេលាដ៏រីករាយជាមួយគ្នា។ សូមកុំភ្លេចឆ្លើយតប RSVP។ 💌",
+        },
+        VOTING: {
+          message:
+            "ជួយបោះឆ្នោត ដើម្បីឱ្យយើងអាចសម្រេចជាមួយគ្នាបានលឿន និងងាយស្រួល។",
+          secret:
+            "អរគុណដែលបានជួយជ្រើសរើស។ សំឡេងរបស់អ្នកមានន័យសម្រាប់ការសម្រេចចិត្តនេះ។ 🗳️",
+        },
+        OTHER: {
+          message: `${name} ទំព័រតូចមួយនេះត្រូវបានបង្កើតឡើងជាពិសេសសម្រាប់អ្នក និងពេលវេលាដ៏មានអត្ថន័យនេះ។`,
+          secret: "អរគុណដែលបានក្លាយជាផ្នែកមួយនៃពេលវេលាពិសេសនេះ។ ✨",
+        },
+      };
     return stories[occasion];
   }
 
   const stories: Record<MomentOccasion, { message: string; secret: string }> = {
-    BIRTHDAY: { message: `Happy birthday, ${name}! May your special day be filled with smiles, love, and wonderful memories.`, secret: "May this new year of your life bring happiness, growth, and many beautiful surprises. 🎂" },
-    ANNIVERSARY: { message: `${name}, thank you for every beautiful moment and memory we have shared together.`, secret: "I cannot wait to make many more memories with you. ❤️" },
-    LOVE: { message: `${name}, you make ordinary days feel special, and I want you to know how deeply appreciated you are.`, secret: "Thank you for being such a beautiful part of my life. ❤️" },
-    FRIENDSHIP: { message: `${name}, thank you for the support, laughter, and unforgettable memories. Our friendship means so much to me.`, secret: "Here’s to more adventures, inside jokes, and great memories together. 👯" },
-    GRADUATION: { message: `Congratulations, ${name}! Your hard work brought you to this proud and well-deserved moment.`, secret: "This is only the beginning. An exciting future is waiting for you. 🎓" },
-    WEDDING: { message: `Congratulations, ${name}, on this meaningful day. May married life bring endless love, laughter, and happiness.`, secret: "May this new journey be filled with understanding, joy, and a lifetime of love. 💍" },
-    BABY: { message: `Welcome, ${name}! You have already brought so much happiness and love into the family.`, secret: "May this little one grow surrounded by good health, kindness, and endless love. 👶" },
-    MOTHERS_DAY: { message: `Happy Mother’s Day, ${name}! Thank you for your endless love, strength, and warmth.`, secret: "You are deeply loved and appreciated, today and every day. 🌷" },
-    FATHERS_DAY: { message: `Happy Father’s Day, ${name}! Thank you for your guidance, protection, and constant support.`, secret: "You are an incredible role model and a source of strength every day. 💙" },
-    HOLIDAY: { message: `${name}, may this season bring warmth, happiness, and meaningful time with the people you love.`, secret: "Wishing you peace, joy, and a beautiful new beginning. 🎄" },
-    FAREWELL: { message: `${name}, thank you for the time, memories, and wonderful experiences we have shared.`, secret: "Distance may change where we are, but the best memories will always stay with us. 👋" },
-    SURPRISE: { message: `${name}, a little gift and a lot of love are waiting for you here.`, secret: "Surprise! This gift was chosen especially for you. Open it with a smile. 🎁" },
-    INVITATION: { message: "We would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.", secret: "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌" },
-    VOTING: { message: "Cast your vote so we can make this decision together quickly and easily.", secret: "Thanks for helping us choose. Your vote matters in this decision. 🗳️" },
-    OTHER: { message: `${name}, this little page was made especially for you and this meaningful moment.`, secret: "Thank you for being part of this special occasion. ✨" },
+    BIRTHDAY: {
+      message: `Happy birthday, ${name}! May your special day be filled with smiles, love, and wonderful memories.`,
+      secret:
+        "May this new year of your life bring happiness, growth, and many beautiful surprises. 🎂",
+    },
+    ANNIVERSARY: {
+      message: `${name}, thank you for every beautiful moment and memory we have shared together.`,
+      secret: "I cannot wait to make many more memories with you. ❤️",
+    },
+    LOVE: {
+      message: `${name}, you make ordinary days feel special, and I want you to know how deeply appreciated you are.`,
+      secret: "Thank you for being such a beautiful part of my life. ❤️",
+    },
+    FRIENDSHIP: {
+      message: `${name}, thank you for the support, laughter, and unforgettable memories. Our friendship means so much to me.`,
+      secret:
+        "Here’s to more adventures, inside jokes, and great memories together. 👯",
+    },
+    GRADUATION: {
+      message: `Congratulations, ${name}! Your hard work brought you to this proud and well-deserved moment.`,
+      secret:
+        "This is only the beginning. An exciting future is waiting for you. 🎓",
+    },
+    WEDDING: {
+      message: `Congratulations, ${name}, on this meaningful day. May married life bring endless love, laughter, and happiness.`,
+      secret:
+        "May this new journey be filled with understanding, joy, and a lifetime of love. 💍",
+    },
+    BABY: {
+      message: `Welcome, ${name}! You have already brought so much happiness and love into the family.`,
+      secret:
+        "May this little one grow surrounded by good health, kindness, and endless love. 👶",
+    },
+    MOTHERS_DAY: {
+      message: `Happy Mother’s Day, ${name}! Thank you for your endless love, strength, and warmth.`,
+      secret: "You are deeply loved and appreciated, today and every day. 🌷",
+    },
+    FATHERS_DAY: {
+      message: `Happy Father’s Day, ${name}! Thank you for your guidance, protection, and constant support.`,
+      secret:
+        "You are an incredible role model and a source of strength every day. 💙",
+    },
+    HOLIDAY: {
+      message: `${name}, may this season bring warmth, happiness, and meaningful time with the people you love.`,
+      secret: "Wishing you peace, joy, and a beautiful new beginning. 🎄",
+    },
+    FAREWELL: {
+      message: `${name}, thank you for the time, memories, and wonderful experiences we have shared.`,
+      secret:
+        "Distance may change where we are, but the best memories will always stay with us. 👋",
+    },
+    SURPRISE: {
+      message: `${name}, a little gift and a lot of love are waiting for you here.`,
+      secret:
+        "Surprise! This gift was chosen especially for you. Open it with a smile. 🎁",
+    },
+    INVITATION: {
+      message:
+        "We would be delighted to have you join us for this special event. Your presence would make the day even more meaningful.",
+      secret:
+        "We look forward to welcoming you and celebrating together. Please remember to send your RSVP. 💌",
+    },
+    VOTING: {
+      message:
+        "Cast your vote so we can make this decision together quickly and easily.",
+      secret:
+        "Thanks for helping us choose. Your vote matters in this decision. 🗳️",
+    },
+    OTHER: {
+      message: `${name}, this little page was made especially for you and this meaningful moment.`,
+      secret: "Thank you for being part of this special occasion. ✨",
+    },
   };
   return stories[occasion];
 }

@@ -101,7 +101,10 @@ export class TelegramBotService {
       throw new BadRequestException('Telegram update is invalid');
     }
     const update = value as Partial<TelegramUpdate>;
-    if (!Number.isSafeInteger(update.update_id) || (update.update_id ?? -1) < 0) {
+    if (
+      !Number.isSafeInteger(update.update_id) ||
+      (update.update_id ?? -1) < 0
+    ) {
       throw new BadRequestException('Telegram update is invalid');
     }
     return update as TelegramUpdate;
@@ -118,12 +121,19 @@ export class TelegramBotService {
   }
 
   private async handleMessage(message: TelegramMessage) {
-    if (!this.isPrivateMessage(message) || typeof message.text !== 'string')
+    if (typeof message.text !== 'string') return;
+
+    const command = this.readCommand(message.text);
+    if (this.isGroupMessage(message)) {
+      if (['dailyvote', 'votetime', 'stopdailyvote'].includes(command ?? '')) {
+        await this.handleGroupVoteCommand(message, command!);
+      }
       return;
+    }
+    if (!this.isPrivateMessage(message)) return;
 
     const telegramUserId = String(message.from.id);
     const linked = await this.findLinkedUser(telegramUserId);
-    const command = this.readCommand(message.text);
 
     if (command === 'start' || command === 'help') {
       await this.sendMenu(message.chat.id, Boolean(linked));
@@ -169,6 +179,10 @@ export class TelegramBotService {
       await this.handlePollVote(callback, data);
       return;
     }
+    if (data.startsWith('poll:daily:')) {
+      await this.handleDailyVoteSchedule(callback, data);
+      return;
+    }
 
     const message = callback.message;
     if (!message || !this.isPrivateCallback(callback, message)) return;
@@ -183,7 +197,6 @@ export class TelegramBotService {
       await this.sendConnectAccount(message.chat.id);
       return;
     }
-
     if (data === 'menu:add') {
       await this.bot.answerCallback(callback.id);
       await this.bot.sendMessage(
@@ -206,7 +219,10 @@ export class TelegramBotService {
 
     const [scope, action, pendingId] = data.split(':');
     if (scope !== 'expense' || !UUID_PATTERN.test(pendingId ?? '')) {
-      await this.bot.answerCallback(callback.id, 'This action is not available.');
+      await this.bot.answerCallback(
+        callback.id,
+        'This action is not available.',
+      );
       return;
     }
 
@@ -219,7 +235,10 @@ export class TelegramBotService {
     } else if (action === 'undo') {
       await this.undoExpense(callback, linked, pendingId);
     } else {
-      await this.bot.answerCallback(callback.id, 'This action is not available.');
+      await this.bot.answerCallback(
+        callback.id,
+        'This action is not available.',
+      );
     }
   }
 
@@ -280,7 +299,10 @@ export class TelegramBotService {
       !UUID_PATTERN.test(momentId ?? '') ||
       !POLL_OPTION_PATTERN.test(optionId ?? '')
     ) {
-      await this.bot.answerCallback(callback.id, 'This poll action is invalid.');
+      await this.bot.answerCallback(
+        callback.id,
+        'This poll action is invalid.',
+      );
       return;
     }
 
@@ -288,11 +310,15 @@ export class TelegramBotService {
     const linked = await this.findLinkedUser(telegramUserId);
     const displayName = this.telegramDisplayName(callback.from);
     try {
-      const poll = await this.moments.respondToTelegramVote(momentId, optionId, {
-        telegramUserId,
-        linkedUserId: linked?.user.id,
-        displayName,
-      });
+      const poll = await this.moments.respondToTelegramVote(
+        momentId,
+        optionId,
+        {
+          telegramUserId,
+          linkedUserId: linked?.user.id,
+          displayName,
+        },
+      );
       await this.bot.answerCallback(callback.id, 'Vote saved.');
       const keyboard = buildTelegramPollKeyboard(
         poll,
@@ -333,11 +359,186 @@ export class TelegramBotService {
     }
   }
 
+  private async handleGroupVoteCommand(
+    message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
+    command: string,
+  ) {
+    const linked = await this.findLinkedUser(String(message.from.id));
+    if (!linked) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Connect this Telegram account to ChlatWork before managing a daily vote.',
+      );
+      return;
+    }
+    if (
+      !(await this.bot.isChatAdministrator(message.chat.id, message.from.id))
+    ) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Only a group administrator can manage the daily vote.',
+      );
+      return;
+    }
+
+    if (command === 'dailyvote') {
+      const polls = await this.moments.listTelegramVotingMoments(
+        linked.user.id,
+      );
+      if (!polls.length) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'You do not have an open published Voting Moment yet.',
+        );
+        return;
+      }
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Choose the poll to send in this group every day:',
+        {
+          inline_keyboard: polls.map((poll) => [
+            {
+              text: `Schedule: ${this.truncateButtonText(poll.question)}`,
+              callback_data: `poll:daily:${poll.id}`,
+            },
+          ]),
+        },
+      );
+      return;
+    }
+
+    if (command === 'votetime') {
+      const match = /(?:^|\s)([01]\d|2[0-3]):([0-5]\d)(?:\s|$)/.exec(
+        message.text ?? '',
+      );
+      if (!match) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'Use /votetime HH:MM, for example /votetime 10:00.',
+        );
+        return;
+      }
+      try {
+        await this.moments.updateDailyTelegramVoteTime(
+          linked.user.id,
+          message.chat.id,
+          Number(match[1]),
+          Number(match[2]),
+        );
+        await this.bot.sendMessage(
+          message.chat.id,
+          `Daily poll time updated to ${match[1]}:${match[2]} (${linked.user.telegramNotificationTimeZone}).`,
+        );
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            'Set up a daily poll in this group with /dailyvote first.',
+          );
+          return;
+        }
+        throw error;
+      }
+      return;
+    }
+
+    try {
+      await this.moments.disableDailyTelegramVote(
+        linked.user.id,
+        message.chat.id,
+      );
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Daily poll delivery is stopped. Vote history is still available in Manage Moments.',
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'There is no daily poll owned by you in this group.',
+        );
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async handleDailyVoteSchedule(
+    callback: TelegramCallbackQuery,
+    data: string,
+  ) {
+    const match = /^poll:daily:([0-9a-f-]+)$/i.exec(data);
+    const message = callback.message;
+    if (
+      !match ||
+      !UUID_PATTERN.test(match[1]) ||
+      !message ||
+      !this.isGroupCallback(callback, message)
+    ) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This schedule action is invalid.',
+      );
+      return;
+    }
+    const linked = await this.findLinkedUser(String(callback.from.id));
+    if (!linked) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Connect your ChlatWork account first.',
+      );
+      return;
+    }
+    if (
+      !(await this.bot.isChatAdministrator(message.chat.id, callback.from.id))
+    ) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Only a group administrator can schedule this vote.',
+      );
+      return;
+    }
+
+    try {
+      const poll = await this.moments.configureDailyTelegramVote(
+        linked.user.id,
+        match[1],
+        message.chat.id,
+        message.chat.title,
+      );
+      await this.bot.answerCallback(callback.id, 'Daily vote scheduled.');
+      await this.bot.sendMessage(
+        message.chat.id,
+        `✅ Daily vote enabled at 10:00 (${linked.user.telegramNotificationTimeZone}).\n` +
+          'Use /votetime HH:MM to change it or /stopdailyvote to stop.',
+      );
+      await this.bot.sendMessage(
+        message.chat.id,
+        buildTelegramPollMessage(poll),
+        buildTelegramPollKeyboard(poll, this.appUrl(`/m/${poll.slug}`)),
+      );
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof GoneException ||
+        error instanceof BadRequestException
+      ) {
+        await this.bot.answerCallback(
+          callback.id,
+          'Only the poll owner can schedule this vote.',
+        );
+        return;
+      }
+      throw error;
+    }
+  }
+
   private async prepareExpense(
     message: TelegramMessage,
     linked: LinkedTelegramUser,
   ) {
-    const currency = linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+    const currency =
+      linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
     let parsed;
     try {
       parsed = parseTelegramExpense(message.text ?? '', currency);
@@ -478,10 +679,7 @@ export class TelegramBotService {
       return;
     }
     if (result.state === 'saved') {
-      await this.bot.answerCallback(
-        callback.id,
-        'Expense saved.',
-      );
+      await this.bot.answerCallback(callback.id, 'Expense saved.');
       await this.bot.editMessage(
         callbackMessage.chat.id,
         callbackMessage.message_id,
@@ -500,7 +698,8 @@ export class TelegramBotService {
       missing: 'Expense confirmation was not found.',
       unavailable: 'This expense is no longer pending.',
       expired: 'This confirmation expired. Send the expense again.',
-      'currency-changed': 'Your tracker currency changed. Send the expense again.',
+      'currency-changed':
+        'Your tracker currency changed. Send the expense again.',
     };
     await this.bot.answerCallback(callback.id, messages[result.state]);
   }
@@ -613,7 +812,10 @@ export class TelegramBotService {
       orderBy: { createdAt: 'desc' },
     });
     if (!pending) {
-      await this.bot.sendMessage(chatId, 'There is no pending expense to cancel.');
+      await this.bot.sendMessage(
+        chatId,
+        'There is no pending expense to cancel.',
+      );
       return;
     }
     const changed = await this.cancelPendingExpense(
@@ -658,7 +860,8 @@ export class TelegramBotService {
   }
 
   private async sendToday(chatId: number, linked: LinkedTelegramUser) {
-    const currency = linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
+    const currency =
+      linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
     const localDate = this.localDate(linked.user.telegramNotificationTimeZone);
     const expenses = await this.prisma.expenseEntry.findMany({
       where: {
@@ -741,10 +944,10 @@ export class TelegramBotService {
       chatId,
       linked
         ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
-          'or use /vote to share a published poll. Expenses are never saved ' +
-          'without your confirmation.'
+            'or use /vote to share a published poll. Expenses are never saved ' +
+            'without your confirmation.'
         : '👋 Welcome to ChlatWork. Open the Mini App and sign in with Telegram ' +
-          'before using private expense data.',
+            'before using private expense data.',
       linked ? this.mainMenuKeyboard() : this.connectKeyboard(),
     );
   }
@@ -847,39 +1050,80 @@ export class TelegramBotService {
   }
 
   private findLinkedUser(telegramUserId: string) {
-    return this.prisma.socialAccount.findUnique({
-      where: {
-        provider_providerUserId: {
-          provider: AuthProvider.TELEGRAM,
-          providerUserId: telegramUserId,
-        },
-      },
-      select: {
-        user: {
-          select: {
-            id: true,
-            isActive: true,
-            telegramNotificationTimeZone: true,
-            expenseProfile: { select: { currency: true } },
+    return this.prisma.socialAccount
+      .findUnique({
+        where: {
+          provider_providerUserId: {
+            provider: AuthProvider.TELEGRAM,
+            providerUserId: telegramUserId,
           },
         },
-      },
-    }).then((account) => (account?.user.isActive ? account : null));
+        select: {
+          user: {
+            select: {
+              id: true,
+              isActive: true,
+              telegramNotificationTimeZone: true,
+              expenseProfile: { select: { currency: true } },
+            },
+          },
+        },
+      })
+      .then((account) => (account?.user.isActive ? account : null));
   }
 
   private isPrivateMessage(
     message: TelegramMessage,
-  ): message is TelegramMessage & { from: NonNullable<TelegramMessage['from']> } {
+  ): message is TelegramMessage & {
+    from: NonNullable<TelegramMessage['from']>;
+  } {
     return Boolean(
       message.chat?.type === 'private' &&
-        Number.isSafeInteger(message.chat.id) &&
-        message.chat.id > 0 &&
-        message.from &&
-        !message.from.is_bot &&
-        Number.isSafeInteger(message.from.id) &&
-        message.from.id === message.chat.id &&
-        Number.isSafeInteger(message.message_id) &&
-        message.message_id >= 0,
+      Number.isSafeInteger(message.chat.id) &&
+      message.chat.id > 0 &&
+      message.from &&
+      !message.from.is_bot &&
+      Number.isSafeInteger(message.from.id) &&
+      message.from.id === message.chat.id &&
+      Number.isSafeInteger(message.message_id) &&
+      message.message_id >= 0,
+    );
+  }
+
+  private isGroupMessage(
+    message: TelegramMessage,
+  ): message is TelegramMessage & {
+    from: NonNullable<TelegramMessage['from']>;
+  } {
+    return Boolean(
+      ['group', 'supergroup'].includes(message.chat?.type) &&
+      Number.isSafeInteger(message.chat.id) &&
+      message.chat.id !== 0 &&
+      message.from &&
+      !message.from.is_bot &&
+      Number.isSafeInteger(message.from.id) &&
+      message.from.id > 0 &&
+      Number.isSafeInteger(message.message_id) &&
+      message.message_id >= 0,
+    );
+  }
+
+  private isGroupCallback(
+    callback: TelegramCallbackQuery,
+    message: TelegramMessage,
+  ) {
+    return Boolean(
+      ['group', 'supergroup'].includes(message.chat?.type) &&
+      Number.isSafeInteger(message.chat.id) &&
+      message.chat.id !== 0 &&
+      Number.isSafeInteger(message.message_id) &&
+      message.message_id >= 0 &&
+      Number.isSafeInteger(callback.from?.id) &&
+      callback.from.id > 0 &&
+      !callback.from.is_bot &&
+      typeof callback.id === 'string' &&
+      callback.id.length > 0 &&
+      callback.id.length <= 128,
     );
   }
 
@@ -889,29 +1133,29 @@ export class TelegramBotService {
   ) {
     return Boolean(
       message.chat?.type === 'private' &&
-        Number.isSafeInteger(message.chat.id) &&
-        message.chat.id > 0 &&
-        Number.isSafeInteger(message.message_id) &&
-        message.message_id >= 0 &&
-        Number.isSafeInteger(callback.from?.id) &&
-        callback.from.id === message.chat.id &&
-        !callback.from.is_bot &&
-        typeof callback.id === 'string' &&
-        callback.id.length > 0 &&
-        callback.id.length <= 128,
+      Number.isSafeInteger(message.chat.id) &&
+      message.chat.id > 0 &&
+      Number.isSafeInteger(message.message_id) &&
+      message.message_id >= 0 &&
+      Number.isSafeInteger(callback.from?.id) &&
+      callback.from.id === message.chat.id &&
+      !callback.from.is_bot &&
+      typeof callback.id === 'string' &&
+      callback.id.length > 0 &&
+      callback.id.length <= 128,
     );
   }
 
   private isValidInlineQuery(query: TelegramInlineQuery) {
     return Boolean(
       Number.isSafeInteger(query.from?.id) &&
-        query.from.id > 0 &&
-        !query.from.is_bot &&
-        typeof query.id === 'string' &&
-        query.id.length > 0 &&
-        query.id.length <= 128 &&
-        typeof query.query === 'string' &&
-        query.query.length <= 256,
+      query.from.id > 0 &&
+      !query.from.is_bot &&
+      typeof query.id === 'string' &&
+      query.id.length > 0 &&
+      query.id.length <= 128 &&
+      typeof query.query === 'string' &&
+      query.query.length <= 256,
     );
   }
 
@@ -923,19 +1167,19 @@ export class TelegramBotService {
     const message = callback.message;
     const hasChatMessage = Boolean(
       message &&
-        Number.isSafeInteger(message.chat?.id) &&
-        message.chat.id !== 0 &&
-        Number.isSafeInteger(message.message_id) &&
-        message.message_id >= 0,
+      Number.isSafeInteger(message.chat?.id) &&
+      message.chat.id !== 0 &&
+      Number.isSafeInteger(message.message_id) &&
+      message.message_id >= 0,
     );
     return Boolean(
       Number.isSafeInteger(callback.from?.id) &&
-        callback.from.id > 0 &&
-        !callback.from.is_bot &&
-        typeof callback.id === 'string' &&
-        callback.id.length > 0 &&
-        callback.id.length <= 128 &&
-        (hasInlineMessage || hasChatMessage),
+      callback.from.id > 0 &&
+      !callback.from.is_bot &&
+      typeof callback.id === 'string' &&
+      callback.id.length > 0 &&
+      callback.id.length <= 128 &&
+      (hasInlineMessage || hasChatMessage),
     );
   }
 

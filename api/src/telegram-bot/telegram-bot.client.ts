@@ -87,6 +87,14 @@ export class TelegramBotClient {
     }
   }
 
+  async isChatAdministrator(chatId: number, userId: number) {
+    const result = (await this.call('getChatMember', {
+      chat_id: chatId,
+      user_id: userId,
+    })) as { status?: string } | undefined;
+    return result?.status === 'creator' || result?.status === 'administrator';
+  }
+
   private async call(method: string, payload: Record<string, unknown>) {
     const token = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
     let response: Response;

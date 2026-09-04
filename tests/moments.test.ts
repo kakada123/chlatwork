@@ -48,10 +48,7 @@ test("Moment titles and dates are deterministic", () => {
     buildMomentTitle("Neth", "BIRTHDAY"),
     "🎂 Happy Birthday, Neth!",
   );
-  assert.equal(
-    buildMomentTitle("Neth", "SURPRISE"),
-    "🎁 A surprise for Neth!",
-  );
+  assert.equal(buildMomentTitle("Neth", "SURPRISE"), "🎁 A surprise for Neth!");
   assert.equal(isValidMomentDate("2026-02-29"), false);
   assert.equal(isValidMomentDate("2024-02-29"), true);
   assert.deepEqual(getMomentCounterCopy("2025-05-22", new Date(2025, 4, 24)), {
@@ -102,7 +99,10 @@ test("occasion and category change the receiver experience, not only its colors"
   assert.match(experience, /occasionClass/);
   assert.match(experience, /categoryClass/);
   assert.match(experience, /class="occasion-atmosphere"/);
-  assert.match(experience, /moment-occasion-birthday \.occasion-atmosphere span::before/);
+  assert.match(
+    experience,
+    /moment-occasion-birthday \.occasion-atmosphere span::before/,
+  );
   assert.match(experience, /content: "🎈"/);
   assert.match(experience, /@keyframes occasion-confetti-fall/);
   assert.match(experience, /moment-occasion-invitation \.event-section/);
@@ -245,7 +245,9 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
     "api/src/moments/moments.controller.ts",
   );
   const voteProxy = readProjectFile("server/api/moments/[id]/vote.post.ts");
-  const resetVoteProxy = readProjectFile("server/api/moments/[id]/votes.delete.ts");
+  const resetVoteProxy = readProjectFile(
+    "server/api/moments/[id]/votes.delete.ts",
+  );
   const voteResults = readProjectFile(
     "app/components/moments/MomentVotingResults.vue",
   );
@@ -269,6 +271,36 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(managerPage, /@reset="requestVoteReset"/);
   assert.match(managerPage, /@confirm="resetVotes"/);
   assert.match(voteResults, /managerCopy\.resetVotes/);
+});
+
+test("daily Telegram voting keeps per-day history and owner insights", () => {
+  const schema = readProjectFile("api/prisma/schema.prisma");
+  const migration = readProjectFile(
+    "database/updates/2026-09-04-add-daily-moment-voting.sql",
+  );
+  const service = readProjectFile("api/src/moments/moments.service.ts");
+  const scheduler = readProjectFile(
+    "api/src/telegram-bot/daily-moment-vote.scheduler.ts",
+  );
+  const telegramBot = readProjectFile(
+    "api/src/telegram-bot/telegram-bot.service.ts",
+  );
+  const results = readProjectFile(
+    "app/components/moments/MomentVotingResults.vue",
+  );
+
+  assert.match(schema, /model MomentVoteSchedule/);
+  assert.match(schema, /@@unique\(\[momentId, responseKey, voteDate\]\)/);
+  assert.match(migration, /CREATE TABLE IF NOT EXISTS "moment_vote_schedules"/);
+  assert.match(service, /getActiveVoteDate/);
+  assert.match(service, /getPollInsights/);
+  assert.match(service, /Daily history stays intact/);
+  assert.match(scheduler, /FOR UPDATE OF schedule SKIP LOCKED/);
+  assert.match(telegramBot, /'dailyvote', 'votetime', 'stopdailyvote'/);
+  assert.match(telegramBot, /configureDailyTelegramVote/);
+  assert.match(results, /managerCopy\.mostSelected/);
+  assert.match(results, /result\.voters\.join/);
+  assert.match(results, /insights\.recentDays/);
 });
 
 test("published Moment surfaces are unlisted and validate image content", () => {
@@ -424,7 +456,10 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   assert.match(schema, /INVITATION/);
   assert.match(schema, /model MomentRsvp/);
   assert.match(schema, /@@unique\(\[momentId, responseKey\]\)/);
-  assert.match(service, /createHash\('sha256'\)\.update\(rawResponseToken\)/);
+  assert.match(
+    service,
+    /createHash\('sha256'\)\s*\.update\(rawResponseToken\)/,
+  );
   assert.match(service, /momentRsvp\.upsert/);
   assert.match(controller, /@Post\(':slug\/rsvp'\)/);
   assert.match(proxy, /requestAuthApi\(event, `\/moments\/\$\{slug\}\/rsvp`/);
@@ -445,8 +480,14 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
     /getMomentDefaultStory\(draft\.occasion, nextLocale, draft\.recipientName\)/,
   );
   const locales = readProjectFile("app/data/moment-locales.ts");
-  assert.match(locales, /INVITATION: \{ message: "យើងខ្ញុំមានសេចក្តីរីករាយ/);
-  assert.match(locales, /INVITATION: \{ message: "We would be delighted/);
+  assert.match(
+    locales,
+    /INVITATION: \{[\s\S]*?message:\s*"យើងខ្ញុំមានសេចក្តីរីករាយ/,
+  );
+  assert.match(
+    locales,
+    /INVITATION: \{[\s\S]*?message:\s*"We would be delighted/,
+  );
 });
 
 test("personalized invitation guest links keep names private and connect RSVP identity", () => {

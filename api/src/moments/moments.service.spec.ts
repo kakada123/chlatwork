@@ -53,8 +53,41 @@ describe('MomentsService vote reset', () => {
       }),
     );
     expect(prisma.momentVote.deleteMany).toHaveBeenCalledWith({
-      where: { momentId: MOMENT_ID },
+      where: {
+        momentId: MOMENT_ID,
+        voteDate: new Date('1970-01-01T00:00:00.000Z'),
+      },
     });
+  });
+
+  it('resets only the active local day when daily voting is enabled', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-09-04T03:00:00.000Z'));
+    const { service, prisma } = createService({
+      id: MOMENT_ID,
+      voteSchedule: { enabled: true, timeZone: 'Asia/Phnom_Penh' },
+      blocks: [
+        {
+          data: {
+            question: 'Where should we eat?',
+            identityMode: 'NAME_REQUIRED',
+            options: [
+              { id: 'option-1', label: 'Khmer food' },
+              { id: 'option-2', label: 'Pizza' },
+            ],
+          },
+        },
+      ],
+    });
+
+    await service.resetVotes(USER_ID, MOMENT_ID);
+
+    expect(prisma.momentVote.deleteMany).toHaveBeenCalledWith({
+      where: {
+        momentId: MOMENT_ID,
+        voteDate: new Date('2026-09-04T00:00:00.000Z'),
+      },
+    });
+    jest.useRealTimers();
   });
 
   it('does not delete votes when the owner poll is unavailable', async () => {
