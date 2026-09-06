@@ -1,6 +1,11 @@
 import { AiFeature } from '@prisma/client';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import {
+  resultObject,
+  resultText,
+  resultTextList,
+} from './creator-result-validation';
+import {
   assertVideoLanguage,
   videoLanguage,
   videoLanguageInstruction,
@@ -17,6 +22,7 @@ export interface CreatorPromptSpec<T> {
   schema: Record<string, unknown>;
   maxOutputTokens: number;
   premium: boolean;
+  retryInvalidResult?: boolean;
   parse(value: unknown): T;
 }
 
@@ -440,6 +446,7 @@ function contentPackPrompt(common: {
   return {
     ...common,
     name: 'video_content_pack',
+    instructions: `${common.instructions}\nReturn every required content-pack field. Captions must be an object with facebook, tiktok, and instagram strings. Hooks, hashtags, and keyPoints must be arrays of strings. All text values must contain meaningful non-whitespace text. Keep the pack concise and grounded in the transcript.`,
     schema: objectSchema({
       captions: objectSchema({
         facebook: stringField(4_000),
@@ -455,23 +462,54 @@ function contentPackPrompt(common: {
     }),
     maxOutputTokens: 4_000,
     premium: true,
+    retryInvalidResult: true,
     parse(value) {
-      const data = record(value);
-      const captions = record(data.captions);
+      const data = resultObject(value, 'result');
+      const captions = resultObject(data.captions, 'captions');
       return {
         title: 'Video content pack',
         sections: [
           {
             id: 'caption',
             label: 'Captions',
-            content: `TikTok\n${text(captions.tiktok, 2_500)}\n\nFacebook\n${text(captions.facebook, 4_000)}\n\nInstagram\n${text(captions.instagram, 2_500)}`,
+            content: `TikTok\n${resultText(captions.tiktok, 2_500, 'captions.tiktok')}\n\nFacebook\n${resultText(captions.facebook, 4_000, 'captions.facebook')}\n\nInstagram\n${resultText(captions.instagram, 2_500, 'captions.instagram')}`,
           },
-          { id: 'hooks', label: 'Hooks', content: texts(data.hooks, 10, 500).map((item, index) => `${index + 1}. ${item}`).join('\n') },
-          { id: 'hashtags', label: 'Hashtags', content: texts(data.hashtags, 20, 80).join(' ') },
-          { id: 'summary', label: 'Summary', content: text(data.summary, 5_000) },
-          { id: 'title', label: 'Video title', content: text(data.title, 300) },
-          { id: 'cta', label: 'CTA', content: text(data.cta, 500) },
-          { id: 'key-points', label: 'Key points', content: texts(data.keyPoints, 12, 500).map((item) => `• ${item}`).join('\n') },
+          {
+            id: 'hooks',
+            label: 'Hooks',
+            content: resultTextList(data.hooks, 10, 500, 'hooks')
+              .map((item, index) => `${index + 1}. ${item}`)
+              .join('\n'),
+          },
+          {
+            id: 'hashtags',
+            label: 'Hashtags',
+            content: resultTextList(data.hashtags, 20, 80, 'hashtags').join(
+              ' ',
+            ),
+          },
+          {
+            id: 'summary',
+            label: 'Summary',
+            content: resultText(data.summary, 5_000, 'summary'),
+          },
+          {
+            id: 'title',
+            label: 'Video title',
+            content: resultText(data.title, 300, 'title'),
+          },
+          {
+            id: 'cta',
+            label: 'CTA',
+            content: resultText(data.cta, 500, 'cta'),
+          },
+          {
+            id: 'key-points',
+            label: 'Key points',
+            content: resultTextList(data.keyPoints, 12, 500, 'keyPoints')
+              .map((item) => `• ${item}`)
+              .join('\n'),
+          },
         ],
       };
     },

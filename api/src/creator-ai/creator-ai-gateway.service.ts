@@ -25,6 +25,7 @@ export class CreatorProviderError extends Error {
     message: string,
     readonly durationMs: number,
     readonly usage?: CreatorProviderUsage,
+    readonly structuredFailure?: CreatorStructuredResponseError,
   ) {
     super(message);
     this.name = 'CreatorProviderError';
@@ -39,6 +40,95 @@ export class CreatorAiGatewayService {
   constructor(private readonly config: ConfigService) {}
 
   async generateStructured<T>(
+    feature: AiFeature,
+    requestId: string,
+    spec: CreatorPromptSpec<T>,
+    image?: { bytes: Buffer; mimeType: string },
+  ): Promise<CreatorGatewayResult<T>> {
+    const startedAt = Date.now();
+    try {
+      return await this.generateStructuredOnce(feature, requestId, spec, image);
+    } catch (firstError) {
+      if (
+        !spec.retryInvalidResult ||
+        !(firstError instanceof CreatorProviderError) ||
+        firstError.structuredFailure?.reason !== 'RESULT_VALIDATION_FAILED'
+      )
+        throw firstError;
+
+      const validation = firstError.structuredFailure.validation;
+      this.logger.warn('Creator content validation failed; regenerating once', {
+        requestId,
+        feature,
+        validationField: validation?.field ?? null,
+        validationIssue: validation?.issue ?? null,
+      });
+      // Regenerate from the original transcript, never from rejected model text.
+      // Both attempts belong to the same reservation and provider cost accounting.
+      const retrySpec = {
+        ...spec,
+        instructions: `${spec.instructions}\nA previous attempt failed result validation${validation ? ` (${validation.field}: ${validation.issue})` : ''}. Return a complete object matching the required schema, with non-empty text and all length limits respected.`,
+      };
+      try {
+        const result = await this.generateStructuredOnce(
+          feature,
+          `${requestId}:validation-retry`,
+          retrySpec,
+          image,
+        );
+        return {
+          ...result,
+          usage: this.combineAttemptUsage(
+            firstError.usage,
+            result.usage,
+            Date.now() - startedAt,
+          )!,
+        };
+      } catch (retryError) {
+        if (!(retryError instanceof CreatorProviderError)) throw retryError;
+        const durationMs = Date.now() - startedAt;
+        throw new CreatorProviderError(
+          'OpenAI request failed',
+          durationMs,
+          this.combineAttemptUsage(
+            firstError.usage,
+            retryError.usage,
+            durationMs,
+          ),
+          retryError.structuredFailure,
+        );
+      }
+    }
+  }
+
+  private combineAttemptUsage(
+    first: CreatorProviderUsage | undefined,
+    last: CreatorProviderUsage | undefined,
+    durationMs: number,
+  ): CreatorProviderUsage | undefined {
+    const latest = last ?? first;
+    if (!latest) return undefined;
+    const sum = (
+      key:
+        'inputTokens' | 'cachedInputTokens' | 'outputTokens' | 'audioSeconds',
+    ) =>
+      first?.[key] == null && last?.[key] == null
+        ? null
+        : (first?.[key] ?? 0) + (last?.[key] ?? 0);
+    return {
+      ...latest,
+      inputTokens: sum('inputTokens'),
+      cachedInputTokens: sum('cachedInputTokens'),
+      outputTokens: sum('outputTokens'),
+      audioSeconds: sum('audioSeconds'),
+      estimatedProviderCostUsd:
+        (first?.estimatedProviderCostUsd ?? 0) +
+        (last?.estimatedProviderCostUsd ?? 0),
+      durationMs,
+    };
+  }
+
+  private async generateStructuredOnce<T>(
     feature: AiFeature,
     requestId: string,
     spec: CreatorPromptSpec<T>,
@@ -119,12 +209,21 @@ export class CreatorAiGatewayService {
                   ? 'PROVIDER_HTTP_ERROR'
                   : 'LOCAL_PROCESSING_ERROR',
         maxOutputTokens: spec.maxOutputTokens,
+        validationField:
+          error instanceof CreatorStructuredResponseError
+            ? (error.validation?.field ?? null)
+            : null,
+        validationIssue:
+          error instanceof CreatorStructuredResponseError
+            ? (error.validation?.issue ?? null)
+            : null,
         ...structuredResponseDiagnostics(response),
       });
       throw new CreatorProviderError(
         'OpenAI request failed',
         durationMs,
         providerUsage ? { ...providerUsage, durationMs } : undefined,
+        error instanceof CreatorStructuredResponseError ? error : undefined,
       );
     }
   }

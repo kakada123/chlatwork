@@ -1,5 +1,6 @@
 import type { Response } from 'openai/resources/responses/responses';
 import type { CreatorPromptSpec } from './creator-prompts';
+import { CreatorResultValidationError } from './creator-result-validation';
 
 export class CreatorStructuredResponseError extends Error {
   constructor(
@@ -11,6 +12,7 @@ export class CreatorStructuredResponseError extends Error {
       | 'EMPTY_OUTPUT'
       | 'INVALID_JSON'
       | 'RESULT_VALIDATION_FAILED',
+    readonly validation?: CreatorResultValidationError,
   ) {
     super('Creator structured response was not usable');
   }
@@ -53,8 +55,11 @@ export function parseCreatorStructuredResponse<T>(
   }
   try {
     return spec.parse(value);
-  } catch {
-    throw new CreatorStructuredResponseError('RESULT_VALIDATION_FAILED');
+  } catch (error) {
+    throw new CreatorStructuredResponseError(
+      'RESULT_VALIDATION_FAILED',
+      error instanceof CreatorResultValidationError ? error : undefined,
+    );
   }
 }
 
