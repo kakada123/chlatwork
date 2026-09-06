@@ -7,6 +7,7 @@ import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
+import { transcriptionErrorDetails } from './creator-transcription-error';
 import type {
   CreatorGatewayResult,
   CreatorTranscript,
@@ -79,8 +80,7 @@ export class CreatorAiGatewayService {
           provider: 'OPENAI',
           model,
           inputTokens: usage?.input_tokens ?? null,
-          cachedInputTokens:
-            usage?.input_tokens_details.cached_tokens ?? null,
+          cachedInputTokens: usage?.input_tokens_details.cached_tokens ?? null,
           outputTokens: usage?.output_tokens ?? null,
           audioSeconds: null,
           estimatedProviderCostUsd: this.textCost(
@@ -101,10 +101,7 @@ export class CreatorAiGatewayService {
         durationMs,
         providerStatus: this.providerStatus(error),
       });
-      throw new CreatorProviderError(
-        'OpenAI request failed',
-        durationMs,
-      );
+      throw new CreatorProviderError('OpenAI request failed', durationMs);
     }
   }
 
@@ -117,24 +114,50 @@ export class CreatorAiGatewayService {
   ): Promise<CreatorGatewayResult<CreatorTranscript>> {
     const startedAt = Date.now();
     const model = this.config.get<string>('OPENAI_TRANSCRIPTION_MODEL')!.trim();
+    let languageHintUsed = language !== 'ENGLISH';
+    const submit = async () => {
+      // A rejected upload may consume its stream. Each attempt owns a fresh one.
+      const file = createReadStream(audioPath);
+      try {
+        return await this.openAi().audio.transcriptions.create(
+          {
+            file,
+            model,
+            response_format: 'verbose_json',
+            timestamp_granularities: ['segment'],
+            ...(languageHintUsed ? { language: 'km' } : {}),
+            prompt:
+              language === 'ENGLISH'
+                ? 'Preserve the original spoken language, names, and product terms.'
+                : 'សំឡេងនិយាយជាភាសាខ្មែរ។ សរសេរជាអក្សរខ្មែរ ហើយរក្សាពាក្យអង់គ្លេស ឈ្មោះ និងពាក្យបច្ចេកទេសតាមសំឡេងដើម។',
+          },
+          { headers: { 'X-Client-Request-Id': requestId }, maxRetries: 0 },
+        );
+      } finally {
+        file.destroy();
+      }
+    };
     try {
-      const response = await this.openAi().audio.transcriptions.create(
-        {
-          file: createReadStream(audioPath),
-          model,
-          // Creator preserves subtitle timing; this request requires whisper-1.
-          response_format: 'verbose_json',
-          timestamp_granularities: ['segment'],
-          // Khmer output modes expect Khmer speech. An English output selection
-          // may translate Khmer audio, so keep source detection available there.
-          ...(language === 'ENGLISH' ? {} : { language: 'km' }),
-          prompt:
-            language === 'ENGLISH'
-              ? 'Preserve the original spoken language, names, and product terms.'
-              : 'សំឡេងនិយាយជាភាសាខ្មែរ។ សរសេរជាអក្សរខ្មែរ ហើយរក្សាពាក្យអង់គ្លេស ឈ្មោះ និងពាក្យបច្ចេកទេសតាមសំឡេងដើម។',
-        },
-        { headers: { 'X-Client-Request-Id': requestId } },
-      );
+      let response: Awaited<ReturnType<typeof submit>>;
+      try {
+        response = await submit();
+      } catch (error) {
+        const details = transcriptionErrorDetails(error);
+        if (
+          model !== 'whisper-1' ||
+          !languageHintUsed ||
+          details.providerFailureReason !== 'LANGUAGE_HINT_UNSUPPORTED'
+        )
+          throw error;
+        // Only retry a definite parameter rejection, never an uncertain timeout
+        // or provider failure. Worker/output guards still reject wrong-script text.
+        this.logger.warn(
+          'Creator transcription language hint rejected; retrying without hint',
+          { requestId, feature, model, ...details },
+        );
+        languageHintUsed = false;
+        response = await submit();
+      }
       const segments = (response.segments ?? [])
         .filter(
           (segment) =>
@@ -174,12 +197,10 @@ export class CreatorAiGatewayService {
         feature,
         model,
         durationMs,
-        providerStatus: this.providerStatus(error),
+        languageHintUsed,
+        ...transcriptionErrorDetails(error),
       });
-      throw new CreatorProviderError(
-        'OpenAI transcription failed',
-        durationMs,
-      );
+      throw new CreatorProviderError('OpenAI transcription failed', durationMs);
     }
   }
 
@@ -235,7 +256,8 @@ export class CreatorAiGatewayService {
   }
 
   private providerStatus(error: unknown) {
-    if (!error || typeof error !== 'object' || !('status' in error)) return null;
+    if (!error || typeof error !== 'object' || !('status' in error))
+      return null;
     const status = Number((error as { status?: unknown }).status);
     return Number.isInteger(status) ? status : null;
   }

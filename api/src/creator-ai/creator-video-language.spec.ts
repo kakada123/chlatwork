@@ -14,7 +14,7 @@ import type { CreatorLanguage } from './dto/creator-ai.dto';
 
 jest.mock('node:fs', () => ({
   ...jest.requireActual('node:fs'),
-  createReadStream: jest.fn().mockReturnValue({}),
+  createReadStream: jest.fn().mockImplementation(() => ({ destroy: jest.fn() })),
 }));
 
 const khmer = 'សួស្តីអ្នកទាំងអស់គ្នា។';
