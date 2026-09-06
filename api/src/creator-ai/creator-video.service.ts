@@ -45,42 +45,49 @@ export class CreatorVideoService {
       throw new CreatorAiException(
         HttpStatus.BAD_REQUEST,
         'INVALID_VIDEO',
-        'Choose a video to upload.',
+        'Choose an audio file to upload.',
       );
     }
 
-    const key = this.credits.validateIdempotencyKey(idempotencyHeader);
-    const limits = this.plans.forUser(userId);
     try {
+      const key = this.credits.validateIdempotencyKey(idempotencyHeader);
+      const limits = this.plans.forUser(userId);
+      if (file.size <= 0) {
+        throw new CreatorAiException(
+          HttpStatus.BAD_REQUEST,
+          'INVALID_VIDEO',
+          'The uploaded file is empty.',
+        );
+      }
       if (file.size > limits.maxVideoBytes) {
         throw new CreatorAiException(
           HttpStatus.PAYLOAD_TOO_LARGE,
           'VIDEO_TOO_LARGE',
-          'This video is larger than your current plan allows.',
+          'This media file is larger than your current plan allows.',
         );
       }
       if (!(await this.tools.validateMagic(file.path, file.mimetype))) {
         throw new CreatorAiException(
           HttpStatus.UNSUPPORTED_MEDIA_TYPE,
           'UNSUPPORTED_VIDEO_FORMAT',
-          'The uploaded file does not contain a supported video.',
+          'The uploaded file does not contain supported audio or video.',
         );
       }
       let durationSeconds: number;
       try {
-        durationSeconds = await this.tools.duration(file.path);
+        durationSeconds = await this.tools.duration(file.path, file.mimetype);
       } catch {
         throw new CreatorAiException(
           HttpStatus.BAD_REQUEST,
           'INVALID_VIDEO',
-          'The video duration could not be verified.',
+          'The file must contain a valid audio track with a verifiable duration.',
         );
       }
       if (durationSeconds > limits.maxVideoSeconds) {
         throw new CreatorAiException(
           HttpStatus.PAYLOAD_TOO_LARGE,
           'VIDEO_TOO_LONG',
-          'This video is longer than your current plan allows.',
+          'This audio or video is longer than your current plan allows.',
           { maximumSeconds: limits.maxVideoSeconds },
         );
       }
@@ -183,7 +190,12 @@ export class CreatorVideoService {
       include: { generation: { select: { result: true } } },
     });
     const result = job?.generation.result;
-    if (!job || !result || typeof result !== 'object' || Array.isArray(result)) {
+    if (
+      !job ||
+      !result ||
+      typeof result !== 'object' ||
+      Array.isArray(result)
+    ) {
       throw new CreatorAiException(
         HttpStatus.NOT_FOUND,
         'AI_JOB_NOT_FOUND',

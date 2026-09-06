@@ -127,7 +127,11 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
     try {
       if (!job.tempFilePath) throw new Error('Video input is unavailable');
       await this.credits.markProcessing(job.generationId);
-      audioPath = await this.tools.extractAudio(job.tempFilePath);
+      audioPath = await this.tools.extractAudio(
+        job.tempFilePath,
+        job.durationSeconds,
+        job.mimeType.startsWith('audio/'),
+      );
 
       await this.stage(job.id, AiVideoJobStatus.TRANSCRIBING);
       const transcription = await this.gateway.transcribe(

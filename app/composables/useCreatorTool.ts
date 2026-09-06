@@ -27,9 +27,9 @@ export type CreatorVideoStage = {
 };
 
 export const CREATOR_VIDEO_STAGES: CreatorVideoStage[] = [
-  { id: "uploading", label: "Uploading" },
+  { id: "uploading", label: "Uploading audio" },
   { id: "queued", label: "Queued" },
-  { id: "extracting", label: "Extracting audio" },
+  { id: "processing", label: "Preparing transcription" },
   { id: "transcribing", label: "Transcribing" },
   { id: "cleaning", label: "Cleaning Khmer" },
   { id: "creating", label: "Creating results" },
@@ -83,13 +83,11 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
 
   function setVideoStage(stage: string) {
     const normalized =
-      stage === "PROCESSING"
-        ? "extracting"
-        : stage === "GENERATING"
-          ? "creating"
-          : stage === "COMPLETED"
-            ? "complete"
-            : stage.toLowerCase();
+      stage === "GENERATING"
+        ? "creating"
+        : stage === "COMPLETED"
+          ? "complete"
+          : stage.toLowerCase();
     const index = videoStages.findIndex((item) => item.id === normalized);
     if (index >= 0) activeVideoStage.value = index;
   }
@@ -99,6 +97,7 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
     videoDuration.value = durationSeconds;
     result.value = null;
     errorMessage.value = "";
+    activeVideoStage.value = -1;
     state.value = "ready";
   }
 
@@ -107,6 +106,7 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
     videoDuration.value = 0;
     activeVideoStage.value = -1;
     result.value = null;
+    errorMessage.value = "";
     state.value = "idle";
   }
 
@@ -164,11 +164,12 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
                 : error.code === "AUTH_REQUIRED"
                   ? "auth-required"
                   : "error";
-        if (tool.inputType === "video") setVideoStage("FAILED");
+        if (tool.inputType === "video") activeVideoStage.value = -1;
         errorMessage.value = error.message;
         return;
       }
       state.value = "error";
+      if (tool.inputType === "video") activeVideoStage.value = -1;
       errorMessage.value = "Could not generate this content. Please try again.";
     }
   }

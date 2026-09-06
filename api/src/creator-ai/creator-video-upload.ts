@@ -18,6 +18,14 @@ const MIME_EXTENSIONS: Record<string, string[]> = {
   'video/mp4': ['.mp4', '.m4v'],
   'video/quicktime': ['.mov'],
   'video/webm': ['.webm'],
+  'audio/mp4': ['.m4a', '.mp4'],
+  'audio/x-m4a': ['.m4a'],
+  'audio/mpeg': ['.mp3'],
+  'audio/wav': ['.wav'],
+  'audio/x-wav': ['.wav'],
+  'audio/webm': ['.webm'],
+  'audio/ogg': ['.ogg'],
+  'audio/flac': ['.flac'],
 };
 
 export interface CreatorVideoUpload {
@@ -31,11 +39,15 @@ export interface CreatorVideoUpload {
 @Catch(PayloadTooLargeException)
 export class CreatorVideoUploadExceptionFilter implements ExceptionFilter {
   catch(_exception: PayloadTooLargeException, host: ArgumentsHost) {
-    host.switchToHttp().getResponse<Response>().status(HttpStatus.PAYLOAD_TOO_LARGE).json({
-      statusCode: HttpStatus.PAYLOAD_TOO_LARGE,
-      code: 'VIDEO_TOO_LARGE',
-      message: 'This video exceeds the absolute upload limit.',
-    });
+    host
+      .switchToHttp()
+      .getResponse<Response>()
+      .status(HttpStatus.PAYLOAD_TOO_LARGE)
+      .json({
+        statusCode: HttpStatus.PAYLOAD_TOO_LARGE,
+        code: 'VIDEO_TOO_LARGE',
+        message: 'This media file exceeds the absolute upload limit.',
+      });
   }
 }
 
@@ -56,7 +68,7 @@ export const creatorVideoUploadOptions: MulterOptions = {
         new CreatorAiException(
           HttpStatus.UNSUPPORTED_MEDIA_TYPE,
           'UNSUPPORTED_VIDEO_FORMAT',
-          'Upload a valid MP4, MOV, M4V, or WebM video.',
+          'Upload a supported audio file or an MP4, MOV, M4V, or WebM video.',
         ),
         false,
       );

@@ -50,7 +50,10 @@ test("Creator credits use fixed or duration-based estimates without token langua
   );
   const fixedPrices = Object.fromEntries(
     CREATOR_TOOLS.filter((tool) => tool.creditCost.type === "fixed").map(
-      (tool) => [tool.id, tool.creditCost.type === "fixed" ? tool.creditCost.credits : 0],
+      (tool) => [
+        tool.id,
+        tool.creditCost.type === "fixed" ? tool.creditCost.credits : 0,
+      ],
     ),
   );
   assert.deepEqual(fixedPrices, {
@@ -132,8 +135,8 @@ test("Creator surfaces generation, video, result, and insufficient-credit states
     credits,
     /Processing has not started and no credits were deducted/,
   );
-  assert.match(composable, /Extracting audio/);
+  assert.match(composable, /Uploading audio/);
   assert.match(composable, /Queued/);
   assert.match(upload, /activeStage/);
-  assert.doesNotMatch(upload, /\d+%|progress.*percent/i);
+  assert.match(upload, /Preparing audio on your device/);
 });

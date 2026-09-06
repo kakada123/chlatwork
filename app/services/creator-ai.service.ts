@@ -159,8 +159,12 @@ async function requestVideoGeneration(
   request: CreatorRequest,
   context: CreatorGenerationContext,
 ): Promise<CreatorGenerationResponse> {
-  if (!request.file) {
-    throw new CreatorServiceError("INVALID_VIDEO", "Choose a video first.");
+  if (!request.file || !request.file.type.startsWith("audio/")) {
+    // The upload boundary must never fall back to sending the original video.
+    throw new CreatorServiceError(
+      "INVALID_VIDEO",
+      "Choose a video or audio file and wait for audio preparation to finish.",
+    );
   }
   const form = new FormData();
   form.append("file", request.file, request.file.name);

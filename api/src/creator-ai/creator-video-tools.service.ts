@@ -17,37 +17,40 @@ export class CreatorVideoToolsService {
     try {
       const bytes = Buffer.alloc(16);
       await handle.read(bytes, 0, bytes.length, 0);
-      const isIsoMedia = bytes.subarray(4, 8).toString('ascii') === 'ftyp';
-      const isWebm = bytes.subarray(0, 4).equals(Buffer.from([0x1a, 0x45, 0xdf, 0xa3]));
-      return declaredMime === 'video/webm' ? isWebm : isIsoMedia;
+      return matchesCreatorMediaMagic(bytes, declaredMime);
     } finally {
       await handle.close();
     }
   }
 
-  async duration(path: string) {
+  async duration(path: string, declaredMime: string) {
     const output = await this.run(
       this.config.get<string>('FFPROBE_PATH')?.trim() ||
         CREATOR_AI_DEFAULTS.ffprobePath,
       [
         '-v',
         'error',
+        '-protocol_whitelist',
+        'file,pipe',
         '-show_entries',
-        'format=duration',
+        'format=duration:stream=codec_type,start_time,duration',
         '-of',
-        'default=noprint_wrappers=1:nokey=1',
+        'json',
         path,
       ],
       30_000,
     );
-    const duration = Number(output.trim());
-    if (!Number.isFinite(duration) || duration <= 0) {
-      throw new Error('Video duration could not be determined');
-    }
-    return Math.ceil(duration);
+    return verifiedCreatorMediaDuration(JSON.parse(output), declaredMime);
   }
 
-  async extractAudio(videoPath: string) {
+  async extractAudio(
+    videoPath: string,
+    durationSeconds: number,
+    preserveAudioTimeline = false,
+  ) {
+    if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+      throw new Error('A verified media duration is required');
+    }
     const outputPath = join(dirname(videoPath), `${randomUUID()}.mp3`);
     try {
       await this.run(
@@ -57,9 +60,22 @@ export class CreatorVideoToolsService {
           '-nostdin',
           '-v',
           'error',
+          '-protocol_whitelist',
+          'file,pipe',
+          // Audio extracted on-device retains the video's timestamps. Preserve
+          // an initial delay as silence so generated SRT stays in sync.
+          ...(preserveAudioTimeline ? ['-copyts'] : []),
           '-i',
           videoPath,
+          // Bound timestamp padding and decoding to the validated job duration.
+          '-t',
+          String(durationSeconds),
+          '-map',
+          '0:a:0',
           '-vn',
+          ...(preserveAudioTimeline
+            ? ['-af', 'aresample=async=1:first_pts=0']
+            : []),
           '-ac',
           '1',
           '-ar',
@@ -159,3 +175,60 @@ function formatSrtTime(seconds: number) {
 }
 
 const pad = (value: number) => String(value).padStart(2, '0');
+
+export function matchesCreatorMediaMagic(bytes: Buffer, mime: string) {
+  const header = bytes.toString('ascii');
+  switch (mime) {
+    case 'video/mp4':
+    case 'video/quicktime':
+    case 'audio/mp4':
+    case 'audio/x-m4a':
+      return header.slice(4, 8) === 'ftyp';
+    case 'video/webm':
+    case 'audio/webm':
+      return bytes.subarray(0, 4).equals(Buffer.from([0x1a, 0x45, 0xdf, 0xa3]));
+    case 'audio/mpeg':
+      return (
+        header.startsWith('ID3') ||
+        (bytes.length >= 2 && bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0)
+      );
+    case 'audio/wav':
+    case 'audio/x-wav':
+      return header.startsWith('RIFF') && header.slice(8, 12) === 'WAVE';
+    case 'audio/ogg':
+      return header.startsWith('OggS');
+    case 'audio/flac':
+      return header.startsWith('fLaC');
+    default:
+      return false;
+  }
+}
+
+export function verifiedCreatorMediaDuration(
+  probe: {
+    format?: { duration?: string };
+    streams?: { codec_type?: string; start_time?: string; duration?: string }[];
+  },
+  declaredMime: string,
+) {
+  const streams = Array.isArray(probe?.streams) ? probe.streams : [];
+  const audio = streams.filter((stream) => stream.codec_type === 'audio');
+  // Container signatures alone cannot distinguish audio-only MP4/WebM from video.
+  if (
+    !audio.length ||
+    (declaredMime.startsWith('audio/') &&
+      streams.some((stream) => stream.codec_type === 'video'))
+  ) {
+    throw new Error('A supported audio track is required');
+  }
+  const durations = [
+    Number(probe.format?.duration),
+    ...audio.map(
+      (stream) =>
+        Math.max(0, Number(stream.start_time) || 0) + Number(stream.duration),
+    ),
+  ].filter((duration) => Number.isFinite(duration) && duration > 0);
+  if (!durations.length)
+    throw new Error('Media duration could not be determined');
+  return Math.ceil(Math.max(...durations));
+}
