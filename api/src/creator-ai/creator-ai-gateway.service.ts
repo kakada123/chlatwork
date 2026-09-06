@@ -10,6 +10,10 @@ import type { CreatorPromptSpec } from './creator-prompts';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import { transcriptionErrorDetails } from './creator-transcription-error';
 import {
+  parseCreatorTranscription,
+  transcriptionResponseDiagnostics,
+} from './creator-transcription-response';
+import {
   CreatorStructuredResponseError,
   parseCreatorStructuredResponse,
   structuredResponseDiagnostics,
@@ -238,6 +242,9 @@ export class CreatorAiGatewayService {
     const startedAt = Date.now();
     const model = this.config.get<string>('OPENAI_TRANSCRIPTION_MODEL')!.trim();
     let languageHintUsed = language !== 'ENGLISH';
+    let response: Awaited<ReturnType<typeof submit>> | undefined;
+    let responseReceived = false;
+    let providerUsage: CreatorProviderUsage | undefined;
     const submit = async () => {
       // A rejected upload may consume its stream. Each attempt owns a fresh one.
       const file = createReadStream(audioPath);
@@ -261,7 +268,6 @@ export class CreatorAiGatewayService {
       }
     };
     try {
-      let response: Awaited<ReturnType<typeof submit>>;
       try {
         response = await submit();
       } catch (error) {
@@ -281,37 +287,25 @@ export class CreatorAiGatewayService {
         languageHintUsed = false;
         response = await submit();
       }
-      const segments = (response.segments ?? [])
-        .filter(
-          (segment) =>
-            Number.isFinite(segment.start) &&
-            Number.isFinite(segment.end) &&
-            segment.end > segment.start &&
-            Boolean(segment.text.trim()),
-        )
-        .map((segment) => ({
-          start: segment.start,
-          end: segment.end,
-          text: segment.text.trim(),
-        }));
-      if (!response.text.trim() || !segments.length) {
-        throw new Error('Transcription did not include timestamped segments');
-      }
+      responseReceived = true;
+      // A returned response can consume provider budget even when its transcript
+      // fails validation. Preserve that cost when the worker refunds the user.
+      providerUsage = {
+        provider: 'OPENAI',
+        model,
+        inputTokens: null,
+        cachedInputTokens: null,
+        outputTokens: null,
+        audioSeconds: Math.ceil(durationSeconds),
+        estimatedProviderCostUsd:
+          (durationSeconds / 60) *
+          this.number('OPENAI_TRANSCRIPTION_USD_PER_MINUTE', 0),
+        providerRequestId: response?._request_id ?? null,
+        durationMs: Date.now() - startedAt,
+      };
       return {
-        data: { text: response.text.trim(), segments },
-        usage: {
-          provider: 'OPENAI',
-          model,
-          inputTokens: null,
-          cachedInputTokens: null,
-          outputTokens: null,
-          audioSeconds: Math.ceil(durationSeconds),
-          estimatedProviderCostUsd:
-            (durationSeconds / 60) *
-            this.number('OPENAI_TRANSCRIPTION_USD_PER_MINUTE', 0),
-          providerRequestId: response._request_id ?? null,
-          durationMs: Date.now() - startedAt,
-        },
+        data: parseCreatorTranscription(response),
+        usage: providerUsage,
       };
     } catch (error) {
       const durationMs = Date.now() - startedAt;
@@ -321,9 +315,15 @@ export class CreatorAiGatewayService {
         model,
         durationMs,
         languageHintUsed,
+        responseReceived,
+        ...transcriptionResponseDiagnostics(response),
         ...transcriptionErrorDetails(error),
       });
-      throw new CreatorProviderError('OpenAI transcription failed', durationMs);
+      throw new CreatorProviderError(
+        'OpenAI transcription failed',
+        durationMs,
+        providerUsage ? { ...providerUsage, durationMs } : undefined,
+      );
     }
   }
 

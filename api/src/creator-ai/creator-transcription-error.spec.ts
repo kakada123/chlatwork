@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiFeature } from '@prisma/client';
 import { createReadStream } from 'node:fs';
+import OpenAI from 'openai';
 import { CreatorAiGatewayService } from './creator-ai-gateway.service';
 import { transcriptionErrorDetails } from './creator-transcription-error';
 import { CreatorVideoWorker } from './creator-video.worker';
@@ -115,6 +116,87 @@ describe('Creator transcription diagnostics and bounded fallback', () => {
     );
   });
 
+  it.each([
+    [null, 'INVALID_TRANSCRIPTION_RESPONSE'],
+    [{ text: 123 }, 'INVALID_TRANSCRIPTION_RESPONSE'],
+    [{ text: '  ', segments: [] }, 'EMPTY_TRANSCRIPT'],
+    [{ text: khmer }, 'MISSING_TIMESTAMPED_SEGMENTS'],
+    [{ text: khmer, segments: [] }, 'MISSING_TIMESTAMPED_SEGMENTS'],
+    [{ text: khmer, segments: {} }, 'INVALID_TRANSCRIPT_SEGMENTS'],
+    [{ text: khmer, segments: [null] }, 'INVALID_TRANSCRIPT_SEGMENTS'],
+    [
+      { text: khmer, segments: [{ start: 0, end: 3, text: 123 }] },
+      'INVALID_TRANSCRIPT_SEGMENTS',
+    ],
+    [
+      {
+        text: khmer,
+        segments: [...response.segments, { start: -1, end: 3, text: khmer }],
+      },
+      'INVALID_TRANSCRIPT_SEGMENTS',
+    ],
+  ])(
+    'distinguishes unusable response %# after hint fallback and retains billed audio usage',
+    async (value, reason) => {
+      const test = setup();
+      test.create
+        .mockRejectedValueOnce(languageError)
+        .mockResolvedValueOnce(value);
+      await expect(test.transcribe()).rejects.toMatchObject({
+        usage: { audioSeconds: 3 },
+      });
+      expect(test.create).toHaveBeenCalledTimes(2);
+      expect(Logger.prototype.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          responseReceived: true,
+          languageHintUsed: false,
+          providerStatus: null,
+          providerFailureReason: reason,
+        }),
+      );
+      expect(
+        JSON.stringify((Logger.prototype.error as jest.Mock).mock.calls),
+      ).not.toContain(khmer);
+    },
+  );
+
+  it.each([
+    [new OpenAI.APIConnectionTimeoutError(), 'PROVIDER_TIMEOUT'],
+    [
+      new OpenAI.APIConnectionError({ message: 'private transcript' }),
+      'PROVIDER_CONNECTION_ERROR',
+    ],
+    [{ code: 'ENOENT', path: '/private/audio.mp3' }, 'AUDIO_READ_FAILED'],
+    [
+      new SyntaxError('private provider text'),
+      'PROVIDER_RESPONSE_PARSE_FAILED',
+    ],
+    [{ status: 503, message: 'private provider text' }, 'PROVIDER_HTTP_ERROR'],
+  ])(
+    'distinguishes request failure %# without another retry or logging private content',
+    async (error, reason) => {
+      const test = setup();
+      test.create.mockRejectedValueOnce(error);
+      await expect(test.transcribe()).rejects.toMatchObject({
+        usage: undefined,
+      });
+      expect(test.create).toHaveBeenCalledTimes(1);
+      expect(Logger.prototype.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          responseReceived: false,
+          transcriptCharacters: null,
+          transcriptSegmentCount: null,
+          providerFailureReason: reason,
+        }),
+      );
+      expect(
+        JSON.stringify((Logger.prototype.error as jest.Mock).mock.calls),
+      ).not.toContain('private');
+    },
+  );
+
   it('classifies known language rejection wording without exposing provider text or arbitrary fields', () => {
     expect(
       transcriptionErrorDetails({
@@ -146,12 +228,10 @@ describe('Creator transcription diagnostics and bounded fallback', () => {
 
   it('keeps the worker Thai-script guard and refund path after the fallback', async () => {
     const test = setup();
-    test.create
-      .mockRejectedValueOnce(languageError)
-      .mockResolvedValueOnce({
-        text: '\u0E01',
-        segments: [{ start: 0, end: 3, text: '\u0E01' }],
-      });
+    test.create.mockRejectedValueOnce(languageError).mockResolvedValueOnce({
+      text: '\u0E01',
+      segments: [{ start: 0, end: 3, text: '\u0E01' }],
+    });
     const credits = {
       markProcessing: jest.fn(),
       complete: jest.fn(),

@@ -1,3 +1,6 @@
+import OpenAI from 'openai';
+import { CreatorTranscriptionResponseError } from './creator-transcription-response';
+
 const PARAMETERS = new Set([
   'language',
   'file',
@@ -70,7 +73,7 @@ export function transcriptionErrorDetails(error: unknown) {
               ? 'TRANSCRIPTION_FORMAT_REJECTED'
               : status === 400
                 ? 'BAD_REQUEST_UNCLASSIFIED'
-                : 'TRANSCRIPTION_REQUEST_FAILED';
+                : classifyRequestFailure(error, status);
   return {
     providerStatus: status,
     providerErrorCode:
@@ -78,4 +81,24 @@ export function transcriptionErrorDetails(error: unknown) {
     providerErrorParam: safeParam,
     providerFailureReason: failureReason,
   };
+}
+
+function classifyRequestFailure(error: unknown, status: number | null): string {
+  if (error instanceof CreatorTranscriptionResponseError) return error.reason;
+  if (error instanceof OpenAI.APIConnectionTimeoutError)
+    return 'PROVIDER_TIMEOUT';
+  if (error instanceof OpenAI.APIConnectionError)
+    return 'PROVIDER_CONNECTION_ERROR';
+  if (status !== null) return 'PROVIDER_HTTP_ERROR';
+  const code = record(error).code;
+  if (
+    code === 'ENOENT' ||
+    code === 'EACCES' ||
+    code === 'EPERM' ||
+    code === 'EIO'
+  ) {
+    return 'AUDIO_READ_FAILED';
+  }
+  if (error instanceof SyntaxError) return 'PROVIDER_RESPONSE_PARSE_FAILED';
+  return 'LOCAL_TRANSCRIPTION_PROCESSING_FAILED';
 }
