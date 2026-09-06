@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { getCreatorToolByRoute } from "~/data/creator-tools";
 
+definePageMeta({ layout: "creator" });
+
 const route = useRoute();
 const tool = getCreatorToolByRoute(route.path);
 

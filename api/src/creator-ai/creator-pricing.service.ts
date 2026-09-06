@@ -11,6 +11,21 @@ import {
 export class CreatorPricingService {
   constructor(private readonly config: ConfigService) {}
 
+  catalogue() {
+    return [
+      ...Object.keys(CREATOR_FIXED_CREDIT_PRICES).map((feature) => ({
+        feature: feature as AiFeature,
+        unit: 'generation' as const,
+        credits: this.fixed(feature as AiFeature),
+      })),
+      ...Object.keys(CREATOR_VIDEO_CREDIT_PRICES).map((feature) => ({
+        feature: feature as AiFeature,
+        unit: 'minute' as const,
+        credits: this.video(feature as AiFeature, 60),
+      })),
+    ];
+  }
+
   fixed(feature: AiFeature) {
     const fallback = CREATOR_FIXED_CREDIT_PRICES[feature];
     if (!fallback) throw new Error(`No fixed Creator price for ${feature}`);

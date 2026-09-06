@@ -14,17 +14,21 @@ import { CreatorVideoWorker } from './creator-video.worker';
 import { CreatorVideoDirectUploadController } from './creator-video-direct-upload.controller';
 import { CreatorVideoUploadTicketGuard } from './creator-video-upload-ticket.guard';
 import { CreatorVideoUploadTicketService } from './creator-video-upload-ticket.service';
+import { CreatorCreditAdminController } from './creator-credit-admin.controller';
+import { CreatorCreditAdminService } from './creator-credit-admin.service';
 
 @Module({
   imports: [AuthModule],
   controllers: [
     CreatorAiController,
+    CreatorCreditAdminController,
     CreatorVideoController,
     CreatorVideoDirectUploadController,
   ],
   providers: [
     CreatorAiGatewayService,
     CreatorCreditsService,
+    CreatorCreditAdminService,
     CreatorGenerationService,
     CreatorPlanLimitsService,
     CreatorPricingService,

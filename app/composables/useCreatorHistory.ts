@@ -1,5 +1,8 @@
 import type { CreatorToolId } from "~/data/creator-tools";
-import { CREATOR_TOOLS } from "~/data/creator-tools";
+import {
+  CREATOR_TOOLS,
+  CREATOR_FEATURE_TO_TOOL as FEATURE_TO_TOOL,
+} from "~/data/creator-tools";
 import { getCreatorHistory } from "~/services/creator-ai.service";
 
 export type CreatorHistoryItem = {
@@ -55,21 +58,3 @@ export function useCreatorHistory() {
 
   return { items, add, refresh };
 }
-
-const FEATURE_TO_TOOL: Record<string, CreatorToolId> = {
-  POST: "create-post",
-  SCRIPT: "script-generator",
-  HOOK: "hook-generator",
-  CONTENT_IDEAS: "content-ideas",
-  VIDEO_SUBTITLE: "video-subtitle",
-  VIDEO_CAPTION: "video-caption",
-  VIDEO_SUMMARY: "video-summary",
-  VIDEO_CONTENT_PACK: "video-content-pack",
-  FACEBOOK_TO_TIKTOK: "facebook-to-tiktok",
-  VIDEO_TO_SOCIAL: "video-to-social",
-  LONG_TO_SHORT: "long-to-short",
-  KHMER_GRAMMAR: "khmer-grammar",
-  KHMER_REWRITE: "khmer-rewrite",
-  LATIN_TO_KHMER: "latin-to-khmer",
-  HUMANIZE: "khmer-humanize",
-};

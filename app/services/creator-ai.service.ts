@@ -123,6 +123,92 @@ export async function getCreatorCredits() {
   return $fetch<{ balance: number }>("/api/creator-ai/credits");
 }
 
+export interface CreatorCreditTransaction {
+  id: string;
+  type:
+    | "GRANT"
+    | "RESERVE"
+    | "CHARGE"
+    | "REFUND"
+    | "PURCHASE"
+    | "EXPIRE"
+    | "ADMIN_ADJUSTMENT";
+  amount: number;
+  feature: string | null;
+  balanceAfter: number;
+  createdAt: string;
+}
+
+export interface CreatorCreditOverview {
+  balance: number;
+  totals: {
+    received: number;
+    used: number;
+    reserved: number;
+    refunded: number;
+    adjustments: number;
+  };
+  transactions: CreatorCreditTransaction[];
+  transactionLimit: number;
+  prices: { feature: string; unit: "generation" | "minute"; credits: number }[];
+}
+
+export async function getCreatorCreditOverview() {
+  return $fetch<CreatorCreditOverview>("/api/creator-ai/credits/overview");
+}
+
+export interface CreatorCreditAccount {
+  id: string;
+  name: string | null;
+  email: string | null;
+  balance: number;
+  hasWallet: boolean;
+}
+
+export interface CreatorCreditAccountDetails {
+  user: CreatorCreditAccount;
+  transactions: (CreatorCreditTransaction & {
+    reason: string | null;
+    adminUserId: string | null;
+  })[];
+}
+
+export interface CreatorCreditAdjustment {
+  userId: string;
+  amount: number;
+  expectedBalance: number;
+  reason: string;
+}
+
+export async function getCreatorCreditAccounts(search = "", page = 1) {
+  return $fetch<{
+    items: CreatorCreditAccount[];
+    total: number;
+    page: number;
+    pageSize: number;
+  }>("/api/creator-ai/admin/credits/users", { query: { search, page } });
+}
+
+export async function getCreatorCreditAccount(userId: string) {
+  return $fetch<CreatorCreditAccountDetails>(
+    `/api/creator-ai/admin/credits/users/${encodeURIComponent(userId)}`,
+  );
+}
+
+export async function adjustCreatorCredits(
+  input: CreatorCreditAdjustment,
+  idempotencyKey: string,
+) {
+  return $fetch<{ transactionId: string; balance: number }>(
+    "/api/creator-ai/admin/credits/adjustments",
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: input,
+    },
+  );
+}
+
 export async function getCreatorHistory() {
   return $fetch<CreatorHistoryApiItem[]>("/api/creator-ai/history");
 }

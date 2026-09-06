@@ -117,6 +117,11 @@ export class CreatorAiController {
     return this.credits.transactions(user.id);
   }
 
+  @Get('credits/overview')
+  getCreditOverview(@CurrentAuthUser() user: CurrentUser) {
+    return this.credits.overview(user.id);
+  }
+
   @Get('history')
   getHistory(@CurrentAuthUser() user: CurrentUser) {
     return this.credits.history(user.id);

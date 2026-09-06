@@ -28,12 +28,16 @@ const POST_PATHS = new Set([
   "video/summary",
   "video/content-pack",
   "video/upload-ticket",
+  "admin/credits/adjustments",
 ]);
 
 const isAllowedGet = (path: string) =>
   path === "credits" ||
   path === "credits/transactions" ||
+  path === "credits/overview" ||
   path === "history" ||
+  path === "admin/credits/users" ||
+  /^admin\/credits\/users\/[0-9a-f-]{36}$/i.test(path) ||
   /^video\/jobs\/[0-9a-f-]{36}(?:\/subtitles)?$/i.test(path);
 
 export default defineEventHandler(async (event) => {

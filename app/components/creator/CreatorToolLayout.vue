@@ -28,7 +28,7 @@ defineProps<{
       </section>
       <section
         v-if="hasResult"
-        class="min-w-0 lg:sticky lg:top-24"
+        class="min-w-0 lg:sticky lg:top-36"
         aria-label="Generated result"
       >
         <slot name="result" />

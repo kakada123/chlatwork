@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ArrowRight, Clapperboard, Languages, Sparkles } from "lucide-vue-next";
 import { CREATOR_TOOLS, getCreatorToolsByCategory } from "~/data/creator-tools";
-import { getCreatorCredits } from "~/services/creator-ai.service";
+
+definePageMeta({ layout: "creator" });
 
 const { items: recentItems, refresh: refreshHistory } = useCreatorHistory();
-const creditBalance = useState<number | null>("creator:credit-balance", () => null);
+const creditBalance = useState<number | null>(
+  "creator:credit-balance",
+  () => null,
+);
 const createTools = getCreatorToolsByCategory("create");
 const videoTools = getCreatorToolsByCategory("video");
 const khmerTools = getCreatorToolsByCategory("khmer");
@@ -24,12 +28,7 @@ useSeoMeta({
 });
 
 onMounted(async () => {
-  await Promise.allSettled([
-    refreshHistory(),
-    getCreatorCredits().then(({ balance }) => {
-      creditBalance.value = balance;
-    }),
-  ]);
+  await refreshHistory();
 });
 </script>
 
@@ -56,12 +55,15 @@ onMounted(async () => {
           complicated AI tools.
         </p>
       </div>
-      <p class="mt-3 text-xs text-slate-400 dark:text-white/35 sm:mt-0">
+      <NuxtLink
+        to="/creator/credits"
+        class="mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-violet-700 underline-offset-4 hover:underline dark:text-violet-300 sm:mt-0"
+      >
         <template v-if="creditBalance !== null"
           >{{ creditBalance }} credits remaining</template
         >
-        <template v-else>Sign in to generate · Credits verified by server</template>
-      </p>
+        <template v-else>View your credits</template>
+      </NuxtLink>
     </header>
 
     <section aria-labelledby="creator-create-title">
@@ -70,7 +72,12 @@ onMounted(async () => {
           class="size-5 text-sky-600 dark:text-cyan-300"
           aria-hidden="true"
         />
-        <h2 id="creator-create-title" class="text-lg font-semibold">Create</h2>
+        <h2
+          id="creator-create-title"
+          class="scroll-mt-36 text-lg font-semibold"
+        >
+          Create
+        </h2>
       </div>
       <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
         <NuxtLink
@@ -106,7 +113,10 @@ onMounted(async () => {
               class="size-5 text-violet-600 dark:text-violet-300"
               aria-hidden="true"
             />
-            <h2 id="creator-video-title" class="text-lg font-semibold">
+            <h2
+              id="creator-video-title"
+              class="scroll-mt-36 text-lg font-semibold"
+            >
               Video AI
             </h2>
           </div>
@@ -185,7 +195,10 @@ onMounted(async () => {
             class="size-5 text-emerald-600 dark:text-emerald-300"
             aria-hidden="true"
           />
-          <h2 id="creator-khmer-title" class="text-lg font-semibold">
+          <h2
+            id="creator-khmer-title"
+            class="scroll-mt-36 text-lg font-semibold"
+          >
             Khmer AI
           </h2>
         </div>
@@ -230,7 +243,10 @@ onMounted(async () => {
             class="size-5 text-amber-600 dark:text-amber-300"
             aria-hidden="true"
           />
-          <h2 id="creator-repurpose-title" class="text-lg font-semibold">
+          <h2
+            id="creator-repurpose-title"
+            class="scroll-mt-36 text-lg font-semibold"
+          >
             Repurpose
           </h2>
         </div>

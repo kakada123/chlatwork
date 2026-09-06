@@ -92,7 +92,9 @@ export class CreatorCreditsService {
 
         // Balance deduction and ledger creation share one transaction. The predicate
         // is the final authority and never permits a negative wallet under concurrency.
-        const updated = await tx.$queryRaw<Array<{ balance: number }>>(Prisma.sql`
+        const updated = await tx.$queryRaw<
+          Array<{ balance: number }>
+        >(Prisma.sql`
           UPDATE ai_wallets
           SET balance = balance - ${input.credits}, updated_at = now()
           WHERE user_id = ${input.userId}::uuid AND balance >= ${input.credits}
@@ -166,7 +168,9 @@ export class CreatorCreditsService {
         };
       }
       if (generation.status === AiGenerationStatus.FAILED) {
-        throw new ConflictException('Generation reservation was already refunded');
+        throw new ConflictException(
+          'Generation reservation was already refunded',
+        );
       }
 
       await tx.aiGeneration.update({
@@ -310,6 +314,72 @@ export class CreatorCreditsService {
         createdAt: true,
       },
     });
+  }
+
+  async overview(userId: string) {
+    // Reuse the existing one-time welcome grant before opening a read snapshot.
+    await this.getBalance(userId);
+    return this.prisma.$transaction(
+      async (tx) => {
+        const [wallet, ledgerTotals, generationTotals, transactions] =
+          await Promise.all([
+            tx.aiWallet.findUnique({
+              where: { userId },
+              select: { balance: true },
+            }),
+            tx.aiCreditTransaction.groupBy({
+              by: ['type'],
+              where: { userId },
+              _sum: { amount: true },
+            }),
+            tx.aiGeneration.groupBy({
+              by: ['status'],
+              where: { userId },
+              _sum: { creditCost: true },
+            }),
+            tx.aiCreditTransaction.findMany({
+              where: { userId },
+              orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+              take: 100,
+              select: {
+                id: true,
+                type: true,
+                amount: true,
+                feature: true,
+                balanceAfter: true,
+                createdAt: true,
+              },
+            }),
+          ]);
+        const ledger = (type: AiCreditTransactionType) =>
+          ledgerTotals.find((row) => row.type === type)?._sum.amount ?? 0;
+        const generations = (status: AiGenerationStatus) =>
+          generationTotals.find((row) => row.status === status)?._sum
+            .creditCost ?? 0;
+        return {
+          balance: wallet?.balance ?? 0,
+          totals: {
+            received:
+              ledger(AiCreditTransactionType.GRANT) +
+              ledger(AiCreditTransactionType.PURCHASE),
+            // RESERVE changes the wallet; CHARGE finalizes it with amount=0.
+            // Completed generations supply actual spend without counting it twice.
+            used: generations(AiGenerationStatus.COMPLETED),
+            reserved:
+              generations(AiGenerationStatus.RESERVED) +
+              generations(AiGenerationStatus.PROCESSING),
+            refunded: ledger(AiCreditTransactionType.REFUND),
+            adjustments:
+              ledger(AiCreditTransactionType.ADMIN_ADJUSTMENT) +
+              ledger(AiCreditTransactionType.EXPIRE),
+          },
+          transactions,
+          transactionLimit: 100,
+          prices: this.pricing.catalogue(),
+        };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+    );
   }
 
   async history(userId: string) {
