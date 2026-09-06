@@ -2,7 +2,11 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { AiFeature, AiVideoJobStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatorAiException } from './creator-ai.errors';
+import {
+  CreatorAiException,
+  creatorOutputLanguageRejected,
+} from './creator-ai.errors';
+import { containsThaiScript } from './creator-output-language';
 import { CreatorCreditsService } from './creator-credits.service';
 import { CreatorPlanLimitsService } from './creator-plan-limits.service';
 import { CreatorPricingService } from './creator-pricing.service';
@@ -202,6 +206,7 @@ export class CreatorVideoService {
         'Completed subtitles were not found.',
       );
     }
+    if (containsThaiScript(result)) throw creatorOutputLanguageRejected();
     const srt = (result as Record<string, unknown>).srt;
     if (typeof srt !== 'string' || !srt.trim()) {
       throw new CreatorAiException(
@@ -210,8 +215,9 @@ export class CreatorVideoService {
         'This job does not contain subtitles.',
       );
     }
+    const basename = job.originalName.replace(/\.[^.]+$/, '');
     return {
-      filename: `${job.originalName.replace(/\.[^.]+$/, '') || 'chlatwork-subtitles'}.srt`,
+      filename: `${!basename || containsThaiScript(basename) ? 'chlatwork-subtitles' : basename}.srt`,
       content: srt,
     };
   }
@@ -228,6 +234,7 @@ export class CreatorVideoService {
     result: unknown,
     creditCost: number,
   ) {
+    if (containsThaiScript(result)) throw creatorOutputLanguageRejected();
     return {
       data: {
         jobId: job.id,

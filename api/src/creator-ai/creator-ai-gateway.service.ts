@@ -6,6 +6,7 @@ import type { AiFeature } from '@prisma/client';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
+import type { CreatorLanguage } from './dto/creator-ai.dto';
 import type {
   CreatorGatewayResult,
   CreatorTranscript,
@@ -112,6 +113,7 @@ export class CreatorAiGatewayService {
     requestId: string,
     audioPath: string,
     durationSeconds: number,
+    language: CreatorLanguage = 'KHMER',
   ): Promise<CreatorGatewayResult<CreatorTranscript>> {
     const startedAt = Date.now();
     const model = this.config.get<string>('OPENAI_TRANSCRIPTION_MODEL')!.trim();
@@ -123,8 +125,13 @@ export class CreatorAiGatewayService {
           // Creator preserves subtitle timing; this request requires whisper-1.
           response_format: 'verbose_json',
           timestamp_granularities: ['segment'],
+          // Khmer output modes expect Khmer speech. An English output selection
+          // may translate Khmer audio, so keep source detection available there.
+          ...(language === 'ENGLISH' ? {} : { language: 'km' }),
           prompt:
-            'Cambodian creator speech. Preserve natural Khmer, names, product words, and commonly mixed English terms.',
+            language === 'ENGLISH'
+              ? 'Preserve the original spoken language, names, and product terms.'
+              : 'សំឡេងនិយាយជាភាសាខ្មែរ។ សរសេរជាអក្សរខ្មែរ ហើយរក្សាពាក្យអង់គ្លេស ឈ្មោះ និងពាក្យបច្ចេកទេសតាមសំឡេងដើម។',
         },
         { headers: { 'X-Client-Request-Id': requestId } },
       );

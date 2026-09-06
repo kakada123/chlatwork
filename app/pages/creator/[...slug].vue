@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { getCreatorToolByRoute } from "~/data/creator-tools";
+import {
+  containsThaiScript,
+  CREATOR_OUTPUT_BLOCKED_MESSAGE,
+} from "~/lib/creator-output-language";
 
 definePageMeta({ layout: "creator" });
 
@@ -66,6 +70,12 @@ function useIdea(target: "post" | "script", topic: string) {
 
 function downloadSrt() {
   if (!result.value?.srt || !import.meta.client) return;
+  if (containsThaiScript(result.value)) {
+    errorMessage.value = CREATOR_OUTPUT_BLOCKED_MESSAGE;
+    state.value = "error";
+    result.value = null;
+    return;
+  }
   const url = URL.createObjectURL(
     new Blob([result.value.srt], {
       type: "application/x-subrip;charset=utf-8",
@@ -73,7 +83,8 @@ function downloadSrt() {
   );
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${videoFile.value?.name.replace(/\.[^.]+$/, "") || "chlatwork-subtitles"}.srt`;
+  const basename = videoFile.value?.name.replace(/\.[^.]+$/, "");
+  link.download = `${!basename || containsThaiScript(basename) ? "chlatwork-subtitles" : basename}.srt`;
   link.click();
   URL.revokeObjectURL(url);
 }

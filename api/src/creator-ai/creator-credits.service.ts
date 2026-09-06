@@ -12,6 +12,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { CreatorAiException } from './creator-ai.errors';
 import { CreatorPricingService } from './creator-pricing.service';
+import {
+  assertCreatorOutputLanguage,
+  containsThaiScript,
+} from './creator-output-language';
 import { CreatorProtectionService } from './creator-protection.service';
 import type {
   CreatorGenerationResult,
@@ -155,6 +159,9 @@ export class CreatorCreditsService {
     result: CreatorGenerationResult,
     usage: CreatorProviderUsage,
   ) {
+    // Validate before financial finalization so callers use the existing refund
+    // path, and no unsupported field becomes a completed, retrievable result.
+    assertCreatorOutputLanguage(result);
     return this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-generation:${generationId}`}))`;
       const generation = await tx.aiGeneration.findUnique({
@@ -383,7 +390,7 @@ export class CreatorCreditsService {
   }
 
   async history(userId: string) {
-    return this.prisma.aiGeneration.findMany({
+    const entries = await this.prisma.aiGeneration.findMany({
       where: { userId, status: AiGenerationStatus.COMPLETED },
       orderBy: { createdAt: 'desc' },
       take: 30,
@@ -396,6 +403,8 @@ export class CreatorCreditsService {
         createdAt: true,
       },
     });
+    // Older generations predate this rule. Hide them without changing stored data.
+    return entries.filter((entry) => !containsThaiScript(entry));
   }
 
   private async ensureWallet(tx: Prisma.TransactionClient, userId: string) {

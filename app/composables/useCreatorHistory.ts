@@ -4,6 +4,7 @@ import {
   CREATOR_FEATURE_TO_TOOL as FEATURE_TO_TOOL,
 } from "~/data/creator-tools";
 import { getCreatorHistory } from "~/services/creator-ai.service";
+import { containsThaiScript } from "~/lib/creator-output-language";
 
 export type CreatorHistoryItem = {
   id: string;
@@ -21,6 +22,7 @@ export function useCreatorHistory() {
   );
 
   function add(item: Omit<CreatorHistoryItem, "id" | "createdAt">) {
+    if (containsThaiScript(item)) return;
     const createdAt = new Date().toISOString();
     items.value = [
       {
@@ -35,6 +37,7 @@ export function useCreatorHistory() {
   async function refresh() {
     const history = await getCreatorHistory();
     items.value = history.flatMap((entry) => {
+      if (containsThaiScript(entry)) return [];
       const toolId = FEATURE_TO_TOOL[entry.feature];
       if (!toolId) return [];
       const tool = CREATOR_TOOLS.find((item) => item.id === toolId);
@@ -56,5 +59,9 @@ export function useCreatorHistory() {
     });
   }
 
-  return { items, add, refresh };
+  // Recheck existing session state as well as newly fetched history.
+  const visibleItems = computed(() =>
+    items.value.filter((item) => !containsThaiScript(item)),
+  );
+  return { items: visibleItems, add, refresh };
 }

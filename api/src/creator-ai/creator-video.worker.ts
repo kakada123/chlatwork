@@ -16,6 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { CreatorAiGatewayService } from './creator-ai-gateway.service';
 import { CreatorCreditsService } from './creator-credits.service';
+import { assertVideoLanguage, videoLanguage } from './creator-video-language';
 import {
   buildTranscriptCleanupPrompt,
   buildVideoContentPrompt,
@@ -124,6 +125,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
     let audioPath: string | null = null;
     let finalized = false;
     const usages: CreatorProviderUsage[] = [];
+    const preferences = videoPreferences(job.generation.inputSummary);
     try {
       if (!job.tempFilePath) throw new Error('Video input is unavailable');
       await this.credits.markProcessing(job.generationId);
@@ -139,14 +141,24 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         `${job.generationId}:transcription`,
         audioPath,
         job.durationSeconds,
+        preferences.language,
       );
       usages.push(transcription.usage);
+      if (preferences.language !== 'ENGLISH') {
+        assertVideoLanguage(
+          transcription.data.segments.map((segment) => segment.text),
+          preferences.language,
+        );
+      }
 
       await this.stage(job.id, AiVideoJobStatus.CLEANING);
       const cleaned = await this.gateway.generateStructured(
         job.feature,
         `${job.generationId}:cleanup`,
-        buildTranscriptCleanupPrompt(transcription.data.segments),
+        buildTranscriptCleanupPrompt(
+          transcription.data.segments,
+          preferences.language,
+        ),
       );
       usages.push(cleaned.usage);
       const segments = preserveTranscriptTiming(
@@ -154,6 +166,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         cleaned.data,
       );
       const transcript = segments.map((segment) => segment.text).join(' ');
+      assertVideoLanguage([transcript], preferences.language);
       const srt = this.tools.srt(segments);
 
       let result: CreatorGenerationResult;
@@ -164,11 +177,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         const generated = await this.gateway.generateStructured(
           job.feature,
           `${job.generationId}:content`,
-          buildVideoContentPrompt(
-            job.feature,
-            transcript,
-            videoPreferences(job.generation.inputSummary),
-          ),
+          buildVideoContentPrompt(job.feature, transcript, preferences),
         );
         usages.push(generated.usage);
         result = generated.data;
@@ -183,6 +192,17 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         }
       }
 
+      assertVideoLanguage(
+        [
+          ...result.sections.map((section) => section.content),
+          ...(result.items ?? []).flatMap((item) => [
+            item.title,
+            item.content,
+            item.description ?? '',
+          ]),
+        ],
+        preferences.language,
+      );
       await this.credits.complete(
         job.generationId,
         result,
@@ -264,20 +284,32 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
             60_000,
       );
       const jobs = await this.prisma.aiVideoJob.findMany({
-        where: { status: { in: ACTIVE_JOB_STATUSES }, updatedAt: { lt: cutoff } },
+        where: {
+          status: { in: ACTIVE_JOB_STATUSES },
+          updatedAt: { lt: cutoff },
+        },
         include: { generation: { select: { status: true } } },
       });
       for (const job of jobs) {
         if (job.generation.status === AiGenerationStatus.COMPLETED) {
           await this.prisma.aiVideoJob.update({
             where: { id: job.id },
-            data: { status: AiVideoJobStatus.COMPLETED, stage: 'COMPLETED', tempFilePath: null },
+            data: {
+              status: AiVideoJobStatus.COMPLETED,
+              stage: 'COMPLETED',
+              tempFilePath: null,
+            },
           });
         } else {
           await this.credits.refund(job.generationId, 'AI_GENERATION_FAILED');
           await this.prisma.aiVideoJob.update({
             where: { id: job.id },
-            data: { status: AiVideoJobStatus.FAILED, stage: 'FAILED', errorCode: 'AI_GENERATION_FAILED', tempFilePath: null },
+            data: {
+              status: AiVideoJobStatus.FAILED,
+              stage: 'FAILED',
+              errorCode: 'AI_GENERATION_FAILED',
+              tempFilePath: null,
+            },
           });
         }
         await this.tools.remove(job.tempFilePath);
@@ -285,7 +317,9 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
 
       const staleText = await this.prisma.aiGeneration.findMany({
         where: {
-          status: { in: [AiGenerationStatus.RESERVED, AiGenerationStatus.PROCESSING] },
+          status: {
+            in: [AiGenerationStatus.RESERVED, AiGenerationStatus.PROCESSING],
+          },
           updatedAt: { lt: cutoff },
           videoJob: null,
         },
@@ -304,7 +338,10 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
             86_400_000,
       );
       await this.prisma.aiGeneration.updateMany({
-        where: { completedAt: { lt: retentionCutoff }, result: { not: Prisma.DbNull } },
+        where: {
+          completedAt: { lt: retentionCutoff },
+          result: { not: Prisma.DbNull },
+        },
         data: { result: Prisma.DbNull },
       });
     } catch {
@@ -359,5 +396,5 @@ export const preserveTranscriptTiming = (
 
 function videoPreferences(summary: string | null) {
   const [, language = 'KHMER', tone = 'NATURAL'] = (summary ?? '').split('|');
-  return { language, tone };
+  return { language: videoLanguage(language), tone };
 }

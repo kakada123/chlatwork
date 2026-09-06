@@ -9,6 +9,10 @@ import {
   type CreatorGenerationResult,
   type CreatorRequest,
 } from "~/services/creator-ai.service";
+import {
+  containsThaiScript,
+  CREATOR_OUTPUT_BLOCKED_MESSAGE,
+} from "~/lib/creator-output-language";
 
 export type CreatorGenerationState =
   | "idle"
@@ -59,7 +63,10 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
   const videoStages = CREATOR_VIDEO_STAGES;
   const requiredCredits = ref<number | null>(null);
   const availableCredits = ref<number | null>(null);
-  const creditBalance = useState<number | null>("creator:credit-balance", () => null);
+  const creditBalance = useState<number | null>(
+    "creator:credit-balance",
+    () => null,
+  );
 
   const canGenerate = computed(
     () =>
@@ -118,6 +125,7 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
     requiredCredits.value = null;
     availableCredits.value = null;
     state.value = "generating";
+    result.value = null;
     if (tool.inputType === "video") activeVideoStage.value = 0;
 
     const request: CreatorRequest = {
@@ -130,6 +138,14 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
       const response = await runCreatorGeneration(tool.id, request, {
         onVideoStage: setVideoStage,
       });
+      if (containsThaiScript(response.data)) {
+        throw new CreatorServiceError(
+          "GENERATION_FAILED",
+          CREATOR_OUTPUT_BLOCKED_MESSAGE,
+          undefined,
+          response.usage.creditsRemaining,
+        );
+      }
       result.value = response.data;
       creditBalance.value = response.usage.creditsRemaining;
       if (tool.inputType === "video") {

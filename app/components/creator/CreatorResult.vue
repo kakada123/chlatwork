@@ -7,6 +7,10 @@ import {
   Sparkles,
 } from "lucide-vue-next";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
+import {
+  containsThaiScript,
+  CREATOR_OUTPUT_BLOCKED_MESSAGE,
+} from "~/lib/creator-output-language";
 import type { CreatorGenerationState } from "~/composables/useCreatorTool";
 import type { CreatorToolDefinition } from "~/data/creator-tools";
 import type {
@@ -31,12 +35,41 @@ const emit = defineEmits<{
 const activeSectionId = ref("");
 const editing = ref(false);
 const editableSections = ref<CreatorResultSection[]>([]);
+const editError = ref("");
+const blocked = computed(() =>
+  containsThaiScript([props.result, editableSections.value]),
+);
+
+function editSection(section: CreatorResultSection, event: Event) {
+  const input = event.target as HTMLTextAreaElement;
+  if (containsThaiScript(input.value)) {
+    input.value = section.content;
+    editError.value =
+      "This edit contains unsupported script and was not applied.";
+    return;
+  }
+  section.content = input.value;
+  editError.value = "";
+}
+
+function beforeEdit(event: Event) {
+  const input = event as InputEvent;
+  if (
+    containsThaiScript(input.data ?? input.dataTransfer?.getData("text/plain"))
+  ) {
+    input.preventDefault();
+    editError.value =
+      "This edit contains unsupported script and was not applied.";
+  }
+}
 
 watch(
   () => props.result,
   (result) => {
-    editableSections.value =
-      result?.sections.map((section) => ({ ...section })) ?? [];
+    editError.value = "";
+    editableSections.value = containsThaiScript(result)
+      ? []
+      : (result?.sections.map((section) => ({ ...section })) ?? []);
     activeSectionId.value = result?.sections[0]?.id ?? "";
     editing.value = false;
   },
@@ -57,6 +90,7 @@ const activeSection = computed(
     null,
 );
 const allText = computed(() => {
+  if (blocked.value) return "";
   if (props.result?.items?.length) {
     return props.result.items
       .map((item) => `${item.title}\n${item.content}`)
@@ -98,6 +132,21 @@ const allText = computed(() => {
         <div class="mobile-skeleton h-4 w-11/12 rounded" />
         <div class="mobile-skeleton h-28 w-full rounded-2xl" />
       </div>
+    </section>
+
+    <section
+      v-else-if="blocked"
+      role="alert"
+      class="rounded-2xl border border-slate-200 p-5 text-sm dark:border-white/10"
+    >
+      <p>{{ CREATOR_OUTPUT_BLOCKED_MESSAGE }}</p>
+      <button
+        type="button"
+        class="mt-3 min-h-11 rounded-xl bg-violet-600 px-4 font-semibold text-white"
+        @click="emit('regenerate')"
+      >
+        Generate a new result
+      </button>
     </section>
 
     <section
@@ -150,6 +199,13 @@ const allText = computed(() => {
       </div>
 
       <div class="space-y-4 p-4 sm:p-5">
+        <p
+          v-if="editError"
+          role="alert"
+          class="text-sm text-red-600 dark:text-red-300"
+        >
+          {{ editError }}
+        </p>
         <template v-if="result.items?.length">
           <article
             v-for="(item, index) in result.items"
@@ -215,7 +271,9 @@ const allText = computed(() => {
           </div>
           <textarea
             v-if="editing"
-            v-model="activeSection.content"
+            :value="activeSection.content"
+            @beforeinput="beforeEdit"
+            @input="editSection(activeSection, $event)"
             rows="12"
             class="min-h-56 w-full resize-y rounded-2xl border border-sky-300 bg-white p-3.5 text-base leading-7 text-slate-950 outline-none ring-2 ring-sky-100 dark:border-cyan-300/40 dark:bg-white/[0.05] dark:text-white dark:ring-cyan-300/10"
           />
@@ -241,7 +299,9 @@ const allText = computed(() => {
             </div>
             <textarea
               v-if="editing"
-              v-model="section.content"
+              :value="section.content"
+              @beforeinput="beforeEdit"
+              @input="editSection(section, $event)"
               rows="7"
               class="mt-3 min-h-36 w-full resize-y rounded-xl border border-sky-300 bg-white p-3 text-base leading-7 text-slate-950 outline-none ring-2 ring-sky-100 dark:border-cyan-300/40 dark:bg-white/[0.05] dark:text-white dark:ring-cyan-300/10"
             />

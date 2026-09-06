@@ -1,4 +1,10 @@
 import { AiFeature } from '@prisma/client';
+import type { CreatorLanguage } from './dto/creator-ai.dto';
+import {
+  assertVideoLanguage,
+  videoLanguage,
+  videoLanguageInstruction,
+} from './creator-video-language';
 import type {
   CreatorGenerationResult,
   TranscriptSegment,
@@ -19,6 +25,7 @@ Follow the requested language and tone. Prefer natural Cambodian Khmer, not lite
 Keep commonly used English product and technical terms when they sound natural in Cambodia.
 Preserve Khmer and English mixing, names, claims, meaning, and useful emoji where appropriate.
 Do not invent factual claims, prices, testimonials, or guarantees. Do not translate unless requested.
+Use only the requested Khmer and/or English writing systems. Never emit Thai-script characters in any field, including names, hashtags, labels, or subtitles.
 Return only the structured output described by the schema.`;
 
 const stringField = (maxLength: number) => ({
@@ -303,10 +310,11 @@ function facebookToTikTokPrompt(common: {
 
 export function buildTranscriptCleanupPrompt(
   segments: TranscriptSegment[],
+  language: CreatorLanguage = 'KHMER',
 ): CreatorPromptSpec<string[]> {
   return {
     name: 'khmer_transcript_cleanup',
-    instructions: `${BASE_INSTRUCTIONS}\nOnly fix obvious Khmer spelling, punctuation, and readability. Preserve meaning, names, product words, mixed English terms, and segment order. Never invent missing speech. Return exactly one text item per input segment.`,
+    instructions: `${BASE_INSTRUCTIONS}\n${videoLanguageInstruction(language)}\nFix obvious spelling, punctuation, and readability. Preserve meaning, names, product words, mixed English terms, and segment order. Never invent missing speech or infer missing speech from context. Return exactly one text item per input segment.`,
     input: JSON.stringify(segments.map((segment) => segment.text)),
     schema: objectSchema({
       texts: {
@@ -323,6 +331,7 @@ export function buildTranscriptCleanupPrompt(
       if (cleaned.length !== segments.length) {
         throw new Error('Transcript segment count changed');
       }
+      assertVideoLanguage(cleaned, language);
       return cleaned;
     },
   };
@@ -334,11 +343,14 @@ export function buildVideoContentPrompt(
   preferences: Record<string, unknown> = {},
 ): CreatorPromptSpec<CreatorGenerationResult> {
   const common = {
-    instructions: BASE_INSTRUCTIONS,
+    instructions: `${BASE_INSTRUCTIONS}\n${videoLanguageInstruction(videoLanguage(preferences.language))}`,
     input: `Use this single normalized transcript as the source. Do not add unsupported facts. Preferences: ${JSON.stringify(preferences)}\nTranscript:\n${transcript}`,
   };
 
-  if (feature === AiFeature.VIDEO_CAPTION || feature === AiFeature.VIDEO_TO_SOCIAL) {
+  if (
+    feature === AiFeature.VIDEO_CAPTION ||
+    feature === AiFeature.VIDEO_TO_SOCIAL
+  ) {
     return {
       ...common,
       name: 'video_platform_captions',
@@ -354,9 +366,21 @@ export function buildVideoContentPrompt(
         return {
           title: 'Platform captions',
           sections: [
-            { id: 'tiktok', label: 'TikTok', content: text(data.tiktok, 2_500) },
-            { id: 'facebook', label: 'Facebook', content: text(data.facebook, 4_000) },
-            { id: 'instagram', label: 'Instagram', content: text(data.instagram, 2_500) },
+            {
+              id: 'tiktok',
+              label: 'TikTok',
+              content: text(data.tiktok, 2_500),
+            },
+            {
+              id: 'facebook',
+              label: 'Facebook',
+              content: text(data.facebook, 4_000),
+            },
+            {
+              id: 'instagram',
+              label: 'Instagram',
+              content: text(data.instagram, 2_500),
+            },
           ],
         };
       },
@@ -379,9 +403,23 @@ export function buildVideoContentPrompt(
         return {
           title: 'Video summary',
           sections: [
-            { id: 'summary', label: 'Summary', content: text(data.summary, 5_000) },
-            { id: 'key-points', label: 'Key points', content: texts(data.keyPoints, 12, 500).map((item) => `• ${item}`).join('\n') },
-            { id: 'topics', label: 'Important topics', content: texts(data.topics, 20, 120).join(', ') },
+            {
+              id: 'summary',
+              label: 'Summary',
+              content: text(data.summary, 5_000),
+            },
+            {
+              id: 'key-points',
+              label: 'Key points',
+              content: texts(data.keyPoints, 12, 500)
+                .map((item) => `• ${item}`)
+                .join('\n'),
+            },
+            {
+              id: 'topics',
+              label: 'Important topics',
+              content: texts(data.topics, 20, 120).join(', '),
+            },
           ],
         };
       },

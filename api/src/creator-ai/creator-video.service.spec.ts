@@ -114,8 +114,8 @@ describe('Creator video ownership and processing', () => {
       const gateway = {
         transcribe: jest.fn().mockResolvedValue({
           data: {
-            text: 'raw Khmer',
-            segments: [{ start: 0, end: 3.2, text: 'raw Khmer' }],
+            text: 'សួស្តីអ្នកទាំងអស់គ្នា',
+            segments: [{ start: 0, end: 3.2, text: 'សួស្តីអ្នកទាំងអស់គ្នា' }],
           },
           usage,
         }),
@@ -126,9 +126,9 @@ describe('Creator video ownership and processing', () => {
             spec: { name: string; input: string },
           ) => {
             if (spec.name === 'khmer_transcript_cleanup') {
-              return Promise.resolve({ data: ['clean Khmer'], usage });
+              return Promise.resolve({ data: ['សួស្តីអ្នកទាំងអស់គ្នា។'], usage });
             }
-            expect(spec.input).toContain('clean Khmer');
+            expect(spec.input).toContain('សួស្តីអ្នកទាំងអស់គ្នា។');
             return Promise.resolve({
               data: {
                 title: 'Content Pack',
@@ -170,6 +170,13 @@ describe('Creator video ownership and processing', () => {
         mimeType.startsWith('audio/'),
       );
       expect(gateway.transcribe).toHaveBeenCalledTimes(1);
+      expect(gateway.transcribe).toHaveBeenCalledWith(
+        job.feature,
+        `${job.generationId}:transcription`,
+        '/safe/audio.mp3',
+        job.durationSeconds,
+        'KHMER',
+      );
       expect(gateway.generateStructured).toHaveBeenCalledTimes(2);
       expect(credits.complete).toHaveBeenCalledWith(
         job.generationId,

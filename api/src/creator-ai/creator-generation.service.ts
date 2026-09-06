@@ -5,10 +5,12 @@ import { CreatorAiGatewayService } from './creator-ai-gateway.service';
 import {
   CreatorAiException,
   creatorGenerationFailed,
+  creatorOutputLanguageRejected,
 } from './creator-ai.errors';
 import { CreatorCreditsService } from './creator-credits.service';
 import { buildCreatorTextPrompt } from './creator-prompts';
 import { CreatorPricingService } from './creator-pricing.service';
+import { containsThaiScript } from './creator-output-language';
 import type {
   CreatorGenerationResult,
   CreatorTextGenerationInput,
@@ -88,6 +90,7 @@ export class CreatorGenerationService {
   private existingResponse(reservation: Awaited<ReturnType<CreatorCreditsService['reserve']>>) {
     const generation = reservation.generation;
     if (generation.status === 'COMPLETED' && isCreatorResult(generation.result)) {
+      if (containsThaiScript(generation.result)) throw creatorOutputLanguageRejected();
       return {
         generationId: generation.id,
         data: generation.result,

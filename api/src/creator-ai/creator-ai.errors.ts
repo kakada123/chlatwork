@@ -6,6 +6,7 @@ export type CreatorAiErrorCode =
   | 'AI_DAILY_LIMIT_REACHED'
   | 'AI_TEMPORARILY_UNAVAILABLE'
   | 'AI_GENERATION_FAILED'
+  | 'AI_OUTPUT_LANGUAGE_REJECTED'
   | 'AI_REQUEST_IN_PROGRESS'
   | 'IDEMPOTENCY_KEY_REQUIRED'
   | 'IDEMPOTENCY_KEY_REUSED'
@@ -38,4 +39,11 @@ export const creatorGenerationFailed = () =>
     HttpStatus.BAD_GATEWAY,
     'AI_GENERATION_FAILED',
     'AI generation could not be completed. Your reserved credits were restored.',
+  );
+
+export const creatorOutputLanguageRejected = () =>
+  new CreatorAiException(
+    HttpStatus.UNPROCESSABLE_ENTITY,
+    'AI_OUTPUT_LANGUAGE_REJECTED',
+    'This result was blocked because it contains unsupported script. Please generate a new result.',
   );
