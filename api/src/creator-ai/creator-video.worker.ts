@@ -14,7 +14,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
-import { CreatorAiGatewayService } from './creator-ai-gateway.service';
+import { CreatorAiGatewayService, CreatorProviderError } from './creator-ai-gateway.service';
 import { CreatorCreditsService } from './creator-credits.service';
 import { assertVideoLanguage, videoLanguage } from './creator-video-language';
 import {
@@ -224,7 +224,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         userId: job.userId,
         feature: job.feature,
       });
-    } catch {
+    } catch (error) {
       if (finalized) {
         await this.prisma.aiVideoJob.updateMany({
           where: { id: job.id },
@@ -237,6 +237,9 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         });
         return;
       }
+      // An incomplete or rejected structured response can still consume provider
+      // tokens. Count them in the failed job while restoring the user's credits.
+      if (error instanceof CreatorProviderError && error.usage) usages.push(error.usage);
       await this.credits.refund(
         job.generationId,
         'AI_GENERATION_FAILED',

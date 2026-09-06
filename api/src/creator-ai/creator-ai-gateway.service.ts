@@ -2,21 +2,29 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createReadStream } from 'node:fs';
 import OpenAI from 'openai';
+import type { Response } from 'openai/resources/responses/responses';
 import type { AiFeature } from '@prisma/client';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import { transcriptionErrorDetails } from './creator-transcription-error';
+import {
+  CreatorStructuredResponseError,
+  parseCreatorStructuredResponse,
+  structuredResponseDiagnostics,
+} from './creator-structured-response';
 import type {
   CreatorGatewayResult,
   CreatorTranscript,
+  CreatorProviderUsage,
 } from './creator-ai.types';
 
 export class CreatorProviderError extends Error {
   constructor(
     message: string,
     readonly durationMs: number,
+    readonly usage?: CreatorProviderUsage,
   ) {
     super(message);
     this.name = 'CreatorProviderError';
@@ -38,6 +46,8 @@ export class CreatorAiGatewayService {
   ): Promise<CreatorGatewayResult<T>> {
     const startedAt = Date.now();
     const model = this.model(spec.premium);
+    let response: (Response & { _request_id?: string | null }) | undefined;
+    let providerUsage: CreatorProviderUsage | undefined;
     try {
       const input = image
         ? [
@@ -54,7 +64,7 @@ export class CreatorAiGatewayService {
             },
           ]
         : spec.input;
-      const response = await this.openAi().responses.create(
+      response = await this.openAi().responses.create(
         {
           model,
           instructions: spec.instructions,
@@ -72,26 +82,24 @@ export class CreatorAiGatewayService {
         },
         { headers: { 'X-Client-Request-Id': requestId } },
       );
-      const parsed = spec.parse(JSON.parse(response.output_text) as unknown);
       const usage = response.usage;
-      return {
-        data: parsed,
-        usage: {
-          provider: 'OPENAI',
-          model,
-          inputTokens: usage?.input_tokens ?? null,
-          cachedInputTokens: usage?.input_tokens_details.cached_tokens ?? null,
-          outputTokens: usage?.output_tokens ?? null,
-          audioSeconds: null,
-          estimatedProviderCostUsd: this.textCost(
-            usage?.input_tokens ?? 0,
-            usage?.output_tokens ?? 0,
-            spec.premium,
-          ),
-          providerRequestId: response._request_id ?? response.id ?? null,
-          durationMs: Date.now() - startedAt,
-        },
+      providerUsage = {
+        provider: 'OPENAI',
+        model,
+        inputTokens: usage?.input_tokens ?? null,
+        cachedInputTokens: usage?.input_tokens_details?.cached_tokens ?? null,
+        outputTokens: usage?.output_tokens ?? null,
+        audioSeconds: null,
+        estimatedProviderCostUsd: this.textCost(
+          usage?.input_tokens ?? 0,
+          usage?.output_tokens ?? 0,
+          spec.premium,
+        ),
+        providerRequestId: response._request_id ?? response.id ?? null,
+        durationMs: Date.now() - startedAt,
       };
+      const parsed = parseCreatorStructuredResponse(response, spec);
+      return { data: parsed, usage: providerUsage };
     } catch (error) {
       const durationMs = Date.now() - startedAt;
       this.logger.error('Creator provider request failed', {
@@ -100,8 +108,24 @@ export class CreatorAiGatewayService {
         model,
         durationMs,
         providerStatus: this.providerStatus(error),
+        providerFailureReason:
+          error instanceof CreatorStructuredResponseError
+            ? error.reason
+            : error instanceof OpenAI.APIConnectionTimeoutError
+              ? 'PROVIDER_TIMEOUT'
+              : error instanceof OpenAI.APIConnectionError
+                ? 'PROVIDER_CONNECTION_ERROR'
+                : this.providerStatus(error) !== null
+                  ? 'PROVIDER_HTTP_ERROR'
+                  : 'LOCAL_PROCESSING_ERROR',
+        maxOutputTokens: spec.maxOutputTokens,
+        ...structuredResponseDiagnostics(response),
       });
-      throw new CreatorProviderError('OpenAI request failed', durationMs);
+      throw new CreatorProviderError(
+        'OpenAI request failed',
+        durationMs,
+        providerUsage ? { ...providerUsage, durationMs } : undefined,
+      );
     }
   }
 

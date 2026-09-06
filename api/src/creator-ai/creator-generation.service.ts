@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AiFeature } from '@prisma/client';
-import { CreatorAiGatewayService } from './creator-ai-gateway.service';
+import { CreatorAiGatewayService, CreatorProviderError } from './creator-ai-gateway.service';
 import {
   CreatorAiException,
   creatorGenerationFailed,
@@ -78,6 +78,7 @@ export class CreatorGenerationService {
       };
     } catch (error) {
       await this.credits.refund(reservation.generation.id, 'AI_GENERATION_FAILED', {
+        ...(error instanceof CreatorProviderError ? error.usage : undefined),
         durationMs:
           error && typeof error === 'object' && 'durationMs' in error
             ? Number((error as { durationMs: unknown }).durationMs) || 0
