@@ -120,6 +120,7 @@ export class CreatorAiGatewayService {
         {
           file: createReadStream(audioPath),
           model,
+          // Creator preserves subtitle timing; this request requires whisper-1.
           response_format: 'verbose_json',
           timestamp_granularities: ['segment'],
           prompt:
