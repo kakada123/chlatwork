@@ -25,6 +25,9 @@ const props = withDefaults(
 );
 const { user, isReady, fetchMe } = useAuth();
 
+// Hide the memory gallery and counter without changing saved Moment content.
+const showMemoryAndCounterSections = false;
+
 const isSecretOpen = ref(false);
 const isHolding = ref(false);
 const rsvpChoice = ref<MomentRsvpChoice | "">("");
@@ -433,7 +436,7 @@ onBeforeUnmount(cancelHold);
     />
 
     <section
-      v-if="photos.length && !isVoting"
+      v-if="showMemoryAndCounterSections && photos.length && !isVoting"
       class="moment-section"
       aria-labelledby="moment-gallery-title"
     >
@@ -459,7 +462,7 @@ onBeforeUnmount(cancelHold);
     </section>
 
     <section
-      v-if="counter"
+      v-if="showMemoryAndCounterSections && counter"
       class="counter-section"
       :aria-label="experienceCopy.counterLabel"
     >
@@ -507,6 +510,7 @@ onBeforeUnmount(cancelHold);
           type="button"
           class="secret-button"
           :class="{ 'is-holding': isHolding }"
+          @contextmenu.prevent
           @pointerdown.prevent="startHold"
           @pointerup="cancelHold"
           @pointerleave="cancelHold"
@@ -918,6 +922,13 @@ onBeforeUnmount(cancelHold);
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
   touch-action: none;
+}
+/* Keep mobile long-press selection and callouts from interrupting the reveal. */
+.secret-button,
+.secret-button * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .secret-progress {
   position: absolute;
