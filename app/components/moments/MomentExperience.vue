@@ -44,6 +44,40 @@ const voteSaved = ref(false);
 const voteError = ref("");
 const showVoteLogin = ref(false);
 const pollSummary = ref<MomentPollSummary | undefined>(props.moment.pollSummary);
+const voteNow = ref(0);
+let voteTimer: ReturnType<typeof setInterval> | undefined;
+let refreshingVote = false;
+let celebratedRound: string | undefined;
+const voteClosed = computed(() => Boolean(pollSummary.value?.closed ||
+  (pollSummary.value?.closesAt && voteNow.value >= Date.parse(pollSummary.value.closesAt))));
+const voteCountdown = computed(() => {
+  if (!voteNow.value) return "--:--";
+  const seconds = Math.max(0, Math.ceil((Date.parse(pollSummary.value?.closesAt ?? "") - voteNow.value) / 1000));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+});
+const voteWinners = computed(() => {
+  const results = pollSummary.value?.results ?? [];
+  const highest = Math.max(0, ...results.map((result) => result.votes));
+  return highest ? results.filter((result) => result.votes === highest) : [];
+});
+
+async function refreshTimedVote() {
+  if (refreshingVote) return;
+  refreshingVote = true;
+  try {
+    const current = await $fetch<{ status: string; pollSummary?: MomentPollSummary }>(`/api/moments/${props.moment.slug}`);
+    if (current.pollSummary) pollSummary.value = current.pollSummary;
+    // Celebrate only after fetching the server's final counts, including votes from Telegram.
+    if (current.pollSummary?.closed && current.pollSummary.roundId !== celebratedRound) {
+      celebratedRound = current.pollSummary.roundId;
+      if (voteWinners.value.length) confetti({ particleCount: 120, spread: 82, disableForReducedMotion: true });
+    }
+  } catch {
+    // Keep the deadline enforced locally and retry final-result delivery on the next tick.
+  } finally {
+    refreshingVote = false;
+  }
+}
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 
 const heroBlock = computed(() =>
@@ -202,7 +236,7 @@ async function submitRsvp() {
 }
 
 async function submitVote() {
-  if (props.preview || !voteChoice.value || voteSaving.value) return;
+  if (props.preview || voteClosed.value || !voteChoice.value || voteSaving.value) return;
   if (pollRequiresLogin.value) {
     if (!isReady.value) await fetchMe();
     if (!user.value) {
@@ -243,6 +277,15 @@ async function continueVoteAfterLogin() {
 
 onMounted(() => {
   if (props.preview || !pollBlock.value) return;
+  voteNow.value = Date.now();
+  if (pollSummary.value?.closesAt) {
+    let ticks = 0;
+    voteTimer = setInterval(() => {
+      voteNow.value = Date.now();
+      ticks += 1;
+      if (ticks % 15 === 0 || (voteClosed.value && !pollSummary.value?.closed)) void refreshTimedVote();
+    }, 1000);
+  }
   try {
     const saved = JSON.parse(localStorage.getItem(`chlatwork_moment_vote_${props.moment.slug}_selection`) ?? "null") as { optionId?: string; voterName?: string } | null;
     if (saved?.optionId && pollOptions.value.some((option) => option.id === saved.optionId)) {
@@ -293,7 +336,10 @@ function revealSecret() {
   });
 }
 
-onBeforeUnmount(cancelHold);
+onBeforeUnmount(() => {
+  cancelHold();
+  if (voteTimer) clearInterval(voteTimer);
+});
 </script>
 
 <template>
@@ -410,19 +456,24 @@ onBeforeUnmount(cancelHold);
     <section v-if="pollBlock" class="moment-section poll-section" aria-labelledby="poll-title">
       <p class="section-kicker">{{ experienceCopy.voteKicker }}</p>
       <h2 id="poll-title">{{ pollQuestion }}</h2>
+      <p v-if="pollSummary?.closesAt" class="rsvp-status" role="timer">{{ voteClosed ? experienceCopy.voteClosed : `${experienceCopy.voteTimeLeft}: ${voteCountdown}` }}</p>
+      <p v-if="pollSummary?.closed" class="rsvp-success" role="status">
+        {{ experienceCopy.voteFinalResults }} ·
+        {{ voteWinners.length ? `${voteWinners.length > 1 ? experienceCopy.voteTie : experienceCopy.voteWinner}: ${voteWinners.map((result) => result.label).join(', ')}` : experienceCopy.voteNoVotes }}
+      </p>
       <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
       <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="submitVote">
         <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
-          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview" required />
+          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
           <span class="poll-option-copy"><strong>{{ option.label }}</strong><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
           <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
           <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
             {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
           </span>
         </label>
-        <input v-if="!preview && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" required :placeholder="experienceCopy.voterNameRequired" />
-        <button v-if="!preview" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : voteSaved ? experienceCopy.updateVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
+        <input v-if="!preview && !voteClosed && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" required :placeholder="experienceCopy.voterNameRequired" />
+        <button v-if="!preview && !voteClosed" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : voteSaved ? experienceCopy.updateVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
         <p v-if="!preview && voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
         <p v-if="!preview && voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
       </form>

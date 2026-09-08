@@ -110,3 +110,60 @@ describe('Telegram voting poll', () => {
     ).not.toContain('Not voted yet');
   });
 });
+
+
+describe('Timed Telegram result presentation', () => {
+  const timed = {
+    ...poll,
+    roundId: '00000000-0000-4000-8000-000000000003',
+    closesAt: '2099-09-08T03:30:00Z',
+  };
+  it('shows a countdown and separate join/opt-out buttons', () => {
+    expect(
+      buildTelegramPollMessage(timed, new Date('2099-09-08T03:00:00Z')),
+    ).toContain('30 min left');
+    expect(buildTelegramPollMessage(timed)).toContain('join by default');
+    const buttons = buildTelegramPollKeyboard(
+      timed,
+      'https://example.com',
+    ).inline_keyboard.flat();
+    expect(buttons.some((button) => button.text === 'Not joining')).toBe(true);
+    expect(
+      buttons
+        .filter((button) => button.callback_data)
+        .every((button) => Buffer.byteLength(button.callback_data!) <= 64),
+    ).toBe(true);
+  });
+  it('celebrates the winner and removes all actions after closing', () => {
+    const final = { ...timed, closed: true, participants: ['Dara', 'Sokha'] };
+    expect(buildTelegramPollMessage(final)).toContain(
+      '🏆🎉 Winner: Khmer food',
+    );
+    expect(buildTelegramPollMessage(final)).toContain(
+      'Participants: Dara, Sokha',
+    );
+    expect(
+      buildTelegramPollKeyboard(final, 'https://example.com')
+        .inline_keyboard.flat()
+        .every((button) => !button.callback_data),
+    ).toBe(true);
+  });
+  it('celebrates tied winners and does not invent a winner for zero votes', () => {
+    expect(
+      buildTelegramPollMessage({
+        ...timed,
+        closed: true,
+        totalVotes: 2,
+        results: poll.results.map((result) => ({ ...result, votes: 1 })),
+      }),
+    ).toContain('Tied winners: Khmer food, Pizza');
+    const empty = buildTelegramPollMessage({
+      ...timed,
+      closed: true,
+      totalVotes: 0,
+      results: poll.results.map((result) => ({ ...result, votes: 0 })),
+    });
+    expect(empty).toContain('No votes were cast.');
+    expect(empty).not.toContain('Winner:');
+  });
+});

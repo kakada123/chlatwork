@@ -345,6 +345,7 @@ model Moment {
   invitationGuests MomentInvitationGuest[]
   votes           MomentVote[]
   voteSchedule    MomentVoteSchedule?
+  voteRounds      MomentVoteRound[]
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
@@ -376,6 +377,7 @@ model MomentVoteSchedule {
   timeZone            String   @default("Asia/Phnom_Penh") @map("time_zone") @db.VarChar(64)
   sendHour            Int      @default(10) @map("send_hour")
   sendMinute          Int      @default(0) @map("send_minute")
+  durationMinutes     Int      @default(30) @map("duration_minutes")
   enabled             Boolean  @default(true)
   lastAttemptDate     DateTime? @map("last_attempt_date") @db.Date
   lastSentAt          DateTime? @map("last_sent_at")
@@ -384,6 +386,33 @@ model MomentVoteSchedule {
 
   @@index([enabled, sendHour, sendMinute])
   @@map("moment_vote_schedules")
+}
+
+model MomentVoteRound {
+  id             String    @id @default(uuid()) @db.Uuid
+  momentId       String    @map("moment_id") @db.Uuid
+  moment         Moment    @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  voteDate       DateTime  @map("vote_date") @db.Date
+  telegramChatId BigInt    @map("telegram_chat_id")
+  closesAt       DateTime  @map("closes_at") @db.Timestamptz
+  messageId      Int?      @map("message_id")
+  finalizedAt    DateTime? @map("finalized_at") @db.Timestamptz
+  members        MomentVoteRoundMember[]
+  split          TelegramGroupSplit?
+
+  @@unique([momentId, voteDate])
+  @@map("moment_vote_rounds")
+}
+
+model MomentVoteRoundMember {
+  roundId        String @map("round_id") @db.Uuid
+  round          MomentVoteRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  telegramUserId String @map("telegram_user_id") @db.VarChar(20)
+  displayName    String @map("display_name") @db.VarChar(80)
+  joined         Boolean @default(true)
+
+  @@id([roundId, telegramUserId])
+  @@map("moment_vote_round_members")
 }
 
 model MomentRsvp {
@@ -649,6 +678,8 @@ model TelegramGroupSplit {
   creatorUserId   String   @map("creator_user_id") @db.Uuid
   creator         User     @relation(fields: [creatorUserId], references: [id], onDelete: Cascade)
   telegramChatId  BigInt   @map("telegram_chat_id")
+  voteRoundId     String?  @unique @map("vote_round_id") @db.Uuid
+  voteRound       MomentVoteRound? @relation(fields: [voteRoundId], references: [id], onDelete: SetNull)
   title           String   @default("Shared expense") @db.VarChar(120)
   total           Decimal  @db.Decimal(20, 2)
   currency        ExpenseCurrency

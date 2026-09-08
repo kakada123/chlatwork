@@ -160,7 +160,9 @@ export class TelegramBotService {
           'You are registered for voting reminders in this group.',
         );
       } else if (
-        ['dailyvote', 'votetime', 'stopdailyvote'].includes(command ?? '')
+        ['dailyvote', 'votetime', 'voteduration', 'stopdailyvote'].includes(
+          command ?? '',
+        )
       ) {
         await this.handleGroupVoteCommand(message, command!);
       } else if (command === 'split') {
@@ -237,7 +239,11 @@ export class TelegramBotService {
   private async handleCallback(callback: TelegramCallbackQuery) {
     const data = typeof callback.data === 'string' ? callback.data : '';
     if (!data || data.length > 64) return;
-    if (data.startsWith('poll:vote:')) {
+    if (data.startsWith('poll:join:') || data.startsWith('poll:leave:')) {
+      await this.handlePollParticipation(callback, data);
+      return;
+    }
+    if (data.startsWith('poll:vote:') || data.startsWith('poll:cast:')) {
       await this.handlePollVote(callback, data);
       return;
     }
@@ -377,12 +383,54 @@ export class TelegramBotService {
     }
   }
 
+  private async handlePollParticipation(
+    callback: TelegramCallbackQuery,
+    data: string,
+  ) {
+    const match = /^poll:(join|leave):([0-9a-f-]+)$/i.exec(data);
+    const message = callback.message;
+    if (
+      !match ||
+      !UUID_PATTERN.test(match[2]) ||
+      !message ||
+      !this.isGroupCallback(callback, message)
+    )
+      return;
+    try {
+      await this.moments.setTelegramRoundParticipation(
+        match[2],
+        message.chat.id,
+        String(callback.from.id),
+        this.telegramDisplayName(callback.from),
+        match[1] === 'join',
+      );
+      await this.bot.answerCallback(
+        callback.id,
+        match[1] === 'join'
+          ? 'Joined. You will share the bill equally.'
+          : 'You are not joining and will not be included in the split.',
+      );
+    } catch (error) {
+      if (
+        error instanceof GoneException ||
+        error instanceof NotFoundException
+      ) {
+        await this.bot.answerCallback(
+          callback.id,
+          'This voting round has closed.',
+        );
+        return;
+      }
+      throw error;
+    }
+  }
+
   private async handlePollVote(callback: TelegramCallbackQuery, data: string) {
     if (!this.isValidPollCallback(callback)) return;
     const [scope, action, momentId, optionId, extra] = data.split(':');
     if (
       scope !== 'poll' ||
-      action !== 'vote' ||
+      !['vote', 'cast'].includes(action) ||
       extra !== undefined ||
       !UUID_PATTERN.test(momentId ?? '') ||
       !POLL_OPTION_PATTERN.test(optionId ?? '')
@@ -398,14 +446,26 @@ export class TelegramBotService {
     const linked = await this.findLinkedUser(telegramUserId);
     const displayName = this.telegramDisplayName(callback.from);
     try {
+      const round =
+        action === 'cast'
+          ? await this.moments.getTelegramVoteRound(momentId)
+          : null;
+      if (
+        round &&
+        callback.message &&
+        round.telegramChatId !== BigInt(callback.message.chat.id)
+      ) {
+        throw new BadRequestException('This poll belongs to another group.');
+      }
       const poll = await this.moments.respondToTelegramVote(
-        momentId,
+        round?.momentId ?? momentId,
         optionId,
         {
           telegramUserId,
           linkedUserId: linked?.user.id,
           displayName,
         },
+        ...(round ? [round.id] : []),
       );
       await this.bot.answerCallback(callback.id, 'Vote saved.');
       const keyboard = buildTelegramPollKeyboard(
@@ -429,13 +489,20 @@ export class TelegramBotService {
         if (['group', 'supergroup'].includes(callback.message.chat.type)) {
           const chatId = callback.message.chat.id;
           const pending = await this.pendingGroupVoters(chatId, poll);
+          let mainMessage = true;
           for (const message of buildTelegramPollUpdates(poll, pending)) {
-            await this.bot.sendMessage(
+            const sent = await this.bot.sendMessage(
               chatId,
               message.text,
               keyboard,
               message.entities,
             );
+            if (mainMessage && poll.roundId) {
+              await this.prisma
+                .$executeRaw`UPDATE moment_vote_rounds SET message_id = ${sent.message_id}
+                WHERE id = ${poll.roundId}::uuid`;
+            }
+            mainMessage = false;
           }
           // Keep the original until every replacement message has been delivered.
           try {
@@ -654,6 +721,33 @@ export class TelegramBotService {
       return;
     }
 
+    if (command === 'voteduration') {
+      const match = /^\/voteduration(?:@[A-Za-z0-9_]+)?\s+(\d{1,4})\s*$/.exec(
+        message.text ?? '',
+      );
+      try {
+        await this.moments.updateDailyTelegramVoteDuration(
+          linked.user.id,
+          message.chat.id,
+          match ? Number(match[1]) : 0,
+        );
+        await this.bot.sendMessage(
+          message.chat.id,
+          `New voting rounds will last ${Number(match![1])} minutes. The current deadline stays unchanged.`,
+        );
+      } catch (error) {
+        if (
+          error instanceof BadRequestException ||
+          error instanceof NotFoundException
+        ) {
+          await this.bot.sendMessage(message.chat.id, error.message);
+          return;
+        }
+        throw error;
+      }
+      return;
+    }
+
     if (command === 'votetime') {
       const match = /(?:^|\s)([01]\d|2[0-3]):([0-5]\d)(?:\s|$)/.exec(
         message.text ?? '',
@@ -725,22 +819,74 @@ export class TelegramBotService {
     try {
       const currency =
         linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
-      const parsed = parseTelegramSplit(message.text ?? '', currency);
-      const split = await this.prisma.telegramGroupSplit.create({
-        data: {
-          creatorUserId: linked.user.id,
-          telegramChatId: BigInt(message.chat.id),
-          total: new Prisma.Decimal(parsed.total),
-          currency: parsed.currency,
-          participants: {
-            create: parsed.participants.map((participant) => ({
-              position: participant.position,
-              name: participant.name,
-              amount: new Prisma.Decimal(participant.amount),
-            })),
+      const replyId = message.reply_to_message?.message_id;
+      const [round] = replyId
+        ? await this.prisma.$queryRaw<
+            Array<{ id: string; closesAt: Date; creatorId: string }>
+          >`
+        SELECT round.id::text, round.closes_at AS "closesAt", moment.creator_id::text AS "creatorId"
+        FROM moment_vote_rounds round JOIN moments moment ON moment.id = round.moment_id
+        WHERE round.telegram_chat_id = ${BigInt(message.chat.id)} AND round.message_id = ${replyId}
+      `
+        : [];
+      if (replyId && !round)
+        throw new TelegramSplitParseError('Reply to the final voting results.');
+      if (round && round.closesAt.getTime() > Date.now())
+        throw new TelegramSplitParseError(
+          'Wait until voting closes before splitting the bill.',
+        );
+      if (round && round.creatorId !== linked.user.id)
+        throw new TelegramSplitParseError(
+          'Only the poll owner can set the final bill total.',
+        );
+      const joined = round
+        ? await this.moments.getFinalTelegramRoundParticipants(round.id)
+        : undefined;
+      const parsed = parseTelegramSplit(message.text ?? '', currency, joined);
+      const split = await this.prisma.$transaction(async (tx) => {
+        if (round) {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${round.id}))`;
+          const [existing] = await tx.$queryRaw<Array<{ id: string }>>`
+            SELECT id::text FROM telegram_group_splits WHERE vote_round_id = ${round.id}::uuid
+          `;
+          // Webhook retries reuse the confirmed bill instead of creating another debt list.
+          if (existing) {
+            const saved = await tx.telegramGroupSplit.findUniqueOrThrow({
+              where: { id: existing.id },
+              include: { participants: { orderBy: { position: 'asc' } } },
+            });
+            if (
+              saved.total.toString() !==
+                new Prisma.Decimal(parsed.total).toString() ||
+              saved.currency !== parsed.currency
+            ) {
+              throw new TelegramSplitParseError(
+                'This round already has a bill. The existing amounts have not changed.',
+              );
+            }
+            return saved;
+          }
+        }
+        const created = await tx.telegramGroupSplit.create({
+          data: {
+            creatorUserId: linked.user.id,
+            telegramChatId: BigInt(message.chat.id),
+            total: new Prisma.Decimal(parsed.total),
+            currency: parsed.currency,
+            participants: {
+              create: parsed.participants.map((participant) => ({
+                position: participant.position,
+                name: participant.name,
+                amount: new Prisma.Decimal(participant.amount),
+                telegramUserId: participant.telegramUserId,
+              })),
+            },
           },
-        },
-        include: { participants: { orderBy: { position: 'asc' } } },
+          include: { participants: { orderBy: { position: 'asc' } } },
+        });
+        if (round)
+          await tx.$executeRaw`UPDATE telegram_group_splits SET vote_round_id = ${round.id}::uuid WHERE id = ${created.id}::uuid`;
+        return created;
       });
       await this.bot.sendMessage(
         message.chat.id,
@@ -814,8 +960,8 @@ export class TelegramBotService {
 
       await tx.telegramGroupSplitParticipant.update({
         where: { id: participantId },
-        data: current.telegramUserId
-          ? { telegramUserId: null, telegramDisplayName: null, paidAt: null }
+        data: current.paidAt
+          ? { paidAt: null }
           : {
               telegramUserId,
               telegramDisplayName: displayName,
@@ -828,9 +974,7 @@ export class TelegramBotService {
       });
       return split
         ? {
-            state: current.telegramUserId
-              ? ('unpaid' as const)
-              : ('paid' as const),
+            state: current.paidAt ? ('unpaid' as const) : ('paid' as const),
             split,
           }
         : { state: 'missing' as const };
@@ -914,14 +1058,20 @@ export class TelegramBotService {
       await this.bot.sendMessage(
         message.chat.id,
         `✅ Daily vote enabled at 10:00 (${linked.user.telegramNotificationTimeZone}).\n` +
+          'Voting lasts 30 minutes. Use /voteduration 30 to change future rounds.\n' +
           'Use /votetime HH:MM to change it or /stopdailyvote to stop.\n' +
           'Members can send /joinvote to register for voting reminders.',
       );
-      await this.bot.sendMessage(
+      const sent = await this.bot.sendMessage(
         message.chat.id,
         buildTelegramPollMessage(poll),
         buildTelegramPollKeyboard(poll, this.appUrl(`/m/${poll.slug}`)),
       );
+      if (poll.roundId) {
+        await this.prisma
+          .$executeRaw`UPDATE moment_vote_rounds SET message_id = ${sent.message_id}
+          WHERE id = ${poll.roundId}::uuid`;
+      }
     } catch (error) {
       if (
         error instanceof NotFoundException ||

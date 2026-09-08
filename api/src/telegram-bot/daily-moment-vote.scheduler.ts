@@ -53,6 +53,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
   }
 
   async runOnce(now = new Date()) {
+    await this.refreshRounds(now);
     // The local date is claimed atomically so multiple API replicas cannot send the same daily poll twice.
     const duePolls = await this.prisma.$queryRaw<DueDailyPoll[]>`
       WITH due AS (
@@ -107,6 +108,66 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     return duePolls.length;
   }
 
+  private async refreshRounds(now: Date) {
+    const rounds = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT id::text FROM moment_vote_rounds
+      WHERE finalized_at IS NULL
+      ORDER BY closes_at LIMIT 100
+    `;
+    for (const round of rounds) {
+      try {
+        await this.prisma.$transaction(
+          async (tx) => {
+            // Edits are retryable and the row lock keeps replicas from publishing competing results.
+            const [current] = await tx.$queryRaw<
+              Array<{
+                telegramChatId: bigint;
+                messageId: number | null;
+                closesAt: Date;
+              }>
+            >`
+            SELECT telegram_chat_id AS "telegramChatId", message_id AS "messageId", closes_at AS "closesAt"
+            FROM moment_vote_rounds WHERE id = ${round.id}::uuid AND finalized_at IS NULL
+            FOR UPDATE SKIP LOCKED
+          `;
+            if (!current) return;
+            const poll = await this.moments.getTelegramVoteRoundResults(
+              round.id,
+            );
+            poll.closed = current.closesAt <= now;
+            const publicUrl = new URL(
+              `/m/${poll.slug}`,
+              this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+            ).toString();
+            if (current.messageId !== null) {
+              await this.bot.editMessage(
+                Number(current.telegramChatId),
+                current.messageId,
+                buildTelegramPollMessage(poll, now),
+                buildTelegramPollKeyboard(poll, publicUrl),
+              );
+            } else {
+              // Recover an initial delivery failure using the original persisted deadline.
+              const sent = await this.bot.sendMessage(
+                Number(current.telegramChatId),
+                buildTelegramPollMessage(poll, now),
+                buildTelegramPollKeyboard(poll, publicUrl),
+              );
+              await tx.$executeRaw`UPDATE moment_vote_rounds SET message_id = ${sent.message_id} WHERE id = ${round.id}::uuid`;
+            }
+            if (poll.closed) {
+              await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at = ${now} WHERE id = ${round.id}::uuid`;
+            }
+          },
+          { timeout: 15_000 },
+        );
+      } catch {
+        // Leave unfinished rounds retryable on the next tick without logging chat or voter data.
+        this.logger.warn('A Moment vote timer could not be refreshed');
+      }
+    }
+  }
+
   private async tick() {
     if (this.running) return;
     this.running = true;
@@ -121,9 +182,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
 
   private async sendPoll(due: DueDailyPoll) {
     try {
-      const poll = await this.moments.getScheduledTelegramVotingMoment(
-        due.momentId,
-      );
+      const poll = await this.moments.startTelegramVoteRound(due.momentId);
       const chatId = Number(due.telegramChatId);
       if (!Number.isSafeInteger(chatId) || chatId === 0) {
         throw new Error('Invalid Telegram chat ID');
@@ -132,11 +191,17 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
         `/m/${poll.slug}`,
         this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
       ).toString();
-      await this.bot.sendMessage(
+      const sent = await this.bot.sendMessage(
         chatId,
         buildTelegramPollMessage(poll),
         buildTelegramPollKeyboard(poll, publicUrl),
       );
+      if (poll.roundId) {
+        await this.prisma.$executeRaw`
+          UPDATE moment_vote_rounds SET message_id = ${sent.message_id}
+          WHERE id = ${poll.roundId}::uuid
+        `;
+      }
       await this.prisma.momentVoteSchedule.update({
         where: { id: due.scheduleId },
         data: { lastSentAt: new Date() },

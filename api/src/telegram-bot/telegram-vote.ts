@@ -22,6 +22,10 @@ export interface TelegramVotingPoll {
   question: string;
   identityMode: 'ANONYMOUS' | 'NAME_REQUIRED' | 'LOGIN_REQUIRED';
   voteDate?: string;
+  roundId?: string;
+  closesAt?: string;
+  closed?: boolean;
+  participants?: string[];
   totalVotes: number;
   results: TelegramPollResult[];
 }
@@ -36,12 +40,26 @@ function buttonLabel(label: string, votes: number) {
   return `${trimmed}${suffix}`;
 }
 
-export function buildTelegramPollMessage(poll: TelegramVotingPoll) {
+export function buildTelegramPollMessage(
+  poll: TelegramVotingPoll,
+  now = new Date(),
+) {
+  const closed =
+    poll.closed || Boolean(poll.closesAt && new Date(poll.closesAt) <= now);
+  const highest = Math.max(0, ...poll.results.map((result) => result.votes));
+  const winners = poll.results.filter((result) => result.votes === highest);
   const lines = [
-    `🗳 ${poll.title}`,
+    `${closed ? '🎉 Final results ·' : '🗳'} ${poll.title}`,
     '',
     poll.question,
     ...(poll.voteDate ? [`📅 ${poll.voteDate}`] : []),
+    ...(poll.closesAt
+      ? [
+          closed
+            ? 'Voting closed.'
+            : `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${new Date(poll.closesAt).toISOString().replace('T', ' ').replace(':00.000Z', ' UTC')}`,
+        ]
+      : []),
     '',
     ...poll.results.flatMap((result, index) => {
       const percent = poll.totalVotes
@@ -55,29 +73,71 @@ export function buildTelegramPollMessage(poll: TelegramVotingPoll) {
     }),
     '',
     `Total votes: ${poll.totalVotes}`,
-    poll.voteDate
-      ? 'Tap an option below. Everyone can vote again tomorrow.'
-      : 'Tap an option below. You can change your vote.',
+    ...(closed
+      ? [
+          highest === 0
+            ? 'No votes were cast.'
+            : `${winners.length > 1 ? '🎉 Tied winners' : '🏆🎉 Winner'}: ${winners.map((result) => result.label).join(', ')}${highest ? ' 🥳' : ''}`,
+        ]
+      : []),
+    ...(poll.roundId
+      ? [
+          closed
+            ? `Joined: ${poll.participants?.length ?? 0}. Reply /split 60 with the bill total to split equally.`
+            : 'Known group members join by default and split the bill equally (ចែកលុយស្មើ). Tap “Not joining” before time runs out.',
+        ]
+      : []),
+    ...(poll.participants?.length
+      ? [`Participants: ${poll.participants.join(', ')}`]
+      : []),
+    closed
+      ? 'This round is final.'
+      : poll.voteDate
+        ? 'Tap an option below. Everyone can vote again tomorrow.'
+        : 'Tap an option below. You can change your vote.',
   ];
   const message = lines.join('\n');
   if (message.length <= 4_096) return message;
 
   // Large groups still get complete counts even when the voter-name detail is too long for Telegram.
-  return lines.filter((line) => !line.startsWith('   Voters: ')).join('\n');
+  return lines
+    .filter(
+      (line) =>
+        !line.startsWith('   Voters: ') && !line.startsWith('Participants: '),
+    )
+    .join('\n');
 }
 
 export function buildTelegramPollKeyboard(
   poll: TelegramVotingPoll,
   publicUrl: string,
 ): TelegramInlineKeyboard {
+  const closed =
+    poll.closed ||
+    Boolean(poll.closesAt && Date.parse(poll.closesAt) <= Date.now());
   return {
     inline_keyboard: [
-      ...poll.results.map((result) => [
-        {
-          text: buttonLabel(result.label, result.votes),
-          callback_data: `poll:vote:${poll.id}:${result.optionId}`,
-        },
-      ]),
+      ...(closed
+        ? []
+        : poll.results.map((result) => [
+            {
+              text: buttonLabel(result.label, result.votes),
+              callback_data: poll.roundId
+                ? `poll:cast:${poll.roundId}:${result.optionId}`
+                : `poll:vote:${poll.id}:${result.optionId}`,
+            },
+          ])),
+      ...(poll.roundId && !closed
+        ? [
+            [
+              { text: 'Join ✅', callback_data: `poll:join:${poll.roundId}` },
+              {
+                text: 'Not joining',
+                callback_data: `poll:leave:${poll.roundId}`,
+              },
+            ],
+          ]
+        : []),
       [{ text: 'Open full Moment', url: publicUrl }],
     ],
   };

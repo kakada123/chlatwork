@@ -8,6 +8,7 @@ import type {
   TelegramApiResponse,
   TelegramInlineKeyboard,
   TelegramTextMention,
+  TelegramMessage,
 } from './telegram-bot.types';
 
 const TELEGRAM_MESSAGE_MAX_LENGTH = 4_096;
@@ -32,7 +33,7 @@ export class TelegramBotClient {
       text,
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
       ...(entities?.length ? { entities } : {}),
-    });
+    }) as Promise<TelegramMessage>;
   }
 
   deleteMessage(chatId: number, messageId: number) {

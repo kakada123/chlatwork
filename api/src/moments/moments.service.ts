@@ -62,6 +62,10 @@ export interface TelegramMomentPoll {
   question: string;
   identityMode: MomentPollIdentityMode;
   voteDate?: string;
+  roundId?: string;
+  participants?: string[];
+  closesAt?: string;
+  closed?: boolean;
   totalVotes: number;
   results: Array<{
     optionId: string;
@@ -476,13 +480,178 @@ export class MomentsService {
       where: { id: momentId, voteSchedule: { enabled: true } },
       include: {
         blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
-        voteSchedule: { select: { enabled: true, timeZone: true } },
+        voteSchedule: { select: { enabled: true, timeZone: true, telegramChatId: true } },
       },
     });
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
     if (!poll) throw new NotFoundException('Poll not found');
-    return this.toTelegramPollView(moment, poll);
+    const view = await this.toTelegramPollView(moment, poll);
+    if (view.roundId) {
+      const round = await this.getTelegramVoteRound(view.roundId);
+      if (round.telegramChatId !== moment.voteSchedule?.telegramChatId) {
+        throw new BadRequestException('Today’s voting round belongs to another group.');
+      }
+    }
+    return view;
+  }
+
+  async startTelegramVoteRound(momentId: string, now = new Date()) {
+    // The unique local date makes retries reuse the deadline instead of extending voting.
+    await this.prisma.$executeRaw`
+      WITH inserted AS (
+      INSERT INTO moment_vote_rounds (moment_id, vote_date, telegram_chat_id, closes_at)
+      SELECT schedule.moment_id, (${now}::timestamptz AT TIME ZONE schedule.time_zone)::date,
+        schedule.telegram_chat_id,
+        LEAST(${now}::timestamptz + schedule.duration_minutes * INTERVAL '1 minute',
+          (((${now}::timestamptz AT TIME ZONE schedule.time_zone)::date + 1)::timestamp
+            AT TIME ZONE schedule.time_zone), moment.expires_at)
+      FROM moment_vote_schedules schedule
+      JOIN moments moment ON moment.id = schedule.moment_id
+      WHERE schedule.moment_id = ${momentId}::uuid AND schedule.enabled = TRUE
+      ON CONFLICT (moment_id, vote_date) DO NOTHING
+      RETURNING id, telegram_chat_id
+      )
+      INSERT INTO moment_vote_round_members (round_id, telegram_user_id, display_name)
+      SELECT inserted.id, member.telegram_user_id, member.display_name
+      FROM inserted JOIN telegram_group_members member
+        ON member.telegram_chat_id = inserted.telegram_chat_id AND member.is_active = TRUE
+    `;
+    return this.getScheduledTelegramVotingMoment(momentId);
+  }
+
+  async updateDailyTelegramVoteDuration(
+    userId: string,
+    chatId: number,
+    minutes: number,
+  ) {
+    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) {
+      throw new BadRequestException('Use /voteduration 30 (1–1440 minutes).');
+    }
+    const count = await this.prisma.$executeRaw`
+      UPDATE moment_vote_schedules schedule SET duration_minutes = ${minutes}, updated_at = NOW()
+      FROM moments moment WHERE schedule.moment_id = moment.id
+        AND moment.creator_id = ${userId}::uuid AND schedule.telegram_chat_id = ${BigInt(chatId)}
+    `;
+    if (!count) throw new NotFoundException('Daily poll not found');
+  }
+
+  async getTelegramVoteRound(roundId: string) {
+    const [round] = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        momentId: string;
+        voteDate: Date;
+        closesAt: Date;
+        telegramChatId: bigint;
+      }>
+    >`
+      SELECT id::text, moment_id::text AS "momentId", vote_date AS "voteDate",
+        closes_at AS "closesAt", telegram_chat_id AS "telegramChatId"
+      FROM moment_vote_rounds WHERE id = ${roundId}::uuid
+    `;
+    if (!round) throw new NotFoundException('Voting round not found');
+    return round;
+  }
+
+  async getTelegramVoteRoundResults(
+    roundId: string,
+  ): Promise<TelegramMomentPoll> {
+    const round = await this.getTelegramVoteRound(roundId);
+    const moment = await this.prisma.moment.findFirst({
+      where: { id: round.momentId, status: MomentStatus.PUBLISHED },
+      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
+    });
+    const poll = this.readPollDefinition(moment?.blocks[0]?.data);
+    if (!moment || !poll) throw new NotFoundException('Poll not found');
+    const summary = await this.getPollSummary(
+      moment.id,
+      poll.options,
+      poll.identityMode,
+      round.voteDate,
+    );
+    return {
+      id: moment.id,
+      slug: moment.slug,
+      title: moment.title,
+      question: poll.question,
+      ...summary,
+      identityMode: poll.identityMode,
+      roundId: round.id,
+      participants: (await this.getTelegramRoundParticipants(round.id)).map(
+        (member) => member.displayName,
+      ),
+      voteDate: round.voteDate.toISOString().slice(0, 10),
+      closesAt: round.closesAt.toISOString(),
+      closed: round.closesAt.getTime() <= Date.now(),
+    };
+  }
+
+  async getTelegramRoundParticipants(roundId: string) {
+    return this.prisma.$queryRaw<
+      Array<{ telegramUserId: string; displayName: string }>
+    >`
+      SELECT telegram_user_id AS "telegramUserId", display_name AS "displayName"
+      FROM moment_vote_round_members WHERE round_id = ${roundId}::uuid AND joined = TRUE
+      ORDER BY telegram_user_id
+    `;
+  }
+
+  async getFinalTelegramRoundParticipants(roundId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      // Wait for any opt-out accepted just before closing to commit before calculating shares.
+      const [round] = await tx.$queryRaw<Array<{ closesAt: Date }>>`
+        SELECT closes_at AS "closesAt" FROM moment_vote_rounds WHERE id = ${roundId}::uuid FOR UPDATE
+      `;
+      if (!round || round.closesAt.getTime() > Date.now())
+        throw new BadRequestException('Wait until voting closes.');
+      return tx.$queryRaw<
+        Array<{ telegramUserId: string; displayName: string }>
+      >`
+        SELECT telegram_user_id AS "telegramUserId", display_name AS "displayName"
+        FROM moment_vote_round_members WHERE round_id = ${roundId}::uuid AND joined = TRUE
+        ORDER BY telegram_user_id
+      `;
+    });
+  }
+
+  async setTelegramRoundParticipation(
+    roundId: string,
+    chatId: number,
+    userId: string,
+    displayName: string,
+    joined: boolean,
+  ) {
+    await this.prisma.$transaction(async (tx) => {
+      const [round] = await tx.$queryRaw<Array<{ closesAt: Date }>>`
+        SELECT closes_at AS "closesAt" FROM moment_vote_rounds
+        WHERE id = ${roundId}::uuid AND telegram_chat_id = ${BigInt(chatId)} FOR UPDATE
+      `;
+      if (!round || round.closesAt.getTime() <= Date.now())
+        throw new GoneException('This voting round has closed.');
+      await tx.$executeRaw`
+        INSERT INTO moment_vote_round_members (round_id, telegram_user_id, display_name, joined)
+        VALUES (${roundId}::uuid, ${userId}, ${displayName.slice(0, 80)}, ${joined})
+        ON CONFLICT (round_id, telegram_user_id) DO UPDATE
+        SET joined = EXCLUDED.joined, display_name = EXCLUDED.display_name
+      `;
+    });
+  }
+
+  private async getVoteTimer(momentId: string, voteDate: Date) {
+    const [round] = await this.prisma.$queryRaw<
+      Array<{ id: string; closesAt: Date }>
+    >`
+      SELECT id::text, closes_at AS "closesAt" FROM moment_vote_rounds
+      WHERE moment_id = ${momentId}::uuid AND vote_date = ${voteDate}::date
+    `;
+    return round
+      ? {
+          roundId: round.id,
+          closesAt: round.closesAt.toISOString(),
+          closed: round.closesAt.getTime() <= Date.now(),
+        }
+      : {};
   }
 
   async configureDailyTelegramVote(
@@ -514,6 +683,16 @@ export class MomentsService {
 
     const timeZone = user?.telegramNotificationTimeZone || 'Asia/Phnom_Penh';
     await this.prisma.$transaction(async (tx) => {
+      const [existingRound] = await tx.$queryRaw<Array<{ telegramChatId: bigint }>>`
+        SELECT telegram_chat_id AS "telegramChatId" FROM moment_vote_rounds
+        WHERE moment_id = ${momentId}::uuid
+          AND vote_date = ${this.formatLocalDate(new Date(), timeZone)}::date
+        FOR UPDATE
+      `;
+      // Moving a schedule must never copy another group's participant roster into this chat.
+      if (existingRound && existingRound.telegramChatId !== BigInt(telegramChatId)) {
+        throw new BadRequestException('Today’s round belongs to another group. Choose another poll or try tomorrow.');
+      }
       // A group has one daily decision poll; choosing a new one moves the schedule cleanly.
       await tx.momentVoteSchedule.deleteMany({
         where: {
@@ -534,7 +713,7 @@ export class MomentsService {
       });
     });
 
-    return this.getOwnedTelegramVotingMoment(userId, momentId);
+    return this.startTelegramVoteRound(momentId);
   }
 
   async updateDailyTelegramVoteTime(
@@ -814,6 +993,7 @@ export class MomentsService {
     momentId: string,
     optionId: string,
     voter: TelegramMomentVoter,
+    roundId?: string,
   ): Promise<TelegramMomentPoll> {
     const moment = await this.prisma.moment.findUnique({
       where: { id: momentId },
@@ -852,6 +1032,7 @@ export class MomentsService {
       identityKey,
       voterName,
       this.getActiveVoteDate(moment.voteSchedule),
+      roundId ?? null,
     );
     return this.toTelegramPollView(moment, poll);
   }
@@ -878,8 +1059,16 @@ export class MomentsService {
 
     const voteDate = this.getActiveVoteDate(moment.voteSchedule);
     // Daily history stays intact; reset affects only the currently active round.
-    await this.prisma.momentVote.deleteMany({
-      where: { momentId: moment.id, voteDate },
+    await this.prisma.$transaction(async (tx) => {
+      const [round] = await tx.$queryRaw<Array<{ closesAt: Date }>>`
+        SELECT closes_at AS "closesAt" FROM moment_vote_rounds
+        WHERE moment_id = ${moment.id}::uuid AND vote_date = ${voteDate}::date FOR UPDATE
+      `;
+      if (round && round.closesAt.getTime() <= Date.now())
+        throw new GoneException('Final results cannot be reset.');
+      await tx.momentVote.deleteMany({
+        where: { momentId: moment.id, voteDate },
+      });
     });
     return this.getPollSummary(
       moment.id,
@@ -968,6 +1157,10 @@ export class MomentsService {
     identityMode: string,
     voteDate = ONE_TIME_POLL_DATE,
   ) {
+    const timer =
+      voteDate.getTime() === ONE_TIME_POLL_DATE.getTime()
+        ? {}
+        : await this.getVoteTimer(momentId, voteDate);
     const groups = await this.prisma.momentVote.groupBy({
       by: ['optionId'],
       where: { momentId, voteDate },
@@ -995,6 +1188,7 @@ export class MomentsService {
         : {}),
     }));
     return {
+      ...timer,
       totalVotes: results.reduce((total, result) => total + result.votes, 0),
       identityMode,
       ...(voteDate.getTime() !== ONE_TIME_POLL_DATE.getTime()
@@ -1119,7 +1313,7 @@ export class MomentsService {
   private isDailySchedule(
     schedule?: VoteScheduleContext | null,
   ): schedule is VoteScheduleContext {
-    return schedule?.enabled === true;
+    return Boolean(schedule);
   }
 
   private getActiveVoteDate(schedule?: VoteScheduleContext | null) {
@@ -1152,23 +1346,44 @@ export class MomentsService {
     identityKey: string,
     voterName: string,
     voteDate: Date,
+    telegramRoundId?: string | null,
   ) {
     const responseKey = createHash('sha256').update(identityKey).digest('hex');
     const storedName =
       poll.identityMode === 'ANONYMOUS' ? null : voterName.trim() || null;
-    await this.prisma.momentVote.upsert({
-      where: {
-        momentId_responseKey_voteDate: { momentId, responseKey, voteDate },
-      },
-      // A stable cross-channel identity changes a choice without adding another vote that day.
-      create: {
-        momentId,
-        responseKey,
-        optionId,
-        voterName: storedName,
-        voteDate,
-      },
-      update: { optionId, voterName: storedName },
+    await this.prisma.$transaction(async (tx) => {
+      // Serialize the deadline check with finalization so a late write cannot change final results.
+      const [round] = await tx.$queryRaw<Array<{ id: string; closesAt: Date }>>`
+        SELECT id::text, closes_at AS "closesAt" FROM moment_vote_rounds
+        WHERE moment_id = ${momentId}::uuid AND vote_date = ${voteDate}::date FOR UPDATE
+      `;
+      if (
+        round &&
+        (round.closesAt.getTime() <= Date.now() ||
+          (telegramRoundId !== undefined && telegramRoundId !== round.id))
+      ) {
+        throw new GoneException('This voting round has closed.');
+      }
+      if (
+        !round &&
+        (telegramRoundId || voteDate.getTime() !== ONE_TIME_POLL_DATE.getTime())
+      ) {
+        throw new GoneException('This voting round is not open.');
+      }
+      await tx.momentVote.upsert({
+        where: {
+          momentId_responseKey_voteDate: { momentId, responseKey, voteDate },
+        },
+        // A stable cross-channel identity changes a choice without adding another vote that day.
+        create: {
+          momentId,
+          responseKey,
+          optionId,
+          voterName: storedName,
+          voteDate,
+        },
+        update: { optionId, voterName: storedName },
+      });
     });
     return this.getPollSummary(
       momentId,
@@ -1205,6 +1420,16 @@ export class MomentsService {
               new Date(),
               moment.voteSchedule.timeZone,
             ),
+          }
+        : {}),
+      ...(summary.roundId
+        ? {
+            roundId: summary.roundId,
+            closesAt: summary.closesAt,
+            closed: summary.closed,
+            participants: (
+              await this.getTelegramRoundParticipants(summary.roundId)
+            ).map((member) => member.displayName),
           }
         : {}),
       totalVotes: summary.totalVotes,

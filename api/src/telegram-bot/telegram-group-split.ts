@@ -8,7 +8,12 @@ const AMOUNT_PATTERN =
 export interface ParsedTelegramSplit {
   total: string;
   currency: ExpenseCurrency;
-  participants: Array<{ position: number; name: string; amount: string }>;
+  participants: Array<{
+    position: number;
+    name: string;
+    amount: string;
+    telegramUserId?: string;
+  }>;
 }
 
 export interface TelegramSplitView {
@@ -32,6 +37,7 @@ export class TelegramSplitParseError extends Error {}
 export function parseTelegramSplit(
   text: string,
   accountCurrency: ExpenseCurrency,
+  joinedMembers?: Array<{ telegramUserId: string; displayName: string }>,
 ): ParsedTelegramSplit {
   const body = text.trim().replace(/^\/split(?:@[A-Za-z0-9_]+)?\s*/i, '');
   const amountMatch = AMOUNT_PATTERN.exec(body);
@@ -52,15 +58,28 @@ export function parseTelegramSplit(
     );
   }
 
-  const names = body
-    .slice(amountMatch[0].length)
-    .replace(/^[\s,:;\-–—]+/, '')
-    .split(',')
-    .map((name) => name.trim().replace(/\s{2,}/g, ' '))
-    .filter(Boolean);
-  if (names.length < 2 || names.length > MAX_PARTICIPANTS) {
+  const nameText = body.slice(amountMatch[0].length).trim();
+  if (joinedMembers && nameText) {
     throw new TelegramSplitParseError(
-      `Add 2-${MAX_PARTICIPANTS} comma-separated names.`,
+      'Reply with only the total; participants come from the final vote.',
+    );
+  }
+  const names =
+    joinedMembers?.map((member) => member.displayName) ??
+    body
+      .slice(amountMatch[0].length)
+      .replace(/^[\s,:;\-–—]+/, '')
+      .split(',')
+      .map((name) => name.trim().replace(/\s{2,}/g, ' '))
+      .filter(Boolean);
+  if (
+    names.length < (joinedMembers ? 1 : 2) ||
+    names.length > (joinedMembers ? 50 : MAX_PARTICIPANTS)
+  ) {
+    throw new TelegramSplitParseError(
+      joinedMembers
+        ? 'The equal split needs 1–50 joined participants.'
+        : `Add 2-${MAX_PARTICIPANTS} comma-separated names.`,
     );
   }
   if (names.some((name) => name.length > 80)) {
@@ -71,18 +90,24 @@ export function parseTelegramSplit(
   const uniqueNames = new Set(
     names.map((name) => name.toLocaleLowerCase('en-US')),
   );
-  if (uniqueNames.size !== names.length) {
+  if (!joinedMembers && uniqueNames.size !== names.length) {
     throw new TelegramSplitParseError(
       'Each participant name must be different.',
     );
   }
 
   const totalCents = parseMoneyCents(amountMatch[2]);
-  if (totalCents < BigInt(names.length)) {
+  // Riel shares use whole riel so the displayed shares still add up to the bill.
+  if (accountCurrency === 'KHR' && totalCents % 100n !== 0n) {
+    throw new TelegramSplitParseError('Use a whole-riel bill total.');
+  }
+  const unit = accountCurrency === 'KHR' ? 100n : 1n;
+  const totalUnits = totalCents / unit;
+  if (totalUnits < BigInt(names.length)) {
     throw new TelegramSplitParseError('The total is too small to split.');
   }
-  const base = totalCents / BigInt(names.length);
-  const remainder = totalCents % BigInt(names.length);
+  const base = totalUnits / BigInt(names.length);
+  const remainder = totalUnits % BigInt(names.length);
 
   return {
     total: centsToDecimal(totalCents),
@@ -90,7 +115,12 @@ export function parseTelegramSplit(
     participants: names.map((name, position) => ({
       position,
       name,
-      amount: centsToDecimal(base + (BigInt(position) < remainder ? 1n : 0n)),
+      amount: centsToDecimal(
+        (base + (BigInt(position) < remainder ? 1n : 0n)) * unit,
+      ),
+      ...(joinedMembers
+        ? { telegramUserId: joinedMembers[position]!.telegramUserId }
+        : {}),
     })),
   };
 }
@@ -108,10 +138,12 @@ export function buildTelegramSplitMessage(split: TelegramSplitView) {
       .sort((left, right) => left.position - right.position)
       .map((participant) => {
         const marker = participant.paidAt ? '✅' : '⬜';
-        const payer = participant.telegramDisplayName
-          ? ` — ${participant.telegramDisplayName}`
-          : '';
-        return `${marker} ${participant.name}: ${formatTelegramMoney(
+        const payer =
+          participant.telegramDisplayName &&
+          participant.telegramDisplayName !== participant.name
+            ? ` — ${split.participants.length > 8 ? truncate(participant.telegramDisplayName, 16) : participant.telegramDisplayName}`
+            : '';
+        return `${marker} ${split.participants.length > 8 ? truncate(participant.name, 32) : participant.name}: ${formatTelegramMoney(
           String(participant.amount),
           split.currency,
         )}${payer}`;

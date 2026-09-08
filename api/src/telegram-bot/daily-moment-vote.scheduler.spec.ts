@@ -7,13 +7,16 @@ import { DailyMomentVoteScheduler } from './daily-moment-vote.scheduler';
 describe('DailyMomentVoteScheduler', () => {
   it('sends each claimed poll and records successful delivery', async () => {
     const prisma = {
-      $queryRaw: jest.fn().mockResolvedValue([
-        {
-          scheduleId: '00000000-0000-4000-8000-000000000010',
-          momentId: '00000000-0000-4000-8000-000000000001',
-          telegramChatId: '-1001234567890',
-        },
-      ]),
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValue([
+          {
+            scheduleId: '00000000-0000-4000-8000-000000000010',
+            momentId: '00000000-0000-4000-8000-000000000001',
+            telegramChatId: '-1001234567890',
+          },
+        ]),
       momentVoteSchedule: {
         update: jest.fn().mockResolvedValue({}),
       },
@@ -35,7 +38,7 @@ describe('DailyMomentVoteScheduler', () => {
       ],
     };
     const moments = {
-      getScheduledTelegramVotingMoment: jest.fn().mockResolvedValue(poll),
+      startTelegramVoteRound: jest.fn().mockResolvedValue(poll),
     };
     const bot = { sendMessage: jest.fn().mockResolvedValue({}) };
     const scheduler = new DailyMomentVoteScheduler(
@@ -57,5 +60,86 @@ describe('DailyMomentVoteScheduler', () => {
       where: { id: '00000000-0000-4000-8000-000000000010' },
       data: { lastSentAt: expect.any(Date) },
     });
+  });
+});
+
+
+describe('Daily vote timer finalization', () => {
+  const roundId = '00000000-0000-4000-8000-000000000003';
+  const deadline = new Date('2026-09-08T03:30:00Z');
+  function setup(failEdit = false) {
+    const tx = {
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValue([
+          { telegramChatId: -100n, messageId: 88, closesAt: deadline },
+        ]),
+      $executeRaw: jest.fn(),
+    };
+    const prisma = {
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValueOnce([{ id: roundId }])
+        .mockResolvedValue([]),
+      $transaction: jest.fn().mockImplementation((work) => work(tx)),
+    };
+    const bot = {
+      editMessage: failEdit
+        ? jest.fn().mockRejectedValue(new Error('Unavailable'))
+        : jest.fn(),
+      sendMessage: jest.fn(),
+    };
+    const moments = {
+      getTelegramVoteRoundResults: jest
+        .fn()
+        .mockResolvedValue({
+          id: 'moment',
+          slug: 'lunch',
+          title: 'Lunch',
+          question: 'Lunch?',
+          roundId,
+          closesAt: deadline.toISOString(),
+          identityMode: 'ANONYMOUS',
+          totalVotes: 3,
+          participants: ['Sokha'],
+          results: [{ optionId: 'option-1', label: 'Pizza', votes: 3 }],
+        }),
+    };
+    const scheduler = new DailyMomentVoteScheduler(
+      prisma as never,
+      { getOrThrow: () => 'https://example.com' } as never,
+      bot as never,
+      moments as never,
+    );
+    return { tx, prisma, bot, moments, scheduler };
+  }
+  it('edits the tracked message into a celebration and records final delivery', async () => {
+    const { tx, bot, scheduler } = setup();
+    await scheduler.runOnce(deadline);
+    expect(bot.editMessage).toHaveBeenCalledWith(
+      -100,
+      88,
+      expect.stringContaining('🏆🎉 Winner: Pizza'),
+      {
+        inline_keyboard: [
+          [{ text: 'Open full Moment', url: 'https://example.com/m/lunch' }],
+        ],
+      },
+    );
+    expect(tx.$executeRaw.mock.calls[0][0].join('')).toContain(
+      'SET finalized_at',
+    );
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+  });
+  it('leaves failed final edits retryable without marking delivery complete', async () => {
+    const { tx, scheduler } = setup(true);
+    await scheduler.runOnce(deadline);
+    expect(tx.$executeRaw).not.toHaveBeenCalled();
+  });
+  it('skips a round already claimed or completed by another replica', async () => {
+    const { tx, bot, scheduler } = setup();
+    tx.$queryRaw.mockResolvedValue([]);
+    await scheduler.runOnce(deadline);
+    expect(bot.editMessage).not.toHaveBeenCalled();
   });
 });

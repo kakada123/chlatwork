@@ -18,6 +18,7 @@ export interface TelegramMessage {
   chat: TelegramChat;
   text?: string;
   date?: number;
+  reply_to_message?: TelegramMessage;
   new_chat_members?: TelegramUser[];
   left_chat_member?: TelegramUser;
   voice?: {

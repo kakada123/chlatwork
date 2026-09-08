@@ -361,3 +361,98 @@ describe('Telegram group vote updates', () => {
     );
   });
 });
+
+
+describe('Final split participant ownership', () => {
+  const splitId = '00000000-0000-4000-8000-000000000010';
+  const participantId = '00000000-0000-4000-8000-000000000011';
+  function setup(userId = 123) {
+    const current = {
+      id: participantId,
+      splitId,
+      telegramUserId: '123',
+      paidAt: null,
+      split: { id: splitId, telegramChatId: -100n, status: 'OPEN' },
+    };
+    const prisma = {
+      $transaction: jest.fn(),
+      $executeRaw: jest.fn(),
+      telegramGroupSplitParticipant: {
+        findUnique: jest.fn().mockResolvedValue(current),
+        update: jest.fn(),
+      },
+      telegramGroupSplit: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({
+            id: splitId,
+            title: 'Bill',
+            total: '10',
+            currency: 'USD',
+            status: 'OPEN',
+            participants: [
+              {
+                id: participantId,
+                position: 0,
+                name: 'Dara',
+                amount: '10',
+                telegramDisplayName: null,
+                paidAt: new Date(),
+              },
+            ],
+          }),
+      },
+    };
+    prisma.$transaction.mockImplementation((work) => work(prisma));
+    const bot = { answerCallback: jest.fn(), editMessage: jest.fn() };
+    const service = new TelegramBotService(
+      prisma as never,
+      {} as never,
+      bot as never,
+      {} as never,
+      {} as never,
+    );
+    const callback = {
+      id: 'paid',
+      from: { id: userId, first_name: 'Dara' },
+      message: { message_id: 1, chat: { id: -100, type: 'supergroup' } },
+    };
+    return { prisma, bot, service, callback, current };
+  }
+  it('joining by default does not mean paid; the assigned person can confirm payment', async () => {
+    const { prisma, bot, service, callback } = setup();
+    await service['handleGroupSplitToggle'](
+      callback,
+      'split:toggle:' + participantId,
+    );
+    expect(prisma.telegramGroupSplitParticipant.update).toHaveBeenCalledWith({
+      where: { id: participantId },
+      data: {
+        telegramUserId: '123',
+        telegramDisplayName: 'Dara',
+        paidAt: expect.any(Date),
+      },
+    });
+    expect(bot.answerCallback).toHaveBeenCalledWith('paid', 'Marked as paid.');
+  });
+  it('prevents another member from claiming a default participant share', async () => {
+    const { prisma, service, callback } = setup(456);
+    await service['handleGroupSplitToggle'](
+      callback,
+      'split:toggle:' + participantId,
+    );
+    expect(prisma.telegramGroupSplitParticipant.update).not.toHaveBeenCalled();
+  });
+  it('undoes only the payment mark and retains participant ownership', async () => {
+    const { prisma, service, callback, current } = setup();
+    (current as { paidAt: Date | null }).paidAt = new Date();
+    await service['handleGroupSplitToggle'](
+      callback,
+      'split:toggle:' + participantId,
+    );
+    expect(prisma.telegramGroupSplitParticipant.update).toHaveBeenCalledWith({
+      where: { id: participantId },
+      data: { paidAt: null },
+    });
+  });
+});

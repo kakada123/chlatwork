@@ -59,3 +59,45 @@ describe('Telegram group splits', () => {
     expect(message).toContain('⬜ Bob: $5.00');
   });
 });
+
+
+describe('Final participant equal splits', () => {
+  const members = [
+    { telegramUserId: '1', displayName: 'Dara' },
+    { telegramUserId: '2', displayName: 'Dara' },
+    { telegramUserId: '3', displayName: 'Sokha' },
+  ];
+  it('uses Telegram identities even when display names match', () => {
+    const split = parseTelegramSplit('/split 10', ExpenseCurrency.USD, members);
+    expect(split.participants.map((member) => member.telegramUserId)).toEqual([
+      '1',
+      '2',
+      '3',
+    ]);
+    expect(split.participants.map((member) => member.amount)).toEqual([
+      '3.34',
+      '3.33',
+      '3.33',
+    ]);
+  });
+  it('splits riel in whole units without losing money to display rounding', () => {
+    const split = parseTelegramSplit(
+      '/split 10000',
+      ExpenseCurrency.KHR,
+      members,
+    );
+    expect(split.participants.map((member) => member.amount)).toEqual([
+      '3334.00',
+      '3333.00',
+      '3333.00',
+    ]);
+  });
+  it('rejects empty rosters and attempts to override final participants', () => {
+    expect(() =>
+      parseTelegramSplit('/split 60', ExpenseCurrency.USD, []),
+    ).toThrow(/joined participants/);
+    expect(() =>
+      parseTelegramSplit('/split 60 Alice, Bob', ExpenseCurrency.USD, members),
+    ).toThrow(/only the total/);
+  });
+});

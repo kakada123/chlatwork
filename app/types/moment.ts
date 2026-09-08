@@ -98,6 +98,9 @@ export interface MomentPollResult {
   voters?: string[];
 }
 export interface MomentPollSummary {
+  roundId?: string;
+  closesAt?: string;
+  closed?: boolean;
   totalVotes: number;
   identityMode?: MomentPollIdentityMode;
   voteDate?: string;
