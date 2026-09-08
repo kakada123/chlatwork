@@ -10,6 +10,7 @@ const AI_TIMEOUT_MS = 30_000;
 const MAX_TRANSCRIPT_LENGTH = 500;
 const RECEIPT_CATEGORIES = [
   'Coffee',
+  'Beer',
   'Food',
   'Transport',
   'Rent',

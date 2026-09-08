@@ -176,6 +176,7 @@ export type ExpenseExampleState = {
 export const expenseCategories = [
   "Food",
   "Coffee",
+  "Beer",
   "Transport",
   "Rent",
   "Bills",

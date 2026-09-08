@@ -14,6 +14,7 @@ const CATEGORY_KEYWORDS: ReadonlyArray<{
   keywords: readonly string[];
 }> = [
   { category: 'Coffee', keywords: ['coffee', 'cafe', 'latte', 'កាហ្វេ'] },
+  { category: 'Beer', keywords: ['beer', 'ស្រាបៀរ', 'បៀរ'] },
   {
     category: 'Food',
     keywords: [

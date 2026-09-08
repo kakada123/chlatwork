@@ -3,6 +3,7 @@ import { IsIn, IsString, Matches, MaxLength } from 'class-validator';
 const quickExpenseCategories = [
   'Food',
   'Coffee',
+  'Beer',
   'Transport',
   'Rent',
   'Bills',
