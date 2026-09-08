@@ -86,6 +86,22 @@ rounds for history and most-selected-place insights. Use `/votetime 11:30` to
 change the local delivery time and `/stopdailyvote` to pause delivery without
 deleting history. The API process must remain running for scheduled delivery.
 
+After each Telegram vote on a bot-posted group poll, the bot updates the original
+and posts the current results with voting buttons again. For non-anonymous polls,
+the new message mentions known active group members who have not voted in the
+current round. Login-required polls also recognize linked-account web votes.
+Anonymous polls omit reminders to preserve participation privacy.
+
+Apply `database/updates/2026-09-08-add-telegram-group-members.sql` manually before
+running this version. The bot learns group members from messages it receives,
+button interactions, and membership events; Telegram cannot list all existing
+members through the Bot API. Existing members should send `/joinvote` in the
+group once, especially when privacy mode prevents ordinary messages reaching
+the bot. Keep the bot an administrator and include `chat_member` in webhook
+updates so departures remove members from reminders. Inline-shared polls only
+update in place because their callbacks do not expose the destination chat ID;
+use `/dailyvote` in the group for automatic result posts and reminders.
+
 Any linked group member can create a payment tracker with
 `/split 60 Alice, Bob, Carol`. Each participant taps their own name to mark paid
 and can tap again to undo; one Telegram user cannot claim two names in a split.
@@ -98,7 +114,7 @@ secret store; do not commit them:
 POST https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook
 url=https://chlatwork.com/api/telegram/webhook
 secret_token=<TELEGRAM_WEBHOOK_SECRET>
-allowed_updates=["message","callback_query","inline_query"]
+allowed_updates=["message","callback_query","inline_query","chat_member"]
 ```
 
 Enable inline mode in BotFather with `/setinline` and use a placeholder such as
@@ -116,6 +132,7 @@ alerts - Manage budget threshold alerts
 weekly - Manage the Sunday spending digest
 vote - Share a published voting Moment
 dailyvote - Set up a daily vote in this group
+joinvote - Register for this group's voting reminders
 votetime - Change this group's daily vote time (HH:MM)
 stopdailyvote - Stop this group's daily vote
 split - Split a group expense and track payments

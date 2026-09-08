@@ -1,4 +1,12 @@
-import type { TelegramInlineKeyboard } from './telegram-bot.types';
+import type {
+  TelegramInlineKeyboard,
+  TelegramTextMention,
+} from './telegram-bot.types';
+
+export interface TelegramVotingMember {
+  telegramUserId: string;
+  displayName: string;
+}
 
 export interface TelegramPollResult {
   optionId: string;
@@ -73,4 +81,49 @@ export function buildTelegramPollKeyboard(
       [{ text: 'Open full Moment', url: publicUrl }],
     ],
   };
+}
+
+export function buildTelegramPollUpdates(
+  poll: TelegramVotingPoll,
+  pendingMembers: TelegramVotingMember[],
+) {
+  const messages: Array<{ text: string; entities: TelegramTextMention[] }> = [
+    { text: buildTelegramPollMessage(poll), entities: [] },
+  ];
+  // Announcing who remains would reveal participation in an anonymous poll.
+  if (poll.identityMode === 'ANONYMOUS') return messages;
+  const heading = '\n\nNot voted yet (known group members):\n';
+  let current = messages[0]!;
+  if (pendingMembers.length) {
+    if (current.text.length + heading.length + 80 > 4_096) {
+      current = { text: '', entities: [] };
+      messages.push(current);
+    }
+    current.text += heading;
+  }
+  for (const member of pendingMembers) {
+    const name = member.displayName.slice(0, 80) || 'Telegram member';
+    // Telegram offsets use UTF-16 code units, matching JavaScript string lengths.
+    if (
+      current.text.length + name.length + 2 > 4_096 ||
+      current.entities.length >= 50
+    ) {
+      current = { text: heading.trimStart(), entities: [] };
+      messages.push(current);
+    }
+    const separator = current.entities.length ? ', ' : '';
+    current.text += separator;
+    current.entities.push({
+      type: 'text_mention',
+      offset: current.text.length,
+      length: name.length,
+      user: {
+        id: Number(member.telegramUserId),
+        first_name: name,
+        is_bot: false,
+      },
+    });
+    current.text += name;
+  }
+  return messages;
 }

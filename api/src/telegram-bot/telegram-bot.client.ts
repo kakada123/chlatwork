@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import type {
   TelegramApiResponse,
   TelegramInlineKeyboard,
+  TelegramTextMention,
 } from './telegram-bot.types';
 
 const TELEGRAM_MESSAGE_MAX_LENGTH = 4_096;
@@ -21,6 +22,7 @@ export class TelegramBotClient {
     chatId: number,
     text: string,
     replyMarkup?: TelegramInlineKeyboard,
+    entities?: TelegramTextMention[],
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');
@@ -29,6 +31,7 @@ export class TelegramBotClient {
       chat_id: chatId,
       text,
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
+      ...(entities?.length ? { entities } : {}),
     });
   }
 

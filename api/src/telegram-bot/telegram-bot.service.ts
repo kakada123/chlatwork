@@ -34,11 +34,16 @@ import type {
   TelegramInlineKeyboard,
   TelegramMessage,
   TelegramUpdate,
+  TelegramUser,
+  TelegramChat,
 } from './telegram-bot.types';
 import { buildTelegramTodaySummary } from './telegram-today-summary';
 import {
   buildTelegramPollKeyboard,
   buildTelegramPollMessage,
+  buildTelegramPollUpdates,
+  type TelegramVotingMember,
+  type TelegramVotingPoll,
 } from './telegram-vote';
 import {
   buildTelegramSplitKeyboard,
@@ -97,6 +102,7 @@ export class TelegramBotService {
     if (!(await this.claimUpdate(update.update_id))) return;
 
     try {
+      await this.observeGroupMembers(update);
       if (update.inline_query) {
         await this.handleInlineQuery(update.inline_query);
       } else if (update.callback_query) {
@@ -148,7 +154,14 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
-      if (['dailyvote', 'votetime', 'stopdailyvote'].includes(command ?? '')) {
+      if (command === 'joinvote') {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'You are registered for voting reminders in this group.',
+        );
+      } else if (
+        ['dailyvote', 'votetime', 'stopdailyvote'].includes(command ?? '')
+      ) {
         await this.handleGroupVoteCommand(message, command!);
       } else if (command === 'split') {
         await this.handleGroupSplitCommand(message);
@@ -413,6 +426,18 @@ export class TelegramBotService {
           text,
           keyboard,
         );
+        if (['group', 'supergroup'].includes(callback.message.chat.type)) {
+          const chatId = callback.message.chat.id;
+          const pending = await this.pendingGroupVoters(chatId, poll);
+          for (const message of buildTelegramPollUpdates(poll, pending)) {
+            await this.bot.sendMessage(
+              chatId,
+              message.text,
+              keyboard,
+              message.entities,
+            );
+          }
+        }
       }
     } catch (error) {
       if (error instanceof UnauthorizedException) {
@@ -432,6 +457,146 @@ export class TelegramBotService {
       }
       throw error;
     }
+  }
+
+  private async observeGroupMembers(update: TelegramUpdate) {
+    const membership = update.chat_member;
+    if (membership?.new_chat_member) {
+      const member = membership.new_chat_member;
+      const active =
+        ['creator', 'administrator', 'member'].includes(member.status) ||
+        (member.status === 'restricted' && member.is_member === true);
+      if (
+        [
+          'creator',
+          'administrator',
+          'member',
+          'restricted',
+          'left',
+          'kicked',
+        ].includes(member.status)
+      ) {
+        await this.observeGroupMember(
+          membership.chat,
+          member.user,
+          active,
+          membership.date,
+        );
+      }
+    }
+    const message = update.message;
+    if (message) {
+      if (message.from)
+        await this.observeGroupMember(
+          message.chat,
+          message.from,
+          true,
+          message.date,
+        );
+      for (const member of message.new_chat_members ?? []) {
+        await this.observeGroupMember(message.chat, member, true, message.date);
+      }
+      if (message.left_chat_member) {
+        await this.observeGroupMember(
+          message.chat,
+          message.left_chat_member,
+          false,
+          message.date,
+        );
+      }
+    }
+    const callback = update.callback_query;
+    if (callback?.message && this.isValidPollCallback(callback)) {
+      // A callback's message date is the poll's age, not the member's interaction time.
+      await this.observeGroupMember(callback.message.chat, callback.from, true);
+    }
+  }
+
+  private async observeGroupMember(
+    chat: TelegramChat,
+    user: TelegramUser,
+    active: boolean,
+    date?: number,
+  ) {
+    if (
+      !chat ||
+      !['group', 'supergroup'].includes(chat.type) ||
+      !Number.isSafeInteger(chat.id) ||
+      chat.id === 0 ||
+      !user ||
+      user.is_bot ||
+      !Number.isSafeInteger(user.id) ||
+      user.id <= 0
+    )
+      return;
+    const observedAt =
+      Number.isSafeInteger(date) && date! > 0
+        ? new Date(date! * 1_000)
+        : new Date();
+    if (!Number.isFinite(observedAt.getTime())) return;
+    const displayName = this.telegramDisplayName(user);
+    // Ignore older deliveries so an out-of-order join cannot undo a later departure.
+    await this.prisma.$executeRaw`
+      INSERT INTO telegram_group_members
+        (telegram_chat_id, telegram_user_id, display_name, is_active, observed_at)
+      VALUES (${BigInt(chat.id)}, ${String(user.id)}, ${displayName}, ${active}, ${observedAt})
+      ON CONFLICT (telegram_chat_id, telegram_user_id) DO UPDATE
+        SET display_name = EXCLUDED.display_name, is_active = EXCLUDED.is_active,
+            observed_at = EXCLUDED.observed_at
+        WHERE telegram_group_members.observed_at <= EXCLUDED.observed_at
+    `;
+  }
+
+  private async pendingGroupVoters(chatId: number, poll: TelegramVotingPoll) {
+    if (poll.identityMode === 'ANONYMOUS') return [];
+    const members = await this.prisma.$queryRaw<TelegramVotingMember[]>`
+      SELECT telegram_user_id AS "telegramUserId", display_name AS "displayName"
+      FROM telegram_group_members
+      WHERE telegram_chat_id = ${BigInt(chatId)} AND is_active = TRUE
+      ORDER BY telegram_user_id
+    `;
+    if (!members.length) return [];
+    const accounts =
+      poll.identityMode === 'LOGIN_REQUIRED'
+        ? await this.prisma.socialAccount.findMany({
+            where: {
+              provider: AuthProvider.TELEGRAM,
+              providerUserId: {
+                in: members.map((member) => member.telegramUserId),
+              },
+              user: { isActive: true },
+            },
+            select: { providerUserId: true, userId: true },
+          })
+        : [];
+    const accountIds = new Map(
+      accounts.map((account) => [account.providerUserId, account.userId]),
+    );
+    // Match the same identity and date used by MomentsService, including votes cast on the web.
+    const candidates = members.map((member) => ({
+      member,
+      responseKey: createHash('sha256')
+        .update(
+          poll.identityMode === 'LOGIN_REQUIRED'
+            ? `account:${accountIds.get(member.telegramUserId) ?? ''}`
+            : `telegram:${member.telegramUserId}`,
+        )
+        .digest('hex'),
+    }));
+    const votes = await this.prisma.momentVote.findMany({
+      where: {
+        momentId: poll.id,
+        voteDate: new Date(`${poll.voteDate ?? '1970-01-01'}T00:00:00.000Z`),
+        responseKey: {
+          in: candidates.map((candidate) => candidate.responseKey),
+        },
+      },
+      select: { responseKey: true },
+    });
+    const voted = new Set(votes.map((vote) => vote.responseKey));
+    return candidates
+      .filter((candidate) => !voted.has(candidate.responseKey))
+      .map((candidate) => candidate.member);
   }
 
   private async handleGroupVoteCommand(
@@ -742,7 +907,8 @@ export class TelegramBotService {
       await this.bot.sendMessage(
         message.chat.id,
         `✅ Daily vote enabled at 10:00 (${linked.user.telegramNotificationTimeZone}).\n` +
-          'Use /votetime HH:MM to change it or /stopdailyvote to stop.',
+          'Use /votetime HH:MM to change it or /stopdailyvote to stop.\n' +
+          'Members can send /joinvote to register for voting reminders.',
       );
       await this.bot.sendMessage(
         message.chat.id,

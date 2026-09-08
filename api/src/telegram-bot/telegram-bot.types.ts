@@ -17,6 +17,9 @@ export interface TelegramMessage {
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  date?: number;
+  new_chat_members?: TelegramUser[];
+  left_chat_member?: TelegramUser;
   voice?: {
     file_id: string;
     duration: number;
@@ -51,6 +54,22 @@ export interface TelegramUpdate {
   message?: TelegramMessage;
   callback_query?: TelegramCallbackQuery;
   inline_query?: TelegramInlineQuery;
+  chat_member?: {
+    chat: TelegramChat;
+    date: number;
+    new_chat_member: {
+      user: TelegramUser;
+      status: string;
+      is_member?: boolean;
+    };
+  };
+}
+
+export interface TelegramTextMention {
+  type: 'text_mention';
+  offset: number;
+  length: number;
+  user: TelegramUser;
 }
 
 export interface TelegramInlineButton {

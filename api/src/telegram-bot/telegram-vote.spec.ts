@@ -1,6 +1,7 @@
 import {
   buildTelegramPollKeyboard,
   buildTelegramPollMessage,
+  buildTelegramPollUpdates,
   type TelegramVotingPoll,
 } from './telegram-vote';
 
@@ -59,5 +60,53 @@ describe('Telegram voting poll', () => {
     expect(keyboard.inline_keyboard.at(-1)?.[0]?.url).toContain(
       '/m/lunch-vote-abc123',
     );
+  });
+
+  it('uses real mentions with correct emoji offsets and literal display names', () => {
+    const [message] = buildTelegramPollUpdates(
+      { ...poll, identityMode: 'NAME_REQUIRED' },
+      [{ telegramUserId: '123', displayName: '😀 <Dara> & Sokha' }],
+    );
+    const mention = message!.entities[0]!;
+    expect(
+      message!.text.slice(mention.offset, mention.offset + mention.length),
+    ).toBe('😀 <Dara> & Sokha');
+    expect(mention.user.id).toBe(123);
+  });
+
+  it('splits large rosters without dropping members or exceeding Telegram limits', () => {
+    const members = Array.from({ length: 160 }, (_, index) => ({
+      telegramUserId: String(index + 1),
+      displayName: 'Member '.repeat(11),
+    }));
+    const messages = buildTelegramPollUpdates(
+      { ...poll, identityMode: 'NAME_REQUIRED' },
+      members,
+    );
+    expect(messages.length).toBeGreaterThan(1);
+    expect(messages.flatMap((message) => message.entities)).toHaveLength(160);
+    for (const message of messages) {
+      expect(message.text.length).toBeLessThanOrEqual(4_096);
+      expect(message.entities.length).toBeLessThanOrEqual(50);
+      for (const mention of message.entities) {
+        expect(
+          message.text.slice(mention.offset, mention.offset + mention.length),
+        ).toBe(mention.user.first_name);
+      }
+    }
+  });
+
+  it('omits participation reminders for anonymous polls and completed rosters', () => {
+    expect(
+      buildTelegramPollUpdates(poll, [
+        { telegramUserId: '123', displayName: 'Dara' },
+      ])[0]!.entities,
+    ).toEqual([]);
+    expect(
+      buildTelegramPollUpdates(
+        { ...poll, identityMode: 'NAME_REQUIRED' },
+        [],
+      )[0]!.text,
+    ).not.toContain('Not voted yet');
   });
 });
