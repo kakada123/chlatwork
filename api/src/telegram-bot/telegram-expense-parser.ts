@@ -31,6 +31,10 @@ const CATEGORY_KEYWORDS: ReadonlyArray<{
     ],
   },
   {
+    category: 'Gasoline',
+    keywords: ['gasoline', 'petrol', 'fuel', 'gas', 'សាំង'],
+  },
+  {
     category: 'Transport',
     keywords: [
       'transport',
@@ -39,11 +43,12 @@ const CATEGORY_KEYWORDS: ReadonlyArray<{
       'tuktuk',
       'tuk tuk',
       'bus',
-      'fuel',
-      'gas',
-      'សាំង',
       'តាក់ស៊ី',
     ],
+  },
+  {
+    category: 'Phone Topup',
+    keywords: ['topup', 'top-up', 'top up', 'បញ្ចូលលុយ', 'បញ្ចូលកាតទូរស័ព្ទ'],
   },
   { category: 'Rent', keywords: ['rent', 'ជួល'] },
   {
