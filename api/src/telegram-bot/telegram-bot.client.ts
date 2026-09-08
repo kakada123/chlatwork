@@ -35,6 +35,13 @@ export class TelegramBotClient {
     });
   }
 
+  deleteMessage(chatId: number, messageId: number) {
+    return this.call('deleteMessage', {
+      chat_id: chatId,
+      message_id: messageId,
+    });
+  }
+
   editMessage(
     chatId: number,
     messageId: number,

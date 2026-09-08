@@ -168,6 +168,7 @@ describe('Telegram group vote updates', () => {
       editMessage: jest.fn(),
       editInlineMessage: jest.fn(),
       sendMessage: jest.fn(),
+      deleteMessage: jest.fn(),
     };
     const service = new TelegramBotService(
       prisma as never,
@@ -189,6 +190,10 @@ describe('Telegram group vote updates', () => {
     const { service, prisma, bot, callback, poll } = setup();
     await service.handleUpdate({ update_id: 1, callback_query: callback });
     expect(bot.editMessage).toHaveBeenCalledTimes(1);
+    expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 10);
+    expect(bot.deleteMessage.mock.invocationCallOrder[0]).toBeGreaterThan(
+      bot.sendMessage.mock.invocationCallOrder[0]!,
+    );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chat.id,
       expect.stringContaining('Total votes: 1'),
@@ -215,6 +220,41 @@ describe('Telegram group vote updates', () => {
     ];
     expect(rosterQuery[0].join('')).toContain('is_active = TRUE');
     expect(rosterQuery[1]).toBe(BigInt(chat.id));
+  });
+
+  it.each([1, 2])('keeps the old message when repost part %i fails', async (failedPart) => {
+    const { service, prisma, bot, callback } = setup();
+    prisma.$queryRaw.mockResolvedValue(
+      Array.from({ length: 60 }, (_, index) => ({
+        telegramUserId: String(1000 + index),
+        displayName: `Member ${index}`,
+      })),
+    );
+    if (failedPart === 2) bot.sendMessage.mockResolvedValueOnce({});
+    bot.sendMessage.mockRejectedValueOnce(new Error('Delivery failed'));
+
+    await expect(
+      service.handleUpdate({ update_id: 1, callback_query: callback }),
+    ).rejects.toThrow('Delivery failed');
+    expect(bot.sendMessage).toHaveBeenCalledTimes(failedPart);
+    expect(bot.deleteMessage).not.toHaveBeenCalled();
+  });
+
+  it('finishes a saved vote when Telegram refuses to delete the old message', async () => {
+    const { service, prisma, bot, callback, moments } = setup();
+    bot.deleteMessage.mockRejectedValueOnce(new Error('Deletion refused'));
+
+    await expect(
+      service.handleUpdate({ update_id: 1, callback_query: callback }),
+    ).resolves.toBeUndefined();
+    expect(moments.respondToTelegramVote).toHaveBeenCalledTimes(1);
+    expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 10);
+    expect(prisma.telegramBotUpdate.update).toHaveBeenCalledWith({
+      where: { updateId: 1n },
+      data: { processedAt: expect.any(Date) },
+    });
+    expect(prisma.telegramBotUpdate.deleteMany).not.toHaveBeenCalled();
   });
 
   it('recognizes linked-account web votes for login-required polls', async () => {
@@ -247,6 +287,7 @@ describe('Telegram group vote updates', () => {
     });
     expect(bot.editInlineMessage).toHaveBeenCalledTimes(1);
     expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(bot.deleteMessage).not.toHaveBeenCalled();
   });
 
   it('keeps private poll callbacks in place', async () => {
@@ -256,6 +297,7 @@ describe('Telegram group vote updates', () => {
     expect(prisma.$executeRaw).not.toHaveBeenCalled();
     expect(bot.editMessage).toHaveBeenCalledTimes(1);
     expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(bot.deleteMessage).not.toHaveBeenCalled();
   });
 
   it('does not repost rejected votes or replayed webhook updates', async () => {
@@ -268,6 +310,7 @@ describe('Telegram group vote updates', () => {
     prisma.$queryRaw.mockResolvedValue([]);
     await service.handleUpdate({ update_id: 1, callback_query: callback });
     expect(moments.respondToTelegramVote).toHaveBeenCalledTimes(1);
+    expect(bot.deleteMessage).not.toHaveBeenCalled();
   });
 
   it('records departures and excludes bot identities', async () => {

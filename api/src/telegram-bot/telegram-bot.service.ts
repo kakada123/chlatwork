@@ -437,6 +437,13 @@ export class TelegramBotService {
               message.entities,
             );
           }
+          // Keep the original until every replacement message has been delivered.
+          try {
+            await this.bot.deleteMessage(chatId, callback.message.message_id);
+          } catch {
+            // Old or already-deleted messages must not trigger a webhook retry
+            // that would repost the successfully delivered vote update again.
+          }
         }
       }
     } catch (error) {
