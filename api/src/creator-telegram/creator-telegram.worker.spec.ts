@@ -14,6 +14,7 @@ function setup(overrides: Record<string, unknown> = {}) {
     content: 'original content',
     replyParts: null,
     sentParts: 0,
+    statusMessageId: 55,
     leaseId: null,
     lockedUntil: null,
     nextAttemptAt: new Date(0),
@@ -43,7 +44,10 @@ function setup(overrides: Record<string, unknown> = {}) {
       }),
       deleteMany: jest.fn(),
     },
-    creatorTelegramChat: { deleteMany: jest.fn() },
+    creatorTelegramChat: {
+      deleteMany: jest.fn(),
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
   };
   const config = { get: jest.fn(() => undefined) };
   const generations = {
@@ -59,6 +63,9 @@ function setup(overrides: Record<string, unknown> = {}) {
     sendMessage: jest.fn(),
     sendCopyableMessage: jest.fn(),
     sendChatAction: jest.fn(),
+    sendStatus: jest.fn().mockResolvedValue(56),
+    updateStatus: jest.fn(),
+    clearStatus: jest.fn(),
   };
   const worker = new CreatorTelegramWorker(
     prisma as never,
@@ -103,7 +110,13 @@ describe('Creator Telegram worker', () => {
       replyParts: null,
       processedAt: expect.any(Date),
       leaseId: null,
+      statusMessageId: null,
     });
+    expect(test.bot.clearStatus).toHaveBeenCalledWith(
+      123,
+      55,
+      expect.stringContaining('finished'),
+    );
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledTimes(1);
   });
@@ -123,6 +136,13 @@ describe('Creator Telegram worker', () => {
     await test.worker.tick();
     expect(test.job.sentParts).toBe(1);
     expect(test.job.content).toBeNull();
+    expect(test.job.statusMessageId).toBe(55);
+    expect(test.bot.clearStatus).not.toHaveBeenCalled();
+    expect(test.bot.updateStatus).toHaveBeenLastCalledWith(
+      123,
+      55,
+      expect.stringContaining('Retrying delivery'),
+    );
     expect(test.job.replyParts).toHaveLength(3);
     const secondPart = test.job.replyParts[1].text;
     expect(test.job.replyParts[1].copyable).toBe(true);
@@ -139,6 +159,7 @@ describe('Creator Telegram worker', () => {
     ).toBe('ក'.repeat(6000));
     expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
     expect(test.job.processedAt).toBeInstanceOf(Date);
+    expect(test.bot.sendStatus).not.toHaveBeenCalled();
   });
 
   it('retries only the footer when text was delivered but the credit message failed', async () => {
@@ -228,6 +249,12 @@ describe('Creator Telegram worker', () => {
     );
     await test.worker.tick();
     expect(test.job.processedAt).toBeNull();
+    expect(test.bot.updateStatus).toHaveBeenLastCalledWith(
+      123,
+      55,
+      expect.stringContaining('Retrying automatically'),
+    );
+    expect(test.bot.clearStatus).not.toHaveBeenCalled();
     test.job.nextAttemptAt = new Date(0);
     await test.worker.tick();
     expect(test.generations.generate.mock.calls[0]).toEqual(
@@ -249,6 +276,11 @@ describe('Creator Telegram worker', () => {
       'daily AI usage limit',
     );
     expect(test.job.processedAt).toBeInstanceOf(Date);
+    expect(test.bot.clearStatus).toHaveBeenCalledWith(
+      123,
+      55,
+      expect.any(String),
+    );
   });
 
   it('defers in-progress generations without replying with an incomplete result', async () => {
@@ -347,6 +379,135 @@ describe('Creator Telegram worker', () => {
     } finally {
       interval.mockRestore();
       test.worker.onModuleDestroy();
+    }
+  });
+
+  it('recovers a missing acknowledgement and saves its ID before generation', async () => {
+    const test = setup({ statusMessageId: null });
+    const generate = test.generations.generate.getMockImplementation()!;
+    test.generations.generate.mockImplementationOnce(async (...args) => {
+      expect(test.job.statusMessageId).toBe(56);
+      return generate(...args);
+    });
+    await test.worker.tick();
+    expect(test.bot.sendStatus).toHaveBeenCalledTimes(1);
+    expect(test.bot.clearStatus).toHaveBeenCalledWith(
+      123,
+      56,
+      expect.any(String),
+    );
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it.each([
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ])(
+    'honors personal corrections=%s and credits=%s without hiding corrected text',
+    async (showCorrections, showCredits) => {
+      const test = setup({ feature: AiFeature.KHMER_GRAMMAR });
+      test.prisma.creatorTelegramChat.findUnique.mockResolvedValue({
+        showCorrections,
+        showCredits,
+      });
+      test.generations.generate.mockResolvedValue({
+        data: {
+          title: 'Corrected text',
+          sections: [
+            {
+              id: 'result',
+              label: 'Corrected text',
+              content: 'I bought a book.',
+            },
+            {
+              id: 'corrections',
+              label: 'What changed',
+              content: 'Add “a” before “book”.',
+            },
+          ],
+        },
+        usage: { creditsCharged: 1, creditsRemaining: 19 },
+      });
+      await test.worker.tick();
+      expect(test.bot.sendCopyableMessage).toHaveBeenCalledWith(
+        123,
+        'I bought a book.',
+      );
+      expect(test.bot.sendMessage.mock.calls.map((call) => call[1])).toEqual([
+        ...(showCorrections ? ['What changed\n\nAdd “a” before “book”.'] : []),
+        ...(showCredits ? ['Credits used: 1 · Balance: 19'] : []),
+      ]);
+      expect(test.prisma.creatorTelegramChat.findUnique).toHaveBeenCalledWith({
+        where: { telegramUserId: 123n },
+      });
+      expect(test.generations.generate).toHaveBeenCalledTimes(1);
+      expect(test.job.processedAt).toBeInstanceOf(Date);
+    },
+  );
+
+  it('keeps saved reply boundaries when preferences change during a delivery retry', async () => {
+    const test = setup();
+    test.prisma.creatorTelegramChat.findUnique.mockResolvedValue({
+      showCredits: false,
+    });
+    test.bot.sendCopyableMessage.mockRejectedValueOnce(
+      new Error('Delivery failed'),
+    );
+    await test.worker.tick();
+    expect(test.job.replyParts).toHaveLength(1);
+    test.prisma.creatorTelegramChat.findUnique.mockResolvedValue({
+      showCredits: true,
+    });
+    test.job.nextAttemptAt = new Date(0);
+    await test.worker.tick();
+    expect(test.prisma.creatorTelegramChat.findUnique).toHaveBeenCalledTimes(1);
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('still delivers a result when optional feedback is unavailable', async () => {
+    const test = setup({ statusMessageId: null });
+    test.bot.sendStatus.mockResolvedValueOnce(null);
+    test.bot.updateStatus.mockRejectedValue(new Error('Status unavailable'));
+    test.bot.sendChatAction.mockRejectedValue(new Error('Typing unavailable'));
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(1);
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('stops feedback on shutdown while an existing generation finishes safely', async () => {
+    jest.useFakeTimers();
+    try {
+      const test = setup();
+      const generate = test.generations.generate.getMockImplementation()!;
+      let complete!: (result: any) => void;
+      test.generations.generate.mockReturnValueOnce(
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+      );
+      const running = test.worker.tick();
+      await jest.advanceTimersByTimeAsync(16000);
+      expect(test.bot.updateStatus).toHaveBeenLastCalledWith(
+        123,
+        55,
+        expect.stringContaining('Still working'),
+      );
+      await test.worker.onModuleDestroy();
+      const count = test.bot.sendChatAction.mock.calls.length;
+      await jest.advanceTimersByTimeAsync(20000);
+      expect(test.bot.sendChatAction).toHaveBeenCalledTimes(count);
+      expect(jest.getTimerCount()).toBe(0);
+      complete(await generate());
+      await running;
+      expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(1);
+      expect(test.job.processedAt).toBeInstanceOf(Date);
+    } finally {
+      jest.useRealTimers();
     }
   });
 });

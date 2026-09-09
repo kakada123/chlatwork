@@ -231,28 +231,33 @@ model AiUsageLimitChange {
 }
 
 model CreatorTelegramChat {
-  telegramUserId BigInt    @id @map("telegram_user_id")
-  feature        AiFeature @default(KHMER_GRAMMAR)
-  lastUpdateId   BigInt    @default(-1) @map("last_update_id")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  telegramUserId      BigInt    @id @map("telegram_user_id")
+  feature             AiFeature @default(KHMER_GRAMMAR)
+  lastUpdateId        BigInt    @default(-1) @map("last_update_id")
+  showCorrections     Boolean   @default(true) @map("show_corrections")
+  showCredits         Boolean   @default(true) @map("show_credits")
+  correctionsUpdateId BigInt    @default(-1) @map("corrections_update_id")
+  creditsUpdateId     BigInt    @default(-1) @map("credits_update_id")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@map("creator_telegram_chats")
 }
 
 model CreatorTelegramRequest {
-  updateId      BigInt    @id @map("update_id")
-  userId        String    @map("user_id") @db.Uuid
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatId        BigInt    @map("chat_id")
-  feature       AiFeature
-  content       String?   @db.VarChar(4000)
-  replyParts    Json?     @map("reply_parts")
-  sentParts     Int       @default(0) @map("sent_parts")
-  leaseId       String?   @db.Uuid @map("lease_id")
-  lockedUntil   DateTime? @map("locked_until")
-  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at")
-  processedAt   DateTime? @map("processed_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
+  updateId        BigInt    @id @map("update_id")
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId          BigInt    @map("chat_id")
+  feature         AiFeature
+  content         String?   @db.VarChar(4000)
+  replyParts      Json?     @map("reply_parts")
+  sentParts       Int       @default(0) @map("sent_parts")
+  statusMessageId Int?      @map("status_message_id")
+  leaseId         String?   @db.Uuid @map("lease_id")
+  lockedUntil     DateTime? @map("locked_until")
+  nextAttemptAt   DateTime  @default(now()) @map("next_attempt_at")
+  processedAt     DateTime? @map("processed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
 
   @@index([processedAt, nextAttemptAt])
   @@index([userId, processedAt])

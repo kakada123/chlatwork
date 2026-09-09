@@ -13,6 +13,10 @@ import { CreatorAiException } from '../creator-ai/creator-ai.errors';
 import { CREATOR_AI_DEFAULTS } from '../creator-ai/creator-ai.config';
 import { CreatorTelegramClient } from './creator-telegram.client';
 import {
+  CREATOR_QUEUED_STATUS,
+  CreatorTelegramProgress,
+} from './creator-telegram.progress';
+import {
   CreatorTelegramService,
   KHMER_CHAT_MODES,
 } from './creator-telegram.service';
@@ -66,6 +70,8 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
   private timer: ReturnType<typeof setInterval> | null = null;
   private busy = false;
   private lastCleanup = 0;
+  private progress: CreatorTelegramProgress | null = null;
+  private stopping = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -85,13 +91,15 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     this.timer.unref();
   }
 
-  onModuleDestroy() {
+  async onModuleDestroy() {
+    this.stopping = true;
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
+    await this.progress?.stop();
   }
 
   async tick() {
-    if (this.busy) return;
+    if (this.busy || this.stopping) return;
     this.busy = true;
     try {
       const job = await this.claimNext();
@@ -101,7 +109,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         } catch {
           // Never log request bodies, AI output, tokens, or provider errors.
           this.logger.warn('Creator Telegram request deferred for retry');
-          await this.prisma.creatorTelegramRequest.updateMany({
+          const deferred = await this.prisma.creatorTelegramRequest.updateMany({
             where: { updateId: job.updateId, leaseId: job.leaseId },
             data: {
               leaseId: null,
@@ -109,6 +117,15 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
               nextAttemptAt: new Date(Date.now() + 30000),
             },
           });
+          if (deferred.count === 1) {
+            await this.bot.updateStatus(
+              Number(job.chatId),
+              job.statusMessageId,
+              job.content
+                ? 'Your request is delayed. Retrying automatically—no need to resend.'
+                : 'Your response is ready. Retrying delivery—no need to resend.',
+            );
+          }
         }
       }
       if (Date.now() - this.lastCleanup > 3600000) {
@@ -116,7 +133,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           where: { processedAt: { lt: new Date(Date.now() - 7 * DAY_MS) } },
         });
         await this.prisma.creatorTelegramChat.deleteMany({
-          where: { updatedAt: { lt: new Date(Date.now() - 30 * DAY_MS) } },
+          where: {
+            updatedAt: { lt: new Date(Date.now() - 30 * DAY_MS) },
+            // Explicit display choices remain saved when a user takes a break.
+            correctionsUpdateId: -1n,
+            creditsUpdateId: -1n,
+          },
         });
         this.lastCleanup = Date.now();
       }
@@ -141,11 +163,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     });
     for (const candidate of candidates) {
       const leaseId = randomUUID();
+      const lockedUntil = this.leaseDeadline();
       const claimed = await this.prisma.creatorTelegramRequest.updateMany({
         where: { updateId: candidate.updateId, ...available },
-        data: { leaseId, lockedUntil: this.leaseDeadline() },
+        data: { leaseId, lockedUntil },
       });
-      if (claimed.count === 1) return { ...candidate, leaseId };
+      if (claimed.count === 1) return { ...candidate, leaseId, lockedUntil };
     }
     return null;
   }
@@ -182,7 +205,15 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         await this.finish(job);
         return;
       }
-      await this.bot.sendChatAction(Number(job.chatId), 'typing');
+      if (!(await this.ensureStatus(job))) return;
+      if (this.stopping) return;
+      const progress = new CreatorTelegramProgress(
+        this.bot,
+        Number(job.chatId),
+        job.statusMessageId,
+      );
+      this.progress = progress;
+      progress.start(job.feature, job.lockedUntil!);
       try {
         const result = await this.generations.generate(
           job.userId,
@@ -197,11 +228,15 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           },
           `creator-telegram:${job.updateId}`,
         );
+        const preference = await this.prisma.creatorTelegramChat.findUnique({
+          where: { telegramUserId: job.chatId },
+        });
         // Keep headings, credits and navigation out of the user's copied text.
         parts = result.data.sections.flatMap((section) => {
           const explanation =
             job.feature === AiFeature.KHMER_GRAMMAR &&
             section.id === 'corrections';
+          if (explanation && preference?.showCorrections === false) return [];
           const content = explanation
             ? `${section.label}\n\n${section.content}`
             : section.content;
@@ -210,10 +245,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
             copyable: !explanation,
           }));
         });
-        parts.push({
-          text: `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
-          copyable: false,
-        });
+        if (preference?.showCredits !== false) {
+          parts.push({
+            text: `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
+            copyable: false,
+          });
+        }
       } catch (error) {
         if (!(error instanceof CreatorAiException)) throw error;
         const response = error.getResponse() as {
@@ -231,6 +268,10 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
             copyable: false,
           },
         ];
+      } finally {
+        // Drain any in-flight edit before deleting the status or posting results.
+        await progress.stop();
+        this.progress = null;
       }
       const saved = await this.prisma.creatorTelegramRequest.updateMany({
         where: { updateId: job.updateId, leaseId: job.leaseId },
@@ -241,6 +282,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         },
       });
       if (saved.count !== 1) return;
+      job.content = null;
     }
     const recipient = await this.prisma.socialAccount.findUnique({
       where: {
@@ -279,22 +321,65 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       });
       if (saved.count !== 1) return;
     }
-    await this.finish(job);
+    await this.finish(job, 'Request finished. See the reply above.');
   }
 
-  private finish(job: CreatorTelegramRequest) {
+  private async ensureStatus(job: CreatorTelegramRequest) {
+    if (job.statusMessageId !== null) return true;
+    const messageId = await this.bot.sendStatus(
+      Number(job.chatId),
+      CREATOR_QUEUED_STATUS,
+    );
+    if (messageId === null) return true;
+    try {
+      const saved = await this.prisma.creatorTelegramRequest.updateMany({
+        where: { updateId: job.updateId, leaseId: job.leaseId },
+        data: { statusMessageId: messageId },
+      });
+      if (saved.count === 1) {
+        job.statusMessageId = messageId;
+        return true;
+      }
+    } catch (error) {
+      await this.bot.clearStatus(
+        Number(job.chatId),
+        messageId,
+        'Your request is queued.',
+      );
+      throw error;
+    }
+    await this.bot.clearStatus(
+      Number(job.chatId),
+      messageId,
+      'Your request is queued.',
+    );
+    return false;
+  }
+
+  private async finish(
+    job: CreatorTelegramRequest,
+    fallback = 'This request is no longer pending.',
+  ) {
     // Keep only a short-lived deduplication receipt after delivery; text/output
     // leave the queue immediately and existing Creator history owns the result.
-    return this.prisma.creatorTelegramRequest.updateMany({
+    const finished = await this.prisma.creatorTelegramRequest.updateMany({
       where: { updateId: job.updateId, leaseId: job.leaseId },
       data: {
         processedAt: new Date(),
         content: null,
         replyParts: Prisma.DbNull,
+        statusMessageId: null,
         leaseId: null,
         lockedUntil: null,
       },
     });
+    if (finished.count === 1)
+      await this.bot.clearStatus(
+        Number(job.chatId),
+        job.statusMessageId,
+        fallback,
+      );
+    return finished;
   }
 
   private leaseDeadline() {

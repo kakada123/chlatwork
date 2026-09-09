@@ -27,6 +27,16 @@ function setup() {
         requests.push(data);
         return data;
       }),
+      updateMany: jest.fn(async ({ where, data }) => {
+        const job = requests.find(
+          (request) =>
+            request.updateId === where.updateId &&
+            request.leaseId === where.leaseId,
+        );
+        if (!job) return { count: 0 };
+        Object.assign(job, data);
+        return { count: 1 };
+      }),
     },
   };
   prisma.$transaction.mockImplementation(async (fn) => fn(prisma));
@@ -43,6 +53,9 @@ function setup() {
   const bot = {
     sendMessage: jest.fn(),
     sendChatAction: jest.fn(),
+    sendStatus: jest.fn().mockResolvedValue(55),
+    clearStatus: jest.fn(),
+    editMessage: jest.fn(),
     answerCallback: jest.fn(),
     setChatMenuButton: jest.fn(),
   };
@@ -111,10 +124,66 @@ describe('Creator Telegram bot', () => {
         chatId: 123n,
         feature: AiFeature.KHMER_GRAMMAR,
         content: 'សួស្តី',
+        statusMessageId: 55,
+        leaseId: null,
+        lockedUntil: null,
       },
     ]);
-    expect(test.bot.sendChatAction).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendStatus).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendStatus).toHaveBeenCalledWith(
+      123,
+      expect.stringContaining('queued'),
+    );
     expect(test.credits.getBalance).not.toHaveBeenCalled();
+  });
+
+  it('holds the worker lease until the acknowledgement is saved', async () => {
+    const test = setup();
+    test.bot.sendStatus.mockImplementationOnce(async () => {
+      expect(test.requests[0]).toMatchObject({
+        leaseId: expect.any(String),
+        lockedUntil: expect.any(Date),
+      });
+      expect(test.requests[0].lockedUntil.getTime()).toBeGreaterThan(
+        Date.now(),
+      );
+      return 55;
+    });
+    await test.service.handleUpdate(test.message('hello'));
+    expect(test.requests[0]).toMatchObject({
+      statusMessageId: 55,
+      leaseId: null,
+      lockedUntil: null,
+    });
+  });
+
+  it('still releases queued work if Telegram cannot acknowledge it', async () => {
+    const test = setup();
+    test.bot.sendStatus.mockResolvedValueOnce(null);
+    await test.service.handleUpdate(test.message('hello'));
+    expect(test.requests[0]).toMatchObject({
+      statusMessageId: null,
+      leaseId: null,
+      lockedUntil: null,
+    });
+  });
+
+  it('removes an acknowledgement if saving it fails without duplicating queued work', async () => {
+    const test = setup();
+    test.prisma.creatorTelegramRequest.updateMany.mockRejectedValueOnce(
+      new Error('Database unavailable'),
+    );
+    await expect(
+      test.service.handleUpdate(test.message('hello')),
+    ).rejects.toThrow('Database unavailable');
+    expect(test.bot.clearStatus).toHaveBeenCalledWith(
+      123,
+      55,
+      expect.any(String),
+    );
+    await test.service.handleUpdate(test.message('hello'));
+    expect(test.requests).toHaveLength(1);
+    expect(test.bot.sendStatus).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -213,6 +282,126 @@ describe('Creator Telegram bot', () => {
     expect(test.credits.getBalance).toHaveBeenCalledWith('owner');
   });
 
+  it('opens personal settings with both sections on by default without queuing work', async () => {
+    const test = setup();
+    await test.service.handleUpdate(test.message('/settings'));
+    const [chatId, text, keyboard] = test.bot.sendMessage.mock.calls[0];
+    expect(chatId).toBe(123);
+    expect(text).toContain('Hiding credits does not change charges');
+    expect(keyboard.inline_keyboard.flat()).toEqual([
+      { text: '✅ ON · What changed', callback_data: 'settings:corrections:0' },
+      { text: '✅ ON · Credits used', callback_data: 'settings:credits:0' },
+    ]);
+    expect(test.requests).toHaveLength(0);
+    expect(test.credits.getBalance).not.toHaveBeenCalled();
+  });
+
+  it('sets each personal option explicitly and ignores duplicate or older callbacks independently', async () => {
+    const test = setup();
+    const preferences = new Map<bigint, any>();
+    test.prisma.creatorTelegramChat.createMany.mockImplementation(
+      async ({ data }) => {
+        const id = data[0].telegramUserId;
+        if (!preferences.has(id))
+          preferences.set(id, {
+            showCorrections: true,
+            showCredits: true,
+            correctionsUpdateId: -1n,
+            creditsUpdateId: -1n,
+          });
+      },
+    );
+    test.prisma.creatorTelegramChat.findUnique.mockImplementation(
+      async ({ where }) => preferences.get(where.telegramUserId) ?? null,
+    );
+    test.prisma.creatorTelegramChat.updateMany.mockImplementation(
+      async ({ where, data }) => {
+        const preference = preferences.get(where.telegramUserId);
+        const cursor =
+          'correctionsUpdateId' in data
+            ? 'correctionsUpdateId'
+            : 'creditsUpdateId';
+        if (preference[cursor] < where[cursor].lt)
+          Object.assign(preference, data);
+      },
+    );
+    const toggle = (data: string, updateId: number, userId = 123) =>
+      test.service.handleUpdate({
+        update_id: updateId,
+        callback_query: {
+          id: `callback-${updateId}`,
+          from: { id: userId },
+          message: { message_id: 22, chat: { id: userId, type: 'private' } },
+          data,
+        },
+      });
+    await toggle('settings:corrections:0', 20);
+    await toggle('settings:corrections:1', 21);
+    await toggle('settings:corrections:0', 20);
+    await toggle('settings:credits:0', 19);
+    await toggle('settings:credits:0', 19);
+    expect(preferences.get(123n)).toMatchObject({
+      showCorrections: true,
+      showCredits: false,
+      correctionsUpdateId: 21n,
+      creditsUpdateId: 19n,
+    });
+    expect(test.prisma.creatorTelegramChat.updateMany).toHaveBeenCalledWith({
+      where: { telegramUserId: 123n, creditsUpdateId: { lt: 19n } },
+      data: { showCredits: false, creditsUpdateId: 19n },
+    });
+    expect(test.bot.editMessage).toHaveBeenLastCalledWith(
+      123,
+      22,
+      expect.any(String),
+      {
+        inline_keyboard: [
+          [
+            {
+              text: '✅ ON · What changed',
+              callback_data: 'settings:corrections:0',
+            },
+          ],
+          [
+            {
+              text: '❌ OFF · Credits used',
+              callback_data: 'settings:credits:1',
+            },
+          ],
+        ],
+      },
+    );
+    await toggle('settings:corrections:0', 30, 456);
+    expect(preferences.get(123n).showCorrections).toBe(true);
+    expect(preferences.get(456n)).toMatchObject({
+      showCorrections: false,
+      showCredits: true,
+    });
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.requests).toHaveLength(0);
+  });
+
+  it('ignores malformed settings and settings callbacks from groups', async () => {
+    const test = setup();
+    for (const [data, type] of [
+      ['settings:credits:toggle', 'private'],
+      ['settings:credits:0', 'group'],
+    ]) {
+      await test.service.handleUpdate({
+        update_id: 5,
+        callback_query: {
+          id: 'callback',
+          from: { id: 123 },
+          message: { message_id: 22, chat: { id: 123, type } },
+          data,
+        },
+      });
+    }
+    expect(test.prisma.creatorTelegramChat.updateMany).not.toHaveBeenCalled();
+    expect(test.bot.editMessage).not.toHaveBeenCalled();
+    expect(test.requests).toHaveLength(0);
+  });
+
   it('provides only Khmer AI modes and Creator links', async () => {
     const test = setup();
     await test.service.handleUpdate(test.message('/start'));
@@ -222,7 +411,13 @@ describe('Creator Telegram bot', () => {
       'https://creator.example.com/creator',
     );
     const buttons = test.service.keyboard().inline_keyboard.flat();
-    expect(buttons.filter((button) => button.callback_data)).toHaveLength(4);
+    expect(
+      buttons.filter((button) => button.callback_data?.startsWith('mode:')),
+    ).toHaveLength(4);
+    expect(buttons).toContainEqual({
+      text: '⚙️ Settings',
+      callback_data: 'settings:view',
+    });
     expect(
       buttons
         .filter((button) => button.web_app)
@@ -274,5 +469,29 @@ describe('Creator Telegram bot', () => {
     } finally {
       fetchMock.mockRestore();
     }
+  });
+
+  it('treats acknowledgement failures as optional and edits the status if deletion fails', async () => {
+    const test = setup();
+    const client = new CreatorTelegramClient(test.config as never);
+    const send = jest
+      .spyOn(client, 'sendMessage')
+      .mockRejectedValue(new Error('Telegram unavailable'));
+    const remove = jest
+      .spyOn(client, 'deleteMessage')
+      .mockRejectedValue(new Error('Cannot delete'));
+    const edit = jest.spyOn(client, 'editMessage').mockResolvedValue(true);
+    await expect(client.sendStatus(123, 'Queued')).resolves.toBeNull();
+    await client.clearStatus(123, 55, 'Request finished.');
+    expect(edit).toHaveBeenCalledWith(123, 55, 'Request finished.');
+    edit.mockRejectedValueOnce(new Error('Message missing'));
+    await expect(
+      client.clearStatus(123, 55, 'Request finished.'),
+    ).resolves.toBeUndefined();
+    await client.clearStatus(123, null, 'Request finished.');
+    expect(remove).toHaveBeenCalledTimes(2);
+    send.mockRestore();
+    remove.mockRestore();
+    edit.mockRestore();
   });
 });

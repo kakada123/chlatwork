@@ -11,7 +11,9 @@ The expense/voting bot keeps its existing webhook, commands, and token.
 2. Apply these standalone SQL files manually before deploying the updated API:
    - `database/updates/2026-09-09-add-creator-usage-limits.sql`
    - `database/updates/2026-09-09-add-creator-telegram-bot.sql`
-   Both assume the existing Creator AI schema has already been installed.
+   - `database/updates/2026-09-09-add-creator-telegram-progress.sql`
+   - `database/updates/2026-09-09-add-creator-telegram-reply-settings.sql`
+   These assume the existing Creator AI schema has already been installed.
 3. Configure `CREATOR_TELEGRAM_BOT_TOKEN` and
    `CREATOR_TELEGRAM_WEBHOOK_SECRET` in the API's runtime secret store. Use a new
    webhook secret containing 16–256 letters, numbers, underscores, or hyphens.
@@ -48,6 +50,7 @@ latin - Convert Latin Khmer to Khmer script
 humanize - Make Khmer writing sound natural
 creator - Open Creator tools
 credits - Show credits and daily usage
+settings - Choose what appears in your replies
 help - Show the bot menu
 ```
 
@@ -63,7 +66,25 @@ such as “a”, “an”, or “the”). Already-correct text gets “No correc
 The mode prompt displays the configured credit price.
 Chat input is limited to 4,000 characters; images and video use the Creator UI.
 
+Use **⚙️ Settings** in the bot menu or `/settings` to turn **What changed** and
+**Credits used** on or off independently. Both default to on and are saved for
+each Telegram user. Corrected text always remains copyable. These are display
+options: charges still apply, and `/credits` always shows the wallet and daily usage.
+Changes apply to replies that have not yet been prepared. A reply already saved
+for delivery keeps its message boundaries so retries cannot skip or repeat parts.
+
 ## Account and retry behavior
+
+- Accepted requests immediately receive one queued acknowledgement. When processing
+  starts, the bot edits it to describe the selected task and refreshes typing every
+  four seconds. After 15 seconds of processing, the same message says it is still
+  working and asks the user not to resend. No estimated times or percentages are shown.
+- The waiting message ID survives retries and restarts. Feedback failures never
+  trigger another generation. Typing stops on completion, errors, shutdown, or lease
+  expiry; slow Telegram feedback calls do not overlap. Delivery or generation retries
+  update the same status with a delay notice. After the final reply, the bot deletes
+  the status, or edits it to a finished notice if deletion fails. Corrected text,
+  explanations, and credits remain separate messages.
 
 - Users open Creator from the new bot once to sign in with Telegram. The API
   validates Mini App data against either configured first-party bot token,
@@ -83,8 +104,9 @@ Chat input is limited to 4,000 characters; images and video use the Creator UI.
   lost, that one part can appear twice; its credits are still charged once.
 - Pending text is cleared when the reply is persisted. Queued reply content is
   cleared after delivery or expiry. Requests expire after 24 hours; content-free
-  delivery receipts are removed after seven days. Inactive mode preferences are
-  removed after 30 days. Existing Creator history retains generated results under
+  delivery receipts are removed after seven days. Inactive mode preferences with
+  no explicit reply settings are removed after 30 days; explicit reply settings
+  remain saved. Existing Creator history retains generated results under
   its normal retention policy. Neither inputs nor outputs are written to logs.
 
 ## Live verification after setup
@@ -95,3 +117,9 @@ one charge. Raise the account's daily limit in the admin page and verify a new
 request succeeds within it. Confirm groups receive no private AI or wallet reply.
 The bot registration, SQL execution, provider call, and Telegram delivery must be
 verified in the configured runtime; local tests do not establish those outcomes.
+For a request taking over 15 seconds, verify the queued message changes to the
+selected task, then the slow-request notice without adding another message. Confirm
+typing continues while processing and the status disappears after result delivery.
+Toggle each reply setting and send another grammar request. Confirm only the
+selected sections appear, the corrected text remains copyable, another user's
+settings are unchanged, and `/credits` remains available with both toggles off.

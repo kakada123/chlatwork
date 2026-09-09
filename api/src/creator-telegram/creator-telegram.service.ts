@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiFeature, AuthProvider } from '@prisma/client';
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from '../creator-ai/creator-credits.service';
 import { CreatorPlanLimitsService } from '../creator-ai/creator-plan-limits.service';
@@ -11,6 +11,7 @@ import type {
   TelegramUpdate,
 } from '../telegram-bot/telegram-bot.types';
 import { CreatorTelegramClient } from './creator-telegram.client';
+import { CREATOR_QUEUED_STATUS } from './creator-telegram.progress';
 
 export const KHMER_CHAT_MODES = {
   grammar: {
@@ -84,6 +85,27 @@ export class CreatorTelegramService {
       )
         return;
       await this.bot.answerCallback(callback.id);
+      if (
+        callback.data === 'settings:view' ||
+        /^settings:(corrections|credits):[01]$/.test(callback.data)
+      ) {
+        const setting = /^settings:(corrections|credits):([01])$/.exec(
+          callback.data,
+        );
+        if (setting) {
+          await this.setReplyPreference(
+            chatId,
+            setting[1] as 'corrections' | 'credits',
+            setting[2] === '1',
+            update.update_id,
+          );
+        }
+        await this.showSettings(
+          chatId,
+          setting ? message.message_id : undefined,
+        );
+        return;
+      }
       const mode = this.mode(callback.data.replace(/^mode:/, ''));
       if (!callback.data.startsWith('mode:') || !mode) return;
       await this.setMode(chatId, mode.feature, update.update_id);
@@ -100,6 +122,10 @@ export class CreatorTelegramService {
       /^\/([a-z]+)(?:@[A-Za-z0-9_]+)?(?:\s+([\s\S]*))?$/i.exec(text);
     const command = commandMatch?.[1]?.toLowerCase();
     const mode = command ? this.mode(command) : null;
+    if (command === 'settings') {
+      await this.showSettings(chatId);
+      return;
+    }
     if (
       command &&
       ['start', 'help', 'menu', 'creator', 'khmer'].includes(command)
@@ -174,6 +200,7 @@ export class CreatorTelegramService {
     });
     const feature =
       mode?.feature ?? preference?.feature ?? AiFeature.KHMER_GRAMMAR;
+    const acknowledgementLease = randomUUID();
     const queued = await this.prisma.$transaction(async (tx) => {
       // Bound queued work before provider reservations; duplicate Telegram updates
       // keep the first request's account, mode and text immutable.
@@ -193,6 +220,10 @@ export class CreatorTelegramService {
           chatId: BigInt(chatId),
           feature,
           content,
+          // Let the webhook save its acknowledgement before a worker takes over.
+          // A crashed webhook releases this claim automatically after 30 seconds.
+          leaseId: acknowledgementLease,
+          lockedUntil: new Date(Date.now() + 30000),
         },
       });
       return 'queued';
@@ -202,8 +233,34 @@ export class CreatorTelegramService {
         chatId,
         'Your earlier requests are still processing. Please wait for a reply before sending more text.',
       );
-    // Once queued, webhook delivery can finish even if typing feedback fails.
-    if (queued === 'queued') await this.bot.sendChatAction(chatId, 'typing');
+    if (queued === 'queued') {
+      const statusMessageId = await this.bot.sendStatus(
+        chatId,
+        CREATOR_QUEUED_STATUS,
+      );
+      try {
+        const saved = await this.prisma.creatorTelegramRequest.updateMany({
+          where: {
+            updateId: BigInt(update.update_id),
+            leaseId: acknowledgementLease,
+          },
+          data: { statusMessageId, leaseId: null, lockedUntil: null },
+        });
+        if (saved.count !== 1)
+          await this.bot.clearStatus(
+            chatId,
+            statusMessageId,
+            'Your request is queued.',
+          );
+      } catch (error) {
+        await this.bot.clearStatus(
+          chatId,
+          statusMessageId,
+          'Your request is queued.',
+        );
+        throw error;
+      }
+    }
   }
 
   keyboard(): TelegramInlineKeyboard {
@@ -212,6 +269,7 @@ export class CreatorTelegramService {
         ...Object.entries(KHMER_CHAT_MODES).map(([key, mode]) => [
           { text: mode.label, callback_data: `mode:${key}` },
         ]),
+        [{ text: '⚙️ Settings', callback_data: 'settings:view' }],
         [
           {
             text: '✨ Open Creator / Sign in',
@@ -256,6 +314,61 @@ export class CreatorTelegramService {
     return Object.hasOwn(KHMER_CHAT_MODES, command)
       ? KHMER_CHAT_MODES[command as keyof typeof KHMER_CHAT_MODES]
       : null;
+  }
+
+  private async showSettings(chatId: number, messageId?: number) {
+    const preference = await this.prisma.creatorTelegramChat.findUnique({
+      where: { telegramUserId: BigInt(chatId) },
+    });
+    const showCorrections = preference?.showCorrections ?? true;
+    const showCredits = preference?.showCredits ?? true;
+    const keyboard: TelegramInlineKeyboard = {
+      inline_keyboard: [
+        [
+          {
+            text: `${showCorrections ? '✅ ON' : '❌ OFF'} · What changed`,
+            callback_data: `settings:corrections:${showCorrections ? '0' : '1'}`,
+          },
+        ],
+        [
+          {
+            text: `${showCredits ? '✅ ON' : '❌ OFF'} · Credits used`,
+            callback_data: `settings:credits:${showCredits ? '0' : '1'}`,
+          },
+        ],
+      ],
+    };
+    const text =
+      '⚙️ Your reply settings\n\nChoose what to include in future replies. Corrected text is always shown.\n\nHiding credits does not change charges. Use /credits to check your balance anytime.';
+    if (Number.isSafeInteger(messageId) && messageId! > 0) {
+      await this.bot.editMessage(chatId, messageId!, text, keyboard);
+    } else {
+      await this.bot.sendMessage(chatId, text, keyboard);
+    }
+  }
+
+  private async setReplyPreference(
+    chatId: number,
+    setting: 'corrections' | 'credits',
+    enabled: boolean,
+    updateId: number,
+  ) {
+    await this.prisma.creatorTelegramChat.createMany({
+      data: [{ telegramUserId: BigInt(chatId) }],
+      skipDuplicates: true,
+    });
+    // Buttons set an explicit value. Independent update cursors prevent duplicate
+    // or out-of-order callbacks from undoing either of the user's later choices.
+    const field = setting === 'corrections' ? 'showCorrections' : 'showCredits';
+    const cursor =
+      setting === 'corrections' ? 'correctionsUpdateId' : 'creditsUpdateId';
+    await this.prisma.creatorTelegramChat.updateMany({
+      where: {
+        telegramUserId: BigInt(chatId),
+        [cursor]: { lt: BigInt(updateId) },
+      },
+      data: { [field]: enabled, [cursor]: BigInt(updateId) },
+    });
   }
 
   private async setMode(chatId: number, feature: AiFeature, updateId: number) {
