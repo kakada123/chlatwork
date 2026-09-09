@@ -13,6 +13,7 @@ The expense/voting bot keeps its existing webhook, commands, and token.
    - `database/updates/2026-09-09-add-creator-telegram-bot.sql`
    - `database/updates/2026-09-09-add-creator-telegram-progress.sql`
    - `database/updates/2026-09-09-add-creator-telegram-reply-settings.sql`
+   - `database/updates/2026-09-09-deduplicate-creator-telegram-start.sql`
    These assume the existing Creator AI schema has already been installed.
 3. Configure `CREATOR_TELEGRAM_BOT_TOKEN` and
    `CREATOR_TELEGRAM_WEBHOOK_SECRET` in the API's runtime secret store. Use a new
@@ -74,6 +75,12 @@ Changes apply to replies that have not yet been prepared. A reply already saved
 for delivery keeps its message boundaries so retries cannot skip or repeat parts.
 
 ## Account and retry behavior
+
+- Repeated or overlapping deliveries of the same `/start` update reuse a saved
+  per-chat claim and do not send another welcome. A new `/start` still opens the
+  menu. Failed welcome sends may retry; a menu-button failure after the welcome
+  does not resend it. As with result delivery, a lost Telegram send response can
+  still repeat a message that Telegram accepted before the connection failed.
 
 - Accepted requests immediately receive one queued acknowledgement. When processing
   starts, the bot edits it to describe the selected task and refreshes typing every

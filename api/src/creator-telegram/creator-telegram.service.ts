@@ -122,14 +122,15 @@ export class CreatorTelegramService {
       /^\/([a-z]+)(?:@[A-Za-z0-9_]+)?(?:\s+([\s\S]*))?$/i.exec(text);
     const command = commandMatch?.[1]?.toLowerCase();
     const mode = command ? this.mode(command) : null;
+    if (command === 'start') {
+      await this.showWelcome(chatId, update.update_id);
+      return;
+    }
     if (command === 'settings') {
       await this.showSettings(chatId);
       return;
     }
-    if (
-      command &&
-      ['start', 'help', 'menu', 'creator', 'khmer'].includes(command)
-    ) {
+    if (command && ['help', 'menu', 'creator', 'khmer'].includes(command)) {
       await this.showMenu(chatId);
       return;
     }
@@ -400,6 +401,44 @@ export class CreatorTelegramService {
         ? 'Send Khmer or English text. Get corrected text in the original language, plus a separate list explaining mistakes and missing words.'
         : 'Send your text here.';
     return `${mode.label}\n\nផ្ញើអត្ថបទរបស់អ្នកនៅទីនេះ។\n${instruction} ${this.pricing.fixed(mode.feature)} credit(s) per request, using your account's daily allowance.`;
+  }
+
+  private async showWelcome(chatId: number, updateId: number) {
+    const claimed = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-telegram-welcome:${chatId}`}))`;
+      await tx.creatorTelegramChat.createMany({
+        data: [{ telegramUserId: BigInt(chatId) }],
+        skipDuplicates: true,
+      });
+      const previous = await tx.creatorTelegramChat.findUniqueOrThrow({
+        where: { telegramUserId: BigInt(chatId) },
+        select: { welcomeUpdateId: true },
+      });
+      const saved = await tx.creatorTelegramChat.updateMany({
+        where: {
+          telegramUserId: BigInt(chatId),
+          welcomeUpdateId: { lt: BigInt(updateId) },
+        },
+        data: { welcomeUpdateId: BigInt(updateId) },
+      });
+      return saved.count === 1 ? previous.welcomeUpdateId : null;
+    });
+    if (claimed === null) return;
+    try {
+      // Claim before sending, across replicas, without holding a DB transaction
+      // open during Telegram calls. A later intentional Start still works.
+      await this.showMenu(chatId);
+    } catch (error) {
+      // Retry a failed welcome without undoing a newer Start claim.
+      await this.prisma.creatorTelegramChat.updateMany({
+        where: {
+          telegramUserId: BigInt(chatId),
+          welcomeUpdateId: BigInt(updateId),
+        },
+        data: { welcomeUpdateId: claimed },
+      });
+      throw error;
+    }
   }
 
   private async showMenu(chatId: number) {

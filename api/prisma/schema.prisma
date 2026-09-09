@@ -238,6 +238,7 @@ model CreatorTelegramChat {
   showCredits         Boolean   @default(true) @map("show_credits")
   correctionsUpdateId BigInt    @default(-1) @map("corrections_update_id")
   creditsUpdateId     BigInt    @default(-1) @map("credits_update_id")
+  welcomeUpdateId     BigInt    @default(-1) @map("welcome_update_id")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@map("creator_telegram_chats")

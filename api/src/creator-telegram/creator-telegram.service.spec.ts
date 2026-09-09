@@ -5,6 +5,7 @@ import { CreatorTelegramClient } from './creator-telegram.client';
 
 function setup() {
   const requests: any[] = [];
+  const welcomeUpdates = new Map<bigint, bigint>();
   const prisma = {
     $executeRaw: jest.fn(),
     $transaction: jest.fn(),
@@ -15,8 +16,24 @@ function setup() {
     },
     creatorTelegramChat: {
       findUnique: jest.fn().mockResolvedValue(null),
+      findUniqueOrThrow: jest.fn(async ({ where }) => ({
+        welcomeUpdateId: welcomeUpdates.get(where.telegramUserId) ?? -1n,
+      })),
       createMany: jest.fn(),
-      updateMany: jest.fn(),
+      updateMany: jest.fn(async ({ where, data }) => {
+        if ('welcomeUpdateId' in data) {
+          const current = welcomeUpdates.get(where.telegramUserId) ?? -1n;
+          const expected = where.welcomeUpdateId;
+          if (
+            typeof expected === 'bigint'
+              ? current !== expected
+              : current >= expected.lt
+          )
+            return { count: 0 };
+          welcomeUpdates.set(where.telegramUserId, data.welcomeUpdateId);
+        }
+        return { count: 1 };
+      }),
     },
     creatorTelegramRequest: {
       findUnique: jest.fn(async ({ where }) =>
@@ -321,8 +338,9 @@ describe('Creator Telegram bot', () => {
           'correctionsUpdateId' in data
             ? 'correctionsUpdateId'
             : 'creditsUpdateId';
-        if (preference[cursor] < where[cursor].lt)
-          Object.assign(preference, data);
+        if (preference[cursor] >= where[cursor].lt) return { count: 0 };
+        Object.assign(preference, data);
+        return { count: 1 };
       },
     );
     const toggle = (data: string, updateId: number, userId = 123) =>
@@ -426,6 +444,77 @@ describe('Creator Telegram bot', () => {
         ),
     ).toBe(true);
     expect(test.requests).toHaveLength(0);
+  });
+
+  it('sends one welcome for duplicate and older Start updates but allows a new Start', async () => {
+    const test = setup();
+    await test.service.handleUpdate(test.message('/start', 10));
+    await test.service.handleUpdate(test.message('/start', 10));
+    await test.service.handleUpdate(test.message('/start', 9));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.setChatMenuButton).toHaveBeenCalledTimes(1);
+    await test.service.handleUpdate(test.message('/start creator', 11));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.requests).toHaveLength(0);
+  });
+
+  it('deduplicates an overlapping Start while Telegram is still sending the first welcome', async () => {
+    const test = setup();
+    let sending!: () => void;
+    const started = new Promise<void>((resolve) => {
+      sending = resolve;
+    });
+    let complete!: () => void;
+    test.bot.sendMessage.mockImplementationOnce(() => {
+      sending();
+      return new Promise<void>((resolve) => {
+        complete = resolve;
+      });
+    });
+    const first = test.service.handleUpdate(test.message('/start', 10));
+    await started;
+    await test.service.handleUpdate(test.message('/start', 10));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    complete();
+    await first;
+  });
+
+  it('allows a failed welcome to retry but does not resend after menu-button failure', async () => {
+    const test = setup();
+    test.bot.sendMessage.mockRejectedValueOnce(new Error('Send failed'));
+    await expect(
+      test.service.handleUpdate(test.message('/start')),
+    ).rejects.toThrow('Send failed');
+    test.bot.setChatMenuButton.mockRejectedValueOnce(
+      new Error('Menu unavailable'),
+    );
+    await test.service.handleUpdate(test.message('/start'));
+    await test.service.handleUpdate(test.message('/start'));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.setChatMenuButton).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not roll back a newer Start when an older welcome fails', async () => {
+    const test = setup();
+    let sending!: () => void;
+    const started = new Promise<void>((resolve) => {
+      sending = resolve;
+    });
+    let fail!: (error: Error) => void;
+    test.bot.sendMessage.mockImplementationOnce(() => {
+      sending();
+      return new Promise<void>((_resolve, reject) => {
+        fail = reject;
+      });
+    });
+    const first = test.service.handleUpdate(test.message('/start', 10));
+    const rejected = expect(first).rejects.toThrow('Old welcome failed');
+    await started;
+    await test.service.handleUpdate(test.message('/start', 11));
+    fail(new Error('Old welcome failed'));
+    await rejected;
+    await test.service.handleUpdate(test.message('/start', 11));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
   });
 
   it('sends through the separate bot token and keeps provider failures generic', async () => {
