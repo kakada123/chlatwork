@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AiGenerationStatus, type Prisma } from '@prisma/client';
 import { CREATOR_FREE_PLAN_LIMITS } from './creator-ai.config';
 
 export interface CreatorPlanLimits {
@@ -15,8 +16,7 @@ export interface CreatorPlanLimits {
 export class CreatorPlanLimitsService {
   constructor(private readonly config: ConfigService) {}
 
-  // ChlatWork has no subscription model yet, so every account uses centrally
-  // configured FREE safeguards rather than scattered plan checks.
+  // These are shared defaults; dailyUsage applies the account's saved override.
   forUser(_userId: string): CreatorPlanLimits {
     return {
       ratePerMinute: this.number(
@@ -44,6 +44,49 @@ export class CreatorPlanLimitsService {
         'AI_FREE_MAX_CONCURRENT_VIDEO_JOBS',
         CREATOR_FREE_PLAN_LIMITS.maxConcurrentVideoJobs,
       ),
+    };
+  }
+
+  async dailyUsage(
+    tx: Pick<Prisma.TransactionClient, 'user' | 'aiGeneration'>,
+    userId: string,
+    now = new Date(),
+  ) {
+    const start = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    const [user, daily] = await Promise.all([
+      tx.user.findUnique({
+        where: { id: userId },
+        select: { aiDailyCreditLimit: true },
+      }),
+      tx.aiGeneration.aggregate({
+        where: {
+          userId,
+          createdAt: { gte: start },
+          // Pending reservations count immediately; failed/refunded work does not.
+          status: {
+            in: [
+              AiGenerationStatus.RESERVED,
+              AiGenerationStatus.PROCESSING,
+              AiGenerationStatus.COMPLETED,
+            ],
+          },
+        },
+        _sum: { creditCost: true },
+      }),
+    ]);
+    const defaultLimit = this.forUser(userId).dailyCredits;
+    const override = user?.aiDailyCreditLimit ?? null;
+    const limit = override ?? defaultLimit;
+    const used = daily._sum.creditCost ?? 0;
+    return {
+      override,
+      defaultLimit,
+      limit,
+      used,
+      remaining: Math.max(0, limit - used),
+      resetsAt: new Date(start.getTime() + 86400000).toISOString(),
     };
   }
 

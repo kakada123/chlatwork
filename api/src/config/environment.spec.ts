@@ -13,6 +13,26 @@ const valid = {
 };
 
 describe('validateEnvironment', () => {
+  it('accepts an optional separate Creator bot and rejects partial or shared configuration', () => {
+    const creator = {
+      CREATOR_TELEGRAM_BOT_TOKEN: '987654321:creator-test-token',
+      CREATOR_TELEGRAM_WEBHOOK_SECRET: 'creator_test_webhook_1234',
+    };
+    expect(validateEnvironment({ ...valid, ...creator })).toMatchObject(
+      creator,
+    );
+    for (const override of [
+      { CREATOR_TELEGRAM_BOT_TOKEN: '' },
+      { CREATOR_TELEGRAM_WEBHOOK_SECRET: '' },
+      { CREATOR_TELEGRAM_BOT_TOKEN: valid.TELEGRAM_BOT_TOKEN },
+      { CREATOR_TELEGRAM_WEBHOOK_SECRET: valid.TELEGRAM_WEBHOOK_SECRET },
+      { CREATOR_TELEGRAM_BOT_TOKEN: ' malformed ' },
+      { NODE_ENV: 'production' },
+    ])
+      expect(() =>
+        validateEnvironment({ ...valid, ...creator, ...override }),
+      ).toThrow();
+  });
   it('accepts complete configuration', () => {
     expect(validateEnvironment({ ...valid })).toEqual(valid);
   });
@@ -25,9 +45,9 @@ describe('validateEnvironment', () => {
   });
 
   it('requires provider and budget safeguards when Creator AI is enabled', () => {
-    expect(() =>
-      validateEnvironment({ ...valid, AI_ENABLED: 'true' }),
-    ).toThrow('OPENAI_API_KEY is required');
+    expect(() => validateEnvironment({ ...valid, AI_ENABLED: 'true' })).toThrow(
+      'OPENAI_API_KEY is required',
+    );
   });
 
   it('accepts Railway public domain without duplicate Creator URL configuration', () => {
@@ -47,9 +67,9 @@ describe('validateEnvironment', () => {
   });
 
   it('rejects missing provider configuration', () => {
-    expect(() => validateEnvironment({ ...valid, GOOGLE_CLIENT_ID: '' })).toThrow(
-      'GOOGLE_CLIENT_ID is required',
-    );
+    expect(() =>
+      validateEnvironment({ ...valid, GOOGLE_CLIENT_ID: '' }),
+    ).toThrow('GOOGLE_CLIENT_ID is required');
   });
 
   it('rejects weak JWT secrets', () => {

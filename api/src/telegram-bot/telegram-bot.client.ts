@@ -17,6 +17,7 @@ const TELEGRAM_FILE_PATH_PATTERN =
 
 @Injectable()
 export class TelegramBotClient {
+  protected readonly tokenConfigKey: string = 'TELEGRAM_BOT_TOKEN';
   constructor(private readonly config: ConfigService) {}
 
   sendMessage(
@@ -140,7 +141,7 @@ export class TelegramBotClient {
       );
     }
 
-    const token = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
+    const token = this.config.getOrThrow<string>(this.tokenConfigKey);
     let response: Response;
     try {
       response = await fetch(
@@ -163,7 +164,7 @@ export class TelegramBotClient {
   }
 
   private async call(method: string, payload: Record<string, unknown>) {
-    const token = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
+    const token = this.config.getOrThrow<string>(this.tokenConfigKey);
     let response: Response;
 
     try {

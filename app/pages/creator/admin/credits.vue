@@ -3,6 +3,8 @@ import {
   getCreatorCreditAccounts,
   getCreatorCreditAccount,
   adjustCreatorCredits,
+  updateCreatorUsageLimit,
+  type CreatorUsageLimitUpdate,
   type CreatorCreditAccountDetails,
   type CreatorCreditAdjustment,
 } from "~/services/creator-ai.service";
@@ -13,7 +15,7 @@ import {
 
 definePageMeta({ layout: "creator", middleware: ["auth", "admin"] });
 useSeoMeta({
-  title: "Manage credits | ChlatWork Creator",
+  title: "Manage credits & usage limits | ChlatWork Creator",
   robots: "noindex, nofollow",
 });
 
@@ -35,6 +37,14 @@ const successMessage = ref("");
 const direction = ref<"add" | "remove">("add");
 const amount = ref<number | string>("");
 const reason = ref("");
+const useDefaultLimit = ref(true);
+const dailyLimit = ref<number | string>("");
+const limitReason = ref("");
+const usageReview = shallowRef<{
+  input: CreatorUsageLimitUpdate;
+  key: string;
+  actorId: string;
+} | null>(null);
 const review = shallowRef<{
   input: CreatorCreditAdjustment;
   key: string;
@@ -43,7 +53,23 @@ const review = shallowRef<{
 const attempted = ref(false);
 let listVersion = 0;
 let detailVersion = 0;
-const locked = computed(() => Boolean(review.value) || saving.value);
+const locked = computed(
+  () => Boolean(review.value || usageReview.value) || saving.value,
+);
+const validLimit = computed(
+  () =>
+    Boolean(details.value) &&
+    !loadingDetails.value &&
+    (useDefaultLimit.value ||
+      (dailyLimit.value !== "" &&
+        Number.isInteger(Number(dailyLimit.value)) &&
+        Number(dailyLimit.value) >= 0 &&
+        Number(dailyLimit.value) <= 100000)) &&
+    (useDefaultLimit.value ? null : Number(dailyLimit.value)) !==
+      details.value?.usage.override &&
+    limitReason.value.trim().length >= 3 &&
+    limitReason.value.trim().length <= 240,
+);
 const change = computed(
   () => Number(amount.value) * (direction.value === "add" ? 1 : -1),
 );
@@ -103,8 +129,12 @@ async function selectAccount(id: string, preserveMessage = false) {
   direction.value = "add";
   try {
     const result = await getCreatorCreditAccount(id);
-    if (version === detailVersion && authorized(actorId))
+    if (version === detailVersion && authorized(actorId)) {
       details.value = result;
+      useDefaultLimit.value = result.usage.override === null;
+      dailyLimit.value = result.usage.limit;
+      limitReason.value = "";
+    }
   } catch (error) {
     if (version === detailVersion && authorized(actorId))
       errorMessage.value = creatorCreditRequestError(
@@ -113,6 +143,72 @@ async function selectAccount(id: string, preserveMessage = false) {
       );
   } finally {
     if (version === detailVersion) loadingDetails.value = false;
+  }
+}
+
+function startUsageReview() {
+  if (
+    !validLimit.value ||
+    locked.value ||
+    !details.value ||
+    !authorized(user.value?.id)
+  )
+    return;
+  errorMessage.value = "";
+  successMessage.value = "";
+  attempted.value = false;
+  usageReview.value = {
+    actorId: user.value!.id,
+    key: crypto.randomUUID(),
+    input: {
+      userId: details.value.user.id,
+      dailyCreditLimit: useDefaultLimit.value ? null : Number(dailyLimit.value),
+      expectedLimit: details.value.usage.override,
+      reason: limitReason.value.trim(),
+    },
+  };
+}
+
+async function confirmUsageLimit() {
+  const confirmation = usageReview.value;
+  if (!confirmation || saving.value || !authorized(confirmation.actorId))
+    return;
+  saving.value = true;
+  attempted.value = true;
+  errorMessage.value = "";
+  try {
+    await updateCreatorUsageLimit(confirmation.input, confirmation.key);
+    if (!authorized(confirmation.actorId) || usageReview.value !== confirmation)
+      return;
+    successMessage.value = "Daily usage limit saved.";
+    usageReview.value = null;
+    saving.value = false;
+    attempted.value = false;
+    await selectAccount(confirmation.input.userId, true);
+  } catch (error) {
+    if (!authorized(confirmation.actorId) || usageReview.value !== confirmation)
+      return;
+    const failure = error as { statusCode?: number; status?: number };
+    const status = failure.statusCode ?? failure.status;
+    // Preserve the reviewed intent after an uncertain outcome for safe retries.
+    if (
+      status !== undefined &&
+      [400, 401, 403, 404, 409, 422, 429].includes(status)
+    ) {
+      usageReview.value = null;
+      attempted.value = false;
+      saving.value = false;
+      await selectAccount(confirmation.input.userId, true);
+      errorMessage.value = creatorCreditRequestError(
+        error,
+        "The limit change was rejected. Review the account and try again.",
+      );
+    } else {
+      errorMessage.value =
+        "The save could not be confirmed. Retry this same limit change; it will only be applied once.";
+    }
+  } finally {
+    saving.value = false;
   }
 }
 
@@ -204,6 +300,7 @@ onMounted(() => {
       accounts.value = null;
       details.value = null;
       review.value = null;
+      usageReview.value = null;
       errorMessage.value = "";
       successMessage.value = "";
       if (user.value?.role === "ADMIN") void loadAccounts();
@@ -215,16 +312,19 @@ onBeforeUnmount(() => {
   listVersion++;
   detailVersion++;
   review.value = null;
+  usageReview.value = null;
 });
 </script>
 
 <template>
   <main v-if="user?.role === 'ADMIN'" class="mx-auto max-w-[1180px] space-y-6">
     <header>
-      <h1 class="text-[#082552] dark:text-white">Manage Creator credits</h1>
+      <h1 class="text-[#082552] dark:text-white">
+        Manage Creator credits & usage limits
+      </h1>
       <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
-        Find an account, review its balance and activity, then confirm a credit
-        adjustment.
+        Find an account, review its balance and daily usage, then confirm your
+        changes.
       </p>
       <NuxtLink
         to="/creator/credits"
@@ -366,7 +466,7 @@ onBeforeUnmount(() => {
           v-else-if="!details"
           class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500 dark:border-white/15 dark:text-white/50"
         >
-          Select an account to manage its credits.
+          Select an account to manage its credits and daily usage limit.
         </p>
         <template v-else>
           <div
@@ -401,7 +501,7 @@ onBeforeUnmount(() => {
               credits. No additional welcome grant will be added later.
             </p>
             <form
-              v-if="!review"
+              v-if="!review && !usageReview"
               class="space-y-4"
               @submit.prevent="startReview"
             >
@@ -460,7 +560,7 @@ onBeforeUnmount(() => {
               </button>
             </form>
             <section
-              v-else
+              v-else-if="review"
               aria-labelledby="adjustment-review-title"
               class="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-300/20 dark:bg-violet-300/10"
             >
@@ -527,6 +627,171 @@ onBeforeUnmount(() => {
               </div>
             </section>
           </div>
+          <section
+            aria-labelledby="daily-limit-title"
+            class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"
+          >
+            <h2 id="daily-limit-title" class="text-lg font-semibold">
+              Daily AI usage limit
+            </h2>
+            <p class="text-sm">
+              <strong>{{ details.usage.used.toLocaleString("en-US") }}</strong>
+              / {{ details.usage.limit.toLocaleString("en-US") }} credits used
+              today ·
+              {{ details.usage.remaining.toLocaleString("en-US") }} remaining
+            </p>
+            <p class="text-xs text-slate-500 dark:text-white/60">
+              Resets daily at 00:00 UTC (07:00 Cambodia). Next reset:
+              {{ new Date(details.usage.resetsAt).toLocaleString() }}. This
+              allowance controls credits spent per day. Changing it does not add
+              wallet credits or erase today's usage. Request-rate and provider
+              budget safeguards still apply.
+            </p>
+            <form v-if="!usageReview" @submit.prevent="startUsageReview">
+              <fieldset
+                :disabled="locked"
+                class="space-y-4 disabled:opacity-50"
+              >
+                <label
+                  class="flex min-h-11 items-center gap-2 text-sm font-semibold"
+                >
+                  <input v-model="useDefaultLimit" type="checkbox" />
+                  Use default ({{
+                    details.usage.defaultLimit.toLocaleString("en-US")
+                  }}
+                  credits/day)
+                </label>
+                <label
+                  v-if="!useDefaultLimit"
+                  class="block text-sm font-semibold"
+                >
+                  Daily credits
+                  <input
+                    v-model="dailyLimit"
+                    type="number"
+                    inputmode="numeric"
+                    min="0"
+                    max="100000"
+                    step="1"
+                    required
+                    class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-transparent px-3 dark:border-white/15"
+                  />
+                  <span
+                    class="mt-1 block text-xs font-normal text-slate-500 dark:text-white/60"
+                    >0 blocks new AI usage. Maximum: 100,000 credits/day.</span
+                  >
+                </label>
+                <label class="block text-sm font-semibold">
+                  Reason
+                  <textarea
+                    v-model="limitReason"
+                    minlength="3"
+                    maxlength="240"
+                    rows="2"
+                    required
+                    placeholder="Why is this daily limit being changed?"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-transparent p-3 font-normal dark:border-white/15"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  :disabled="!validLimit || locked"
+                  class="min-h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white disabled:opacity-40"
+                >
+                  Review limit change
+                </button>
+              </fieldset>
+            </form>
+            <section
+              v-else
+              aria-label="Confirm daily usage limit"
+              class="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-300/20 dark:bg-violet-300/10"
+            >
+              <h3 class="font-semibold">Confirm daily usage limit</h3>
+              <p class="text-sm">
+                {{ details.user.name || details.user.id }}:
+                {{ details.usage.limit.toLocaleString("en-US") }} →
+                {{
+                  (
+                    usageReview.input.dailyCreditLimit ??
+                    details.usage.defaultLimit
+                  ).toLocaleString("en-US")
+                }}
+                credits/day{{
+                  usageReview.input.dailyCreditLimit === null
+                    ? " (use default)"
+                    : ""
+                }}.
+              </p>
+              <p
+                v-if="
+                  (usageReview.input.dailyCreditLimit ??
+                    details.usage.defaultLimit) <= details.usage.used
+                "
+                class="text-sm text-amber-800 dark:text-amber-200"
+              >
+                Today's usage already meets or exceeds this limit. New requests
+                will remain blocked today.
+              </p>
+              <p class="whitespace-pre-wrap break-words text-sm">
+                {{ usageReview.input.reason }}
+              </p>
+              <p class="text-xs text-slate-600 dark:text-white/60">
+                Saving applies immediately and records your admin account and
+                reason.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  :disabled="saving"
+                  class="min-h-11 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                  @click="confirmUsageLimit"
+                >
+                  {{
+                    saving
+                      ? "Saving…"
+                      : attempted
+                        ? "Retry same limit change"
+                        : "Confirm and save"
+                  }}
+                </button>
+                <button
+                  v-if="!attempted"
+                  type="button"
+                  class="min-h-11 rounded-xl border border-violet-200 px-4 text-sm font-semibold dark:border-white/15"
+                  @click="usageReview = null"
+                >
+                  Cancel / edit
+                </button>
+              </div>
+            </section>
+            <details v-if="details.usageLimitChanges.length" class="text-sm">
+              <summary class="min-h-11 cursor-pointer py-3 font-semibold">
+                Recent limit changes (latest 20)
+              </summary>
+              <ul class="space-y-3">
+                <li
+                  v-for="entry in details.usageLimitChanges"
+                  :key="entry.id"
+                  class="border-t border-slate-200 pt-3 dark:border-white/10"
+                >
+                  <p>
+                    {{ entry.previousLimit ?? "Default" }} →
+                    {{ entry.dailyCreditLimit ?? "Default" }} credits/day ·
+                    {{ new Date(entry.createdAt).toLocaleString() }}
+                  </p>
+                  <p class="mt-1 whitespace-pre-wrap break-words">
+                    {{ entry.reason }}
+                  </p>
+                  <p
+                    class="mt-1 break-all text-xs text-slate-500 dark:text-white/60"
+                  >
+                    Admin: {{ entry.adminUserId }}
+                  </p>
+                </li>
+              </ul>
+            </details>
+          </section>
           <h2 class="text-lg font-semibold">Recent credit activity</h2>
           <p class="text-xs text-slate-500 dark:text-white/50">
             Latest 50 transactions. Admin changes include the reason and

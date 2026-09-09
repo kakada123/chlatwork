@@ -35,6 +35,15 @@ function pageHarness(
     getCreatorCreditAccount: async () => ({
       user: { ...account },
       transactions: [],
+      usage: {
+        override: null,
+        defaultLimit: 10,
+        limit: 10,
+        used: 10,
+        remaining: 0,
+        resetsAt: "2026-09-10T00:00:00.000Z",
+      },
+      usageLimitChanges: [],
     }),
     ...serviceOverrides,
   };
@@ -204,4 +213,88 @@ test("credit activity distinguishes a zero-amount finalization from another dedu
     "Generation completed",
   );
   assert.equal(display.creatorFeatureRoute("POST"), "/creator/create/post");
+});
+
+test("daily limit review freezes intent and retries a lost response without changing credits", async () => {
+  const requests: any[] = [];
+  const page = pageHarness("app/pages/creator/admin/credits.vue", {
+    updateCreatorUsageLimit: async (input: unknown, key: string) => {
+      requests.push({ input, key });
+      if (requests.length === 1) throw new Error("Response lost");
+      return { changeId: "once", dailyCreditLimit: 30 };
+    },
+  });
+  try {
+    const state = page.state;
+    await state.selectAccount(account.id);
+    state.useDefaultLimit.value = false;
+    state.dailyLimit.value = 30;
+    state.limitReason.value = "Increase daily allowance";
+    state.startUsageReview();
+    assert.equal(requests.length, 0);
+    assert.equal(state.locked.value, true);
+    state.dailyLimit.value = 100;
+    await state.selectAccount("different-user");
+    assert.equal(state.details.value.user.id, account.id);
+    await state.confirmUsageLimit();
+    assert.ok(state.usageReview.value);
+    await state.confirmUsageLimit();
+    assert.equal(requests.length, 2);
+    assert.deepEqual(requests[0], requests[1]);
+    assert.equal(requests[0].input.dailyCreditLimit, 30);
+    assert.equal(requests[0].input.expectedLimit, null);
+    assert.equal(state.usageReview.value, null);
+    assert.equal(page.balance.value, null);
+  } finally {
+    page.dispose();
+  }
+});
+
+test("a stale limit refreshes the account and requires a new review", async () => {
+  let calls = 0;
+  const page = pageHarness("app/pages/creator/admin/credits.vue", {
+    updateCreatorUsageLimit: async () => {
+      calls++;
+      throw { statusCode: 409, data: { message: "Usage limit changed" } };
+    },
+  });
+  try {
+    const state = page.state;
+    await state.selectAccount(account.id);
+    state.useDefaultLimit.value = false;
+    state.dailyLimit.value = 30;
+    state.limitReason.value = "Increase daily allowance";
+    state.startUsageReview();
+    await state.confirmUsageLimit();
+    assert.equal(calls, 1);
+    assert.equal(state.usageReview.value, null);
+    assert.equal(state.dailyLimit.value, 10);
+    assert.equal(state.errorMessage.value, "Usage limit changed");
+  } finally {
+    page.dispose();
+  }
+});
+
+test("usage limit form rejects empty or fractional values and accepts explicit zero", async () => {
+  const page = pageHarness("app/pages/creator/admin/credits.vue");
+  try {
+    const state = page.state;
+    await state.selectAccount(account.id);
+    state.useDefaultLimit.value = false;
+    state.limitReason.value = "Pause daily usage";
+    for (const invalid of ["", -1, 1.5, 100001]) {
+      state.dailyLimit.value = invalid;
+      state.startUsageReview();
+      assert.equal(state.usageReview.value, null);
+    }
+    state.dailyLimit.value = 0;
+    state.startUsageReview();
+    assert.equal(state.usageReview.value.input.dailyCreditLimit, 0);
+    page.session.value = { id: "admin-user", role: "USER" };
+    await vue.nextTick();
+    assert.equal(state.usageReview.value, null);
+    assert.equal(state.details.value, null);
+  } finally {
+    page.dispose();
+  }
 });

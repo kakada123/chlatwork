@@ -146,7 +146,7 @@ onBeforeUnmount(() => {
           :aria-current="
             route.path === '/creator/admin/credits' ? 'page' : undefined
           "
-          >Manage credits</NuxtLink
+          >Credits & limits</NuxtLink
         >
         <NuxtLink
           v-for="category in CREATOR_CATEGORIES"

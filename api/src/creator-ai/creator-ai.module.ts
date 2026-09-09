@@ -39,5 +39,11 @@ import { CreatorCreditAdminService } from './creator-credit-admin.service';
     CreatorVideoUploadTicketGuard,
     CreatorVideoUploadTicketService,
   ],
+  exports: [
+    CreatorGenerationService,
+    CreatorCreditsService,
+    CreatorPlanLimitsService,
+    CreatorPricingService,
+  ],
 })
 export class CreatorAiModule {}

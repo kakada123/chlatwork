@@ -14,6 +14,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 import { CreatorAiModule } from './creator-ai/creator-ai.module';
+import { CreatorTelegramModule } from './creator-telegram/creator-telegram.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CreatorAiModule } from './creator-ai/creator-ai.module';
     NotificationsModule,
     TelegramBotModule,
     CreatorAiModule,
+    CreatorTelegramModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

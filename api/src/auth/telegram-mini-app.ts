@@ -20,6 +20,27 @@ export interface TelegramMiniAppProfile {
   avatarUrl: string | null;
 }
 
+export function verifyTelegramMiniAppDataWithTokens(
+  initData: string,
+  botTokens: string[],
+  nowSeconds = Math.floor(Date.now() / 1000),
+): TelegramMiniAppProfile {
+  // Both first-party bots identify the same Telegram account. Never trust a
+  // client-supplied bot identity or weaken signature validation for the new bot.
+  for (const token of botTokens.filter(Boolean)) {
+    try {
+      return verifyTelegramMiniAppData(initData, token, nowSeconds);
+    } catch (error) {
+      if (
+        !(error instanceof TelegramMiniAppDataError) ||
+        error.code !== 'invalid_signature'
+      )
+        throw error;
+    }
+  }
+  throw new TelegramMiniAppDataError('invalid_signature');
+}
+
 export function verifyTelegramMiniAppData(
   initData: string,
   botToken: string,

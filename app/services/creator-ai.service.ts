@@ -167,6 +167,22 @@ export interface CreatorCreditAccount {
 
 export interface CreatorCreditAccountDetails {
   user: CreatorCreditAccount;
+  usage: {
+    override: number | null;
+    defaultLimit: number;
+    limit: number;
+    used: number;
+    remaining: number;
+    resetsAt: string;
+  };
+  usageLimitChanges: {
+    id: string;
+    previousLimit: number | null;
+    dailyCreditLimit: number | null;
+    adminUserId: string;
+    reason: string;
+    createdAt: string;
+  }[];
   transactions: (CreatorCreditTransaction & {
     reason: string | null;
     adminUserId: string | null;
@@ -178,6 +194,27 @@ export interface CreatorCreditAdjustment {
   amount: number;
   expectedBalance: number;
   reason: string;
+}
+
+export interface CreatorUsageLimitUpdate {
+  userId: string;
+  dailyCreditLimit: number | null;
+  expectedLimit: number | null;
+  reason: string;
+}
+
+export async function updateCreatorUsageLimit(
+  input: CreatorUsageLimitUpdate,
+  idempotencyKey: string,
+) {
+  return $fetch<{ changeId: string; dailyCreditLimit: number | null }>(
+    "/api/creator-ai/admin/credits/usage-limits",
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: input,
+    },
+  );
 }
 
 export async function getCreatorCreditAccounts(search = "", page = 1) {

@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { TelegramCodeAuthDto } from './dto/telegram-code-auth.dto';
 import type { GoogleLinkCodeDto } from './dto/google-link-code.dto';
 import type { AccessTokenPayload, GoogleLinkTicketPayload } from './types';
-import { TelegramMiniAppDataError, verifyTelegramMiniAppData } from './telegram-mini-app';
+import { TelegramMiniAppDataError, verifyTelegramMiniAppDataWithTokens } from './telegram-mini-app';
 import { getTelegramOidcIdentity } from './telegram-identity';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
@@ -168,9 +168,12 @@ export class AuthService {
 
   private verifyTelegramInitData(initData: string): ProviderProfile {
     try {
-      const profile = verifyTelegramMiniAppData(
+      const profile = verifyTelegramMiniAppDataWithTokens(
         initData,
-        this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
+        [
+          this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN'),
+          this.config.get<string>('CREATOR_TELEGRAM_BOT_TOKEN') ?? '',
+        ],
       );
       return { provider: AuthProvider.TELEGRAM, email: null, ...profile };
     } catch (error) {

@@ -29,6 +29,7 @@ const POST_PATHS = new Set([
   "video/content-pack",
   "video/upload-ticket",
   "admin/credits/adjustments",
+  "admin/credits/usage-limits",
 ]);
 
 const isAllowedGet = (path: string) =>

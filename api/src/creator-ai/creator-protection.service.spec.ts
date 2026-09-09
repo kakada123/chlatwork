@@ -1,19 +1,10 @@
 import type { ConfigService } from '@nestjs/config';
 import type { Prisma } from '@prisma/client';
-import type { CreatorPlanLimitsService } from './creator-plan-limits.service';
+import { CreatorPlanLimitsService } from './creator-plan-limits.service';
 import { CreatorProtectionService } from './creator-protection.service';
 
 describe('CreatorProtectionService', () => {
-  const plans = {
-    forUser: jest.fn().mockReturnValue({
-      ratePerMinute: 5,
-      ratePerHour: 20,
-      dailyCredits: 10,
-      maxVideoSeconds: 180,
-      maxVideoBytes: 100,
-      maxConcurrentVideoJobs: 1,
-    }),
-  } as unknown as CreatorPlanLimitsService;
+  const plans = new CreatorPlanLimitsService(config({}));
 
   function config(values: Record<string, string>) {
     return {
@@ -28,8 +19,16 @@ describe('CreatorProtectionService', () => {
     dailyProvider?: number;
     monthlyProvider?: number;
     activeProvider?: number;
+    override?: number | null;
   }) {
     return {
+      user: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({
+            aiDailyCreditLimit: overrides.override ?? null,
+          }),
+      },
       aiGeneration: {
         count: jest
           .fn()
@@ -37,7 +36,9 @@ describe('CreatorProtectionService', () => {
           .mockResolvedValueOnce(overrides.hour ?? 0),
         aggregate: jest
           .fn()
-          .mockResolvedValueOnce({ _sum: { creditCost: overrides.dailyCredits ?? 0 } })
+          .mockResolvedValueOnce({
+            _sum: { creditCost: overrides.dailyCredits ?? 0 },
+          })
           .mockResolvedValueOnce({
             _sum: { estimatedProviderCostUsd: overrides.activeProvider ?? 0 },
           }),
@@ -62,7 +63,13 @@ describe('CreatorProtectionService', () => {
       plans,
     );
     await expect(
-      service.assertCanReserve(transaction({ minute: 5 }), 'user-id', 1, 0.01, false),
+      service.assertCanReserve(
+        transaction({ minute: 5 }),
+        'user-id',
+        1,
+        0.01,
+        false,
+      ),
     ).rejects.toMatchObject({ response: { code: 'AI_RATE_LIMITED' } });
   });
 
@@ -97,6 +104,100 @@ describe('CreatorProtectionService', () => {
         'user-id',
         1,
         0.02,
+        false,
+      ),
+    ).rejects.toMatchObject({
+      response: { code: 'AI_TEMPORARILY_UNAVAILABLE' },
+    });
+  });
+
+  it('allows usage above the default after an admin raises the daily limit', async () => {
+    const service = new CreatorProtectionService(
+      config({
+        AI_ENABLED: 'true',
+        AI_DAILY_PROVIDER_BUDGET_USD: '100',
+        AI_MONTHLY_PROVIDER_BUDGET_USD: '1000',
+      }),
+      plans,
+    );
+    await expect(
+      service.assertCanReserve(
+        transaction({ dailyCredits: 10, override: 20 }),
+        'user-id',
+        10,
+        0.1,
+        false,
+      ),
+    ).resolves.toBeUndefined();
+    await expect(
+      service.assertCanReserve(
+        transaction({ dailyCredits: 20, override: 20 }),
+        'user-id',
+        1,
+        0.1,
+        false,
+      ),
+    ).rejects.toMatchObject({ response: { code: 'AI_DAILY_LIMIT_REACHED' } });
+  });
+
+  it('treats zero as a blocking override and null as the configured default', async () => {
+    const service = new CreatorProtectionService(
+      config({ AI_ENABLED: 'true' }),
+      plans,
+    );
+    for (const overrides of [
+      { dailyCredits: 0, override: 0 },
+      { dailyCredits: 10, override: null },
+    ]) {
+      await expect(
+        service.assertCanReserve(
+          transaction(overrides),
+          'user-id',
+          1,
+          0.1,
+          false,
+        ),
+      ).rejects.toMatchObject({ response: { code: 'AI_DAILY_LIMIT_REACHED' } });
+    }
+  });
+
+  it('uses the UTC day and counts pending/completed usage consistently for the admin display', async () => {
+    const tx = transaction({ dailyCredits: 25, override: 20 });
+    expect(
+      await plans.dailyUsage(tx, 'user-id', new Date('2026-09-09T23:59:59Z')),
+    ).toEqual({
+      override: 20,
+      defaultLimit: 10,
+      limit: 20,
+      used: 25,
+      remaining: 0,
+      resetsAt: '2026-09-10T00:00:00.000Z',
+    });
+    expect(tx.aiGeneration.aggregate).toHaveBeenCalledWith({
+      where: {
+        userId: 'user-id',
+        createdAt: { gte: new Date('2026-09-09T00:00:00Z') },
+        status: { in: ['RESERVED', 'PROCESSING', 'COMPLETED'] },
+      },
+      _sum: { creditCost: true },
+    });
+  });
+
+  it('keeps the provider budget enforced with a raised account allowance', async () => {
+    const service = new CreatorProtectionService(
+      config({
+        AI_ENABLED: 'true',
+        AI_DAILY_PROVIDER_BUDGET_USD: '1',
+        AI_MONTHLY_PROVIDER_BUDGET_USD: '100',
+      }),
+      plans,
+    );
+    await expect(
+      service.assertCanReserve(
+        transaction({ dailyCredits: 10, override: 100, dailyProvider: 1 }),
+        'user-id',
+        1,
+        0.1,
         false,
       ),
     ).rejects.toMatchObject({

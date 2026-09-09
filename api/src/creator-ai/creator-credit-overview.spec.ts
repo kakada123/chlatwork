@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from './creator-credits.service';
 import { CreatorPricingService } from './creator-pricing.service';
 import { CreatorProtectionService } from './creator-protection.service';
+import type { CreatorPlanLimitsService } from './creator-plan-limits.service';
 import { CreatorCreditAdminService } from './creator-credit-admin.service';
 
 describe('Creator credit overview', () => {
@@ -117,6 +118,7 @@ describe('Creator credit overview', () => {
 
   it('admin account browsing never grants credits and only exposes intended audit fields', async () => {
     const prisma = {
+      aiUsageLimitChange: { findMany: jest.fn().mockResolvedValue([]) },
       user: {
         findMany: jest
           .fn()
@@ -152,6 +154,7 @@ describe('Creator credit overview', () => {
     const service = new CreatorCreditAdminService(
       prisma as unknown as PrismaService,
       credits as unknown as CreatorCreditsService,
+      { dailyUsage: jest.fn().mockResolvedValue({ limit: 10 }) } as unknown as CreatorPlanLimitsService,
     );
     expect(await service.users({ search: ' Test ', page: 2 })).toMatchObject({
       items: [{ balance: 0, hasWallet: false }],

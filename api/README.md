@@ -4,6 +4,10 @@ NestJS authentication and account-data service for ChlatWork. It verifies Google
 
 ## Local setup
 
+For the separate Khmer AI & Creator bot and admin daily usage limits, see the
+[Creator bot setup guide](src/creator-telegram/README.md). Its SQL updates must be
+applied manually before deploying these features.
+
 1. Copy `api/.env.example` to `api/.env` and replace every dummy value locally.
 2. Review and manually execute `database/2026-08-21-create-chlatwork-auth.sql` against the intended PostgreSQL database.
    For Telegram daily expense summaries, also review and manually execute

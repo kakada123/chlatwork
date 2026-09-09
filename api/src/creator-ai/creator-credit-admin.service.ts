@@ -8,9 +8,11 @@ import {
 import { AiCreditTransactionType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from './creator-credits.service';
+import { CreatorPlanLimitsService } from './creator-plan-limits.service';
 import type {
   AdjustCreatorCreditsDto,
   CreatorCreditUsersQueryDto,
+  UpdateCreatorUsageLimitDto,
 } from './dto/creator-credit-admin.dto';
 
 @Injectable()
@@ -18,6 +20,7 @@ export class CreatorCreditAdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly credits: CreatorCreditsService,
+    private readonly plans: CreatorPlanLimitsService,
   ) {}
 
   async users(query: CreatorCreditUsersQueryDto) {
@@ -71,6 +74,20 @@ export class CreatorCreditAdminService {
       },
     });
     if (!user) throw new NotFoundException('Account not found.');
+    const usage = await this.plans.dailyUsage(this.prisma, userId);
+    const usageLimitChanges = await this.prisma.aiUsageLimitChange.findMany({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: 20,
+      select: {
+        id: true,
+        previousLimit: true,
+        dailyCreditLimit: true,
+        adminUserId: true,
+        reason: true,
+        createdAt: true,
+      },
+    });
     const transactions = await this.prisma.aiCreditTransaction.findMany({
       where: { userId },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
@@ -86,6 +103,8 @@ export class CreatorCreditAdminService {
       },
     });
     return {
+      usage,
+      usageLimitChanges,
       user: {
         id: user.id,
         name: user.name,
@@ -179,6 +198,67 @@ export class CreatorCreditAdminService {
         },
       });
       return { transactionId: transaction.id, balance: nextBalance };
+    });
+  }
+
+  async updateUsageLimit(
+    adminUserId: string,
+    idempotencyHeader: string | undefined,
+    input: UpdateCreatorUsageLimitDto,
+  ) {
+    const key = this.credits.validateIdempotencyKey(idempotencyHeader);
+    const id = createHash('sha256')
+      .update(`USAGE:${adminUserId}:${key}`)
+      .digest('hex');
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-usage:${id}`}))`;
+      // Share the reservation lock so new generations see a complete limit change.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-user:${input.userId}`}))`;
+      const existing = await tx.aiUsageLimitChange.findUnique({
+        where: { id },
+      });
+      if (existing) {
+        if (
+          existing.userId !== input.userId ||
+          existing.dailyCreditLimit !== input.dailyCreditLimit ||
+          existing.previousLimit !== input.expectedLimit ||
+          existing.reason !== input.reason
+        ) {
+          throw new ConflictException({
+            code: 'IDEMPOTENCY_KEY_REUSED',
+            message:
+              'This confirmation was already used for a different limit change.',
+          });
+        }
+        return { changeId: id, dailyCreditLimit: existing.dailyCreditLimit };
+      }
+      const user = await tx.user.findFirst({
+        where: { id: input.userId, isActive: true },
+        select: { aiDailyCreditLimit: true },
+      });
+      if (!user) throw new NotFoundException('Account not found.');
+      if (user.aiDailyCreditLimit !== input.expectedLimit) {
+        throw new ConflictException({
+          code: 'AI_USAGE_LIMIT_CHANGED',
+          message:
+            'This usage limit changed. Refresh the account and review it again.',
+        });
+      }
+      await tx.user.update({
+        where: { id: input.userId },
+        data: { aiDailyCreditLimit: input.dailyCreditLimit },
+      });
+      await tx.aiUsageLimitChange.create({
+        data: {
+          id,
+          userId: input.userId,
+          adminUserId,
+          previousLimit: input.expectedLimit,
+          dailyCreditLimit: input.dailyCreditLimit,
+          reason: input.reason,
+        },
+      });
+      return { changeId: id, dailyCreditLimit: input.dailyCreditLimit };
     });
   }
 

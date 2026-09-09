@@ -1,10 +1,10 @@
 import { createHmac } from 'node:crypto';
-import { verifyTelegramMiniAppData } from './telegram-mini-app';
+import { verifyTelegramMiniAppData, verifyTelegramMiniAppDataWithTokens } from './telegram-mini-app';
 
 const BOT_TOKEN = '123456789:test-bot-token';
 const NOW = 1_787_884_800;
 
-function signedInitData(overrides: Record<string, string> = {}) {
+function signedInitData(overrides: Record<string, string> = {}, botToken = BOT_TOKEN) {
   const values = {
     auth_date: String(NOW),
     query_id: 'AAHdF6IQAAAAAN0XohDhrOrc',
@@ -16,12 +16,51 @@ function signedInitData(overrides: Record<string, string> = {}) {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, value]) => `${key}=${value}`)
     .join('\n');
-  const secretKey = createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
+  const secretKey = createHmac('sha256', 'WebAppData').update(botToken).digest();
   const hash = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
   return new URLSearchParams({ ...values, hash }).toString();
 }
 
 describe('verifyTelegramMiniAppData', () => {
+  it('accepts both configured first-party bots with the same Telegram identity', () => {
+    const creatorToken = '987654321:test-creator-token';
+    const tokens = [BOT_TOKEN, creatorToken];
+    expect(
+      verifyTelegramMiniAppDataWithTokens(
+        signedInitData({}, BOT_TOKEN),
+        tokens,
+        NOW,
+      ),
+    ).toEqual(
+      verifyTelegramMiniAppDataWithTokens(
+        signedInitData({}, creatorToken),
+        tokens,
+        NOW,
+      ),
+    );
+    expect(() =>
+      verifyTelegramMiniAppDataWithTokens(
+        signedInitData({}, '111111:untrusted-bot'),
+        tokens,
+        NOW,
+      ),
+    ).toThrow('invalid_signature');
+    expect(() =>
+      verifyTelegramMiniAppDataWithTokens(
+        signedInitData({}, creatorToken),
+        [BOT_TOKEN, ''],
+        NOW,
+      ),
+    ).toThrow('invalid_signature');
+    expect(() =>
+      verifyTelegramMiniAppDataWithTokens(
+        signedInitData({}, creatorToken),
+        tokens,
+        NOW + 86401,
+      ),
+    ).toThrow('expired');
+  });
+
   it('accepts fresh initData signed by the bot token', () => {
     expect(verifyTelegramMiniAppData(signedInitData(), BOT_TOKEN, NOW)).toEqual({
       providerUserId: '123456789',

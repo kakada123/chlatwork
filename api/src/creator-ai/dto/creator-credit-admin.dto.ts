@@ -9,6 +9,7 @@ import {
   Min,
   MinLength,
   NotEquals,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreatorCreditUsersQueryDto {
@@ -40,6 +41,32 @@ export class AdjustCreatorCreditsDto {
   @Min(0)
   @Max(2147483647)
   expectedBalance!: number;
+
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MinLength(3)
+  @MaxLength(240)
+  reason!: string;
+}
+
+export class UpdateCreatorUsageLimitDto {
+  @IsUUID('4')
+  userId!: string;
+
+  // Explicit null restores the default; omitted values must fail validation.
+  @ValidateIf((_object, value) => value !== null)
+  @IsInt()
+  @Min(0)
+  @Max(100000)
+  dailyCreditLimit!: number | null;
+
+  @ValidateIf((_object, value) => value !== null)
+  @IsInt()
+  @Min(0)
+  @Max(100000)
+  expectedLimit!: number | null;
 
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? value.trim() : value,

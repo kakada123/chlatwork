@@ -15,6 +15,7 @@ const user: User = {
   avatarUrl: null,
   role: UserRole.USER,
   isActive: true,
+  aiDailyCreditLimit: null,
   telegramNotificationsEnabled: false,
   telegramNotificationsEnabledAt: null,
   telegramNotificationTimeZone: 'Asia/Phnom_Penh',

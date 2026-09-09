@@ -56,24 +56,8 @@ export class CreatorProtectionService {
       );
     }
 
-    const startOfDay = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-    );
-    const daily = await tx.aiGeneration.aggregate({
-      where: {
-        userId,
-        createdAt: { gte: startOfDay },
-        status: {
-          in: [
-            AiGenerationStatus.RESERVED,
-            AiGenerationStatus.PROCESSING,
-            AiGenerationStatus.COMPLETED,
-          ],
-        },
-      },
-      _sum: { creditCost: true },
-    });
-    if ((daily._sum.creditCost ?? 0) + credits > limits.dailyCredits) {
+    const daily = await this.plans.dailyUsage(tx, userId, now);
+    if (daily.used + credits > daily.limit) {
       throw new CreatorAiException(
         HttpStatus.TOO_MANY_REQUESTS,
         'AI_DAILY_LIMIT_REACHED',

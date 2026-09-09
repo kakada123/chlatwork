@@ -58,7 +58,9 @@ export function validateEnvironment(config: Record<string, unknown>) {
     throw new Error('JWT_ACCESS_SECRET must contain at least 32 characters');
   }
 
-  if (!/^[A-Za-z0-9_-]{16,256}$/.test(config.TELEGRAM_WEBHOOK_SECRET as string)) {
+  if (
+    !/^[A-Za-z0-9_-]{16,256}$/.test(config.TELEGRAM_WEBHOOK_SECRET as string)
+  ) {
     throw new Error(
       'TELEGRAM_WEBHOOK_SECRET must contain 16-256 letters, numbers, underscores, or hyphens',
     );
@@ -69,6 +71,39 @@ export function validateEnvironment(config: Record<string, unknown>) {
       new URL(config[key] as string);
     } catch {
       throw new Error(`${key} must be a valid URL`);
+    }
+  }
+
+  const creatorBotToken = String(config.CREATOR_TELEGRAM_BOT_TOKEN ?? '');
+  const creatorWebhookSecret = String(
+    config.CREATOR_TELEGRAM_WEBHOOK_SECRET ?? '',
+  );
+  if (creatorBotToken || creatorWebhookSecret) {
+    if (!/^\d+:[A-Za-z0-9_-]+$/.test(creatorBotToken)) {
+      throw new Error(
+        'CREATOR_TELEGRAM_BOT_TOKEN is required for the Creator bot',
+      );
+    }
+    if (!/^[A-Za-z0-9_-]{16,256}$/.test(creatorWebhookSecret)) {
+      throw new Error(
+        'CREATOR_TELEGRAM_WEBHOOK_SECRET must contain 16-256 letters, numbers, underscores, or hyphens',
+      );
+    }
+    if (
+      creatorBotToken === config.TELEGRAM_BOT_TOKEN ||
+      creatorWebhookSecret === config.TELEGRAM_WEBHOOK_SECRET
+    ) {
+      throw new Error(
+        'The Creator bot must use a separate bot token and webhook secret',
+      );
+    }
+    if (
+      String(config.NODE_ENV).toLowerCase() === 'production' &&
+      new URL(String(config.FRONTEND_ORIGIN)).protocol !== 'https:'
+    ) {
+      throw new Error(
+        'FRONTEND_ORIGIN must use HTTPS for the Creator bot Mini App',
+      );
     }
   }
 

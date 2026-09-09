@@ -18,6 +18,7 @@ import { CreatorCreditAdminService } from './creator-credit-admin.service';
 import {
   AdjustCreatorCreditsDto,
   CreatorCreditUsersQueryDto,
+  UpdateCreatorUsageLimitDto,
 } from './dto/creator-credit-admin.dto';
 
 @Controller('creator-ai/admin/credits')
@@ -43,5 +44,14 @@ export class CreatorCreditAdminController {
     @Body() dto: AdjustCreatorCreditsDto,
   ) {
     return this.credits.adjust(admin.id, key, dto);
+  }
+
+  @Post('usage-limits')
+  updateUsageLimit(
+    @CurrentAuthUser() admin: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: UpdateCreatorUsageLimitDto,
+  ) {
+    return this.credits.updateUsageLimit(admin.id, key, dto);
   }
 }
