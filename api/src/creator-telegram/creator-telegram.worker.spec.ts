@@ -154,6 +154,55 @@ describe('Creator Telegram worker', () => {
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
 
+  it('sends grammar explanations separately and resumes them without repeating corrected text', async () => {
+    const test = setup({
+      feature: AiFeature.KHMER_GRAMMAR,
+      content: 'I bought book.',
+    });
+    test.generations.generate.mockResolvedValue({
+      data: {
+        title: 'Corrected text',
+        sections: [
+          {
+            id: 'result',
+            label: 'Corrected text',
+            content: 'I bought a book.',
+          },
+          {
+            id: 'corrections',
+            label: 'What changed',
+            content:
+              '1. “bought book” → “bought a book”\nAdd a before the singular countable noun book.',
+          },
+        ],
+      },
+      usage: { creditsCharged: 1, creditsRemaining: 19 },
+    });
+    test.bot.sendMessage.mockRejectedValueOnce(
+      new Error('Explanation delivery failed'),
+    );
+    await test.worker.tick();
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledWith(
+      123,
+      'I bought a book.',
+    );
+    expect(test.job.sentParts).toBe(1);
+    expect(test.job.replyParts[1].copyable).toBe(false);
+    test.job.nextAttemptAt = new Date(0);
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage.mock.calls[1]).toEqual([
+      123,
+      'What changed\n\n1. “bought book” → “bought a book”\nAdd a before the singular countable noun book.',
+      undefined,
+    ]);
+    expect(test.bot.sendMessage.mock.calls[2][1]).toBe(
+      'Credits used: 1 · Balance: 19',
+    );
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
   it('resumes legacy queued replies without changing their saved boundaries', async () => {
     const test = setup({
       content: null,

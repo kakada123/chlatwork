@@ -42,7 +42,7 @@ Suggested BotFather command list:
 
 ```text
 start - Open Khmer AI and Creator
-grammar - Correct Khmer grammar
+grammar - Correct Khmer or English grammar
 rewrite - Rewrite Khmer text
 latin - Convert Latin Khmer to Khmer script
 humanize - Make Khmer writing sound natural
@@ -54,7 +54,13 @@ help - Show the bot menu
 Send a mode command by itself, or tap a mode button, to select how subsequent
 messages are processed. A command followed by text applies that mode to just that
 request, for example `/latin sok sabay`. Without a saved mode, plain text uses
-Khmer grammar correction. The mode prompt displays the configured credit price.
+grammar correction, which automatically preserves Khmer, English, or mixed text.
+For example, `/grammar She go to school every day.` corrects English without
+translating it into Khmer. Grammar replies include the complete corrected text in
+its own copyable message, then a separate “What changed” list showing the original
+word or phrase, its correction, and a short reason (including missing articles
+such as “a”, “an”, or “the”). Already-correct text gets “No corrections needed.”
+The mode prompt displays the configured credit price.
 Chat input is limited to 4,000 characters; images and video use the Creator UI.
 
 ## Account and retry behavior

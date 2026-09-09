@@ -5,7 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma, type CreatorTelegramRequest } from '@prisma/client';
+import { AiFeature, Prisma, type CreatorTelegramRequest } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatorGenerationService } from '../creator-ai/creator-generation.service';
@@ -198,12 +198,18 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           `creator-telegram:${job.updateId}`,
         );
         // Keep headings, credits and navigation out of the user's copied text.
-        parts = result.data.sections.flatMap((section) =>
-          splitCreatorTelegramText(section.content).map((text) => ({
+        parts = result.data.sections.flatMap((section) => {
+          const explanation =
+            job.feature === AiFeature.KHMER_GRAMMAR &&
+            section.id === 'corrections';
+          const content = explanation
+            ? `${section.label}\n\n${section.content}`
+            : section.content;
+          return splitCreatorTelegramText(content).map((text) => ({
             text,
-            copyable: true,
-          })),
-        );
+            copyable: !explanation,
+          }));
+        });
         parts.push({
           text: `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
           copyable: false,

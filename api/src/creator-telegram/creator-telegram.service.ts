@@ -15,7 +15,7 @@ import { CreatorTelegramClient } from './creator-telegram.client';
 export const KHMER_CHAT_MODES = {
   grammar: {
     feature: AiFeature.KHMER_GRAMMAR,
-    label: 'កែវេយ្យាករណ៍ · Grammar',
+    label: 'Grammar · ខ្មែរ / English',
   },
   rewrite: { feature: AiFeature.KHMER_REWRITE, label: 'សរសេរឡើងវិញ · Rewrite' },
   latin: {
@@ -282,7 +282,11 @@ export class CreatorTelegramService {
   private modePrompt(
     mode: (typeof KHMER_CHAT_MODES)[keyof typeof KHMER_CHAT_MODES],
   ) {
-    return `${mode.label}\n\nផ្ញើអត្ថបទរបស់អ្នកនៅទីនេះ។\nSend your text here. ${this.pricing.fixed(mode.feature)} credit(s) per request, using your account's daily allowance.`;
+    const instruction =
+      mode.feature === AiFeature.KHMER_GRAMMAR
+        ? 'Send Khmer or English text. Get corrected text in the original language, plus a separate list explaining mistakes and missing words.'
+        : 'Send your text here.';
+    return `${mode.label}\n\nផ្ញើអត្ថបទរបស់អ្នកនៅទីនេះ។\n${instruction} ${this.pricing.fixed(mode.feature)} credit(s) per request, using your account's daily allowance.`;
   }
 
   private async showMenu(chatId: number) {
