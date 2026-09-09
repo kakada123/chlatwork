@@ -24,6 +24,7 @@ export interface TelegramVotingPoll {
   voteDate?: string;
   roundId?: string;
   closesAt?: string;
+  timeZone?: string;
   closed?: boolean;
   participants?: string[];
   totalVotes: number;
@@ -38,6 +39,20 @@ function buttonLabel(label: string, votes: number) {
       ? `${label.slice(0, Math.max(1, available - 1))}…`
       : label;
   return `${trimmed}${suffix}`;
+}
+
+function formatVoteDeadline(closesAt: string, timeZone = 'Asia/Phnom_Penh') {
+  // Display the schedule's local time while retaining the absolute deadline for voting.
+  const localTime = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(closesAt));
+  return `${localTime} (${timeZone})`;
 }
 
 export function buildTelegramPollMessage(
@@ -57,7 +72,7 @@ export function buildTelegramPollMessage(
       ? [
           closed
             ? 'Voting closed.'
-            : `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${new Date(poll.closesAt).toISOString().replace('T', ' ').replace(':00.000Z', ' UTC')}`,
+            : `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${formatVoteDeadline(poll.closesAt, poll.timeZone)}`,
         ]
       : []),
     '',

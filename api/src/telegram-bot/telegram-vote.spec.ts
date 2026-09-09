@@ -118,6 +118,29 @@ describe('Timed Telegram result presentation', () => {
     roundId: '00000000-0000-4000-8000-000000000003',
     closesAt: '2099-09-08T03:30:00Z',
   };
+  it('formats fractional UTC deadlines in Cambodia time without changing the countdown', () => {
+    const message = buildTelegramPollMessage(
+      { ...timed, closesAt: '2026-09-09T03:30:00.903Z' },
+      new Date('2026-09-09T03:26:01Z'),
+    );
+    expect(message).toContain(
+      '⏳ 4 min left · closes 09 Sept 2026, 10:30 (Asia/Phnom_Penh)',
+    );
+    expect(message).not.toContain('.903Z');
+  });
+  it('uses the configured schedule timezone, including a different local date', () => {
+    const message = buildTelegramPollMessage(
+      {
+        ...timed,
+        closesAt: '2026-09-09T03:30:00.903Z',
+        timeZone: 'America/New_York',
+      },
+      new Date('2026-09-09T03:26:01Z'),
+    );
+    expect(message).toContain(
+      '⏳ 4 min left · closes 08 Sept 2026, 23:30 (America/New_York)',
+    );
+  });
   it('shows a countdown and separate join/opt-out buttons', () => {
     expect(
       buildTelegramPollMessage(timed, new Date('2099-09-08T03:00:00Z')),

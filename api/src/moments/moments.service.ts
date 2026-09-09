@@ -65,6 +65,7 @@ export interface TelegramMomentPoll {
   roundId?: string;
   participants?: string[];
   closesAt?: string;
+  timeZone?: string;
   closed?: boolean;
   totalVotes: number;
   results: Array<{
@@ -560,7 +561,10 @@ export class MomentsService {
     const round = await this.getTelegramVoteRound(roundId);
     const moment = await this.prisma.moment.findFirst({
       where: { id: round.momentId, status: MomentStatus.PUBLISHED },
-      include: { blocks: { where: { type: MomentBlockType.POLL }, take: 1 } },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
+        voteSchedule: { select: { timeZone: true } },
+      },
     });
     const poll = this.readPollDefinition(moment?.blocks[0]?.data);
     if (!moment || !poll) throw new NotFoundException('Poll not found');
@@ -583,6 +587,7 @@ export class MomentsService {
       ),
       voteDate: round.voteDate.toISOString().slice(0, 10),
       closesAt: round.closesAt.toISOString(),
+      timeZone: moment.voteSchedule?.timeZone,
       closed: round.closesAt.getTime() <= Date.now(),
     };
   }
@@ -1426,6 +1431,7 @@ export class MomentsService {
         ? {
             roundId: summary.roundId,
             closesAt: summary.closesAt,
+            timeZone: moment.voteSchedule?.timeZone,
             closed: summary.closed,
             participants: (
               await this.getTelegramRoundParticipants(summary.roundId)
