@@ -9,4 +9,11 @@ export class CreatorTelegramClient extends TelegramBotClient {
   constructor(config: ConfigService) {
     super(config);
   }
+
+  sendCopyableMessage(chatId: number, text: string) {
+    // Explicit entities preserve Khmer, backticks and markup characters verbatim.
+    return this.sendMessage(chatId, text, undefined, [
+      { type: 'pre', offset: 0, length: text.length, language: 'copy' },
+    ]);
+  }
 }

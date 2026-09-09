@@ -19,6 +19,27 @@ import {
 
 const DAY_MS = 86400000;
 
+type ReplyPart = { text: string; copyable: boolean };
+
+function readReplyParts(value: Prisma.JsonValue): ReplyPart[] | null {
+  if (!Array.isArray(value)) return null;
+  const parts: ReplyPart[] = [];
+  for (const part of value) {
+    // Already queued replies retain their original boundaries and checkpoints.
+    if (typeof part === 'string') parts.push({ text: part, copyable: false });
+    else if (
+      part &&
+      typeof part === 'object' &&
+      !Array.isArray(part) &&
+      typeof part.text === 'string' &&
+      typeof part.copyable === 'boolean'
+    ) {
+      parts.push({ text: part.text, copyable: part.copyable });
+    } else return null;
+  }
+  return parts;
+}
+
 // Telegram measures message limits in UTF-16 units. Preserve complete code points
 // and prefer paragraph/word boundaries when a Khmer result needs multiple replies.
 export function splitCreatorTelegramText(text: string, maxLength = 3900) {
@@ -150,11 +171,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    let parts =
-      Array.isArray(job.replyParts) &&
-      job.replyParts.every((part) => typeof part === 'string')
-        ? (job.replyParts as string[])
-        : null;
+    let parts = readReplyParts(job.replyParts);
     if (!parts) {
       if (
         !job.content ||
@@ -180,14 +197,17 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           },
           `creator-telegram:${job.updateId}`,
         );
-        const text = [
-          result.data.title,
-          ...result.data.sections.map(
-            (section) => `${section.label}\n${section.content}`,
-          ),
-          `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
-        ].join('\n\n');
-        parts = splitCreatorTelegramText(text);
+        // Keep headings, credits and navigation out of the user's copied text.
+        parts = result.data.sections.flatMap((section) =>
+          splitCreatorTelegramText(section.content).map((text) => ({
+            text,
+            copyable: true,
+          })),
+        );
+        parts.push({
+          text: `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
+          copyable: false,
+        });
       } catch (error) {
         if (!(error instanceof CreatorAiException)) throw error;
         const response = error.getResponse() as {
@@ -198,8 +218,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         // Domain errors are safe user-facing messages; unknown provider/database
         // errors remain private and retry with the same generation key.
         parts = [
-          response.message ||
-            'AI generation is unavailable. Please try again later.',
+          {
+            text:
+              response.message ||
+              'AI generation is unavailable. Please try again later.',
+            copyable: false,
+          },
         ];
       }
       const saved = await this.prisma.creatorTelegramRequest.updateMany({
@@ -231,11 +255,16 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         data: { lockedUntil: this.leaseDeadline() },
       });
       if (held.count !== 1) return;
-      await this.bot.sendMessage(
-        Number(job.chatId),
-        parts[index],
-        index === parts.length - 1 ? this.menu.keyboard() : undefined,
-      );
+      const part = parts[index];
+      if (part.copyable) {
+        await this.bot.sendCopyableMessage(Number(job.chatId), part.text);
+      } else {
+        await this.bot.sendMessage(
+          Number(job.chatId),
+          part.text,
+          index === parts.length - 1 ? this.menu.keyboard() : undefined,
+        );
+      }
       // Checkpoint successful parts so a later delivery failure resumes here.
       // A lost Telegram send response can repeat that part, but never the charge.
       const saved = await this.prisma.creatorTelegramRequest.updateMany({

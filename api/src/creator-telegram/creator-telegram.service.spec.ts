@@ -236,12 +236,10 @@ describe('Creator Telegram bot', () => {
   it('sends through the separate bot token and keeps provider failures generic', async () => {
     const test = setup();
     const client = new CreatorTelegramClient(test.config as never);
-    const fetchMock = jest
-      .spyOn(global, 'fetch')
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ ok: true, result: { message_id: 1 } }),
-      } as Response);
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, result: { message_id: 1 } }),
+    } as Response);
     try {
       await client.sendMessage(123, 'hello');
       expect(fetchMock.mock.calls[0][0]).toBe(
@@ -251,6 +249,28 @@ describe('Creator Telegram bot', () => {
       await expect(client.sendMessage(123, 'hello')).rejects.toThrow(
         'Telegram bot request failed',
       );
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
+
+  it('sends copyable text verbatim with a preformatted entity and no buttons', async () => {
+    const test = setup();
+    const client = new CreatorTelegramClient(test.config as never);
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, result: { message_id: 1 } }),
+    } as Response);
+    try {
+      const text = 'សួស្តី 😀 <hello> & `text`\n```';
+      await client.sendCopyableMessage(123, text);
+      expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string)).toEqual({
+        chat_id: 123,
+        text,
+        entities: [
+          { type: 'pre', offset: 0, length: text.length, language: 'copy' },
+        ],
+      });
     } finally {
       fetchMock.mockRestore();
     }

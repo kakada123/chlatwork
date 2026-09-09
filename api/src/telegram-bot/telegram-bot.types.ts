@@ -73,6 +73,13 @@ export interface TelegramTextMention {
   user: TelegramUser;
 }
 
+export interface TelegramPreformattedText {
+  type: 'pre';
+  offset: number;
+  length: number;
+  language?: string;
+}
+
 export interface TelegramInlineButton {
   text: string;
   callback_data?: string;

@@ -8,6 +8,7 @@ import type {
   TelegramApiResponse,
   TelegramInlineKeyboard,
   TelegramTextMention,
+  TelegramPreformattedText,
   TelegramMessage,
 } from './telegram-bot.types';
 
@@ -24,7 +25,7 @@ export class TelegramBotClient {
     chatId: number,
     text: string,
     replyMarkup?: TelegramInlineKeyboard,
-    entities?: TelegramTextMention[],
+    entities?: (TelegramTextMention | TelegramPreformattedText)[],
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');

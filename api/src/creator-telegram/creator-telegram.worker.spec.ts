@@ -47,17 +47,19 @@ function setup(overrides: Record<string, unknown> = {}) {
   };
   const config = { get: jest.fn(() => undefined) };
   const generations = {
-    generate: jest
-      .fn()
-      .mockResolvedValue({
-        data: {
-          title: 'Rewritten Khmer',
-          sections: [{ label: 'Result', content: 'អត្ថបទថ្មី' }],
-        },
-        usage: { creditsCharged: 1, creditsRemaining: 19 },
-      }),
+    generate: jest.fn().mockResolvedValue({
+      data: {
+        title: 'Rewritten Khmer',
+        sections: [{ label: 'Result', content: 'អត្ថបទថ្មី' }],
+      },
+      usage: { creditsCharged: 1, creditsRemaining: 19 },
+    }),
   };
-  const bot = { sendMessage: jest.fn(), sendChatAction: jest.fn() };
+  const bot = {
+    sendMessage: jest.fn(),
+    sendCopyableMessage: jest.fn(),
+    sendChatAction: jest.fn(),
+  };
   const worker = new CreatorTelegramWorker(
     prisma as never,
     config as never,
@@ -85,7 +87,17 @@ describe('Creator Telegram worker', () => {
       },
       'creator-telegram:42',
     );
-    expect(test.bot.sendMessage.mock.calls[0][1]).toContain('អត្ថបទថ្មី');
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledWith(
+      123,
+      'អត្ថបទថ្មី',
+    );
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      'Credits used: 1 · Balance: 19',
+      { inline_keyboard: [] },
+    );
     expect(test.job).toMatchObject({
       content: null,
       replyParts: null,
@@ -105,19 +117,58 @@ describe('Creator Telegram worker', () => {
       },
       usage: { creditsCharged: 1, creditsRemaining: 19 },
     });
-    test.bot.sendMessage
+    test.bot.sendCopyableMessage
       .mockResolvedValueOnce({})
       .mockRejectedValueOnce(new Error('Delivery unavailable'));
     await test.worker.tick();
     expect(test.job.sentParts).toBe(1);
     expect(test.job.content).toBeNull();
-    expect(test.job.replyParts).toHaveLength(2);
-    const secondPart = test.job.replyParts[1];
+    expect(test.job.replyParts).toHaveLength(3);
+    const secondPart = test.job.replyParts[1].text;
+    expect(test.job.replyParts[1].copyable).toBe(true);
     test.job.nextAttemptAt = new Date(0);
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledTimes(1);
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(3);
-    expect(test.bot.sendMessage.mock.calls[2][1]).toBe(secondPart);
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(3);
+    expect(test.bot.sendCopyableMessage.mock.calls[2][1]).toBe(secondPart);
+    expect(
+      test.bot.sendCopyableMessage.mock.calls
+        .slice(0, 2)
+        .map((call) => call[1])
+        .join(''),
+    ).toBe('ក'.repeat(6000));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('retries only the footer when text was delivered but the credit message failed', async () => {
+    const test = setup();
+    test.bot.sendMessage.mockRejectedValueOnce(new Error('Footer unavailable'));
+    await test.worker.tick();
+    expect(test.job.sentParts).toBe(1);
+    test.job.nextAttemptAt = new Date(0);
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('resumes legacy queued replies without changing their saved boundaries', async () => {
+    const test = setup({
+      content: null,
+      replyParts: ['Already sent', 'Legacy result with credits'],
+      sentParts: 1,
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      'Legacy result with credits',
+      { inline_keyboard: [] },
+    );
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
 
@@ -158,6 +209,7 @@ describe('Creator Telegram worker', () => {
     );
     await test.worker.tick();
     expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
     expect(test.job.processedAt).toBeNull();
     expect(test.job.content).toBe('original content');
   });
@@ -174,6 +226,7 @@ describe('Creator Telegram worker', () => {
       await test.worker.tick();
       expect(test.generations.generate).not.toHaveBeenCalled();
       expect(test.bot.sendMessage).not.toHaveBeenCalled();
+      expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
       expect(test.job.content).toBeNull();
     },
   );
@@ -186,6 +239,7 @@ describe('Creator Telegram worker', () => {
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledTimes(1);
     expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
     expect(test.job.replyParts).toBeNull();
   });
 
@@ -220,6 +274,7 @@ describe('Creator Telegram worker', () => {
     });
     await test.worker.tick();
     expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
     expect(test.job.processedAt).toBeNull();
   });
 
