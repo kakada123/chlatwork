@@ -13,7 +13,10 @@ import { createCanvas } from '@napi-rs/canvas';
 import { createHash } from 'node:crypto';
 import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { MemberKhqrAdminController } from './member-khqr.controller';
+import {
+  MemberKhqrAdminController,
+  MemberKhqrImageController,
+} from './member-khqr.controller';
 import { MAX_KHQR_BYTES, MemberKhqrService } from './member-khqr.service';
 
 describe('MemberKhqrService', () => {
@@ -25,6 +28,7 @@ describe('MemberKhqrService', () => {
     { telegramUserId: '4', displayName: 'Veng E Sorn', isActive: true },
   ];
   let png: Buffer;
+  let jpeg: Buffer;
   beforeAll(async () => {
     const canvas = createCanvas(16, 16);
     const context = canvas.getContext('2d');
@@ -33,6 +37,7 @@ describe('MemberKhqrService', () => {
     context.fillStyle = 'black';
     context.fillRect(2, 2, 6, 6);
     png = await canvas.encode('png');
+    jpeg = await canvas.encode('jpeg');
   });
 
   function setup() {
@@ -83,7 +88,7 @@ describe('MemberKhqrService', () => {
     ).toBeNull();
   });
 
-  it('decodes and saves a PNG only for the selected member', async () => {
+  it('saves the original PNG only for the selected member', async () => {
     const { prisma, service } = setup();
     const result = await service.upload(chatId, 'tg_2', {
       buffer: png,
@@ -92,7 +97,7 @@ describe('MemberKhqrService', () => {
     expect(prisma.$executeRaw).toHaveBeenCalledTimes(1);
     const [, key, content, version] = prisma.$executeRaw.mock.calls[0];
     expect(key).toBe('tg_2');
-    expect(content.subarray(0, 8)).toEqual(png.subarray(0, 8));
+    expect(content).toEqual(png);
     expect(version).toBe(createHash('sha256').update(content).digest('hex'));
     expect(result.imageUrl).toBe(`/api/member-khqr/tg_2?v=${version}`);
   });
@@ -149,14 +154,13 @@ describe('MemberKhqrService', () => {
     },
   );
 
-  it('rejects missing, oversized, mislabeled and corrupted files without writing', async () => {
+  it('rejects missing, oversized and unsupported files without writing', async () => {
     const { prisma, service } = setup();
     for (const file of [
       undefined,
       { buffer: Buffer.alloc(MAX_KHQR_BYTES + 1), mimetype: 'image/png' },
-      { buffer: png, mimetype: 'image/svg+xml' },
       { buffer: Buffer.from('<svg></svg>'), mimetype: 'image/png' },
-      { buffer: png.subarray(0, 33), mimetype: 'image/png' },
+      { buffer: png.subarray(0, 20), mimetype: 'image/png' },
     ]) {
       await expect(service.upload(chatId, 'tg_1', file)).rejects.toBeInstanceOf(
         BadRequestException,
@@ -165,17 +169,43 @@ describe('MemberKhqrService', () => {
     expect(prisma.$executeRaw).not.toHaveBeenCalled();
   });
 
-  it('rejects excessive dimensions before decoding the PNG', async () => {
+  it.each(['image/jpeg', 'image/png', 'application/octet-stream', ''])(
+    'saves JPEG bytes even when the upload reports %s',
+    async (mimetype) => {
+      const { prisma, service } = setup();
+      await service.upload(chatId, 'tg_1', { buffer: jpeg, mimetype });
+      expect(prisma.$executeRaw.mock.calls[0][2]).toEqual(jpeg);
+      const controller = new MemberKhqrImageController(service);
+      prisma.$queryRaw.mockResolvedValueOnce([{ content: jpeg }]);
+      const response = await controller.image('tg_1');
+      expect(response.getHeaders().type).toBe('image/jpeg');
+    },
+  );
+
+  it('keeps PNG bytes without strict checksum or dimension validation', async () => {
     const { prisma, service } = setup();
-    const oversized = Buffer.from(png);
-    oversized.writeUInt32BE(100_000, 16);
-    await expect(
-      service.upload(chatId, 'tg_1', {
-        buffer: oversized,
-        mimetype: 'image/png',
-      }),
-    ).rejects.toThrow('2048');
-    expect(prisma.$executeRaw).not.toHaveBeenCalled();
+    const exported = Buffer.from(png);
+    exported.writeUInt32BE(3000, 16);
+    await service.upload(chatId, 'tg_1', {
+      buffer: exported,
+      mimetype: 'image/png',
+    });
+    expect(prisma.$executeRaw.mock.calls[0][2]).toEqual(exported);
+  });
+
+  it('serves PNG with its actual type and never serves unsupported stored content', async () => {
+    const { prisma, service } = setup();
+    const controller = new MemberKhqrImageController(service);
+    prisma.$queryRaw.mockResolvedValueOnce([{ content: png }]);
+    expect((await controller.image('tg_1')).getHeaders().type).toBe(
+      'image/png',
+    );
+    prisma.$queryRaw.mockResolvedValueOnce([
+      { content: Buffer.from('<svg></svg>') },
+    ]);
+    await expect(controller.image('tg_1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it('returns PNG bytes and reports missing images as 404', async () => {

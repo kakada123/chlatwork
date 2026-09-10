@@ -151,6 +151,16 @@ describe('Telegram group member QR commands', () => {
     );
   });
 
+  it('sends a database JPEG through the group QR flow', async () => {
+    const { bot, choose } = setup();
+    fetchMock.mockResolvedValue(
+      new Response(null, { headers: { 'Content-Type': 'image/jpeg' } }),
+    );
+    await choose('tg_2');
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(bot.deleteMessages).toHaveBeenCalledWith(chatId, [11]);
+  });
+
   it('preserves built-in group commands', async () => {
     const { bot, send } = setup();
     await send('/joinvote');

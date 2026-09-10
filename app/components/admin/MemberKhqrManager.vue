@@ -52,8 +52,8 @@ async function selectFile(event: Event) {
   if (!file || !target.value || target.value.chatId !== selectedChatId.value) return;
   feedback.value = "";
   uploadError.value = "";
-  if (file.type !== "image/png" || file.size > 2 * 1024 * 1024 || !file.size) {
-    uploadError.value = "Choose a PNG image up to 2 MB.";
+  if (file.size > 2 * 1024 * 1024 || !file.size) {
+    uploadError.value = "Choose a PNG or JPEG image up to 2 MB.";
     return;
   }
   clearSelection();
@@ -122,7 +122,7 @@ onBeforeUnmount(clearSelection);
         <p class="text-xs font-bold uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">Telegram group</p>
         <h2 id="member-khqr-title" class="mt-1 text-xl font-semibold">Member KHQR</h2>
         <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">Choose a Telegram group to view its members and upload their QR images. Saved images are public and available to the bot immediately.</p>
-        <p class="mt-1 text-xs text-slate-500 dark:text-white/50">PNG · up to 2 MB · maximum 2048 × 2048 pixels</p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-white/50">PNG or JPEG · up to 2 MB</p>
       </div>
       <button type="button" class="grid size-10 place-items-center rounded-xl border border-slate-200 disabled:opacity-50 dark:border-white/15" aria-label="Refresh member KHQR" :disabled="status === 'pending' || saving" @click="reload()">
         <RefreshCw class="size-4" :class="{ 'animate-spin': status === 'pending' }" aria-hidden="true" />
@@ -138,7 +138,7 @@ onBeforeUnmount(clearSelection);
     <p v-if="selectedGroup" class="mt-2 text-xs text-slate-500 dark:text-white/50">Group {{ selectedGroup.chatId }}. Only active members observed in this group appear. Missing members can send /joinvote in that group.</p>
     <p v-else-if="!groupsError" class="mt-3 text-sm text-slate-500 dark:text-white/50">No groups with known active members yet.</p>
     <p v-if="groupsError" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">Telegram groups could not be loaded. Try refreshing.</p>
-    <input ref="fileInput" type="file" accept="image/png" class="hidden" aria-label="Member KHQR image" @change="selectFile" />
+    <input ref="fileInput" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" class="hidden" aria-label="Member KHQR image" @change="selectFile" />
     <p v-if="error" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">Member KHQR could not be loaded. Try refreshing.</p>
     <p v-if="uploadError" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">{{ uploadError }}</p>
     <p v-if="feedback" role="status" class="mt-4 text-sm text-emerald-700 dark:text-emerald-300">{{ feedback }}</p>

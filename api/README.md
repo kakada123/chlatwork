@@ -134,10 +134,12 @@ The website's `/admin` page includes **Member KHQR**, with a Telegram group sele
 image previews, member search, and Upload/Replace actions. Only active members
 observed in the selected group appear. Known vote-schedule titles label groups;
 otherwise the selector shows the Telegram group ID. Missing members can send
-`/joinvote` in their group. Choose a PNG, check its preview and recipient,
+`/joinvote` in their group. Choose a PNG or JPEG, check its preview and recipient,
 then select **Save KHQR**; Cancel leaves the saved image unchanged. Images must
-be at most 2 MB and 2048 × 2048 pixels. The API validates and re-encodes PNG data
-without resizing before storing it. No packages or storage credentials are needed.
+be at most 2 MB. The API detects PNG/JPEG from the file contents, so JPEG bank
+exports named `.png` are accepted. Original image bytes are stored without strict
+PNG parsing, dimension checks, or re-encoding. Unsupported file formats are rejected.
+No packages or storage credentials are needed.
 
 Before deploying this version, manually apply
 `database/updates/2026-09-10-add-member-khqr-images.sql`. Images persist in PostgreSQL
@@ -160,7 +162,7 @@ require a valid group ID; omitting it never falls back to all groups. These admi
 routes require an authenticated ADMIN. The POST accepts one multipart `image`
 field. The website streams uploads
 through its authenticated proxy; tokens stay server-side. `GET /member-khqr/:key`
-serves uploaded PNGs publicly through `/api/member-khqr/:key` on the website, so
+serves uploaded PNG/JPEG images publicly through `/api/member-khqr/:key` on the website, so
 Telegram can retrieve them. Content-versioned
 URLs prevent a replacement from reusing the previous Telegram image cache.
 

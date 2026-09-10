@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import { sanitizeKhqrPng } from './member-khqr-png';
+import { memberKhqrImageType } from './member-khqr-image';
 import {
   buildMemberQrDirectory,
   type ObservedQrMember,
@@ -94,15 +94,13 @@ export class MemberKhqrService {
     }
     if (
       !file ||
-      file.mimetype !== 'image/png' ||
       !file.buffer?.length ||
-      file.buffer.length > MAX_KHQR_BYTES
+      file.buffer.length > MAX_KHQR_BYTES ||
+      !memberKhqrImageType(file.buffer)
     ) {
-      throw new BadRequestException('Choose a PNG image up to 2 MB');
+      throw new BadRequestException('Choose a PNG or JPEG image up to 2 MB');
     }
-    const content = sanitizeKhqrPng(file.buffer);
-    if (content.length > MAX_KHQR_BYTES)
-      throw new BadRequestException('The saved PNG exceeds 2 MB');
+    const content = file.buffer;
     const version = createHash('sha256').update(content).digest('hex');
     await this.prisma.$executeRaw`
       INSERT INTO member_khqr_images (member_key, content, version, updated_at)

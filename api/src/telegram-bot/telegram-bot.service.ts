@@ -389,8 +389,9 @@ export class TelegramBotService {
     }
     // An HTML fallback is not a usable payment image.
     if (
-      response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
-      'image/png'
+      !['image/png', 'image/jpeg'].includes(
+        response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() ?? '',
+      )
     ) {
       await unavailable();
       return;

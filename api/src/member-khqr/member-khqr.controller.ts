@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Header,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -15,6 +16,7 @@ import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MAX_KHQR_BYTES, MemberKhqrService } from './member-khqr.service';
 import { MemberKhqrGroupQueryDto } from './member-khqr-group-query.dto';
+import { memberKhqrImageType } from './member-khqr-image';
 
 @Controller('admin/member-khqr')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -58,8 +60,9 @@ export class MemberKhqrImageController {
   @Header('Cache-Control', 'no-store')
   @Header('X-Content-Type-Options', 'nosniff')
   async image(@Param('key') key: string) {
-    return new StreamableFile(await this.khqr.image(key), {
-      type: 'image/png',
-    });
+    const content = await this.khqr.image(key);
+    const type = memberKhqrImageType(content);
+    if (!type) throw new NotFoundException('KHQR not found');
+    return new StreamableFile(content, { type });
   }
 }
