@@ -17,6 +17,12 @@ export interface TelegramMessage {
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  entities?: Array<{
+    type: string;
+    offset: number;
+    length: number;
+    user?: TelegramUser;
+  }>;
   date?: number;
   reply_to_message?: TelegramMessage;
   new_chat_members?: TelegramUser[];

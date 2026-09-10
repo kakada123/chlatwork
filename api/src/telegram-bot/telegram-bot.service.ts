@@ -42,6 +42,8 @@ import type {
 import { buildTelegramTodaySummary } from './telegram-today-summary';
 import {
   buildMemberQrDirectory,
+  readMemberQrMention,
+  type MemberQrMention,
   type ObservedQrMember,
 } from './telegram-member-qr';
 import {
@@ -162,7 +164,13 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
-      if (message.text?.trim().toLowerCase() === 'khqr' || command === '$') {
+      const mention = readMemberQrMention(message);
+      if (mention) {
+        await this.sendMentionedMemberQr(message, mention);
+      } else if (
+        message.text?.trim().toLowerCase() === 'khqr' ||
+        command === '$'
+      ) {
         await this.sendMemberQrMenu(message.chat.id);
       } else if (command === 'joinvote') {
         await this.bot.sendMessage(
@@ -246,6 +254,82 @@ export class TelegramBotService {
     if (typeof message.text === 'string') {
       await this.prepareExpense(message, linked);
     }
+  }
+
+  private async sendMentionedMemberQr(
+    message: TelegramMessage,
+    mention: MemberQrMention,
+  ) {
+    let userId: string;
+    if ('username' in mention) {
+      const matches = await this.prisma.$queryRaw<
+        Array<{ telegramUserId: string }>
+      >`
+        SELECT telegram_user_id AS "telegramUserId" FROM telegram_group_members
+        WHERE telegram_chat_id = ${BigInt(message.chat.id)} AND is_active = TRUE
+          AND lower(username) = ${mention.username}
+        LIMIT 2
+      `;
+      if (matches.length !== 1) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'Member not found uniquely in this group. Ask them to send /joinvote, or choose their name using /$.',
+        );
+        return;
+      }
+      userId = matches[0].telegramUserId;
+    } else {
+      userId = mention.userId;
+    }
+    const member = (await this.memberQrDirectory(message.chat.id)).find(
+      (candidate) => candidate.key === `tg_${userId}`,
+    );
+    if (
+      !member ||
+      !/^[1-9][0-9]{0,15}$/.test(userId) ||
+      !Number.isSafeInteger(Number(userId))
+    ) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Member unavailable in this group. Choose a member using /$.',
+      );
+      return;
+    }
+    // Usernames can change owners. Confirm the current Telegram identity and
+    // membership before selecting a payment image from a cached username.
+    let current: Awaited<ReturnType<TelegramBotClient['getChatMember']>>;
+    try {
+      current = await this.bot.getChatMember(message.chat.id, Number(userId));
+    } catch {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Could not verify this member. Try again or choose their name using /$.',
+      );
+      return;
+    }
+    if (
+      !current?.user ||
+      current.user.id !== Number(userId) ||
+      current.user.is_bot ||
+      !(
+        ['creator', 'administrator', 'member'].includes(current.status) ||
+        (current.status === 'restricted' && current.is_member === true)
+      ) ||
+      ('username' in mention &&
+        current.user.username?.toLowerCase() !== mention.username)
+    ) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'This mention no longer matches an active member. Choose their name using /$.',
+      );
+      return;
+    }
+    await this.sendMemberQrPhoto(
+      message.chat.id,
+      member.key,
+      this.telegramDisplayName(current.user),
+      true,
+    );
   }
 
   private async sendMemberQr(message: TelegramMessage, command: string) {
@@ -390,7 +474,11 @@ export class TelegramBotService {
     // An HTML fallback is not a usable payment image.
     if (
       !['image/png', 'image/jpeg'].includes(
-        response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() ?? '',
+        response.headers
+          .get('content-type')
+          ?.split(';')[0]
+          ?.trim()
+          .toLowerCase() ?? '',
       )
     ) {
       await unavailable();
@@ -805,14 +893,19 @@ export class TelegramBotService {
         : new Date();
     if (!Number.isFinite(observedAt.getTime())) return;
     const displayName = this.telegramDisplayName(user);
+    const username =
+      typeof user.username === 'string' &&
+      /^[a-z][a-z0-9_]{0,31}$/i.test(user.username)
+        ? user.username.toLowerCase()
+        : null;
     // Ignore older deliveries so an out-of-order join cannot undo a later departure.
     await this.prisma.$executeRaw`
       INSERT INTO telegram_group_members
-        (telegram_chat_id, telegram_user_id, display_name, is_active, observed_at)
-      VALUES (${BigInt(chat.id)}, ${String(user.id)}, ${displayName}, ${active}, ${observedAt})
+        (telegram_chat_id, telegram_user_id, display_name, is_active, observed_at, username)
+      VALUES (${BigInt(chat.id)}, ${String(user.id)}, ${displayName}, ${active}, ${observedAt}, ${username})
       ON CONFLICT (telegram_chat_id, telegram_user_id) DO UPDATE
         SET display_name = EXCLUDED.display_name, is_active = EXCLUDED.is_active,
-            observed_at = EXCLUDED.observed_at
+            observed_at = EXCLUDED.observed_at, username = EXCLUDED.username
         WHERE telegram_group_members.observed_at <= EXCLUDED.observed_at
     `;
   }

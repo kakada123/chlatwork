@@ -123,6 +123,22 @@ name never changes image ownership. There is no manual name mapping or public-fi
 fallback. Direct `/tg_<telegram_user_id>` commands also require active membership
 in the current group. Old filename commands such as `/kakada` no longer select images.
 
+For an individual member, send `/@kakada` or `/$ @kakada`, using their actual
+Telegram username. A selected Telegram name mention also works after `/` or `/$ `,
+including for members without a username. Plain `@username` messages do not trigger
+KHQR replies. Name mentions use Telegram's `text_mention` user ID; typed display
+names are never matched to payment images.
+
+Before deploying mention support, manually apply
+`database/updates/2026-09-10-add-telegram-member-usernames.sql`. Usernames are recorded
+from subsequent messages, callbacks, and membership updates; existing members can
+send `/joinvote` in their group to register theirs. Unknown or ambiguous usernames
+receive guidance to register or use the `/$` menu. Images remain keyed by Telegram
+user ID. Mention requests verify the current username and active membership with
+[`getChatMember`](https://core.telegram.org/bots/api#getchatmember), so the bot must
+be a group administrator for reliable verification. Changed usernames, departures,
+and failed verification never select an image using a stale username.
+
 Observed departures are excluded. Telegram cannot enumerate all members, so new
 members must interact with the bot or be observed through membership updates.
 The bot must be a group admin or have privacy mode disabled to receive

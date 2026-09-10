@@ -657,6 +657,7 @@ model TelegramGroupMember {
   telegramChatId BigInt   @map("telegram_chat_id")
   telegramUserId String   @map("telegram_user_id") @db.VarChar(20)
   displayName    String   @map("display_name") @db.VarChar(80)
+  username       String?  @db.VarChar(32)
   isActive      Boolean  @default(true) @map("is_active")
   observedAt    DateTime @map("observed_at") @db.Timestamptz
 

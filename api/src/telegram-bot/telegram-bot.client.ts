@@ -10,6 +10,7 @@ import type {
   TelegramTextMention,
   TelegramPreformattedText,
   TelegramMessage,
+  TelegramUser,
 } from './telegram-bot.types';
 
 const TELEGRAM_MESSAGE_MAX_LENGTH = 4_096;
@@ -125,6 +126,13 @@ export class TelegramBotClient {
       user_id: userId,
     })) as { status?: string } | undefined;
     return result?.status === 'creator' || result?.status === 'administrator';
+  }
+
+  getChatMember(chatId: number, userId: number) {
+    return this.call('getChatMember', {
+      chat_id: chatId,
+      user_id: userId,
+    }) as Promise<{ user: TelegramUser; status: string; is_member?: boolean }>;
   }
 
   setChatMenuButton(chatId: number, text: string, webAppUrl: string) {

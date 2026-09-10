@@ -1,6 +1,9 @@
 import { TelegramBotService } from './telegram-bot.service';
 import { TelegramBotClient } from './telegram-bot.client';
-import { buildMemberQrDirectory } from './telegram-member-qr';
+import {
+  buildMemberQrDirectory,
+  readMemberQrMention,
+} from './telegram-member-qr';
 
 describe('Telegram group member QR commands', () => {
   const chatId = -1001234567890;
@@ -27,6 +30,7 @@ describe('Telegram group member QR commands', () => {
       $executeRaw: jest.fn().mockResolvedValue(1),
       $queryRaw: jest.fn().mockImplementation(async (sql) => {
         const query = sql.join('');
+        if (query.includes('lower(username)')) return [{ telegramUserId: '2' }];
         if (query.includes('FROM telegram_group_members'))
           return observedMembers;
         if (query.includes('FROM member_khqr_images'))
@@ -44,6 +48,17 @@ describe('Telegram group member QR commands', () => {
       sendMessage: jest.fn(),
       deleteMessages: jest.fn().mockResolvedValue(true),
       answerCallback: jest.fn(),
+      getChatMember: jest
+        .fn()
+        .mockResolvedValue({
+          status: 'member',
+          user: {
+            id: 2,
+            first_name: 'Kakada',
+            last_name: 'Ngen',
+            username: 'kakada',
+          },
+        }),
     };
     const service = new TelegramBotService(
       prisma as never,
@@ -76,8 +91,230 @@ describe('Telegram group member QR commands', () => {
           },
         },
       });
-    return { prisma, bot, send, choose };
+    return { prisma, bot, send, choose, service };
   }
+
+  it.each(['/@kakada', ' /@KaKaDa ', '/ @kakada', '/$ @kakada'])(
+    'sends KHQR for a verified username with %s',
+    async (text) => {
+      const { bot, send, prisma } = setup();
+      await send(text);
+      expect(bot.getChatMember).toHaveBeenCalledWith(chatId, 2);
+      expect(bot.sendPhoto).toHaveBeenCalledWith(
+        chatId,
+        expect.stringContaining('/api/member-khqr/tg_2?'),
+        'Kakada Ngen · KHQR',
+      );
+      const lookup = prisma.$queryRaw.mock.calls.find(([sql]) =>
+        sql.join('').includes('lower(username)'),
+      );
+      expect(lookup?.slice(1)).toEqual([BigInt(chatId), 'kakada']);
+      expect(
+        prisma.$executeRaw.mock.calls.some(([sql]) =>
+          sql.join('').includes('INSERT INTO telegram_member_qr_messages'),
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it('sends a selected text mention by ID without a username', async () => {
+    const { bot, service } = setup();
+    bot.getChatMember.mockResolvedValueOnce({
+      status: 'member',
+      user: { id: 2, first_name: 'Kakada' },
+    });
+    await service.handleUpdate({
+      update_id: 5,
+      message: {
+        message_id: 10,
+        from: { id: 123 },
+        chat: { id: chatId, type: 'supergroup' },
+        text: '/Kakada Ngen',
+        entities: [
+          { type: 'text_mention', offset: 1, length: 11, user: { id: 2 } },
+        ],
+      },
+    });
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId,
+      expect.stringContaining('/api/member-khqr/tg_2?'),
+      'Kakada · KHQR',
+    );
+  });
+
+  it.each([
+    { status: 'left', user: { id: 2, username: 'kakada' } },
+    { status: 'kicked', user: { id: 2, username: 'kakada' } },
+    {
+      status: 'restricted',
+      is_member: false,
+      user: { id: 2, username: 'kakada' },
+    },
+    { status: 'member', user: { id: 2, username: 'new_name' } },
+    { status: 'member', user: { id: 999, username: 'kakada' } },
+    { status: 'member', user: { id: 2, username: 'kakada', is_bot: true } },
+  ])(
+    'never sends another identity or inactive member QR: %j',
+    async (current) => {
+      const { bot, send } = setup();
+      bot.getChatMember.mockResolvedValueOnce(current);
+      await send('/@kakada');
+      expect(bot.sendPhoto).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        chatId,
+        expect.stringContaining('no longer matches'),
+      );
+    },
+  );
+
+  it('keeps the QR private when Telegram identity verification fails', async () => {
+    const { bot, send } = setup();
+    bot.getChatMember.mockRejectedValueOnce(new Error('unavailable'));
+    await send('/@kakada');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      chatId,
+      expect.stringContaining('Could not verify'),
+    );
+  });
+
+  it.each([
+    { matches: [] },
+    { matches: [{ telegramUserId: '2' }, { telegramUserId: '999' }] },
+  ])(
+    'rejects unknown or ambiguous username matches %#',
+    async ({ matches }) => {
+      const { bot, send, prisma } = setup();
+      prisma.$queryRaw.mockImplementation(async (sql) =>
+        sql.join('').includes('lower(username)') ? matches : [{ updateId: 1n }],
+      );
+      await send('/@kakada');
+      expect(bot.getChatMember).not.toHaveBeenCalled();
+      expect(bot.sendPhoto).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not resolve username matches from another group', async () => {
+    const { bot, send, prisma } = setup();
+    prisma.$queryRaw.mockImplementation(async (sql, ...values) => {
+      const query = sql.join('');
+      if (query.includes('lower(username)'))
+        return values[0] === BigInt(chatId) ? [{ telegramUserId: '2' }] : [];
+      if (query.includes('FROM telegram_group_members')) return observedMembers;
+      return [{ updateId: 1n }];
+    });
+    await send('/@kakada', 'supergroup', -100999);
+    expect(bot.getChatMember).not.toHaveBeenCalled();
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
+  it('reports no upload for a verified mention', async () => {
+    const { bot, send, prisma } = setup();
+    prisma.$queryRaw.mockImplementation(async (sql) => {
+      const query = sql.join('');
+      if (query.includes('lower(username)')) return [{ telegramUserId: '2' }];
+      if (query.includes('FROM telegram_group_members')) return observedMembers;
+      if (query.includes('FROM member_khqr_images')) return [];
+      return [{ updateId: 1n }];
+    });
+    await send('/@kakada');
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      chatId,
+      'Kakada Ngen: No KHQR available yet.',
+    );
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
+  it('observes and clears usernames from Telegram updates', async () => {
+    const { prisma, service } = setup();
+    for (const username of ['KaKaDa', undefined]) {
+      await service.handleUpdate({
+        update_id: 1,
+        message: {
+          message_id: 10,
+          from: { id: 2, first_name: 'Kakada', username },
+          chat: { id: chatId, type: 'supergroup' },
+          text: 'hello',
+        },
+      });
+    }
+    const observations = prisma.$executeRaw.mock.calls.filter(([sql]) =>
+      sql.join('').includes('INSERT INTO telegram_group_members'),
+    );
+    expect(observations.map((call) => call[6])).toEqual(['kakada', null]);
+    expect(observations[0][0].join('')).toContain(
+      'username = EXCLUDED.username',
+    );
+    expect(observations[0][0].join('')).toContain(
+      'observed_at <= EXCLUDED.observed_at',
+    );
+  });
+
+  it.each([
+    '@kakada',
+    '/@kakada extra',
+    '/@kakada @someone',
+    '/@../kakada',
+    '/@',
+    '/kakada',
+  ])(
+    'does not interpret unrelated or malformed text as a mention request: %s',
+    (text) => {
+      expect(
+        readMemberQrMention({
+          message_id: 1,
+          chat: { id: chatId, type: 'group' },
+          text,
+        }),
+      ).toBeNull();
+    },
+  );
+
+  it('reads Telegram UTF-16 text-mention offsets without guessing display names', () => {
+    const message = {
+      message_id: 1,
+      chat: { id: chatId, type: 'group' },
+      text: '/$ 😀 Kakada',
+      entities: [
+        { type: 'text_mention', offset: 3, length: 9, user: { id: 2 } },
+      ],
+    };
+    expect(readMemberQrMention(message)).toEqual({ userId: '2' });
+    expect(
+      readMemberQrMention({ ...message, text: message.text + ' extra' }),
+    ).toBeNull();
+    expect(
+      readMemberQrMention({
+        ...message,
+        entities: [{ ...message.entities[0], offset: -1 }],
+      }),
+    ).toBeNull();
+  });
+
+  it('uses the numeric user ID in Telegram member lookup', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          ok: true,
+          result: { status: 'member', user: { id: 2 } },
+        }),
+      ),
+    );
+    const client = new TelegramBotClient({
+      getOrThrow: () => 'dummy-token',
+    } as never);
+    await expect(client.getChatMember(chatId, 2)).resolves.toEqual({
+      status: 'member',
+      user: { id: 2 },
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.telegram.org/botdummy-token/getChatMember',
+      expect.objectContaining({
+        body: JSON.stringify({ chat_id: chatId, user_id: 2 }),
+      }),
+    );
+  });
 
   it.each([
     ['/tg_2', 'tg_2', 'Kakada Ngen', 'supergroup'],
