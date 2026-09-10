@@ -287,7 +287,7 @@ export class TelegramBotService {
         if (!refreshedUserId) {
           await this.bot.sendMessage(
             message.chat.id,
-            `Could not match @${mention.username} to a verified member. Choose their name below. If they are missing, ask them to send /joinvote in this group.`,
+            `Could not find @${mention.username} for KHQR. Choose their name below. If they are missing, ask them to send /$ in this group, then try again.`,
           );
           await this.sendMemberQrMenu(message.chat.id);
           return;
