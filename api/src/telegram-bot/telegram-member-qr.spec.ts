@@ -94,6 +94,52 @@ describe('Telegram group member QR commands', () => {
     return { prisma, bot, send, choose, service };
   }
 
+  it.each(['/help', '/help@ChlatWorkBot', ' /HELP '])(
+    'lists group commands without requiring an account for %s',
+    async (command) => {
+      const { bot, send, prisma } = setup();
+      await send(command);
+      const help = bot.sendMessage.mock.calls[0][1];
+      for (const command of [
+        '/help',
+        '/$',
+        '/@username',
+        '/joinvote',
+        '/split',
+        '/dailyvote',
+        '/votetime',
+        '/voteduration',
+        '/stopdailyvote',
+      ])
+        expect(help).toContain(command);
+      expect(help).toContain('group admin required');
+      expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+      expect(bot.sendPhoto).not.toHaveBeenCalled();
+    },
+  );
+
+  it('lists private commands for an unlinked user without accessing account data', async () => {
+    const { bot, send, prisma } = setup();
+    await send('/help', 'private');
+    const help = bot.sendMessage.mock.calls[0][1];
+    for (const command of [
+      '/help',
+      '/start',
+      '/menu',
+      '/today',
+      '/recent',
+      '/spend',
+      '/vote',
+      '/alerts',
+      '/weekly',
+      '/cancel',
+    ])
+      expect(help).toContain(command);
+    expect(help).toContain('Sign in with Telegram');
+    expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
   it.each(['/@kakada', ' /@KaKaDa ', '/ @kakada', '/$ @kakada'])(
     'sends KHQR for a verified username with %s',
     async (text) => {
@@ -140,6 +186,97 @@ describe('Telegram group member QR commands', () => {
       expect.stringContaining('/api/member-khqr/tg_2?'),
       'Kakada · KHQR',
     );
+  });
+
+  it.each([
+    { matches: [] },
+    { matches: [{ telegramUserId: '2' }, { telegramUserId: '999' }] },
+  ])(
+    'recovers missing or stale cached usernames %# using verified group IDs',
+    async ({ matches }) => {
+      const { bot, send, prisma } = setup();
+      const query = prisma.$queryRaw.getMockImplementation()!;
+      prisma.$queryRaw.mockImplementation(async (sql) =>
+        sql.join('').includes('lower(username)') ? matches : query(sql),
+      );
+      await send('/@kakada');
+      expect(bot.sendPhoto).toHaveBeenCalledWith(
+        chatId,
+        expect.stringContaining('/api/member-khqr/tg_2?'),
+        'Kakada Ngen · KHQR',
+      );
+      const observation = prisma.$executeRaw.mock.calls.find(
+        ([sql, , id]) =>
+          sql.join('').includes('INSERT INTO telegram_group_members') &&
+          id === '2',
+      );
+      expect(observation?.[6]).toBe('kakada');
+      expect(bot.getChatMember.mock.calls.every(([id]) => id === chatId)).toBe(
+        true,
+      );
+    },
+  );
+
+  it.each([
+    'missing',
+    'unavailable',
+    'departed',
+    'renamed',
+    'wrong identity',
+    'bot',
+  ])(
+    'offers the member picker without sending a QR when username recovery is %s',
+    async (reason) => {
+      const { bot, send, prisma } = setup();
+      const query = prisma.$queryRaw.getMockImplementation()!;
+      prisma.$queryRaw.mockImplementation(async (sql) =>
+        sql.join('').includes('lower(username)') ? [] : query(sql),
+      );
+      bot.getChatMember.mockImplementation(async (_chatId, userId) => {
+        if (reason === 'unavailable') throw new Error('unavailable');
+        return {
+          status: reason === 'departed' ? 'left' : 'member',
+          user: {
+            id: reason === 'wrong identity' ? 999 : userId,
+            username: ['missing', 'renamed'].includes(reason)
+              ? 'someone_else'
+              : 'kakada',
+            is_bot: reason === 'bot',
+          },
+        };
+      });
+      await send('/@kakada');
+      expect(bot.sendPhoto).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        chatId,
+        'KHQR · Choose a member',
+        expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+      );
+    },
+  );
+
+  it('bounds live username recovery in large groups and retains the picker', async () => {
+    const { bot, send, prisma } = setup();
+    const members = Array.from({ length: 45 }, (_, index) => ({
+      telegramUserId: String(index + 1),
+      displayName: `Member ${index + 1}`,
+      isActive: true,
+    }));
+    prisma.$queryRaw.mockImplementation(async (sql) => {
+      const query = sql.join('');
+      if (query.includes('lower(username)')) return [];
+      if (query.includes('FROM telegram_group_members')) return members;
+      return [{ updateId: 1n }];
+    });
+    bot.getChatMember.mockRejectedValue(new Error('unavailable'));
+    await send('/@kakada');
+    expect(bot.getChatMember).toHaveBeenCalledTimes(20);
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    const names = bot.sendMessage.mock.calls
+      .filter(([, text]) => text === 'KHQR · Choose a member')
+      .flatMap(([, , keyboard]) => keyboard.inline_keyboard.flat());
+    expect(names).toHaveLength(45);
   });
 
   it.each([
@@ -201,7 +338,8 @@ describe('Telegram group member QR commands', () => {
       const query = sql.join('');
       if (query.includes('lower(username)'))
         return values[0] === BigInt(chatId) ? [{ telegramUserId: '2' }] : [];
-      if (query.includes('FROM telegram_group_members')) return observedMembers;
+      if (query.includes('FROM telegram_group_members'))
+        return values[0] === BigInt(chatId) ? observedMembers : [];
       return [{ updateId: 1n }];
     });
     await send('/@kakada', 'supergroup', -100999);

@@ -73,6 +73,7 @@ const RETAIN_BOT_STATE_MS = 7 * 24 * 60 * 60 * 1_000;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const POLL_OPTION_PATTERN = /^option-(?:[1-9]|10)$/;
+const MAX_MEMBER_USERNAME_LOOKUPS = 20;
 
 interface LinkedTelegramUser {
   user: {
@@ -164,6 +165,10 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
+      if (command === 'help') {
+        await this.sendHelp(message.chat.id, true);
+        return;
+      }
       const mention = readMemberQrMention(message);
       if (mention) {
         await this.sendMentionedMemberQr(message, mention);
@@ -191,11 +196,15 @@ export class TelegramBotService {
       return;
     }
     if (!this.isPrivateMessage(message)) return;
+    if (command === 'help') {
+      await this.sendHelp(message.chat.id, false);
+      return;
+    }
 
     const telegramUserId = String(message.from.id);
     const linked = await this.findLinkedUser(telegramUserId);
 
-    if (command === 'start' || command === 'help' || command === 'menu') {
+    if (command === 'start' || command === 'menu') {
       await this.ensurePersistentMenu(message.chat.id);
       await this.sendMenu(message.chat.id, Boolean(linked));
       return;
@@ -271,13 +280,22 @@ export class TelegramBotService {
         LIMIT 2
       `;
       if (matches.length !== 1) {
-        await this.bot.sendMessage(
-          message.chat.id,
-          'Member not found uniquely in this group. Ask them to send /joinvote, or choose their name using /$.',
+        const refreshedUserId = await this.refreshMemberQrUsername(
+          message.chat,
+          mention.username,
         );
-        return;
+        if (!refreshedUserId) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            `Could not match @${mention.username} to a verified member. Choose their name below. If they are missing, ask them to send /joinvote in this group.`,
+          );
+          await this.sendMemberQrMenu(message.chat.id);
+          return;
+        }
+        userId = refreshedUserId;
+      } else {
+        userId = matches[0].telegramUserId;
       }
-      userId = matches[0].telegramUserId;
     } else {
       userId = mention.userId;
     }
@@ -330,6 +348,41 @@ export class TelegramBotService {
       this.telegramDisplayName(current.user),
       true,
     );
+  }
+
+  private async refreshMemberQrUsername(chat: TelegramChat, username: string) {
+    const members = await this.memberQrDirectory(chat.id);
+    // Older roster entries can predate username tracking. Refresh only known
+    // group identities, with bounded requests; larger rosters retain the menu.
+    const candidates = members.slice(0, MAX_MEMBER_USERNAME_LOOKUPS);
+    const verified = await Promise.all(
+      candidates.map(async (member) => {
+        const userId = member.key.slice(3);
+        if (
+          !/^[1-9][0-9]{0,15}$/.test(userId) ||
+          !Number.isSafeInteger(Number(userId))
+        )
+          return null;
+        try {
+          const current = await this.bot.getChatMember(chat.id, Number(userId));
+          if (
+            current?.user?.id === Number(userId) &&
+            !current.user.is_bot &&
+            current.user.username?.toLowerCase() === username &&
+            (['creator', 'administrator', 'member'].includes(current.status) ||
+              (current.status === 'restricted' && current.is_member === true))
+          )
+            return current.user;
+        } catch {
+          // A failed lookup leaves the member picker available for this request.
+        }
+        return null;
+      }),
+    );
+    const matches = verified.filter((user) => user !== null);
+    if (matches.length !== 1) return null;
+    await this.observeGroupMember(chat, matches[0], true);
+    return String(matches[0].id);
   }
 
   private async sendMemberQr(message: TelegramMessage, command: string) {
@@ -2378,6 +2431,51 @@ export class TelegramBotService {
         ],
       },
     );
+  }
+
+  private async sendHelp(chatId: number, group: boolean) {
+    const commands = group
+      ? [
+          'ChlatWork · Group commands',
+          '',
+          '/help — Show this command list anytime',
+          '/$ — Choose a member’s KHQR (or send KHQR)',
+          '/@username — Get a member’s KHQR, e.g. /@kakada',
+          '/$ @username — Another way to request their KHQR',
+          '/tg_<Telegram ID> — Get a known group member’s KHQR',
+          '/joinvote — Register for this group’s voting reminders',
+          '/split 60 — Split the final bill after voting closes (poll owner)',
+          '/split 60 Alice, Bob — Split a bill with named participants',
+          '',
+          'Daily voting — linked ChlatWork account and group admin required:',
+          '/dailyvote — Choose your Voting Moment to schedule daily',
+          '/votetime 10:00 — Change the daily vote time',
+          '/voteduration 30 — Set future voting rounds to 30 minutes',
+          '/stopdailyvote — Stop the daily vote',
+          '',
+          'For personal expenses and settings, send /help in a private chat with the bot.',
+        ]
+      : [
+          'ChlatWork · Private commands',
+          '',
+          '/help — Show this command list anytime',
+          '/start or /menu — Open the assistant menu',
+          '',
+          'Sign in with Telegram in ChlatWork to use:',
+          '/today — Today’s expense summary',
+          '/recent — Recent expenses',
+          '/spend Coffee week — Ask about spending',
+          '/vote — Choose a Voting Moment to share',
+          '/alerts — View notification settings',
+          '/alerts on or /alerts off — Toggle budget alerts',
+          '/weekly — View weekly digest settings',
+          '/weekly on 20 or /weekly off — Set the digest hour or disable it',
+          '/cancel — Cancel your latest pending expense',
+          '',
+          'Send an expense like “Lunch 4.50”, a voice note, or a receipt photo. Confirm before saving.',
+          'For KHQR, group voting, and bill splits, send /help in your group.',
+        ];
+    await this.bot.sendMessage(chatId, commands.join('\n'));
   }
 
   private async sendMenu(chatId: number, linked: boolean) {
