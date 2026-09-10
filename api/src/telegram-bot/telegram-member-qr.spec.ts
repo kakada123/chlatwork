@@ -1,12 +1,15 @@
 import { TelegramBotService } from './telegram-bot.service';
 import { TelegramBotClient } from './telegram-bot.client';
-import {
-  buildMemberQrDirectory,
-  MEMBER_QR_DIRECTORY,
-} from './telegram-member-qr';
+import { buildMemberQrDirectory } from './telegram-member-qr';
 
 describe('Telegram group member QR commands', () => {
   const chatId = -1001234567890;
+  const observedMembers = [
+    { telegramUserId: '1', displayName: 'Sovan Krusna', isActive: true },
+    { telegramUserId: '2', displayName: 'Kakada Ngen', isActive: true },
+    { telegramUserId: '3', displayName: 'Phann Phearun', isActive: true },
+    { telegramUserId: '4', displayName: 'Veng E Sorn', isActive: true },
+  ];
   let fetchMock: jest.SpiedFunction<typeof fetch>;
 
   beforeEach(() => {
@@ -22,13 +25,14 @@ describe('Telegram group member QR commands', () => {
   function setup() {
     const prisma = {
       $executeRaw: jest.fn().mockResolvedValue(1),
-      $queryRaw: jest
-        .fn()
-        .mockImplementation(async (sql) =>
-          sql.join('').includes('FROM telegram_group_members')
-            ? []
-            : [{ updateId: 1n }],
-        ),
+      $queryRaw: jest.fn().mockImplementation(async (sql) => {
+        const query = sql.join('');
+        if (query.includes('FROM telegram_group_members'))
+          return observedMembers;
+        if (query.includes('FROM member_khqr_images'))
+          return [{ version: 'a'.repeat(64) }];
+        return [{ updateId: 1n }];
+      }),
       telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
       socialAccount: { findUnique: jest.fn().mockResolvedValue(null) },
     };
@@ -48,17 +52,17 @@ describe('Telegram group member QR commands', () => {
       {} as never,
       {} as never,
     );
-    const send = (text: string, type = 'supergroup') =>
+    const send = (text: string, type = 'supergroup', groupChatId = chatId) =>
       service.handleUpdate({
         update_id: 1,
         message: {
           message_id: 10,
           from: { id: 123, first_name: 'Member' },
-          chat: { id: type === 'private' ? 123 : chatId, type },
+          chat: { id: type === 'private' ? 123 : groupChatId, type },
           text,
         },
       });
-    const choose = (key: string, type = 'supergroup') =>
+    const choose = (key: string, type = 'supergroup', groupChatId = chatId) =>
       service.handleUpdate({
         update_id: 2,
         callback_query: {
@@ -68,7 +72,7 @@ describe('Telegram group member QR commands', () => {
           message: {
             message_id: 11,
             from: { id: 456, is_bot: true },
-            chat: { id: type === 'private' ? 123 : chatId, type },
+            chat: { id: type === 'private' ? 123 : groupChatId, type },
           },
         },
       });
@@ -76,17 +80,15 @@ describe('Telegram group member QR commands', () => {
   }
 
   it.each([
-    ['/kakada', 'kakada', 'supergroup'],
-    ['/visal', 'visal', 'group'],
-    ['/sikeat', 'sikeat', 'supergroup'],
-    ['/Kakada@ExampleBot', 'kakada', 'supergroup'],
-    ['/member_2', 'member_2', 'group'],
+    ['/tg_2', 'tg_2', 'Kakada Ngen', 'supergroup'],
+    ['/tg_1', 'tg_1', 'Sovan Krusna', 'group'],
+    ['/TG_2@ExampleBot', 'tg_2', 'Kakada Ngen', 'supergroup'],
   ])(
-    'sends %s from the frontend to the same group',
-    async (text, name, type) => {
+    'sends %s from the database to the same group',
+    async (text, key, name, type) => {
       const { bot, send, prisma } = setup();
       await send(text, type);
-      const url = `https://example.com/images/khqr/${name}.png`;
+      const url = `https://example.com/api/member-khqr/${key}?v=${'a'.repeat(64)}`;
       expect(fetchMock).toHaveBeenCalledWith(
         url,
         expect.objectContaining({
@@ -112,6 +114,9 @@ describe('Telegram group member QR commands', () => {
   );
 
   it.each([
+    ['/kakada'],
+    ['/tg_999'],
+    ['/tg_1 extra'],
     ['/../kakada'],
     ['/kakada.png'],
     ['/kakada/other'],
@@ -138,9 +143,12 @@ describe('Telegram group member QR commands', () => {
       }),
     );
     const { bot, send } = setup();
-    await send('/unknown');
+    await send('/tg_2');
     expect(bot.sendPhoto).not.toHaveBeenCalled();
-    expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      chatId,
+      'Kakada Ngen: No KHQR available yet.',
+    );
   });
 
   it('preserves built-in group commands', async () => {
@@ -175,7 +183,7 @@ describe('Telegram group member QR commands', () => {
         fetchMock.mockResolvedValue(new Response(null, { status: 503 }));
       if (failure === 'telegram')
         bot.sendPhoto.mockRejectedValue(new Error('delivery failed') as never);
-      await expect(send('/kakada')).rejects.toThrow();
+      await expect(send('/tg_2')).rejects.toThrow();
       expect(prisma.telegramBotUpdate.update).not.toHaveBeenCalled();
       expect(prisma.telegramBotUpdate.deleteMany).toHaveBeenCalled();
     },
@@ -191,7 +199,7 @@ describe('Telegram group member QR commands', () => {
     await expect(
       client.sendPhoto(
         chatId,
-        'https://example.com/images/khqr/kakada.png',
+        'https://example.com/api/member-khqr/tg_2?v=example',
         'kakada · KHQR',
       ),
     ).resolves.toEqual({ message_id: 42 });
@@ -201,7 +209,7 @@ describe('Telegram group member QR commands', () => {
         method: 'POST',
         body: JSON.stringify({
           chat_id: chatId,
-          photo: 'https://example.com/images/khqr/kakada.png',
+          photo: 'https://example.com/api/member-khqr/tg_2?v=example',
           caption: 'kakada · KHQR',
         }),
       }),
@@ -216,7 +224,7 @@ describe('Telegram group member QR commands', () => {
       }
       return 1;
     });
-    await expect(send('/kakada')).rejects.toThrow('database unavailable');
+    await expect(send('/tg_2')).rejects.toThrow('database unavailable');
     expect(bot.deleteMessages).toHaveBeenCalledWith(chatId, [42]);
     expect(prisma.telegramBotUpdate.update).not.toHaveBeenCalled();
     expect(prisma.telegramBotUpdate.deleteMany).toHaveBeenCalled();
@@ -239,36 +247,32 @@ describe('Telegram group member QR commands', () => {
   });
 
   it.each(['KHQR', ' khqr ', '/$'])(
-    'shows every supplied name for %s',
+    'shows the supplied names only when observed in this group for %s',
     async (text) => {
       const { bot, send } = setup();
       await send(text);
       const keyboard = bot.sendMessage.mock.calls[0][2].inline_keyboard.flat();
       expect(keyboard.map((button: { text: string }) => button.text)).toEqual(
-        MEMBER_QR_DIRECTORY.map((member) => member.displayName),
+        observedMembers.map((member) => member.displayName),
       );
-      expect(keyboard).toHaveLength(9);
+      expect(keyboard).toHaveLength(4);
       expect(fetchMock).not.toHaveBeenCalled();
     },
   );
 
   it.each([
-    ['sna', 'Sovan Krusna', 'sna'],
-    ['daro', 'Mrr. ដារ៉ូ', 'daro'],
-    ['phearun', 'Phann Phearun', 'phearun'],
-    ['sikeat', '𝙎𝙞𝙠𝙚𝙖𝙩', 'sikeat'],
-    ['vexal', 'vexal.s', 'vexal'],
-    ['visal', 'MOEUNG VISAL', 'visal'],
-    ['kakada', 'Kakada Ngen', 'kakada'],
+    ['tg_1', 'Sovan Krusna'],
+    ['tg_2', 'Kakada Ngen'],
+    ['tg_3', 'Phann Phearun'],
   ])(
-    'sends the mapped QR for %s and keeps its deletion deadline',
-    async (key, name, imageName) => {
+    'sends the database QR for %s and keeps its deletion deadline',
+    async (key, name) => {
       const { bot, choose, prisma } = setup();
       await choose(key);
       expect(bot.answerCallback).toHaveBeenCalledWith('qr-choice');
       expect(bot.sendPhoto).toHaveBeenCalledWith(
         chatId,
-        `https://example.com/images/khqr/${imageName}.png`,
+        `https://example.com/api/member-khqr/${key}?v=${'a'.repeat(64)}`,
         `${name} · KHQR`,
       );
       expect(
@@ -287,7 +291,7 @@ describe('Telegram group member QR commands', () => {
     fetchMock.mockResolvedValue(
       new Response(null, { status, headers: { 'Content-Type': contentType } }),
     );
-    await choose('phearun');
+    await choose('tg_3');
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chatId,
       'Phann Phearun: No KHQR available yet.',
@@ -297,7 +301,7 @@ describe('Telegram group member QR commands', () => {
 
   it('deletes the selected menu only after the QR is sent and tracked', async () => {
     const { bot, choose, prisma } = setup();
-    await choose('sna');
+    await choose('tg_1');
     expect(bot.deleteMessages).toHaveBeenCalledWith(chatId, [11]);
     const trackingIndex = prisma.$executeRaw.mock.calls.findIndex(([sql]) =>
       sql.join('').includes('INSERT INTO telegram_member_qr_messages'),
@@ -313,7 +317,7 @@ describe('Telegram group member QR commands', () => {
   it('keeps the menu when no KHQR is available', async () => {
     const { bot, choose } = setup();
     fetchMock.mockResolvedValue(new Response(null, { status: 404 }));
-    await choose('sna');
+    await choose('tg_1');
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chatId,
       'Sovan Krusna: No KHQR available yet.',
@@ -324,25 +328,31 @@ describe('Telegram group member QR commands', () => {
   it('keeps the menu if photo delivery fails', async () => {
     const { bot, choose } = setup();
     bot.sendPhoto.mockRejectedValue(new Error('delivery failed'));
-    await expect(choose('sna')).rejects.toThrow('delivery failed');
+    await expect(choose('tg_1')).rejects.toThrow('delivery failed');
     expect(bot.deleteMessages).not.toHaveBeenCalled();
   });
 
   it('does not retry a delivered QR when menu deletion fails', async () => {
     const { bot, choose, prisma } = setup();
     bot.deleteMessages.mockRejectedValue(new Error('menu deletion failed'));
-    await expect(choose('sna')).resolves.toBeUndefined();
+    await expect(choose('tg_1')).resolves.toBeUndefined();
     expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
     expect(prisma.telegramBotUpdate.update).toHaveBeenCalled();
     expect(prisma.telegramBotUpdate.deleteMany).not.toHaveBeenCalled();
   });
 
-  it('reports an unmapped member without guessing an image', async () => {
-    const { bot, choose } = setup();
-    await choose('venge');
+  it('reports a missing database upload without falling back to filenames', async () => {
+    const { bot, choose, prisma } = setup();
+    prisma.$queryRaw.mockImplementation(async (sql) => {
+      const query = sql.join('');
+      if (query.includes('FROM telegram_group_members')) return observedMembers;
+      if (query.includes('FROM member_khqr_images')) return [];
+      return [{ updateId: 2n }];
+    });
+    await choose('tg_2');
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chatId,
-      'Veng E Sorn: No KHQR available yet.',
+      'Kakada Ngen: No KHQR available yet.',
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -370,26 +380,29 @@ describe('Telegram group member QR commands', () => {
 
   it('does not handle a group QR button in a private chat', async () => {
     const { bot, choose } = setup();
-    await choose('sna', 'private');
+    await choose('tg_1', 'private');
     expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('adds group-observed members with no guessed payment mapping and removes departures', () => {
-    const members = buildMemberQrDirectory([
-      { telegramUserId: '1', displayName: 'Sikeat', isActive: true },
-      { telegramUserId: '2', displayName: 'Sovan Krusna', isActive: false },
-      { telegramUserId: '3', displayName: 'New Member', isActive: true },
-      { telegramUserId: '4', displayName: 'Former Member', isActive: false },
+  it('keeps identical names as separate identities and excludes departed members', () => {
+    expect(
+      buildMemberQrDirectory([
+        { telegramUserId: '1', displayName: 'Kakada Ngen', isActive: true },
+        { telegramUserId: '2', displayName: 'Kakada Ngen', isActive: true },
+        { telegramUserId: '3', displayName: 'Former Member', isActive: false },
+      ]),
+    ).toEqual([
+      { key: 'tg_1', displayName: 'Kakada Ngen' },
+      { key: 'tg_2', displayName: 'Kakada Ngen' },
     ]);
-    expect(members.filter((member) => member.key === 'sikeat')).toHaveLength(1);
-    expect(members.some((member) => member.key === 'sna')).toBe(false);
-    expect(members).toContainEqual({
-      key: 'tg_3',
-      displayName: 'New Member',
-      imageName: null,
-    });
-    expect(members.some((member) => member.key === 'tg_4')).toBe(false);
+  });
+
+  it('keeps the same image key after a display name changes', () => {
+    const renamed = buildMemberQrDirectory([
+      { ...observedMembers[0], displayName: 'New name' },
+    ]);
+    expect(renamed).toEqual([{ key: 'tg_1', displayName: 'New name' }]);
   });
 
   it('queries the current group and allows an observed member without an image', async () => {
@@ -410,13 +423,14 @@ describe('Telegram group member QR commands', () => {
     );
   });
 
-  it.each(['venge', 'kakada'])(
+  it.each(['tg_4', 'tg_2'])(
     'uses the admin-uploaded image for %s',
     async (key) => {
       const { bot, choose, prisma } = setup();
       prisma.$queryRaw.mockImplementation(async (sql) => {
         const query = sql.join('');
-        if (query.includes('FROM telegram_group_members')) return [];
+        if (query.includes('FROM telegram_group_members'))
+          return observedMembers;
         if (query.includes('FROM member_khqr_images'))
           return [{ version: 'a'.repeat(64) }];
         return [{ updateId: 2n }];
@@ -434,4 +448,49 @@ describe('Telegram group member QR commands', () => {
       expect(lookup?.slice(1)).toEqual([key]);
     },
   );
+
+  it('leaves an empty group directory empty', () => {
+    expect(buildMemberQrDirectory([])).toEqual([]);
+  });
+
+  it('keeps KHQR menus and stale button selections inside their own group', async () => {
+    const otherGroup = -1009876543210;
+    const { bot, send, choose, prisma } = setup();
+    prisma.$queryRaw.mockImplementation(async (sql, ...values) => {
+      if (sql.join('').includes('FROM telegram_group_members')) {
+        return values[0] === BigInt(chatId)
+          ? [
+              observedMembers.find(
+                (member) => member.displayName === 'Sovan Krusna',
+              ),
+            ]
+          : [
+              observedMembers.find(
+                (member) => member.displayName === 'Kakada Ngen',
+              ),
+            ];
+      }
+      return [{ updateId: 1n }];
+    });
+    await send('/$');
+    await send('/$', 'supergroup', otherGroup);
+    expect(
+      bot.sendMessage.mock.calls.map(([id, , keyboard]) => ({
+        id,
+        names: keyboard.inline_keyboard
+          .flat()
+          .map((button: { text: string }) => button.text),
+      })),
+    ).toEqual([
+      { id: chatId, names: ['Sovan Krusna'] },
+      { id: otherGroup, names: ['Kakada Ngen'] },
+    ]);
+    await send('/tg_1', 'supergroup', otherGroup);
+    await choose('tg_1', 'supergroup', otherGroup);
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(bot.answerCallback).toHaveBeenCalledWith(
+      'qr-choice',
+      expect.stringContaining('Member unavailable'),
+    );
+  });
 });

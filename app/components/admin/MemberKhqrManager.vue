@@ -5,11 +5,22 @@ type Member = {
   key: string;
   displayName: string;
   imageUrl: string | null;
-  source: "upload" | "website" | "none";
+  source: "upload" | "none";
   updatedAt: string | null;
 };
 
-const { data: members, status, error, refresh } = await useFetch<Member[]>("/api/admin/member-khqr");
+type Group = { chatId: string; title: string; memberCount: number };
+type GroupRoster = { chatId: string; members: Member[] };
+const { data: groups, error: groupsError, refresh: refreshGroups } = await useFetch<Group[]>("/api/admin/member-khqr/groups");
+const selectedChatId = ref(groups.value?.[0]?.chatId ?? "");
+const { data: roster, status, error, refresh } = await useFetch<GroupRoster>("/api/admin/member-khqr", {
+  query: computed(() => ({ chatId: selectedChatId.value })),
+  immediate: Boolean(selectedChatId.value),
+  watch: false,
+});
+// Never show an earlier group's response while a new selection is loading.
+const members = computed(() => roster.value?.chatId === selectedChatId.value ? roster.value.members : []);
+const selectedGroup = computed(() => groups.value?.find((group) => group.chatId === selectedChatId.value));
 const search = ref("");
 const visibleMembers = computed(() => (members.value ?? []).filter((member) =>
   `${member.displayName} ${member.key}`.normalize("NFKC").toLowerCase()
@@ -18,8 +29,8 @@ const visibleMembers = computed(() => (members.value ?? []).filter((member) =>
 const failedImages = ref<Record<string, boolean>>({});
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewPanel = ref<HTMLElement | null>(null);
-const target = ref<Member | null>(null);
-const selection = ref<{ member: Member; file: File; preview: string } | null>(null);
+const target = ref<{ member: Member; chatId: string } | null>(null);
+const selection = ref<{ member: Member; chatId: string; file: File; preview: string } | null>(null);
 const saving = ref(false);
 const feedback = ref("");
 const uploadError = ref("");
@@ -30,7 +41,7 @@ function clearSelection() {
 }
 
 function pick(member: Member) {
-  target.value = member;
+  target.value = { member, chatId: selectedChatId.value };
   fileInput.value?.click();
 }
 
@@ -38,7 +49,7 @@ async function selectFile(event: Event) {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = "";
-  if (!file || !target.value) return;
+  if (!file || !target.value || target.value.chatId !== selectedChatId.value) return;
   feedback.value = "";
   uploadError.value = "";
   if (file.type !== "image/png" || file.size > 2 * 1024 * 1024 || !file.size) {
@@ -46,7 +57,7 @@ async function selectFile(event: Event) {
     return;
   }
   clearSelection();
-  selection.value = { member: target.value, file, preview: URL.createObjectURL(file) };
+  selection.value = { ...target.value, file, preview: URL.createObjectURL(file) };
   await nextTick();
   previewPanel.value?.scrollIntoView({ behavior: "smooth", block: "center" });
   previewPanel.value?.focus({ preventScroll: true });
@@ -63,12 +74,15 @@ async function save() {
     const result = await $fetch<{ imageUrl: string }>(`/api/admin/member-khqr/${pending.member.key}`, {
       method: "POST",
       headers: { "x-khqr-upload": "1" },
+      query: { chatId: pending.chatId },
       body: form,
     });
     // Update from the confirmed write so a later list-refresh failure cannot
     // turn a successful replacement into an apparent failed upload.
-    members.value = (members.value ?? []).map((member) => member.key === pending.member.key
-      ? { ...member, imageUrl: result.imageUrl, source: "upload" as const } : member);
+    if (roster.value?.chatId === pending.chatId) {
+      roster.value.members = roster.value.members.map((member) => member.key === pending.member.key
+        ? { ...member, imageUrl: result.imageUrl, source: "upload" as const } : member);
+    }
     delete failedImages.value[result.imageUrl];
     feedback.value = `KHQR saved for ${pending.member.displayName}.`;
     clearSelection();
@@ -77,6 +91,24 @@ async function save() {
     uploadError.value = failure.data?.message ?? failure.data?.statusMessage ?? "Upload failed. Please try again.";
   } finally {
     saving.value = false;
+  }
+}
+
+watch(selectedChatId, (chatId) => {
+  clearSelection();
+  target.value = null;
+  search.value = "";
+  feedback.value = "";
+  uploadError.value = "";
+  if (chatId) void refresh();
+});
+
+async function reload() {
+  await refreshGroups();
+  if (!groups.value?.some((group) => group.chatId === selectedChatId.value)) {
+    selectedChatId.value = groups.value?.[0]?.chatId ?? "";
+  } else if (selectedChatId.value) {
+    await refresh();
   }
 }
 
@@ -89,13 +121,23 @@ onBeforeUnmount(clearSelection);
       <div>
         <p class="text-xs font-bold uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">Telegram group</p>
         <h2 id="member-khqr-title" class="mt-1 text-xl font-semibold">Member KHQR</h2>
-        <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">View each member’s QR and upload a replacement. Saved images are public and available to the bot immediately.</p>
+        <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">Choose a Telegram group to view its members and upload their QR images. Saved images are public and available to the bot immediately.</p>
         <p class="mt-1 text-xs text-slate-500 dark:text-white/50">PNG · up to 2 MB · maximum 2048 × 2048 pixels</p>
       </div>
-      <button type="button" class="grid size-10 place-items-center rounded-xl border border-slate-200 disabled:opacity-50 dark:border-white/15" aria-label="Refresh member KHQR" :disabled="status === 'pending' || saving" @click="refresh()">
+      <button type="button" class="grid size-10 place-items-center rounded-xl border border-slate-200 disabled:opacity-50 dark:border-white/15" aria-label="Refresh member KHQR" :disabled="status === 'pending' || saving" @click="reload()">
         <RefreshCw class="size-4" :class="{ 'animate-spin': status === 'pending' }" aria-hidden="true" />
       </button>
     </div>
+    <label class="mt-5 block text-sm font-medium">
+      Telegram group
+      <select v-model="selectedChatId" class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:opacity-50 dark:border-white/15 dark:bg-[#101214]" :disabled="saving || !groups?.length">
+        <option value="" disabled>Select a group</option>
+        <option v-for="group in groups" :key="group.chatId" :value="group.chatId">{{ group.title }} · {{ group.memberCount }} members</option>
+      </select>
+    </label>
+    <p v-if="selectedGroup" class="mt-2 text-xs text-slate-500 dark:text-white/50">Group {{ selectedGroup.chatId }}. Only active members observed in this group appear. Missing members can send /joinvote in that group.</p>
+    <p v-else-if="!groupsError" class="mt-3 text-sm text-slate-500 dark:text-white/50">No groups with known active members yet.</p>
+    <p v-if="groupsError" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">Telegram groups could not be loaded. Try refreshing.</p>
     <input ref="fileInput" type="file" accept="image/png" class="hidden" aria-label="Member KHQR image" @change="selectFile" />
     <p v-if="error" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">Member KHQR could not be loaded. Try refreshing.</p>
     <p v-if="uploadError" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">{{ uploadError }}</p>
@@ -111,12 +153,12 @@ onBeforeUnmount(clearSelection);
       </div>
     </div>
 
-    <label class="mt-5 block">
+    <label v-if="selectedChatId" class="mt-5 block">
       <span class="sr-only">Search members</span>
       <input v-model="search" type="search" placeholder="Search members…" class="min-h-11 w-full rounded-xl border border-slate-200 bg-transparent px-4 text-sm outline-none focus:ring-2 focus:ring-sky-500 dark:border-white/15" />
     </label>
-    <p v-if="status === 'pending' && !members" role="status" class="mt-5 text-sm text-slate-500">Loading members…</p>
-    <p v-else-if="!error && !visibleMembers.length" class="mt-5 text-sm text-slate-500">No members found.</p>
+    <p v-if="status === 'pending'" role="status" class="mt-5 text-sm text-slate-500">Loading members…</p>
+    <p v-else-if="selectedChatId && !error && !visibleMembers.length" class="mt-5 text-sm text-slate-500">No members found in this group.</p>
     <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <article v-for="member in visibleMembers" :key="member.key" class="flex flex-col rounded-2xl border border-slate-200 p-4 dark:border-white/10">
         <h3 class="font-semibold">{{ member.displayName }}</h3>

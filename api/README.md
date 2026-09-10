@@ -110,75 +110,58 @@ Any linked group member can create a payment tracker with
 `/split 60 Alice, Bob, Carol`. Each participant taps their own name to mark paid
 and can tap again to undo; one Telegram user cannot claim two names in a split.
 
-Group member QR commands use the website's public images: `/kakada` sends
-`public/images/khqr/kakada.png` as a photo in the same group. Add `visal.png`,
-`sikeat.png`, or another lowercase name to that folder and deploy the frontend
-to enable `/visal`, `/sikeat`, etc. Names may contain lowercase letters, digits,
-and underscores (1–32 characters); existing group commands keep priority.
-No account link or per-member code/configuration is required. Missing images
-are ignored. The API uses its existing `FRONTEND_ORIGIN` to check the PNG;
-that URL must be publicly reachable by Telegram. Deploy the API change once.
-Keep the bot a group administrator (with permission to send photos) so bare
-commands such as `/kakada` reliably reach it; privacy-enabled non-admin bots
-receive only certain group commands. See the
-[Telegram privacy FAQ](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get).
-
 Send plain `KHQR` (case-insensitive) or `/$` in a group to show member-name
-buttons. Selecting a name posts their QR in the same group, then deletes the
-selected menu message and its buttons. Missing images or unmapped names receive
+buttons. Selecting a name posts their uploaded QR in the same group, then deletes
+the selected menu message and its buttons. Members without an uploaded image receive
 `No KHQR available yet.` and keep the menu available for another selection.
 A menu-deletion failure does not retry an already delivered QR.
-The menu starts with the supplied
-nine-member roster and includes additional active members observed in that group.
+
+The menu uses active members from `telegram_group_members` for the current group.
+Button labels use their database display names. Images in `member_khqr_images` use
+`tg_<telegram_user_id>` as the member key, so renaming a member or sharing a display
+name never changes image ownership. There is no manual name mapping or public-file
+fallback. Direct `/tg_<telegram_user_id>` commands also require active membership
+in the current group. Old filename commands such as `/kakada` no longer select images.
+
 Observed departures are excluded. Telegram cannot enumerate all members, so new
 members must interact with the bot or be observed through membership updates.
 The bot must be a group admin or have privacy mode disabled to receive
 `KHQR` and `/$` messages reliably.
 
-Edit `api/src/telegram-bot/telegram-member-qr.ts` to maintain exact display-name
-aliases. Unicode styling, case, and whitespace are normalized for roster matching;
-unmapped names never select payment images by guessing. Current menu aliases:
-
-| Key | Button | Image under `public/images/khqr/` |
-| --- | --- | --- |
-| `sna` | Sovan Krusna | `sna.png` |
-| `phearun` | Phann Phearun | `phearun.png` |
-| `sikeat` | 𝙎𝙞𝙠𝙚𝙖𝙩 | `sikeat.png` |
-| `daro` | Mrr. ដារ៉ូ | `daro.png` |
-| `venge` | Veng E Sorn | Not mapped yet |
-| `vexal` | vexal.s | `vexal.png` |
-| `visal` | MOEUNG VISAL | `visal.png` |
-| `mingseung` | Chhoeun Mingseung | Not mapped yet |
-| `kakada` | Kakada Ngen | `kakada.png` |
-
-The existing direct commands select an admin upload for that member key first,
-then fall back to filenames, e.g. `/kakada` falls back to `kakada.png`.
-The menu aliases above apply to name buttons when no admin upload exists.
-
 ### Admin member KHQR uploads
 
-The website's `/admin` page includes **Member KHQR**, with image previews, member
-search, and Upload/Replace actions. Choose a PNG, check its preview and recipient,
+The website's `/admin` page includes **Member KHQR**, with a Telegram group selector,
+image previews, member search, and Upload/Replace actions. Only active members
+observed in the selected group appear. Known vote-schedule titles label groups;
+otherwise the selector shows the Telegram group ID. Missing members can send
+`/joinvote` in their group. Choose a PNG, check its preview and recipient,
 then select **Save KHQR**; Cancel leaves the saved image unchanged. Images must
 be at most 2 MB and 2048 × 2048 pixels. The API validates and re-encodes PNG data
 without resizing before storing it. No packages or storage credentials are needed.
 
 Before deploying this version, manually apply
 `database/updates/2026-09-10-add-member-khqr-images.sql`. Images persist in PostgreSQL
-and survive frontend/API deployments. Existing public PNGs remain fallbacks.
+and survive frontend/API deployments. Only database uploads are used.
 Admin uploads take effect for subsequent bot replies without redeploying images;
 they do not modify QR photos already posted to Telegram.
 
-Uploads are keyed by member, so saving Kakada's QR does not change Sovan Krusna's
-image. The admin list includes
-the configured roster plus active members observed by the bot. Members without
-static image aliases can receive an upload directly from the admin page.
+Uploads are keyed by Telegram user ID, so saving one member's QR does not change
+another member's image. The same Telegram user shares their image across groups,
+while each admin list contains only that group's active members. Uploads saved under
+old name aliases are not automatically reassigned; upload them for the correct
+member in the admin page if they have not already been updated in the database.
+Switching groups clears an unsaved selection and hides responses for the previous
+group. Uploads validate that the selected member is still active in that group.
+This roster filtering uses existing tables and needs no new database migration.
 
-`GET /admin/member-khqr` and `POST /admin/member-khqr/:key` require an authenticated
-ADMIN. The POST accepts one multipart `image` field. The website streams uploads
+`GET /admin/member-khqr/groups` lists available groups. Both
+`GET /admin/member-khqr?chatId=...` and `POST /admin/member-khqr/:key?chatId=...`
+require a valid group ID; omitting it never falls back to all groups. These admin
+routes require an authenticated ADMIN. The POST accepts one multipart `image`
+field. The website streams uploads
 through its authenticated proxy; tokens stay server-side. `GET /member-khqr/:key`
 serves uploaded PNGs publicly through `/api/member-khqr/:key` on the website, so
-Telegram can retrieve them just like the original public PNGs. Content-versioned
+Telegram can retrieve them. Content-versioned
 URLs prevent a replacement from reusing the previous Telegram image cache.
 
 New QR photo replies are scheduled for deletion 24 hours after Telegram sends

@@ -4,6 +4,7 @@ import {
   Header,
   Param,
   Post,
+  Query,
   StreamableFile,
   UploadedFile,
   UseGuards,
@@ -13,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MAX_KHQR_BYTES, MemberKhqrService } from './member-khqr.service';
+import { MemberKhqrGroupQueryDto } from './member-khqr-group-query.dto';
 
 @Controller('admin/member-khqr')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -21,8 +23,14 @@ export class MemberKhqrAdminController {
 
   @Get()
   @Header('Cache-Control', 'no-store')
-  list() {
-    return this.khqr.list();
+  list(@Query() query: MemberKhqrGroupQueryDto) {
+    return this.khqr.list(query.chatId);
+  }
+
+  @Get('groups')
+  @Header('Cache-Control', 'no-store')
+  groups() {
+    return this.khqr.groups();
   }
 
   @Post(':key')
@@ -34,14 +42,14 @@ export class MemberKhqrAdminController {
   )
   upload(
     @Param('key') key: string,
+    @Query() query: MemberKhqrGroupQueryDto,
     @UploadedFile() file?: { buffer: Buffer; mimetype: string },
   ) {
-    return this.khqr.upload(key, file);
+    return this.khqr.upload(query.chatId, key, file);
   }
 }
 
-// QR images are public, like the existing public/images/khqr files, so Telegram
-// can fetch them. Administrative listing and replacement always require ADMIN.
+// Telegram needs public image access; listing and replacement require ADMIN.
 @Controller('member-khqr')
 export class MemberKhqrImageController {
   constructor(private readonly khqr: MemberKhqrService) {}

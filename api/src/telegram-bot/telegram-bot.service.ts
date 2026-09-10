@@ -249,15 +249,23 @@ export class TelegramBotService {
   }
 
   private async sendMemberQr(message: TelegramMessage, command: string) {
-    // Member names can only select PNGs in the public KHQR folder, never paths
-    // or arbitrary URLs. Existing group commands take priority over filenames.
-    if (!/^[a-z0-9_]{1,32}$/.test(command)) return;
+    if (!/^tg_[1-9][0-9]{0,15}$/.test(command)) return;
     if (
       !/^\/[a-z0-9_]{1,32}(?:@[a-z0-9_]+)?$/i.test(message.text?.trim() ?? '')
     ) {
       return;
     }
-    await this.sendMemberQrPhoto(message.chat.id, command, command);
+    // Direct requests must use the same group membership check as menu buttons.
+    const member = (await this.memberQrDirectory(message.chat.id)).find(
+      (candidate) => candidate.key === command,
+    );
+    if (!member) return;
+    await this.sendMemberQrPhoto(
+      message.chat.id,
+      member.key,
+      member.displayName,
+      true,
+    );
   }
 
   private async memberQrDirectory(chatId: number) {
@@ -318,10 +326,9 @@ export class TelegramBotService {
     await this.bot.answerCallback(callback.id);
     const sent = await this.sendMemberQrPhoto(
       message.chat.id,
-      member.imageName,
+      member.key,
       member.displayName,
       true,
-      member.key,
     );
     if (!sent) return;
     try {
@@ -334,10 +341,9 @@ export class TelegramBotService {
 
   private async sendMemberQrPhoto(
     chatId: number,
-    imageName: string | null,
+    memberKey: string,
     displayName: string,
     reportMissing = false,
-    memberKey: string | null = imageName,
   ) {
     const unavailable = async () => {
       if (reportMissing) {
@@ -351,24 +357,21 @@ export class TelegramBotService {
       await unavailable();
       return;
     }
-    // An admin upload belongs to this member key, even if their original image
-    // alias was shared. The version forces Telegram to fetch replacement images.
+    // Only database uploads belong to this identity. Versioned URLs let
+    // Telegram fetch a replacement instead of reusing a cached payment image.
     const [upload] = await this.prisma.$queryRaw<Array<{ version: string }>>`
       SELECT version FROM member_khqr_images WHERE member_key = ${memberKey}
     `;
-    if (!upload?.version && (!imageName || !/^[a-z0-9_]{1,32}$/.test(imageName))) {
+    if (!upload?.version) {
       await unavailable();
       return;
     }
     const photoUrl = this.appUrl(
-      upload?.version
-        ? `/api/member-khqr/${memberKey}?v=${upload.version}`
-        : `/images/khqr/${imageName}.png`,
+      `/api/member-khqr/${memberKey}?v=${upload.version}`,
     );
     let response: Response;
     try {
-      // The frontend owns public assets; the separately deployed API need not
-      // contain a copy or a hard-coded roster when another member is added.
+      // Verify the public image proxy is reachable before handing its URL to Telegram.
       response = await fetch(photoUrl, {
         method: 'HEAD',
         redirect: 'manual',
@@ -384,7 +387,7 @@ export class TelegramBotService {
     if (!response.ok) {
       throw new ServiceUnavailableException('Member QR lookup failed');
     }
-    // Ignore unknown commands even when the website returns an HTML fallback.
+    // An HTML fallback is not a usable payment image.
     if (
       response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
       'image/png'

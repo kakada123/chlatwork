@@ -8,7 +8,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { sanitizeKhqrPng } from './member-khqr-png';
 import {
   buildMemberQrDirectory,
-  MEMBER_QR_DIRECTORY,
   type ObservedQrMember,
 } from '../telegram-bot/telegram-member-qr';
 
@@ -18,38 +17,81 @@ export const MAX_KHQR_BYTES = 2 * 1024 * 1024;
 export class MemberKhqrService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list() {
-    const observed = await this.prisma.$queryRaw<ObservedQrMember[]>`
-      SELECT DISTINCT ON (telegram_user_id)
-        telegram_user_id AS "telegramUserId", display_name AS "displayName",
-        is_active AS "isActive"
-      FROM telegram_group_members WHERE is_active = TRUE
-      ORDER BY telegram_user_id, observed_at DESC
+  async groups() {
+    return this.prisma.$queryRaw<
+      Array<{ chatId: string; title: string; memberCount: number }>
+    >`
+      SELECT members.telegram_chat_id::text AS "chatId",
+        COALESCE(NULLIF(schedule.telegram_chat_title, ''),
+          'Telegram group ' || members.telegram_chat_id::text) AS title,
+        COUNT(*)::integer AS "memberCount"
+      FROM telegram_group_members AS members
+      LEFT JOIN moment_vote_schedules AS schedule
+        ON schedule.telegram_chat_id = members.telegram_chat_id
+      WHERE members.is_active = TRUE AND members.telegram_chat_id < 0
+      GROUP BY members.telegram_chat_id, schedule.telegram_chat_title
+      ORDER BY title, members.telegram_chat_id
     `;
+  }
+
+  private groupId(chatId: string) {
+    if (
+      !/^-[1-9][0-9]{0,15}$/.test(chatId) ||
+      !Number.isSafeInteger(Number(chatId))
+    ) {
+      throw new BadRequestException('Select a valid Telegram group');
+    }
+    return BigInt(chatId);
+  }
+
+  private async groupMembers(chatId: string) {
+    const groupId = this.groupId(chatId);
+    const observed = await this.prisma.$queryRaw<ObservedQrMember[]>`
+      SELECT telegram_user_id AS "telegramUserId", display_name AS "displayName",
+        is_active AS "isActive"
+      FROM telegram_group_members
+      WHERE telegram_chat_id = ${groupId} AND is_active = TRUE
+      ORDER BY display_name, telegram_user_id
+    `;
+    return buildMemberQrDirectory(observed);
+  }
+
+  async list(chatId: string) {
+    const members = await this.groupMembers(chatId);
     const uploads = await this.prisma.$queryRaw<
       Array<{ memberKey: string; version: string; updatedAt: Date }>
     >`
       SELECT member_key AS "memberKey", version, updated_at AS "updatedAt"
       FROM member_khqr_images
     `;
-    return buildMemberQrDirectory(observed).map((member) => {
-      const upload = uploads.find((row) => row.memberKey === member.key);
-      return {
-        key: member.key,
-        displayName: member.displayName,
-        imageUrl: upload
-          ? `/api/member-khqr/${member.key}?v=${upload.version}`
-          : member.imageName
-            ? `/images/khqr/${member.imageName}.png`
+    // Echo the group so the UI can reject an old response after switching groups.
+    return {
+      chatId,
+      members: members.map((member) => {
+        const upload = uploads.find((row) => row.memberKey === member.key);
+        return {
+          key: member.key,
+          displayName: member.displayName,
+          imageUrl: upload
+            ? `/api/member-khqr/${member.key}?v=${upload.version}`
             : null,
-        source: upload ? 'upload' : member.imageName ? 'website' : 'none',
-        updatedAt: upload?.updatedAt.toISOString() ?? null,
-      };
-    });
+          source: upload ? 'upload' : 'none',
+          updatedAt: upload?.updatedAt.toISOString() ?? null,
+        };
+      }),
+    };
   }
 
-  async upload(key: string, file?: { buffer: Buffer; mimetype: string }) {
-    await this.assertMember(key);
+  async upload(
+    chatId: string,
+    key: string,
+    file?: { buffer: Buffer; mimetype: string },
+  ) {
+    // Recheck membership on save in case the member left after the list loaded.
+    const members = await this.groupMembers(chatId);
+    if (!members.some((member) => member.key === key)) {
+      throw new NotFoundException('Member not found in the selected group');
+    }
     if (
       !file ||
       file.mimetype !== 'image/png' ||
@@ -79,20 +121,5 @@ export class MemberKhqrService {
     `;
     if (!image) throw new NotFoundException('KHQR not found');
     return image.content;
-  }
-
-  private async assertMember(key: string) {
-    if (MEMBER_QR_DIRECTORY.some((member) => member.key === key)) return;
-    const match = /^tg_([1-9][0-9]{0,19})$/.exec(key);
-    if (match) {
-      const rows = await this.prisma.$queryRaw<
-        Array<{ telegramUserId: string }>
-      >`
-        SELECT telegram_user_id AS "telegramUserId" FROM telegram_group_members
-        WHERE telegram_user_id = ${match[1]} AND is_active = TRUE LIMIT 1
-      `;
-      if (rows.length) return;
-    }
-    throw new NotFoundException('Member not found');
   }
 }
