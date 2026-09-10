@@ -176,9 +176,15 @@ describe('MemberKhqrService', () => {
       await service.upload(chatId, 'tg_1', { buffer: jpeg, mimetype });
       expect(prisma.$executeRaw.mock.calls[0][2]).toEqual(jpeg);
       const controller = new MemberKhqrImageController(service);
-      prisma.$queryRaw.mockResolvedValueOnce([{ content: jpeg }]);
+      prisma.$queryRaw.mockResolvedValueOnce([
+        { content: Uint8Array.from(jpeg) },
+      ]);
       const response = await controller.image('tg_1');
       expect(response.getHeaders().type).toBe('image/jpeg');
+      const chunks: Buffer[] = [];
+      for await (const chunk of response.getStream())
+        chunks.push(Buffer.from(chunk));
+      expect(Buffer.concat(chunks)).toEqual(jpeg);
     },
   );
 
@@ -196,7 +202,7 @@ describe('MemberKhqrService', () => {
   it('serves PNG with its actual type and never serves unsupported stored content', async () => {
     const { prisma, service } = setup();
     const controller = new MemberKhqrImageController(service);
-    prisma.$queryRaw.mockResolvedValueOnce([{ content: png }]);
+    prisma.$queryRaw.mockResolvedValueOnce([{ content: Uint8Array.from(png) }]);
     expect((await controller.image('tg_1')).getHeaders().type).toBe(
       'image/png',
     );
@@ -210,7 +216,7 @@ describe('MemberKhqrService', () => {
 
   it('returns PNG bytes and reports missing images as 404', async () => {
     const { prisma, service } = setup();
-    prisma.$queryRaw.mockResolvedValueOnce([{ content: png }]);
+    prisma.$queryRaw.mockResolvedValueOnce([{ content: Uint8Array.from(png) }]);
     await expect(service.image('tg_1')).resolves.toEqual(png);
     await expect(service.image('tg_4')).rejects.toBeInstanceOf(
       NotFoundException,

@@ -104,6 +104,8 @@ watch(selectedChatId, (chatId) => {
 });
 
 async function reload() {
+  // A temporary image request failure must not hide the preview after refresh.
+  failedImages.value = {};
   await refreshGroups();
   if (!groups.value?.some((group) => group.chatId === selectedChatId.value)) {
     selectedChatId.value = groups.value?.[0]?.chatId ?? "";

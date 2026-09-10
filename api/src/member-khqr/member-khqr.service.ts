@@ -114,10 +114,11 @@ export class MemberKhqrService {
   async image(key: string) {
     if (!/^[a-z0-9_]{1,32}$/.test(key))
       throw new NotFoundException('KHQR not found');
-    const [image] = await this.prisma.$queryRaw<Array<{ content: Buffer }>>`
+    const [image] = await this.prisma.$queryRaw<Array<{ content: Uint8Array }>>`
       SELECT content FROM member_khqr_images WHERE member_key = ${key}
     `;
     if (!image) throw new NotFoundException('KHQR not found');
-    return image.content;
+    // Prisma returns bytea as Uint8Array; format detection needs Buffer methods.
+    return Buffer.from(image.content);
   }
 }
