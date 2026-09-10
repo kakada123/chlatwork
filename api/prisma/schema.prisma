@@ -673,6 +673,18 @@ model TelegramBotUpdate {
   @@map("telegram_bot_updates")
 }
 
+model TelegramMemberQrMessage {
+  telegramChatId BigInt   @map("telegram_chat_id")
+  messageId      Int      @map("message_id")
+  sentAt         DateTime @map("sent_at") @db.Timestamptz
+  deleteAfter    DateTime @map("delete_after") @db.Timestamptz
+  nextAttemptAt  DateTime @map("next_attempt_at") @db.Timestamptz
+
+  @@id([telegramChatId, messageId])
+  @@index([nextAttemptAt])
+  @@map("telegram_member_qr_messages")
+}
+
 model TelegramBotPendingExpense {
   id              String                          @id @default(uuid()) @db.Uuid
   userId          String                          @map("user_id") @db.Uuid

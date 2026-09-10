@@ -2,6 +2,7 @@ import {
   BadRequestException,
   GoneException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -82,6 +83,8 @@ interface LinkedTelegramUser {
 
 @Injectable()
 export class TelegramBotService {
+  private readonly logger = new Logger(TelegramBotService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
@@ -272,7 +275,35 @@ export class TelegramBotService {
     ) {
       return;
     }
-    await this.bot.sendPhoto(message.chat.id, photoUrl, `${command} · KHQR`);
+    const sent = await this.bot.sendPhoto(
+      message.chat.id,
+      photoUrl,
+      `${command} · KHQR`,
+    );
+    const sentAt = new Date(sent.date ? sent.date * 1_000 : Date.now());
+    const deleteAfter = new Date(sentAt.getTime() + 24 * 60 * 60_000);
+    try {
+      // Persist the deadline instead of a day-long timer so restarts do not
+      // leave QR messages behind. Only the bot's photo is scheduled for removal.
+      await this.prisma.$executeRaw`
+        INSERT INTO telegram_member_qr_messages (
+          telegram_chat_id, message_id, sent_at, delete_after, next_attempt_at
+        ) VALUES (
+          ${BigInt(message.chat.id)}, ${sent.message_id}, ${sentAt},
+          ${deleteAfter}, ${deleteAfter}
+        )
+        ON CONFLICT (telegram_chat_id, message_id) DO NOTHING
+      `;
+    } catch (error) {
+      // Compensate when tracking fails before allowing a webhook retry to send
+      // another QR. A process crash between Telegram and the DB is not atomic.
+      try {
+        await this.bot.deleteMessages(message.chat.id, [sent.message_id]);
+      } catch {
+        this.logger.warn('An untracked member QR could not be removed');
+      }
+      throw error;
+    }
   }
 
   private async handleCallback(callback: TelegramCallbackQuery) {

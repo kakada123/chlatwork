@@ -7,6 +7,7 @@ import { TelegramBotService } from './telegram-bot.service';
 import { DailyMomentVoteScheduler } from './daily-moment-vote.scheduler';
 import { TelegramAssistantAiService } from './telegram-assistant-ai.service';
 import { TelegramFinanceScheduler } from './telegram-finance.scheduler';
+import { TelegramMemberQrScheduler } from './telegram-member-qr.scheduler';
 
 @Module({
   imports: [MomentsModule, NotificationsModule],
@@ -17,6 +18,7 @@ import { TelegramFinanceScheduler } from './telegram-finance.scheduler';
     TelegramAssistantAiService,
     DailyMomentVoteScheduler,
     TelegramFinanceScheduler,
+    TelegramMemberQrScheduler,
   ],
 })
 export class TelegramBotModule {}

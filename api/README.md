@@ -123,6 +123,21 @@ commands such as `/kakada` reliably reach it; privacy-enabled non-admin bots
 receive only certain group commands. See the
 [Telegram privacy FAQ](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get).
 
+New QR photo replies are scheduled for deletion 24 hours after Telegram sends
+them. Before deploying this API version, manually apply
+`database/updates/2026-09-10-add-telegram-member-qr-cleanup.sql`.
+The cleanup scheduler checks on startup and every minute, persists deadlines
+across restarts, and retries failed deletions after five minutes. The API must
+stay running; deletion normally occurs within a minute of the deadline, but
+backlogs or delivery failures can delay it. Only tracked QR replies are removed;
+the member's command, other group messages, and public PNG files remain.
+Previously sent QR messages are not tracked retroactively.
+Telegram [limits deletion to messages under 48 hours old](https://core.telegram.org/bots/api#deletemessage),
+so extended downtime or lost bot access can leave a QR behind. Expired tracking
+records are retired with a warning. Telegram delivery and database registration
+are separate operations; registration failures trigger immediate best-effort
+removal, but a process crash between those operations can leave an untracked QR.
+
 Configure a random 16-256 character `TELEGRAM_WEBHOOK_SECRET` in the API runtime,
 then register the HTTPS endpoint with Telegram. Keep both values in the runtime
 secret store; do not commit them:

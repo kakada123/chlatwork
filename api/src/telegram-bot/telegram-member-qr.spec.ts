@@ -22,7 +22,14 @@ describe('Telegram group member QR commands', () => {
       telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
       socialAccount: { findUnique: jest.fn().mockResolvedValue(null) },
     };
-    const bot = { sendPhoto: jest.fn(), sendMessage: jest.fn() };
+    const bot = {
+      sendPhoto: jest.fn().mockResolvedValue({
+        message_id: 42,
+        date: Date.parse('2026-09-10T06:00:00Z') / 1_000,
+      }),
+      sendMessage: jest.fn(),
+      deleteMessages: jest.fn().mockResolvedValue(true),
+    };
     const service = new TelegramBotService(
       prisma as never,
       { getOrThrow: () => 'https://example.com' } as never,
@@ -66,6 +73,16 @@ describe('Telegram group member QR commands', () => {
       expect(bot.sendPhoto).toHaveBeenCalledWith(chatId, url, `${name} · KHQR`);
       expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
       expect(prisma.telegramBotUpdate.update).toHaveBeenCalled();
+      const registration = prisma.$executeRaw.mock.calls.find(([sql]) =>
+        sql.join('').includes('INSERT INTO telegram_member_qr_messages'),
+      );
+      expect(registration?.slice(1)).toEqual([
+        BigInt(chatId),
+        42,
+        new Date('2026-09-10T06:00:00Z'),
+        new Date('2026-09-11T06:00:00Z'),
+        new Date('2026-09-11T06:00:00Z'),
+      ]);
     },
   );
 
@@ -162,6 +179,36 @@ describe('Telegram group member QR commands', () => {
           photo: 'https://example.com/images/khqr/kakada.png',
           caption: 'kakada · KHQR',
         }),
+      }),
+    );
+  });
+
+  it('removes the sent QR if its deletion deadline cannot be stored', async () => {
+    const { bot, send, prisma } = setup();
+    prisma.$executeRaw.mockImplementation(async (sql) => {
+      if (sql.join('').includes('INSERT INTO telegram_member_qr_messages')) {
+        throw new Error('database unavailable');
+      }
+      return 1;
+    });
+    await expect(send('/kakada')).rejects.toThrow('database unavailable');
+    expect(bot.deleteMessages).toHaveBeenCalledWith(chatId, [42]);
+    expect(prisma.telegramBotUpdate.update).not.toHaveBeenCalled();
+    expect(prisma.telegramBotUpdate.deleteMany).toHaveBeenCalled();
+  });
+
+  it('uses retry-safe bulk deletion for a single QR message', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ ok: true, result: true })),
+    );
+    const client = new TelegramBotClient({
+      getOrThrow: () => 'dummy-token',
+    } as never);
+    await expect(client.deleteMessages(chatId, [42])).resolves.toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.telegram.org/botdummy-token/deleteMessages',
+      expect.objectContaining({
+        body: JSON.stringify({ chat_id: chatId, message_ids: [42] }),
       }),
     );
   });

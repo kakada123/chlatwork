@@ -45,6 +45,15 @@ export class TelegramBotClient {
     });
   }
 
+  deleteMessages(chatId: number, messageIds: number[]) {
+    // Telegram skips missing messages, making cleanup safe after manual deletion
+    // or a retry following a successful deletion whose response was lost.
+    return this.call('deleteMessages', {
+      chat_id: chatId,
+      message_ids: messageIds,
+    });
+  }
+
   sendPhoto(chatId: number, photoUrl: string, caption: string) {
     return this.call('sendPhoto', {
       chat_id: chatId,
