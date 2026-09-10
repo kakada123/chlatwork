@@ -151,9 +151,35 @@ unmapped names never select payment images by guessing. Current menu aliases:
 | `mingseung` | Chhoeun Mingseung | Not mapped yet |
 | `kakada` | Kakada Ngen | `sna.png` (requested alias) |
 
-The existing direct commands still select filenames, e.g. `/kakada` selects
-`kakada.png`. The menu aliases above apply to name buttons. No additional database
-migration is needed for the menu beyond the existing group-member and QR-cleanup tables.
+The existing direct commands select an admin upload for that member key first,
+then fall back to filenames, e.g. `/kakada` falls back to `kakada.png`.
+The menu aliases above apply to name buttons when no admin upload exists.
+
+### Admin member KHQR uploads
+
+The website's `/admin` page includes **Member KHQR**, with image previews, member
+search, and Upload/Replace actions. Choose a PNG, check its preview and recipient,
+then select **Save KHQR**; Cancel leaves the saved image unchanged. Images must
+be at most 2 MB and 2048 × 2048 pixels. The API validates and re-encodes PNG data
+without resizing before storing it. No packages or storage credentials are needed.
+
+Before deploying this version, manually apply
+`database/updates/2026-09-10-add-member-khqr-images.sql`. Images persist in PostgreSQL
+and survive frontend/API deployments. Existing public PNGs remain fallbacks.
+Admin uploads take effect for subsequent bot replies without redeploying images;
+they do not modify QR photos already posted to Telegram.
+
+Uploads are keyed by member, so saving Kakada's QR does not change Sovan Krusna's
+image even though their original aliases both use `sna.png`. The admin list includes
+the configured roster plus active members observed by the bot. Members without
+static image aliases can receive an upload directly from the admin page.
+
+`GET /admin/member-khqr` and `POST /admin/member-khqr/:key` require an authenticated
+ADMIN. The POST accepts one multipart `image` field. The website streams uploads
+through its authenticated proxy; tokens stay server-side. `GET /member-khqr/:key`
+serves uploaded PNGs publicly through `/api/member-khqr/:key` on the website, so
+Telegram can retrieve them just like the original public PNGs. Content-versioned
+URLs prevent a replacement from reusing the previous Telegram image cache.
 
 New QR photo replies are scheduled for deletion 24 hours after Telegram sends
 them. Before deploying this API version, manually apply

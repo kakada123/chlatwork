@@ -11,6 +11,7 @@ import {
   Wrench,
 } from "lucide-vue-next";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
+import MemberKhqrManager from "~/components/admin/MemberKhqrManager.vue";
 import { LANDING_TOOLS } from "~/data/tools";
 
 type AnalyticsRange = "7d" | "30d" | "90d";
@@ -161,6 +162,8 @@ function formatChartDate(value: string) {
         </div>
       </div>
     </header>
+
+    <MemberKhqrManager />
 
     <div v-if="error" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-200">
       Dashboard activity could not be loaded. Refresh the page or try again shortly.

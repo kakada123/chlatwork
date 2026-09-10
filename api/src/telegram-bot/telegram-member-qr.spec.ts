@@ -409,4 +409,29 @@ describe('Telegram group member QR commands', () => {
       'New Member: No KHQR available yet.',
     );
   });
+
+  it.each(['venge', 'kakada'])(
+    'uses the admin-uploaded image for %s',
+    async (key) => {
+      const { bot, choose, prisma } = setup();
+      prisma.$queryRaw.mockImplementation(async (sql) => {
+        const query = sql.join('');
+        if (query.includes('FROM telegram_group_members')) return [];
+        if (query.includes('FROM member_khqr_images'))
+          return [{ version: 'a'.repeat(64) }];
+        return [{ updateId: 2n }];
+      });
+      await choose(key);
+      expect(bot.sendPhoto).toHaveBeenCalledWith(
+        chatId,
+        `https://example.com/api/member-khqr/${key}?v=${'a'.repeat(64)}`,
+        expect.stringContaining('KHQR'),
+      );
+      expect(bot.deleteMessages).toHaveBeenCalledWith(chatId, [11]);
+      const lookup = prisma.$queryRaw.mock.calls.find(([sql]) =>
+        sql.join('').includes('FROM member_khqr_images'),
+      );
+      expect(lookup?.slice(1)).toEqual([key]);
+    },
+  );
 });

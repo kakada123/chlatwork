@@ -685,6 +685,15 @@ model TelegramMemberQrMessage {
   @@map("telegram_member_qr_messages")
 }
 
+model MemberKhqrImage {
+  memberKey String   @id @map("member_key") @db.VarChar(32)
+  content   Bytes
+  version   String   @db.VarChar(64)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("member_khqr_images")
+}
+
 model TelegramBotPendingExpense {
   id              String                          @id @default(uuid()) @db.Uuid
   userId          String                          @map("user_id") @db.Uuid

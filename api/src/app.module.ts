@@ -15,6 +15,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 import { CreatorAiModule } from './creator-ai/creator-ai.module';
 import { CreatorTelegramModule } from './creator-telegram/creator-telegram.module';
+import { MemberKhqrModule } from './member-khqr/member-khqr.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CreatorTelegramModule } from './creator-telegram/creator-telegram.modul
     TelegramBotModule,
     CreatorAiModule,
     CreatorTelegramModule,
+    MemberKhqrModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -321,6 +321,7 @@ export class TelegramBotService {
       member.imageName,
       member.displayName,
       true,
+      member.key,
     );
     if (!sent) return;
     try {
@@ -336,6 +337,7 @@ export class TelegramBotService {
     imageName: string | null,
     displayName: string,
     reportMissing = false,
+    memberKey: string | null = imageName,
   ) {
     const unavailable = async () => {
       if (reportMissing) {
@@ -345,11 +347,24 @@ export class TelegramBotService {
         );
       }
     };
-    if (!imageName || !/^[a-z0-9_]{1,32}$/.test(imageName)) {
+    if (!memberKey || !/^[a-z0-9_]{1,32}$/.test(memberKey)) {
       await unavailable();
       return;
     }
-    const photoUrl = this.appUrl(`/images/khqr/${imageName}.png`);
+    // An admin upload belongs to this member key, even if their original image
+    // alias was shared. The version forces Telegram to fetch replacement images.
+    const [upload] = await this.prisma.$queryRaw<Array<{ version: string }>>`
+      SELECT version FROM member_khqr_images WHERE member_key = ${memberKey}
+    `;
+    if (!upload?.version && (!imageName || !/^[a-z0-9_]{1,32}$/.test(imageName))) {
+      await unavailable();
+      return;
+    }
+    const photoUrl = this.appUrl(
+      upload?.version
+        ? `/api/member-khqr/${memberKey}?v=${upload.version}`
+        : `/images/khqr/${imageName}.png`,
+    );
     let response: Response;
     try {
       // The frontend owns public assets; the separately deployed API need not
