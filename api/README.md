@@ -123,7 +123,7 @@ commands such as `/kakada` reliably reach it; privacy-enabled non-admin bots
 receive only certain group commands. See the
 [Telegram privacy FAQ](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get).
 
-Send plain `KHQR` (case-insensitive) or `/khqr` in a group to show member-name
+Send plain `KHQR` (case-insensitive) or `/$` in a group to show member-name
 buttons. Selecting a name posts their QR in the same group, then deletes the
 selected menu message and its buttons. Missing images or unmapped names receive
 `No KHQR available yet.` and keep the menu available for another selection.
@@ -132,8 +132,8 @@ The menu starts with the supplied
 nine-member roster and includes additional active members observed in that group.
 Observed departures are excluded. Telegram cannot enumerate all members, so new
 members must interact with the bot or be observed through membership updates.
-The bot must be a group admin or have privacy mode disabled to receive plain
-`KHQR` messages.
+The bot must be a group admin or have privacy mode disabled to receive
+`KHQR` and `/$` messages reliably.
 
 Edit `api/src/telegram-bot/telegram-member-qr.ts` to maintain exact display-name
 aliases. Unicode styling, case, and whitespace are normalized for roster matching;

@@ -162,7 +162,7 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
-      if (message.text?.trim().toLowerCase() === 'khqr' || command === 'khqr') {
+      if (message.text?.trim().toLowerCase() === 'khqr' || command === '$') {
         await this.sendMemberQrMenu(message.chat.id);
       } else if (command === 'joinvote') {
         await this.bot.sendMessage(

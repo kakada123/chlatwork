@@ -238,7 +238,7 @@ describe('Telegram group member QR commands', () => {
     );
   });
 
-  it.each(['KHQR', ' khqr ', '/khqr'])(
+  it.each(['KHQR', ' khqr ', '/$'])(
     'shows every supplied name for %s',
     async (text) => {
       const { bot, send } = setup();
@@ -247,7 +247,7 @@ describe('Telegram group member QR commands', () => {
       expect(keyboard.map((button: { text: string }) => button.text)).toEqual(
         MEMBER_QR_DIRECTORY.map((member) => member.displayName),
       );
-      expect(keyboard).toHaveLength(10);
+      expect(keyboard).toHaveLength(9);
       expect(fetchMock).not.toHaveBeenCalled();
     },
   );
@@ -339,7 +339,7 @@ describe('Telegram group member QR commands', () => {
 
   it('reports an unmapped member without guessing an image', async () => {
     const { bot, choose } = setup();
-    await choose('sorn');
+    await choose('venge');
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chatId,
       'Veng E Sorn: No KHQR available yet.',
