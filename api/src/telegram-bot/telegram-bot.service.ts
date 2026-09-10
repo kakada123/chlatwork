@@ -3,6 +3,7 @@ import {
   GoneException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -167,6 +168,8 @@ export class TelegramBotService {
         await this.handleGroupVoteCommand(message, command!);
       } else if (command === 'split') {
         await this.handleGroupSplitCommand(message);
+      } else if (command) {
+        await this.sendMemberQr(message, command);
       }
       return;
     }
@@ -234,6 +237,42 @@ export class TelegramBotService {
     if (typeof message.text === 'string') {
       await this.prepareExpense(message, linked);
     }
+  }
+
+  private async sendMemberQr(message: TelegramMessage, command: string) {
+    // Member names can only select PNGs in the public KHQR folder, never paths
+    // or arbitrary URLs. Existing group commands take priority over filenames.
+    if (!/^[a-z0-9_]{1,32}$/.test(command)) return;
+    if (
+      !/^\/[a-z0-9_]{1,32}(?:@[a-z0-9_]+)?$/i.test(message.text?.trim() ?? '')
+    ) {
+      return;
+    }
+    const photoUrl = this.appUrl(`/images/khqr/${command}.png`);
+    let response: Response;
+    try {
+      // The frontend owns public assets; the separately deployed API need not
+      // contain a copy or a hard-coded roster when another member is added.
+      response = await fetch(photoUrl, {
+        method: 'HEAD',
+        redirect: 'manual',
+        signal: AbortSignal.timeout(5_000),
+      });
+    } catch {
+      throw new ServiceUnavailableException('Member QR lookup failed');
+    }
+    if (response.status === 404) return;
+    if (!response.ok) {
+      throw new ServiceUnavailableException('Member QR lookup failed');
+    }
+    // Ignore unknown commands even when the website returns an HTML fallback.
+    if (
+      response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
+      'image/png'
+    ) {
+      return;
+    }
+    await this.bot.sendPhoto(message.chat.id, photoUrl, `${command} · KHQR`);
   }
 
   private async handleCallback(callback: TelegramCallbackQuery) {

@@ -110,6 +110,19 @@ Any linked group member can create a payment tracker with
 `/split 60 Alice, Bob, Carol`. Each participant taps their own name to mark paid
 and can tap again to undo; one Telegram user cannot claim two names in a split.
 
+Group member QR commands use the website's public images: `/kakada` sends
+`public/images/khqr/kakada.png` as a photo in the same group. Add `visal.png`,
+`sikeat.png`, or another lowercase name to that folder and deploy the frontend
+to enable `/visal`, `/sikeat`, etc. Names may contain lowercase letters, digits,
+and underscores (1–32 characters); existing group commands keep priority.
+No account link or per-member code/configuration is required. Missing images
+are ignored. The API uses its existing `FRONTEND_ORIGIN` to check the PNG;
+that URL must be publicly reachable by Telegram. Deploy the API change once.
+Keep the bot a group administrator (with permission to send photos) so bare
+commands such as `/kakada` reliably reach it; privacy-enabled non-admin bots
+receive only certain group commands. See the
+[Telegram privacy FAQ](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get).
+
 Configure a random 16-256 character `TELEGRAM_WEBHOOK_SECRET` in the API runtime,
 then register the HTTPS endpoint with Telegram. Keep both values in the runtime
 secret store; do not commit them:

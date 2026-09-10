@@ -45,6 +45,14 @@ export class TelegramBotClient {
     });
   }
 
+  sendPhoto(chatId: number, photoUrl: string, caption: string) {
+    return this.call('sendPhoto', {
+      chat_id: chatId,
+      photo: photoUrl,
+      caption,
+    }) as Promise<TelegramMessage>;
+  }
+
   editMessage(
     chatId: number,
     messageId: number,
