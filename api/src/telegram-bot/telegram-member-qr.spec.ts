@@ -259,7 +259,7 @@ describe('Telegram group member QR commands', () => {
     ['sikeat', '𝙎𝙞𝙠𝙚𝙖𝙩', 'sikeat'],
     ['vexal', 'vexal.s', 'vexal'],
     ['visal', 'MOEUNG VISAL', 'visal'],
-    ['kakada', 'Kakada Ngen', 'sna'],
+    ['kakada', 'Kakada Ngen', 'kakada'],
   ])(
     'sends the mapped QR for %s and keeps its deletion deadline',
     async (key, name, imageName) => {

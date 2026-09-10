@@ -15,7 +15,7 @@ export const MEMBER_QR_DIRECTORY: readonly MemberQr[] = [
   { key: 'vexal', displayName: 'vexal.s', imageName: 'vexal' },
   { key: 'visal', displayName: 'MOEUNG VISAL', imageName: 'visal' },
   { key: 'mingseung', displayName: 'Chhoeun Mingseung', imageName: null },
-  { key: 'kakada', displayName: 'Kakada Ngen', imageName: 'sna' },
+  { key: 'kakada', displayName: 'Kakada Ngen', imageName: 'kakada' },
 ];
 
 export interface ObservedQrMember {

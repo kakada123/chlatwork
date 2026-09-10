@@ -149,7 +149,7 @@ unmapped names never select payment images by guessing. Current menu aliases:
 | `vexal` | vexal.s | `vexal.png` |
 | `visal` | MOEUNG VISAL | `visal.png` |
 | `mingseung` | Chhoeun Mingseung | Not mapped yet |
-| `kakada` | Kakada Ngen | `sna.png` (requested alias) |
+| `kakada` | Kakada Ngen | `kakada.png` |
 
 The existing direct commands select an admin upload for that member key first,
 then fall back to filenames, e.g. `/kakada` falls back to `kakada.png`.
@@ -170,7 +170,7 @@ Admin uploads take effect for subsequent bot replies without redeploying images;
 they do not modify QR photos already posted to Telegram.
 
 Uploads are keyed by member, so saving Kakada's QR does not change Sovan Krusna's
-image even though their original aliases both use `sna.png`. The admin list includes
+image. The admin list includes
 the configured roster plus active members observed by the bot. Members without
 static image aliases can receive an upload directly from the admin page.
 
