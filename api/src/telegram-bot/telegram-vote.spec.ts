@@ -19,31 +19,75 @@ const poll: TelegramVotingPoll = {
 };
 
 describe('Telegram voting poll', () => {
-  it('shows counts and percentages', () => {
+  it('keeps active counts on buttons without repeating options in the message', () => {
     const message = buildTelegramPollMessage(poll);
-    expect(message).toContain('Khmer food — 3 (75%)');
-    expect(message).toContain('Total votes: 4');
+    expect(message).toBe('🗳 Team lunch\nWhere should we eat?\n\nVotes: 4');
+    expect(
+      buildTelegramPollKeyboard(poll, 'https://example.com')
+        .inline_keyboard[0]?.[0]?.text,
+    ).toBe('Khmer food · 3');
   });
 
-  it('shows the daily round and named voters when identity is visible', () => {
+  it.each(['NAME_REQUIRED', 'LOGIN_REQUIRED'] as const)(
+    'shows voters under their choices in active and final %s polls',
+    (identityMode) => {
+      for (const closed of [false, true]) {
+        const message = buildTelegramPollMessage({
+          ...poll,
+          identityMode,
+          closed,
+          voteDate: '2026-09-04',
+          results: [
+            {
+              optionId: 'option-1',
+              label: 'Khmer food',
+              votes: 2,
+              voters: ['Sokha', 'Dara'],
+            },
+            {
+              optionId: 'option-2',
+              label: 'Pizza',
+              votes: 1,
+              voters: ['Kakada'],
+            },
+          ],
+          totalVotes: 3,
+        });
+
+        expect(message).toContain('📅 2026-09-04');
+        expect(message).toContain('Votes: 3');
+        expect(message).toContain('Khmer food · 2\n  ↳ Sokha, Dara');
+        expect(message).toContain('Pizza · 1\n  ↳ Kakada');
+      }
+    },
+  );
+
+  it('never displays supplied voter names for anonymous polls', () => {
+    for (const closed of [false, true]) {
+      const message = buildTelegramPollMessage({
+        ...poll,
+        closed,
+        results: [{ ...poll.results[0]!, voters: ['Sokha', 'Dara'] }],
+      });
+      expect(message).not.toContain('Sokha');
+      expect(message).not.toContain('Dara');
+    }
+  });
+
+  it('retains counts and a details hint when voter names exceed the message limit', () => {
     const message = buildTelegramPollMessage({
       ...poll,
       identityMode: 'NAME_REQUIRED',
-      voteDate: '2026-09-04',
       results: [
         {
-          optionId: 'option-1',
-          label: 'Khmer food',
-          votes: 2,
-          voters: ['Sokha', 'Dara'],
+          ...poll.results[0]!,
+          voters: Array.from({ length: 200 }, () => 'Long voter name '.repeat(5)),
         },
       ],
-      totalVotes: 2,
     });
-
-    expect(message).toContain('📅 2026-09-04');
-    expect(message).toContain('Voters: Sokha, Dara');
-    expect(message).toContain('vote again tomorrow');
+    expect(message.length).toBeLessThanOrEqual(4_096);
+    expect(message).toContain('Khmer food · 3');
+    expect(message).toContain('Voter names: tap Details.');
   });
 
   it('builds bounded callbacks for every option', () => {
@@ -107,7 +151,7 @@ describe('Telegram voting poll', () => {
         { ...poll, identityMode: 'NAME_REQUIRED' },
         [],
       )[0]!.text,
-    ).not.toContain('Not voted yet');
+    ).not.toContain('Your turn:');
   });
 });
 
@@ -145,7 +189,9 @@ describe('Timed Telegram result presentation', () => {
     expect(
       buildTelegramPollMessage(timed, new Date('2099-09-08T03:00:00Z')),
     ).toContain('30 min left');
-    expect(buildTelegramPollMessage(timed)).toContain('join by default');
+    expect(buildTelegramPollMessage(timed)).toContain(
+      'Joined by default · equal split',
+    );
     const buttons = buildTelegramPollKeyboard(
       timed,
       'https://example.com',
@@ -160,11 +206,14 @@ describe('Timed Telegram result presentation', () => {
   it('celebrates the winner and removes all actions after closing', () => {
     const final = { ...timed, closed: true, participants: ['Dara', 'Sokha'] };
     expect(buildTelegramPollMessage(final)).toContain(
-      '🏆🎉 Winner: Khmer food',
+      '🏆 Winner: Khmer food',
     );
-    expect(buildTelegramPollMessage(final)).toContain(
-      'Participants: Dara, Sokha',
-    );
+    const message = buildTelegramPollMessage(final);
+    expect(message).toContain('Khmer food · 3');
+    expect(message).toContain('Votes: 4 · Joined: 2');
+    expect(message).toContain('reply /split 60 (bill total)');
+    expect(message).not.toContain('Dara');
+    expect(message).not.toContain('Sokha');
     expect(
       buildTelegramPollKeyboard(final, 'https://example.com')
         .inline_keyboard.flat()
@@ -179,14 +228,14 @@ describe('Timed Telegram result presentation', () => {
         totalVotes: 2,
         results: poll.results.map((result) => ({ ...result, votes: 1 })),
       }),
-    ).toContain('Tied winners: Khmer food, Pizza');
+    ).toContain('Tie: Khmer food, Pizza');
     const empty = buildTelegramPollMessage({
       ...timed,
       closed: true,
       totalVotes: 0,
       results: poll.results.map((result) => ({ ...result, votes: 0 })),
     });
-    expect(empty).toContain('No votes were cast.');
+    expect(empty).toContain('No votes this round.');
     expect(empty).not.toContain('Winner:');
   });
 });

@@ -116,7 +116,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     `;
     for (const round of rounds) {
       try {
-        await this.prisma.$transaction(
+        const celebration = await this.prisma.$transaction(
           async (tx) => {
             // Edits are retryable and the row lock keeps replicas from publishing competing results.
             const [current] = await tx.$queryRaw<
@@ -139,10 +139,11 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
               `/m/${poll.slug}`,
               this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
             ).toString();
-            if (current.messageId !== null) {
+            let messageId = current.messageId;
+            if (messageId !== null) {
               await this.bot.editMessage(
                 Number(current.telegramChatId),
-                current.messageId,
+                messageId,
                 buildTelegramPollMessage(poll, now),
                 buildTelegramPollKeyboard(poll, publicUrl),
               );
@@ -154,13 +155,35 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
                 buildTelegramPollKeyboard(poll, publicUrl),
               );
               await tx.$executeRaw`UPDATE moment_vote_rounds SET message_id = ${sent.message_id} WHERE id = ${round.id}::uuid`;
+              messageId = sent.message_id;
             }
             if (poll.closed) {
               await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at = ${now} WHERE id = ${round.id}::uuid`;
+              if (poll.results.some((result) => result.votes > 0)) {
+                return { chatId: Number(current.telegramChatId), messageId };
+              }
             }
           },
           { timeout: 15_000 },
         );
+        if (celebration) {
+          // Send only after finalization commits. This optional effect is not retried:
+          // a lost Telegram response must not duplicate it or reopen a finished round.
+          try {
+            await this.bot.sendAnimation(
+              celebration.chatId,
+              new URL(
+                '/images/telegram/vote-celebration.gif',
+                this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+              ).toString(),
+              celebration.messageId,
+            );
+          } catch {
+            this.logger.warn(
+              'A vote celebration animation could not be delivered',
+            );
+          }
+        }
       } catch {
         // Leave unfinished rounds retryable on the next tick without logging chat or voter data.
         this.logger.warn('A Moment vote timer could not be refreshed');

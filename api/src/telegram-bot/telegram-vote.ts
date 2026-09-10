@@ -63,64 +63,51 @@ export function buildTelegramPollMessage(
     poll.closed || Boolean(poll.closesAt && new Date(poll.closesAt) <= now);
   const highest = Math.max(0, ...poll.results.map((result) => result.votes));
   const winners = poll.results.filter((result) => result.votes === highest);
+  const showVoters = poll.identityMode !== 'ANONYMOUS';
   const lines = [
-    `${closed ? '🎉 Final results ·' : '🗳'} ${poll.title}`,
-    '',
-    poll.question,
-    ...(poll.voteDate ? [`📅 ${poll.voteDate}`] : []),
-    ...(poll.closesAt
+    `${closed ? '🏁' : '🗳'} ${poll.title}`,
+    ...(poll.question !== poll.title ? [poll.question] : []),
+    ...(poll.voteDate && (!poll.closesAt || closed)
+      ? [`📅 ${poll.voteDate}`]
+      : []),
+    ...(!closed && poll.closesAt
       ? [
-          closed
-            ? 'Voting closed.'
-            : `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${formatVoteDeadline(poll.closesAt, poll.timeZone)}`,
+          `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${formatVoteDeadline(poll.closesAt, poll.timeZone)}`,
         ]
       : []),
     '',
-    ...poll.results.flatMap((result, index) => {
-      const percent = poll.totalVotes
-        ? Math.round((result.votes / poll.totalVotes) * 100)
-        : 0;
-      const resultLine = `${index + 1}. ${result.label} — ${result.votes} (${percent}%)`;
-      const names = result.voters?.length
-        ? `   Voters: ${result.voters.join(', ')}`
-        : '';
-      return names ? [resultLine, names] : [resultLine];
-    }),
-    '',
-    `Total votes: ${poll.totalVotes}`,
+    ...(closed || showVoters
+      ? poll.results.flatMap((result) => [
+          `${result.label} · ${result.votes}`,
+          ...(showVoters && result.voters?.length
+            ? [`  ↳ ${result.voters.join(', ')}`]
+            : []),
+        ])
+      : []),
+    `Votes: ${poll.totalVotes}${poll.roundId ? ` · Joined: ${poll.participants?.length ?? 0}` : ''}`,
     ...(closed
       ? [
           highest === 0
-            ? 'No votes were cast.'
-            : `${winners.length > 1 ? '🎉 Tied winners' : '🏆🎉 Winner'}: ${winners.map((result) => result.label).join(', ')}${highest ? ' 🥳' : ''}`,
+            ? 'No votes this round.'
+            : `${winners.length > 1 ? '🤝 Tie' : '🏆 Winner'}: ${winners.map((result) => result.label).join(', ')}`,
         ]
       : []),
     ...(poll.roundId
       ? [
           closed
-            ? `Joined: ${poll.participants?.length ?? 0}. Reply /split 60 with the bill total to split equally.`
-            : 'Known group members join by default and split the bill equally (ចែកលុយស្មើ). Tap “Not joining” before time runs out.',
+            ? 'Split equally: reply /split 60 (bill total).'
+            : 'Joined by default · equal split. Tap “Not joining” to skip.',
         ]
       : []),
-    ...(poll.participants?.length
-      ? [`Participants: ${poll.participants.join(', ')}`]
-      : []),
-    closed
-      ? 'This round is final.'
-      : poll.voteDate
-        ? 'Tap an option below. Everyone can vote again tomorrow.'
-        : 'Tap an option below. You can change your vote.',
   ];
   const message = lines.join('\n');
   if (message.length <= 4_096) return message;
 
-  // Large groups still get complete counts even when the voter-name detail is too long for Telegram.
-  return lines
-    .filter(
-      (line) =>
-        !line.startsWith('   Voters: ') && !line.startsWith('Participants: '),
-    )
-    .join('\n');
+  // Keep counts deliverable when a large voter list exceeds Telegram's limit.
+  return [
+    ...lines.filter((line) => !line.startsWith('  ↳ ')),
+    'Voter names: tap Details.',
+  ].join('\n');
 }
 
 export function buildTelegramPollKeyboard(
@@ -153,7 +140,7 @@ export function buildTelegramPollKeyboard(
             ],
           ]
         : []),
-      [{ text: 'Open full Moment', url: publicUrl }],
+      [{ text: 'Details', url: publicUrl }],
     ],
   };
 }
@@ -167,7 +154,7 @@ export function buildTelegramPollUpdates(
   ];
   // Announcing who remains would reveal participation in an anonymous poll.
   if (poll.identityMode === 'ANONYMOUS') return messages;
-  const heading = '\n\nNot voted yet (known group members):\n';
+  const heading = '\n\nYour turn: ';
   let current = messages[0]!;
   if (pendingMembers.length) {
     if (current.text.length + heading.length + 80 > 4_096) {

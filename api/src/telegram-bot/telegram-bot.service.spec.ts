@@ -107,7 +107,7 @@ describe('TelegramBotService', () => {
     );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       -1001234567890,
-      expect.stringContaining('Daily vote enabled'),
+      expect.stringContaining('Daily vote: 10:00'),
     );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       -1001234567890,
@@ -196,7 +196,7 @@ describe('Telegram group vote updates', () => {
     );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chat.id,
-      expect.stringContaining('Total votes: 1'),
+      expect.stringContaining('Votes: 1'),
       expect.objectContaining({ inline_keyboard: expect.any(Array) }),
       [
         expect.objectContaining({
@@ -357,7 +357,7 @@ describe('Telegram group vote updates', () => {
     expect(prisma.$executeRaw).toHaveBeenCalledTimes(1);
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chat.id,
-      expect.stringContaining('registered'),
+      'Vote reminders enabled.',
     );
   });
 });

@@ -72,7 +72,11 @@ describe('Daily vote timer finalization', () => {
       $queryRaw: jest
         .fn()
         .mockResolvedValue([
-          { telegramChatId: -100n, messageId: 88, closesAt: deadline },
+          {
+            telegramChatId: -100n,
+            messageId: 88 as number | null,
+            closesAt: deadline,
+          },
         ]),
       $executeRaw: jest.fn(),
     };
@@ -88,6 +92,7 @@ describe('Daily vote timer finalization', () => {
         ? jest.fn().mockRejectedValue(new Error('Unavailable'))
         : jest.fn(),
       sendMessage: jest.fn(),
+      sendAnimation: jest.fn().mockResolvedValue({ message_id: 99 }),
     };
     const moments = {
       getTelegramVoteRoundResults: jest
@@ -119,10 +124,10 @@ describe('Daily vote timer finalization', () => {
     expect(bot.editMessage).toHaveBeenCalledWith(
       -100,
       88,
-      expect.stringContaining('🏆🎉 Winner: Pizza'),
+      expect.stringContaining('🏆 Winner: Pizza'),
       {
         inline_keyboard: [
-          [{ text: 'Open full Moment', url: 'https://example.com/m/lunch' }],
+          [{ text: 'Details', url: 'https://example.com/m/lunch' }],
         ],
       },
     );
@@ -130,16 +135,82 @@ describe('Daily vote timer finalization', () => {
       'SET finalized_at',
     );
     expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(bot.sendAnimation).toHaveBeenCalledWith(
+      -100,
+      'https://example.com/images/telegram/vote-celebration.gif',
+      88,
+    );
+    expect(tx.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      bot.sendAnimation.mock.invocationCallOrder[0]!,
+    );
+    await scheduler.runOnce(deadline);
+    expect(bot.sendAnimation).toHaveBeenCalledTimes(1);
   });
   it('leaves failed final edits retryable without marking delivery complete', async () => {
-    const { tx, scheduler } = setup(true);
+    const { tx, bot, scheduler } = setup(true);
     await scheduler.runOnce(deadline);
     expect(tx.$executeRaw).not.toHaveBeenCalled();
+    expect(bot.sendAnimation).not.toHaveBeenCalled();
   });
   it('skips a round already claimed or completed by another replica', async () => {
     const { tx, bot, scheduler } = setup();
     tx.$queryRaw.mockResolvedValue([]);
     await scheduler.runOnce(deadline);
     expect(bot.editMessage).not.toHaveBeenCalled();
+    expect(bot.sendAnimation).not.toHaveBeenCalled();
+  });
+
+  it('does not celebrate an open round or a round with no votes', async () => {
+    const open = setup();
+    await open.scheduler.runOnce(new Date(deadline.getTime() - 60_000));
+    expect(open.bot.sendAnimation).not.toHaveBeenCalled();
+    expect(open.tx.$executeRaw).not.toHaveBeenCalled();
+
+    const empty = setup();
+    const poll = await empty.moments.getTelegramVoteRoundResults();
+    empty.moments.getTelegramVoteRoundResults.mockResolvedValue({
+      ...poll,
+      totalVotes: 0,
+      results: [{ optionId: 'option-1', label: 'Pizza', votes: 0 }],
+    });
+    await empty.scheduler.runOnce(deadline);
+    expect(empty.tx.$executeRaw).toHaveBeenCalled();
+    expect(empty.bot.sendAnimation).not.toHaveBeenCalled();
+  });
+
+  it('keeps finalization complete when animation delivery fails', async () => {
+    const { tx, bot, scheduler } = setup();
+    bot.sendAnimation.mockRejectedValue(new Error('Unavailable'));
+    await scheduler.runOnce(deadline);
+    expect(tx.$executeRaw.mock.calls[0][0].join('')).toContain(
+      'SET finalized_at',
+    );
+    await scheduler.runOnce(deadline);
+    expect(bot.sendAnimation).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not send an animation if the finalization transaction fails to commit', async () => {
+    const { prisma, bot, scheduler } = setup();
+    const transaction = prisma.$transaction.getMockImplementation()!;
+    prisma.$transaction.mockImplementation(async (work) => {
+      await transaction(work);
+      throw new Error('Commit failed');
+    });
+    await scheduler.runOnce(deadline);
+    expect(bot.sendAnimation).not.toHaveBeenCalled();
+  });
+
+  it('replies to the recovered final message when initial delivery was missing', async () => {
+    const { tx, bot, scheduler } = setup();
+    tx.$queryRaw.mockResolvedValue([
+      { telegramChatId: -100n, messageId: null, closesAt: deadline },
+    ]);
+    bot.sendMessage.mockResolvedValue({ message_id: 123 });
+    await scheduler.runOnce(deadline);
+    expect(bot.sendAnimation).toHaveBeenCalledWith(
+      -100,
+      'https://example.com/images/telegram/vote-celebration.gif',
+      123,
+    );
   });
 });

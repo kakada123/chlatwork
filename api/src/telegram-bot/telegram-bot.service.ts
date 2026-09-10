@@ -180,7 +180,7 @@ export class TelegramBotService {
       } else if (command === 'joinvote') {
         await this.bot.sendMessage(
           message.chat.id,
-          'You are registered for voting reminders in this group.',
+          'Vote reminders enabled.',
         );
       } else if (
         ['dailyvote', 'votetime', 'voteduration', 'stopdailyvote'].includes(
@@ -744,8 +744,8 @@ export class TelegramBotService {
       await this.bot.answerCallback(
         callback.id,
         match[1] === 'join'
-          ? 'Joined. You will share the bill equally.'
-          : 'You are not joining and will not be included in the split.',
+          ? 'Joined · equal split.'
+          : 'Not joining · no bill share.',
       );
     } catch (error) {
       if (
@@ -754,7 +754,7 @@ export class TelegramBotService {
       ) {
         await this.bot.answerCallback(
           callback.id,
-          'This voting round has closed.',
+          'Voting closed.',
         );
         return;
       }
@@ -1050,7 +1050,7 @@ export class TelegramBotService {
       }
       await this.bot.sendMessage(
         message.chat.id,
-        'Choose the poll to send in this group every day:',
+        'Choose a daily vote:',
         {
           inline_keyboard: polls.map((poll) => [
             {
@@ -1075,7 +1075,7 @@ export class TelegramBotService {
         );
         await this.bot.sendMessage(
           message.chat.id,
-          `New voting rounds will last ${Number(match![1])} minutes. The current deadline stays unchanged.`,
+          `Future rounds: ${Number(match![1])} min. Current timer unchanged.`,
         );
       } catch (error) {
         if (
@@ -1132,7 +1132,7 @@ export class TelegramBotService {
       );
       await this.bot.sendMessage(
         message.chat.id,
-        'Daily poll delivery is stopped. Vote history is still available in Manage Moments.',
+        'Daily vote stopped.',
       );
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -1399,10 +1399,8 @@ export class TelegramBotService {
       await this.bot.answerCallback(callback.id, 'Daily vote scheduled.');
       await this.bot.sendMessage(
         message.chat.id,
-        `✅ Daily vote enabled at 10:00 (${linked.user.telegramNotificationTimeZone}).\n` +
-          'Voting lasts 30 minutes. Use /voteduration 30 to change future rounds.\n' +
-          'Use /votetime HH:MM to change it or /stopdailyvote to stop.\n' +
-          'Members can send /joinvote to register for voting reminders.',
+        `✅ Daily vote: 10:00 (${linked.user.telegramNotificationTimeZone}) · 30 min.\n` +
+          'Settings: /help',
       );
       const sent = await this.bot.sendMessage(
         message.chat.id,

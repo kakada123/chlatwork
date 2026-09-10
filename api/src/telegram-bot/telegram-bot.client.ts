@@ -63,6 +63,17 @@ export class TelegramBotClient {
     }) as Promise<TelegramMessage>;
   }
 
+  sendAnimation(chatId: number, animationUrl: string, replyToMessageId: number) {
+    return this.call('sendAnimation', {
+      chat_id: chatId,
+      animation: animationUrl,
+      reply_parameters: {
+        message_id: replyToMessageId,
+        allow_sending_without_reply: true,
+      },
+    }) as Promise<TelegramMessage>;
+  }
+
   editMessage(
     chatId: number,
     messageId: number,
