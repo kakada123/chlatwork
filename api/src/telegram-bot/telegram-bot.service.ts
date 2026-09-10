@@ -41,6 +41,10 @@ import type {
 } from './telegram-bot.types';
 import { buildTelegramTodaySummary } from './telegram-today-summary';
 import {
+  buildMemberQrDirectory,
+  type ObservedQrMember,
+} from './telegram-member-qr';
+import {
   buildTelegramPollKeyboard,
   buildTelegramPollMessage,
   buildTelegramPollUpdates,
@@ -158,7 +162,9 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
-      if (command === 'joinvote') {
+      if (message.text?.trim().toLowerCase() === 'khqr' || command === 'khqr') {
+        await this.sendMemberQrMenu(message.chat.id);
+      } else if (command === 'joinvote') {
         await this.bot.sendMessage(
           message.chat.id,
           'You are registered for voting reminders in this group.',
@@ -251,7 +257,99 @@ export class TelegramBotService {
     ) {
       return;
     }
-    const photoUrl = this.appUrl(`/images/khqr/${command}.png`);
+    await this.sendMemberQrPhoto(message.chat.id, command, command);
+  }
+
+  private async memberQrDirectory(chatId: number) {
+    const members = await this.prisma.$queryRaw<ObservedQrMember[]>`
+      SELECT telegram_user_id AS "telegramUserId", display_name AS "displayName",
+        is_active AS "isActive"
+      FROM telegram_group_members
+      WHERE telegram_chat_id = ${BigInt(chatId)}
+      ORDER BY display_name, telegram_user_id
+    `;
+    return buildMemberQrDirectory(members);
+  }
+
+  private async sendMemberQrMenu(chatId: number) {
+    const members = await this.memberQrDirectory(chatId);
+    // Keep each keyboard bounded while still listing larger observed rosters.
+    for (let index = 0; index < members.length; index += 40) {
+      const rows: TelegramInlineKeyboard['inline_keyboard'] = [];
+      const page = members.slice(index, index + 40);
+      for (let offset = 0; offset < page.length; offset += 2) {
+        rows.push(
+          page.slice(offset, offset + 2).map((member) => ({
+            text: member.displayName,
+            callback_data: `khqr:member:${member.key}`,
+          })),
+        );
+      }
+      await this.bot.sendMessage(chatId, 'KHQR · Choose a member', {
+        inline_keyboard: rows,
+      });
+    }
+    if (!members.length) {
+      await this.bot.sendMessage(chatId, 'No KHQR members available yet.');
+    }
+  }
+
+  private async handleMemberQrCallback(callback: TelegramCallbackQuery) {
+    const message = callback.message;
+    if (
+      !this.isValidPollCallback(callback) ||
+      !message ||
+      !['group', 'supergroup'].includes(message.chat.type)
+    )
+      return;
+    const match = /^khqr:member:([a-z0-9_]{1,32})$/.exec(callback.data ?? '');
+    if (!match) return;
+    // Re-resolve the selection against this group's roster, never a user-supplied path.
+    const member = (await this.memberQrDirectory(message.chat.id)).find(
+      (candidate) => candidate.key === match[1],
+    );
+    if (!member) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Member unavailable. Send KHQR again.',
+      );
+      return;
+    }
+    await this.bot.answerCallback(callback.id);
+    const sent = await this.sendMemberQrPhoto(
+      message.chat.id,
+      member.imageName,
+      member.displayName,
+      true,
+    );
+    if (!sent) return;
+    try {
+      await this.bot.deleteMessages(message.chat.id, [message.message_id]);
+    } catch {
+      // Menu cleanup must not retry a successful QR delivery and send duplicates.
+      this.logger.warn('A delivered KHQR menu could not be removed');
+    }
+  }
+
+  private async sendMemberQrPhoto(
+    chatId: number,
+    imageName: string | null,
+    displayName: string,
+    reportMissing = false,
+  ) {
+    const unavailable = async () => {
+      if (reportMissing) {
+        await this.bot.sendMessage(
+          chatId,
+          `${displayName}: No KHQR available yet.`,
+        );
+      }
+    };
+    if (!imageName || !/^[a-z0-9_]{1,32}$/.test(imageName)) {
+      await unavailable();
+      return;
+    }
+    const photoUrl = this.appUrl(`/images/khqr/${imageName}.png`);
     let response: Response;
     try {
       // The frontend owns public assets; the separately deployed API need not
@@ -264,7 +362,10 @@ export class TelegramBotService {
     } catch {
       throw new ServiceUnavailableException('Member QR lookup failed');
     }
-    if (response.status === 404) return;
+    if (response.status === 404) {
+      await unavailable();
+      return;
+    }
     if (!response.ok) {
       throw new ServiceUnavailableException('Member QR lookup failed');
     }
@@ -273,12 +374,13 @@ export class TelegramBotService {
       response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
       'image/png'
     ) {
+      await unavailable();
       return;
     }
     const sent = await this.bot.sendPhoto(
-      message.chat.id,
+      chatId,
       photoUrl,
-      `${command} · KHQR`,
+      `${displayName} · KHQR`,
     );
     const sentAt = new Date(sent.date ? sent.date * 1_000 : Date.now());
     const deleteAfter = new Date(sentAt.getTime() + 24 * 60 * 60_000);
@@ -289,7 +391,7 @@ export class TelegramBotService {
         INSERT INTO telegram_member_qr_messages (
           telegram_chat_id, message_id, sent_at, delete_after, next_attempt_at
         ) VALUES (
-          ${BigInt(message.chat.id)}, ${sent.message_id}, ${sentAt},
+          ${BigInt(chatId)}, ${sent.message_id}, ${sentAt},
           ${deleteAfter}, ${deleteAfter}
         )
         ON CONFLICT (telegram_chat_id, message_id) DO NOTHING
@@ -298,17 +400,22 @@ export class TelegramBotService {
       // Compensate when tracking fails before allowing a webhook retry to send
       // another QR. A process crash between Telegram and the DB is not atomic.
       try {
-        await this.bot.deleteMessages(message.chat.id, [sent.message_id]);
+        await this.bot.deleteMessages(chatId, [sent.message_id]);
       } catch {
         this.logger.warn('An untracked member QR could not be removed');
       }
       throw error;
     }
+    return true;
   }
 
   private async handleCallback(callback: TelegramCallbackQuery) {
     const data = typeof callback.data === 'string' ? callback.data : '';
     if (!data || data.length > 64) return;
+    if (data.startsWith('khqr:member:')) {
+      await this.handleMemberQrCallback(callback);
+      return;
+    }
     if (data.startsWith('poll:join:') || data.startsWith('poll:leave:')) {
       await this.handlePollParticipation(callback, data);
       return;

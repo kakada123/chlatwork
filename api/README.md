@@ -123,6 +123,38 @@ commands such as `/kakada` reliably reach it; privacy-enabled non-admin bots
 receive only certain group commands. See the
 [Telegram privacy FAQ](https://core.telegram.org/bots/faq#what-messages-will-my-bot-get).
 
+Send plain `KHQR` (case-insensitive) or `/khqr` in a group to show member-name
+buttons. Selecting a name posts their QR in the same group, then deletes the
+selected menu message and its buttons. Missing images or unmapped names receive
+`No KHQR available yet.` and keep the menu available for another selection.
+A menu-deletion failure does not retry an already delivered QR.
+The menu starts with the supplied
+nine-member roster and includes additional active members observed in that group.
+Observed departures are excluded. Telegram cannot enumerate all members, so new
+members must interact with the bot or be observed through membership updates.
+The bot must be a group admin or have privacy mode disabled to receive plain
+`KHQR` messages.
+
+Edit `api/src/telegram-bot/telegram-member-qr.ts` to maintain exact display-name
+aliases. Unicode styling, case, and whitespace are normalized for roster matching;
+unmapped names never select payment images by guessing. Current menu aliases:
+
+| Key | Button | Image under `public/images/khqr/` |
+| --- | --- | --- |
+| `sna` | Sovan Krusna | `sna.png` |
+| `phearun` | Phann Phearun | `phearun.png` |
+| `sikeat` | 𝙎𝙞𝙠𝙚𝙖𝙩 | `sikeat.png` |
+| `daro` | Mrr. ដារ៉ូ | `daro.png` |
+| `venge` | Veng E Sorn | Not mapped yet |
+| `vexal` | vexal.s | `vexal.png` |
+| `visal` | MOEUNG VISAL | `visal.png` |
+| `mingseung` | Chhoeun Mingseung | Not mapped yet |
+| `kakada` | Kakada Ngen | `sna.png` (requested alias) |
+
+The existing direct commands still select filenames, e.g. `/kakada` selects
+`kakada.png`. The menu aliases above apply to name buttons. No additional database
+migration is needed for the menu beyond the existing group-member and QR-cleanup tables.
+
 New QR photo replies are scheduled for deletion 24 hours after Telegram sends
 them. Before deploying this API version, manually apply
 `database/updates/2026-09-10-add-telegram-member-qr-cleanup.sql`.
