@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { CurrentAuthUser } from './current-user.decorator';
@@ -59,5 +59,12 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentAuthUser() user: CurrentUser) {
     return this.auth.me(user.id);
+  }
+
+  @Delete('phone')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  removePhone(@CurrentAuthUser() user: CurrentUser) {
+    return this.auth.removePhone(user.id);
   }
 }

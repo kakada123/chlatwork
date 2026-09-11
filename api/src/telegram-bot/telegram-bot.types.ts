@@ -17,6 +17,12 @@ export interface TelegramMessage {
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  contact?: {
+    phone_number: string;
+    first_name: string;
+    last_name?: string;
+    user_id?: number;
+  };
   entities?: Array<{
     type: string;
     offset: number;
@@ -97,6 +103,15 @@ export interface TelegramInlineButton {
 export interface TelegramInlineKeyboard {
   inline_keyboard: TelegramInlineButton[][];
 }
+
+export type TelegramReplyMarkup =
+  | TelegramInlineKeyboard
+  | {
+      keyboard: Array<Array<{ text: string; request_contact?: boolean }>>;
+      resize_keyboard?: boolean;
+      one_time_keyboard?: boolean;
+    }
+  | { remove_keyboard: true };
 
 export interface TelegramApiResponse<T = unknown> {
   ok?: boolean;

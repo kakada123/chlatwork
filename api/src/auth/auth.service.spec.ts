@@ -41,7 +41,7 @@ function createService() {
     findUnique: jest.fn(),
     update: jest.fn(),
   };
-  const userModel = { findUnique: jest.fn() };
+  const userModel = { findUnique: jest.fn(), updateMany: jest.fn() };
   const prisma = {
     refreshToken,
     socialAccount,
@@ -66,6 +66,24 @@ function storedToken(revokedAt: Date | null) {
     createdAt: new Date(),
   };
 }
+
+describe('AuthService phone removal', () => {
+  it('clears only the authenticated active account phone', async () => {
+    const { service, userModel } = createService();
+    userModel.updateMany.mockResolvedValue({ count: 1 });
+    await expect(service.removePhone(user.id)).resolves.toEqual({ phone: null });
+    expect(userModel.updateMany).toHaveBeenCalledWith({
+      where: { id: user.id, isActive: true },
+      data: { phone: null },
+    });
+  });
+
+  it('rejects missing or disabled accounts', async () => {
+    const { service, userModel } = createService();
+    userModel.updateMany.mockResolvedValue({ count: 0 });
+    await expect(service.removePhone(user.id)).rejects.toThrow(UnauthorizedException);
+  });
+});
 
 describe('AuthService refresh rotation', () => {
   it('allows a parallel refresh that arrives during the rotation grace period', async () => {

@@ -166,6 +166,15 @@ export class AuthService {
     return this.safeUserWithProviders(user);
   }
 
+  async removePhone(userId: string) {
+    const updated = await this.prisma.user.updateMany({
+      where: { id: userId, isActive: true },
+      data: { phone: null },
+    });
+    if (updated.count !== 1) throw new UnauthorizedException();
+    return { phone: null };
+  }
+
   private verifyTelegramInitData(initData: string): ProviderProfile {
     try {
       const profile = verifyTelegramMiniAppDataWithTokens(

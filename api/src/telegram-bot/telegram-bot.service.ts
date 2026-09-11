@@ -165,6 +165,14 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
+      if (message.contact) return;
+      if (command === 'phone') {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'To share your phone number, send /phone in a private chat with me.',
+        );
+        return;
+      }
       if (command === 'help') {
         await this.sendHelp(message.chat.id, true);
         return;
@@ -196,6 +204,14 @@ export class TelegramBotService {
       return;
     }
     if (!this.isPrivateMessage(message)) return;
+    if (command === 'skipphone') {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Phone sharing skipped. You can share it later with /phone.',
+        { remove_keyboard: true },
+      );
+      return;
+    }
     if (command === 'help') {
       await this.sendHelp(message.chat.id, false);
       return;
@@ -211,6 +227,14 @@ export class TelegramBotService {
     }
     if (!linked) {
       await this.sendConnectAccount(message.chat.id);
+      return;
+    }
+    if (message.contact) {
+      await this.saveContactPhone(message, linked);
+      return;
+    }
+    if (command === 'phone') {
+      await this.requestPhone(message.chat.id);
       return;
     }
     if (command === 'today') {
@@ -263,6 +287,84 @@ export class TelegramBotService {
     if (typeof message.text === 'string') {
       await this.prepareExpense(message, linked);
     }
+  }
+
+  private requestPhone(chatId: number) {
+    return this.bot.sendMessage(
+      chatId,
+      '📱 Optionally share your own Telegram phone number to save it to your ' +
+        'linked ChlatWork account. Sharing replaces the phone number currently ' +
+        'on your profile. Tap the button below, or /skipphone to skip.',
+      {
+        keyboard: [
+          [{ text: '📱 Share Phone Number', request_contact: true }],
+          [{ text: '/skipphone' }],
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: true,
+      },
+    );
+  }
+
+  private async saveContactPhone(
+    message: TelegramMessage & { from: TelegramUser },
+    linked: LinkedTelegramUser,
+  ) {
+    const contact = message.contact;
+    if (
+      !contact ||
+      !Number.isSafeInteger(contact.user_id) ||
+      contact.user_id !== message.from.id
+    ) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Please share your own phone number using the Share Phone Number button.',
+      );
+      await this.requestPhone(message.chat.id);
+      return;
+    }
+
+    // Telegram may omit the leading +; never infer a country from local digits.
+    const rawPhone = contact.phone_number;
+    const phone = typeof rawPhone === 'string' ? rawPhone.trim() : '';
+    if (!/^\+?[1-9]\d{6,14}$/.test(phone)) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'That phone number could not be saved. Please try again with /phone.',
+      );
+      return;
+    }
+
+    let updated: { count: number };
+    try {
+      // A shared phone is profile data, never authority to merge accounts or
+      // access expenses. Recheck the active Telegram link in the write itself.
+      updated = await this.prisma.user.updateMany({
+        where: {
+          id: linked.user.id,
+          isActive: true,
+          socialAccounts: {
+            some: {
+              provider: AuthProvider.TELEGRAM,
+              providerUserId: String(message.from.id),
+            },
+          },
+        },
+        data: { phone: phone.startsWith('+') ? phone : `+${phone}` },
+      });
+    } catch {
+      // Prisma errors can include query arguments containing the phone number.
+      throw new ServiceUnavailableException('Phone number could not be saved');
+    }
+    if (updated.count !== 1) {
+      await this.sendConnectAccount(message.chat.id);
+      return;
+    }
+    await this.bot.sendMessage(
+      message.chat.id,
+      'Your phone number has been saved to your ChlatWork profile.',
+      { remove_keyboard: true },
+    );
   }
 
   private async sendMentionedMemberQr(
@@ -2458,6 +2560,8 @@ export class TelegramBotService {
           '',
           '/help — Show this command list anytime',
           '/start or /menu — Open the assistant menu',
+          '/phone — Share or update your profile phone number (optional)',
+          '/skipphone — Dismiss phone sharing',
           '',
           'Sign in with Telegram in ChlatWork to use:',
           '/today — Today’s expense summary',

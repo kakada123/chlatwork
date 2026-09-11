@@ -29,6 +29,7 @@ import {
   type LucideIcon,
 } from "lucide-vue-next";
 import CommandQuickCard from "~/components/developer-commands/CommandQuickCard.vue";
+import TelegramPhoneSetting from "~/components/account/TelegramPhoneSetting.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeToolCard from "~/components/landing/HomeToolCard.vue";
 import MoneyAmount from "~/components/MoneyAmount.vue";
@@ -150,6 +151,14 @@ const {
   load: loadTelegramNotificationSettings,
   update: updateTelegramNotificationSettings,
 } = useTelegramNotifications();
+const {
+  enabled: telegramPhoneEnabled,
+  disabled: telegramPhoneDisabled,
+  description: telegramPhoneDescription,
+  error: telegramPhoneError,
+  status: telegramPhoneStatus,
+  toggle: toggleTelegramPhone,
+} = useTelegramPhone();
 
 const isLoggingOut = ref(false);
 const signOutDialogOpen = ref(false);
@@ -612,6 +621,15 @@ onBeforeUnmount(() => {
             <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition" :class="telegramNotificationsEnabled ? 'translate-x-5 dark:bg-slate-950' : ''" aria-hidden="true" />
           </span>
         </button>
+        <TelegramPhoneSetting
+          mobile
+          :enabled="telegramPhoneEnabled"
+          :disabled="telegramPhoneDisabled"
+          :description="telegramPhoneDescription"
+          :error="telegramPhoneError"
+          :status="telegramPhoneStatus"
+          @toggle="toggleTelegramPhone"
+        />
         <button
           type="button"
           class="flex min-h-[72px] w-full items-center gap-3 border-b border-slate-200 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 dark:border-white/10"
@@ -695,6 +713,16 @@ onBeforeUnmount(() => {
         <span class="ml-1 size-5 rounded-full bg-white shadow-sm transition" :class="telegramNotificationsEnabled ? 'translate-x-5 dark:bg-slate-950' : ''" aria-hidden="true" />
       </button>
     </section>
+
+    <TelegramPhoneSetting
+      v-if="!mobileAccountSection"
+      :enabled="telegramPhoneEnabled"
+      :disabled="telegramPhoneDisabled"
+      :description="telegramPhoneDescription"
+      :error="telegramPhoneError"
+      :status="telegramPhoneStatus"
+      @toggle="toggleTelegramPhone"
+    />
 
     <section
       id="profile-expense-section"

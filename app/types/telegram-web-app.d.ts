@@ -3,6 +3,7 @@ interface TelegramMiniAppApi {
   initDataUnsafe?: { start_param?: string };
   openLink(url: string): void;
   requestWriteAccess?(callback?: (allowed: boolean) => void): void;
+  requestContact?(callback?: (shared: boolean) => void): void;
   ready(): void;
 }
 

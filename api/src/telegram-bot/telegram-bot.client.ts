@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import type {
   TelegramApiResponse,
   TelegramInlineKeyboard,
+  TelegramReplyMarkup,
   TelegramTextMention,
   TelegramPreformattedText,
   TelegramMessage,
@@ -25,7 +26,7 @@ export class TelegramBotClient {
   sendMessage(
     chatId: number,
     text: string,
-    replyMarkup?: TelegramInlineKeyboard,
+    replyMarkup?: TelegramReplyMarkup,
     entities?: (TelegramTextMention | TelegramPreformattedText)[],
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
