@@ -128,6 +128,20 @@ export class PersonalAssistantService {
               ? `I don’t remember anything about ${parsed.query.subject} yet.`
               : 'I don’t have a matching memory yet.',
           };
+        try {
+          return {
+            consumed: true,
+            text: await this.ai.answerPersonalMemoryQuery(
+              text,
+              found.map((item) => item.content),
+            ),
+          };
+        } catch (error) {
+          if (!(error instanceof TelegramAssistantAiProcessingError)) {
+            throw error;
+          }
+          this.logger.warn('Personal memory answer generation failed');
+        }
         return {
           consumed: true,
           text: found.map((item) => `• ${item.content}`).join('\n'),

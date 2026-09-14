@@ -7,7 +7,10 @@ import { PersonalTaskService } from './task.service';
 describe('Personal assistant persistence services', () => {
   it('creates and searches memories with mandatory user ownership and subject filtering', async () => {
     const prisma = {
-      personalMemory: { create: jest.fn(), findMany: jest.fn() },
+      personalMemory: {
+        create: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([{ content: 'Likes Dior' }]),
+      },
     };
     const service = new PersonalMemoryService(prisma as never);
     await service.create('user-a', {
@@ -24,7 +27,45 @@ describe('Personal assistant persistence services', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           userId: 'user-a',
-          subject: expect.any(Object),
+          AND: expect.arrayContaining([
+            expect.objectContaining({
+              OR: expect.arrayContaining([
+                { subject: { contains: 'O Neth', mode: 'insensitive' } },
+              ]),
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it('falls back to subject memories when natural question wording is not stored', async () => {
+    const prisma = {
+      personalMemory: {
+        findMany: jest
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
+            { content: 'Neth has 3 siblings and 3 nieces or nephews.' },
+          ]),
+      },
+    };
+    const service = new PersonalMemoryService(prisma as never);
+
+    await expect(
+      service.search('user-a', 'how many brothers and sisters', 'Neth'),
+    ).resolves.toEqual([
+      { content: 'Neth has 3 siblings and 3 nieces or nephews.' },
+    ]);
+    expect(prisma.personalMemory.findMany).toHaveBeenCalledTimes(2);
+    expect(prisma.personalMemory.findMany.mock.calls[1][0]).toEqual(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: 'user-a',
+          OR: expect.arrayContaining([
+            { subject: { contains: 'Neth', mode: 'insensitive' } },
+            { content: { contains: 'Neth', mode: 'insensitive' } },
+          ]),
         }),
       }),
     );

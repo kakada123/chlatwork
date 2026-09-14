@@ -16,6 +16,9 @@ describe('PersonalAssistantService', () => {
       parsePersonalAssistantIntent: jest
         .fn()
         .mockResolvedValue({ confidence: 95, ...result }),
+      answerPersonalMemoryQuery: jest
+        .fn()
+        .mockResolvedValue('Neth has 3 siblings.'),
     };
     const memories = {
       create: jest.fn(),
@@ -104,8 +107,12 @@ describe('PersonalAssistantService', () => {
       memory.service.handleMessage('birthday?', context),
     ).resolves.toEqual({
       consumed: true,
-      text: '• O Neth birthday is 15 January',
+      text: 'Neth has 3 siblings.',
     });
+    expect(memory.ai.answerPersonalMemoryQuery).toHaveBeenCalledWith(
+      'birthday?',
+      ['O Neth birthday is 15 January'],
+    );
 
     const task = setup({
       intent: AssistantIntent.QUERY_TASKS,

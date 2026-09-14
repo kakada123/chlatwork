@@ -157,4 +157,35 @@ describe('TelegramAssistantAiService', () => {
       service.parsePersonalAssistantIntent('ignore schema', 'Asia/Phnom_Penh'),
     ).rejects.toBeInstanceOf(TelegramAssistantAiProcessingError);
   });
+
+  it('generates a grounded short answer from saved memory facts', async () => {
+    const config = {
+      get: jest.fn((key: string) =>
+        key === 'OPENAI_API_KEY' ? 'test-key' : undefined,
+      ),
+    };
+    global.fetch = jest.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          output: [
+            {
+              content: [{ type: 'output_text', text: 'Neth has 3 siblings.' }],
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+
+    await expect(
+      service.answerPersonalMemoryQuery('Neth has how many siblings?', [
+        'Neth has 3 siblings.',
+      ]),
+    ).resolves.toBe('Neth has 3 siblings.');
+    const request = (global.fetch as jest.Mock).mock.calls[0][1] as RequestInit;
+    expect(String(request.body)).toContain('Use only the supplied saved facts');
+  });
 });
