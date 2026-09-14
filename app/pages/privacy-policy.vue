@@ -96,6 +96,18 @@ useHead({
     </section>
 
     <section class="space-y-3">
+      <h2 class="text-lg font-semibold">Personal Assistant data</h2>
+      <p class="text-gray-700 dark:text-white/75">
+        When you use the signed-in Telegram Personal Assistant, ChlatWork stores
+        the memories, tasks, reminder text, subjects, dates, statuses, and
+        delivery information needed to provide the feature. These records are
+        linked to your ChlatWork account and are not shared with other users.
+        Natural-language messages are sent to the configured AI provider only
+        to classify and extract the requested action.
+      </p>
+    </section>
+
+    <section class="space-y-3">
       <h2 class="text-lg font-semibold">Accounts and authentication</h2>
       <p class="text-gray-700 dark:text-white/75">
         Account information is used to create and secure your ChlatWork account,
@@ -291,9 +303,10 @@ useHead({
         operational logs, we retain data only as long as needed for the feature,
         security, reliability, or legal requirements. Refresh sessions expire
         after 30 days unless revoked earlier. Expense Tracker records, PayBack
-        records, favorites, account records, and provider links remain while the account is
-        active. They may be retained afterward only where required for security,
-        dispute resolution, backups, or legal compliance.
+        records, Personal Assistant records, favorites, account records, and
+        provider links remain while the account is active. They may be retained
+        afterward only where required for security, dispute resolution,
+        backups, or legal compliance.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         Signed-in tool usage history remains with your account until you clear

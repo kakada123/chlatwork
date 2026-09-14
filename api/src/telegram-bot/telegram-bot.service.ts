@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import {
 } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { PersonalAssistantService } from '../personal-assistant/personal-assistant.service';
 import { MomentsService } from '../moments/moments.service';
 import {
   formatTelegramExpenseAmount,
@@ -98,6 +100,7 @@ export class TelegramBotService {
     private readonly bot: TelegramBotClient,
     private readonly moments: MomentsService,
     private readonly ai: TelegramAssistantAiService,
+    @Optional() private readonly personalAssistant?: PersonalAssistantService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -285,6 +288,44 @@ export class TelegramBotService {
       return;
     }
     if (typeof message.text === 'string') {
+      try {
+        parseTelegramExpense(
+          message.text,
+          linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD,
+        );
+        await this.prepareExpense(message, linked);
+        return;
+      } catch (error) {
+        if (!(error instanceof TelegramExpenseParseError)) throw error;
+      }
+      try {
+        if (!this.personalAssistant) {
+          await this.prepareExpense(message, linked);
+          return;
+        }
+        const assistantReply = await this.personalAssistant.handleMessage(
+          message.text,
+          {
+            userId: linked.user.id,
+            telegramChatId: message.chat.id,
+            timeZone:
+              linked.user.telegramNotificationTimeZone || DEFAULT_TIME_ZONE,
+          },
+        );
+        if (assistantReply.consumed) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            assistantReply.text ?? 'Done.',
+          );
+          return;
+        }
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          await this.bot.sendMessage(message.chat.id, String(error.message));
+          return;
+        }
+        throw error;
+      }
       await this.prepareExpense(message, linked);
     }
   }
@@ -854,10 +895,7 @@ export class TelegramBotService {
         error instanceof GoneException ||
         error instanceof NotFoundException
       ) {
-        await this.bot.answerCallback(
-          callback.id,
-          'Voting closed.',
-        );
+        await this.bot.answerCallback(callback.id, 'Voting closed.');
         return;
       }
       throw error;
@@ -1150,18 +1188,14 @@ export class TelegramBotService {
         );
         return;
       }
-      await this.bot.sendMessage(
-        message.chat.id,
-        'Choose a daily vote:',
-        {
-          inline_keyboard: polls.map((poll) => [
-            {
-              text: `Schedule: ${this.truncateButtonText(poll.question)}`,
-              callback_data: `poll:daily:${poll.id}`,
-            },
-          ]),
-        },
-      );
+      await this.bot.sendMessage(message.chat.id, 'Choose a daily vote:', {
+        inline_keyboard: polls.map((poll) => [
+          {
+            text: `Schedule: ${this.truncateButtonText(poll.question)}`,
+            callback_data: `poll:daily:${poll.id}`,
+          },
+        ]),
+      });
       return;
     }
 
@@ -1232,10 +1266,7 @@ export class TelegramBotService {
         linked.user.id,
         message.chat.id,
       );
-      await this.bot.sendMessage(
-        message.chat.id,
-        'Daily vote stopped.',
-      );
+      await this.bot.sendMessage(message.chat.id, 'Daily vote stopped.');
     } catch (error) {
       if (error instanceof NotFoundException) {
         await this.bot.sendMessage(

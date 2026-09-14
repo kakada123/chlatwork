@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MomentsModule } from '../moments/moments.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { TelegramBotClient } from './telegram-bot.client';
@@ -8,9 +8,14 @@ import { DailyMomentVoteScheduler } from './daily-moment-vote.scheduler';
 import { TelegramAssistantAiService } from './telegram-assistant-ai.service';
 import { TelegramFinanceScheduler } from './telegram-finance.scheduler';
 import { TelegramMemberQrScheduler } from './telegram-member-qr.scheduler';
+import { PersonalAssistantModule } from '../personal-assistant/personal-assistant.module';
 
 @Module({
-  imports: [MomentsModule, NotificationsModule],
+  imports: [
+    MomentsModule,
+    NotificationsModule,
+    forwardRef(() => PersonalAssistantModule),
+  ],
   controllers: [TelegramBotController],
   providers: [
     TelegramBotClient,
@@ -20,5 +25,6 @@ import { TelegramMemberQrScheduler } from './telegram-member-qr.scheduler';
     TelegramFinanceScheduler,
     TelegramMemberQrScheduler,
   ],
+  exports: [TelegramBotClient, TelegramAssistantAiService],
 })
 export class TelegramBotModule {}

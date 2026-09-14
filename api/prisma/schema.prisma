@@ -51,6 +51,20 @@ enum TelegramBotPendingExpenseStatus {
   UNDONE
 }
 
+enum PersonalTaskStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum PersonalReminderStatus {
+  PENDING
+  PROCESSING
+  SENT
+  CANCELLED
+  FAILED
+}
+
 enum PaybackRemainderMode {
   LEFTOVER_ONLY
   ASSIGN_TO_PERSON
@@ -172,48 +186,110 @@ enum AiVideoJobStatus {
 }
 
 model User {
-  id             String          @id @default(uuid()) @db.Uuid
-  email          String?         @unique
-  phone          String?
-  name           String?
-  avatarUrl      String?
-  role           UserRole        @default(USER)
-  isActive       Boolean         @default(true)
-  telegramNotificationsEnabled Boolean @default(false) @map("telegram_notifications_enabled")
-  telegramNotificationsEnabledAt DateTime? @map("telegram_notifications_enabled_at")
-  telegramNotificationTimeZone String @default("Asia/Phnom_Penh") @db.VarChar(64) @map("telegram_notification_time_zone")
-  telegramDailyExpenseSummaryHour Int @default(22) @map("telegram_daily_expense_summary_hour")
-  telegramDailyExpenseSummaryLastAttemptDate DateTime? @db.Date @map("telegram_daily_expense_summary_last_attempt_date")
-  telegramBudgetAlertsEnabled Boolean @default(false) @map("telegram_budget_alerts_enabled")
-  telegramWeeklyDigestEnabled Boolean @default(false) @map("telegram_weekly_digest_enabled")
-  telegramWeeklyDigestHour Int @default(20) @map("telegram_weekly_digest_hour")
-  telegramWeeklyDigestLastAttemptDate DateTime? @db.Date @map("telegram_weekly_digest_last_attempt_date")
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  socialAccounts SocialAccount[]
-  refreshTokens  RefreshToken[]
-  expenseProfile ExpenseProfile?
-  expenseEntries ExpenseEntry[]
-  paybackProfile PaybackProfile?
-  paybackEntries PaybackEntry[]
-  paybackCalculations PaybackCalculation[]
-  toolUsageEvents ToolUsageEvent[]
-  favorites       UserFavorite[]
-  moments         Moment[]
-  telegramBotPendingExpenses TelegramBotPendingExpense[]
-  telegramBotConversationState TelegramBotConversationState?
-  telegramBudgetAlertState TelegramBudgetAlertState?
-  telegramGroupSplits TelegramGroupSplit[]
-  aiWallet        AiWallet?
-  aiDailyCreditLimit Int? @map("ai_daily_credit_limit")
-  aiUsageLimitChanges AiUsageLimitChange[]
-  creatorTelegramRequests CreatorTelegramRequest[]
-  aiCreditTransactions AiCreditTransaction[]
-  aiGenerations   AiGeneration[]
-  aiUsageLogs     AiUsageLog[]
-  aiVideoJobs     AiVideoJob[]
+  id                                         String                        @id @default(uuid()) @db.Uuid
+  email                                      String?                       @unique
+  phone                                      String?
+  name                                       String?
+  avatarUrl                                  String?
+  role                                       UserRole                      @default(USER)
+  isActive                                   Boolean                       @default(true)
+  telegramNotificationsEnabled               Boolean                       @default(false) @map("telegram_notifications_enabled")
+  telegramNotificationsEnabledAt             DateTime?                     @map("telegram_notifications_enabled_at")
+  telegramNotificationTimeZone               String                        @default("Asia/Phnom_Penh") @map("telegram_notification_time_zone") @db.VarChar(64)
+  telegramDailyExpenseSummaryHour            Int                           @default(22) @map("telegram_daily_expense_summary_hour")
+  telegramDailyExpenseSummaryLastAttemptDate DateTime?                     @map("telegram_daily_expense_summary_last_attempt_date") @db.Date
+  telegramBudgetAlertsEnabled                Boolean                       @default(false) @map("telegram_budget_alerts_enabled")
+  telegramWeeklyDigestEnabled                Boolean                       @default(false) @map("telegram_weekly_digest_enabled")
+  telegramWeeklyDigestHour                   Int                           @default(20) @map("telegram_weekly_digest_hour")
+  telegramWeeklyDigestLastAttemptDate        DateTime?                     @map("telegram_weekly_digest_last_attempt_date") @db.Date
+  createdAt                                  DateTime                      @default(now())
+  updatedAt                                  DateTime                      @updatedAt
+  socialAccounts                             SocialAccount[]
+  refreshTokens                              RefreshToken[]
+  expenseProfile                             ExpenseProfile?
+  expenseEntries                             ExpenseEntry[]
+  paybackProfile                             PaybackProfile?
+  paybackEntries                             PaybackEntry[]
+  paybackCalculations                        PaybackCalculation[]
+  toolUsageEvents                            ToolUsageEvent[]
+  favorites                                  UserFavorite[]
+  moments                                    Moment[]
+  telegramBotPendingExpenses                 TelegramBotPendingExpense[]
+  telegramBotConversationState               TelegramBotConversationState?
+  telegramBudgetAlertState                   TelegramBudgetAlertState?
+  telegramGroupSplits                        TelegramGroupSplit[]
+  aiWallet                                   AiWallet?
+  aiDailyCreditLimit                         Int?                          @map("ai_daily_credit_limit")
+  aiUsageLimitChanges                        AiUsageLimitChange[]
+  creatorTelegramRequests                    CreatorTelegramRequest[]
+  aiCreditTransactions                       AiCreditTransaction[]
+  aiGenerations                              AiGeneration[]
+  aiUsageLogs                                AiUsageLog[]
+  aiVideoJobs                                AiVideoJob[]
+  personalMemories                           PersonalMemory[]
+  personalTasks                              PersonalTask[]
+  personalReminders                          PersonalReminder[]
 
   @@map("users")
+}
+
+model PersonalMemory {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content           String   @db.VarChar(1000)
+  normalizedContent String?  @map("normalized_content") @db.VarChar(1000)
+  subject           String?  @db.VarChar(160)
+  category          String?  @db.VarChar(80)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, subject])
+  @@map("personal_memories")
+}
+
+model PersonalTask {
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @map("user_id") @db.Uuid
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String             @db.VarChar(500)
+  subject     String?            @db.VarChar(160)
+  status      PersonalTaskStatus @default(OPEN)
+  dueAt       DateTime?          @map("due_at") @db.Timestamptz
+  completedAt DateTime?          @map("completed_at") @db.Timestamptz
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+  reminders   PersonalReminder[]
+
+  @@index([userId, status, createdAt(sort: Desc)])
+  @@index([userId, subject])
+  @@map("personal_tasks")
+}
+
+model PersonalReminder {
+  id            String                 @id @default(uuid()) @db.Uuid
+  userId        String                 @map("user_id") @db.Uuid
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId        String?                @map("task_id") @db.Uuid
+  task          PersonalTask?          @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  message       String                 @db.VarChar(1000)
+  remindAt      DateTime               @map("remind_at") @db.Timestamptz
+  status        PersonalReminderStatus @default(PENDING)
+  attemptCount  Int                    @default(0) @map("attempt_count")
+  nextAttemptAt DateTime               @default(now()) @map("next_attempt_at") @db.Timestamptz
+  lockedUntil   DateTime?              @map("locked_until") @db.Timestamptz
+  sentAt        DateTime?              @map("sent_at") @db.Timestamptz
+  failedAt      DateTime?              @map("failed_at") @db.Timestamptz
+  failureReason String?                @map("failure_reason") @db.VarChar(240)
+  createdAt     DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([userId, status, remindAt])
+  @@index([status, nextAttemptAt, remindAt])
+  @@index([taskId])
+  @@map("personal_reminders")
 }
 
 model AiUsageLimitChange {
@@ -254,7 +330,7 @@ model CreatorTelegramRequest {
   replyParts      Json?     @map("reply_parts")
   sentParts       Int       @default(0) @map("sent_parts")
   statusMessageId Int?      @map("status_message_id")
-  leaseId         String?   @db.Uuid @map("lease_id")
+  leaseId         String?   @map("lease_id") @db.Uuid
   lockedUntil     DateTime? @map("locked_until")
   nextAttemptAt   DateTime  @default(now()) @map("next_attempt_at")
   processedAt     DateTime? @map("processed_at")
@@ -276,17 +352,17 @@ model AiWallet {
 }
 
 model AiCreditTransaction {
-  id            String                    @id @default(uuid()) @db.Uuid
-  userId        String                    @map("user_id") @db.Uuid
-  user          User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String                  @id @default(uuid()) @db.Uuid
+  userId        String                  @map("user_id") @db.Uuid
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   type          AiCreditTransactionType
   amount        Int
   feature       AiFeature?
-  referenceId   String                    @map("reference_id") @db.VarChar(128)
-  balanceBefore Int                       @map("balance_before")
-  balanceAfter  Int                       @map("balance_after")
+  referenceId   String                  @map("reference_id") @db.VarChar(128)
+  balanceBefore Int                     @map("balance_before")
+  balanceAfter  Int                     @map("balance_after")
   metadata      Json?
-  createdAt     DateTime                  @default(now()) @map("created_at")
+  createdAt     DateTime                @default(now()) @map("created_at")
 
   @@unique([userId, type, referenceId])
   @@index([userId, createdAt(sort: Desc)])
@@ -349,25 +425,25 @@ model AiUsageLog {
 }
 
 model AiVideoJob {
-  id             String           @id @default(uuid()) @db.Uuid
-  generationId   String           @unique @map("generation_id") @db.Uuid
-  generation     AiGeneration     @relation(fields: [generationId], references: [id], onDelete: Cascade)
-  userId         String           @map("user_id") @db.Uuid
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  feature        AiFeature
-  status         AiVideoJobStatus @default(QUEUED)
-  stage          String           @default("QUEUED") @db.VarChar(32)
-  originalName   String           @map("original_name") @db.VarChar(180)
-  mimeType       String           @map("mime_type") @db.VarChar(64)
-  byteSize       BigInt           @map("byte_size")
-  durationSeconds Int             @map("duration_seconds")
-  tempFilePath   String?          @map("temp_file_path") @db.VarChar(500)
-  attempts       Int              @default(0)
-  errorCode      String?          @map("error_code") @db.VarChar(64)
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  startedAt      DateTime?        @map("started_at")
-  completedAt    DateTime?        @map("completed_at")
+  id              String           @id @default(uuid()) @db.Uuid
+  generationId    String           @unique @map("generation_id") @db.Uuid
+  generation      AiGeneration     @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  userId          String           @map("user_id") @db.Uuid
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature         AiFeature
+  status          AiVideoJobStatus @default(QUEUED)
+  stage           String           @default("QUEUED") @db.VarChar(32)
+  originalName    String           @map("original_name") @db.VarChar(180)
+  mimeType        String           @map("mime_type") @db.VarChar(64)
+  byteSize        BigInt           @map("byte_size")
+  durationSeconds Int              @map("duration_seconds")
+  tempFilePath    String?          @map("temp_file_path") @db.VarChar(500)
+  attempts        Int              @default(0)
+  errorCode       String?          @map("error_code") @db.VarChar(64)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  startedAt       DateTime?        @map("started_at")
+  completedAt     DateTime?        @map("completed_at")
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([userId, status])
@@ -376,28 +452,28 @@ model AiVideoJob {
 }
 
 model Moment {
-  id            String           @id @default(uuid()) @db.Uuid
-  slug          String           @unique @db.VarChar(96)
-  creatorId     String           @map("creator_id") @db.Uuid
-  creator       User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  recipientName String           @map("recipient_name") @db.VarChar(80)
-  occasion      MomentOccasion
-  title         String           @db.VarChar(120)
-  theme         MomentTheme
-  status        MomentStatus     @default(DRAFT)
-  visibility    MomentVisibility @default(UNLISTED)
-  publishAt     DateTime?        @map("publish_at")
-  expiresAt     DateTime?        @map("expires_at")
-  publishedAt   DateTime?        @map("published_at")
-  createdAt     DateTime         @default(now()) @map("created_at")
-  updatedAt     DateTime         @updatedAt @map("updated_at")
-  blocks        MomentBlock[]
-  media         MomentMedia[]
-  rsvps         MomentRsvp[]
+  id               String                  @id @default(uuid()) @db.Uuid
+  slug             String                  @unique @db.VarChar(96)
+  creatorId        String                  @map("creator_id") @db.Uuid
+  creator          User                    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  recipientName    String                  @map("recipient_name") @db.VarChar(80)
+  occasion         MomentOccasion
+  title            String                  @db.VarChar(120)
+  theme            MomentTheme
+  status           MomentStatus            @default(DRAFT)
+  visibility       MomentVisibility        @default(UNLISTED)
+  publishAt        DateTime?               @map("publish_at")
+  expiresAt        DateTime?               @map("expires_at")
+  publishedAt      DateTime?               @map("published_at")
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  blocks           MomentBlock[]
+  media            MomentMedia[]
+  rsvps            MomentRsvp[]
   invitationGuests MomentInvitationGuest[]
-  votes           MomentVote[]
-  voteSchedule    MomentVoteSchedule?
-  voteRounds      MomentVoteRound[]
+  votes            MomentVote[]
+  voteSchedule     MomentVoteSchedule?
+  voteRounds       MomentVoteRound[]
 
   @@index([creatorId, status, createdAt(sort: Desc)])
   @@index([status, publishAt])
@@ -421,34 +497,34 @@ model MomentVote {
 }
 
 model MomentVoteSchedule {
-  id                  String   @id @default(uuid()) @db.Uuid
-  momentId            String   @unique @map("moment_id") @db.Uuid
-  moment              Moment   @relation(fields: [momentId], references: [id], onDelete: Cascade)
-  telegramChatId      BigInt   @unique @map("telegram_chat_id")
-  telegramChatTitle   String?  @map("telegram_chat_title") @db.VarChar(120)
-  timeZone            String   @default("Asia/Phnom_Penh") @map("time_zone") @db.VarChar(64)
-  sendHour            Int      @default(10) @map("send_hour")
-  sendMinute          Int      @default(0) @map("send_minute")
-  durationMinutes     Int      @default(30) @map("duration_minutes")
-  enabled             Boolean  @default(true)
-  lastAttemptDate     DateTime? @map("last_attempt_date") @db.Date
-  lastSentAt          DateTime? @map("last_sent_at")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  id                String    @id @default(uuid()) @db.Uuid
+  momentId          String    @unique @map("moment_id") @db.Uuid
+  moment            Moment    @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  telegramChatId    BigInt    @unique @map("telegram_chat_id")
+  telegramChatTitle String?   @map("telegram_chat_title") @db.VarChar(120)
+  timeZone          String    @default("Asia/Phnom_Penh") @map("time_zone") @db.VarChar(64)
+  sendHour          Int       @default(10) @map("send_hour")
+  sendMinute        Int       @default(0) @map("send_minute")
+  durationMinutes   Int       @default(30) @map("duration_minutes")
+  enabled           Boolean   @default(true)
+  lastAttemptDate   DateTime? @map("last_attempt_date") @db.Date
+  lastSentAt        DateTime? @map("last_sent_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@index([enabled, sendHour, sendMinute])
   @@map("moment_vote_schedules")
 }
 
 model MomentVoteRound {
-  id             String    @id @default(uuid()) @db.Uuid
-  momentId       String    @map("moment_id") @db.Uuid
-  moment         Moment    @relation(fields: [momentId], references: [id], onDelete: Cascade)
-  voteDate       DateTime  @map("vote_date") @db.Date
-  telegramChatId BigInt    @map("telegram_chat_id")
-  closesAt       DateTime  @map("closes_at") @db.Timestamptz
-  messageId      Int?      @map("message_id")
-  finalizedAt    DateTime? @map("finalized_at") @db.Timestamptz
+  id             String                  @id @default(uuid()) @db.Uuid
+  momentId       String                  @map("moment_id") @db.Uuid
+  moment         Moment                  @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  voteDate       DateTime                @map("vote_date") @db.Date
+  telegramChatId BigInt                  @map("telegram_chat_id")
+  closesAt       DateTime                @map("closes_at") @db.Timestamptz
+  messageId      Int?                    @map("message_id")
+  finalizedAt    DateTime?               @map("finalized_at") @db.Timestamptz
   members        MomentVoteRoundMember[]
   split          TelegramGroupSplit?
 
@@ -457,29 +533,29 @@ model MomentVoteRound {
 }
 
 model MomentVoteRoundMember {
-  roundId        String @map("round_id") @db.Uuid
+  roundId        String          @map("round_id") @db.Uuid
   round          MomentVoteRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  telegramUserId String @map("telegram_user_id") @db.VarChar(20)
-  displayName    String @map("display_name") @db.VarChar(80)
-  joined         Boolean @default(true)
+  telegramUserId String          @map("telegram_user_id") @db.VarChar(20)
+  displayName    String          @map("display_name") @db.VarChar(80)
+  joined         Boolean         @default(true)
 
   @@id([roundId, telegramUserId])
   @@map("moment_vote_round_members")
 }
 
 model MomentRsvp {
-  id            String           @id @default(uuid()) @db.Uuid
-  momentId      String           @map("moment_id") @db.Uuid
-  moment        Moment           @relation(fields: [momentId], references: [id], onDelete: Cascade)
-  responseKey   String           @map("response_key") @db.Char(64)
-  guestId       String?          @unique @map("guest_id") @db.Uuid
-  guest         MomentInvitationGuest? @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  choice        MomentRsvpChoice
-  guestName     String?          @map("guest_name") @db.VarChar(80)
-  guestCount    Int              @default(1) @map("guest_count")
-  note          String?          @db.VarChar(500)
-  createdAt     DateTime         @default(now()) @map("created_at")
-  updatedAt     DateTime         @updatedAt @map("updated_at")
+  id          String                 @id @default(uuid()) @db.Uuid
+  momentId    String                 @map("moment_id") @db.Uuid
+  moment      Moment                 @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  responseKey String                 @map("response_key") @db.Char(64)
+  guestId     String?                @unique @map("guest_id") @db.Uuid
+  guest       MomentInvitationGuest? @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  choice      MomentRsvpChoice
+  guestName   String?                @map("guest_name") @db.VarChar(80)
+  guestCount  Int                    @default(1) @map("guest_count")
+  note        String?                @db.VarChar(500)
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
 
   @@unique([momentId, responseKey])
   @@index([momentId, choice])
@@ -560,14 +636,14 @@ model UserFavorite {
 }
 
 model PaybackProfile {
-  userId          String               @id @db.Uuid
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currency        ExpenseCurrency      @default(USD)
-  remainderMode   PaybackRemainderMode @default(LEFTOVER_ONLY)
-  remainderPayer  String               @default("") @db.VarChar(120)
-  rawInput        String               @default("")
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  userId         String               @id @db.Uuid
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency       ExpenseCurrency      @default(USD)
+  remainderMode  PaybackRemainderMode @default(LEFTOVER_ONLY)
+  remainderPayer String               @default("") @db.VarChar(120)
+  rawInput       String               @default("")
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@map("payback_profiles")
 }
@@ -588,16 +664,16 @@ model PaybackEntry {
 }
 
 model PaybackCalculation {
-  id              String                       @id @default(uuid()) @db.Uuid
-  userId          String                       @db.Uuid
-  user            User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currency        ExpenseCurrency
-  remainderMode   PaybackRemainderMode
-  remainderPayer  String                       @default("") @db.VarChar(120)
-  total           Decimal                      @db.Decimal(20, 2)
+  id               String                    @id @default(uuid()) @db.Uuid
+  userId           String                    @db.Uuid
+  user             User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency         ExpenseCurrency
+  remainderMode    PaybackRemainderMode
+  remainderPayer   String                    @default("") @db.VarChar(120)
+  total            Decimal                   @db.Decimal(20, 2)
   participantCount Int
-  createdAt       DateTime                     @default(now())
-  entries         PaybackCalculationEntry[]
+  createdAt        DateTime                  @default(now())
+  entries          PaybackCalculationEntry[]
 
   @@index([userId, createdAt(sort: Desc)])
   @@map("payback_calculations")
@@ -632,20 +708,20 @@ model ExpenseProfile {
 }
 
 model ExpenseEntry {
-  id             String           @id @default(uuid()) @db.Uuid
-  userId         String           @db.Uuid
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  position       Int
-  type           ExpenseEntryType
-  entryDate      DateTime?        @db.Date
-  category       String           @db.VarChar(120)
-  customCategory String?          @db.VarChar(120)
-  note           String           @db.VarChar(500)
-  showNote       Boolean          @default(false)
-  amount         Decimal?         @db.Decimal(20, 2)
-  amountInput    String           @default("") @db.VarChar(64)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id                        String                     @id @default(uuid()) @db.Uuid
+  userId                    String                     @db.Uuid
+  user                      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position                  Int
+  type                      ExpenseEntryType
+  entryDate                 DateTime?                  @db.Date
+  category                  String                     @db.VarChar(120)
+  customCategory            String?                    @db.VarChar(120)
+  note                      String                     @db.VarChar(500)
+  showNote                  Boolean                    @default(false)
+  amount                    Decimal?                   @db.Decimal(20, 2)
+  amountInput               String                     @default("") @db.VarChar(64)
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
   telegramBotPendingExpense TelegramBotPendingExpense?
 
   @@unique([userId, position])
@@ -658,8 +734,8 @@ model TelegramGroupMember {
   telegramUserId String   @map("telegram_user_id") @db.VarChar(20)
   displayName    String   @map("display_name") @db.VarChar(80)
   username       String?  @db.VarChar(32)
-  isActive      Boolean  @default(true) @map("is_active")
-  observedAt    DateTime @map("observed_at") @db.Timestamptz
+  isActive       Boolean  @default(true) @map("is_active")
+  observedAt     DateTime @map("observed_at") @db.Timestamptz
 
   @@id([telegramChatId, telegramUserId])
   @@map("telegram_group_members")
@@ -667,7 +743,7 @@ model TelegramGroupMember {
 
 model TelegramBotUpdate {
   updateId    BigInt    @id @map("update_id")
-  receivedAt DateTime  @default(now()) @map("received_at")
+  receivedAt  DateTime  @default(now()) @map("received_at")
   processedAt DateTime? @map("processed_at")
 
   @@index([receivedAt])
@@ -696,25 +772,25 @@ model MemberKhqrImage {
 }
 
 model TelegramBotPendingExpense {
-  id              String                          @id @default(uuid()) @db.Uuid
-  userId          String                          @map("user_id") @db.Uuid
-  user            User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  telegramUserId  String                          @map("telegram_user_id") @db.VarChar(20)
-  chatId          BigInt                          @map("chat_id")
-  sourceMessageId BigInt                          @map("source_message_id")
-  amountInput     String                          @map("amount_input") @db.VarChar(64)
-  currency        ExpenseCurrency
-  category        String                          @db.VarChar(120)
-  note            String                          @db.VarChar(500)
-  entryDate       DateTime                        @map("entry_date") @db.Date
-  status          TelegramBotPendingExpenseStatus @default(PENDING)
-  expenseEntryId  String?                         @unique @map("expense_entry_id") @db.Uuid
-  expenseEntry    ExpenseEntry?                   @relation(fields: [expenseEntryId], references: [id], onDelete: SetNull)
-  editTargetExpenseEntryId String?                 @map("edit_target_expense_entry_id") @db.Uuid
-  expiresAt       DateTime                        @map("expires_at")
-  confirmedAt     DateTime?                       @map("confirmed_at")
-  createdAt       DateTime                        @default(now()) @map("created_at")
-  updatedAt       DateTime                        @updatedAt @map("updated_at")
+  id                       String                          @id @default(uuid()) @db.Uuid
+  userId                   String                          @map("user_id") @db.Uuid
+  user                     User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  telegramUserId           String                          @map("telegram_user_id") @db.VarChar(20)
+  chatId                   BigInt                          @map("chat_id")
+  sourceMessageId          BigInt                          @map("source_message_id")
+  amountInput              String                          @map("amount_input") @db.VarChar(64)
+  currency                 ExpenseCurrency
+  category                 String                          @db.VarChar(120)
+  note                     String                          @db.VarChar(500)
+  entryDate                DateTime                        @map("entry_date") @db.Date
+  status                   TelegramBotPendingExpenseStatus @default(PENDING)
+  expenseEntryId           String?                         @unique @map("expense_entry_id") @db.Uuid
+  expenseEntry             ExpenseEntry?                   @relation(fields: [expenseEntryId], references: [id], onDelete: SetNull)
+  editTargetExpenseEntryId String?                         @map("edit_target_expense_entry_id") @db.Uuid
+  expiresAt                DateTime                        @map("expires_at")
+  confirmedAt              DateTime?                       @map("confirmed_at")
+  createdAt                DateTime                        @default(now()) @map("created_at")
+  updatedAt                DateTime                        @updatedAt @map("updated_at")
 
   @@unique([chatId, sourceMessageId])
   @@index([userId])
@@ -724,14 +800,14 @@ model TelegramBotPendingExpense {
 }
 
 model TelegramBotConversationState {
-  telegramUserId          String   @id @map("telegram_user_id") @db.VarChar(20)
-  userId                  String   @unique @map("user_id") @db.Uuid
-  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatId                  BigInt   @map("chat_id")
-  editTargetExpenseEntryId String  @map("edit_target_expense_entry_id") @db.Uuid
-  expiresAt               DateTime @map("expires_at")
-  createdAt               DateTime @default(now()) @map("created_at")
-  updatedAt               DateTime @updatedAt @map("updated_at")
+  telegramUserId           String   @id @map("telegram_user_id") @db.VarChar(20)
+  userId                   String   @unique @map("user_id") @db.Uuid
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId                   BigInt   @map("chat_id")
+  editTargetExpenseEntryId String   @map("edit_target_expense_entry_id") @db.Uuid
+  expiresAt                DateTime @map("expires_at")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
 
   @@index([expiresAt])
   @@map("telegram_bot_conversation_states")
@@ -748,19 +824,19 @@ model TelegramBudgetAlertState {
 }
 
 model TelegramGroupSplit {
-  id              String   @id @default(uuid()) @db.Uuid
-  creatorUserId   String   @map("creator_user_id") @db.Uuid
-  creator         User     @relation(fields: [creatorUserId], references: [id], onDelete: Cascade)
-  telegramChatId  BigInt   @map("telegram_chat_id")
-  voteRoundId     String?  @unique @map("vote_round_id") @db.Uuid
-  voteRound       MomentVoteRound? @relation(fields: [voteRoundId], references: [id], onDelete: SetNull)
-  title           String   @default("Shared expense") @db.VarChar(120)
-  total           Decimal  @db.Decimal(20, 2)
-  currency        ExpenseCurrency
-  status          String   @default("OPEN") @db.VarChar(16)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  participants    TelegramGroupSplitParticipant[]
+  id             String                          @id @default(uuid()) @db.Uuid
+  creatorUserId  String                          @map("creator_user_id") @db.Uuid
+  creator        User                            @relation(fields: [creatorUserId], references: [id], onDelete: Cascade)
+  telegramChatId BigInt                          @map("telegram_chat_id")
+  voteRoundId    String?                         @unique @map("vote_round_id") @db.Uuid
+  voteRound      MomentVoteRound?                @relation(fields: [voteRoundId], references: [id], onDelete: SetNull)
+  title          String                          @default("Shared expense") @db.VarChar(120)
+  total          Decimal                         @db.Decimal(20, 2)
+  currency       ExpenseCurrency
+  status         String                          @default("OPEN") @db.VarChar(16)
+  createdAt      DateTime                        @default(now()) @map("created_at")
+  updatedAt      DateTime                        @updatedAt @map("updated_at")
+  participants   TelegramGroupSplitParticipant[]
 
   @@index([telegramChatId, status, createdAt(sort: Desc)])
   @@index([creatorUserId, createdAt(sort: Desc)])
@@ -768,17 +844,17 @@ model TelegramGroupSplit {
 }
 
 model TelegramGroupSplitParticipant {
-  id                  String   @id @default(uuid()) @db.Uuid
-  splitId             String   @map("split_id") @db.Uuid
+  id                  String             @id @default(uuid()) @db.Uuid
+  splitId             String             @map("split_id") @db.Uuid
   split               TelegramGroupSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
   position            Int
-  name                String   @db.VarChar(80)
-  amount              Decimal  @db.Decimal(20, 2)
-  telegramUserId      String?  @map("telegram_user_id") @db.VarChar(20)
-  telegramDisplayName String?  @map("telegram_display_name") @db.VarChar(80)
-  paidAt              DateTime? @map("paid_at")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  name                String             @db.VarChar(80)
+  amount              Decimal            @db.Decimal(20, 2)
+  telegramUserId      String?            @map("telegram_user_id") @db.VarChar(20)
+  telegramDisplayName String?            @map("telegram_display_name") @db.VarChar(80)
+  paidAt              DateTime?          @map("paid_at")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
 
   @@unique([splitId, position])
   @@unique([splitId, telegramUserId])
@@ -787,14 +863,14 @@ model TelegramGroupSplitParticipant {
 }
 
 model SocialAccount {
-  id              String       @id @default(uuid()) @db.Uuid
-  provider        AuthProvider
-  providerUserId  String
-  providerEmail   String?
-  userId          String       @db.Uuid
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id             String       @id @default(uuid()) @db.Uuid
+  provider       AuthProvider
+  providerUserId String
+  providerEmail  String?
+  userId         String       @db.Uuid
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@unique([provider, providerUserId])
   @@index([userId])
@@ -802,13 +878,13 @@ model SocialAccount {
 }
 
 model RefreshToken {
-  id         String    @id @default(uuid()) @db.Uuid
-  tokenHash  String    @unique
-  userId     String    @db.Uuid
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
+  id        String    @id @default(uuid()) @db.Uuid
+  tokenHash String    @unique
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId])
   @@index([expiresAt])

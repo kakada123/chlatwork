@@ -16,6 +16,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 import { CreatorAiModule } from './creator-ai/creator-ai.module';
 import { CreatorTelegramModule } from './creator-telegram/creator-telegram.module';
 import { MemberKhqrModule } from './member-khqr/member-khqr.module';
+import { PersonalAssistantModule } from './personal-assistant/personal-assistant.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MemberKhqrModule } from './member-khqr/member-khqr.module';
     CreatorAiModule,
     CreatorTelegramModule,
     MemberKhqrModule,
+    PersonalAssistantModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

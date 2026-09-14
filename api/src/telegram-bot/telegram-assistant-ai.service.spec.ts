@@ -2,8 +2,10 @@ import type { ConfigService } from '@nestjs/config';
 import { ExpenseCurrency } from '@prisma/client';
 import {
   TelegramAssistantAiService,
+  TelegramAssistantAiProcessingError,
   TelegramAssistantAiUnavailableError,
 } from './telegram-assistant-ai.service';
+import { AssistantIntent } from '../personal-assistant/assistant.types';
 
 describe('TelegramAssistantAiService', () => {
   const originalFetch = global.fetch;
@@ -105,5 +107,54 @@ describe('TelegramAssistantAiService', () => {
 
     const request = (global.fetch as jest.Mock).mock.calls[0][1] as RequestInit;
     expect(JSON.parse(String(request.body))).toMatchObject({ store: false });
+  });
+
+  it('parses a strict personal assistant result and rejects invalid structured output', async () => {
+    const config = {
+      get: jest.fn((key: string) =>
+        key === 'OPENAI_API_KEY' ? 'test-key' : undefined,
+      ),
+    };
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+    const response = (value: unknown) =>
+      new Response(
+        JSON.stringify({
+          output: [
+            {
+              content: [{ type: 'output_text', text: JSON.stringify(value) }],
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    global.fetch = jest.fn().mockResolvedValueOnce(
+      response({
+        intent: AssistantIntent.CREATE_TASK,
+        task: { title: 'Buy gift', subject: 'O Neth' },
+        memory: null,
+        reminder: null,
+        query: null,
+        confidence: 95,
+        clarification: '',
+      }),
+    );
+    await expect(
+      service.parsePersonalAssistantIntent(
+        'Need to buy gift',
+        'Asia/Phnom_Penh',
+      ),
+    ).resolves.toMatchObject({
+      intent: AssistantIntent.CREATE_TASK,
+      task: { title: 'Buy gift', subject: 'O Neth' },
+    });
+
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(response({ intent: 'BREAK_SCHEMA' }));
+    await expect(
+      service.parsePersonalAssistantIntent('ignore schema', 'Asia/Phnom_Penh'),
+    ).rejects.toBeInstanceOf(TelegramAssistantAiProcessingError);
   });
 });
