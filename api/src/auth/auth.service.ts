@@ -24,6 +24,7 @@ interface ProviderProfile {
   email: string | null;
   name: string | null;
   avatarUrl: string | null;
+  phone?: string | null;
 }
 
 @Injectable()
@@ -208,6 +209,8 @@ export class AuthService {
         provider: AuthProvider.TELEGRAM,
         ...identity,
         email: payload.email_verified === true ? this.stringClaim(payload, 'email') : null,
+        // A phone claim is account data only after Telegram records explicit consent and verification.
+        phone: payload.phone_number_verified === true ? this.telegramPhoneClaim(payload) : null,
         name: this.stringClaim(payload, 'name') ?? this.stringClaim(payload, 'preferred_username'),
         avatarUrl: this.stringClaim(payload, 'picture'),
       });
@@ -321,7 +324,12 @@ export class AuthService {
         // Provider-verified email is the only safe automatic cross-provider linking key.
         const existing = profile.email ? await tx.user.findUnique({ where: { email: profile.email } }) : null;
         const owner = existing ?? await tx.user.create({
-          data: { email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
+          data: {
+            email: profile.email,
+            phone: profile.phone ?? null,
+            name: profile.name,
+            avatarUrl: profile.avatarUrl,
+          },
         });
         await tx.socialAccount.create({
           data: {
@@ -336,6 +344,12 @@ export class AuthService {
     }
 
     if (!user.isActive) throw new UnauthorizedException('User is inactive');
+    if (profile.phone && user.phone !== profile.phone) {
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: { phone: profile.phone },
+      });
+    }
     return this.issueTokens(user);
   }
 
@@ -379,5 +393,11 @@ export class AuthService {
   private stringClaim(payload: JWTPayload, key: string) {
     const value = payload[key];
     return typeof value === 'string' && value.length <= 2048 ? value : null;
+  }
+
+  private telegramPhoneClaim(payload: JWTPayload) {
+    const value = this.stringClaim(payload, 'phone_number');
+    if (!value || !/^\+?[1-9]\d{4,14}$/.test(value)) return null;
+    return value.startsWith('+') ? value : `+${value}`;
   }
 }

@@ -1,5 +1,6 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthProvider, UserRole, type User } from '@prisma/client';
+import { jwtVerify } from 'jose';
 import { AuthService } from './auth.service';
 
 jest.mock('jose', () => ({
@@ -41,7 +42,7 @@ function createService() {
     findUnique: jest.fn(),
     update: jest.fn(),
   };
-  const userModel = { findUnique: jest.fn(), updateMany: jest.fn() };
+  const userModel = { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() };
   const prisma = {
     refreshToken,
     socialAccount,
@@ -190,5 +191,81 @@ describe('AuthService Telegram identity compatibility', () => {
 
     await expect(authenticateProvider(service)).rejects.toBeInstanceOf(ConflictException);
     expect(socialAccount.update).not.toHaveBeenCalled();
+  });
+
+  it('saves the consented verified phone on an existing Telegram account', async () => {
+    const { service, socialAccount, userModel } = createService();
+    socialAccount.findMany
+      .mockResolvedValueOnce([{
+        id: 'b064e447-574d-411e-b53a-d56672822409',
+        provider: AuthProvider.TELEGRAM,
+        providerUserId: telegramProfile.providerUserId,
+        providerEmail: null,
+        userId: user.id,
+        user,
+      }])
+      .mockResolvedValueOnce([{ provider: AuthProvider.TELEGRAM }]);
+    userModel.update.mockResolvedValue({ ...user, phone: '+85512345678' });
+
+    await (
+      service as unknown as {
+        authenticateProvider(profile: typeof telegramProfile & { phone: string }): Promise<unknown>;
+      }
+    ).authenticateProvider({ ...telegramProfile, phone: '+85512345678' });
+
+    expect(userModel.update).toHaveBeenCalledWith({
+      where: { id: user.id },
+      data: { phone: '+85512345678' },
+    });
+  });
+});
+
+describe('AuthService Telegram OIDC phone consent', () => {
+  const verifiedTokenPayload = {
+    iss: 'https://oauth.telegram.org',
+    aud: 'dummy-telegram-client',
+    sub: '1234123412341234123',
+    id: 987654321,
+    name: 'Test Person',
+    phone_number: '+85512345678',
+    phone_number_verified: true,
+  };
+
+  function createTelegramService() {
+    const config = {
+      getOrThrow: jest.fn((key: string) => {
+        if (key === 'TELEGRAM_CLIENT_ID') return 'dummy-telegram-client';
+        throw new Error(`Unexpected config key: ${key}`);
+      }),
+    };
+    const service = new AuthService(config as never, {} as never, {} as never);
+    const authenticateProvider = jest.fn().mockResolvedValue({ user: { id: user.id } });
+    Object.assign(service, { authenticateProvider });
+    return { service, authenticateProvider };
+  }
+
+  it('uses the phone only when Telegram marks it verified', async () => {
+    jest.mocked(jwtVerify).mockResolvedValueOnce({ payload: verifiedTokenPayload } as never);
+    const { service, authenticateProvider } = createTelegramService();
+
+    await (service as unknown as { authenticateTelegramToken(token: string): Promise<unknown> })
+      .authenticateTelegramToken('signed-id-token');
+
+    expect(authenticateProvider).toHaveBeenCalledWith(expect.objectContaining({
+      providerUserId: '987654321',
+      phone: '+85512345678',
+    }));
+  });
+
+  it('ignores an unverified phone claim', async () => {
+    jest.mocked(jwtVerify).mockResolvedValueOnce({
+      payload: { ...verifiedTokenPayload, phone_number_verified: false },
+    } as never);
+    const { service, authenticateProvider } = createTelegramService();
+
+    await (service as unknown as { authenticateTelegramToken(token: string): Promise<unknown> })
+      .authenticateTelegramToken('signed-id-token');
+
+    expect(authenticateProvider).toHaveBeenCalledWith(expect.objectContaining({ phone: null }));
   });
 });

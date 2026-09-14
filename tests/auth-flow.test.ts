@@ -76,8 +76,16 @@ test("the ChlatWork Nest API owns Google and Telegram authentication", () => {
   assert.match(telegramMiniApp, /timingSafeEqual/);
   assert.match(telegramIdentity, /payload\.id/);
   assert.match(service, /legacyProviderUserId/);
+  assert.match(service, /payload\.phone_number_verified === true/);
+  assert.match(service, /this\.stringClaim\(payload, 'phone_number'\)/);
   assert.match(service, /createHash\('sha256'\)/);
   assert.match(schema, /GOOGLE\s+TELEGRAM/);
+});
+
+test("website Telegram login explicitly requests the verified phone number", () => {
+  const start = readFileSync("server/api/auth/telegram/start.get.ts", "utf8");
+
+  assert.match(start, /url\.searchParams\.set\("scope", "openid profile phone"\)/);
 });
 
 test("Telegram Mini App Google linking opens only from a user click and returns through a deep link", () => {
