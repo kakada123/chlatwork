@@ -260,7 +260,17 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         generationId: job.generationId,
         userId: job.userId,
         feature: job.feature,
+        // Log the safe classification of the failure. Never log raw error
+        // messages that could contain transcript content or audio paths.
+        failureReason:
+          error instanceof CreatorProviderError
+            ? error.message
+            : error instanceof Error
+              ? error.constructor.name
+              : 'unknown',
+        hasProviderUsage: error instanceof CreatorProviderError && !!error.usage,
       });
+
     } finally {
       await Promise.all([
         this.tools.remove(audioPath),
@@ -372,9 +382,15 @@ function combineUsage(usages: CreatorProviderUsage[]): CreatorProviderUsage {
     return values.length ? values.reduce((total, value) => total + value, 0) : null;
   };
   const models = [...new Set(usages.map((usage) => usage.model))];
+  const providers = [...new Set(usages.map((usage) => usage.provider))];
+  // When transcription uses Gemini and text generation uses OpenAI, both appear.
+  // Use 'OPENAI' only when it is the sole provider; otherwise fall back to the
+  // last provider used (the one most likely to carry the text cost).
+  const provider =
+    providers.length === 1 ? providers[0]! : (usages.at(-1)?.provider ?? 'OPENAI');
   return {
-    provider: 'OPENAI',
-    model: models.length === 1 ? models[0]! : 'multiple-openai-models',
+    provider,
+    model: models.length === 1 ? models[0]! : 'multiple-models',
     inputTokens: sum('inputTokens'),
     cachedInputTokens: sum('cachedInputTokens'),
     outputTokens: sum('outputTokens'),
@@ -387,6 +403,7 @@ function combineUsage(usages: CreatorProviderUsage[]): CreatorProviderUsage {
     durationMs: usages.reduce((total, usage) => total + usage.durationMs, 0),
   };
 }
+
 
 export const preserveTranscriptTiming = (
   segments: TranscriptSegment[],
