@@ -45,6 +45,8 @@ const OPTIONAL_NUMBERS = [
   'OPENAI_PREMIUM_INPUT_USD_PER_1M',
   'OPENAI_PREMIUM_OUTPUT_USD_PER_1M',
   'OPENAI_TRANSCRIPTION_USD_PER_MINUTE',
+  'GEMINI_TRANSCRIPTION_USD_PER_MINUTE',
+
 ] as const;
 
 export function validateEnvironment(config: Record<string, unknown>) {

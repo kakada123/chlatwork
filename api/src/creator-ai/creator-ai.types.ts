@@ -21,7 +21,7 @@ export interface CreatorGenerationResult {
 }
 
 export interface CreatorProviderUsage {
-  provider: 'OPENAI';
+  provider: 'OPENAI' | 'GEMINI';
   model: string;
   inputTokens: number | null;
   cachedInputTokens: number | null;

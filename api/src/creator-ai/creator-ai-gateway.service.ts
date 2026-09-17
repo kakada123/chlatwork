@@ -9,6 +9,8 @@ import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import { transcriptionErrorDetails } from './creator-transcription-error';
+import { transcribeWithGemini } from './creator-gemini-transcription';
+
 import {
   parseCreatorTranscription,
   transcriptionResponseDiagnostics,
@@ -239,8 +241,28 @@ export class CreatorAiGatewayService {
     durationSeconds: number,
     language: CreatorLanguage = 'KHMER',
   ): Promise<CreatorGatewayResult<CreatorTranscript>> {
+    // Route to Gemini when a Gemini API key is explicitly configured.
+    // If the key is absent or a placeholder, fall through to the OpenAI path.
+    const geminiKey = this.config.get<string>('GEMINI_API_KEY')?.trim();
+    if (geminiKey && !/^(dummy_|replace_)/i.test(geminiKey)) {
+      const geminiModel =
+        this.config.get<string>('GEMINI_TRANSCRIPTION_MODEL')?.trim() ||
+        'gemini-3.5-transcribe';
+      const usdPerMinute = this.number('GEMINI_TRANSCRIPTION_USD_PER_MINUTE', 0);
+      return transcribeWithGemini(
+        geminiKey,
+        geminiModel,
+        audioPath,
+        'audio/mp3',
+        durationSeconds,
+        language,
+        usdPerMinute,
+      );
+    }
+
     const startedAt = Date.now();
     const model = this.config.get<string>('OPENAI_TRANSCRIPTION_MODEL')!.trim();
+
     let languageHintUsed = language !== 'ENGLISH';
     let response: Awaited<ReturnType<typeof submit>> | undefined;
     let responseReceived = false;

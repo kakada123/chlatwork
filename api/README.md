@@ -9,6 +9,11 @@ For the separate Khmer AI & Creator bot and admin daily usage limits, see the
 applied manually before deploying these features.
 
 1. Copy `api/.env.example` to `api/.env` and replace every dummy value locally.
+   To use `gemini-3.5-transcribe` for Creator video transcription (significantly more
+   accurate for Khmer than the default `whisper-1`), set `GEMINI_API_KEY` to a real
+   Google AI Studio key. When `GEMINI_API_KEY` is absent or a dummy value, the pipeline
+   falls back to the OpenAI Whisper path automatically — no other changes required.
+
 2. Review and manually execute `database/2026-08-21-create-chlatwork-auth.sql` against the intended PostgreSQL database.
    For Telegram daily expense summaries, also review and manually execute
    `database/2026-08-29-add-telegram-notification-preference.sql` and

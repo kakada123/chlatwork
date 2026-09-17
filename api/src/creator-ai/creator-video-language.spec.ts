@@ -93,7 +93,7 @@ describe('Creator video language handling', () => {
     'refunds a Thai-script %s response and never completes the job',
     async (failureStage) => {
       const usage = {
-        provider: 'OPENAI',
+        provider: 'GEMINI' as const,
         model: 'test',
         inputTokens: 0,
         cachedInputTokens: 0,
@@ -103,6 +103,7 @@ describe('Creator video language handling', () => {
         providerRequestId: null,
         durationMs: 1,
       };
+
       const gateway = {
         transcribe: jest
           .fn()
