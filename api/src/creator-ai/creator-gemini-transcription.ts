@@ -6,6 +6,7 @@ import type {
   CreatorTranscript,
 } from './creator-ai.types';
 import { CreatorProviderError } from './creator-ai-gateway.service';
+import { containsThaiScript } from './creator-output-language';
 import {
   CreatorTranscriptionResponseError,
   parseCreatorTranscription,
@@ -20,6 +21,7 @@ function languageCode(language: CreatorLanguage): string | undefined {
 }
 
 type GeminiInteraction = {
+  status?: string;
   output_text?: string;
   steps?: Array<{
     type: string;
@@ -35,10 +37,53 @@ type GeminiInteraction = {
   }>;
 };
 
+class GeminiInteractionStatusError extends Error {
+  constructor(readonly status: string | undefined) {
+    super('Gemini transcription interaction did not complete');
+  }
+}
+
+class GeminiTranscriptionScriptError extends Error {}
+
 function timestampSeconds(value: string | undefined): number | null {
   if (!value || !/^\d+(?:\.\d+)?s$/.test(value)) return null;
   const seconds = Number(value.slice(0, -1));
   return Number.isFinite(seconds) ? seconds : null;
+}
+
+/** Keep response diagnostics useful without logging transcript or audio content. */
+function interactionDiagnostics(interaction: GeminiInteraction) {
+  let modelOutputTextBlocks = 0;
+  let wordAnnotations = 0;
+  let invalidWordAnnotations = 0;
+  for (const step of interaction.steps ?? []) {
+    if (step.type !== 'model_output') continue;
+    for (const content of step.content ?? []) {
+      if (content.type !== 'text') continue;
+      modelOutputTextBlocks++;
+      for (const annotation of content.annotations ?? []) {
+        if (annotation.type !== 'word_info') continue;
+        wordAnnotations++;
+        const start = timestampSeconds(annotation.start_offset);
+        const end = timestampSeconds(annotation.end_offset);
+        if (
+          start === null ||
+          end === null ||
+          end <= start ||
+          !annotation.text?.trim()
+        ) {
+          invalidWordAnnotations++;
+        }
+      }
+    }
+  }
+  return {
+    interactionStatus: interaction.status ?? null,
+    transcriptCharacters: interaction.output_text?.length ?? 0,
+    modelOutputTextBlocks,
+    wordAnnotations,
+    invalidWordAnnotations,
+  };
 }
 
 /** Group provider word timings into short segments for cleanup and SRT output. */
@@ -83,7 +128,14 @@ function transcriptFromInteraction(
   if (segment) segments.push(segment);
   // Keep the provider's full text; the cleanup stage restores natural spacing
   // within the timed segments, including Khmer words.
-  return parseCreatorTranscription({ text: interaction.output_text, segments });
+  const transcript = parseCreatorTranscription({
+    text: interaction.output_text,
+    segments,
+  });
+  // Reject script contamination before cleanup or subtitle generation can use it.
+  if (containsThaiScript(transcript))
+    throw new GeminiTranscriptionScriptError();
+  return transcript;
 }
 
 /** Classify a Gemini SDK error into a safe loggable reason string. */
@@ -114,6 +166,21 @@ function classifyGeminiError(error: unknown): {
                 ? 'GEMINI_SERVER_ERROR'
                 : 'GEMINI_HTTP_ERROR';
     return { providerFailureReason: reason, providerStatus: status };
+  }
+  if (error instanceof GeminiInteractionStatusError) {
+    return {
+      providerFailureReason:
+        error.status === 'failed'
+          ? 'GEMINI_INTERACTION_FAILED'
+          : 'GEMINI_INTERACTION_NOT_COMPLETED',
+      providerStatus: null,
+    };
+  }
+  if (error instanceof GeminiTranscriptionScriptError) {
+    return {
+      providerFailureReason: 'GEMINI_UNSUPPORTED_SCRIPT',
+      providerStatus: null,
+    };
   }
   if (error instanceof CreatorTranscriptionResponseError) {
     return {
@@ -165,6 +232,8 @@ export async function transcribeWithGemini(
   let uploadedFileName: string | undefined;
   let uploadCompleted = false;
   let interactionCompleted = false;
+  let responseDiagnostics:
+    ReturnType<typeof interactionDiagnostics> | undefined;
   let providerUsage:
     CreatorGatewayResult<CreatorTranscript>['usage'] | undefined;
 
@@ -203,10 +272,11 @@ export async function transcribeWithGemini(
         },
       },
     });
-    interactionCompleted = true;
+    responseDiagnostics = interactionDiagnostics(interaction);
+    interactionCompleted = interaction.status === 'completed';
 
     const durationMs = Date.now() - startedAt;
-    // A completed interaction can incur provider cost even if its output fails
+    // A returned interaction can incur provider cost even if its output fails
     // validation, so retain usage for the worker's refund/accounting path.
     providerUsage = {
       provider: 'GEMINI',
@@ -219,6 +289,9 @@ export async function transcribeWithGemini(
       providerRequestId: interaction.id ?? uploadedFileName ?? null,
       durationMs,
     };
+    if (!interactionCompleted) {
+      throw new GeminiInteractionStatusError(interaction.status);
+    }
     const data = transcriptFromInteraction(interaction);
     return {
       data,
@@ -238,6 +311,7 @@ export async function transcribeWithGemini(
       interactionCompleted,
       providerStatus,
       providerFailureReason,
+      ...responseDiagnostics,
     });
     throw new CreatorProviderError(
       'Gemini transcription failed',

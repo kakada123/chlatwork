@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatorGenerationService } from '../creator-ai/creator-generation.service';
 import { CreatorAiException } from '../creator-ai/creator-ai.errors';
 import { CREATOR_AI_DEFAULTS } from '../creator-ai/creator-ai.config';
+import { containsThaiScript } from '../creator-ai/creator-output-language';
 import { CreatorTelegramClient } from './creator-telegram.client';
 import {
   CREATOR_QUEUED_STATUS,
@@ -294,6 +295,16 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       select: { user: { select: { id: true, isActive: true } } },
     });
     if (!recipient?.user.isActive || recipient.user.id !== job.userId) {
+      await this.finish(job);
+      return;
+    }
+    // Stored reply parts can bypass today's generation checks on a later retry.
+    if (containsThaiScript(parts)) {
+      await this.bot.sendMessage(
+        Number(job.chatId),
+        'The AI result contained unsupported script and was not sent. Please contact support if credits were used.',
+        this.menu.keyboard(),
+      );
       await this.finish(job);
       return;
     }

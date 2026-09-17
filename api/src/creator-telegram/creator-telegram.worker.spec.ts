@@ -78,6 +78,25 @@ function setup(overrides: Record<string, unknown> = {}) {
 }
 
 describe('Creator Telegram worker', () => {
+  it('never sends Thai script from queued reply parts', async () => {
+    const test = setup({
+      content: null,
+      replyParts: [{ text: 'សួស្តី หมด', copyable: true }],
+    });
+
+    await test.worker.tick();
+
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      expect.stringContaining('unsupported script'),
+      { inline_keyboard: [] },
+    );
+    expect(test.job.replyParts).toBeNull();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
   it('uses existing generation protections and clears queued content after delivery', async () => {
     const test = setup();
     await test.worker.tick();
