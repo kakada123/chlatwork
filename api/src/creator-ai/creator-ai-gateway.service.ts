@@ -4,12 +4,14 @@ import { createReadStream } from 'node:fs';
 import OpenAI from 'openai';
 import type { Response } from 'openai/resources/responses/responses';
 import type { AiFeature } from '@prisma/client';
+import { configuredAiKey, useGemini } from '../config/ai-provider';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
 import { creatorAiUnavailable } from './creator-ai.errors';
 import type { CreatorPromptSpec } from './creator-prompts';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import { transcriptionErrorDetails } from './creator-transcription-error';
 import { transcribeWithGemini } from './creator-gemini-transcription';
+import { generateStructuredWithGemini } from './creator-gemini-generation';
 
 import {
   parseCreatorTranscription,
@@ -94,7 +96,7 @@ export class CreatorAiGatewayService {
         if (!(retryError instanceof CreatorProviderError)) throw retryError;
         const durationMs = Date.now() - startedAt;
         throw new CreatorProviderError(
-          'OpenAI request failed',
+          'Creator provider request failed',
           durationMs,
           this.combineAttemptUsage(
             firstError.usage,
@@ -140,6 +142,15 @@ export class CreatorAiGatewayService {
     spec: CreatorPromptSpec<T>,
     image?: { bytes: Buffer; mimeType: string },
   ): Promise<CreatorGatewayResult<T>> {
+    if (useGemini(this.config)) {
+      return generateStructuredWithGemini(
+        this.config,
+        feature,
+        requestId,
+        spec,
+        image,
+      );
+    }
     const startedAt = Date.now();
     const model = this.model(spec.premium);
     let response: (Response & { _request_id?: string | null }) | undefined;
@@ -241,14 +252,17 @@ export class CreatorAiGatewayService {
     durationSeconds: number,
     language: CreatorLanguage = 'KHMER',
   ): Promise<CreatorGatewayResult<CreatorTranscript>> {
-    // Route to Gemini when a Gemini API key is explicitly configured.
-    // If the key is absent or a placeholder, fall through to the OpenAI path.
-    const geminiKey = this.config.get<string>('GEMINI_API_KEY')?.trim();
-    if (geminiKey && !/^(dummy_|replace_)/i.test(geminiKey)) {
+    // The explicit switch keeps transcription on the same provider as text.
+    if (useGemini(this.config)) {
+      const geminiKey = configuredAiKey(this.config, 'GEMINI_API_KEY');
+      if (!geminiKey) throw creatorAiUnavailable();
       const geminiModel =
         this.config.get<string>('GEMINI_TRANSCRIPTION_MODEL')?.trim() ||
         'gemini-3.5-transcribe';
-      const usdPerMinute = this.number('GEMINI_TRANSCRIPTION_USD_PER_MINUTE', 0);
+      const usdPerMinute = this.number(
+        'GEMINI_TRANSCRIPTION_USD_PER_MINUTE',
+        0.005,
+      );
       return transcribeWithGemini(
         geminiKey,
         geminiModel,

@@ -14,7 +14,10 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
-import { CreatorAiGatewayService, CreatorProviderError } from './creator-ai-gateway.service';
+import {
+  CreatorAiGatewayService,
+  CreatorProviderError,
+} from './creator-ai-gateway.service';
 import { CreatorCreditsService } from './creator-credits.service';
 import { assertVideoLanguage, videoLanguage } from './creator-video-language';
 import {
@@ -239,7 +242,8 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
       }
       // An incomplete or rejected structured response can still consume provider
       // tokens. Count them in the failed job while restoring the user's credits.
-      if (error instanceof CreatorProviderError && error.usage) usages.push(error.usage);
+      if (error instanceof CreatorProviderError && error.usage)
+        usages.push(error.usage);
       await this.credits.refund(
         job.generationId,
         'AI_GENERATION_FAILED',
@@ -268,9 +272,9 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
             : error instanceof Error
               ? error.constructor.name
               : 'unknown',
-        hasProviderUsage: error instanceof CreatorProviderError && !!error.usage,
+        hasProviderUsage:
+          error instanceof CreatorProviderError && !!error.usage,
       });
-
     } finally {
       await Promise.all([
         this.tools.remove(audioPath),
@@ -368,26 +372,40 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
   }
 }
 
-function subtitleResult(transcript: string, srt: string): CreatorGenerationResult {
+function subtitleResult(
+  transcript: string,
+  srt: string,
+): CreatorGenerationResult {
   return {
     title: 'Khmer subtitles',
-    sections: [{ id: 'subtitle', label: 'Khmer transcript', content: transcript }],
+    sections: [
+      { id: 'subtitle', label: 'Khmer transcript', content: transcript },
+    ],
     srt,
   };
 }
 
 function combineUsage(usages: CreatorProviderUsage[]): CreatorProviderUsage {
-  const sum = (field: 'inputTokens' | 'cachedInputTokens' | 'outputTokens' | 'audioSeconds') => {
-    const values = usages.map((usage) => usage[field]).filter((value): value is number => value !== null);
-    return values.length ? values.reduce((total, value) => total + value, 0) : null;
+  const sum = (
+    field:
+      'inputTokens' | 'cachedInputTokens' | 'outputTokens' | 'audioSeconds',
+  ) => {
+    const values = usages
+      .map((usage) => usage[field])
+      .filter((value): value is number => value !== null);
+    return values.length
+      ? values.reduce((total, value) => total + value, 0)
+      : null;
   };
   const models = [...new Set(usages.map((usage) => usage.model))];
   const providers = [...new Set(usages.map((usage) => usage.provider))];
-  // When transcription uses Gemini and text generation uses OpenAI, both appear.
+  // Keep the provider and model from each stage for mixed-provider histories.
   // Use 'OPENAI' only when it is the sole provider; otherwise fall back to the
   // last provider used (the one most likely to carry the text cost).
   const provider =
-    providers.length === 1 ? providers[0]! : (usages.at(-1)?.provider ?? 'OPENAI');
+    providers.length === 1
+      ? providers[0]!
+      : (usages.at(-1)?.provider ?? 'OPENAI');
   return {
     provider,
     model: models.length === 1 ? models[0]! : 'multiple-models',
@@ -403,7 +421,6 @@ function combineUsage(usages: CreatorProviderUsage[]): CreatorProviderUsage {
     durationMs: usages.reduce((total, usage) => total + usage.durationMs, 0),
   };
 }
-
 
 export const preserveTranscriptTiming = (
   segments: TranscriptSegment[],

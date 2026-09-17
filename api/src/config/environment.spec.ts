@@ -50,6 +50,35 @@ describe('validateEnvironment', () => {
     );
   });
 
+  it('selects Gemini without requiring OpenAI credit or credentials', () => {
+    const config = {
+      ...valid,
+      AI_ENABLED: 'true',
+      AI_USE_GEMINI: 'true',
+      GEMINI_API_KEY: 'test-gemini-key',
+      AI_DAILY_PROVIDER_BUDGET_USD: '1',
+      AI_MONTHLY_PROVIDER_BUDGET_USD: '10',
+    };
+    expect(validateEnvironment(config)).toEqual(config);
+    expect(() =>
+      validateEnvironment({ ...config, GEMINI_API_KEY: 'dummy_gemini_key' }),
+    ).toThrow('GEMINI_API_KEY is required');
+  });
+
+  it('rejects invalid provider switches and unpriced custom Gemini models', () => {
+    expect(() =>
+      validateEnvironment({ ...valid, AI_USE_GEMINI: 'sometimes' }),
+    ).toThrow('AI_USE_GEMINI must be true or false');
+    expect(() =>
+      validateEnvironment({
+        ...valid,
+        AI_USE_GEMINI: 'true',
+        GEMINI_API_KEY: 'test-gemini-key',
+        GEMINI_TEXT_MODEL: 'custom-model',
+      }),
+    ).toThrow('GEMINI_TEXT_INPUT_USD_PER_1M is required');
+  });
+
   it('accepts Railway public domain without duplicate Creator URL configuration', () => {
     const config = {
       ...valid,

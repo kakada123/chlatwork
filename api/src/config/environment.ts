@@ -46,7 +46,10 @@ const OPTIONAL_NUMBERS = [
   'OPENAI_PREMIUM_OUTPUT_USD_PER_1M',
   'OPENAI_TRANSCRIPTION_USD_PER_MINUTE',
   'GEMINI_TRANSCRIPTION_USD_PER_MINUTE',
-
+  'GEMINI_TEXT_INPUT_USD_PER_1M',
+  'GEMINI_TEXT_OUTPUT_USD_PER_1M',
+  'GEMINI_PREMIUM_INPUT_USD_PER_1M',
+  'GEMINI_PREMIUM_OUTPUT_USD_PER_1M',
 ] as const;
 
 export function validateEnvironment(config: Record<string, unknown>) {
@@ -109,11 +112,21 @@ export function validateEnvironment(config: Record<string, unknown>) {
     }
   }
 
-  if (
-    config.AI_ENABLED !== undefined &&
-    !['true', 'false'].includes(String(config.AI_ENABLED).toLowerCase())
-  ) {
-    throw new Error('AI_ENABLED must be true or false');
+  for (const key of ['AI_ENABLED', 'AI_USE_GEMINI'] as const) {
+    if (
+      config[key] !== undefined &&
+      !['true', 'false'].includes(String(config[key]).toLowerCase())
+    ) {
+      throw new Error(`${key} must be true or false`);
+    }
+  }
+
+  const useGemini = String(config.AI_USE_GEMINI).toLowerCase() === 'true';
+  if (useGemini) {
+    const key = String(config.GEMINI_API_KEY ?? '').trim();
+    if (!key || /^(dummy_|replace_)/i.test(key)) {
+      throw new Error('GEMINI_API_KEY is required when AI_USE_GEMINI=true');
+    }
   }
 
   for (const key of OPTIONAL_NUMBERS) {
@@ -124,14 +137,59 @@ export function validateEnvironment(config: Record<string, unknown>) {
     }
   }
 
+  if (useGemini) {
+    const rateKeys = [
+      'GEMINI_TEXT_INPUT_USD_PER_1M',
+      'GEMINI_TEXT_OUTPUT_USD_PER_1M',
+      'GEMINI_PREMIUM_INPUT_USD_PER_1M',
+      'GEMINI_PREMIUM_OUTPUT_USD_PER_1M',
+      'GEMINI_TRANSCRIPTION_USD_PER_MINUTE',
+    ] as const;
+    for (const key of rateKeys) {
+      if (config[key] !== undefined && Number(config[key]) <= 0) {
+        throw new Error(`${key} must be positive when AI_USE_GEMINI=true`);
+      }
+    }
+    const standardModel =
+      String(config.GEMINI_TEXT_MODEL ?? '').trim() || 'gemini-2.5-flash';
+    const premiumModel =
+      String(config.GEMINI_PREMIUM_TEXT_MODEL ?? '').trim() || standardModel;
+    const transcriptionModel =
+      String(config.GEMINI_TRANSCRIPTION_MODEL ?? '').trim() ||
+      'gemini-3.5-transcribe';
+    const requiredRates = [
+      ...(standardModel === 'gemini-2.5-flash'
+        ? []
+        : ['GEMINI_TEXT_INPUT_USD_PER_1M', 'GEMINI_TEXT_OUTPUT_USD_PER_1M']),
+      ...(premiumModel === standardModel
+        ? []
+        : [
+            'GEMINI_PREMIUM_INPUT_USD_PER_1M',
+            'GEMINI_PREMIUM_OUTPUT_USD_PER_1M',
+          ]),
+      ...(transcriptionModel === 'gemini-3.5-transcribe'
+        ? []
+        : ['GEMINI_TRANSCRIPTION_USD_PER_MINUTE']),
+    ];
+    for (const key of requiredRates) {
+      if (Number(config[key]) <= 0 || !Number.isFinite(Number(config[key]))) {
+        throw new Error(`${key} is required for the selected Gemini model`);
+      }
+    }
+  }
+
   if (String(config.AI_ENABLED).toLowerCase() === 'true') {
     for (const key of [
-      'OPENAI_API_KEY',
-      'OPENAI_TEXT_MODEL',
-      'OPENAI_TRANSCRIPTION_MODEL',
+      ...(useGemini
+        ? []
+        : [
+            'OPENAI_API_KEY',
+            'OPENAI_TEXT_MODEL',
+            'OPENAI_TRANSCRIPTION_MODEL',
+          ]),
       'AI_DAILY_PROVIDER_BUDGET_USD',
       'AI_MONTHLY_PROVIDER_BUDGET_USD',
-    ] as const) {
+    ]) {
       const value = String(config[key] ?? '').trim();
       if (!value || /^(dummy_|replace_)/i.test(value)) {
         throw new Error(`${key} is required when AI_ENABLED=true`);

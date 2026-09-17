@@ -39,7 +39,10 @@ The expense/voting bot keeps its existing webhook, commands, and token.
    that hosts the existing Creator worker.
 6. Enable the existing Creator AI provider configuration and budgets as usual.
    The new bot uses the same `AI_ENABLED`, models, feature prices, account wallet,
-   rate limits, daily allowance, provider budgets, and refund logic.
+   rate limits, daily allowance, provider budgets, and refund logic. Set
+   `AI_USE_GEMINI=true` with `GEMINI_API_KEY` to route Creator web requests and
+   both Telegram bots through Gemini. Set it to `false` to use OpenAI. The
+   example model and pricing variables are in `api/.env.example`.
 
 Suggested BotFather command list:
 

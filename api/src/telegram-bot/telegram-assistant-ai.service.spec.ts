@@ -188,4 +188,156 @@ describe('TelegramAssistantAiService', () => {
     const request = (global.fetch as jest.Mock).mock.calls[0][1] as RequestInit;
     expect(String(request.body)).toContain('Use only the supplied saved facts');
   });
+
+  it('routes personal assistant intent and memory answers to Gemini', async () => {
+    const config = {
+      get: jest.fn(
+        (key: string) =>
+          ({
+            AI_USE_GEMINI: 'true',
+            GEMINI_API_KEY: 'test-gemini-key',
+          })[key],
+      ),
+    };
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+    const generateContent = jest
+      .fn()
+      .mockResolvedValueOnce({
+        candidates: [{ finishReason: 'STOP' }],
+        text: JSON.stringify({
+          intent: AssistantIntent.CREATE_TASK,
+          task: { title: 'Buy gift', subject: 'O Neth' },
+          memory: null,
+          reminder: null,
+          query: null,
+          confidence: 95,
+          clarification: '',
+        }),
+      })
+      .mockResolvedValueOnce({
+        candidates: [{ finishReason: 'STOP' }],
+        text: 'Neth has 3 siblings.',
+      });
+    Object.assign(service, { geminiClient: { models: { generateContent } } });
+    global.fetch = jest.fn();
+
+    expect(service.isConfigured()).toBe(true);
+    await expect(
+      service.parsePersonalAssistantIntent('Buy a gift', 'Asia/Phnom_Penh'),
+    ).resolves.toMatchObject({ intent: AssistantIntent.CREATE_TASK });
+    await expect(
+      service.answerPersonalMemoryQuery('How many siblings?', [
+        'Neth has 3 siblings.',
+      ]),
+    ).resolves.toBe('Neth has 3 siblings.');
+    expect(generateContent).toHaveBeenCalledTimes(2);
+    expect(
+      generateContent.mock.calls[0][0].config.responseJsonSchema,
+    ).toMatchObject({
+      type: 'object',
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('uses Gemini for Telegram receipts while preserving currency validation', async () => {
+    const config = {
+      get: jest.fn(
+        (key: string) =>
+          ({
+            AI_USE_GEMINI: 'true',
+            GEMINI_API_KEY: 'test-gemini-key',
+          })[key],
+      ),
+    };
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+    const generateContent = jest.fn().mockResolvedValue({
+      candidates: [{ finishReason: 'STOP' }],
+      text: JSON.stringify({
+        merchant: 'Lunch Shop',
+        amount: '4.50',
+        currency: 'USD',
+        category: 'Food',
+        date: '2026-09-04',
+        confidence: 92,
+      }),
+    });
+    Object.assign(service, { geminiClient: { models: { generateContent } } });
+    global.fetch = jest.fn();
+
+    await expect(
+      service.extractReceipt(
+        new Uint8Array([1, 2, 3]),
+        'image/png',
+        ExpenseCurrency.USD,
+      ),
+    ).resolves.toMatchObject({ expense: { amount: '4.50', category: 'Food' } });
+    expect(generateContent.mock.calls[0][0].contents[0].parts[1]).toEqual({
+      inlineData: { mimeType: 'image/png', data: 'AQID' },
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('transcribes Telegram voice with Gemini and deletes the uploaded file', async () => {
+    const config = {
+      get: jest.fn(
+        (key: string) =>
+          ({
+            AI_USE_GEMINI: 'true',
+            GEMINI_API_KEY: 'test-gemini-key',
+          })[key],
+      ),
+    };
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+    const upload = jest.fn().mockResolvedValue({
+      name: 'files/voice',
+      uri: 'https://files.example/voice',
+    });
+    const create = jest.fn().mockResolvedValue({ output_text: 'Lunch 4.50' });
+    const deleteFile = jest.fn().mockResolvedValue({});
+    Object.assign(service, {
+      geminiClient: {
+        files: { upload, delete: deleteFile },
+        interactions: { create },
+      },
+    });
+    global.fetch = jest.fn();
+
+    await expect(
+      service.transcribeVoice(new Uint8Array([1, 2]), 'audio/ogg'),
+    ).resolves.toBe('Lunch 4.50');
+    expect(create.mock.calls[0][0]).toMatchObject({
+      model: 'gemini-3.5-transcribe',
+      input: [{ type: 'audio', mime_type: 'audio/ogg' }],
+    });
+    expect(deleteFile).toHaveBeenCalledWith({ name: 'files/voice' });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('does not fall back to OpenAI when Gemini is selected without a key', async () => {
+    const config = {
+      get: jest.fn(
+        (key: string) =>
+          ({
+            AI_USE_GEMINI: 'true',
+            GEMINI_API_KEY: 'dummy_gemini_api_key',
+            OPENAI_API_KEY: 'test-openai-key',
+          })[key],
+      ),
+    };
+    const service = new TelegramAssistantAiService(
+      config as unknown as ConfigService,
+    );
+    global.fetch = jest.fn();
+    expect(service.isConfigured()).toBe(false);
+    await expect(
+      service.transcribeVoice(new Uint8Array([1])),
+    ).rejects.toBeInstanceOf(TelegramAssistantAiUnavailableError);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
 });

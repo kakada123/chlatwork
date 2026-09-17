@@ -1,63 +1,106 @@
 import { Logger } from '@nestjs/common';
 import { ApiError, GoogleGenAI } from '@google/genai';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
-import type { CreatorGatewayResult, CreatorTranscript } from './creator-ai.types';
+import type {
+  CreatorGatewayResult,
+  CreatorTranscript,
+} from './creator-ai.types';
 import { CreatorProviderError } from './creator-ai-gateway.service';
-import { parseCreatorTranscription } from './creator-transcription-response';
+import {
+  CreatorTranscriptionResponseError,
+  parseCreatorTranscription,
+} from './creator-transcription-response';
 
 const logger = new Logger('CreatorGeminiTranscription');
 
-// BCP-47 language hint used by the transcription model to bias recognition
-// toward the expected script. English uses auto-detection (no hint needed).
+// Use the model's supported BCP-47 code. English uses auto-detection.
 function languageCode(language: CreatorLanguage): string | undefined {
   if (language === 'ENGLISH') return undefined;
-  // 'km' covers both KHMER and KHMER_ENGLISH — the model still preserves
-  // embedded English terms when it hears them in Khmer speech.
-  return 'km';
+  return 'km-KH';
 }
 
-// System instruction steers the model toward the correct script and prevents
-// it from substituting Thai characters for Khmer ones (a known Whisper issue).
-function systemInstruction(language: CreatorLanguage): string {
-  if (language === 'ENGLISH') {
-    return 'Preserve the original spoken language, names, and product terms.';
+type GeminiInteraction = {
+  output_text?: string;
+  steps?: Array<{
+    type: string;
+    content?: Array<{
+      type: string;
+      annotations?: Array<{
+        type: string;
+        text?: string;
+        start_offset?: string;
+        end_offset?: string;
+      }>;
+    }>;
+  }>;
+};
+
+function timestampSeconds(value: string | undefined): number | null {
+  if (!value || !/^\d+(?:\.\d+)?s$/.test(value)) return null;
+  const seconds = Number(value.slice(0, -1));
+  return Number.isFinite(seconds) ? seconds : null;
+}
+
+/** Group provider word timings into short segments for cleanup and SRT output. */
+function transcriptFromInteraction(
+  interaction: GeminiInteraction,
+): CreatorTranscript {
+  const segments: CreatorTranscript['segments'] = [];
+  let segment: CreatorTranscript['segments'][number] | null = null;
+
+  for (const step of interaction.steps ?? []) {
+    if (step.type !== 'model_output') continue;
+    for (const content of step.content ?? []) {
+      if (content.type !== 'text') continue;
+      for (const annotation of content.annotations ?? []) {
+        if (annotation.type !== 'word_info') continue;
+        const start = timestampSeconds(annotation.start_offset);
+        const end = timestampSeconds(annotation.end_offset);
+        const word = annotation.text?.trim();
+        if (start === null || end === null || end <= start || !word) {
+          throw new CreatorTranscriptionResponseError(
+            'INVALID_TRANSCRIPT_SEGMENTS',
+          );
+        }
+        if (
+          segment &&
+          (start - segment.end > 1.5 ||
+            end - segment.start > 6 ||
+            segment.text.length + word.length > 120)
+        ) {
+          segments.push(segment);
+          segment = null;
+        }
+        if (segment) {
+          segment.text += ` ${word}`;
+          segment.end = Math.max(segment.end, end);
+        } else {
+          segment = { start, end, text: word };
+        }
+      }
+    }
   }
-  return language === 'KHMER_ENGLISH'
-    ? 'Audio is in Cambodian Khmer mixed naturally with English. Transcribe Khmer speech in Khmer script. Preserve English names and product terms as spoken. Never substitute Thai script.'
-    : 'Audio is in Cambodian Khmer. Transcribe entirely in Khmer script. Preserve English product names and loanwords as spoken. Never substitute Thai script.';
+  if (segment) segments.push(segment);
+  // Keep the provider's full text; the cleanup stage restores natural spacing
+  // within the timed segments, including Khmer words.
+  return parseCreatorTranscription({ text: interaction.output_text, segments });
 }
-
-// JSON schema for the segment-level transcript we request from the model.
-// This maps directly to the existing TranscriptSegment type so no downstream
-// code changes are needed.
-const TRANSCRIPT_SCHEMA = {
-  type: 'object',
-  properties: {
-    text: { type: 'string', description: 'Full concatenated transcript text.' },
-    segments: {
-      type: 'array',
-      description: 'Timestamped speech segments.',
-      items: {
-        type: 'object',
-        properties: {
-          start: { type: 'number', description: 'Segment start time in seconds.' },
-          end: { type: 'number', description: 'Segment end time in seconds.' },
-          text: { type: 'string', description: 'Segment transcript text.' },
-        },
-        required: ['start', 'end', 'text'],
-      },
-    },
-  },
-  required: ['text', 'segments'],
-} as const;
 
 /** Classify a Gemini SDK error into a safe loggable reason string. */
 function classifyGeminiError(error: unknown): {
   providerFailureReason: string;
   providerStatus: number | null;
 } {
-  if (error instanceof ApiError) {
-    const status = error.status;
+  // Files API errors use ApiError.status; Interactions API errors use statusCode.
+  const status =
+    error instanceof ApiError
+      ? error.status
+      : error instanceof Error &&
+          'statusCode' in error &&
+          typeof error.statusCode === 'number'
+        ? error.statusCode
+        : null;
+  if (status !== null) {
     const reason =
       status === 400
         ? 'GEMINI_BAD_REQUEST'
@@ -72,8 +115,11 @@ function classifyGeminiError(error: unknown): {
                 : 'GEMINI_HTTP_ERROR';
     return { providerFailureReason: reason, providerStatus: status };
   }
-  if (error instanceof SyntaxError) {
-    return { providerFailureReason: 'GEMINI_RESPONSE_PARSE_FAILED', providerStatus: null };
+  if (error instanceof CreatorTranscriptionResponseError) {
+    return {
+      providerFailureReason: `GEMINI_${error.reason}`,
+      providerStatus: null,
+    };
   }
   if (
     error instanceof Error &&
@@ -82,9 +128,15 @@ function classifyGeminiError(error: unknown): {
       error.message.includes('ETIMEDOUT') ||
       error.message.includes('fetch'))
   ) {
-    return { providerFailureReason: 'GEMINI_CONNECTION_ERROR', providerStatus: null };
+    return {
+      providerFailureReason: 'GEMINI_CONNECTION_ERROR',
+      providerStatus: null,
+    };
   }
-  return { providerFailureReason: 'GEMINI_LOCAL_PROCESSING_ERROR', providerStatus: null };
+  return {
+    providerFailureReason: 'GEMINI_LOCAL_PROCESSING_ERROR',
+    providerStatus: null,
+  };
 }
 
 /**
@@ -92,15 +144,12 @@ function classifyGeminiError(error: unknown): {
  *
  * Steps:
  *  1. Upload the audio file via the Files API to obtain a stable URI.
- *  2. Call interactions.create with a JSON responseSchema requesting
- *     timestamped segments — directly compatible with TranscriptSegment[].
- *  3. Parse with the shared parseCreatorTranscription() — all existing
- *     Thai-script and empty-transcript guards apply unchanged.
+ *  2. Request the model's native word timestamps and group them into segments.
+ *  3. Validate with the shared parser; downstream language guards still apply.
  *  4. Delete the uploaded file to avoid Files API storage accumulation.
  *
  * Errors are classified and logged here (without private content), then
- * normalised into CreatorProviderError so the gateway's catch block and
- * existing refund / retry logic needs no changes.
+ * normalised into CreatorProviderError for the worker's refund path.
  */
 export async function transcribeWithGemini(
   apiKey: string,
@@ -116,6 +165,8 @@ export async function transcribeWithGemini(
   let uploadedFileName: string | undefined;
   let uploadCompleted = false;
   let interactionCompleted = false;
+  let providerUsage:
+    CreatorGatewayResult<CreatorTranscript>['usage'] | undefined;
 
   try {
     // Step 1: Upload audio. The Files API stores it server-side so we can
@@ -131,11 +182,11 @@ export async function transcribeWithGemini(
       throw new Error('Files API returned no URI for the uploaded audio');
     }
 
-    // Step 2: Transcribe with structured JSON output so we get timestamped
-    // segments natively — no timestamp reconciliation required.
+    // Step 2: Request native word annotations; this model returns transcript
+    // text and timings separately rather than a JSON segment response.
+    const code = languageCode(language);
     const interaction = await client.interactions.create({
       model,
-      system_instruction: systemInstruction(language),
       input: [
         {
           type: 'audio',
@@ -147,43 +198,36 @@ export async function transcribeWithGemini(
         // verbatim preserves timing accuracy; smart mode cleans disfluencies
         // but can shift word boundaries and affect timestamp precision.
         transcription_config: {
-          mode: 'verbatim',
-          ...(languageCode(language) ? { language_codes: [languageCode(language)!] } : {}),
+          mode: { type: 'verbatim', timestamp_granularities: ['word'] },
+          ...(code ? { language_codes: [code] } : {}),
         },
       },
-      response_format: [
-        {
-          type: 'text' as const,
-          mime_type: 'application/json',
-          schema: TRANSCRIPT_SCHEMA,
-        },
-      ],
     });
     interactionCompleted = true;
 
-    // Parse the JSON output into the existing CreatorTranscript shape.
-    const rawResponse = parseJsonResponse(interaction.output_text);
-    const data = parseCreatorTranscription(rawResponse);
-
     const durationMs = Date.now() - startedAt;
+    // A completed interaction can incur provider cost even if its output fails
+    // validation, so retain usage for the worker's refund/accounting path.
+    providerUsage = {
+      provider: 'GEMINI',
+      model,
+      inputTokens: null,
+      cachedInputTokens: null,
+      outputTokens: null,
+      audioSeconds: Math.ceil(durationSeconds),
+      estimatedProviderCostUsd: (durationSeconds / 60) * usdPerMinute,
+      providerRequestId: interaction.id ?? uploadedFileName ?? null,
+      durationMs,
+    };
+    const data = transcriptFromInteraction(interaction);
     return {
       data,
-      usage: {
-        provider: 'GEMINI',
-        model,
-        inputTokens: null,
-        cachedInputTokens: null,
-        outputTokens: null,
-        audioSeconds: Math.ceil(durationSeconds),
-        estimatedProviderCostUsd: (durationSeconds / 60) * usdPerMinute,
-        // Use the file name as a stable reference (analogous to providerRequestId).
-        providerRequestId: uploadedFileName ?? null,
-        durationMs,
-      },
+      usage: providerUsage,
     };
   } catch (error) {
     const durationMs = Date.now() - startedAt;
-    const { providerFailureReason, providerStatus } = classifyGeminiError(error);
+    const { providerFailureReason, providerStatus } =
+      classifyGeminiError(error);
     // Log diagnostics without exposing raw error messages (which could echo
     // transcript content, audio paths, or API key fragments).
     logger.error('Gemini transcription request failed', {
@@ -195,7 +239,11 @@ export async function transcribeWithGemini(
       providerStatus,
       providerFailureReason,
     });
-    throw new CreatorProviderError('Gemini transcription failed', durationMs, undefined);
+    throw new CreatorProviderError(
+      'Gemini transcription failed',
+      durationMs,
+      providerUsage ? { ...providerUsage, durationMs } : undefined,
+    );
   } finally {
     // Always clean up the uploaded file — we never need it after the
     // interaction completes, and it would otherwise auto-expire after 48 h.
@@ -205,14 +253,4 @@ export async function transcribeWithGemini(
       });
     }
   }
-}
-
-/**
- * Parse the model's JSON string output into a plain object.
- * A markdown code fence is stripped first in case the model wraps its output.
- */
-function parseJsonResponse(outputText: string | null | undefined): unknown {
-  const text = typeof outputText === 'string' ? outputText.trim() : '';
-  const stripped = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-  return JSON.parse(stripped);
 }
