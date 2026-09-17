@@ -1,8 +1,11 @@
-import { GoogleGenAI } from '@google/genai';
+import { Logger } from '@nestjs/common';
+import { ApiError, GoogleGenAI } from '@google/genai';
 import type { CreatorLanguage } from './dto/creator-ai.dto';
 import type { CreatorGatewayResult, CreatorTranscript } from './creator-ai.types';
 import { CreatorProviderError } from './creator-ai-gateway.service';
 import { parseCreatorTranscription } from './creator-transcription-response';
+
+const logger = new Logger('CreatorGeminiTranscription');
 
 // BCP-47 language hint used by the transcription model to bias recognition
 // toward the expected script. English uses auto-detection (no hint needed).
@@ -48,6 +51,42 @@ const TRANSCRIPT_SCHEMA = {
   required: ['text', 'segments'],
 } as const;
 
+/** Classify a Gemini SDK error into a safe loggable reason string. */
+function classifyGeminiError(error: unknown): {
+  providerFailureReason: string;
+  providerStatus: number | null;
+} {
+  if (error instanceof ApiError) {
+    const status = error.status;
+    const reason =
+      status === 400
+        ? 'GEMINI_BAD_REQUEST'
+        : status === 401 || status === 403
+          ? 'GEMINI_AUTH_ERROR'
+          : status === 404
+            ? 'GEMINI_MODEL_NOT_FOUND'
+            : status === 429
+              ? 'GEMINI_RATE_LIMITED'
+              : status >= 500
+                ? 'GEMINI_SERVER_ERROR'
+                : 'GEMINI_HTTP_ERROR';
+    return { providerFailureReason: reason, providerStatus: status };
+  }
+  if (error instanceof SyntaxError) {
+    return { providerFailureReason: 'GEMINI_RESPONSE_PARSE_FAILED', providerStatus: null };
+  }
+  if (
+    error instanceof Error &&
+    (error.message.includes('ENOTFOUND') ||
+      error.message.includes('ECONNREFUSED') ||
+      error.message.includes('ETIMEDOUT') ||
+      error.message.includes('fetch'))
+  ) {
+    return { providerFailureReason: 'GEMINI_CONNECTION_ERROR', providerStatus: null };
+  }
+  return { providerFailureReason: 'GEMINI_LOCAL_PROCESSING_ERROR', providerStatus: null };
+}
+
 /**
  * Transcribes an audio file using Google's gemini-3.5-transcribe model.
  *
@@ -59,8 +98,9 @@ const TRANSCRIPT_SCHEMA = {
  *     Thai-script and empty-transcript guards apply unchanged.
  *  4. Delete the uploaded file to avoid Files API storage accumulation.
  *
- * Errors are normalised into CreatorProviderError so the gateway's catch
- * block and existing refund / retry logic needs no changes.
+ * Errors are classified and logged here (without private content), then
+ * normalised into CreatorProviderError so the gateway's catch block and
+ * existing refund / retry logic needs no changes.
  */
 export async function transcribeWithGemini(
   apiKey: string,
@@ -74,6 +114,8 @@ export async function transcribeWithGemini(
   const startedAt = Date.now();
   const client = new GoogleGenAI({ apiKey });
   let uploadedFileName: string | undefined;
+  let uploadCompleted = false;
+  let interactionCompleted = false;
 
   try {
     // Step 1: Upload audio. The Files API stores it server-side so we can
@@ -83,6 +125,7 @@ export async function transcribeWithGemini(
       config: { mimeType },
     });
     uploadedFileName = uploaded.name;
+    uploadCompleted = true;
 
     if (!uploaded.uri) {
       throw new Error('Files API returned no URI for the uploaded audio');
@@ -116,6 +159,7 @@ export async function transcribeWithGemini(
         },
       ],
     });
+    interactionCompleted = true;
 
     // Parse the JSON output into the existing CreatorTranscript shape.
     const rawResponse = parseJsonResponse(interaction.output_text);
@@ -139,11 +183,19 @@ export async function transcribeWithGemini(
     };
   } catch (error) {
     const durationMs = Date.now() - startedAt;
-    throw new CreatorProviderError(
-      'Gemini transcription failed',
+    const { providerFailureReason, providerStatus } = classifyGeminiError(error);
+    // Log diagnostics without exposing raw error messages (which could echo
+    // transcript content, audio paths, or API key fragments).
+    logger.error('Gemini transcription request failed', {
+      model,
+      language,
       durationMs,
-      undefined,
-    );
+      uploadCompleted,
+      interactionCompleted,
+      providerStatus,
+      providerFailureReason,
+    });
+    throw new CreatorProviderError('Gemini transcription failed', durationMs, undefined);
   } finally {
     // Always clean up the uploaded file — we never need it after the
     // interaction completes, and it would otherwise auto-expire after 48 h.

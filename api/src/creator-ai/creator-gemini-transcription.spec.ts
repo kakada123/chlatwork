@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { transcribeWithGemini } from './creator-gemini-transcription';
 import { CreatorProviderError } from './creator-ai-gateway.service';
 
@@ -5,6 +6,14 @@ import { CreatorProviderError } from './creator-ai-gateway.service';
 const mockDelete = jest.fn().mockResolvedValue({});
 const mockCreate = jest.fn();
 const mockUpload = jest.fn();
+
+// ApiError is used for HTTP-level Gemini API failures.
+class MockApiError extends Error {
+  constructor(readonly status: number) {
+    super(`API error ${status}`);
+    this.name = 'ApiError';
+  }
+}
 
 jest.mock('@google/genai', () => ({
   GoogleGenAI: jest.fn().mockImplementation(() => ({
@@ -16,7 +25,10 @@ jest.mock('@google/genai', () => ({
       create: mockCreate,
     },
   })),
+  // Expose ApiError so classifyGeminiError instanceof checks work.
+  ApiError: MockApiError,
 }));
+
 
 const khmer = 'សួស្តីអ្នកទាំងអស់គ្នា។';
 const segments = [{ start: 0, end: 3.5, text: khmer }];
@@ -37,7 +49,11 @@ describe('Creator Gemini transcription', () => {
     mockUpload.mockResolvedValue(successUpload());
     mockCreate.mockResolvedValue(successInteraction(validOutputText));
     mockDelete.mockResolvedValue({});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
   });
+
+  afterEach(() => jest.restoreAllMocks());
+
 
   it('returns a valid CreatorTranscript with GEMINI provider usage', async () => {
     const result = await transcribeWithGemini(
