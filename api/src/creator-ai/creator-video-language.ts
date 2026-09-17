@@ -19,8 +19,8 @@ export function assertVideoLanguage(
   language: CreatorLanguage,
 ) {
   const content = texts.join(' ');
-  // A script mismatch must fail and refund, not turn a misheard Thai transcript
-  // into plausible Khmer by translating speech the user never actually said.
+  // Unresolved script mistakes must fail and refund before subtitles or
+  // generated content become a completed Creator result.
   if (
     containsThaiScript(content) ||
     (language === 'KHMER' && !/[\u1780-\u17B3]/u.test(content))

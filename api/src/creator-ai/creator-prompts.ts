@@ -151,15 +151,30 @@ export function buildCreatorTextPrompt(
     case AiFeature.KHMER_GRAMMAR:
       return grammarPrompt(payload);
     case AiFeature.KHMER_REWRITE:
-      return simpleResultPrompt(common, 'khmer_rewrite', 'Rewritten text', false);
+      return simpleResultPrompt(
+        common,
+        'khmer_rewrite',
+        'Rewritten text',
+        false,
+      );
     case AiFeature.LATIN_TO_KHMER:
       return simpleResultPrompt(common, 'latin_to_khmer', 'Khmer text', false);
     case AiFeature.HUMANIZE:
-      return simpleResultPrompt(common, 'khmer_humanize', 'Humanized text', true);
+      return simpleResultPrompt(
+        common,
+        'khmer_humanize',
+        'Humanized text',
+        true,
+      );
     case AiFeature.FACEBOOK_TO_TIKTOK:
       return facebookToTikTokPrompt(common);
     case AiFeature.LONG_TO_SHORT:
-      return simpleResultPrompt(common, 'long_to_short', 'Shortened content', true);
+      return simpleResultPrompt(
+        common,
+        'long_to_short',
+        'Shortened content',
+        true,
+      );
     default:
       throw new Error(`Unsupported text feature: ${feature}`);
   }
@@ -279,7 +294,16 @@ function hookPrompt(
         minItems: count,
         maxItems: count,
         items: objectSchema({
-          type: { type: 'string', enum: ['CURIOSITY', 'STATEMENT', 'QUESTION', 'STORY', 'PROBLEM_SOLUTION'] },
+          type: {
+            type: 'string',
+            enum: [
+              'CURIOSITY',
+              'STATEMENT',
+              'QUESTION',
+              'STORY',
+              'PROBLEM_SOLUTION',
+            ],
+          },
           text: stringField(500),
         }),
       },
@@ -393,7 +417,7 @@ export function buildTranscriptCleanupPrompt(
 ): CreatorPromptSpec<string[]> {
   return {
     name: 'khmer_transcript_cleanup',
-    instructions: `${BASE_INSTRUCTIONS}\n${videoLanguageInstruction(language)}\nFix obvious spelling, punctuation, and readability. Preserve meaning, names, product words, mixed English terms, and segment order. Never invent missing speech or infer missing speech from context. Return exactly one text item per input segment.`,
+    instructions: `${BASE_INSTRUCTIONS}\n${videoLanguageInstruction(language)}\nThe source is an imperfect speech transcript. Correct isolated Thai-script or other stray-script substitutions only when adjacent speech makes the intended Khmer or English word clear. Leave uncertain speech unchanged; never translate an actual foreign-language passage into invented Khmer speech. Fix obvious spelling, punctuation, and readability. Preserve meaning, names, product words, mixed English terms, and segment order. Never add speech that is absent from the transcript. Return exactly one text item per input segment.`,
     input: JSON.stringify(segments.map((segment) => segment.text)),
     schema: objectSchema({
       texts: {

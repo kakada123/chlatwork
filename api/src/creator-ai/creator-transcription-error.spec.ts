@@ -4,6 +4,7 @@ import { AiFeature } from '@prisma/client';
 import { createReadStream } from 'node:fs';
 import OpenAI from 'openai';
 import { CreatorAiGatewayService } from './creator-ai-gateway.service';
+import { transcriptFromInteraction } from './creator-gemini-transcription';
 import { transcriptionErrorDetails } from './creator-transcription-error';
 import { CreatorVideoWorker } from './creator-video.worker';
 
@@ -24,6 +25,91 @@ const languageError = {
 };
 const khmer = 'សួស្តីអ្នកទាំងអស់គ្នា។';
 const response = { text: khmer, segments: [{ start: 0, end: 3, text: khmer }] };
+
+describe('Gemini word timing recovery', () => {
+  it('keeps a word with invalid timing in the nearest timed subtitle', () => {
+    const text = 'សួស្តី បងប្អូន ទាំងអស់';
+    expect(
+      transcriptFromInteraction({
+        output_text: text,
+        steps: [
+          {
+            type: 'model_output',
+            content: [
+              {
+                type: 'text',
+                text,
+                annotations: [
+                  {
+                    type: 'word_info',
+                    text: 'សួស្តី',
+                    start_offset: '0s',
+                    end_offset: '0.4s',
+                  },
+                  { type: 'word_info', text: 'បងប្អូន', start_offset: '0.5s' },
+                  {
+                    type: 'word_info',
+                    text: 'ទាំងអស់',
+                    start_offset: '0.8s',
+                    end_offset: '1.2s',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual({ text, segments: [{ start: 0, end: 1.2, text }] });
+  });
+
+  it('recovers missing annotation text from UTF-8 byte offsets', () => {
+    const text = 'សួស្តី';
+    expect(
+      transcriptFromInteraction({
+        output_text: text,
+        steps: [
+          {
+            type: 'model_output',
+            content: [
+              {
+                type: 'text',
+                text,
+                annotations: [
+                  {
+                    type: 'word_info',
+                    start_index: 0,
+                    end_index: Buffer.byteLength(text, 'utf8'),
+                    start_offset: '0s',
+                    end_offset: '1s',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual({ text, segments: [{ start: 0, end: 1, text }] });
+  });
+
+  it('fails when no word has usable timing', () => {
+    expect(() =>
+      transcriptFromInteraction({
+        output_text: khmer,
+        steps: [
+          {
+            type: 'model_output',
+            content: [
+              {
+                type: 'text',
+                annotations: [{ type: 'word_info', text: khmer }],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow('Creator transcription response was not usable');
+  });
+});
 
 function setup() {
   const config = {

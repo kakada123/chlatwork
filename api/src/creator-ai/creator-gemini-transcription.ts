@@ -6,7 +6,6 @@ import type {
   CreatorTranscript,
 } from './creator-ai.types';
 import { CreatorProviderError } from './creator-ai-gateway.service';
-import { containsThaiScript } from './creator-output-language';
 import {
   CreatorTranscriptionResponseError,
   parseCreatorTranscription,
@@ -20,6 +19,15 @@ function languageCode(language: CreatorLanguage): string | undefined {
   return 'km-KH';
 }
 
+type GeminiWordAnnotation = {
+  type: string;
+  text?: string;
+  start_index?: number;
+  end_index?: number;
+  start_offset?: string;
+  end_offset?: string;
+};
+
 type GeminiInteraction = {
   status?: string;
   output_text?: string;
@@ -27,12 +35,8 @@ type GeminiInteraction = {
     type: string;
     content?: Array<{
       type: string;
-      annotations?: Array<{
-        type: string;
-        text?: string;
-        start_offset?: string;
-        end_offset?: string;
-      }>;
+      text?: string;
+      annotations?: GeminiWordAnnotation[];
     }>;
   }>;
 };
@@ -43,12 +47,34 @@ class GeminiInteractionStatusError extends Error {
   }
 }
 
-class GeminiTranscriptionScriptError extends Error {}
-
 function timestampSeconds(value: string | undefined): number | null {
   if (!value || !/^\d+(?:\.\d+)?s$/.test(value)) return null;
   const seconds = Number(value.slice(0, -1));
   return Number.isFinite(seconds) ? seconds : null;
+}
+
+function annotationWord(
+  annotation: GeminiWordAnnotation,
+  contentText: string | undefined,
+): string | null {
+  const word = annotation.text?.trim();
+  if (word) return word;
+  const { start_index: start, end_index: end } = annotation;
+  if (
+    !contentText ||
+    !Number.isInteger(start) ||
+    !Number.isInteger(end) ||
+    start === undefined ||
+    end === undefined ||
+    start < 0 ||
+    end <= start
+  ) {
+    return null;
+  }
+  // Word offsets are UTF-8 byte indices, so string slicing would corrupt Khmer.
+  const bytes = Buffer.from(contentText, 'utf8');
+  if (end > bytes.length) return null;
+  return bytes.subarray(start, end).toString('utf8').trim() || null;
 }
 
 /** Keep response diagnostics useful without logging transcript or audio content. */
@@ -56,6 +82,8 @@ function interactionDiagnostics(interaction: GeminiInteraction) {
   let modelOutputTextBlocks = 0;
   let wordAnnotations = 0;
   let invalidWordAnnotations = 0;
+  let missingWordTextAnnotations = 0;
+  let invalidWordTimingAnnotations = 0;
   for (const step of interaction.steps ?? []) {
     if (step.type !== 'model_output') continue;
     for (const content of step.content ?? []) {
@@ -66,14 +94,11 @@ function interactionDiagnostics(interaction: GeminiInteraction) {
         wordAnnotations++;
         const start = timestampSeconds(annotation.start_offset);
         const end = timestampSeconds(annotation.end_offset);
-        if (
-          start === null ||
-          end === null ||
-          end <= start ||
-          !annotation.text?.trim()
-        ) {
-          invalidWordAnnotations++;
-        }
+        const missingText = !annotationWord(annotation, content.text);
+        const invalidTiming = start === null || end === null || end <= start;
+        if (missingText) missingWordTextAnnotations++;
+        if (invalidTiming) invalidWordTimingAnnotations++;
+        if (missingText || invalidTiming) invalidWordAnnotations++;
       }
     }
   }
@@ -83,15 +108,18 @@ function interactionDiagnostics(interaction: GeminiInteraction) {
     modelOutputTextBlocks,
     wordAnnotations,
     invalidWordAnnotations,
+    missingWordTextAnnotations,
+    invalidWordTimingAnnotations,
   };
 }
 
 /** Group provider word timings into short segments for cleanup and SRT output. */
-function transcriptFromInteraction(
+export function transcriptFromInteraction(
   interaction: GeminiInteraction,
 ): CreatorTranscript {
   const segments: CreatorTranscript['segments'] = [];
   let segment: CreatorTranscript['segments'][number] | null = null;
+  let pendingWords: string[] = [];
 
   for (const step of interaction.steps ?? []) {
     if (step.type !== 'model_output') continue;
@@ -101,41 +129,48 @@ function transcriptFromInteraction(
         if (annotation.type !== 'word_info') continue;
         const start = timestampSeconds(annotation.start_offset);
         const end = timestampSeconds(annotation.end_offset);
-        const word = annotation.text?.trim();
-        if (start === null || end === null || end <= start || !word) {
+        const word = annotationWord(annotation, content.text);
+        if (!word) {
           throw new CreatorTranscriptionResponseError(
             'INVALID_TRANSCRIPT_SEGMENTS',
           );
         }
+        if (start === null || end === null || end <= start) {
+          // Keep a word with bad timing and attach it to the next timed word.
+          pendingWords.push(word);
+          continue;
+        }
+        const timedText = [...pendingWords, word].join(' ');
+        pendingWords = [];
         if (
           segment &&
           (start - segment.end > 1.5 ||
             end - segment.start > 6 ||
-            segment.text.length + word.length > 120)
+            segment.text.length + timedText.length > 120)
         ) {
           segments.push(segment);
           segment = null;
         }
         if (segment) {
-          segment.text += ` ${word}`;
+          segment.text += ` ${timedText}`;
           segment.end = Math.max(segment.end, end);
         } else {
-          segment = { start, end, text: word };
+          segment = { start, end, text: timedText };
         }
       }
     }
   }
-  if (segment) segments.push(segment);
-  // Keep the provider's full text; the cleanup stage restores natural spacing
-  // within the timed segments, including Khmer words.
-  const transcript = parseCreatorTranscription({
+  if (segment) {
+    // Trailing untimed words share the final valid word's subtitle timing.
+    if (pendingWords.length) segment.text += ` ${pendingWords.join(' ')}`;
+    segments.push(segment);
+  }
+  // Keep the provider's full text; the cleanup stage repairs script mistakes
+  // without changing these timings, and the final result is checked again.
+  return parseCreatorTranscription({
     text: interaction.output_text,
     segments,
   });
-  // Reject script contamination before cleanup or subtitle generation can use it.
-  if (containsThaiScript(transcript))
-    throw new GeminiTranscriptionScriptError();
-  return transcript;
 }
 
 /** Classify a Gemini SDK error into a safe loggable reason string. */
@@ -173,12 +208,6 @@ function classifyGeminiError(error: unknown): {
         error.status === 'failed'
           ? 'GEMINI_INTERACTION_FAILED'
           : 'GEMINI_INTERACTION_NOT_COMPLETED',
-      providerStatus: null,
-    };
-  }
-  if (error instanceof GeminiTranscriptionScriptError) {
-    return {
-      providerFailureReason: 'GEMINI_UNSUPPORTED_SCRIPT',
       providerStatus: null,
     };
   }

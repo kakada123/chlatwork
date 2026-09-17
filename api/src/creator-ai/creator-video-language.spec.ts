@@ -14,7 +14,9 @@ import type { CreatorLanguage } from './dto/creator-ai.dto';
 
 jest.mock('node:fs', () => ({
   ...jest.requireActual('node:fs'),
-  createReadStream: jest.fn().mockImplementation(() => ({ destroy: jest.fn() })),
+  createReadStream: jest
+    .fn()
+    .mockImplementation(() => ({ destroy: jest.fn() })),
 }));
 
 const khmer = 'សួស្តីអ្នកទាំងអស់គ្នា។';
@@ -89,6 +91,91 @@ describe('Creator video language handling', () => {
     ).toContain('Khmer script');
   });
 
+  it('lets Gemini cleanup repair isolated Thai-script transcription words before final validation', async () => {
+    const source = 'សួស្តី หมด គ្នា';
+    const repaired = 'សួស្តី ទាំងអស់គ្នា';
+    const usage = {
+      provider: 'GEMINI' as const,
+      model: 'test',
+      inputTokens: 0,
+      cachedInputTokens: 0,
+      outputTokens: 0,
+      audioSeconds: 4,
+      estimatedProviderCostUsd: 0.01,
+      providerRequestId: null,
+      durationMs: 1,
+    };
+    const gateway = {
+      transcribe: jest.fn().mockResolvedValue({
+        data: {
+          text: source,
+          segments: [{ start: 1.2, end: 3.6, text: source }],
+        },
+        usage,
+      }),
+      generateStructured: jest.fn(async (_feature, _id, spec) => ({
+        data:
+          spec.name === 'khmer_transcript_cleanup'
+            ? [repaired]
+            : {
+                title: 'Content Pack',
+                sections: [
+                  { id: 'caption', label: 'Caption', content: repaired },
+                ],
+              },
+        usage,
+      })),
+    };
+    const credits = {
+      markProcessing: jest.fn(),
+      refund: jest.fn(),
+      complete: jest.fn(),
+    };
+    const prisma = {
+      aiVideoJob: { update: jest.fn(), updateMany: jest.fn() },
+    };
+    const tools = {
+      extractAudio: jest.fn().mockResolvedValue('/mock/audio.mp3'),
+      srt: jest.fn().mockReturnValue('safe srt'),
+      remove: jest.fn(),
+    };
+    const worker = new CreatorVideoWorker(
+      prisma as any,
+      {} as ConfigService,
+      gateway as any,
+      credits as any,
+      tools as any,
+    );
+
+    await (worker as any).process({
+      id: 'job',
+      generationId: 'generation',
+      userId: 'user',
+      feature: AiFeature.VIDEO_CONTENT_PACK,
+      tempFilePath: '/mock/input.m4a',
+      durationSeconds: 4,
+      mimeType: 'audio/mp4',
+      generation: { inputSummary: 'Video Content Pack|KHMER|NATURAL' },
+    });
+
+    const cleanupPrompt = gateway.generateStructured.mock.calls[0][2];
+    expect(cleanupPrompt.input).toContain('หมด');
+    expect(cleanupPrompt.instructions).toContain(
+      'Correct isolated Thai-script',
+    );
+    expect(gateway.generateStructured).toHaveBeenCalledTimes(2);
+    expect(credits.complete).toHaveBeenCalledWith(
+      'generation',
+      expect.objectContaining({
+        sections: expect.arrayContaining([
+          { id: 'subtitle', label: 'Subtitle', content: repaired },
+        ]),
+      }),
+      expect.anything(),
+    );
+    expect(credits.refund).not.toHaveBeenCalled();
+  });
+
   it.each(['transcription', 'cleanup', 'content'])(
     'refunds a Thai-script %s response and never completes the job',
     async (failureStage) => {
@@ -105,24 +192,22 @@ describe('Creator video language handling', () => {
       };
 
       const gateway = {
-        transcribe: jest
-          .fn()
-          .mockResolvedValue({
-            data: {
-              text: khmer,
-              segments: [
-                {
-                  ...segments[0],
-                  text: failureStage === 'transcription' ? thai : khmer,
-                },
-              ],
-            },
-            usage,
-          }),
+        transcribe: jest.fn().mockResolvedValue({
+          data: {
+            text: failureStage === 'transcription' ? thai : khmer,
+            segments: [
+              {
+                ...segments[0],
+                text: khmer,
+              },
+            ],
+          },
+          usage,
+        }),
         generateStructured: jest.fn(async (_feature, _id, spec) => ({
           data:
             spec.name === 'khmer_transcript_cleanup'
-              ? [failureStage === 'cleanup' ? thai : khmer]
+              ? [failureStage === 'content' ? khmer : thai]
               : {
                   title: 'Content Pack',
                   sections: [
@@ -176,11 +261,7 @@ describe('Creator video language handling', () => {
         }),
       );
       expect(gateway.generateStructured).toHaveBeenCalledTimes(
-        failureStage === 'transcription'
-          ? 0
-          : failureStage === 'cleanup'
-            ? 1
-            : 2,
+        failureStage === 'content' ? 2 : 1,
       );
       expect(tools.remove).toHaveBeenCalledWith('/mock/input.m4a');
     },

@@ -147,13 +147,9 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
         preferences.language,
       );
       usages.push(transcription.usage);
-      if (preferences.language !== 'ENGLISH') {
-        assertVideoLanguage(
-          transcription.data.segments.map((segment) => segment.text),
-          preferences.language,
-        );
-      }
 
+      // Let the text model repair isolated ASR script mistakes while preserving
+      // timing; the cleaned transcript must pass the language guard below.
       await this.stage(job.id, AiVideoJobStatus.CLEANING);
       const cleaned = await this.gateway.generateStructured(
         job.feature,
