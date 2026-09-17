@@ -72,7 +72,7 @@ describe('Creator Gemini generation', () => {
       data: { content: 'សួស្តី' },
       usage: {
         provider: 'GEMINI',
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         inputTokens: 100,
         cachedInputTokens: 20,
         outputTokens: 35,
@@ -84,7 +84,7 @@ describe('Creator Gemini generation', () => {
     );
     expect(mockGenerate).toHaveBeenCalledWith(
       expect.objectContaining({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         config: expect.objectContaining({
           responseMimeType: 'application/json',
           responseJsonSchema: spec().schema,
@@ -122,6 +122,27 @@ describe('Creator Gemini generation', () => {
     expect(
       JSON.stringify((Logger.prototype.error as jest.Mock).mock.calls),
     ).not.toContain('partial');
+  });
+
+  it('logs a safe model-unavailable reason for a provider 404', async () => {
+    const { ApiError } = jest.requireMock('@google/genai');
+    mockGenerate.mockRejectedValueOnce(new ApiError(404));
+    const gateway = new CreatorAiGatewayService(config());
+
+    await expect(
+      gateway.generateStructured(
+        AiFeature.LATIN_TO_KHMER,
+        'request-404',
+        spec(),
+      ),
+    ).rejects.toMatchObject({ message: 'Gemini request failed' });
+    expect(Logger.prototype.error).toHaveBeenCalledWith(
+      'Creator Gemini request failed',
+      expect.objectContaining({
+        providerStatus: 404,
+        providerFailureReason: 'GEMINI_MODEL_UNAVAILABLE',
+      }),
+    );
   });
 
   it('fails closed when the switch is on but the Gemini key is unavailable', async () => {

@@ -19,7 +19,7 @@ import { CreatorResultValidationError } from './creator-result-validation';
 import { CreatorStructuredResponseError } from './creator-structured-response';
 
 const logger = new Logger('CreatorGeminiGeneration');
-const DEFAULT_TEXT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_TEXT_MODEL = 'gemini-3.5-flash-lite';
 
 function number(config: ConfigService, key: string, fallback: number): number {
   const value = Number(config.get(key));
@@ -187,9 +187,11 @@ export async function generateStructuredWithGemini<T>(
       providerFailureReason:
         error instanceof CreatorStructuredResponseError
           ? error.reason
-          : status !== null
-            ? 'PROVIDER_HTTP_ERROR'
-            : 'LOCAL_PROCESSING_ERROR',
+          : status === 404
+            ? 'GEMINI_MODEL_UNAVAILABLE'
+            : status !== null
+              ? 'PROVIDER_HTTP_ERROR'
+              : 'LOCAL_PROCESSING_ERROR',
       maxOutputTokens: spec.maxOutputTokens,
       responseReceived: Boolean(response),
       outputTokens: usage?.outputTokens ?? null,

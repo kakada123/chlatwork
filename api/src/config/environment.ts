@@ -151,14 +151,14 @@ export function validateEnvironment(config: Record<string, unknown>) {
       }
     }
     const standardModel =
-      String(config.GEMINI_TEXT_MODEL ?? '').trim() || 'gemini-2.5-flash';
+      String(config.GEMINI_TEXT_MODEL ?? '').trim() || 'gemini-3.5-flash-lite';
     const premiumModel =
       String(config.GEMINI_PREMIUM_TEXT_MODEL ?? '').trim() || standardModel;
     const transcriptionModel =
       String(config.GEMINI_TRANSCRIPTION_MODEL ?? '').trim() ||
       'gemini-3.5-transcribe';
     const requiredRates = [
-      ...(standardModel === 'gemini-2.5-flash'
+      ...(['gemini-2.5-flash', 'gemini-3.5-flash-lite'].includes(standardModel)
         ? []
         : ['GEMINI_TEXT_INPUT_USD_PER_1M', 'GEMINI_TEXT_OUTPUT_USD_PER_1M']),
       ...(premiumModel === standardModel

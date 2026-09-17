@@ -429,7 +429,7 @@ export class TelegramAssistantAiService {
         )
         ?.trim() ||
       this.config.get<string>('GEMINI_TEXT_MODEL')?.trim() ||
-      'gemini-2.5-flash';
+      'gemini-3.5-flash-lite';
     try {
       const response = await this.gemini().models.generateContent({
         model,
