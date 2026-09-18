@@ -6,12 +6,10 @@ import {
   type PreparedCreatorAudio,
 } from "./creator-audio.ts";
 
-export async function extractCreatorAudio(
-  file: File,
-  onProgress: (progress: number) => void = () => {},
-): Promise<PreparedCreatorAudio> {
-  validateCreatorMediaFile(file);
-  const input = new media.Input({
+class OverlappingAudioPacketError extends CreatorAudioPreparationError {}
+
+function creatorAudioInput(file: File) {
+  return new media.Input({
     source: new media.BlobSource(file, { maxCacheSize: 4 * 1024 * 1024 }),
     formats: [
       media.MP4,
@@ -23,6 +21,41 @@ export async function extractCreatorAudio(
       media.FLAC,
     ],
   });
+}
+
+function boundedAudioTarget() {
+  let audioBlob = new Blob();
+  const target = new media.StreamTarget(
+    new WritableStream({
+      write({ position, data }: media.StreamTargetChunk) {
+        const end = position + data.byteLength;
+        if (end > MAX_PREPARED_AUDIO_BYTES) {
+          throw new CreatorAudioPreparationError(
+            "The audio is larger than 32 MB. Choose a shorter clip or a compressed MP3 or M4A file.",
+          );
+        }
+        // Muxers rewrite headers. Blob slices keep bounded writes off the JS heap.
+        audioBlob = new Blob([
+          audioBlob.slice(0, position),
+          ...(position > audioBlob.size
+            ? [new Uint8Array(position - audioBlob.size)]
+            : []),
+          data,
+          audioBlob.slice(end),
+        ]);
+      },
+    }),
+    { chunked: true, chunkSize: 1024 * 1024 },
+  );
+  return { target, blob: () => audioBlob };
+}
+
+export async function extractCreatorAudio(
+  file: File,
+  onProgress: (progress: number) => void = () => {},
+): Promise<PreparedCreatorAudio> {
+  validateCreatorMediaFile(file);
+  const input = creatorAudioInput(file);
   let output: InstanceType<typeof media.Output> | undefined;
   let stage: "reading" | "inspecting" | "copying" = "reading";
   try {
@@ -66,30 +99,8 @@ export async function extractCreatorAudio(
       );
     }
 
-    let audioBlob = new Blob();
-    const target = new media.StreamTarget(
-      new WritableStream({
-        write({ position, data }: media.StreamTargetChunk) {
-          const end = position + data.byteLength;
-          if (end > MAX_PREPARED_AUDIO_BYTES) {
-            throw new CreatorAudioPreparationError(
-              "The audio is larger than 32 MB. Choose a shorter clip or a compressed MP3 or M4A file.",
-            );
-          }
-          // Muxers rewrite headers. Blob slices keep those bounded writes off the JS heap.
-          audioBlob = new Blob([
-            audioBlob.slice(0, position),
-            ...(position > audioBlob.size
-              ? [new Uint8Array(position - audioBlob.size)]
-              : []),
-            data,
-            audioBlob.slice(end),
-          ]);
-        },
-      }),
-      { chunked: true, chunkSize: 1024 * 1024 },
-    );
-    output = new media.Output({ format, target });
+    const audio = boundedAudioTarget();
+    output = new media.Output({ format, target: audio.target });
     const source = new media.EncodedAudioPacketSource(codec);
     output.addAudioTrack(source);
     // Copy only the selected audio packets, preserving timing and excluding video,
@@ -98,7 +109,22 @@ export async function extractCreatorAudio(
     await output.start();
     let packetCount = 0;
     for await (const packet of new media.EncodedPacketSink(track).packets()) {
-      if (!isPresentableCreatorAudioPacket(packet)) continue;
+      let presentable: boolean;
+      try {
+        presentable = isPresentableCreatorAudioPacket(packet);
+      } catch (error) {
+        if (!(error instanceof OverlappingAudioPacketError)) throw error;
+        await output.cancel().catch(() => {});
+        output = undefined;
+        // Decode only when a packet overlaps time zero; copying it would shift
+        // speech and dropping it would lose the first audible samples.
+        return transcodeCreatorAudioFromTimelineZero(
+          file,
+          durationSeconds,
+          onProgress,
+        );
+      }
+      if (!presentable) continue;
       await source.add(
         packet,
         packetCount === 0 ? { decoderConfig } : undefined,
@@ -120,7 +146,7 @@ export async function extractCreatorAudio(
     onProgress(1);
     return {
       file: new File(
-        [audioBlob],
+        [audio.blob()],
         `${file.name.replace(/\.[^.]+$/, "")}.${isWebm ? "webm" : isPcm ? "wav" : "m4a"}`,
         {
           type: isWebm ? "audio/webm" : isPcm ? "audio/wav" : "audio/mp4",
@@ -152,13 +178,68 @@ export async function extractCreatorAudio(
   }
 }
 
+export async function transcodeCreatorAudioFromTimelineZero(
+  file: File,
+  durationSeconds: number,
+  onProgress: (progress: number) => void = () => {},
+): Promise<PreparedCreatorAudio> {
+  const input = creatorAudioInput(file);
+  const audio = boundedAudioTarget();
+  const output = new media.Output({
+    format: new media.WavOutputFormat(),
+    target: audio.target,
+  });
+  let conversion: media.Conversion | undefined;
+  try {
+    conversion = await media.Conversion.init({
+      input,
+      output,
+      tracks: "primary",
+      video: { discard: true },
+      audio: {
+        codec: "pcm-s16",
+        numberOfChannels: 1,
+        sampleRate: 16_000,
+        forceTranscode: true,
+      },
+      trim: { start: 0 },
+      tags: {},
+      showWarnings: false,
+    });
+    if (!conversion.isValid) {
+      throw new CreatorAudioPreparationError(
+        "This browser cannot decode the audio timing in this file. Export its audio as MP3 or M4A and try again.",
+      );
+    }
+    conversion.onProgress = (progress) => onProgress(Math.min(progress, 0.99));
+    await conversion.execute();
+    onProgress(1);
+    return {
+      file: new File([audio.blob()], file.name.replace(/\.[^.]+$/, ".wav"), {
+        type: "audio/wav",
+      }),
+      durationSeconds,
+    };
+  } catch (error) {
+    if (error instanceof CreatorAudioPreparationError) throw error;
+    throw new CreatorAudioPreparationError(
+      "This browser could not decode the audio timing in this file. Export its audio as MP3 or M4A and try again.",
+    );
+  } finally {
+    if (conversion && conversion.state !== "done")
+      await conversion.cancel().catch(() => {});
+    if (output.state !== "finalized") await output.cancel().catch(() => {});
+    input.dispose();
+  }
+}
+
 export function isPresentableCreatorAudioPacket(packet: media.EncodedPacket) {
   // AAC files can start with encoder preroll before time zero. Those packets
   // are not audible. Keep every later timestamp unchanged for subtitle sync.
   if (packet.timestamp >= 0) return true;
   if (packet.timestamp + packet.duration <= 0.000001) return false;
   // A packet crossing zero needs sample-level trimming; never shift speech silently.
-  throw new CreatorAudioPreparationError(
+  throw new OverlappingAudioPacketError(
     "This file's audio starts before the media timeline and cannot be trimmed safely. Export its audio as MP3 or M4A and try again.",
   );
 }

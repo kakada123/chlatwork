@@ -20,6 +20,7 @@ import {
 import {
   extractCreatorAudio,
   isPresentableCreatorAudioPacket,
+  transcodeCreatorAudioFromTimelineZero,
 } from "../app/lib/creator-audio-extract.ts";
 
 function wavFile(seconds = 1) {
@@ -194,6 +195,30 @@ test("direct WAV input produces audio with the original duration", async () => {
     formats: ALL_FORMATS,
   });
   try {
+    assert.equal(await input.computeDuration(), 1);
+  } finally {
+    input.dispose();
+  }
+});
+
+test("audio conversion fallback produces a bounded audio-only WAV from time zero", async () => {
+  const progress: number[] = [];
+  const result = await transcodeCreatorAudioFromTimelineZero(
+    wavFile(),
+    1,
+    (value) => progress.push(value),
+  );
+  assert.equal(result.file.type, "audio/wav");
+  assert.equal(result.file.name, "speech.wav");
+  assert.equal(result.durationSeconds, 1);
+  assert.ok(result.file.size < 100_000);
+  assert.equal(progress.at(-1), 1);
+  const input = new Input({
+    source: new BlobSource(result.file),
+    formats: ALL_FORMATS,
+  });
+  try {
+    assert.equal((await input.getVideoTracks()).length, 0);
     assert.equal(await input.computeDuration(), 1);
   } finally {
     input.dispose();

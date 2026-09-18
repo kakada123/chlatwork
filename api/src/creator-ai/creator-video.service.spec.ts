@@ -1,4 +1,6 @@
 import type { ConfigService } from '@nestjs/config';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
 import { AiFeature, AiVideoJobStatus, type AiVideoJob } from '@prisma/client';
 import type { PrismaService } from '../prisma/prisma.service';
 import type { CreatorAiGatewayService } from './creator-ai-gateway.service';
@@ -8,6 +10,7 @@ import type { CreatorPricingService } from './creator-pricing.service';
 import { CreatorVideoService } from './creator-video.service';
 import type { CreatorVideoToolsService } from './creator-video-tools.service';
 import { CreatorVideoWorker } from './creator-video.worker';
+import { VideoGenerateDto } from './dto/creator-ai.dto';
 
 const usage = {
   provider: 'OPENAI' as const,
@@ -41,6 +44,31 @@ const job: AiVideoJob & { generation: { inputSummary: string } } = {
   completedAt: null,
   generation: { inputSummary: 'Video Content Pack|KHMER|NATURAL' },
 };
+
+describe('Creator subtitle style validation', () => {
+  it.each(['SHORT_PHRASES', 'ORIGINAL_SEGMENTS'])(
+    'accepts %s',
+    (subtitleStyle) => {
+      const dto = plainToInstance(VideoGenerateDto, {
+        language: 'KHMER',
+        tone: 'NATURAL',
+        subtitleStyle,
+      });
+      expect(validateSync(dto)).toHaveLength(0);
+    },
+  );
+
+  it('rejects an unknown subtitle style', () => {
+    const dto = plainToInstance(VideoGenerateDto, {
+      language: 'KHMER',
+      tone: 'NATURAL',
+      subtitleStyle: 'UNLIMITED',
+    });
+    expect(validateSync(dto).map((error) => error.property)).toContain(
+      'subtitleStyle',
+    );
+  });
+});
 
 describe('Creator video ownership and processing', () => {
   it('only claims a queued video whose temporary upload is locally readable', async () => {
@@ -162,7 +190,16 @@ describe('Creator video ownership and processing', () => {
         worker as unknown as {
           process(value: typeof job): Promise<void>;
         }
-      ).process({ ...job, mimeType });
+      ).process({
+        ...job,
+        mimeType,
+        generation: {
+          inputSummary:
+            mimeType === 'audio/mp4'
+              ? 'Video Content Pack|KHMER|NATURAL|SHORT_PHRASES'
+              : job.generation.inputSummary,
+        },
+      });
 
       expect(tools.extractAudio).toHaveBeenCalledWith(
         job.tempFilePath,
@@ -178,6 +215,10 @@ describe('Creator video ownership and processing', () => {
         'KHMER',
       );
       expect(gateway.generateStructured).toHaveBeenCalledTimes(2);
+      expect(tools.srt).toHaveBeenCalledWith(
+        expect.any(Array),
+        mimeType === 'audio/mp4' ? 'SHORT_PHRASES' : 'ORIGINAL_SEGMENTS',
+      );
       expect(credits.complete).toHaveBeenCalledWith(
         job.generationId,
         expect.objectContaining({ srt: 'valid-srt' }),
@@ -276,11 +317,21 @@ describe('Creator audio job admission', () => {
 
   it('uses server-verified audio duration with the existing reservation and job contract', async () => {
     const { service, tools, pricing, credits, prisma } = setup();
-    await service.createJob(job.userId, job.feature, 'request-key', {}, file);
+    await service.createJob(
+      job.userId,
+      job.feature,
+      'request-key',
+      { subtitleStyle: 'SHORT_PHRASES' },
+      file,
+    );
     expect(tools.duration).toHaveBeenCalledWith(file.path, 'audio/mp4');
     expect(pricing.video).toHaveBeenCalledWith(job.feature, 61);
     expect(credits.reserve).toHaveBeenCalledWith(
-      expect.objectContaining({ credits: 10, isVideo: true }),
+      expect.objectContaining({
+        credits: 10,
+        isVideo: true,
+        inputSummary: 'Video Content Pack|KHMER|NATURAL|SHORT_PHRASES',
+      }),
     );
     expect(prisma.aiVideoJob.create).toHaveBeenCalledWith(
       expect.objectContaining({

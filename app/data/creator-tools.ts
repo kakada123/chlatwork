@@ -45,7 +45,13 @@ export type CreatorResultKind =
   | "content-pack";
 
 export type CreatorConfigField =
-  "platform" | "language" | "tone" | "video-length" | "goal" | "shortness";
+  | "platform"
+  | "language"
+  | "tone"
+  | "video-length"
+  | "goal"
+  | "shortness"
+  | "subtitle-style";
 
 export type CreatorCreditCost =
   | { type: "fixed"; credits: number }
@@ -179,7 +185,7 @@ export const CREATOR_TOOLS: CreatorToolDefinition[] = [
     inputType: "video",
     inputLabel: "Choose video or audio",
     inputPlaceholder: "Choose a video to create Khmer subtitles.",
-    config: [],
+    config: ["subtitle-style"],
     resultKind: "subtitle",
     submitLabel: "Create Khmer Subtitles",
     creditCost: { type: "video", minimum: 5, perMinute: 5 },
@@ -229,7 +235,7 @@ export const CREATOR_TOOLS: CreatorToolDefinition[] = [
     inputType: "video",
     inputLabel: "Choose video or audio",
     inputPlaceholder: "Choose one video to create the complete content pack.",
-    config: ["language", "tone"],
+    config: ["language", "tone", "subtitle-style"],
     resultKind: "content-pack",
     submitLabel: "Generate Content Pack",
     creditCost: { type: "video", minimum: 7, perMinute: 7 },

@@ -8,6 +8,7 @@ export type CreatorRequest = {
   videoLength: string;
   goal: string;
   shortness: string;
+  subtitleStyle: string;
   customVideoLength: number;
   variation: number;
   file?: File | null;
@@ -293,6 +294,9 @@ async function requestVideoGeneration(
   form.append("file", request.file, request.file.name);
   form.append("language", enumValue(request.language));
   form.append("tone", enumValue(request.tone));
+  if (toolId === "video-subtitle" || toolId === "video-content-pack") {
+    form.append("subtitleStyle", enumValue(request.subtitleStyle || "Short phrases"));
+  }
   context.onVideoStage?.("UPLOADING");
   try {
     const idempotencyKey = crypto.randomUUID();

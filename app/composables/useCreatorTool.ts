@@ -50,6 +50,7 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
     videoLength: "30 sec",
     goal: "Grow audience",
     shortness: "Short",
+    subtitleStyle: "Short phrases",
     customVideoLength: 45,
     variation: 1,
   });

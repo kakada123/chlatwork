@@ -269,6 +269,10 @@ export class CreatorVideoService {
       .split('_')
       .map((part) => part[0]?.toUpperCase() + part.slice(1))
       .join(' ');
-    return `${label}|${String(options.language ?? 'KHMER')}|${String(options.tone ?? 'NATURAL')}`;
+    const summary = `${label}|${String(options.language ?? 'KHMER')}|${String(options.tone ?? 'NATURAL')}`;
+    return feature === AiFeature.VIDEO_SUBTITLE ||
+      feature === AiFeature.VIDEO_CONTENT_PACK
+      ? `${summary}|${String(options.subtitleStyle ?? 'ORIGINAL_SEGMENTS')}`
+      : summary;
   }
 }

@@ -70,6 +70,13 @@ test("Creator credits use fixed or duration-based estimates without token langua
   });
 });
 
+test("subtitle style appears only on workflows that produce an SRT", () => {
+  const selectable = CREATOR_TOOLS.filter((tool) =>
+    tool.config.includes("subtitle-style"),
+  ).map((tool) => tool.id);
+  assert.deepEqual(selectable, ["video-subtitle", "video-content-pack"]);
+});
+
 test("Creator UI is discoverable through existing navigation without changing mobile dock slots", () => {
   const layout = read("app/layouts/default.vue");
   const mobileTools = read("app/components/tools/MobileToolsDirectory.vue");

@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CREATOR_AI_DEFAULTS } from './creator-ai.config';
-import type { TranscriptSegment } from './creator-ai.types';
+import type { CreatorSubtitleStyle, TranscriptSegment } from './creator-ai.types';
 
 @Injectable()
 export class CreatorVideoToolsService {
@@ -118,11 +118,17 @@ export class CreatorVideoToolsService {
     );
   }
 
-  srt(segments: TranscriptSegment[]) {
+  srt(
+    segments: TranscriptSegment[],
+    style: CreatorSubtitleStyle = 'ORIGINAL_SEGMENTS',
+  ) {
     return segments
+      .flatMap((segment) =>
+        style === 'SHORT_PHRASES' ? subtitleCues(segment) : [segment],
+      )
       .map(
-        (segment, index) =>
-          `${index + 1}\n${formatSrtTime(segment.start)} --> ${formatSrtTime(segment.end)}\n${segment.text.trim()}`,
+        (cue, index) =>
+          `${index + 1}\n${formatSrtTime(cue.start)} --> ${formatSrtTime(cue.end)}\n${cue.text.trim()}`,
       )
       .join('\n\n');
   }
@@ -163,6 +169,112 @@ export class CreatorVideoToolsService {
       });
     });
   }
+}
+
+interface SubtitlePhrase {
+  text: string;
+  spaceBefore: boolean;
+}
+
+const khmerScript = /\p{Script=Khmer}/u;
+const khmerWordSegmenter = new Intl.Segmenter('km', { granularity: 'word' });
+const graphemeSegmenter = new Intl.Segmenter('km', { granularity: 'grapheme' });
+
+function graphemeLength(text: string) {
+  return [...graphemeSegmenter.segment(text)].length;
+}
+
+function subtitlePhrases(text: string): SubtitlePhrase[] {
+  const phrases: SubtitlePhrase[] = [];
+  let latinPhrase = '';
+  const flushLatin = () => {
+    if (!latinPhrase) return;
+    phrases.push({ text: latinPhrase, spaceBefore: phrases.length > 0 });
+    latinPhrase = '';
+  };
+
+  for (const token of text.split(' ')) {
+    if (!khmerScript.test(token)) {
+      const joined = latinPhrase ? `${latinPhrase} ${token}` : token;
+      if (latinPhrase && graphemeLength(joined) > 32) flushLatin();
+      latinPhrase = latinPhrase ? `${latinPhrase} ${token}` : token;
+      continue;
+    }
+    flushLatin();
+    let phrase = '';
+    let spaceBefore = phrases.length > 0;
+    const parts = [...khmerWordSegmenter.segment(token)];
+    for (const [index, part] of parts.entries()) {
+      const word = part.segment;
+      const isShortFinalWord =
+        graphemeLength(word) <= 2 &&
+        !parts.slice(index + 1).some((remaining) => remaining.isWordLike);
+      // Khmer spaces mark phrases; within one phrase, break only at word
+      // boundaries so a subtitle never splits a combining character.
+      if (
+        phrase &&
+        part.isWordLike &&
+        graphemeLength(phrase + word) > 8 &&
+        !isShortFinalWord
+      ) {
+        phrases.push({ text: phrase, spaceBefore });
+        phrase = word;
+        spaceBefore = false;
+      } else {
+        phrase += word;
+      }
+    }
+    if (phrase) phrases.push({ text: phrase, spaceBefore });
+  }
+  flushLatin();
+  return phrases;
+}
+
+function subtitleCues(segment: TranscriptSegment): TranscriptSegment[] {
+  const text = segment.text.trim().replace(/\s+/gu, ' ');
+  if (!text) return [];
+  const duration = segment.end - segment.start;
+  const phrases = subtitlePhrases(text);
+  const maxCues = Number.isFinite(duration)
+    ? Math.max(1, Math.floor(duration / 0.6))
+    : 1;
+
+  // Very short source segments cannot display every short phrase long enough
+  // to read. Merge the shortest neighbors while retaining their original spaces.
+  while (phrases.length > maxCues) {
+    let shortestPair = 0;
+    let shortestLength = Number.POSITIVE_INFINITY;
+    for (let index = 0; index < phrases.length - 1; index++) {
+      const length = graphemeLength(phrases[index].text) +
+        graphemeLength(phrases[index + 1].text);
+      if (length < shortestLength) {
+        shortestLength = length;
+        shortestPair = index;
+      }
+    }
+    const following = phrases[shortestPair + 1];
+    phrases[shortestPair].text +=
+      `${following.spaceBefore ? ' ' : ''}${following.text}`;
+    phrases.splice(shortestPair + 1, 1);
+  }
+
+  const weights = phrases.map((phrase) => Math.max(1, graphemeLength(phrase.text)));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const minimumCueSeconds = phrases.length > 1 ? 0.35 : 0;
+  const flexibleSeconds = Math.max(0, duration - phrases.length * minimumCueSeconds);
+  let elapsedWeight = 0;
+  let cueStart = segment.start;
+  return phrases.map((phrase, index) => {
+    elapsedWeight += weights[index];
+    const cueEnd = index === phrases.length - 1
+      ? segment.end
+      : segment.start +
+        (index + 1) * minimumCueSeconds +
+        (flexibleSeconds * elapsedWeight) / totalWeight;
+    const cue = { start: cueStart, end: cueEnd, text: phrase.text };
+    cueStart = cueEnd;
+    return cue;
+  });
 }
 
 function formatSrtTime(seconds: number) {

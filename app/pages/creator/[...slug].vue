@@ -101,6 +101,7 @@ function downloadSrt() {
         v-model:video-length="form.videoLength"
         v-model:goal="form.goal"
         v-model:shortness="form.shortness"
+        v-model:subtitle-style="form.subtitleStyle"
         v-model:custom-video-length="form.customVideoLength"
         v-model:image-file="imageFile"
         :tool="tool"

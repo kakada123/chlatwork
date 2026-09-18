@@ -157,7 +157,11 @@ export class LongToShortDto {
   language!: CreatorLanguage;
 }
 
-export class VideoGenerateDto extends LanguageToneDto {}
+export class VideoGenerateDto extends LanguageToneDto {
+  @IsOptional()
+  @IsIn(['SHORT_PHRASES', 'ORIGINAL_SEGMENTS'])
+  subtitleStyle?: 'SHORT_PHRASES' | 'ORIGINAL_SEGMENTS';
+}
 
 export class CreatorVideoUploadTicketDto {
   @IsEnum(AiFeature)

@@ -76,7 +76,12 @@ test("prepared audio uploads through the existing ticket with one idempotency ke
     const stages: string[] = [];
     const result = await service.runCreatorGeneration(
       "video-subtitle",
-      { file, language: "Khmer", tone: "Natural" },
+      {
+        file,
+        language: "Khmer",
+        tone: "Natural",
+        subtitleStyle: "Short phrases",
+      },
       {
         onVideoStage: (stage: string) => stages.push(stage),
       },
@@ -93,8 +98,19 @@ test("prepared audio uploads through the existing ticket with one idempotency ke
     assert.equal(uploaded.type, "audio/mp4");
     assert.equal(await uploaded.text(), "audio-only");
     assert.equal(form.get("language"), "KHMER");
+    assert.equal(form.get("subtitleStyle"), "SHORT_PHRASES");
     assert.deepEqual(stages, ["UPLOADING", "COMPLETED"]);
     assert.equal(result.usage.creditsCharged, 5);
+
+    requests.length = 0;
+    await service.runCreatorGeneration("video-subtitle", {
+      file,
+      language: "Khmer",
+      tone: "Natural",
+      subtitleStyle: "Original segments",
+    });
+    const originalForm = requests[1]!.options.body as FormData;
+    assert.equal(originalForm.get("subtitleStyle"), "ORIGINAL_SEGMENTS");
   } finally {
     runtime.$fetch = previous;
   }

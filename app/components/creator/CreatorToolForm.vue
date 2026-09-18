@@ -33,6 +33,7 @@ const tone = defineModel<string>("tone", { required: true });
 const videoLength = defineModel<string>("videoLength", { required: true });
 const goal = defineModel<string>("goal", { required: true });
 const shortness = defineModel<string>("shortness", { required: true });
+const subtitleStyle = defineModel<string>("subtitleStyle", { required: true });
 const customVideoLength = defineModel<number>("customVideoLength", {
   required: true,
 });
@@ -80,6 +81,7 @@ const shortnessOptions = [
   "TikTok style",
   "Facebook short post",
 ];
+const subtitleStyleOptions = ["Short phrases", "Original segments"];
 const toneOptions = computed(() => {
   if (props.tool.id === "khmer-humanize") return humanizeToneOptions;
   if (props.tool.id === "khmer-rewrite") return rewriteToneOptions;
@@ -251,6 +253,20 @@ function chooseImage(event: Event) {
       label="Output style"
       :options="shortnessOptions"
     />
+    <CreatorOptionSelector
+      v-if="tool.config.includes('subtitle-style')"
+      id="creator-subtitle-style"
+      v-model="subtitleStyle"
+      label="Subtitle style"
+      :options="subtitleStyleOptions"
+    />
+    <p
+      v-if="tool.config.includes('subtitle-style')"
+      class="text-xs leading-5 text-slate-500 dark:text-white/50"
+    >
+      Short phrases show one phrase at a time. Original segments keep the
+      transcript's longer timing groups.
+    </p>
 
     <div
       v-if="errorMessage && state !== 'insufficient-credits'"

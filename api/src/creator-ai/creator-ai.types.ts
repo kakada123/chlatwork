@@ -64,6 +64,8 @@ export interface TranscriptSegment {
   text: string;
 }
 
+export type CreatorSubtitleStyle = 'SHORT_PHRASES' | 'ORIGINAL_SEGMENTS';
+
 export interface CreatorTranscript {
   text: string;
   segments: TranscriptSegment[];

@@ -19,7 +19,7 @@ describe('Creator pricing and subtitle utilities', () => {
     expect(pricing.video(AiFeature.VIDEO_SUBTITLE, 61)).toBe(10);
   });
 
-  it('generates valid SRT timestamps without changing segment timing', () => {
+  it('generates valid SRT timestamps without changing original segment timing', () => {
     const tools = new CreatorVideoToolsService(config);
     expect(
       tools.srt([

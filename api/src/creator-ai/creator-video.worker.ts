@@ -166,7 +166,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
       );
       const transcript = segments.map((segment) => segment.text).join(' ');
       assertVideoLanguage([transcript], preferences.language);
-      const srt = this.tools.srt(segments);
+      const srt = this.tools.srt(segments, preferences.subtitleStyle);
 
       let result: CreatorGenerationResult;
       if (job.feature === AiFeature.VIDEO_SUBTITLE) {
@@ -428,6 +428,15 @@ export const preserveTranscriptTiming = (
   }));
 
 function videoPreferences(summary: string | null) {
-  const [, language = 'KHMER', tone = 'NATURAL'] = (summary ?? '').split('|');
-  return { language: videoLanguage(language), tone };
+  const [, language = 'KHMER', tone = 'NATURAL', subtitleStyle] =
+    (summary ?? '').split('|');
+  // Jobs queued before this setting was added retain their original SRT layout.
+  return {
+    language: videoLanguage(language),
+    tone,
+    subtitleStyle:
+      subtitleStyle === 'SHORT_PHRASES'
+        ? 'SHORT_PHRASES' as const
+        : 'ORIGINAL_SEGMENTS' as const,
+  };
 }
