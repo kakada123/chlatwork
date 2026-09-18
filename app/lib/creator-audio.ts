@@ -5,7 +5,7 @@ export const CREATOR_MEDIA_ACCEPT =
 export const MAX_LOCAL_MEDIA_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_PREPARED_AUDIO_BYTES = 32 * 1024 * 1024;
 export const AUDIO_PREPARATION_ERROR =
-  "Could not prepare audio on this device. Choose an MP3, M4A, WAV, OGG, FLAC, or audio WebM file instead.";
+  "Audio preparation stopped unexpectedly in this browser. Try a shorter video or an MP3 or M4A audio file.";
 
 export type PreparedCreatorAudio = {
   file: File;

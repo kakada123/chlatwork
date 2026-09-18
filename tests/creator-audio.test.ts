@@ -181,7 +181,7 @@ test("encoder preroll is skipped while audible packet timestamps stay unchanged"
       isPresentableCreatorAudioPacket(
         new EncodedPacket(data, "key", -0.01, 1024 / 48000),
       ),
-    /Choose an MP3/,
+    /audio starts before the media timeline/,
   );
 });
 
@@ -213,7 +213,7 @@ test("silent video, corrupt files, empty files, and oversized sources fail local
   );
   await assert.rejects(
     extractCreatorAudio(new File(["not media"], "fake.mp4")),
-    /Choose an MP3/,
+    /not a readable video or audio file/,
   );
   assert.throws(
     () => validateCreatorMediaFile(new File([], "empty.mp3")),

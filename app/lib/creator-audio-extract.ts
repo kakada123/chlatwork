@@ -1,6 +1,5 @@
 import * as media from "mediabunny";
 import {
-  AUDIO_PREPARATION_ERROR,
   MAX_PREPARED_AUDIO_BYTES,
   CreatorAudioPreparationError,
   validateCreatorMediaFile,
@@ -25,6 +24,7 @@ export async function extractCreatorAudio(
     ],
   });
   let output: InstanceType<typeof media.Output> | undefined;
+  let stage: "reading" | "inspecting" | "copying" = "reading";
   try {
     const track = await input.getPrimaryAudioTrack();
     if (!track) {
@@ -32,16 +32,19 @@ export async function extractCreatorAudio(
         "This file has no audio track. Choose a file with sound.",
       );
     }
+    stage = "inspecting";
     const codec = await track.getCodec();
     const decoderConfig = await track.getDecoderConfig();
     const durationSeconds = await track.computeDuration();
-    if (
-      !codec ||
-      !decoderConfig ||
-      !Number.isFinite(durationSeconds) ||
-      durationSeconds <= 0
-    ) {
-      throw new CreatorAudioPreparationError(AUDIO_PREPARATION_ERROR);
+    if (!codec || !decoderConfig) {
+      throw new CreatorAudioPreparationError(
+        "Could not identify this file's audio format. Export its audio as MP3 or M4A and try again.",
+      );
+    }
+    if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+      throw new CreatorAudioPreparationError(
+        "Could not read this file's audio duration. Export its audio as MP3 or M4A and try again.",
+      );
     }
 
     const isWebm = codec === "opus" || codec === "vorbis";
@@ -52,11 +55,15 @@ export async function extractCreatorAudio(
         ? new media.WavOutputFormat()
         : new media.Mp4OutputFormat({ fastStart: false });
     if (!format.getSupportedAudioCodecs().includes(codec)) {
-      throw new CreatorAudioPreparationError(AUDIO_PREPARATION_ERROR);
+      throw new CreatorAudioPreparationError(
+        "This file's audio codec cannot be copied on your device. Export its audio as MP3 or M4A and try again.",
+      );
     }
     // WAV cannot retain a delayed track's timestamps; do not silently shift subtitles.
     if (isPcm && Math.abs(await track.getFirstTimestamp()) > 0.001) {
-      throw new CreatorAudioPreparationError(AUDIO_PREPARATION_ERROR);
+      throw new CreatorAudioPreparationError(
+        "This file's audio timing cannot be preserved. Export its audio as MP3 or M4A and try again.",
+      );
     }
 
     let audioBlob = new Blob();
@@ -87,6 +94,7 @@ export async function extractCreatorAudio(
     output.addAudioTrack(source);
     // Copy only the selected audio packets, preserving timing and excluding video,
     // cover art, and source metadata. No browser decoder or encoder is required.
+    stage = "copying";
     await output.start();
     let packetCount = 0;
     for await (const packet of new media.EncodedPacketSink(track).packets()) {
@@ -122,7 +130,21 @@ export async function extractCreatorAudio(
     };
   } catch (error) {
     if (error instanceof CreatorAudioPreparationError) throw error;
-    throw new CreatorAudioPreparationError(AUDIO_PREPARATION_ERROR);
+    // Parser and muxer exceptions can contain private file details. Report the
+    // failed stage without exposing their raw messages in the UI.
+    if (
+      stage === "reading" ||
+      error instanceof media.UnsupportedInputFormatError
+    ) {
+      throw new CreatorAudioPreparationError(
+        "This is not a readable video or audio file. Save the complete file and try again.",
+      );
+    }
+    throw new CreatorAudioPreparationError(
+      stage === "inspecting"
+        ? "Could not inspect this file's audio track. Export its audio as MP3 or M4A and try again."
+        : "Could not copy this file's audio on your device. Export its audio as MP3 or M4A and try again.",
+    );
   } finally {
     if (output && output.state !== "finalized")
       await output.cancel().catch(() => {});
@@ -136,5 +158,7 @@ export function isPresentableCreatorAudioPacket(packet: media.EncodedPacket) {
   if (packet.timestamp >= 0) return true;
   if (packet.timestamp + packet.duration <= 0.000001) return false;
   // A packet crossing zero needs sample-level trimming; never shift speech silently.
-  throw new CreatorAudioPreparationError(AUDIO_PREPARATION_ERROR);
+  throw new CreatorAudioPreparationError(
+    "This file's audio starts before the media timeline and cannot be trimmed safely. Export its audio as MP3 or M4A and try again.",
+  );
 }
