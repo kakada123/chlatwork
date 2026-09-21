@@ -11,7 +11,12 @@ import { getToolIconTone } from "~/lib/tool-icon-tones";
 const pdfCategory = TOOL_DIRECTORY_CATEGORIES.find(
   (category) => category.key === "pdf",
 );
-const pdfTools = pdfCategory ? getToolsForDirectoryCategory(pdfCategory) : [];
+const { websiteEnabled } = useFeatureAvailability();
+const pdfTools = computed(() =>
+  pdfCategory
+    ? getToolsForDirectoryCategory(pdfCategory).filter((tool) => websiteEnabled(tool.key))
+    : [],
+);
 
 useSeoMeta({
   title: "PDF Tools Online - ChlatWork",
@@ -69,7 +74,11 @@ useHead({
       </p>
     </section>
 
-    <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <p v-if="!pdfTools.length" class="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/65">
+      PDF tools are temporarily unavailable.
+    </p>
+
+    <section v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="tool in pdfTools"
         :key="tool.key"

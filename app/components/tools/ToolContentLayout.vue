@@ -16,6 +16,7 @@ const props = withDefaults(
 );
 const route = useRoute();
 const { isKhmer } = useLanguage();
+const { websiteEnabled } = useFeatureAvailability();
 const shouldUseKhmerExamples = computed(
   () => isKhmer.value || route.path.startsWith("/km/"),
 );
@@ -50,7 +51,11 @@ const privacyNotes = computed(() =>
       ],
 );
 const relatedTools = computed(() =>
-  getRelatedToolsForToolKey(props.guide.tool.key, 4),
+  getRelatedToolsForToolKey(
+    props.guide.tool.key,
+    4,
+    (tool) => websiteEnabled(tool.key),
+  ),
 );
 const practicalExamplesTitle = computed(() =>
   shouldUseKhmerExamples.value
@@ -343,7 +348,7 @@ const outputChecklist = [
       </div>
     </section>
 
-    <section v-if="showRelated" class="space-y-3">
+    <section v-if="showRelated && relatedTools.length" class="space-y-3">
       <h2 class="text-xl font-black">Related tools</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div

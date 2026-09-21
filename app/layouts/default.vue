@@ -16,7 +16,7 @@ import { DEVELOPER_GUIDES } from "~/data/developer-guides";
 import {
   findToolGuideByToolRoute,
 } from "~/data/tool-guides";
-import { TOOL_DIRECTORY_CATEGORIES } from "~/data/tool-categories";
+import { TOOL_DIRECTORY_CATEGORIES, getToolsForDirectoryCategory } from "~/data/tool-categories";
 import { POSTS } from "~/data/posts";
 import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools, searchTextMatches } from "~/lib/tool-search";
@@ -279,18 +279,21 @@ const headerSearchResults = computed(() => {
     label: "Post",
     searchText: "",
   }));
-  const categoryResults = TOOL_DIRECTORY_CATEGORIES.filter((category) =>
-    searchTextMatches(
+  const categoryResults = TOOL_DIRECTORY_CATEGORIES.filter((category) => {
+    const availableTools = getToolsForDirectoryCategory(category).filter((tool) =>
+      websiteEnabled(tool.key),
+    );
+    return availableTools.length > 0 && searchTextMatches(
       [
         category.name,
         category.title,
         category.description,
         category.intro,
-        ...category.toolKeys,
+        ...availableTools.map((tool) => tool.key),
       ].join(" "),
       query,
-    ),
-  ).map((category) => ({
+    );
+  }).map((category) => ({
     key: `category-${category.key}`,
     title: category.title,
     description: category.description,

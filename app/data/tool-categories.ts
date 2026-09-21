@@ -256,7 +256,11 @@ export function findToolDirectoryCategoryForToolKey(toolKey: string) {
   );
 }
 
-export function getRelatedToolsForToolKey(toolKey: string, limit = 4) {
+export function getRelatedToolsForToolKey(
+  toolKey: string,
+  limit = 4,
+  isAvailable: (tool: ToolDef) => boolean = () => true,
+) {
   const primaryCategory = findToolDirectoryCategoryForToolKey(toolKey);
   const primaryTools = primaryCategory
     ? getToolsForDirectoryCategory(primaryCategory)
@@ -268,5 +272,7 @@ export function getRelatedToolsForToolKey(toolKey: string, limit = 4) {
       !sameCategoryTools.some((sameTool) => sameTool.key === tool.key),
   );
 
-  return [...sameCategoryTools, ...fallbackTools].slice(0, limit);
+  return [...sameCategoryTools, ...fallbackTools]
+    .filter(isAvailable)
+    .slice(0, limit);
 }

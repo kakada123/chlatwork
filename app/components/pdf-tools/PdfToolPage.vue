@@ -56,7 +56,10 @@ type ResultItem = {
 const toolKey = computed(() => props.toolKey);
 const tool = computed(() => PDF_TOOL_BY_KEY[props.toolKey]);
 const guide = computed(() => findToolGuideByToolRoute(tool.value.route));
-const relatedTools = computed(() => getPdfRelatedTools(tool.value));
+const { websiteEnabled } = useFeatureAvailability();
+const relatedTools = computed(() =>
+  getPdfRelatedTools(tool.value).filter((relatedTool) => websiteEnabled(relatedTool.key)),
+);
 const toolFaq = computed(() => guide.value?.faqs.slice(0, 5) ?? tool.value.faq);
 const files = ref<File[]>([]);
 const results = ref<ResultItem[]>([]);
@@ -650,7 +653,7 @@ function removeInvoiceItem(index: number) {
     </section>
 
     <PdfResultDownload v-if="tool.status !== 'soon'" :results="results" />
-    <PdfRelatedTools :tools="relatedTools" />
+    <PdfRelatedTools v-if="relatedTools.length" :tools="relatedTools" />
     <ToolPageDetails
       v-if="guide"
       :guide="guide"
