@@ -165,7 +165,13 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             if (poll.closed) {
               await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at = ${now} WHERE id = ${round.id}::uuid`;
               if (poll.results.some((result) => result.votes > 0)) {
-                return { chatId: Number(current.telegramChatId), messageId };
+                const highest = Math.max(...poll.results.map((result) => result.votes));
+                const winners = poll.results.filter((result) => result.votes === highest);
+                return {
+                  chatId: Number(current.telegramChatId), messageId,
+                  winner: winners.length === 1 ? winners[0] : null,
+                  slug: poll.slug,
+                };
               }
             }
           },
@@ -175,17 +181,24 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
           // Send only after finalization commits. This optional effect is not retried:
           // a lost Telegram response must not duplicate it or reopen a finished round.
           try {
-            await this.bot.sendAnimation(
-              celebration.chatId,
-              new URL(
-                '/images/telegram/vote-celebration.gif',
-                this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
-              ).toString(),
-              celebration.messageId,
-            );
+            const origin = this.config.getOrThrow<string>('FRONTEND_ORIGIN');
+            if (celebration.winner?.imageId) {
+              await this.bot.sendPhoto(
+                celebration.chatId,
+                new URL(`/api/moments/${celebration.slug}/media/${celebration.winner.imageId}?format=jpeg`, origin).toString(),
+                `🏆 Winner: ${celebration.winner.label}`,
+                celebration.messageId,
+              );
+            } else {
+              await this.bot.sendAnimation(
+                celebration.chatId,
+                new URL('/images/telegram/vote-celebration.gif', origin).toString(),
+                celebration.messageId,
+              );
+            }
           } catch {
             this.logger.warn(
-              'A vote celebration animation could not be delivered',
+              'A vote celebration could not be delivered',
             );
           }
         }

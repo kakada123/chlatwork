@@ -94,6 +94,7 @@ export interface ReadyMoment {
 export interface MomentPollResult {
   optionId: string;
   label: string;
+  imageId?: string;
   votes: number;
   voters?: string[];
   hasVotes?: boolean;

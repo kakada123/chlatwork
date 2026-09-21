@@ -47,7 +47,7 @@ type MomentPollIdentityMode = 'ANONYMOUS' | 'NAME_REQUIRED' | 'LOGIN_REQUIRED';
 interface MomentPollDefinition {
   question: string;
   identityMode: MomentPollIdentityMode;
-  options: Array<{ id: string; label: string }>;
+  options: Array<{ id: string; label: string; imageId?: string }>;
 }
 
 export interface TelegramMomentVoter {
@@ -72,6 +72,7 @@ export interface TelegramMomentPoll {
   results: Array<{
     optionId: string;
     label: string;
+    imageId?: string;
     votes: number;
     voters?: string[];
   }>;
@@ -275,6 +276,104 @@ export class MomentsService {
         content: Uint8Array.from(normalized),
       },
       select: { id: true, position: true },
+    });
+  }
+
+  async setPollOptionImage(
+    userId: string,
+    momentId: string,
+    optionId: string,
+    file?: MomentUpload,
+  ) {
+    if (!file) throw new BadRequestException('Choose an image to upload');
+    if (file.size > MAX_MOMENT_IMAGE_BYTES) {
+      throw new BadRequestException('Each Moment image must be 10MB or smaller');
+    }
+    const mimeType = detectImageMime(file.buffer);
+    if (!mimeType || mimeType !== file.mimetype) {
+      throw new BadRequestException(
+        'Only valid JPEG, PNG, and WebP images are accepted',
+      );
+    }
+    const owner = await this.prisma.moment.findUnique({
+      where: { id: momentId },
+      select: { creatorId: true, occasion: true },
+    });
+    if (
+      !owner ||
+      owner.creatorId !== userId ||
+      owner.occasion !== MomentOccasion.VOTING
+    ) {
+      throw new NotFoundException('Poll not found');
+    }
+    try {
+      const image = await loadImage(file.buffer);
+      if (image.width * image.height > 40_000_000) {
+        throw new BadRequestException('Moment photos cannot exceed 40 megapixels');
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException('This image could not be opened');
+    }
+    const normalized = await normalizeMomentImage(file.buffer, mimeType);
+    return this.prisma.$transaction(async (tx) => {
+      // Serialize image edits with option edits so an upload cannot revive a removed choice.
+      const [owned] = await tx.$queryRaw<Array<{ id: string; slug: string }>>`
+        SELECT id::text, slug FROM moments WHERE id = ${momentId}::uuid
+          AND creator_id = ${userId}::uuid AND occasion = 'VOTING' FOR UPDATE
+      `;
+      if (!owned) throw new NotFoundException('Poll not found');
+      const block = await tx.momentBlock.findFirst({
+        where: { momentId, type: MomentBlockType.POLL }, select: { id: true, data: true },
+      });
+      const poll = this.readPollDefinition(block?.data);
+      const option = poll?.options.find((item) => item.id === optionId);
+      if (!block || !poll || !option) {
+        throw new NotFoundException('Poll choice not found');
+      }
+      const activeRound = await tx.momentVoteRound.findFirst({
+        where: { momentId, finalizedAt: null, closesAt: { gt: new Date() } },
+        select: { id: true },
+      });
+      if (activeRound) {
+        throw new ConflictException('Wait for the active Telegram vote to close');
+      }
+      const lastMedia = await tx.momentMedia.findFirst({
+        where: { momentId },
+        orderBy: { position: 'desc' },
+        select: { position: true },
+      });
+      const media = await tx.momentMedia.create({
+        data: {
+          momentId,
+          position: (lastMedia?.position ?? -1) + 1,
+          mimeType: 'image/webp',
+          byteSize: normalized.length,
+          originalName: `${optionId}.webp`,
+          content: Uint8Array.from(normalized),
+        },
+        select: { id: true },
+      });
+      await tx.momentBlock.update({
+        where: { id: block.id },
+        data: {
+          data: {
+            ...(block.data as Prisma.JsonObject),
+            options: poll.options.map((item) =>
+              item.id === optionId ? { ...item, imageId: media.id } : item,
+            ),
+          } as Prisma.InputJsonValue,
+        },
+      });
+      if (option.imageId) {
+        await tx.momentMedia.deleteMany({
+          where: { id: option.imageId, momentId },
+        });
+      }
+      return {
+        imageId: media.id,
+        imageUrl: `/api/moments/${owned.slug}/media/${media.id}`,
+      };
     });
   }
 
@@ -486,6 +585,20 @@ export class MomentsService {
   ): Promise<TelegramMomentPoll> {
     const moment = await this.prisma.moment.findFirst({
       where: { id: momentId, creatorId: userId },
+      include: {
+        blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
+        voteSchedule: { select: { enabled: true, timeZone: true } },
+      },
+    });
+    this.assertVotingOpen(moment);
+    const poll = this.readPollDefinition(moment.blocks[0]?.data);
+    if (!poll) throw new NotFoundException('Poll not found');
+    return this.toTelegramPollView(moment, poll);
+  }
+
+  async getTelegramVotingMoment(momentId: string): Promise<TelegramMomentPoll> {
+    const moment = await this.prisma.moment.findUnique({
+      where: { id: momentId },
       include: {
         blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
         voteSchedule: { select: { enabled: true, timeZone: true } },
@@ -1194,9 +1307,20 @@ export class MomentsService {
         data: {
           data: {
             ...(block.data as Prisma.JsonObject),
-            options,
+            options: options.map((option) => ({
+              ...option,
+              ...(oldOptions.get(option.id)?.imageId
+                ? { imageId: oldOptions.get(option.id)!.imageId }
+                : {}),
+            })),
           } as Prisma.InputJsonValue,
         },
+      });
+      const removedImageIds = poll.options
+        .filter((option) => !options.some((item) => item.id === option.id))
+        .flatMap((option) => option.imageId ? [option.imageId] : []);
+      if (removedImageIds.length) await tx.momentMedia.deleteMany({
+        where: { momentId, id: { in: removedImageIds } },
       });
     });
     return { updated: true };
@@ -1277,7 +1401,7 @@ export class MomentsService {
 
   private async getPollSummary(
     momentId: string,
-    options: Array<{ id: string; label?: string }>,
+    options: Array<{ id: string; label?: string; imageId?: string }>,
     identityMode: string,
     voteDate = ONE_TIME_POLL_DATE,
   ) {
@@ -1301,6 +1425,7 @@ export class MomentsService {
     const results = options.map((option) => ({
       optionId: option.id,
       label: option.label ?? '',
+      ...(option.imageId ? { imageId: option.imageId } : {}),
       votes:
         groups.find((group) => group.optionId === option.id)?._count._all ?? 0,
       ...(identityMode !== 'ANONYMOUS'
@@ -1574,9 +1699,10 @@ export class MomentsService {
           }
         : {}),
       totalVotes: summary.totalVotes,
-      results: summary.results.map(({ optionId, label, votes, voters }) => ({
+      results: summary.results.map(({ optionId, label, imageId, votes, voters }) => ({
         optionId,
         label,
+        ...(imageId ? { imageId } : {}),
         votes,
         ...(voters ? { voters } : {}),
       })),
@@ -1597,7 +1723,10 @@ export class MomentsService {
       const id = typeof candidate.id === 'string' ? candidate.id : '';
       const label =
         typeof candidate.label === 'string' ? candidate.label.trim() : '';
-      return /^option-\d+$/.test(id) && label ? [{ id, label }] : [];
+      const imageId = typeof candidate.imageId === 'string' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidate.imageId)
+        ? candidate.imageId : undefined;
+      return /^option-\d+$/.test(id) && label ? [{ id, label, ...(imageId ? { imageId } : {}) }] : [];
     });
     const rawIdentityMode = record.identityMode;
     const identityMode: MomentPollIdentityMode =
@@ -1611,7 +1740,7 @@ export class MomentsService {
     return { question, identityMode, options };
   }
 
-  async getPublicMedia(slug: string, mediaId: string) {
+  async getPublicMedia(slug: string, mediaId: string, asJpeg = false) {
     const media = await this.prisma.momentMedia.findFirst({
       where: { id: mediaId, moment: { slug } },
       include: { moment: true },
@@ -1623,6 +1752,27 @@ export class MomentsService {
     }
     if (!media.content)
       throw new NotFoundException('Photo content is unavailable');
+    if (asJpeg) {
+      if (media.moment.occasion !== MomentOccasion.VOTING) {
+        throw new NotFoundException('Photo not found');
+      }
+      const pollBlock = await this.prisma.momentBlock.findFirst({
+        where: { momentId: media.momentId, type: MomentBlockType.POLL },
+        select: { data: true },
+      });
+      if (!this.readPollDefinition(pollBlock?.data)?.options.some((option) => option.imageId === mediaId)) {
+        throw new NotFoundException('Photo not found');
+      }
+      // Telegram's photo upload path is most reliable with a bounded JPEG.
+      const image = await loadImage(Buffer.from(media.content));
+      const scale = Math.min(1, 1200 / Math.max(image.width, image.height));
+      const canvas = createCanvas(
+        Math.max(1, Math.round(image.width * scale)),
+        Math.max(1, Math.round(image.height * scale)),
+      );
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      return { content: Buffer.from(await canvas.encode('jpeg', 80)), mimeType: 'image/jpeg' };
+    }
     return { content: Buffer.from(media.content), mimeType: media.mimeType };
   }
 

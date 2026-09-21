@@ -5,9 +5,10 @@ export default defineEventHandler(async (event) => {
   // Nitro requires one parameter name here; public GETs interpret the shared key as a slug.
   const momentKey = getRouterParam(event, "id");
   const mediaId = getRouterParam(event, "mediaId");
+  const jpeg = getQuery(event).format === "jpeg";
   try {
     const response = await $fetch.raw<ArrayBuffer>(
-      `${apiBaseUrl(event)}/moments/${momentKey}/media/${mediaId}`,
+      `${apiBaseUrl(event)}/moments/${momentKey}/media/${mediaId}${jpeg ? "?format=jpeg" : ""}`,
       { responseType: "arrayBuffer" },
     );
     setResponseHeader(

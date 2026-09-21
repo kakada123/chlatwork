@@ -4,6 +4,7 @@ import {
   CalendarClock,
   ChevronDown,
   History,
+  ImagePlus,
   LockKeyhole,
   Pencil,
   RotateCcw,
@@ -12,6 +13,7 @@ import {
   UserRoundCheck,
 } from "lucide-vue-next";
 import type { MomentPollResult, MomentSummary } from "~/types/moment";
+import { prepareMomentImage } from "~/lib/moment-image";
 
 const props = withDefaults(defineProps<{ moment: MomentSummary; resetting?: boolean }>(), { resetting: false });
 const emit = defineEmits<{ reset: [moment: MomentSummary]; updated: [] }>();
@@ -23,6 +25,7 @@ const insights = computed(() => props.moment.pollInsights);
 const editingOptions = ref(false);
 const savingOptions = ref(false);
 const optionError = ref("");
+const uploadingOption = ref("");
 const optionDraft = ref<Array<{ id: string; label: string; hasVotes: boolean }>>([]);
 const validOptions = computed(() => {
   const labels = optionDraft.value.map((option) => option.label.trim().toLowerCase());
@@ -54,6 +57,26 @@ function cancelEditingOptions() {
 function removeOption(id: string) {
   if (optionDraft.value.length <= 2) return;
   optionDraft.value = optionDraft.value.filter((option) => option.id !== id);
+}
+
+async function uploadOptionImage(event: Event, optionId: string) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || uploadingOption.value) return;
+  uploadingOption.value = optionId;
+  optionError.value = "";
+  try {
+    const prepared = await prepareMomentImage(file);
+    const body = new FormData();
+    body.append("file", prepared);
+    await $fetch(`/api/moments/${props.moment.id}/poll-options/${optionId}/image`, { method: "PUT", body });
+    emit("updated");
+  } catch {
+    optionError.value = managerCopy.value.optionImageError;
+  } finally {
+    uploadingOption.value = "";
+  }
 }
 
 async function saveOptions() {
@@ -164,6 +187,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
       <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/55">{{ managerCopy.pollOptionsHelp }}</p>
       <div class="mt-3 space-y-2">
         <div v-for="(option, index) in optionDraft" :key="option.id" class="flex items-center gap-2">
+          <img v-if="summary?.results.find((result) => result.optionId === option.id)?.imageId" :src="`/api/moments/${moment.slug}/media/${summary.results.find((result) => result.optionId === option.id)?.imageId}`" alt="" class="h-10 w-10 rounded-lg object-cover" />
           <label :for="`vote-option-${moment.id}-${option.id}`" class="sr-only">{{ managerCopy.pollOptionLabel(index + 1) }}</label>
           <input
             :id="`vote-option-${moment.id}-${option.id}`"
@@ -172,6 +196,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
             :disabled="option.hasVotes || savingOptions"
             class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 disabled:opacity-60 dark:border-white/15 dark:bg-slate-900 dark:text-white"
           />
+          <label class="cursor-pointer rounded-lg border border-slate-300 p-2 dark:border-white/15" :aria-label="managerCopy.optionImage"><ImagePlus class="h-4 w-4" aria-hidden="true" /><span class="sr-only">{{ managerCopy.optionImage }}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" :disabled="Boolean(uploadingOption)" @change="uploadOptionImage($event, option.id)" /></label>
           <button
             type="button"
             class="rounded-lg border border-red-200 p-2 text-red-600 disabled:opacity-40 dark:border-red-300/20 dark:text-red-300"
@@ -228,6 +253,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
         :class="{ leader: leaderIds.has(result.optionId) }"
       >
         <div class="result-heading">
+          <img v-if="result.imageId" :src="`/api/moments/${moment.slug}/media/${result.imageId}`" alt="" class="mr-2 h-9 w-9 rounded-lg object-cover" />
           <strong
             >{{ result.label }}
             <small v-if="leaderIds.has(result.optionId)">{{

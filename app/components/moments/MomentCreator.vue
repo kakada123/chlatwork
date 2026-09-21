@@ -43,6 +43,7 @@ const titleTouched = ref(false);
 const messageTouched = ref(false);
 const secretTouched = ref(false);
 const photos = ref<SelectedPhoto[]>([]);
+const optionImages = ref<Record<number, SelectedPhoto>>({});
 const fileInput = ref<HTMLInputElement | null>(null);
 const photoError = ref("");
 const formError = ref("");
@@ -118,12 +119,20 @@ const visibleOccasions = computed(() => {
   return localizedOccasions.value.filter((occasion) => category?.occasions.includes(occasion.value));
 });
 
-const previewMoment = computed(() =>
-  buildPreviewMoment(
+const previewMoment = computed(() => {
+  const moment = buildPreviewMoment(
     draft,
     photos.value.map((photo) => photo.url),
-  ),
-);
+  );
+  const poll = moment.blocks.find((block) => block.type === "POLL");
+  if (poll && Array.isArray(poll.data.options)) {
+    poll.data.options = poll.data.options.map((option, index) => ({
+      ...option,
+      ...(optionImages.value[index] ? { imageUrl: optionImages.value[index].url } : {}),
+    }));
+  }
+  return moment;
+});
 const isPublishing = computed(
   () => publishState.value !== "idle" && publishState.value !== "done",
 );
@@ -132,7 +141,7 @@ const progressLabel = computed(() => {
   if (publishState.value === "uploading")
     return creatorCopy.value.uploading(
       uploadProgress.value,
-      photos.value.length,
+      draft.occasion === "VOTING" ? Object.keys(optionImages.value).length : photos.value.length,
     );
   if (publishState.value === "publishing") return creatorCopy.value.wrapping;
   return creatorCopy.value.publish;
@@ -261,7 +270,34 @@ function addPollOption() {
 }
 
 function removePollOption(index: number) {
-  if (draft.pollOptions.length > 2) draft.pollOptions.splice(index, 1);
+  if (draft.pollOptions.length > 2) {
+    const removed = optionImages.value[index];
+    if (removed) URL.revokeObjectURL(removed.url);
+    draft.pollOptions.splice(index, 1);
+    optionImages.value = Object.fromEntries(Object.entries(optionImages.value)
+      .map(([key, image]) => [Number(key), image] as const)
+      .filter(([key]) => key !== index)
+      .map(([key, image]) => [key > index ? key - 1 : key, image]));
+  }
+}
+
+async function onOptionImagePick(event: Event, index: number) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || isPreparingPhotos.value) return;
+  isPreparingPhotos.value = true;
+  formError.value = "";
+  try {
+    const prepared = await prepareMomentImage(file);
+    const previous = optionImages.value[index];
+    if (previous) URL.revokeObjectURL(previous.url);
+    optionImages.value[index] = { id: crypto.randomUUID(), file: prepared, url: URL.createObjectURL(prepared) };
+  } catch (error) {
+    formError.value = getPhotoPreparationError(error);
+  } finally {
+    isPreparingPhotos.value = false;
+  }
 }
 
 async function requestPublish() {
@@ -330,6 +366,16 @@ async function publishMoment() {
         method: "POST",
         body,
       });
+    }
+    if (draft.occasion === "VOTING") {
+      for (const [index, image] of Object.entries(optionImages.value)) {
+        uploadProgress.value += 1;
+        const body = new FormData();
+        body.append("file", image.file);
+        await $fetch(`/api/moments/${created.id}/poll-options/option-${Number(index) + 1}/image`, {
+          method: "PUT", body,
+        });
+      }
     }
     publishState.value = "publishing";
     const published = await $fetch<{ slug: string }>(
@@ -417,6 +463,7 @@ onMounted(() => {
 });
 onBeforeUnmount(() => {
   photos.value.forEach((photo) => URL.revokeObjectURL(photo.url));
+  Object.values(optionImages.value).forEach((image) => URL.revokeObjectURL(image.url));
 });
 </script>
 
@@ -656,11 +703,13 @@ onBeforeUnmount(() => {
               <legend class="sr-only">{{ creatorCopy.pollTitle }}</legend>
               <div class="mt-3 grid gap-3">
                 <span class="field-label">{{ creatorCopy.pollOptions }}</span>
-                <div v-for="(_, index) in draft.pollOptions" :key="index" class="flex gap-2">
+                <div v-for="(_, index) in draft.pollOptions" :key="index" class="flex items-center gap-2">
+                  <img v-if="optionImages[index]" :src="optionImages[index].url" alt="" class="h-11 w-11 rounded-xl object-cover" />
                   <input v-model="draft.pollOptions[index]" maxlength="120" required class="field-input" :placeholder="creatorCopy.pollOptionPlaceholder(index + 1)" />
-                  <button v-if="draft.pollOptions.length > 2" type="button" class="secondary-button" :aria-label="creatorCopy.removePollOption" @click="removePollOption(index)"><Trash2 class="h-4 w-4" /></button>
+                  <label class="secondary-button cursor-pointer" :aria-label="creatorCopy.optionImage"><ImagePlus class="h-4 w-4" /><span class="sr-only">{{ creatorCopy.optionImage }}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" :disabled="isPreparingPhotos" @change="onOptionImagePick($event, index)" /></label>
+                  <button v-if="draft.pollOptions.length > 2" type="button" class="secondary-button" :aria-label="creatorCopy.removePollOption" :disabled="isPreparingPhotos" @click="removePollOption(index)"><Trash2 class="h-4 w-4" /></button>
                 </div>
-                <button v-if="draft.pollOptions.length < 10" type="button" class="secondary-button justify-self-start" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
+                <button v-if="draft.pollOptions.length < 10" type="button" class="secondary-button justify-self-start" :disabled="isPreparingPhotos" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
               </div>
               <div class="mt-5">
                 <span class="field-label">{{ creatorCopy.voterIdentity }}</span>

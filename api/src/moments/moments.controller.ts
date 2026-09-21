@@ -7,6 +7,8 @@ import {
   Patch,
   ParseUUIDPipe,
   Post,
+  Put,
+  Query,
   Res,
   StreamableFile,
   UploadedFile,
@@ -54,6 +56,18 @@ export class MomentsController {
     @UploadedFile() file?: MomentUpload,
   ) {
     return this.moments.addMedia(user.id, id, file);
+  }
+
+  @Put(':id/poll-options/:optionId/image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_MOMENT_IMAGE_BYTES, files: 1 } }))
+  setPollOptionImage(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('optionId') optionId: string,
+    @UploadedFile() file?: MomentUpload,
+  ) {
+    return this.moments.setPollOptionImage(user.id, id, optionId, file);
   }
 
   @Post(':id/publish')
@@ -132,9 +146,10 @@ export class MomentsController {
   async getMedia(
     @Param('slug') slug: string,
     @Param('mediaId', new ParseUUIDPipe({ version: '4' })) mediaId: string,
+    @Query('format') format: string | undefined,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const media = await this.moments.getPublicMedia(slug, mediaId);
+    const media = await this.moments.getPublicMedia(slug, mediaId, format === 'jpeg');
     response.setHeader('Content-Type', media.mimeType);
     response.setHeader('Cache-Control', 'private, max-age=86400');
     response.setHeader('X-Content-Type-Options', 'nosniff');

@@ -43,6 +43,7 @@ const voteSaving = ref(false);
 const voteSaved = ref(false);
 const voteError = ref("");
 const showVoteLogin = ref(false);
+const showVoteConfirm = ref(false);
 const pollSummary = ref<MomentPollSummary | undefined>(props.moment.pollSummary);
 const voteNow = ref(0);
 let voteTimer: ReturnType<typeof setInterval> | undefined;
@@ -101,7 +102,7 @@ const pollQuestion = computed(() => readMomentBlockText(pollBlock.value, "questi
 const pollOptions = computed(() => {
   const value = pollBlock.value?.data.options;
   if (!Array.isArray(value)) return [];
-  return value.filter((option): option is { id: string; label: string } =>
+  return value.filter((option): option is { id: string; label: string; imageId?: string; imageUrl?: string } =>
     Boolean(option && typeof option === "object" && typeof option.id === "string" && typeof option.label === "string"),
   );
 });
@@ -235,7 +236,7 @@ async function submitRsvp() {
   }
 }
 
-async function submitVote() {
+async function requestVote() {
   if (props.preview || voteClosed.value || !voteChoice.value || voteSaving.value) return;
   if (pollRequiresLogin.value) {
     if (!isReady.value) await fetchMe();
@@ -244,6 +245,11 @@ async function submitVote() {
       return;
     }
   }
+  showVoteConfirm.value = true;
+}
+
+async function submitVote() {
+  if (!showVoteConfirm.value || voteClosed.value || !voteChoice.value || voteSaving.value) return;
   voteSaving.value = true;
   voteError.value = "";
   try {
@@ -262,8 +268,10 @@ async function submitVote() {
       JSON.stringify({ optionId: voteChoice.value, voterName: pollRequiresName.value ? voterName.value : "" }),
     );
     voteSaved.value = true;
+    showVoteConfirm.value = false;
   } catch {
     voteError.value = experienceCopy.value.voteError;
+    showVoteConfirm.value = false;
   } finally {
     voteSaving.value = false;
   }
@@ -272,7 +280,7 @@ async function submitVote() {
 async function continueVoteAfterLogin() {
   showVoteLogin.value = false;
   await fetchMe();
-  if (user.value) await submitVote();
+  if (user.value) await requestVote();
 }
 
 onMounted(() => {
@@ -463,10 +471,10 @@ onBeforeUnmount(() => {
       </p>
       <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
-      <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="submitVote">
+      <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="requestVote">
         <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
           <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
-          <span class="poll-option-copy"><strong>{{ option.label }}</strong><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
+          <span class="poll-option-copy"><span class="poll-option-name"><img v-if="option.imageId || option.imageUrl" :src="option.imageUrl ?? `/api/moments/${moment.slug}/media/${option.imageId}`" alt="" /><strong>{{ option.label }}</strong></span><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
           <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
           <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
             {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
@@ -484,6 +492,19 @@ onBeforeUnmount(() => {
       :locale="locale"
       @close="showVoteLogin = false"
       @success="continueVoteAfterLogin"
+    />
+    <ConfirmDialog
+      :open="showVoteConfirm"
+      :title="experienceCopy.confirmVoteTitle"
+      :description="experienceCopy.confirmVoteChoice(pollOptions.find((option) => option.id === voteChoice)?.label ?? '')"
+      :confirm-label="experienceCopy.confirmVote"
+      :cancel-label="experienceCopy.cancelVote"
+      :busy="voteSaving"
+      :busy-label="experienceCopy.savingVote"
+      :locale="locale"
+      tone="accent"
+      @close="showVoteConfirm = false"
+      @confirm="submitVote"
     />
 
     <section
@@ -874,6 +895,8 @@ onBeforeUnmount(() => {
 .poll-option input { position: absolute; opacity: 0; }
 .poll-option i { position: absolute; inset: 0 auto 0 0; z-index: 0; background: color-mix(in srgb, var(--moment-accent) 13%, transparent); transition: width .3s ease; }
 .poll-option-copy { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.poll-option-name { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.poll-option-name img { width: 3rem; height: 3rem; flex: none; border-radius: .6rem; object-fit: cover; }
 .poll-option-copy small { color: var(--moment-muted); }
 .poll-voters { position: relative; z-index: 1; display: block; margin-top: .55rem; color: var(--moment-muted); font-size: .78rem; line-height: 1.6; }
 .poll-name { width: 100%; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-surface); padding: .9rem 1rem; color: var(--moment-ink); }

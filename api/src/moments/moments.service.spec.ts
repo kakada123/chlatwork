@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { MomentsService } from './moments.service';
+import { createCanvas } from '@napi-rs/canvas';
 
 const MOMENT_ID = '00000000-0000-4000-8000-000000000001';
 const USER_ID = '00000000-0000-4000-8000-000000000002';
@@ -213,6 +214,85 @@ describe('MomentsService poll choice editing', () => {
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('MomentsService poll choice images', () => {
+  it('replaces only the selected choice image under the owner lock', async () => {
+    const oldImageId = '00000000-0000-4000-8000-000000000003';
+    const newImageId = '00000000-0000-4000-8000-000000000004';
+    const poll = {
+      question: 'Lunch?', identityMode: 'ANONYMOUS',
+      options: [
+        { id: 'option-1', label: 'Pizza', imageId: oldImageId },
+        { id: 'option-2', label: 'Rice' },
+      ],
+    };
+    const prisma = {
+      $queryRaw: jest.fn().mockResolvedValue([{ id: MOMENT_ID, slug: 'lunch' }]),
+      $transaction: jest.fn(),
+      moment: { findUnique: jest.fn().mockResolvedValue({
+        creatorId: USER_ID, occasion: MomentOccasion.VOTING,
+      }) },
+      momentBlock: {
+        findFirst: jest.fn().mockResolvedValue({ id: 'block-id', data: poll }),
+        update: jest.fn(),
+      },
+      momentVoteRound: { findFirst: jest.fn().mockResolvedValue(null) },
+      momentMedia: {
+        findFirst: jest.fn().mockResolvedValue({ position: 0 }),
+        create: jest.fn().mockResolvedValue({ id: newImageId }),
+        deleteMany: jest.fn(),
+      },
+    };
+    prisma.$transaction.mockImplementation((work) => work(prisma));
+    const image = createCanvas(2, 2);
+    const buffer = Buffer.from(await image.encode('png'));
+    const service = new MomentsService(prisma as never);
+    await expect(service.setPollOptionImage(USER_ID, MOMENT_ID, 'option-1', {
+      buffer, mimetype: 'image/png', originalname: 'lunch.png', size: buffer.length,
+    })).resolves.toEqual({
+      imageId: newImageId,
+      imageUrl: `/api/moments/lunch/media/${newImageId}`,
+    });
+    expect(prisma.momentBlock.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: { data: { ...poll, options: [
+        { id: 'option-1', label: 'Pizza', imageId: newImageId },
+        { id: 'option-2', label: 'Rice' },
+      ] } },
+    }));
+    expect(prisma.momentMedia.deleteMany).toHaveBeenCalledWith({
+      where: { id: oldImageId, momentId: MOMENT_ID },
+    });
+  });
+
+  it('serves a linked poll icon as a JPEG for the Telegram winner photo', async () => {
+    const imageId = '00000000-0000-4000-8000-000000000004';
+    const canvas = createCanvas(2, 2);
+    canvas.getContext('2d').fillRect(0, 0, 2, 2);
+    const content = await canvas.encode('webp', 82);
+    const prisma = {
+      momentMedia: { findFirst: jest.fn().mockResolvedValue({
+        id: imageId, momentId: MOMENT_ID, content,
+        mimeType: 'image/webp',
+        moment: {
+          status: 'PUBLISHED', expiresAt: null, publishAt: null,
+          occasion: MomentOccasion.VOTING,
+        },
+      }) },
+      momentBlock: { findFirst: jest.fn().mockResolvedValue({ data: {
+        question: 'Lunch?', identityMode: 'ANONYMOUS',
+        options: [
+          { id: 'option-1', label: 'Pizza', imageId },
+          { id: 'option-2', label: 'Rice' },
+        ],
+      } }) },
+    };
+    const media = await new MomentsService(prisma as never).getPublicMedia(
+      'lunch', imageId, true,
+    );
+    expect(media.mimeType).toBe('image/jpeg');
+    expect(media.content.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
   });
 });
 

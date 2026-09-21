@@ -28,6 +28,7 @@ export class TelegramBotClient {
     text: string,
     replyMarkup?: TelegramReplyMarkup,
     entities?: (TelegramTextMention | TelegramPreformattedText)[],
+    replyToMessageId?: number,
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');
@@ -37,6 +38,9 @@ export class TelegramBotClient {
       text,
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
       ...(entities?.length ? { entities } : {}),
+      ...(replyToMessageId ? { reply_parameters: {
+        message_id: replyToMessageId, allow_sending_without_reply: true,
+      } } : {}),
     }) as Promise<TelegramMessage>;
   }
 
@@ -56,11 +60,14 @@ export class TelegramBotClient {
     });
   }
 
-  sendPhoto(chatId: number, photoUrl: string, caption: string) {
+  sendPhoto(chatId: number, photoUrl: string, caption: string, replyToMessageId?: number) {
     return this.call('sendPhoto', {
       chat_id: chatId,
       photo: photoUrl,
       caption,
+      ...(replyToMessageId ? { reply_parameters: {
+        message_id: replyToMessageId, allow_sending_without_reply: true,
+      } } : {}),
     }) as Promise<TelegramMessage>;
   }
 

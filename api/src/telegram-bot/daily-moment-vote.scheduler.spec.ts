@@ -92,6 +92,7 @@ describe('Daily vote timer finalization', () => {
         ? jest.fn().mockRejectedValue(new Error('Unavailable'))
         : jest.fn(),
       sendMessage: jest.fn(),
+      sendPhoto: jest.fn().mockResolvedValue({ message_id: 99 }),
       sendAnimation: jest.fn().mockResolvedValue({ message_id: 99 }),
     };
     const moments = {
@@ -145,6 +146,23 @@ describe('Daily vote timer finalization', () => {
     );
     await scheduler.runOnce(deadline);
     expect(bot.sendAnimation).toHaveBeenCalledTimes(1);
+  });
+  it('sends the single winner image in place of the celebration animation', async () => {
+    const { scheduler, moments, bot } = setup();
+    moments.getTelegramVoteRoundResults.mockResolvedValue({
+      id: 'moment', slug: 'lunch', title: 'Lunch', question: 'Lunch?',
+      roundId, closesAt: deadline.toISOString(), identityMode: 'ANONYMOUS',
+      totalVotes: 3, results: [{ optionId: 'option-1', label: 'Pizza', votes: 3,
+        imageId: '00000000-0000-4000-8000-000000000009' }],
+    });
+    await scheduler.runOnce(deadline);
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      -100,
+      'https://example.com/api/moments/lunch/media/00000000-0000-4000-8000-000000000009?format=jpeg',
+      '🏆 Winner: Pizza',
+      88,
+    );
+    expect(bot.sendAnimation).not.toHaveBeenCalled();
   });
   it('leaves failed final edits retryable without marking delivery complete', async () => {
     const { tx, bot, scheduler } = setup(true);

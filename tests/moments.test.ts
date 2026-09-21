@@ -224,7 +224,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
     creator,
     /draft\.occasion === "VOTING" && step\.value === 1\s*\? 3/,
   );
-  assert.match(experience, /v-if="photos\.length && !isVoting"/);
+  assert.match(experience, /v-if="showMemoryAndCounterSections && photos\.length && !isVoting"/);
   assert.match(
     experience,
     /v-else-if="!isVoting"\s+class="moment-section secret-section"/,
@@ -235,7 +235,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /experienceCopy\.voters/);
   assert.match(creator, /value="LOGIN_REQUIRED"/);
   assert.match(experience, /showVoteLogin/);
-  assert.match(experience, /:disabled="preview"/);
+  assert.match(experience, /:disabled="preview \|\| voteClosed"/);
   assert.match(
     experience,
     /<form class="poll-form" :class="\{ 'is-preview': preview \}"/,
@@ -296,7 +296,7 @@ test("daily Telegram voting keeps per-day history and owner insights", () => {
   assert.match(service, /getPollInsights/);
   assert.match(service, /Daily history stays intact/);
   assert.match(scheduler, /FOR UPDATE OF schedule SKIP LOCKED/);
-  assert.match(telegramBot, /'dailyvote', 'votetime', 'stopdailyvote'/);
+  assert.match(telegramBot, /'dailyvote', 'votetime', 'voteduration', 'stopdailyvote'/);
   assert.match(telegramBot, /configureDailyTelegramVote/);
   assert.match(results, /managerCopy\.mostSelected/);
   assert.match(results, /result\.voters\.join/);

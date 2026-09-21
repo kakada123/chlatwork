@@ -11,6 +11,7 @@ export interface TelegramVotingMember {
 export interface TelegramPollResult {
   optionId: string;
   label: string;
+  imageId?: string;
   votes: number;
   voters?: string[];
 }
