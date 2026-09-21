@@ -42,7 +42,6 @@ const props = withDefaults(
         <h3 class="text-base font-semibold leading-6 text-slate-950 dark:text-white">
           {{ props.tool.name }}
         </h3>
-        <span class="mt-1 block text-xs font-semibold text-sky-700 dark:text-cyan-300">Open →</span>
       </div>
     </NuxtLink>
     <ToolFavoriteButton class="absolute right-3 top-3 z-10" :tool-key="props.tool.key" :tool-name="props.tool.name" />
