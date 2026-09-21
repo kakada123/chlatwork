@@ -32,11 +32,12 @@ test("mobile app shell owns the tools directory header and footer", () => {
   assert.match(bottomNav, /routePath\.startsWith\("\/tools"\)/);
 });
 
-test("the dedicated PDF category uses the current shared icon system", () => {
+test("the dedicated PDF category uses the shared tool card", () => {
   const pdfCategory = readFileSync("app/pages/tools/pdf.vue", "utf8");
+  const card = readFileSync("app/components/tools/ToolDirectoryCard.vue", "utf8");
 
-  assert.match(pdfCategory, /import ToolIcon from/);
-  assert.match(pdfCategory, /getToolIconTone\(tool\.key\)/);
-  assert.match(pdfCategory, /<ToolIcon :name="tool\.key"/);
+  assert.match(pdfCategory, /<ToolDirectoryCard/);
+  assert.match(card, /getToolIconTone\(toolKey\)/);
+  assert.match(card, /<ToolIcon :name="toolKey"/);
   assert.doesNotMatch(pdfCategory, /getToolIconImagePath/);
 });

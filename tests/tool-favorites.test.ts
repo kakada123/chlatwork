@@ -73,14 +73,20 @@ test("favorite control is present across tool card renderers", () => {
     "../app/components/landing/HomeToolCard.vue",
     "../app/components/landing/LandingToolCard.vue",
     "../app/components/tools/ToolDirectoryCard.vue",
-    "../app/pages/tools/pdf.vue",
-    "../app/components/tools/ToolContentLayout.vue",
-    "../app/components/pdf-tools/PdfRelatedTools.vue",
   ];
 
   for (const file of cardFiles) {
     const source = readFileSync(new URL(file, import.meta.url), "utf8");
     assert.match(source, /ToolFavoriteButton/, `${file} is missing the favorite control`);
+  }
+
+  for (const file of [
+    "../app/pages/tools/pdf.vue",
+    "../app/components/tools/ToolContentLayout.vue",
+    "../app/components/pdf-tools/PdfRelatedTools.vue",
+  ]) {
+    const source = readFileSync(new URL(file, import.meta.url), "utf8");
+    assert.match(source, /<ToolDirectoryCard/, `${file} must use the shared card with favorites`);
   }
 });
 

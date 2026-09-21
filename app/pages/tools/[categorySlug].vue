@@ -98,7 +98,7 @@ useHead(() => ({
         :key="tool.key"
         class="h-full"
       >
-        <ToolDirectoryCard :tool-key="tool.key" :name="tool.name" :route="tool.route" :description="tool.description" :meta="tool.category" />
+        <ToolDirectoryCard :tool-key="tool.key" :name="tool.name" :route="tool.route" />
       </li>
     </ul>
   </main>

@@ -149,7 +149,7 @@ function groupTools(tools: ToolDef[]) {
             '--reveal-delay': `${groupIndex * 120 + toolIndex * 60}ms`,
           }"
         >
-          <ToolDirectoryCard :tool-key="tool.key" :name="tool.name" :route="tool.route" :description="tool.description" :meta="categoryLabel(tool.category)" />
+          <ToolDirectoryCard :tool-key="tool.key" :name="tool.name" :route="tool.route" />
         </li>
       </ul>
     </section>
