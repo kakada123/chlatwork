@@ -4,14 +4,13 @@ const DEFAULT_CATEGORY_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/categories/category-
 
 // These artwork files include the tool name, so their tiles do not add another label.
 export const STANDALONE_TOOL_ARTWORK_PATHS: Record<string, string> = {
-  barcode: "/images/icons/barcode-generator.png",
-  "expense-tracker": "/images/icons/expense-tracker.png",
-  "image-compress": "/images/icons/image-compressor.png",
-  "image-to-pdf": "/images/icons/image-to-pdf-coverter.png",
-  "payback-calculator": "/images/icons/payback-calculator.png",
-  qr: "/images/icons/qr-code-geneator.png", // Keep the supplied filename spelling.
-  "lucky-draw": "/images/icons/random-winner-picker.png",
-  "wifi-qr": "/images/icons/wifi-qr.png",
+  barcode: "/images/icons/barcode-generator-compressed.webp",
+  "expense-tracker": "/images/icons/expense-tracker-compressed.webp",
+  "image-compress": "/images/icons/image-compressor-compressed.webp",
+  "payback-calculator": "/images/icons/payback-calculator-compressed.webp",
+  qr: "/images/icons/qr-code-geneator-compressed.webp", // Keep the supplied filename spelling.
+  "lucky-draw": "/images/icons/random-winner-picker-compressed.webp",
+  "wifi-qr": "/images/icons/wifi-qr-compressed.webp",
 };
 
 export function getStandaloneToolArtworkPath(toolKey: string): string | null {
