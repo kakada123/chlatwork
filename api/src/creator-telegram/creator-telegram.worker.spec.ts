@@ -72,7 +72,7 @@ function setup(overrides: Record<string, unknown> = {}) {
     config as never,
     generations as never,
     bot as never,
-    { keyboard: () => ({ inline_keyboard: [] }) } as never,
+    { availableKeyboard: async () => ({ inline_keyboard: [] }) } as never,
   );
   return { worker, job, prisma, generations, bot, config };
 }

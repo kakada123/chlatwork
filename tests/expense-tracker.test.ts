@@ -309,7 +309,7 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
     "utf8",
   );
 
-  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && websiteEnabled\('expense-tracker'\)"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(fab, /v-if="shouldShowTrigger"/);
   assert.match(fab, /!props\.hideTrigger/);

@@ -149,6 +149,11 @@ onBeforeUnmount(() => {
           >Credits & limits</NuxtLink
         >
         <NuxtLink
+          v-if="signedIn && user?.role === 'ADMIN'"
+          to="/admin/tools"
+          class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-slate-500 dark:text-white/60"
+        >Tool availability</NuxtLink>
+        <NuxtLink
           v-for="category in CREATOR_CATEGORIES"
           :key="category.id"
           :to="`/creator#creator-${category.id}-title`"

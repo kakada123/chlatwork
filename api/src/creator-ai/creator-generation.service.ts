@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { AiFeature } from '@prisma/client';
 import { CreatorAiGatewayService, CreatorProviderError } from './creator-ai-gateway.service';
 import {
@@ -8,6 +8,7 @@ import {
   creatorOutputLanguageRejected,
 } from './creator-ai.errors';
 import { CreatorCreditsService } from './creator-credits.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { buildCreatorTextPrompt } from './creator-prompts';
 import { CreatorPricingService } from './creator-pricing.service';
 import { containsThaiScript } from './creator-output-language';
@@ -30,6 +31,7 @@ export class CreatorGenerationService {
     private readonly gateway: CreatorAiGatewayService,
     private readonly credits: CreatorCreditsService,
     private readonly pricing: CreatorPricingService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   async generate(
@@ -37,6 +39,7 @@ export class CreatorGenerationService {
     input: Omit<CreatorTextGenerationInput, 'idempotencyKey'>,
     idempotencyHeader: string | undefined,
   ) {
+    await this.availability?.assertCreatorEnabled(input.feature);
     const idempotencyKey = this.credits.validateIdempotencyKey(idempotencyHeader);
     const image = input.image ? this.validateImage(input.image) : undefined;
     const requestHash = hashRequest(input.feature, input.payload, image?.bytes);

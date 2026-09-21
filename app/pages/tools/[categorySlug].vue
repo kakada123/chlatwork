@@ -6,13 +6,14 @@ import {
 import ToolDirectoryCard from "~/components/tools/ToolDirectoryCard.vue";
 
 const route = useRoute();
+const { websiteEnabled } = useFeatureAvailability();
 const siteUrl = "https://chlatwork.com";
 const categorySlug = computed(() => String(route.params.categorySlug ?? ""));
 const category = computed(() =>
   findToolDirectoryCategoryBySlug(categorySlug.value),
 );
 const tools = computed(() =>
-  category.value ? getToolsForDirectoryCategory(category.value) : [],
+  category.value ? getToolsForDirectoryCategory(category.value).filter((tool) => websiteEnabled(tool.key)) : [],
 );
 const pageTitle = computed(() =>
   category.value ? `${category.value.title} - ChlatWork` : "Tools - ChlatWork",

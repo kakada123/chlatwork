@@ -200,7 +200,8 @@ function handleFooterAction(action: string) {
   if (action === "cookie-settings") openPrivacyCookieSettings();
 }
 
-const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
+const { websiteEnabled, creatorEnabled } = useFeatureAvailability();
+const localizedEnabledTools = computed(() => ENABLED_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
 const headerToolSearch = ref("");
 const isHeaderSearchOpen = ref(false);
 const headerSearchInput = ref<HTMLInputElement | null>(null);
@@ -298,7 +299,7 @@ const headerSearchResults = computed(() => {
     searchText: "",
   }));
   const creatorResults: HeaderSearchResult[] = CREATOR_TOOLS.filter((tool) =>
-    searchTextMatches(
+    creatorEnabled(tool.id) && searchTextMatches(
       [tool.title, tool.shortTitle, tool.description, tool.category, tool.route].join(" "),
       query,
     ),
@@ -311,7 +312,7 @@ const headerSearchResults = computed(() => {
     searchText: "",
   }));
   const pageResults = SITE_SEARCH_PAGES.filter((page) =>
-    searchTextMatches(
+    (page.path !== "/developer-commands" || websiteEnabled("developer-commands")) && searchTextMatches(
       [page.title, page.description, page.path, page.searchText].join(" "),
       query,
     ),
@@ -953,7 +954,7 @@ watch(
             v-if="!mobileKeyboardActive"
             :route-path="route.path"
             :account-to="visibleAuthUser ? '/account' : '/login'"
-            :show-quick-expense-slot="showQuickExpenseNavigationSlot"
+            :show-quick-expense-slot="showQuickExpenseNavigationSlot && websiteEnabled('expense-tracker')"
             search-active
             @search="focusMobileHeaderSearch"
           />
@@ -998,7 +999,7 @@ watch(
     <AuthLoginDialog :open="showHeaderLogin" @close="showHeaderLogin = false" />
     <!-- Keep the opt-in action mounted across routes so fast tab changes preserve its shared state. -->
     <QuickExpenseFab
-      v-if="visibleAuthUser"
+      v-if="visibleAuthUser && websiteEnabled('expense-tracker')"
       mobile-navigation-action
       :overlay-active="isHeaderSearchOpen"
       :hide-trigger="mobileKeyboardActive"
@@ -1008,7 +1009,7 @@ watch(
       v-if="!isHeaderSearchOpen && !mobileKeyboardActive"
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
-      :show-quick-expense-slot="showQuickExpenseNavigationSlot"
+      :show-quick-expense-slot="showQuickExpenseNavigationSlot && websiteEnabled('expense-tracker')"
       @search="toggleHeaderSearch"
     />
 

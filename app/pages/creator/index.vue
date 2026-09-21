@@ -9,10 +9,12 @@ const creditBalance = useState<number | null>(
   "creator:credit-balance",
   () => null,
 );
-const createTools = getCreatorToolsByCategory("create");
-const videoTools = getCreatorToolsByCategory("video");
-const khmerTools = getCreatorToolsByCategory("khmer");
-const repurposeTools = getCreatorToolsByCategory("repurpose");
+const { creatorEnabled } = useFeatureAvailability();
+const visibleRecentItems = computed(() => recentItems.value.filter((item) => creatorEnabled(item.toolId)));
+const createTools = computed(() => getCreatorToolsByCategory("create").filter((tool) => creatorEnabled(tool.id)));
+const videoTools = computed(() => getCreatorToolsByCategory("video").filter((tool) => creatorEnabled(tool.id)));
+const khmerTools = computed(() => getCreatorToolsByCategory("khmer").filter((tool) => creatorEnabled(tool.id)));
+const repurposeTools = computed(() => getCreatorToolsByCategory("repurpose").filter((tool) => creatorEnabled(tool.id)));
 const contentPack = CREATOR_TOOLS.find(
   (tool) => tool.id === "video-content-pack",
 )!;
@@ -66,7 +68,7 @@ onMounted(async () => {
       </NuxtLink>
     </header>
 
-    <section aria-labelledby="creator-create-title">
+    <section v-if="createTools.length" aria-labelledby="creator-create-title">
       <div class="flex items-center gap-2">
         <Sparkles
           class="size-5 text-sky-600 dark:text-cyan-300"
@@ -105,7 +107,7 @@ onMounted(async () => {
       </div>
     </section>
 
-    <section aria-labelledby="creator-video-title">
+    <section v-if="videoTools.length" aria-labelledby="creator-video-title">
       <div class="flex items-end justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
@@ -127,6 +129,7 @@ onMounted(async () => {
       </div>
 
       <NuxtLink
+        v-if="creatorEnabled(contentPack.id)"
         :to="contentPack.route"
         class="mobile-pressable group mt-3 block rounded-3xl border border-violet-200 bg-white p-4 shadow-sm transition hover:border-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-violet-300/20 dark:bg-white/[0.06] dark:hover:border-violet-300/40 sm:p-5"
       >
@@ -189,7 +192,7 @@ onMounted(async () => {
     </section>
 
     <div class="grid gap-6 lg:grid-cols-2">
-      <section aria-labelledby="creator-khmer-title">
+      <section v-if="khmerTools.length" aria-labelledby="creator-khmer-title">
         <div class="flex items-center gap-2">
           <Languages
             class="size-5 text-emerald-600 dark:text-emerald-300"
@@ -236,7 +239,7 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section aria-labelledby="creator-repurpose-title">
+      <section v-if="repurposeTools.length" aria-labelledby="creator-repurpose-title">
         <div class="flex items-center gap-2">
           <CreatorIcon
             name="repurpose"
@@ -292,11 +295,11 @@ onMounted(async () => {
         </div>
       </div>
       <div
-        v-if="recentItems.length"
+        v-if="visibleRecentItems.length"
         class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
       >
         <NuxtLink
-          v-for="item in recentItems"
+          v-for="item in visibleRecentItems"
           :key="item.id"
           :to="item.route"
           class="rounded-2xl border border-slate-200 bg-white p-3.5 transition hover:border-sky-300 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
@@ -318,6 +321,7 @@ onMounted(async () => {
           Your latest Creator results will appear here.
         </p>
         <NuxtLink
+          v-if="creatorEnabled('hook-generator')"
           to="/creator/create/hook"
           class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300"
           >Try the quick Hook Generator</NuxtLink

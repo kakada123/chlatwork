@@ -33,7 +33,7 @@ test("auth-dependent expense UI waits for client session readiness before render
   const auth = readFileSync("app/composables/useAuth.ts", "utf8");
 
   assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
-  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser"/);
+  assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && websiteEnabled\('expense-tracker'\)"/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
   assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);

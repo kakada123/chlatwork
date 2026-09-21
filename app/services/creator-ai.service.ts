@@ -483,7 +483,7 @@ function normalizeCreatorError(error: unknown) {
         ? "RATE_LIMITED"
         : backendCode === "AI_DAILY_LIMIT_REACHED"
           ? "DAILY_LIMIT_REACHED"
-          : backendCode === "AI_TEMPORARILY_UNAVAILABLE"
+          : backendCode === "AI_TEMPORARILY_UNAVAILABLE" || backendCode === "FEATURE_DISABLED"
             ? "TEMPORARILY_UNAVAILABLE"
             : response?.status === 401
               ? "AUTH_REQUIRED"

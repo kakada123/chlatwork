@@ -14,7 +14,8 @@ export type CreatorAiErrorCode =
   | 'VIDEO_TOO_LARGE'
   | 'VIDEO_TOO_LONG'
   | 'UNSUPPORTED_VIDEO_FORMAT'
-  | 'AI_JOB_NOT_FOUND';
+  | 'AI_JOB_NOT_FOUND'
+  | 'FEATURE_DISABLED';
 
 export class CreatorAiException extends HttpException {
   constructor(

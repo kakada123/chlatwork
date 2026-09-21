@@ -341,6 +341,15 @@ model CreatorTelegramRequest {
   @@map("creator_telegram_requests")
 }
 
+model FeatureAvailability {
+  key             String   @id @db.VarChar(100)
+  enabled         Boolean  @default(true)
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("feature_availability")
+}
+
 model AiWallet {
   userId    String   @id @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

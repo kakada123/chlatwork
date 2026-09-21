@@ -6,6 +6,7 @@
 .nitro
 .output-*
 .cache
+.jest-cache
 .tmp-codex
 .codex-tmp
 .codex-validate

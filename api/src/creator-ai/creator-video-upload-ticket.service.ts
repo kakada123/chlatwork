@@ -1,9 +1,10 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AiFeature } from '@prisma/client';
 import { CreatorAiException } from './creator-ai.errors';
 import { CreatorCreditsService } from './creator-credits.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 
 export const CREATOR_VIDEO_UPLOAD_AUDIENCE = 'chlatwork-creator-video-upload';
 
@@ -28,6 +29,7 @@ export class CreatorVideoUploadTicketService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly credits: CreatorCreditsService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   async issue(
@@ -35,6 +37,7 @@ export class CreatorVideoUploadTicketService {
     feature: AiFeature,
     idempotencyHeader: string | undefined,
   ) {
+    await this.availability?.assertCreatorEnabled(feature);
     const path = UPLOAD_PATHS[feature];
     if (!path) {
       throw new CreatorAiException(

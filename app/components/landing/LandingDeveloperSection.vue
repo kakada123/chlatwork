@@ -2,6 +2,7 @@
 import { BookOpen, TerminalSquare } from "lucide-vue-next";
 import { DEVELOPER_COMMANDS, DEVELOPER_COMMAND_CATEGORIES } from "~/data/developer-commands";
 import { DEVELOPER_GUIDES } from "~/data/developer-guides";
+const { websiteEnabled } = useFeatureAvailability();
 </script>
 
 <template>
@@ -11,6 +12,7 @@ import { DEVELOPER_GUIDES } from "~/data/developer-guides";
     </div>
     <div class="mt-4 grid gap-3 sm:grid-cols-2">
       <NuxtLink
+        v-if="websiteEnabled('developer-commands')"
         to="/developer-commands"
         class="group flex min-h-24 items-center gap-4 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-4 transition-colors hover:border-sky-400 hover:from-sky-100 hover:to-cyan-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:border-cyan-300/20 dark:from-cyan-400/10 dark:to-white/[0.04] dark:hover:border-cyan-300/40 dark:hover:from-cyan-400/15 dark:hover:to-white/[0.07]"
       >

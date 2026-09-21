@@ -3,6 +3,7 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -30,6 +31,7 @@ import type {
   TranscriptSegment,
 } from './creator-ai.types';
 import { CreatorVideoToolsService } from './creator-video-tools.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 
 const ACTIVE_JOB_STATUSES = [
   AiVideoJobStatus.QUEUED,
@@ -56,6 +58,7 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
     private readonly gateway: CreatorAiGatewayService,
     private readonly credits: CreatorCreditsService,
     private readonly tools: CreatorVideoToolsService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   onModuleInit() {
@@ -130,6 +133,8 @@ export class CreatorVideoWorker implements OnModuleInit, OnModuleDestroy {
     const usages: CreatorProviderUsage[] = [];
     const preferences = videoPreferences(job.generation.inputSummary);
     try {
+      // Queued uploads are rechecked so disabling a tool also stops pending work.
+      await this.availability?.assertCreatorEnabled(job.feature);
       if (!job.tempFilePath) throw new Error('Video input is unavailable');
       await this.credits.markProcessing(job.generationId);
       audioPath = await this.tools.extractAudio(

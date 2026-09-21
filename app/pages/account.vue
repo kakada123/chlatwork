@@ -218,19 +218,20 @@ const expenseSummary = computed(() => {
   };
 });
 
+const { websiteEnabled } = useFeatureAvailability();
 const favoriteTools = computed(() => favoriteToolKeys.value
   .map((key) => LANDING_TOOLS.find((tool) => tool.key === key))
-  .filter((tool): tool is (typeof LANDING_TOOLS)[number] => Boolean(tool))
+  .filter((tool): tool is (typeof LANDING_TOOLS)[number] => Boolean(tool) && websiteEnabled(tool.key))
   .map(localizeTool));
 
-const favoriteCommands = computed(() => favoriteCommandIds.value
+const favoriteCommands = computed(() => (websiteEnabled('developer-commands') ? favoriteCommandIds.value : [])
   .map((id) => DEVELOPER_COMMANDS.find((command) => command.id === id))
   .filter((command): command is (typeof DEVELOPER_COMMANDS)[number] => Boolean(command)));
 
 const mostUsedTools = computed(() => usageItems.value
   .map((usage) => {
     const tool = LANDING_TOOLS.find((item) => item.key === usage.toolKey);
-    return tool ? { ...usage, tool: localizeTool(tool) } : null;
+    return tool && websiteEnabled(tool.key) ? { ...usage, tool: localizeTool(tool) } : null;
   })
   .filter((item): item is NonNullable<typeof item> => Boolean(item))
   .slice(0, 6));
@@ -599,7 +600,7 @@ onBeforeUnmount(() => {
           </span>
           <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
         </button>
-        <label class="flex min-h-[72px] cursor-pointer items-center gap-3 border-b border-slate-200 px-4 dark:border-white/10">
+        <label v-if="websiteEnabled('expense-tracker')" class="flex min-h-[72px] cursor-pointer items-center gap-3 border-b border-slate-200 px-4 dark:border-white/10">
           <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300"><ReceiptText class="size-5" aria-hidden="true" /></span>
           <span class="min-w-0 flex-1"><strong class="block text-sm">Quick Expense button</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">Show the center add-expense action</span></span>
           <span class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition" :class="quickExpenseEnabled ? 'bg-sky-600 dark:bg-cyan-200' : 'bg-slate-300 dark:bg-white/20'">
@@ -667,7 +668,7 @@ onBeforeUnmount(() => {
           <span class="min-w-0 flex-1"><strong class="block text-sm">Favorite tools</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ favoriteTools.length }} saved {{ favoriteTools.length === 1 ? "tool" : "tools" }}</span></span>
           <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
         </button>
-        <button type="button" class="flex min-h-[72px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500" aria-controls="favorite-commands" @click="openMobileAccountSection('favorite-commands')">
+        <button v-if="websiteEnabled('developer-commands')" type="button" class="flex min-h-[72px] w-full items-center gap-3 px-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500" aria-controls="favorite-commands" @click="openMobileAccountSection('favorite-commands')">
           <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300"><UserRound class="size-5" aria-hidden="true" /></span>
           <span class="min-w-0 flex-1"><strong class="block text-sm">Favorite commands</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ favoriteCommands.length }} saved {{ favoriteCommands.length === 1 ? "command" : "commands" }}</span></span>
           <ChevronRight class="size-5 shrink-0 text-slate-400" aria-hidden="true" />
@@ -678,7 +679,7 @@ onBeforeUnmount(() => {
       <p v-else-if="telegramNotificationStatus" role="status" class="mt-2 px-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ telegramNotificationStatus }}</p>
     </section>
 
-    <section v-if="!mobileAccountSection" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
+    <section v-if="!mobileAccountSection && websiteEnabled('expense-tracker')" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
       <span>
         <strong class="block text-sm">Quick Expense button</strong>
         <span class="mt-1 block text-xs text-slate-600 dark:text-white/55">Show the floating Add expense action while you are signed in.</span>
@@ -778,7 +779,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="grid gap-2" :class="quickExpenseEnabled ? 'grid-cols-2' : 'grid-cols-1'">
+        <div v-if="websiteEnabled('expense-tracker')" class="grid gap-2" :class="quickExpenseEnabled ? 'grid-cols-2' : 'grid-cols-1'">
           <button
             v-if="quickExpenseEnabled"
             type="button"
@@ -841,7 +842,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <NuxtLink to="/tools/expense-tracker" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100">
+        <NuxtLink v-if="websiteEnabled('expense-tracker')" to="/tools/expense-tracker" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100">
           Open tracker
         </NuxtLink>
       </div>
@@ -930,7 +931,7 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite tools yet.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
     </section>
 
-    <section id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
+    <section v-if="websiteEnabled('developer-commands')" id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
       <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
       <div v-if="!favoritesReady" class="h-24 animate-pulse rounded-2xl bg-slate-100 motion-reduce:animate-none dark:bg-white/[0.06]" aria-label="Loading favorite commands" />
       <div v-else-if="favoriteError" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300">{{ favoriteError }}</div>

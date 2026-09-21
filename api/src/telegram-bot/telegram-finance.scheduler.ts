@@ -3,9 +3,11 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import type { ExpenseCurrency } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { formatTelegramMoney } from './telegram-group-split';
 
@@ -43,6 +45,7 @@ export class TelegramFinanceScheduler implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   onModuleInit() {
@@ -56,6 +59,9 @@ export class TelegramFinanceScheduler implements OnModuleInit, OnModuleDestroy {
   }
 
   async runOnce(now = new Date()) {
+    if (this.availability && !(await this.availability.isEnabled('telegram:notifications'))) {
+      return { budgetAlerts: 0, weeklyDigests: 0 };
+    }
     const [budgetAlerts, weeklyDigests] = await Promise.all([
       this.runBudgetAlerts(now),
       this.runWeeklyDigests(now),

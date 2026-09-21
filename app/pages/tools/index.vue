@@ -13,14 +13,15 @@ import { getToolIconTone } from "~/lib/tool-icon-tones";
 import { ArrowRight, Sparkles } from "lucide-vue-next";
 
 const { categoryLabel, copy, localizeTool } = useLanguage();
-const localizedEnabledTools = computed(() => ENABLED_TOOLS.map(localizeTool));
-const searchableTools = computed(() => LANDING_TOOLS.map(localizeTool));
+const { websiteEnabled } = useFeatureAvailability();
+const localizedEnabledTools = computed(() => ENABLED_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
+const searchableTools = computed(() => LANDING_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
 const groupedTools = computed(() => groupTools(localizedEnabledTools.value));
 const directoryCategories = computed(() =>
   TOOL_DIRECTORY_CATEGORIES.map((category) => ({
     ...category,
-    count: getToolsForDirectoryCategory(category).length,
-  })),
+    count: getToolsForDirectoryCategory(category).filter((tool) => websiteEnabled(tool.key)).length,
+  })).filter((category) => category.count > 0),
 );
 const pageEl = ref<HTMLElement | null>(null);
 

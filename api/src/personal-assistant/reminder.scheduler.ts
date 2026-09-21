@@ -3,9 +3,11 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { AuthProvider, PersonalReminderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { TelegramBotClient } from '../telegram-bot/telegram-bot.client';
 
 const ONE_MINUTE_MS = 60_000;
@@ -30,6 +32,7 @@ export class PersonalReminderScheduler
   constructor(
     private readonly prisma: PrismaService,
     private readonly bot: TelegramBotClient,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   onModuleInit() {
@@ -43,6 +46,8 @@ export class PersonalReminderScheduler
   }
 
   async runOnce(now = new Date()) {
+    // Pausing the assistant must also pause its scheduled Telegram messages.
+    if (this.availability && !(await this.availability.isEnabled('telegram:assistant'))) return 0;
     const lockedUntil = new Date(now.getTime() + CLAIM_LEASE_MS);
     // One transaction changes ownership before delivery, preventing concurrent replicas from sending the same row.
     const claimed = await this.prisma.$queryRaw<ClaimedReminder[]>`

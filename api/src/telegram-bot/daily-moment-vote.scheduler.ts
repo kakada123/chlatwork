@@ -3,9 +3,11 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MomentsService } from '../moments/moments.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TelegramBotClient } from './telegram-bot.client';
 import {
@@ -34,6 +36,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly bot: TelegramBotClient,
     private readonly moments: MomentsService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   onModuleInit() {
@@ -54,6 +57,8 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
 
   async runOnce(now = new Date()) {
     await this.refreshRounds(now);
+    // Existing rounds still close while new daily sends are paused.
+    if (this.availability && !(await this.availability.isEnabled('telegram:group-voting'))) return;
     // The local date is claimed atomically so multiple API replicas cannot send the same daily poll twice.
     const duePolls = await this.prisma.$queryRaw<DueDailyPoll[]>`
       WITH due AS (

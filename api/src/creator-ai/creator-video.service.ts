@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { AiFeature, AiVideoJobStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,6 +11,7 @@ import { CreatorCreditsService } from './creator-credits.service';
 import { CreatorPlanLimitsService } from './creator-plan-limits.service';
 import { CreatorPricingService } from './creator-pricing.service';
 import { CreatorVideoToolsService } from './creator-video-tools.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import type { CreatorVideoUpload } from './creator-video-upload';
 
 const VIDEO_FEATURES = new Set<AiFeature>([
@@ -29,6 +30,7 @@ export class CreatorVideoService {
     private readonly pricing: CreatorPricingService,
     private readonly plans: CreatorPlanLimitsService,
     private readonly tools: CreatorVideoToolsService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   async createJob(
@@ -54,6 +56,7 @@ export class CreatorVideoService {
     }
 
     try {
+      await this.availability?.assertCreatorEnabled(feature);
       const key = this.credits.validateIdempotencyKey(idempotencyHeader);
       const limits = this.plans.forUser(userId);
       if (file.size <= 0) {

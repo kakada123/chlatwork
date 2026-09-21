@@ -303,7 +303,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       await this.bot.sendMessage(
         Number(job.chatId),
         'The AI result contained unsupported script and was not sent. Please contact support if credits were used.',
-        this.menu.keyboard(),
+        await this.menu.availableKeyboard(),
       );
       await this.finish(job);
       return;
@@ -321,7 +321,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         await this.bot.sendMessage(
           Number(job.chatId),
           part.text,
-          index === parts.length - 1 ? this.menu.keyboard() : undefined,
+          index === parts.length - 1 ? await this.menu.availableKeyboard() : undefined,
         );
       }
       // Checkpoint successful parts so a later delivery failure resumes here.

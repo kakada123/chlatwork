@@ -19,6 +19,7 @@ import {
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PersonalAssistantService } from '../personal-assistant/personal-assistant.service';
+import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { MomentsService } from '../moments/moments.service';
 import {
   formatTelegramExpenseAmount,
@@ -101,6 +102,7 @@ export class TelegramBotService {
     private readonly moments: MomentsService,
     private readonly ai: TelegramAssistantAiService,
     @Optional() private readonly personalAssistant?: PersonalAssistantService,
+    @Optional() private readonly availability?: FeatureAvailabilityService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -117,7 +119,24 @@ export class TelegramBotService {
 
     try {
       await this.observeGroupMembers(update);
-      if (update.inline_query) {
+      const disabled = await this.disabledUpdateFeature(update);
+      if (disabled) {
+        // Callback buttons and old Telegram messages remain clickable after an
+        // admin switch, so the webhook checks each update before side effects.
+        if (update.callback_query) {
+          await this.bot.answerCallback(
+            update.callback_query.id,
+            'This feature is temporarily unavailable.',
+          );
+        } else if (update.inline_query) {
+          await this.bot.answerInlineQuery(update.inline_query.id, []);
+        } else if (update.message) {
+          await this.bot.sendMessage(
+            update.message.chat.id,
+            'This feature is temporarily unavailable.',
+          );
+        }
+      } else if (update.inline_query) {
         await this.handleInlineQuery(update.inline_query);
       } else if (update.callback_query) {
         await this.handleCallback(update.callback_query);
@@ -138,6 +157,74 @@ export class TelegramBotService {
       });
       throw error;
     }
+  }
+
+  private async disabledUpdateFeature(update: TelegramUpdate) {
+    if (!this.availability) return null;
+    const feature = this.updateFeature(update);
+    return feature && !(await this.availability.isEnabled(`telegram:${feature}`))
+      ? feature
+      : null;
+  }
+
+  private updateFeature(update: TelegramUpdate): string | null {
+    const data = update.callback_query?.data ?? '';
+    if (update.inline_query) return 'voting';
+    if (data) {
+      if (data.startsWith('khqr:')) return 'khqr';
+      if (data.startsWith('split:')) return 'bill-split';
+      if (data.startsWith('poll:daily:')) return 'group-voting';
+      if (data.startsWith('poll:')) return 'voting';
+      if (data.startsWith('settings:')) return 'notifications';
+      if (data.startsWith('summary:') || data === 'menu:ask')
+        return 'spending';
+      if (data === 'menu:recent' || data.startsWith('recent:'))
+        return 'spending';
+      if (data === 'menu:add' || data.startsWith('expense:')) return 'expenses';
+      return null;
+    }
+    const message = update.message;
+    if (!message) return null;
+    const command =
+      typeof message.text === 'string' ? this.readCommand(message.text) : null;
+    if (this.isGroupMessage(message)) {
+      if (command === 'split') return 'bill-split';
+      if (
+        ['joinvote', 'dailyvote', 'votetime', 'voteduration', 'stopdailyvote']
+          .includes(command ?? '')
+      ) return 'group-voting';
+      if (
+        message.text?.trim().toLowerCase() === 'khqr' ||
+        command === '$' ||
+        readMemberQrMention(message) ||
+        /^tg_[1-9][0-9]{0,15}$/.test(command ?? '')
+      ) return 'khqr';
+      return null;
+    }
+    if (command === 'phone' || command === 'skipphone' || message.contact)
+      return 'phone';
+    if (command === 'vote') return 'voting';
+    if (command === 'alerts' || command === 'weekly')
+      return 'notifications';
+    if (
+      command === 'today' ||
+      command === 'recent' ||
+      parseSpendingQuestion(message.text ?? '')
+    ) return 'spending';
+    if (command === 'cancel' || message.voice || message.photo?.length)
+      return 'expenses';
+    if (!command && message.text) {
+      for (const currency of [ExpenseCurrency.USD, ExpenseCurrency.KHR]) {
+        try {
+          parseTelegramExpense(message.text, currency);
+          return 'expenses';
+        } catch (error) {
+          if (!(error instanceof TelegramExpenseParseError)) throw error;
+        }
+      }
+      return 'assistant';
+    }
+    return null;
   }
 
   private parseUpdate(value: unknown): TelegramUpdate {
@@ -274,7 +361,7 @@ export class TelegramBotService {
         message.chat.id,
         'Unknown command. Use /today, /recent, /spend, /vote, or send an ' +
           'expense such as “Lunch 4.50”.',
-        this.mainMenuKeyboard(),
+        await this.availableMainMenuKeyboard(),
       );
       return;
     }
@@ -2608,19 +2695,46 @@ export class TelegramBotService {
           'Send an expense like “Lunch 4.50”, a voice note, or a receipt photo. Confirm before saving.',
           'For KHQR, group voting, and bill splits, send /help in your group.',
         ];
-    await this.bot.sendMessage(chatId, commands.join('\n'));
+    const disabled = new Set((await this.availability?.disabledKeys()) ?? []);
+    const commandFeature = (line: string) => {
+      if (/^\/(?:\$|@|tg_)/.test(line)) return 'khqr';
+      if (/^\/split/.test(line)) return 'bill-split';
+      if (
+        /^\/(?:joinvote|dailyvote|votetime|voteduration|stopdailyvote)/.test(line)
+      ) return 'group-voting';
+      if (/^\/(?:today|recent|spend)/.test(line)) return 'spending';
+      if (/^\/vote\b/.test(line)) return 'voting';
+      if (/^\/(?:alerts|weekly)/.test(line)) return 'notifications';
+      if (/^\/(?:phone|skipphone)/.test(line)) return 'phone';
+      if (/^\/cancel/.test(line) || line.startsWith('Send an expense'))
+        return 'expenses';
+      return null;
+    };
+    await this.bot.sendMessage(
+      chatId,
+      commands
+        .filter((line) => {
+          const feature = commandFeature(line);
+          return !feature || !disabled.has(`telegram:${feature}`);
+        })
+        .join('\n'),
+    );
   }
 
   private async sendMenu(chatId: number, linked: boolean) {
+    const expensesEnabled =
+      (await this.availability?.isEnabled('telegram:expenses')) ?? true;
     await this.bot.sendMessage(
       chatId,
       linked
-        ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
-            'send a voice note or receipt photo, or ask about your spending. ' +
-            'Expenses are never saved without your confirmation.'
+        ? expensesEnabled
+          ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
+              'send a voice note or receipt photo, or ask about your spending. ' +
+              'Expenses are never saved without your confirmation.'
+          : '👋 ChlatWork Assistant\n\nChoose an available feature below.'
         : '👋 Welcome to ChlatWork. Open the Mini App and sign in with Telegram ' +
             'before using private expense data.',
-      linked ? this.mainMenuKeyboard() : this.connectKeyboard(),
+      linked ? await this.availableMainMenuKeyboard() : this.connectKeyboard(),
     );
   }
 
@@ -2659,6 +2773,38 @@ export class TelegramBotService {
           },
         ],
       ],
+    };
+  }
+
+  private async availableMainMenuKeyboard(): Promise<TelegramInlineKeyboard> {
+    const keyboard = this.mainMenuKeyboard();
+    if (!this.availability) return keyboard;
+    const disabled = new Set(await this.availability.disabledKeys());
+    const keyForButton = (data?: string) => {
+      if (!data) return null;
+      if (data === 'menu:add') return 'expenses';
+      if (
+        data === 'summary:today' ||
+        data === 'menu:recent' ||
+        data === 'menu:ask'
+      ) return 'spending';
+      if (data === 'poll:list') return 'voting';
+      if (data === 'settings:notifications') return 'notifications';
+      return null;
+    };
+    return {
+      inline_keyboard: keyboard.inline_keyboard
+        .map((row) =>
+          row.filter((button) => {
+            if (
+              button.web_app?.url.endsWith('/tools/expense-tracker') &&
+              disabled.has('website:expense-tracker')
+            ) return false;
+            const feature = keyForButton(button.callback_data);
+            return !feature || !disabled.has(`telegram:${feature}`);
+          }),
+        )
+        .filter((row) => row.length > 0),
     };
   }
 

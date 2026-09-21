@@ -17,6 +17,7 @@ import { CreatorAiModule } from './creator-ai/creator-ai.module';
 import { CreatorTelegramModule } from './creator-telegram/creator-telegram.module';
 import { MemberKhqrModule } from './member-khqr/member-khqr.module';
 import { PersonalAssistantModule } from './personal-assistant/personal-assistant.module';
+import { FeatureAvailabilityModule } from './feature-availability/feature-availability.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PersonalAssistantModule } from './personal-assistant/personal-assistant
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     PrismaModule,
     AuthModule,
+    FeatureAvailabilityModule,
     ExpensesModule,
     PaybackModule,
     ToolUsageModule,

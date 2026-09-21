@@ -34,6 +34,7 @@ const POPULAR_TOOL_FALLBACK_KEYS = [
 const POPULAR_TOOL_CARD_COUNT = 8;
 
 const { localizeCategory, localizeTool } = useLanguage();
+const { websiteEnabled } = useFeatureAvailability();
 const { getPopularToolUsage } = useToolUsage();
 const popularToolKeys = ref<string[]>(
   POPULAR_TOOL_FALLBACK_KEYS.slice(0, POPULAR_TOOL_CARD_COUNT),
@@ -51,23 +52,25 @@ const HOME_CATEGORY_COPY: Record<string, Pick<(typeof LANDING_CATEGORIES)[number
 function pickLandingTools(keys: readonly string[]) {
   return keys
     .map((key) => LANDING_TOOLS.find((tool) => tool.key === key))
-    .filter((tool): tool is LandingTool => Boolean(tool));
+    .filter((tool): tool is LandingTool => Boolean(tool) && websiteEnabled(tool.key));
 }
 
-const landingTools = computed(() => LANDING_TOOLS.map(localizeTool));
+const landingTools = computed(() => LANDING_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
 const popularTools = computed(() =>
   pickLandingTools(popularToolKeys.value).map(localizeTool),
 );
 const landingCategories = computed(() =>
   LANDING_CATEGORIES.filter((category) => category.key in HOME_CATEGORY_COPY)
+    .map((category) => ({ ...category, tools: category.tools.filter((tool) => websiteEnabled(tool.key)) }))
+    .filter((category) => category.tools.length > 0)
     .map(localizeCategory)
-    .map((category) => ({ ...category, ...HOME_CATEGORY_COPY[category.key] })),
+    .map((category) => ({ ...category, ...HOME_CATEGORY_COPY[category.key], count: category.tools.length })),
 );
 
 function shuffledToolKeys(excludedKeys: Set<string>) {
   const keys = LANDING_TOOLS
     .map((tool) => tool.key)
-    .filter((key) => !excludedKeys.has(key));
+    .filter((key) => !excludedKeys.has(key) && websiteEnabled(key));
 
   for (let index = keys.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
