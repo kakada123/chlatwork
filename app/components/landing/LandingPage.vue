@@ -25,13 +25,13 @@ const POPULAR_TOOL_FALLBACK_KEYS = [
   "jwt-decoder",
   "base64",
 ] as const;
-const POPULAR_TOOL_CARD_COUNT = 8;
+const POPULAR_TOOL_CARD_COUNT = 15;
 
 const { localizeCategory, localizeTool } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
 const { getPopularToolUsage } = useToolUsage();
 const popularToolKeys = ref<string[]>(
-  POPULAR_TOOL_FALLBACK_KEYS.slice(0, POPULAR_TOOL_CARD_COUNT),
+  POPULAR_TOOL_FALLBACK_KEYS.filter((key) => websiteEnabled(key)).slice(0, POPULAR_TOOL_CARD_COUNT),
 );
 
 const HOME_CATEGORY_COPY: Record<string, Pick<(typeof LANDING_CATEGORIES)[number], "name" | "description">> = {
@@ -80,11 +80,11 @@ async function loadPopularTools() {
     const knownKeys = new Set(LANDING_TOOLS.map((tool) => tool.key));
     const rankedKeys = databaseRanking
       .map((item) => item.toolKey)
-      .filter((key, index, keys) => knownKeys.has(key) && keys.indexOf(key) === index)
+      .filter((key, index, keys) => knownKeys.has(key) && websiteEnabled(key) && keys.indexOf(key) === index)
       .slice(0, POPULAR_TOOL_CARD_COUNT);
     const selectedKeys = new Set(rankedKeys);
 
-    // A new or lightly used database should still render a complete homepage grid.
+    // A new or lightly used database should still fill the popular tools row.
     popularToolKeys.value = [
       ...rankedKeys,
       ...shuffledToolKeys(selectedKeys),

@@ -22,7 +22,7 @@ test("homepage uses the mobile content sequence at every width", () => {
   assert.match(content, /<header class="[^"]*sm:hidden"/);
   assert.match(content, /sm:mx-auto sm:mt-0 sm:max-w-3xl/);
   assert.match(content, /sm:grid-cols-3[^\"]*lg:grid-cols-5/);
-  assert.match(content, /lg:grid-cols-8/);
+  assert.match(content, /overflow-x-auto[^\"]*" aria-label="Popular tools"/);
   const sections = [
     'aria-label="Find a ChlatWork tool"',
     'aria-label="Mobile tool categories"',
@@ -97,7 +97,7 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   assert.match(mobile, /input-id="mobile-home-global-search"/);
   assert.doesNotMatch(mobile, /aria-label="Mobile primary navigation"/);
   assert.match(landing, /pb-24[^\"]*sm:pb-0/);
-  assert.match(mobile, /grid grid-cols-4 gap-2/);
+  assert.match(mobile, /grid grid-flow-col auto-cols-/);
   assert.match(mobile, /MobileHomeToolCard/);
   assert.match(mobileCard, /variant === 'recent'/);
   assert.match(mobileCard, /min-h-\[108px\][^\"]*flex-col/);

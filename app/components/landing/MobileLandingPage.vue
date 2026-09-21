@@ -72,7 +72,7 @@ const userInitials = computed(() => {
     .join("")
     .toUpperCase() || "A";
 });
-const visiblePopularTools = computed(() => props.popularTools.slice(0, 8));
+const visiblePopularTools = computed(() => props.popularTools.slice(0, 15));
 const mobileCategories = computed(() => {
   const order = ["pdf", "image", "calculators", "developer-tools", "khmer-tools"];
 
@@ -352,7 +352,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           See all →
         </NuxtLink>
       </div>
-      <ul class="mobile-stagger-list mt-3 grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-8" aria-label="Popular tools">
+      <ul class="mobile-stagger-list mt-3 grid grid-flow-col auto-cols-[calc((100%_-_1.5rem)/4)] gap-2 overflow-x-auto pb-3 sm:auto-cols-[calc((100%_-_2.25rem)/4)] sm:gap-3 lg:auto-cols-[calc((100%_-_5.25rem)/8)]" aria-label="Popular tools">
         <li v-for="tool in visiblePopularTools" :key="tool.key">
           <MobileHomeToolCard :tool="tool" />
         </li>

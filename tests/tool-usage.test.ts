@@ -44,7 +44,7 @@ test("homepage popularity comes from aggregate database usage with safe fallback
   assert.match(proxy, /requestAuthApi\(event, "\/tool-usage\/popular"\)/);
   assert.match(landing, /getPopularToolUsage/);
   assert.match(landing, /shuffledToolKeys/);
-  assert.match(landing, /POPUL(?:AR)_TOOL_CARD_COUNT = 8/);
+  assert.match(landing, /POPUL(?:AR)_TOOL_CARD_COUNT = 15/);
 });
 
 test("client tracking sends no tool inputs or query values", () => {
