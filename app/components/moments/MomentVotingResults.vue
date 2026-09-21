@@ -5,19 +5,86 @@ import {
   ChevronDown,
   History,
   LockKeyhole,
+  Pencil,
   RotateCcw,
+  Trash2,
   Trophy,
   UserRoundCheck,
 } from "lucide-vue-next";
 import type { MomentPollResult, MomentSummary } from "~/types/moment";
 
 const props = withDefaults(defineProps<{ moment: MomentSummary; resetting?: boolean }>(), { resetting: false });
-const emit = defineEmits<{ reset: [moment: MomentSummary] }>();
+const emit = defineEmits<{ reset: [moment: MomentSummary]; updated: [] }>();
 const { copy, isKhmer } = useMomentLanguage();
 const managerCopy = computed(() => copy.value.manager);
 const summary = computed(() => props.moment.pollSummary);
 const schedule = computed(() => props.moment.pollSchedule);
 const insights = computed(() => props.moment.pollInsights);
+const editingOptions = ref(false);
+const savingOptions = ref(false);
+const optionError = ref("");
+const optionDraft = ref<Array<{ id: string; label: string; hasVotes: boolean }>>([]);
+const validOptions = computed(() => {
+  const labels = optionDraft.value.map((option) => option.label.trim().toLowerCase());
+  return optionDraft.value.length >= 2 && labels.every(Boolean) && new Set(labels).size === labels.length;
+});
+const optionsChanged = computed(() => {
+  const original = summary.value?.results ?? [];
+  return original.length !== optionDraft.value.length || optionDraft.value.some((option, index) =>
+    option.id !== original[index]?.optionId || option.label.trim() !== original[index]?.label,
+  );
+});
+
+function startEditingOptions() {
+  optionDraft.value = (summary.value?.results ?? []).map((result) => ({
+    id: result.optionId,
+    label: result.label,
+    hasVotes: Boolean(result.hasVotes),
+  }));
+  optionError.value = "";
+  editingOptions.value = true;
+}
+
+function cancelEditingOptions() {
+  editingOptions.value = false;
+  optionError.value = "";
+  optionDraft.value = [];
+}
+
+function removeOption(id: string) {
+  if (optionDraft.value.length <= 2) return;
+  optionDraft.value = optionDraft.value.filter((option) => option.id !== id);
+}
+
+async function saveOptions() {
+  if (savingOptions.value || !optionsChanged.value) return;
+  if (!validOptions.value) {
+    optionError.value = managerCopy.value.pollOptionsInvalid;
+    return;
+  }
+  savingOptions.value = true;
+  optionError.value = "";
+  try {
+    await $fetch(`/api/moments/${props.moment.id}/poll-options`, {
+      method: "PATCH",
+      body: {
+        options: optionDraft.value.map((option) => ({ id: option.id, label: option.label.trim() })),
+      },
+    });
+    cancelEditingOptions();
+    emit("updated");
+  } catch (error) {
+    const fetchError = error as { statusCode?: number; status?: number };
+    const status = fetchError.statusCode ?? fetchError.status;
+    optionError.value = status === 409
+      ? managerCopy.value.pollOptionsConflict
+      : status === 400
+        ? managerCopy.value.pollOptionsInvalid
+        : managerCopy.value.pollOptionsError;
+  } finally {
+    savingOptions.value = false;
+  }
+}
 const modeLabel = computed(() => {
   if (summary.value?.identityMode === "LOGIN_REQUIRED") return managerCopy.value.loginMode;
   if (summary.value?.identityMode === "NAME_REQUIRED") return managerCopy.value.namedMode;
@@ -72,6 +139,15 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
           />{{ modeLabel }}</span
         >
         <button
+          v-if="!editingOptions"
+          type="button"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+          @click="startEditingOptions"
+        >
+          <Pencil class="h-4 w-4" aria-hidden="true" />
+          {{ managerCopy.editPollOptions }}
+        </button>
+        <button
           type="button"
           class="reset-button"
           :disabled="resetting || !summary?.totalVotes"
@@ -82,6 +158,41 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
         </button>
       </div>
     </header>
+
+    <form v-if="editingOptions" class="mt-4 rounded-xl border border-slate-200 p-4 dark:border-white/10" @submit.prevent="saveOptions">
+      <h4 class="text-sm font-bold">{{ managerCopy.editPollOptions }}</h4>
+      <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/55">{{ managerCopy.pollOptionsHelp }}</p>
+      <div class="mt-3 space-y-2">
+        <div v-for="(option, index) in optionDraft" :key="option.id" class="flex items-center gap-2">
+          <label :for="`vote-option-${moment.id}-${option.id}`" class="sr-only">{{ managerCopy.pollOptionLabel(index + 1) }}</label>
+          <input
+            :id="`vote-option-${moment.id}-${option.id}`"
+            v-model="option.label"
+            maxlength="120"
+            :disabled="option.hasVotes || savingOptions"
+            class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 disabled:opacity-60 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          />
+          <button
+            type="button"
+            class="rounded-lg border border-red-200 p-2 text-red-600 disabled:opacity-40 dark:border-red-300/20 dark:text-red-300"
+            :aria-label="managerCopy.removePollOption(option.label)"
+            :disabled="option.hasVotes || optionDraft.length <= 2 || savingOptions"
+            @click="removeOption(option.id)"
+          >
+            <Trash2 class="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+      <p v-if="optionError" class="mt-3 text-xs font-semibold text-red-600 dark:text-red-300" role="alert">{{ optionError }}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50" :disabled="savingOptions || !optionsChanged">
+          {{ savingOptions ? managerCopy.savingPollOptions : managerCopy.savePollOptions }}
+        </button>
+        <button type="button" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold dark:border-white/15" :disabled="savingOptions" @click="cancelEditingOptions">
+          {{ managerCopy.cancelPollOptions }}
+        </button>
+      </div>
+    </form>
 
     <div class="daily-card" :class="{ active: schedule?.enabled }">
       <CalendarClock class="h-5 w-5" aria-hidden="true" />

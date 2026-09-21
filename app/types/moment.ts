@@ -96,6 +96,7 @@ export interface MomentPollResult {
   label: string;
   votes: number;
   voters?: string[];
+  hasVotes?: boolean;
 }
 export interface MomentPollSummary {
   roundId?: string;

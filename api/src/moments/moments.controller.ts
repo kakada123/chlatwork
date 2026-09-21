@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
   Res,
@@ -23,6 +24,7 @@ import { CreateMomentDto } from './dto/create-moment.dto';
 import { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
+import { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -114,6 +116,16 @@ export class MomentsController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     return this.moments.resetVotes(user.id, id);
+  }
+
+  @Patch(':id/poll-options')
+  @UseGuards(JwtAuthGuard)
+  updatePollOptions(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateMomentPollOptionsDto,
+  ) {
+    return this.moments.updatePollOptions(user.id, id, dto);
   }
 
   @Get(':slug/media/:mediaId')

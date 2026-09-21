@@ -1,5 +1,10 @@
 import { MomentOccasion } from '@prisma/client';
-import { GoneException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  GoneException,
+  NotFoundException,
+} from '@nestjs/common';
 import { MomentsService } from './moments.service';
 
 const MOMENT_ID = '00000000-0000-4000-8000-000000000001';
@@ -103,6 +108,113 @@ describe('MomentsService vote reset', () => {
   });
 });
 
+describe('MomentsService poll choice editing', () => {
+  const poll = {
+    question: 'Where should we eat?',
+    identityMode: 'ANONYMOUS',
+    options: [
+      { id: 'option-1', label: 'Pizza' },
+      { id: 'option-2', label: 'Rice' },
+      { id: 'option-3', label: 'Noodles' },
+    ],
+  };
+
+  function setup() {
+    const prisma = {
+      $queryRaw: jest.fn().mockResolvedValue([{ id: MOMENT_ID }]),
+      $transaction: jest.fn(),
+      momentBlock: {
+        findFirst: jest.fn().mockResolvedValue({ id: 'block-id', data: poll }),
+        update: jest.fn(),
+      },
+      momentVoteRound: { findFirst: jest.fn().mockResolvedValue(null) },
+      momentVote: { findFirst: jest.fn().mockResolvedValue(null) },
+    };
+    prisma.$transaction.mockImplementation((work) => work(prisma));
+    return { service: new MomentsService(prisma as never), prisma };
+  }
+
+  it('saves a renamed choice and removes an unused choice without changing stable IDs', async () => {
+    const { service, prisma } = setup();
+    await service.updatePollOptions(USER_ID, MOMENT_ID, {
+      options: [
+        { id: 'option-1', label: '  Pizza place  ' },
+        { id: 'option-2', label: 'Rice' },
+      ],
+    });
+    expect(prisma.momentBlock.update).toHaveBeenCalledWith({
+      where: { id: 'block-id' },
+      data: {
+        data: {
+          question: poll.question,
+          identityMode: poll.identityMode,
+          options: [
+            { id: 'option-1', label: 'Pizza place' },
+            { id: 'option-2', label: 'Rice' },
+          ],
+        },
+      },
+    });
+  });
+
+  it('rejects non-owners and does not write', async () => {
+    const { service, prisma } = setup();
+    prisma.$queryRaw.mockResolvedValue([]);
+    await expect(
+      service.updatePollOptions(USER_ID, MOMENT_ID, {
+        options: poll.options,
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+
+  it('preserves choices with ballots and blocks changes during an active round', async () => {
+    const dto = { options: poll.options.slice(0, 2) };
+    const used = setup();
+    used.prisma.momentVote.findFirst.mockResolvedValue({ id: 'vote-id' });
+    await expect(
+      used.service.updatePollOptions(USER_ID, MOMENT_ID, dto),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(used.prisma.momentBlock.update).not.toHaveBeenCalled();
+
+    const active = setup();
+    active.prisma.momentVoteRound.findFirst.mockResolvedValue({
+      id: 'round-id',
+    });
+    await expect(
+      active.service.updatePollOptions(USER_ID, MOMENT_ID, dto),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(active.prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+
+  it('keeps at least two choices and rejects duplicate labels', async () => {
+    const { service, prisma } = setup();
+    await expect(
+      service.updatePollOptions(USER_ID, MOMENT_ID, {
+        options: poll.options.slice(0, 1),
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.updatePollOptions(USER_ID, MOMENT_ID, {
+        options: [poll.options[0], { id: 'option-2', label: 'pizza' }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('rejects option IDs that were not part of the saved poll', async () => {
+    const { service, prisma } = setup();
+    await expect(
+      service.updatePollOptions(USER_ID, MOMENT_ID, {
+        options: [
+          poll.options[0]!,
+          { id: 'option-99', label: 'Injected choice' },
+        ],
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+});
 
 describe('Timed voting boundaries', () => {
   const roundId = '00000000-0000-4000-8000-000000000003';
@@ -123,6 +235,9 @@ describe('Timed voting boundaries', () => {
         .mockResolvedValue([{ id: roundId, closesAt: deadline }]),
       $executeRaw: jest.fn(),
       $transaction: jest.fn(),
+      momentBlock: {
+        findFirst: jest.fn().mockResolvedValue({ data: poll }),
+      },
       momentVote: {
         upsert: jest.fn(),
         groupBy: jest.fn().mockResolvedValue([]),
@@ -207,6 +322,31 @@ describe('Timed voting boundaries', () => {
         voteDate,
       ),
     ).rejects.toBeInstanceOf(GoneException);
+    expect(prisma.momentVote.upsert).not.toHaveBeenCalled();
+  });
+
+  it('rejects a choice removed after the voter opened the poll', async () => {
+    const { prisma, service } = setup();
+    prisma.momentBlock.findFirst.mockResolvedValue({
+      data: {
+        ...poll,
+        options: [
+          { id: 'option-2', label: 'Rice' },
+          { id: 'option-3', label: 'Noodles' },
+        ],
+      },
+    });
+    await expect(
+      service['savePollVote'](
+        MOMENT_ID,
+        poll,
+        'option-1',
+        'voter',
+        '',
+        voteDate,
+        roundId,
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(prisma.momentVote.upsert).not.toHaveBeenCalled();
   });
 

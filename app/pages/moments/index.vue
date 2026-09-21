@@ -179,6 +179,7 @@ async function resetVotes() {
           :moment="moment"
           :resetting="resettingVoteId === moment.id"
           @reset="requestVoteReset"
+          @updated="refresh"
         />
       </li>
     </ul>

@@ -24,6 +24,7 @@ import type { CreateMomentDto } from './dto/create-moment.dto';
 import type { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import type { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
+import type { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 import type { CurrentUser } from '../auth/types';
 
 const MAX_ACTIVE_MOMENTS = 3;
@@ -363,9 +364,31 @@ export class MomentsService {
                 voteDate,
               )
             : undefined;
+          // A past daily ballot also locks its choice label, even when today's count is zero.
+          const usedOptionIds = pollSummary
+            ? new Set(
+                (
+                  await this.prisma.momentVote.groupBy({
+                    by: ['optionId'],
+                    where: { momentId: moment.id },
+                    _count: { _all: true },
+                  })
+                ).map((item) => item.optionId),
+              )
+            : new Set<string>();
           return {
             ...summary,
-            ...(pollSummary ? { pollSummary } : {}),
+            ...(pollSummary
+              ? {
+                  pollSummary: {
+                    ...pollSummary,
+                    results: pollSummary.results.map((result) => ({
+                      ...result,
+                      hasVotes: usedOptionIds.has(result.optionId),
+                    })),
+                  },
+                }
+              : {}),
             ...(voteSchedule
               ? {
                   pollSchedule: {
@@ -499,25 +522,31 @@ export class MomentsService {
 
   async startTelegramVoteRound(momentId: string, now = new Date()) {
     // The unique local date makes retries reuse the deadline instead of extending voting.
-    await this.prisma.$executeRaw`
-      WITH inserted AS (
-      INSERT INTO moment_vote_rounds (moment_id, vote_date, telegram_chat_id, closes_at)
-      SELECT schedule.moment_id, (${now}::timestamptz AT TIME ZONE schedule.time_zone)::date,
-        schedule.telegram_chat_id,
-        LEAST(${now}::timestamptz + schedule.duration_minutes * INTERVAL '1 minute',
-          (((${now}::timestamptz AT TIME ZONE schedule.time_zone)::date + 1)::timestamp
-            AT TIME ZONE schedule.time_zone), moment.expires_at)
-      FROM moment_vote_schedules schedule
-      JOIN moments moment ON moment.id = schedule.moment_id
-      WHERE schedule.moment_id = ${momentId}::uuid AND schedule.enabled = TRUE
-      ON CONFLICT (moment_id, vote_date) DO NOTHING
-      RETURNING id, telegram_chat_id
-      )
-      INSERT INTO moment_vote_round_members (round_id, telegram_user_id, display_name)
-      SELECT inserted.id, member.telegram_user_id, member.display_name
-      FROM inserted JOIN telegram_group_members member
-        ON member.telegram_chat_id = inserted.telegram_chat_id AND member.is_active = TRUE
-    `;
+    await this.prisma.$transaction(async (tx) => {
+      // Share the poll lock with option edits so a new round uses one settled choice list.
+      await tx.$queryRaw`
+        SELECT id FROM moments WHERE id = ${momentId}::uuid FOR UPDATE
+      `;
+      await tx.$executeRaw`
+        WITH inserted AS (
+        INSERT INTO moment_vote_rounds (moment_id, vote_date, telegram_chat_id, closes_at)
+        SELECT schedule.moment_id, (${now}::timestamptz AT TIME ZONE schedule.time_zone)::date,
+          schedule.telegram_chat_id,
+          LEAST(${now}::timestamptz + schedule.duration_minutes * INTERVAL '1 minute',
+            (((${now}::timestamptz AT TIME ZONE schedule.time_zone)::date + 1)::timestamp
+              AT TIME ZONE schedule.time_zone), moment.expires_at)
+        FROM moment_vote_schedules schedule
+        JOIN moments moment ON moment.id = schedule.moment_id
+        WHERE schedule.moment_id = ${momentId}::uuid AND schedule.enabled = TRUE
+        ON CONFLICT (moment_id, vote_date) DO NOTHING
+        RETURNING id, telegram_chat_id
+        )
+        INSERT INTO moment_vote_round_members (round_id, telegram_user_id, display_name)
+        SELECT inserted.id, member.telegram_user_id, member.display_name
+        FROM inserted JOIN telegram_group_members member
+          ON member.telegram_chat_id = inserted.telegram_chat_id AND member.is_active = TRUE
+      `;
+    });
     return this.getScheduledTelegramVotingMoment(momentId);
   }
 
@@ -1083,6 +1112,96 @@ export class MomentsService {
     );
   }
 
+  async updatePollOptions(
+    userId: string,
+    momentId: string,
+    dto: UpdateMomentPollOptionsDto,
+  ) {
+    const options = dto.options.map((option) => ({
+      id: option.id,
+      label: option.label.trim(),
+    }));
+    const ids = new Set(options.map((option) => option.id));
+    const labels = new Set(
+      options.map((option) => option.label.toLowerCase()),
+    );
+    if (
+      options.length < 2 ||
+      options.length > 10 ||
+      ids.size !== options.length ||
+      labels.size !== options.length ||
+      options.some(
+        (option) =>
+          !/^option-\d+$/.test(option.id) ||
+          !option.label ||
+          option.label.length > 120,
+      )
+    ) {
+      throw new BadRequestException('Use two to ten different poll choices');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      // Serialize option changes with new ballots so a removed choice cannot receive a vote.
+      const [ownedMoment] = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id::text FROM moments
+        WHERE id = ${momentId}::uuid AND creator_id = ${userId}::uuid
+          AND occasion = 'VOTING'
+        FOR UPDATE
+      `;
+      if (!ownedMoment) throw new NotFoundException('Poll not found');
+
+      const block = await tx.momentBlock.findFirst({
+        where: { momentId, type: MomentBlockType.POLL },
+        select: { id: true, data: true },
+      });
+      const poll = this.readPollDefinition(block?.data);
+      if (!block || !poll) throw new NotFoundException('Poll not found');
+      const oldOptions = new Map(
+        poll.options.map((option) => [option.id, option]),
+      );
+      if (options.some((option) => !oldOptions.has(option.id))) {
+        throw new ConflictException(
+          'Refresh the poll before editing its choices',
+        );
+      }
+      const changedIds = poll.options
+        .filter((option) => {
+          const updated = options.find(
+            (candidate) => candidate.id === option.id,
+          );
+          return !updated || updated.label !== option.label;
+        })
+        .map((option) => option.id);
+      if (!changedIds.length) return;
+
+      const activeRound = await tx.momentVoteRound.findFirst({
+        where: { momentId, finalizedAt: null, closesAt: { gt: new Date() } },
+        select: { id: true },
+      });
+      if (activeRound) {
+        throw new ConflictException('Wait for the active Telegram vote to close');
+      }
+      const usedChoice = await tx.momentVote.findFirst({
+        where: { momentId, optionId: { in: changedIds } },
+        select: { id: true },
+      });
+      if (usedChoice) {
+        throw new ConflictException('Choices with votes cannot be edited or deleted');
+      }
+
+      await tx.momentBlock.update({
+        where: { id: block.id },
+        data: {
+          data: {
+            ...(block.data as Prisma.JsonObject),
+            options,
+          } as Prisma.InputJsonValue,
+        },
+      });
+    });
+    return { updated: true };
+  }
+
   async remove(userId: string, momentId: string) {
     const result = await this.prisma.moment.deleteMany({
       where: { id: momentId, creatorId: userId },
@@ -1356,7 +1475,23 @@ export class MomentsService {
     const responseKey = createHash('sha256').update(identityKey).digest('hex');
     const storedName =
       poll.identityMode === 'ANONYMOUS' ? null : voterName.trim() || null;
+    let currentPoll = poll;
     await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`
+        SELECT id FROM moments WHERE id = ${momentId}::uuid FOR UPDATE
+      `;
+      const block = await tx.momentBlock.findFirst({
+        where: { momentId, type: MomentBlockType.POLL },
+        select: { data: true },
+      });
+      const latestPoll = this.readPollDefinition(block?.data);
+      if (
+        !latestPoll ||
+        !latestPoll.options.some((option) => option.id === optionId)
+      ) {
+        throw new BadRequestException('Choose a valid poll option');
+      }
+      currentPoll = latestPoll;
       // Serialize the deadline check with finalization so a late write cannot change final results.
       const [round] = await tx.$queryRaw<Array<{ id: string; closesAt: Date }>>`
         SELECT id::text, closes_at AS "closesAt" FROM moment_vote_rounds
@@ -1392,8 +1527,8 @@ export class MomentsService {
     });
     return this.getPollSummary(
       momentId,
-      poll.options,
-      poll.identityMode,
+      currentPoll.options,
+      currentPoll.identityMode,
       voteDate,
     );
   }
