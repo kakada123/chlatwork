@@ -7,6 +7,7 @@ export const STANDALONE_TOOL_ARTWORK_PATHS: Record<string, string> = {
   barcode: "/images/icons/barcode-generator.png",
   "expense-tracker": "/images/icons/expense-tracker.png",
   "image-compress": "/images/icons/image-compressor.png",
+  "image-to-pdf": "/images/icons/image-to-pdf-coverter.png",
   "payback-calculator": "/images/icons/payback-calculator.png",
   qr: "/images/icons/qr-code-geneator.png", // Keep the supplied filename spelling.
   "lucky-draw": "/images/icons/random-winner-picker.png",
