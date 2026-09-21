@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import ToolIcon from "~/components/icons/ToolIcon.vue";
+import ToolArtworkLink from "~/components/tools/ToolArtworkLink.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import type { LandingTool } from "~/data/tools";
+import { getStandaloneToolArtworkPath } from "~/lib/icon-assets";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
-defineProps<{
+const props = defineProps<{
   tool: LandingTool;
 }>();
+const artworkPath = computed(() => getStandaloneToolArtworkPath(props.tool.key));
 </script>
 
 <template>
-  <div class="relative h-full min-w-0">
+  <div class="group relative h-full min-w-0">
+    <ToolArtworkLink
+      v-if="artworkPath"
+      :src="artworkPath"
+      :name="tool.name"
+      :route="tool.route"
+    />
     <NuxtLink
+      v-else
       :to="tool.route"
       class="mobile-pressable flex min-h-[132px] h-full flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
     >

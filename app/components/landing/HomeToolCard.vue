@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import ToolIcon from "~/components/icons/ToolIcon.vue";
+import ToolArtworkLink from "~/components/tools/ToolArtworkLink.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import type { LandingTool } from "~/data/tools";
+import { getStandaloneToolArtworkPath } from "~/lib/icon-assets";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
-defineProps<{
+const props = defineProps<{
   tool: LandingTool;
 }>();
+const artworkPath = computed(() => getStandaloneToolArtworkPath(props.tool.key));
 </script>
 
 <template>
   <div class="group relative h-full">
+    <ToolArtworkLink
+      v-if="artworkPath"
+      :src="artworkPath"
+      :name="tool.name"
+      :route="tool.route"
+    />
     <NuxtLink
+      v-else
       :to="tool.route"
       class="flex min-h-[96px] h-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-12 shadow-sm transition-colors duration-200 hover:border-sky-400 hover:bg-sky-50/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]"
     >
@@ -31,7 +41,8 @@ defineProps<{
     </NuxtLink>
 
     <ToolFavoriteButton
-      class="absolute right-3 top-3 z-10"
+      class="absolute z-10"
+      :class="artworkPath ? 'right-2 top-2' : 'right-3 top-3'"
       :tool-key="tool.key"
       :tool-name="tool.name"
     />

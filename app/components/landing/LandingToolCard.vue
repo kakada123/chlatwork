@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { LandingTool } from "~/data/tools";
+import ToolArtworkLink from "~/components/tools/ToolArtworkLink.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
+import { getStandaloneToolArtworkPath } from "~/lib/icon-assets";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
 const props = withDefaults(
@@ -15,7 +17,7 @@ const props = withDefaults(
     pinned: false,
   },
 );
-
+const artworkPath = computed(() => getStandaloneToolArtworkPath(props.tool.key));
 </script>
 
 <template>
@@ -29,7 +31,13 @@ const props = withDefaults(
         : 'scale-100 opacity-100'
     "
   >
-    <NuxtLink :to="props.tool.route" class="flex min-h-[96px] transform-gpu items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-12 text-left shadow-sm transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]">
+    <ToolArtworkLink
+      v-if="artworkPath"
+      :src="artworkPath"
+      :name="props.tool.name"
+      :route="props.tool.route"
+    />
+    <NuxtLink v-else :to="props.tool.route" class="flex min-h-[96px] transform-gpu items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-12 text-left shadow-sm transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]">
       <span
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl transition-colors"
         :class="getToolIconTone(props.tool.key)"
@@ -44,6 +52,6 @@ const props = withDefaults(
         </h3>
       </div>
     </NuxtLink>
-    <ToolFavoriteButton class="absolute right-3 top-3 z-10" :tool-key="props.tool.key" :tool-name="props.tool.name" />
+    <ToolFavoriteButton class="absolute z-10" :class="artworkPath ? 'right-2 top-2' : 'right-3 top-3'" :tool-key="props.tool.key" :tool-name="props.tool.name" />
   </div>
 </template>

@@ -2,6 +2,21 @@ const ICON_BASE_PATH = "/assets/icons";
 const DEFAULT_TOOL_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/tools/tool-date-calculator.png`;
 const DEFAULT_CATEGORY_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/categories/category-productivity.png`;
 
+// These artwork files include the tool name, so their tiles do not add another label.
+export const STANDALONE_TOOL_ARTWORK_PATHS: Record<string, string> = {
+  barcode: "/images/icons/barcode-generator.png",
+  "expense-tracker": "/images/icons/expense-tracker.png",
+  "image-compress": "/images/icons/image-compressor.png",
+  "payback-calculator": "/images/icons/payback-calculator.png",
+  qr: "/images/icons/qr-code-geneator.png", // Keep the supplied filename spelling.
+  "lucky-draw": "/images/icons/random-winner-picker.png",
+  "wifi-qr": "/images/icons/wifi-qr.png",
+};
+
+export function getStandaloneToolArtworkPath(toolKey: string): string | null {
+  return STANDALONE_TOOL_ARTWORK_PATHS[toolKey] ?? null;
+}
+
 export const TOOL_ICON_IMAGE_PATHS: Record<string, string> = {
   qr: `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
   "scan-qr": `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,

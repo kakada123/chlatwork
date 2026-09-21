@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import ToolIcon from "~/components/icons/ToolIcon.vue";
+import ToolArtworkLink from "~/components/tools/ToolArtworkLink.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import type { LandingTool } from "~/data/tools";
+import { getStandaloneToolArtworkPath } from "~/lib/icon-assets";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   tool: LandingTool;
   variant?: "recent" | "tile";
   meta?: string;
@@ -12,11 +14,19 @@ withDefaults(defineProps<{
   variant: "tile",
   meta: "",
 });
+const artworkPath = computed(() => getStandaloneToolArtworkPath(props.tool.key));
 </script>
 
 <template>
   <div v-if="variant === 'recent'" class="group relative h-full w-32 shrink-0 sm:w-full">
+    <ToolArtworkLink
+      v-if="artworkPath"
+      :src="artworkPath"
+      :name="tool.name"
+      :route="tool.route"
+    />
     <NuxtLink
+      v-else
       :to="tool.route"
       class="mobile-pressable flex h-full min-h-[138px] flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-9 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
       :aria-label="`Continue with ${tool.name}`"
@@ -42,6 +52,13 @@ withDefaults(defineProps<{
       :tool-name="tool.name"
     />
   </div>
+
+  <ToolArtworkLink
+    v-else-if="artworkPath"
+    :src="artworkPath"
+    :name="tool.name"
+    :route="tool.route"
+  />
 
   <NuxtLink
     v-else
