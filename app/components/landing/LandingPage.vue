@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import HeroSection from "./HeroSection.vue";
-import LandingFaq from "./LandingFaq.vue";
 import MobileLandingPage from "./MobileLandingPage.vue";
-import ToolCategorySection from "./ToolCategorySection.vue";
-import LandingDeveloperSection from "./LandingDeveloperSection.vue";
-import LandingWhyUse from "./LandingWhyUse.vue";
-import LandingMomentsSection from "./LandingMomentsSection.vue";
 
 import {
   LANDING_CATEGORIES,
@@ -90,7 +84,7 @@ async function loadPopularTools() {
       .slice(0, POPULAR_TOOL_CARD_COUNT);
     const selectedKeys = new Set(rankedKeys);
 
-    // A new or lightly used database should still render complete desktop and mobile grids.
+    // A new or lightly used database should still render a complete homepage grid.
     popularToolKeys.value = [
       ...rankedKeys,
       ...shuffledToolKeys(selectedKeys),
@@ -109,22 +103,12 @@ onMounted(() => {
   <div
     class="mx-auto w-full max-w-[1200px] pb-24 text-slate-950 transition-colors sm:pb-0 dark:text-white"
   >
-    <!-- CSS selects the composition so server and hydration markup remain deterministic. -->
+    <h1 class="hidden sm:block sm:sr-only">Free online tools for everyday work</h1>
+    <!-- Share the mobile content flow; its in-page header stays mobile-only. -->
     <MobileLandingPage
-      class="sm:hidden"
       :tools="landingTools"
       :popular-tools="popularTools"
       :categories="landingCategories"
     />
-
-    <div class="hidden sm:block">
-      <HeroSection :tools="landingTools" :popular-tools="popularTools" />
-      <ToolCategorySection :categories="landingCategories" />
-      <LandingMomentsSection />
-      <LandingWhyUse />
-      <LandingDeveloperSection />
-    </div>
-
-    <LandingFaq class="hidden sm:block" />
   </div>
 </template>

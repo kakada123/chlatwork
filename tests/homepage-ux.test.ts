@@ -2,31 +2,48 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage stays focused instead of duplicating the complete tools directory", () => {
-  const hero = readFileSync("app/components/landing/HeroSection.vue", "utf8");
+test("homepage uses the mobile content sequence at every width", () => {
   const landing = readFileSync(
     "app/components/landing/LandingPage.vue",
     "utf8",
   );
+  const content = readFileSync(
+    "app/components/landing/MobileLandingPage.vue",
+    "utf8",
+  );
 
-  assert.match(hero, /popularTools\.slice\(0, 6\)/);
-  assert.match(hero, /Start with a popular tool/);
-  assert.match(hero, /HomeToolCard/);
+  assert.match(landing, /<MobileLandingPage/);
+  assert.doesNotMatch(landing, /<HeroSection|<ToolCategorySection|<LandingMomentsSection|<LandingFaq/);
+  assert.doesNotMatch(landing, /<MobileLandingPage\s+class="sm:hidden"/);
   assert.match(landing, /HOME_CATEGORY_COPY/);
   assert.match(landing, /Work with PDFs/);
-  assert.match(landing, /Developer utilities/);
   assert.match(landing, /getPopularToolUsage/);
   assert.match(landing, /shuffledToolKeys/);
+  assert.match(content, /<header class="[^"]*sm:hidden"/);
+  assert.match(content, /sm:mx-auto sm:mt-0 sm:max-w-3xl/);
+  assert.match(content, /sm:grid-cols-3[^\"]*lg:grid-cols-5/);
+  assert.match(content, /lg:grid-cols-8/);
+  const sections = [
+    'aria-label="Find a ChlatWork tool"',
+    'aria-label="Mobile tool categories"',
+    'aria-labelledby="mobile-featured-item-title"',
+    'aria-labelledby="mobile-resume-tools-title"',
+    'aria-labelledby="mobile-favorite-tools-title"',
+    'aria-labelledby="mobile-popular-tools-title"',
+  ];
+  const positions = sections.map((section) => content.indexOf(section));
+  assert.ok(positions.every((position) => position >= 0));
+  assert.ok(positions.every((position, index) => index === 0 || position > positions[index - 1]));
 });
 
-test("homepage cards use semantic collections and calm interaction states", () => {
-  const hero = readFileSync("app/components/landing/HeroSection.vue", "utf8");
-  const card = readFileSync("app/components/landing/HomeToolCard.vue", "utf8");
+test("homepage tool cards retain compact keyboard-friendly actions", () => {
+  const content = readFileSync("app/components/landing/MobileLandingPage.vue", "utf8");
+  const card = readFileSync("app/components/landing/MobileHomeToolCard.vue", "utf8");
 
-  assert.match(hero, /<ul[^>]+aria-label="Popular tools"/);
+  assert.match(content, /<ul[^>]+aria-label="Popular tools"/);
   assert.match(card, /<NuxtLink/);
   assert.match(card, /focus-visible:ring-2/);
-  assert.doesNotMatch(card, /translate-y|Open tool|rounded-full/);
+  assert.match(card, /ToolFavoriteButton/);
 });
 
 test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
@@ -52,8 +69,7 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   );
 
   assert.match(landing, /<MobileLandingPage/);
-  assert.match(landing, /class="sm:hidden"/);
-  assert.match(landing, /<div class="hidden sm:block">/);
+  assert.doesNotMatch(landing, /<div class="hidden sm:block">/);
   assert.match(mobile, /aria-label="Mobile tool categories"/);
   assert.match(mobile, /Good morning/);
   assert.match(mobile, /mobile-featured-item-title/);
