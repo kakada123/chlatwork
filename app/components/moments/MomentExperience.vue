@@ -474,14 +474,19 @@ onBeforeUnmount(() => {
       <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
       <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="requestVote">
-        <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
-          <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
-          <span class="poll-option-copy"><span class="poll-option-name"><img v-if="option.imageId || option.imageUrl" :src="option.imageUrl ?? `/api/moments/${moment.slug}/media/${option.imageId}`" alt="" /><strong>{{ option.label }}</strong></span><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
-          <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
-          <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
-            {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
-          </span>
-        </label>
+        <fieldset class="poll-options-fieldset">
+          <legend class="sr-only">{{ pollQuestion }}</legend>
+          <div class="poll-options-grid">
+            <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
+              <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
+              <span class="poll-option-copy"><span class="poll-option-name"><img v-if="option.imageId || option.imageUrl" :src="option.imageUrl ?? `/api/moments/${moment.slug}/media/${option.imageId}`" alt="" /><strong>{{ option.label }}</strong></span><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
+              <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
+              <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
+                {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <input v-if="!preview && !voteClosed && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" required :placeholder="experienceCopy.voterNameRequired" />
         <button v-if="!preview && !voteClosed" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : voteSaved ? experienceCopy.updateVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
         <p v-if="!preview && voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
@@ -898,17 +903,21 @@ onBeforeUnmount(() => {
 .rsvp-error { margin-top: 1rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
 .rsvp-success { color: #15803d; }
 .rsvp-error { color: #dc2626; }
-.poll-section { max-width: 760px; }
+.poll-section { max-width: 960px; }
 .poll-form { display: grid; margin-top: 1.5rem; gap: .8rem; font-family: ui-sans-serif, system-ui, sans-serif; }
-.poll-option { position: relative; display: block; overflow: hidden; cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: 1rem; text-align: left; }
+.poll-options-fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
+.poll-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.poll-option { position: relative; display: block; min-width: 0; overflow: hidden; cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem; text-align: left; }
 .poll-option.selected { border-color: var(--moment-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--moment-accent) 22%, transparent); }
+.poll-option:focus-within { outline: 2px solid var(--moment-accent); outline-offset: 2px; }
 .poll-option input { position: absolute; opacity: 0; }
 .poll-option i { position: absolute; inset: 0 auto 0 0; z-index: 0; background: color-mix(in srgb, var(--moment-accent) 13%, transparent); transition: width .3s ease; }
-.poll-option-copy { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.poll-option-copy { position: relative; z-index: 1; display: flex; flex-direction: column; gap: .55rem; }
 .poll-option-name { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.poll-option-name strong { overflow-wrap: anywhere; }
 .poll-option-name img { width: 3rem; height: 3rem; flex: none; border-radius: .6rem; object-fit: cover; }
 .poll-option-copy small { color: var(--moment-muted); }
-.poll-voters { position: relative; z-index: 1; display: block; margin-top: .55rem; color: var(--moment-muted); font-size: .78rem; line-height: 1.6; }
+.poll-voters { position: relative; z-index: 1; display: block; margin-top: .55rem; overflow-wrap: anywhere; color: var(--moment-muted); font-size: .78rem; line-height: 1.6; }
 .poll-name { width: 100%; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-surface); padding: .9rem 1rem; color: var(--moment-ink); }
 .poll-form > button { border-radius: .85rem; background: var(--moment-accent); padding: .95rem 1rem; color: white; font-weight: 800; }
 .poll-form > button:disabled { cursor: not-allowed; opacity: .55; }
@@ -1328,7 +1337,11 @@ onBeforeUnmount(() => {
   .event-detail-grid,
   .rsvp-choices { grid-template-columns: 1fr; }
 }
+@media (max-width: 389px) {
+  .poll-options-grid { grid-template-columns: minmax(0, 1fr); }
+}
 @media (min-width: 700px) {
+  .poll-options-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .photo-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
