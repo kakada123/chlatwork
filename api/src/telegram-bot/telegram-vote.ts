@@ -36,6 +36,12 @@ function buttonLabel(label: string) {
   return label.length > 64 ? `${label.slice(0, 63)}…` : label;
 }
 
+function formatVoterNames(names: string[]) {
+  if (names.length < 2) return names[0] ?? '';
+  if (names.length === 2) return names.join(' & ');
+  return `${names.slice(0, -1).join(', ')} & ${names.at(-1)}`;
+}
+
 function formatVoteDeadline(closesAt: string, timeZone = 'Asia/Phnom_Penh') {
   // Report the final closing time in the schedule's local time zone.
   const localTime = new Intl.DateTimeFormat('en-GB', {
@@ -56,8 +62,20 @@ export function buildTelegramPollMessage(
 ) {
   const closed =
     poll.closed || Boolean(poll.closesAt && new Date(poll.closesAt) <= now);
-  // Keep open polls compact; reveal counts and named ballots with final results.
-  if (!closed) return `🗳 ${poll.title}`;
+  if (!closed) {
+    const title = `🗳 ${poll.title}`;
+    // Named polls expose choices as votes arrive; anonymous polls expose no identities.
+    if (poll.identityMode === 'ANONYMOUS') return title;
+    const choices = poll.results.flatMap((result) =>
+      result.voters?.length
+        ? [`${formatVoterNames(result.voters)}: ${result.label}`]
+        : [],
+    );
+    const message = [title, ...choices].join('\n');
+    return message.length <= 4_096
+      ? message
+      : `${title}\nVoter names: tap Details.`;
+  }
   const highest = Math.max(0, ...poll.results.map((result) => result.votes));
   const winners = poll.results.filter((result) => result.votes === highest);
   const showVoters = poll.identityMode !== 'ANONYMOUS';

@@ -29,24 +29,31 @@ describe('Telegram voting poll', () => {
   });
 
   it.each(['NAME_REQUIRED', 'LOGIN_REQUIRED'] as const)(
-    'shows voters under their choices only in final %s polls',
+    'shows who chose what during and after %s polls',
     (identityMode) => {
       const namedPoll = {
         ...poll,
         identityMode,
         voteDate: '2026-09-04',
         results: [
-          { optionId: 'option-1', label: 'Khmer food', votes: 2, voters: ['Sokha', 'Dara'] },
-          { optionId: 'option-2', label: 'Pizza', votes: 1, voters: ['Kakada'] },
+          {
+            optionId: 'option-1',
+            label: 'Tbal Khmer',
+            votes: 2,
+            voters: ['Kakada', 'Rong'],
+          },
+          { optionId: 'option-2', label: 'Kio', votes: 1, voters: ['Long'] },
         ],
         totalVotes: 3,
       };
-      expect(buildTelegramPollMessage(namedPoll)).toBe('🗳 Team lunch');
+      expect(buildTelegramPollMessage(namedPoll)).toBe(
+        '🗳 Team lunch\nKakada & Rong: Tbal Khmer\nLong: Kio',
+      );
       const message = buildTelegramPollMessage({ ...namedPoll, closed: true });
       expect(message).toContain('📅 2026-09-04');
       expect(message).toContain('Votes: 3');
-      expect(message).toContain('Khmer food · 2\n  ↳ Sokha, Dara');
-      expect(message).toContain('Pizza · 1\n  ↳ Kakada');
+      expect(message).toContain('Tbal Khmer · 2\n  ↳ Kakada, Rong');
+      expect(message).toContain('Kio · 1\n  ↳ Long');
     },
   );
 
@@ -76,6 +83,23 @@ describe('Telegram voting poll', () => {
     });
     expect(message.length).toBeLessThanOrEqual(4_096);
     expect(message).toContain('Khmer food · 3');
+    expect(message).toContain('Voter names: tap Details.');
+  });
+
+  it('keeps an oversized active named poll within Telegram limits', () => {
+    const message = buildTelegramPollMessage({
+      ...poll,
+      identityMode: 'NAME_REQUIRED',
+      results: [
+        {
+          ...poll.results[0]!,
+          voters: Array.from({ length: 200 }, () =>
+            'Long voter name '.repeat(5),
+          ),
+        },
+      ],
+    });
+    expect(message.length).toBeLessThanOrEqual(4_096);
     expect(message).toContain('Voter names: tap Details.');
   });
 

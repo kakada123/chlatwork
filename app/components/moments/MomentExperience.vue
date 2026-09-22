@@ -72,7 +72,7 @@ const voteWinners = computed(() => {
   return highest ? results.filter((result) => result.votes === highest) : [];
 });
 
-async function refreshTimedVote() {
+async function refreshVote() {
   if (refreshingVote) return;
   refreshingVote = true;
   try {
@@ -161,6 +161,17 @@ const pollIdentityMode = computed(() => {
 });
 const pollRequiresName = computed(() => pollIdentityMode.value === "NAME_REQUIRED");
 const pollRequiresLogin = computed(() => pollIdentityMode.value === "LOGIN_REQUIRED");
+const namedVoteLines = computed(() => {
+  if (pollIdentityMode.value === "ANONYMOUS") return [];
+  return (pollSummary.value?.results ?? []).flatMap((result) => {
+    const names = result.voters ?? [];
+    if (!names.length) return [];
+    const voters = names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(", ")} & ${names.at(-1)}`;
+    return [`${voters}: ${result.label}`];
+  });
+});
 const heroTitle = computed(
   () => readMomentBlockText(heroBlock.value, "title") || props.moment.title,
 );
@@ -341,12 +352,13 @@ onMounted(() => {
   if (props.preview || !pollBlock.value) return;
   window.addEventListener("resize", resetCanteenPosition);
   voteNow.value = Date.now();
-  if (pollSummary.value?.closesAt || pollSummary.value?.voteDate) {
+  // Named one-time polls refresh too, so other people's choices appear without a reload.
+  if (pollSummary.value?.closesAt || pollSummary.value?.voteDate || pollIdentityMode.value !== "ANONYMOUS") {
     let ticks = 0;
     voteTimer = setInterval(() => {
       voteNow.value = Date.now();
       ticks += 1;
-      if (ticks % 15 === 0 || (pollSummary.value?.closesAt && voteClosed.value && !pollSummary.value?.closed)) void refreshTimedVote();
+      if (ticks % 15 === 0 || (pollSummary.value?.closesAt && voteClosed.value && !pollSummary.value?.closed)) void refreshVote();
     }, 1000);
   }
   try {
@@ -532,6 +544,10 @@ onBeforeUnmount(() => {
         {{ voteWinners.length ? `${voteWinners.length > 1 ? experienceCopy.voteTie : experienceCopy.voteWinner}: ${voteWinners.map((result) => result.label).join(', ')}` : experienceCopy.voteNoVotes }}
       </p>
       <p class="rsvp-status">{{ experienceCopy.totalVotes(pollSummary?.totalVotes ?? 0) }}</p>
+      <div v-if="namedVoteLines.length" class="poll-vote-activity">
+        <p>{{ experienceCopy.voters }}</p>
+        <ul><li v-for="line in namedVoteLines" :key="line">{{ line }}</li></ul>
+      </div>
       <p v-if="preview" class="rsvp-status">{{ experienceCopy.previewVote }}</p>
       <form class="poll-form" :class="{ 'is-preview': preview }" @submit.prevent="requestVote">
         <fieldset class="poll-options-fieldset">
@@ -547,9 +563,6 @@ onBeforeUnmount(() => {
               <input v-if="!isCanteenOption(option) || preview || voteClosed" v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
               <span class="poll-option-copy"><span class="poll-option-name"><img v-if="option.imageId || option.imageUrl" :src="option.imageUrl ?? `/api/moments/${moment.slug}/media/${option.imageId}`" alt="" /><strong>{{ option.label }}</strong></span><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
               <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
-              <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
-                {{ experienceCopy.voters }}: {{ pollSummary.results.find((result) => result.optionId === option.id)?.voters?.join(', ') }}
-              </span>
             </label>
           </div>
         </fieldset>
@@ -985,7 +998,10 @@ onBeforeUnmount(() => {
 .poll-option-name strong { overflow-wrap: anywhere; }
 .poll-option-name img { width: 3rem; height: 3rem; flex: none; border-radius: .6rem; object-fit: cover; }
 .poll-option-copy small { color: var(--moment-muted); }
-.poll-voters { position: relative; z-index: 1; display: block; margin-top: .55rem; overflow-wrap: anywhere; color: var(--moment-muted); font-size: .78rem; line-height: 1.6; }
+.poll-vote-activity { margin-top: 1rem; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem 1rem; text-align: left; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
+.poll-vote-activity p { color: var(--moment-muted); font-weight: 700; }
+.poll-vote-activity ul { margin-top: .4rem; list-style: none; }
+.poll-vote-activity li { overflow-wrap: anywhere; line-height: 1.6; }
 .poll-name { width: 100%; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-surface); padding: .9rem 1rem; color: var(--moment-ink); }
 .poll-form > button { border-radius: .85rem; background: var(--moment-accent); padding: .95rem 1rem; color: white; font-weight: 800; }
 .poll-form > button:disabled { cursor: not-allowed; opacity: .55; }
