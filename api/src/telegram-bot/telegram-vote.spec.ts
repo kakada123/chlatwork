@@ -19,46 +19,34 @@ const poll: TelegramVotingPoll = {
 };
 
 describe('Telegram voting poll', () => {
-  it('keeps active counts on buttons without repeating options in the message', () => {
+  it('shows only the title and choice labels while voting is open', () => {
     const message = buildTelegramPollMessage(poll);
-    expect(message).toBe('🗳 Team lunch\nWhere should we eat?\n\nVotes: 4');
+    expect(message).toBe('🗳 Team lunch');
     expect(
       buildTelegramPollKeyboard(poll, 'https://example.com')
         .inline_keyboard[0]?.[0]?.text,
-    ).toBe('Khmer food · 3');
+    ).toBe('Khmer food');
   });
 
   it.each(['NAME_REQUIRED', 'LOGIN_REQUIRED'] as const)(
-    'shows voters under their choices in active and final %s polls',
+    'shows voters under their choices only in final %s polls',
     (identityMode) => {
-      for (const closed of [false, true]) {
-        const message = buildTelegramPollMessage({
-          ...poll,
-          identityMode,
-          closed,
-          voteDate: '2026-09-04',
-          results: [
-            {
-              optionId: 'option-1',
-              label: 'Khmer food',
-              votes: 2,
-              voters: ['Sokha', 'Dara'],
-            },
-            {
-              optionId: 'option-2',
-              label: 'Pizza',
-              votes: 1,
-              voters: ['Kakada'],
-            },
-          ],
-          totalVotes: 3,
-        });
-
-        expect(message).toContain('📅 2026-09-04');
-        expect(message).toContain('Votes: 3');
-        expect(message).toContain('Khmer food · 2\n  ↳ Sokha, Dara');
-        expect(message).toContain('Pizza · 1\n  ↳ Kakada');
-      }
+      const namedPoll = {
+        ...poll,
+        identityMode,
+        voteDate: '2026-09-04',
+        results: [
+          { optionId: 'option-1', label: 'Khmer food', votes: 2, voters: ['Sokha', 'Dara'] },
+          { optionId: 'option-2', label: 'Pizza', votes: 1, voters: ['Kakada'] },
+        ],
+        totalVotes: 3,
+      };
+      expect(buildTelegramPollMessage(namedPoll)).toBe('🗳 Team lunch');
+      const message = buildTelegramPollMessage({ ...namedPoll, closed: true });
+      expect(message).toContain('📅 2026-09-04');
+      expect(message).toContain('Votes: 3');
+      expect(message).toContain('Khmer food · 2\n  ↳ Sokha, Dara');
+      expect(message).toContain('Pizza · 1\n  ↳ Kakada');
     },
   );
 
@@ -77,6 +65,7 @@ describe('Telegram voting poll', () => {
   it('retains counts and a details hint when voter names exceed the message limit', () => {
     const message = buildTelegramPollMessage({
       ...poll,
+      closed: true,
       identityMode: 'NAME_REQUIRED',
       results: [
         {
@@ -104,6 +93,25 @@ describe('Telegram voting poll', () => {
     expect(keyboard.inline_keyboard.at(-1)?.[0]?.url).toContain(
       '/m/lunch-vote-abc123',
     );
+  });
+
+  it('groups fifteen vote choices into rows of four without mixing in poll actions', () => {
+    const results = Array.from({ length: 15 }, (_, index) => ({
+      optionId: `option-${index + 1}`,
+      label: `Choice ${index + 1}`,
+      votes: index,
+    }));
+    const keyboard = buildTelegramPollKeyboard(
+      { ...poll, roundId: poll.id, results },
+      'https://example.com/m/lunch-vote-abc123',
+    ).inline_keyboard;
+
+    expect(keyboard.slice(0, 4).map((row) => row.length)).toEqual([4, 4, 4, 3]);
+    expect(keyboard[0]?.map((button) => button.callback_data)).toEqual(
+      results.slice(0, 4).map((result) => `poll:cast:${poll.id}:${result.optionId}`),
+    );
+    expect(keyboard[4]?.map((button) => button.text)).toEqual(['Join ✅', 'Not joining']);
+    expect(keyboard[5]?.[0]?.text).toBe('Details');
   });
 
   it('uses real mentions with correct emoji offsets and literal display names', () => {
@@ -162,13 +170,13 @@ describe('Timed Telegram result presentation', () => {
     roundId: '00000000-0000-4000-8000-000000000003',
     closesAt: '2099-09-08T03:30:00Z',
   };
-  it('formats fractional UTC deadlines in Cambodia time without changing the countdown', () => {
+  it('shows the closing time in Cambodia time only in final results', () => {
     const message = buildTelegramPollMessage(
-      { ...timed, closesAt: '2026-09-09T03:30:00.903Z' },
+      { ...timed, closed: true, closesAt: '2026-09-09T03:30:00.903Z' },
       new Date('2026-09-09T03:26:01Z'),
     );
     expect(message).toContain(
-      '⏳ 4 min left · closes 09 Sept 2026, 10:30 (Asia/Phnom_Penh)',
+      'Closed 09 Sept 2026, 10:30 (Asia/Phnom_Penh)',
     );
     expect(message).not.toContain('.903Z');
   });
@@ -176,22 +184,20 @@ describe('Timed Telegram result presentation', () => {
     const message = buildTelegramPollMessage(
       {
         ...timed,
+        closed: true,
         closesAt: '2026-09-09T03:30:00.903Z',
         timeZone: 'America/New_York',
       },
       new Date('2026-09-09T03:26:01Z'),
     );
     expect(message).toContain(
-      '⏳ 4 min left · closes 08 Sept 2026, 23:30 (America/New_York)',
+      'Closed 08 Sept 2026, 23:30 (America/New_York)',
     );
   });
-  it('shows a countdown and separate join/opt-out buttons', () => {
+  it('keeps the active message brief and separate join/opt-out buttons', () => {
     expect(
       buildTelegramPollMessage(timed, new Date('2099-09-08T03:00:00Z')),
-    ).toContain('30 min left');
-    expect(buildTelegramPollMessage(timed)).toContain(
-      'Joined by default · equal split',
-    );
+    ).toBe('🗳 Team lunch');
     const buttons = buildTelegramPollKeyboard(
       timed,
       'https://example.com',

@@ -32,18 +32,12 @@ export interface TelegramVotingPoll {
   results: TelegramPollResult[];
 }
 
-function buttonLabel(label: string, votes: number) {
-  const suffix = ` · ${votes}`;
-  const available = Math.max(1, 64 - suffix.length);
-  const trimmed =
-    label.length > available
-      ? `${label.slice(0, Math.max(1, available - 1))}…`
-      : label;
-  return `${trimmed}${suffix}`;
+function buttonLabel(label: string) {
+  return label.length > 64 ? `${label.slice(0, 63)}…` : label;
 }
 
 function formatVoteDeadline(closesAt: string, timeZone = 'Asia/Phnom_Penh') {
-  // Display the schedule's local time while retaining the absolute deadline for voting.
+  // Report the final closing time in the schedule's local time zone.
   const localTime = new Intl.DateTimeFormat('en-GB', {
     timeZone,
     day: '2-digit',
@@ -62,43 +56,31 @@ export function buildTelegramPollMessage(
 ) {
   const closed =
     poll.closed || Boolean(poll.closesAt && new Date(poll.closesAt) <= now);
+  // Keep open polls compact; reveal counts and named ballots with final results.
+  if (!closed) return `🗳 ${poll.title}`;
   const highest = Math.max(0, ...poll.results.map((result) => result.votes));
   const winners = poll.results.filter((result) => result.votes === highest);
   const showVoters = poll.identityMode !== 'ANONYMOUS';
   const lines = [
-    `${closed ? '🏁' : '🗳'} ${poll.title}`,
+    `🏁 ${poll.title}`,
     ...(poll.question !== poll.title ? [poll.question] : []),
-    ...(poll.voteDate && (!poll.closesAt || closed)
-      ? [`📅 ${poll.voteDate}`]
-      : []),
-    ...(!closed && poll.closesAt
-      ? [
-          `⏳ ${Math.max(1, Math.ceil((new Date(poll.closesAt).getTime() - now.getTime()) / 60000))} min left · closes ${formatVoteDeadline(poll.closesAt, poll.timeZone)}`,
-        ]
+    ...(poll.voteDate ? [`📅 ${poll.voteDate}`] : []),
+    ...(poll.closesAt
+      ? [`Closed ${formatVoteDeadline(poll.closesAt, poll.timeZone)}`]
       : []),
     '',
-    ...(closed || showVoters
-      ? poll.results.flatMap((result) => [
-          `${result.label} · ${result.votes}`,
-          ...(showVoters && result.voters?.length
-            ? [`  ↳ ${result.voters.join(', ')}`]
-            : []),
-        ])
-      : []),
+    ...poll.results.flatMap((result) => [
+      `${result.label} · ${result.votes}`,
+      ...(showVoters && result.voters?.length
+        ? [`  ↳ ${result.voters.join(', ')}`]
+        : []),
+    ]),
     `Votes: ${poll.totalVotes}${poll.roundId ? ` · Joined: ${poll.participants?.length ?? 0}` : ''}`,
-    ...(closed
-      ? [
-          highest === 0
-            ? 'No votes this round.'
-            : `${winners.length > 1 ? '🤝 Tie' : '🏆 Winner'}: ${winners.map((result) => result.label).join(', ')}`,
-        ]
-      : []),
+    highest === 0
+      ? 'No votes this round.'
+      : `${winners.length > 1 ? '🤝 Tie' : '🏆 Winner'}: ${winners.map((result) => result.label).join(', ')}`,
     ...(poll.roundId
-      ? [
-          closed
-            ? 'Split equally: reply /split 60 (bill total).'
-            : 'Joined by default · equal split. Tap “Not joining” to skip.',
-        ]
+      ? ['Split equally: reply /split 60 (bill total).']
       : []),
   ];
   const message = lines.join('\n');
@@ -118,18 +100,21 @@ export function buildTelegramPollKeyboard(
   const closed =
     poll.closed ||
     Boolean(poll.closesAt && Date.parse(poll.closesAt) <= Date.now());
+  const voteButtons = closed
+    ? []
+    : poll.results.map((result) => ({
+        text: buttonLabel(result.label),
+        callback_data: poll.roundId
+          ? `poll:cast:${poll.roundId}:${result.optionId}`
+          : `poll:vote:${poll.id}:${result.optionId}`,
+      }));
+  const voteRows: TelegramInlineKeyboard['inline_keyboard'] = [];
+  for (let index = 0; index < voteButtons.length; index += 4) {
+    voteRows.push(voteButtons.slice(index, index + 4));
+  }
   return {
     inline_keyboard: [
-      ...(closed
-        ? []
-        : poll.results.map((result) => [
-            {
-              text: buttonLabel(result.label, result.votes),
-              callback_data: poll.roundId
-                ? `poll:cast:${poll.roundId}:${result.optionId}`
-                : `poll:vote:${poll.id}:${result.optionId}`,
-            },
-          ])),
+      ...voteRows,
       ...(poll.roundId && !closed
         ? [
             [

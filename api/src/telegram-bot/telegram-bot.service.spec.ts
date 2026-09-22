@@ -111,7 +111,7 @@ describe('TelegramBotService', () => {
     );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       -1001234567890,
-      expect.stringContaining('Where should we eat?'),
+      '🗳 Team lunch',
       expect.objectContaining({ inline_keyboard: expect.any(Array) }),
     );
   });
@@ -217,7 +217,7 @@ describe('Telegram group vote updates', () => {
     );
   });
 
-  it('reposts results with buttons and mentions only remaining members in the active round', async () => {
+  it('reposts the compact poll with buttons and mentions only remaining members in the active round', async () => {
     const { service, prisma, bot, callback, poll } = setup();
     await service.handleUpdate({ update_id: 1, callback_query: callback });
     expect(bot.editMessage).not.toHaveBeenCalled();
@@ -227,7 +227,7 @@ describe('Telegram group vote updates', () => {
     );
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chat.id,
-      expect.stringContaining('Votes: 1'),
+      expect.stringContaining('🗳 Team lunch'),
       expect.objectContaining({ inline_keyboard: expect.any(Array) }),
       [
         expect.objectContaining({

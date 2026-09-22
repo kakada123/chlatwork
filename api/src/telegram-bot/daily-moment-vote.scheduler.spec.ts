@@ -53,7 +53,7 @@ describe('DailyMomentVoteScheduler', () => {
     ).resolves.toBe(1);
     expect(bot.sendMessage).toHaveBeenCalledWith(
       -1001234567890,
-      expect.stringContaining('2026-09-04'),
+      '🗳 Team lunch',
       expect.objectContaining({ inline_keyboard: expect.any(Array) }),
     );
     expect(prisma.momentVoteSchedule.update).toHaveBeenCalledWith({
