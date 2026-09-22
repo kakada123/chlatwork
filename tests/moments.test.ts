@@ -241,6 +241,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /experienceCopy\.voters/);
   assert.match(creator, /value="LOGIN_REQUIRED"/);
   assert.match(experience, /showVoteLogin/);
+  assert.match(experience, /import ConfirmDialog from "~\/components\/ui\/ConfirmDialog\.vue"/);
   assert.match(experience, /selectedVoteOption\?\.imageId \|\| selectedVoteOption\?\.imageUrl/);
   assert.match(experience, /<ConfirmDialog[\s\S]*?@confirm="submitVote"[\s\S]*?<img/);
   assert.match(experience, /v-if="voteError"[^>]*role="alert"/);

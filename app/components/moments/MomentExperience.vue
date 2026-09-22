@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import confetti from "canvas-confetti";
 import { CalendarDays, Gift, Heart, Image as ImageIcon, MapPin, Navigation, Sparkles } from "lucide-vue-next";
+import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import {
   MOMENT_COPY,
   getMomentOccasionCopy,
