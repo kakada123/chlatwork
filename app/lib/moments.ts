@@ -186,7 +186,7 @@ export function getMomentFormError(
   if (draft.occasion === "VOTING") {
     if (!draft.recipientName.trim()) return errors.pollQuestion;
     const options = new Set(draft.pollOptions.map((option) => option.trim()).filter(Boolean));
-    if (options.size < 2) return errors.pollOptions;
+    if (options.size < 2 || draft.pollOptions.length > 15) return errors.pollOptions;
   }
   return "";
 }

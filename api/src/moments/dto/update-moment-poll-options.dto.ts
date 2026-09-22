@@ -25,7 +25,7 @@ class MomentPollOptionDto {
 export class UpdateMomentPollOptionsDto {
   @IsArray()
   @ArrayMinSize(2)
-  @ArrayMaxSize(10)
+  @ArrayMaxSize(15)
   @ValidateNested({ each: true })
   @Type(() => MomentPollOptionDto)
   options!: MomentPollOptionDto[];

@@ -116,7 +116,7 @@ export class CreateMomentDto {
   @IsOptional()
   @IsArray()
   @ArrayMinSize(2)
-  @ArrayMaxSize(10)
+  @ArrayMaxSize(15)
   @IsString({ each: true })
   @MinLength(1, { each: true })
   @MaxLength(120, { each: true })

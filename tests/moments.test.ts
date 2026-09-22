@@ -216,6 +216,12 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
     getMomentFormError({ ...votingDraft, pollOptions: ["Same", "Same"] }, 0),
     MOMENT_COPY.en.creator.errors.pollOptions,
   );
+  const fifteenChoices = Array.from({ length: 15 }, (_, index) => `Choice ${index + 1}`);
+  assert.equal(getMomentFormError({ ...votingDraft, pollOptions: fifteenChoices }, 0), "");
+  assert.equal(
+    getMomentFormError({ ...votingDraft, pollOptions: [...fifteenChoices, "Choice 16"] }, 0),
+    MOMENT_COPY.en.creator.errors.pollOptions,
+  );
   const creator = readProjectFile("app/components/moments/MomentCreator.vue");
   const experience = readProjectFile(
     "app/components/moments/MomentExperience.vue",
@@ -235,6 +241,9 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /experienceCopy\.voters/);
   assert.match(creator, /value="LOGIN_REQUIRED"/);
   assert.match(experience, /showVoteLogin/);
+  assert.match(experience, /selectedVoteOption\?\.imageId \|\| selectedVoteOption\?\.imageUrl/);
+  assert.match(experience, /<ConfirmDialog[\s\S]*?@confirm="submitVote"[\s\S]*?<img/);
+  assert.match(experience, /v-if="voteError"[^>]*role="alert"/);
   assert.match(experience, /:disabled="preview \|\| voteClosed"/);
   assert.match(
     experience,

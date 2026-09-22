@@ -266,7 +266,7 @@ function removePhoto(id: string) {
 }
 
 function addPollOption() {
-  if (draft.pollOptions.length < 10) draft.pollOptions.push("");
+  if (draft.pollOptions.length < 15) draft.pollOptions.push("");
 }
 
 function removePollOption(index: number) {
@@ -709,7 +709,7 @@ onBeforeUnmount(() => {
                   <label class="secondary-button cursor-pointer" :aria-label="creatorCopy.optionImage"><ImagePlus class="h-4 w-4" /><span class="sr-only">{{ creatorCopy.optionImage }}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" :disabled="isPreparingPhotos" @change="onOptionImagePick($event, index)" /></label>
                   <button v-if="draft.pollOptions.length > 2" type="button" class="secondary-button" :aria-label="creatorCopy.removePollOption" :disabled="isPreparingPhotos" @click="removePollOption(index)"><Trash2 class="h-4 w-4" /></button>
                 </div>
-                <button v-if="draft.pollOptions.length < 10" type="button" class="secondary-button justify-self-start" :disabled="isPreparingPhotos" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
+                <button v-if="draft.pollOptions.length < 15" type="button" class="secondary-button justify-self-start" :disabled="isPreparingPhotos" @click="addPollOption">{{ creatorCopy.addPollOption }}</button>
               </div>
               <div class="mt-5">
                 <span class="field-label">{{ creatorCopy.voterIdentity }}</span>

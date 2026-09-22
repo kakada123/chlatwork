@@ -106,6 +106,7 @@ const pollOptions = computed(() => {
     Boolean(option && typeof option === "object" && typeof option.id === "string" && typeof option.label === "string"),
   );
 });
+const selectedVoteOption = computed(() => pollOptions.value.find((option) => option.id === voteChoice.value));
 const pollIdentityMode = computed(() => {
   const mode = pollBlock.value?.data.identityMode ?? pollSummary.value?.identityMode;
   if (mode === "NAME_REQUIRED" || mode === "LOGIN_REQUIRED") return mode;
@@ -245,6 +246,7 @@ async function requestVote() {
       return;
     }
   }
+  voteError.value = "";
   showVoteConfirm.value = true;
 }
 
@@ -271,7 +273,6 @@ async function submitVote() {
     showVoteConfirm.value = false;
   } catch {
     voteError.value = experienceCopy.value.voteError;
-    showVoteConfirm.value = false;
   } finally {
     voteSaving.value = false;
   }
@@ -483,7 +484,7 @@ onBeforeUnmount(() => {
         <input v-if="!preview && !voteClosed && pollRequiresName" v-model="voterName" class="poll-name" maxlength="80" required :placeholder="experienceCopy.voterNameRequired" />
         <button v-if="!preview && !voteClosed" type="submit" :disabled="voteSaving || !voteChoice || (pollRequiresName && !voterName.trim())">{{ voteSaving ? experienceCopy.savingVote : voteSaved ? experienceCopy.updateVote : pollRequiresLogin && !user ? experienceCopy.loginToVote : experienceCopy.submitVote }}</button>
         <p v-if="!preview && voteSaved" class="rsvp-success" role="status">{{ experienceCopy.voteSaved }}</p>
-        <p v-if="!preview && voteError" class="rsvp-error" role="alert">{{ voteError }}</p>
+        <p v-if="!preview && voteError && !showVoteConfirm" class="rsvp-error" role="alert">{{ voteError }}</p>
       </form>
     </section>
 
@@ -496,7 +497,7 @@ onBeforeUnmount(() => {
     <ConfirmDialog
       :open="showVoteConfirm"
       :title="experienceCopy.confirmVoteTitle"
-      :description="experienceCopy.confirmVoteChoice(pollOptions.find((option) => option.id === voteChoice)?.label ?? '')"
+      :description="experienceCopy.confirmVoteChoice(selectedVoteOption?.label ?? '')"
       :confirm-label="experienceCopy.confirmVote"
       :cancel-label="experienceCopy.cancelVote"
       :busy="voteSaving"
@@ -505,7 +506,15 @@ onBeforeUnmount(() => {
       tone="accent"
       @close="showVoteConfirm = false"
       @confirm="submitVote"
-    />
+    >
+      <img
+        v-if="selectedVoteOption?.imageId || selectedVoteOption?.imageUrl"
+        :src="selectedVoteOption.imageUrl ?? `/api/moments/${moment.slug}/media/${selectedVoteOption.imageId}`"
+        :alt="selectedVoteOption.label"
+        class="mt-5 max-h-72 w-full rounded-xl bg-slate-50 object-contain dark:bg-white/5"
+      />
+      <p v-if="voteError" class="mt-4 text-sm font-semibold text-red-600 dark:text-red-300" role="alert">{{ voteError }}</p>
+    </ConfirmDialog>
 
     <section
       v-if="showMemoryAndCounterSections && photos.length && !isVoting"

@@ -203,6 +203,24 @@ describe('MomentsService poll choice editing', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
+  it('accepts fifteen saved choices and rejects a sixteenth', async () => {
+    const { service, prisma } = setup();
+    const options = Array.from({ length: 15 }, (_, index) => ({
+      id: `option-${index + 1}`,
+      label: `Choice ${index + 1}`,
+    }));
+    prisma.momentBlock.findFirst.mockResolvedValue({
+      id: 'block-id',
+      data: { ...poll, options },
+    });
+
+    await expect(service.updatePollOptions(USER_ID, MOMENT_ID, { options }))
+      .resolves.toEqual({ updated: true });
+    await expect(service.updatePollOptions(USER_ID, MOMENT_ID, {
+      options: [...options, { id: 'option-16', label: 'Choice 16' }],
+    })).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('rejects option IDs that were not part of the saved poll', async () => {
     const { service, prisma } = setup();
     await expect(

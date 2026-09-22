@@ -1240,7 +1240,7 @@ export class MomentsService {
     );
     if (
       options.length < 2 ||
-      options.length > 10 ||
+      options.length > 15 ||
       ids.size !== options.length ||
       labels.size !== options.length ||
       options.some(
@@ -1250,7 +1250,7 @@ export class MomentsService {
           option.label.length > 120,
       )
     ) {
-      throw new BadRequestException('Use two to ten different poll choices');
+      throw new BadRequestException('Use two to fifteen different poll choices');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -1736,7 +1736,7 @@ export class MomentsService {
         : record.requireName === true
           ? 'NAME_REQUIRED'
           : 'ANONYMOUS';
-    if (!question || options.length < 2 || options.length > 10) return null;
+    if (!question || options.length < 2 || options.length > 15) return null;
     return { question, identityMode, options };
   }
 
