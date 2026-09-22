@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -11,10 +12,11 @@ import {
 } from 'class-validator';
 
 class MomentPollOptionDto {
+  @IsOptional()
   @IsString()
   @Matches(/^option-\d+$/)
   @MaxLength(40)
-  id!: string;
+  id?: string;
 
   @IsString()
   @MinLength(1)
@@ -23,6 +25,13 @@ class MomentPollOptionDto {
 }
 
 export class UpdateMomentPollOptionsDto {
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(15)
+  @IsString({ each: true })
+  @Matches(/^option-\d+$/, { each: true })
+  expectedOptionIds?: string[];
+
   @IsArray()
   @ArrayMinSize(2)
   @ArrayMaxSize(15)

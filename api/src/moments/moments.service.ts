@@ -1234,18 +1234,19 @@ export class MomentsService {
       id: option.id,
       label: option.label.trim(),
     }));
-    const ids = new Set(options.map((option) => option.id));
+    const submittedIds = options.flatMap((option) => option.id ? [option.id] : []);
+    const ids = new Set(submittedIds);
     const labels = new Set(
       options.map((option) => option.label.toLowerCase()),
     );
     if (
       options.length < 2 ||
       options.length > 15 ||
-      ids.size !== options.length ||
+      ids.size !== submittedIds.length ||
       labels.size !== options.length ||
       options.some(
         (option) =>
-          !/^option-\d+$/.test(option.id) ||
+          (option.id !== undefined && !/^option-\d+$/.test(option.id)) ||
           !option.label ||
           option.label.length > 120,
       )
@@ -1272,10 +1273,22 @@ export class MomentsService {
       const oldOptions = new Map(
         poll.options.map((option) => [option.id, option]),
       );
-      if (options.some((option) => !oldOptions.has(option.id))) {
+      // The editor's starting IDs prevent a stale save from removing another edit.
+      const expectedIds = dto.expectedOptionIds;
+      if (expectedIds && (
+        expectedIds.length !== oldOptions.size ||
+        new Set(expectedIds).size !== oldOptions.size ||
+        expectedIds.some((id) => !oldOptions.has(id))
+      )) {
+        throw new ConflictException('Refresh the poll before editing its choices');
+      }
+      if (options.some((option) => option.id && !oldOptions.has(option.id))) {
         throw new ConflictException(
           'Refresh the poll before editing its choices',
         );
+      }
+      if (options.some((option) => option.id === undefined) && !expectedIds) {
+        throw new BadRequestException('Current choice IDs are required when adding choices');
       }
       const changedIds = poll.options
         .filter((option) => {
@@ -1285,7 +1298,8 @@ export class MomentsService {
           return !updated || updated.label !== option.label;
         })
         .map((option) => option.id);
-      if (!changedIds.length) return;
+      const hasNewOptions = options.some((option) => option.id === undefined);
+      if (!changedIds.length && !hasNewOptions) return;
 
       const activeRound = await tx.momentVoteRound.findFirst({
         where: { momentId, finalizedAt: null, closesAt: { gt: new Date() } },
@@ -1294,25 +1308,32 @@ export class MomentsService {
       if (activeRound) {
         throw new ConflictException('Wait for the active Telegram vote to close');
       }
-      const usedChoice = await tx.momentVote.findFirst({
+      const usedChoice = changedIds.length ? await tx.momentVote.findFirst({
         where: { momentId, optionId: { in: changedIds } },
         select: { id: true },
-      });
+      }) : null;
       if (usedChoice) {
         throw new ConflictException('Choices with votes cannot be edited or deleted');
       }
 
+      // Allocate IDs under the owner lock so new choices cannot collide.
+      let nextOptionNumber = Math.max(
+        0,
+        ...poll.options.map((option) => Number(option.id.slice('option-'.length))),
+      ) + 1;
+      const savedOptions = options.map((option) => ({
+        id: option.id ?? `option-${nextOptionNumber++}`,
+        label: option.label,
+        ...(option.id && oldOptions.get(option.id)?.imageId
+          ? { imageId: oldOptions.get(option.id)!.imageId }
+          : {}),
+      }));
       await tx.momentBlock.update({
         where: { id: block.id },
         data: {
           data: {
             ...(block.data as Prisma.JsonObject),
-            options: options.map((option) => ({
-              ...option,
-              ...(oldOptions.get(option.id)?.imageId
-                ? { imageId: oldOptions.get(option.id)!.imageId }
-                : {}),
-            })),
+            options: savedOptions,
           } as Prisma.InputJsonValue,
         },
       });

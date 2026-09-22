@@ -274,6 +274,8 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(voteService, /pollSummary: await this\.getPollSummary/);
   assert.match(managerPage, /<MomentVotingResults/);
   assert.match(voteResults, /result\.voters\.join/);
+  assert.match(voteResults, /@click="addOption"/);
+  assert.match(voteResults, /expectedOptionIds: originalOptionIds\.value/);
   assert.match(voteController, /@Delete\(':id\/votes'\)/);
   assert.match(voteService, /async resetVotes/);
   assert.match(voteService, /momentVote\.deleteMany/);

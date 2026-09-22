@@ -7,6 +7,9 @@ import {
 } from '@nestjs/common';
 import { MomentsService } from './moments.service';
 import { createCanvas } from '@napi-rs/canvas';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
+import { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 
 const MOMENT_ID = '00000000-0000-4000-8000-000000000001';
 const USER_ID = '00000000-0000-4000-8000-000000000002';
@@ -156,6 +159,90 @@ describe('MomentsService poll choice editing', () => {
         },
       },
     });
+  });
+
+  it('adds a choice with a server-assigned ID while preserving saved images', async () => {
+    const { service, prisma } = setup();
+    const imageId = '00000000-0000-4000-8000-000000000003';
+    prisma.momentBlock.findFirst.mockResolvedValue({
+      id: 'block-id',
+      data: { ...poll, options: [{ ...poll.options[0], imageId }, ...poll.options.slice(1)] },
+    });
+    await service.updatePollOptions(USER_ID, MOMENT_ID, {
+      expectedOptionIds: poll.options.map((option) => option.id),
+      options: [...poll.options, { label: 'Salad' }],
+    });
+
+    expect(prisma.momentBlock.update).toHaveBeenCalledWith({
+      where: { id: 'block-id' },
+      data: { data: {
+        question: poll.question,
+        identityMode: poll.identityMode,
+        options: [
+          { ...poll.options[0], imageId },
+          poll.options[1],
+          poll.options[2],
+          { id: 'option-4', label: 'Salad' },
+        ],
+      } },
+    });
+    expect(prisma.momentVote.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('rejects a stale choice list before adding', async () => {
+    const { service, prisma } = setup();
+    await expect(service.updatePollOptions(USER_ID, MOMENT_ID, {
+      expectedOptionIds: ['option-1', 'option-2'],
+      options: [...poll.options, { label: 'Salad' }],
+    })).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+
+  it('does not add a choice during an active Telegram round', async () => {
+    const { service, prisma } = setup();
+    prisma.momentVoteRound.findFirst.mockResolvedValue({ id: 'round-id' });
+    await expect(service.updatePollOptions(USER_ID, MOMENT_ID, {
+      expectedOptionIds: poll.options.map((option) => option.id),
+      options: [...poll.options, { label: 'Salad' }],
+    })).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.momentBlock.update).not.toHaveBeenCalled();
+  });
+
+  it('allows the fifteenth choice but rejects a sixteenth', async () => {
+    const { service, prisma } = setup();
+    const options = Array.from({ length: 14 }, (_, index) => ({
+      id: `option-${index + 1}`,
+      label: `Choice ${index + 1}`,
+    }));
+    prisma.momentBlock.findFirst.mockResolvedValue({
+      id: 'block-id',
+      data: { ...poll, options },
+    });
+    const expectedOptionIds = options.map((option) => option.id);
+    await service.updatePollOptions(USER_ID, MOMENT_ID, {
+      expectedOptionIds,
+      options: [...options, { label: 'Choice 15' }],
+    });
+    expect(prisma.momentBlock.update).toHaveBeenCalledWith({
+      where: { id: 'block-id' },
+      data: { data: { ...poll, options: [...options, { id: 'option-15', label: 'Choice 15' }] } },
+    });
+    await expect(service.updatePollOptions(USER_ID, MOMENT_ID, {
+      expectedOptionIds,
+      options: [...options, { label: 'Choice 15' }, { label: 'Choice 16' }],
+    })).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('accepts omitted IDs only for new choices', () => {
+    const valid = plainToInstance(UpdateMomentPollOptionsDto, {
+      expectedOptionIds: ['option-1', 'option-2'],
+      options: [{ id: 'option-1', label: 'Pizza' }, { label: 'Salad' }],
+    });
+    expect(validateSync(valid)).toEqual([]);
+    const invalid = plainToInstance(UpdateMomentPollOptionsDto, {
+      options: [{ id: 'new-1', label: 'Pizza' }, { label: 'Salad' }],
+    });
+    expect(validateSync(invalid)).not.toEqual([]);
   });
 
   it('rejects non-owners and does not write', async () => {
