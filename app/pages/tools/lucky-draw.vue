@@ -545,7 +545,7 @@ type WheelSegment = {
   labelLines: string[];
 };
 
-type ConfettiLauncher = ((options?: Record<string, unknown>) => unknown) | null;
+type ConfettiLauncher = import("canvas-confetti").ConfettiCannon | null;
 type SpinSpeed = "quick" | "standard" | "suspense";
 
 useSeoMeta({
@@ -577,7 +577,7 @@ const INITIAL_ROWS = (): InputRow[] => [
   { name: "" },
 ];
 
-const SEGMENT_COLORS = [
+const SEGMENT_COLORS: [string, ...string[]] = [
   "#ef4444",
   "#f97316",
   "#f59e0b",
@@ -970,7 +970,7 @@ const wheelSegments = computed<WheelSegment[]>(() => {
     return {
       index,
       name,
-      color: SEGMENT_COLORS[index % SEGMENT_COLORS.length],
+      color: SEGMENT_COLORS[index % SEGMENT_COLORS.length] ?? SEGMENT_COLORS[0],
       startAngle,
       endAngle,
       midAngle,
@@ -1410,6 +1410,11 @@ async function runLuckyDraw() {
     return;
   }
   const winnerName = people[winnerIndex];
+  if (winnerName === undefined) {
+    isSpinning.value = false;
+    error.value = "Could not select a winner. Please try again.";
+    return;
+  }
   const spinDuration = import.meta.client
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ? 700
