@@ -189,7 +189,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
         <button
           type="button"
           class="reset-button"
-          :disabled="resetting || !summary?.totalVotes"
+          :disabled="resetting || (!summary?.totalVotes && !summary?.roundId)"
           @click="emit('reset', moment)"
         >
           <RotateCcw class="h-4 w-4" :class="{ 'animate-spin': resetting }" aria-hidden="true" />

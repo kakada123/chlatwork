@@ -1,4 +1,4 @@
-import { MomentOccasion } from '@prisma/client';
+import { MomentOccasion, MomentStatus } from '@prisma/client';
 import {
   BadRequestException,
   ConflictException,
@@ -24,6 +24,8 @@ function createService(moment: object | null) {
       groupBy: jest.fn().mockResolvedValue([]),
       findMany: jest.fn().mockResolvedValue([]),
     },
+    momentVoteRound: { delete: jest.fn() },
+    momentVoteSchedule: { update: jest.fn() },
   };
   prisma.$transaction.mockImplementation((work) => work(prisma));
   return { service: new MomentsService(prisma as never), prisma };
@@ -76,7 +78,7 @@ describe('MomentsService vote reset', () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-09-04T03:00:00.000Z'));
     const { service, prisma } = createService({
       id: MOMENT_ID,
-      voteSchedule: { enabled: true, timeZone: 'Asia/Phnom_Penh' },
+      voteSchedule: { enabled: true, timeZone: 'Asia/Phnom_Penh', telegramChatId: -100n },
       blocks: [
         {
           data: {
@@ -90,6 +92,14 @@ describe('MomentsService vote reset', () => {
         },
       ],
     });
+    prisma.$queryRaw
+      .mockResolvedValueOnce([{
+        id: '00000000-0000-4000-8000-000000000003',
+        momentId: MOMENT_ID,
+        timeZone: 'Asia/Phnom_Penh',
+      }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: '00000000-0000-4000-8000-000000000004', messageId: 42 }]);
 
     await service.resetVotes(USER_ID, MOMENT_ID);
 
@@ -97,6 +107,16 @@ describe('MomentsService vote reset', () => {
       where: {
         momentId: MOMENT_ID,
         voteDate: new Date('2026-09-04T00:00:00.000Z'),
+      },
+    });
+    expect(prisma.momentVoteRound.delete).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-4000-8000-000000000004' },
+    });
+    expect(prisma.momentVoteSchedule.update).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-4000-8000-000000000003' },
+      data: {
+        lastAttemptDate: new Date('2026-09-04T00:00:00.000Z'),
+        lastSentAt: null,
       },
     });
     jest.useRealTimers();
@@ -109,6 +129,77 @@ describe('MomentsService vote reset', () => {
       NotFoundException,
     );
     expect(prisma.momentVote.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('does not reset a replacement round from an old confirmation', async () => {
+    const { service, prisma } = createService(null);
+    prisma.$queryRaw
+      .mockResolvedValueOnce([{ id: 'schedule-id', momentId: MOMENT_ID, timeZone: 'Asia/Phnom_Penh' }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'new-round-id', messageId: 42 }]);
+    await expect(service.resetTodayTelegramVote(USER_ID, -100, 'old-round-id'))
+      .rejects.toBeInstanceOf(GoneException);
+    expect(prisma.momentVote.deleteMany).not.toHaveBeenCalled();
+    expect(prisma.momentVoteRound.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe('MomentsService daily vote time', () => {
+  it('queues a same-day send after the round is reset, without reposting an existing round', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-09-04T03:00:00.000Z'));
+    try {
+      const prisma = {
+        $transaction: jest.fn(),
+        $queryRaw: jest.fn().mockResolvedValue([{
+          id: 'schedule-id', momentId: MOMENT_ID, timeZone: 'Asia/Phnom_Penh',
+        }]),
+        momentVoteRound: { findUnique: jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'round-id' }) },
+        momentVoteSchedule: { update: jest.fn() },
+      };
+      prisma.$transaction.mockImplementation((work) => work(prisma));
+      const service = new MomentsService(prisma as never);
+
+      await expect(service.updateDailyTelegramVoteTime(USER_ID, -100, 10, 0))
+        .resolves.toEqual({ updated: true, sendsToday: true, timeZone: 'Asia/Phnom_Penh' });
+      expect(prisma.momentVoteSchedule.update).toHaveBeenLastCalledWith({
+        where: { id: 'schedule-id' },
+        data: { sendHour: 10, sendMinute: 0, enabled: true, lastAttemptDate: null },
+      });
+      await expect(service.updateDailyTelegramVoteTime(USER_ID, -100, 11, 0))
+        .resolves.toEqual({ updated: true, sendsToday: false, timeZone: 'Asia/Phnom_Penh' });
+      expect(prisma.momentVoteSchedule.update).toHaveBeenLastCalledWith({
+        where: { id: 'schedule-id' },
+        data: {
+          sendHour: 11, sendMinute: 0, enabled: true,
+          lastAttemptDate: new Date('2026-09-04T00:00:00.000Z'),
+        },
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+});
+
+describe('MomentsService website voting', () => {
+  it('rejects a Canteen choice before saving a website vote', async () => {
+    const prisma = {
+      moment: { findUnique: jest.fn().mockResolvedValue({
+        status: MomentStatus.PUBLISHED,
+        occasion: MomentOccasion.VOTING,
+        publishAt: null,
+        expiresAt: null,
+        blocks: [{ data: {
+          question: 'Lunch?', identityMode: 'ANONYMOUS',
+          options: [{ id: 'option-1', label: 'Canteen 😭' }, { id: 'option-2', label: 'Pizza' }],
+        } }],
+        voteSchedule: null,
+      }) },
+      $transaction: jest.fn(),
+    };
+    const service = new MomentsService(prisma as never);
+    await expect(service.respondToVote('lunch', { optionId: 'option-1', responseToken: 'test-token' }, null))
+      .rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });
 

@@ -75,7 +75,7 @@ const PENDING_EXPENSE_LIFETIME_MS = 30 * 60 * 1_000;
 const RETAIN_BOT_STATE_MS = 7 * 24 * 60 * 60 * 1_000;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const POLL_OPTION_PATTERN = /^option-(?:[1-9]|10)$/;
+const POLL_OPTION_PATTERN = /^option-\d{1,10}$/;
 const MAX_MEMBER_USERNAME_LOOKUPS = 20;
 
 interface LinkedTelegramUser {
@@ -173,6 +173,7 @@ export class TelegramBotService {
     if (data) {
       if (data.startsWith('khqr:')) return 'khqr';
       if (data.startsWith('split:')) return 'bill-split';
+      if (data.startsWith('rv:')) return 'group-voting';
       if (data.startsWith('poll:daily:')) return 'group-voting';
       if (data.startsWith('poll:')) return 'voting';
       if (data.startsWith('settings:')) return 'notifications';
@@ -190,7 +191,7 @@ export class TelegramBotService {
     if (this.isGroupMessage(message)) {
       if (command === 'split') return 'bill-split';
       if (
-        ['joinvote', 'dailyvote', 'votetime', 'voteduration', 'stopdailyvote']
+        ['joinvote', 'dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote']
           .includes(command ?? '')
       ) return 'group-voting';
       if (
@@ -281,7 +282,7 @@ export class TelegramBotService {
           'Vote reminders enabled.',
         );
       } else if (
-        ['dailyvote', 'votetime', 'voteduration', 'stopdailyvote'].includes(
+        ['dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote'].includes(
           command ?? '',
         )
       ) {
@@ -837,6 +838,10 @@ export class TelegramBotService {
     }
     if (data.startsWith('poll:daily:')) {
       await this.handleDailyVoteSchedule(callback, data);
+      return;
+    }
+    if (data.startsWith('rv:')) {
+      await this.handleTodayVoteReset(callback, data);
       return;
     }
     if (data.startsWith('split:toggle:')) {
@@ -1413,6 +1418,43 @@ export class TelegramBotService {
       return;
     }
 
+    if (command === 'resettodayvote') {
+      try {
+        const round = await this.moments.getTodayTelegramVoteRound(
+          linked.user.id,
+          message.chat.id,
+        );
+        if (!round) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            'There is no voting round to reset today.',
+          );
+          return;
+        }
+        const adminId = BigInt(message.from.id).toString(36);
+        await this.bot.sendMessage(
+          message.chat.id,
+          'Reset today’s entire vote? All votes and the current round will be removed. Use /votetime HH:MM afterward to start a new round today.',
+          {
+            inline_keyboard: [[
+              { text: 'Yes, reset today', callback_data: `rv:y:${round.id}:${adminId}` },
+              { text: 'Cancel', callback_data: `rv:n:${round.id}:${adminId}` },
+            ]],
+          },
+        );
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            'There is no daily poll owned by you in this group.',
+          );
+          return;
+        }
+        throw error;
+      }
+      return;
+    }
+
     if (command === 'votetime') {
       const match = /(?:^|\s)([01]\d|2[0-3]):([0-5]\d)(?:\s|$)/.exec(
         message.text ?? '',
@@ -1425,7 +1467,7 @@ export class TelegramBotService {
         return;
       }
       try {
-        await this.moments.updateDailyTelegramVoteTime(
+        const result = await this.moments.updateDailyTelegramVoteTime(
           linked.user.id,
           message.chat.id,
           Number(match[1]),
@@ -1433,7 +1475,10 @@ export class TelegramBotService {
         );
         await this.bot.sendMessage(
           message.chat.id,
-          `Daily poll time updated to ${match[1]}:${match[2]} (${linked.user.telegramNotificationTimeZone}).`,
+          `Daily poll time updated to ${match[1]}:${match[2]} (${result.timeZone}). ` +
+            (result.sendsToday
+              ? 'A new vote will open today at that time, or on the next scheduler check if that time has passed.'
+              : 'Today’s round stays in place; the new time starts tomorrow. Use /resettodayvote first to vote again today.'),
         );
       } catch (error) {
         if (error instanceof NotFoundException) {
@@ -1741,6 +1786,81 @@ export class TelegramBotService {
         await this.bot.answerCallback(
           callback.id,
           'Only the poll owner can schedule this vote.',
+        );
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async handleTodayVoteReset(
+    callback: TelegramCallbackQuery,
+    data: string,
+  ) {
+    const match = /^rv:([yn]):([0-9a-f-]+):([0-9a-z]+)$/i.exec(data);
+    const message = callback.message;
+    if (
+      !match ||
+      !UUID_PATTERN.test(match[2]) ||
+      !message ||
+      !this.isGroupCallback(callback, message)
+    ) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This reset action is invalid.',
+      );
+      return;
+    }
+    if (match[3] !== BigInt(callback.from.id).toString(36)) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This confirmation belongs to another admin.',
+      );
+      return;
+    }
+    const linked = await this.findLinkedUser(String(callback.from.id));
+    if (
+      !linked ||
+      !(await this.bot.isChatAdministrator(message.chat.id, callback.from.id))
+    ) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Only a linked group administrator can reset today’s vote.',
+      );
+      return;
+    }
+    if (match[1] === 'n') {
+      await this.bot.answerCallback(callback.id, 'Reset cancelled.');
+      await this.bot
+        .deleteMessage(message.chat.id, message.message_id)
+        .catch(() => null);
+      return;
+    }
+    try {
+      const reset = await this.moments.resetTodayTelegramVote(
+        linked.user.id,
+        message.chat.id,
+        match[2],
+      );
+      await this.bot.answerCallback(callback.id, 'Today’s vote reset.');
+      // Old buttons are invalid in the database even if Telegram cannot remove the message.
+      if (reset.messageId !== null) {
+        await this.bot
+          .deleteMessage(message.chat.id, reset.messageId)
+          .catch(() => null);
+      }
+      await this.bot
+        .deleteMessage(message.chat.id, message.message_id)
+        .catch(() => null);
+      await this.bot.sendMessage(
+        message.chat.id,
+        `Today’s ${reset.deletedVotes} vote${reset.deletedVotes === 1 ? '' : 's'} reset. Use /votetime HH:MM to start a fresh round today.`,
+      );
+    } catch (error) {
+      if (error instanceof GoneException || error instanceof NotFoundException) {
+        await this.bot.answerCallback(
+          callback.id,
+          'Today’s voting round has changed or is unavailable.',
         );
         return;
       }
@@ -2768,6 +2888,7 @@ export class TelegramBotService {
           'Daily voting — linked ChlatWork account and group admin required:',
           '/dailyvote — Choose your Voting Moment to schedule daily',
           '/votetime 10:00 — Change the daily vote time',
+          '/resettodayvote — Reset today’s votes, then use /votetime to vote again',
           '/voteduration 30 — Set future voting rounds to 30 minutes',
           '/stopdailyvote — Stop the daily vote',
           '',
@@ -2800,7 +2921,7 @@ export class TelegramBotService {
       if (/^\/(?:\$|@|tg_)/.test(line)) return 'khqr';
       if (/^\/split/.test(line)) return 'bill-split';
       if (
-        /^\/(?:joinvote|dailyvote|votetime|voteduration|stopdailyvote)/.test(line)
+        /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote)/.test(line)
       ) return 'group-voting';
       if (/^\/(?:today|recent|spend)/.test(line)) return 'spending';
       if (/^\/vote\b/.test(line)) return 'voting';

@@ -194,6 +194,7 @@ const EN = {
     voteKicker: "Help us decide",
     voteTimeLeft: "Time left",
     voteClosed: "Voting closed",
+    voteWaitingRound: "Waiting for a new voting round.",
     voteFinalResults: "🎉 Final results",
     voteWinner: "🏆 Winner",
     voteTie: "🎉 Tied winners",
@@ -311,8 +312,10 @@ const EN = {
     resetVotes: "Reset votes",
     resettingVotes: "Resetting…",
     resetVotesDialogTitle: "Reset all votes?",
-    resetVotesConfirm: (title: string, count: number) =>
-      `Reset all ${count} votes for “${title}”? This permanently removes the current results, but keeps the poll open for new votes.`,
+    resetVotesConfirm: (title: string, count: number, daily = false) =>
+      daily
+        ? `Reset all ${count} votes for “${title}” today? This removes today’s Telegram round and its results. Use /votetime HH:MM in the group to open a fresh round today.`
+        : `Reset all ${count} votes for “${title}”? This permanently removes the current results, but keeps the poll open for new votes.`,
     keepVotes: "Keep votes",
     resetVotesError: "The votes could not be reset. Please try again.",
   },
@@ -530,6 +533,7 @@ const KM = {
     voteKicker: "ជួយគ្នាសម្រេច",
     voteTimeLeft: "ពេលវេលានៅសល់",
     voteClosed: "ការបោះឆ្នោតបានបិទ",
+    voteWaitingRound: "កំពុងរង់ចាំវគ្គបោះឆ្នោតថ្មី។",
     voteFinalResults: "🎉 លទ្ធផលចុងក្រោយ",
     voteWinner: "🏆 អ្នកឈ្នះ",
     voteTie: "🎉 អ្នកឈ្នះស្មើគ្នា",
@@ -645,8 +649,10 @@ const KM = {
     resetVotes: "កំណត់សំឡេងឡើងវិញ",
     resettingVotes: "កំពុងកំណត់ឡើងវិញ…",
     resetVotesDialogTitle: "កំណត់សំឡេងទាំងអស់ឡើងវិញមែនទេ?",
-    resetVotesConfirm: (title: string, count: number) =>
-      `លុបសំឡេងទាំង ${count} សម្រាប់ “${title}” មែនទេ? សកម្មភាពនេះនឹងលុបលទ្ធផលបច្ចុប្បន្នជាអចិន្ត្រៃយ៍ ប៉ុន្តែការបោះឆ្នោតនៅតែបើកទទួលសំឡេងថ្មី។`,
+    resetVotesConfirm: (title: string, count: number, daily = false) =>
+      daily
+        ? `លុបសំឡេងទាំង ${count} សម្រាប់ “${title}” ក្នុងថ្ងៃនេះមែនទេ? វានឹងលុបវគ្គបោះឆ្នោត Telegram ថ្ងៃនេះ និងលទ្ធផលទាំងអស់។ ប្រើ /votetime HH:MM ក្នុងក្រុម ដើម្បីចាប់ផ្តើមវគ្គថ្មីថ្ងៃនេះ។`
+        : `លុបសំឡេងទាំង ${count} សម្រាប់ “${title}” មែនទេ? សកម្មភាពនេះនឹងលុបលទ្ធផលបច្ចុប្បន្នជាអចិន្ត្រៃយ៍ ប៉ុន្តែការបោះឆ្នោតនៅតែបើកទទួលសំឡេងថ្មី។`,
     keepVotes: "រក្សាទុកសំឡេង",
     resetVotesError: "មិនអាចកំណត់សំឡេងឡើងវិញបានទេ។ សូមព្យាយាមម្តងទៀត។",
   },

@@ -306,9 +306,9 @@ test("daily Telegram voting keeps per-day history and owner insights", () => {
   assert.match(migration, /CREATE TABLE IF NOT EXISTS "moment_vote_schedules"/);
   assert.match(service, /getActiveVoteDate/);
   assert.match(service, /getPollInsights/);
-  assert.match(service, /Daily history stays intact/);
+  assert.match(service, /resetTodayTelegramVote/);
   assert.match(scheduler, /FOR UPDATE OF schedule SKIP LOCKED/);
-  assert.match(telegramBot, /'dailyvote', 'votetime', 'voteduration', 'stopdailyvote'/);
+  assert.match(telegramBot, /'dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote'/);
   assert.match(telegramBot, /configureDailyTelegramVote/);
   assert.match(results, /managerCopy\.mostSelected/);
   assert.match(results, /result\.voters\.join/);

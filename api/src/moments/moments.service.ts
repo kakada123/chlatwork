@@ -879,15 +879,39 @@ export class MomentsService {
     ) {
       throw new BadRequestException('Use a valid time such as 10:00');
     }
-    const result = await this.prisma.momentVoteSchedule.updateMany({
-      where: {
-        telegramChatId: BigInt(telegramChatId),
-        moment: { creatorId: userId },
-      },
-      data: { sendHour, sendMinute, enabled: true },
+    return this.prisma.$transaction(async (tx) => {
+      const [schedule] = await tx.$queryRaw<Array<{
+        id: string;
+        momentId: string;
+        timeZone: string;
+      }>>`
+        SELECT schedule.id::text, schedule.moment_id::text AS "momentId",
+          schedule.time_zone AS "timeZone"
+        FROM moment_vote_schedules schedule JOIN moments moment ON moment.id = schedule.moment_id
+        WHERE schedule.telegram_chat_id = ${BigInt(telegramChatId)}
+          AND moment.creator_id = ${userId}::uuid
+        FOR UPDATE OF schedule
+      `;
+      if (!schedule) throw new NotFoundException('Daily poll not found');
+      const voteDate = new Date(
+        `${this.formatLocalDate(new Date(), schedule.timeZone)}T00:00:00.000Z`,
+      );
+      const round = await tx.momentVoteRound.findUnique({
+        where: { momentId_voteDate: { momentId: schedule.momentId, voteDate } },
+        select: { id: true },
+      });
+      // A new time can send today only when there is no existing round to duplicate.
+      await tx.momentVoteSchedule.update({
+        where: { id: schedule.id },
+        data: {
+          sendHour,
+          sendMinute,
+          enabled: true,
+          lastAttemptDate: round ? voteDate : null,
+        },
+      });
+      return { updated: true, sendsToday: !round, timeZone: schedule.timeZone };
     });
-    if (!result.count) throw new NotFoundException('Daily poll not found');
-    return { updated: true };
   }
 
   async disableDailyTelegramVote(userId: string, telegramChatId: number) {
@@ -900,6 +924,84 @@ export class MomentsService {
     });
     if (!result.count) throw new NotFoundException('Daily poll not found');
     return { disabled: true };
+  }
+
+  async getTodayTelegramVoteRound(userId: string, telegramChatId: number) {
+    const schedule = await this.prisma.momentVoteSchedule.findFirst({
+      where: {
+        telegramChatId: BigInt(telegramChatId),
+        moment: { creatorId: userId },
+      },
+      select: { momentId: true, timeZone: true },
+    });
+    if (!schedule) throw new NotFoundException('Daily poll not found');
+    const voteDate = new Date(
+      `${this.formatLocalDate(new Date(), schedule.timeZone)}T00:00:00.000Z`,
+    );
+    const round = await this.prisma.momentVoteRound.findUnique({
+      where: { momentId_voteDate: { momentId: schedule.momentId, voteDate } },
+      select: { id: true, telegramChatId: true },
+    });
+    return round?.telegramChatId === BigInt(telegramChatId)
+      ? { id: round.id }
+      : null;
+  }
+
+  async resetTodayTelegramVote(
+    userId: string,
+    telegramChatId: number,
+    expectedRoundId?: string,
+    expectedMomentId?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const [schedule] = await tx.$queryRaw<Array<{
+        id: string;
+        momentId: string;
+        timeZone: string;
+      }>>`
+        SELECT schedule.id::text, schedule.moment_id::text AS "momentId",
+          schedule.time_zone AS "timeZone"
+        FROM moment_vote_schedules schedule JOIN moments moment ON moment.id = schedule.moment_id
+        WHERE schedule.telegram_chat_id = ${BigInt(telegramChatId)}
+          AND moment.creator_id = ${userId}::uuid
+        FOR UPDATE OF schedule
+      `;
+      if (
+        !schedule ||
+        (expectedMomentId && schedule.momentId !== expectedMomentId)
+      ) {
+        throw new NotFoundException('Daily poll not found');
+      }
+      const voteDate = new Date(
+        `${this.formatLocalDate(new Date(), schedule.timeZone)}T00:00:00.000Z`,
+      );
+      // Use the same lock as vote writes so no accepted ballot survives the reset.
+      await tx.$queryRaw`
+        SELECT id FROM moments WHERE id = ${schedule.momentId}::uuid FOR UPDATE
+      `;
+      const [round] = await tx.$queryRaw<Array<{ id: string; messageId: number | null }>>`
+        SELECT id::text, message_id AS "messageId" FROM moment_vote_rounds
+        WHERE moment_id = ${schedule.momentId}::uuid AND vote_date = ${voteDate}::date
+          AND telegram_chat_id = ${BigInt(telegramChatId)} FOR UPDATE
+      `;
+      if (!round || (expectedRoundId && round.id !== expectedRoundId)) {
+        throw new GoneException('Today’s voting round is no longer available.');
+      }
+      const deleted = await tx.momentVote.deleteMany({
+        where: { momentId: schedule.momentId, voteDate },
+      });
+      // A new round ID invalidates every old Telegram vote and join button.
+      await tx.momentVoteRound.delete({ where: { id: round.id } });
+      await tx.momentVoteSchedule.update({
+        where: { id: schedule.id },
+        data: { lastAttemptDate: voteDate, lastSentAt: null },
+      });
+      return {
+        momentId: schedule.momentId,
+        deletedVotes: deleted.count,
+        messageId: round.messageId,
+      };
+    });
   }
 
   async addInvitationGuests(
@@ -1101,8 +1203,13 @@ export class MomentsService {
     });
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
-    if (!poll || !poll.options.some((option) => option.id === dto.optionId)) {
+    const selectedOption = poll?.options.find((option) => option.id === dto.optionId);
+    if (!poll || !selectedOption) {
       throw new BadRequestException('Choose a valid poll option');
+    }
+    // Enforce the Canteen joke on website votes even if someone bypasses the moving card.
+    if (/canteen/i.test(selectedOption.label)) {
+      throw new BadRequestException('This choice is unavailable on the website');
     }
     const identityMode = poll.identityMode;
     if (identityMode === 'LOGIN_REQUIRED' && !user) {
@@ -1198,25 +1305,28 @@ export class MomentsService {
           select: { data: true },
           take: 1,
         },
-        voteSchedule: { select: { enabled: true, timeZone: true } },
+        voteSchedule: { select: { enabled: true, timeZone: true, telegramChatId: true } },
       },
     });
     const poll = this.readPollDefinition(moment?.blocks[0]?.data);
     if (!moment || !poll) throw new NotFoundException('Poll not found');
 
     const voteDate = this.getActiveVoteDate(moment.voteSchedule);
-    // Daily history stays intact; reset affects only the currently active round.
-    await this.prisma.$transaction(async (tx) => {
-      const [round] = await tx.$queryRaw<Array<{ closesAt: Date }>>`
-        SELECT closes_at AS "closesAt" FROM moment_vote_rounds
-        WHERE moment_id = ${moment.id}::uuid AND vote_date = ${voteDate}::date FOR UPDATE
-      `;
-      if (round && round.closesAt.getTime() <= Date.now())
-        throw new GoneException('Final results cannot be reset.');
-      await tx.momentVote.deleteMany({
-        where: { momentId: moment.id, voteDate },
+    if (moment.voteSchedule) {
+      await this.resetTodayTelegramVote(
+        userId,
+        Number(moment.voteSchedule.telegramChatId),
+        undefined,
+        moment.id,
+      );
+    } else {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM moments WHERE id = ${moment.id}::uuid FOR UPDATE`;
+        await tx.momentVote.deleteMany({
+          where: { momentId: moment.id, voteDate },
+        });
       });
-    });
+    }
     return this.getPollSummary(
       moment.id,
       poll.options,

@@ -43,6 +43,12 @@ const voterName = ref("");
 const voteSaving = ref(false);
 const voteSaved = ref(false);
 const voteError = ref("");
+const canteenPosition = ref<{
+  optionId: string;
+  left: number;
+  top: number;
+  width: number;
+} | null>(null);
 const showVoteLogin = ref(false);
 const showVoteConfirm = ref(false);
 const pollSummary = ref<MomentPollSummary | undefined>(props.moment.pollSummary);
@@ -50,7 +56,10 @@ const voteNow = ref(0);
 let voteTimer: ReturnType<typeof setInterval> | undefined;
 let refreshingVote = false;
 let celebratedRound: string | undefined;
-const voteClosed = computed(() => Boolean(pollSummary.value?.closed ||
+const voteAwaitingRound = computed(() =>
+  Boolean(pollSummary.value?.voteDate && !pollSummary.value.roundId),
+);
+const voteClosed = computed(() => Boolean(voteAwaitingRound.value || pollSummary.value?.closed ||
   (pollSummary.value?.closesAt && voteNow.value >= Date.parse(pollSummary.value.closesAt))));
 const voteCountdown = computed(() => {
   if (!voteNow.value) return "--:--";
@@ -68,7 +77,15 @@ async function refreshTimedVote() {
   refreshingVote = true;
   try {
     const current = await $fetch<{ status: string; pollSummary?: MomentPollSummary }>(`/api/moments/${props.moment.slug}`);
-    if (current.pollSummary) pollSummary.value = current.pollSummary;
+    if (current.pollSummary) {
+      if (current.pollSummary.roundId !== pollSummary.value?.roundId) {
+        voteChoice.value = "";
+        voteSaved.value = false;
+        showVoteConfirm.value = false;
+        resetCanteenPosition();
+      }
+      pollSummary.value = current.pollSummary;
+    }
     // Celebrate only after fetching the server's final counts, including votes from Telegram.
     if (current.pollSummary?.closed && current.pollSummary.roundId !== celebratedRound) {
       celebratedRound = current.pollSummary.roundId;
@@ -108,6 +125,35 @@ const pollOptions = computed(() => {
   );
 });
 const selectedVoteOption = computed(() => pollOptions.value.find((option) => option.id === voteChoice.value));
+const isCanteenOption = (option: { label: string }) => /canteen/i.test(option.label);
+function dodgeCanteen(event: Event, option: { id: string; label: string }) {
+  if (props.preview || voteClosed.value || !isCanteenOption(option)) return;
+  event.preventDefault();
+  const target = event.currentTarget as HTMLElement | null;
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const margin = 16;
+  const width = Math.min(rect.width, window.innerWidth - margin * 2);
+  const height = Math.min(rect.height, window.innerHeight - margin * 2);
+  const maxLeft = Math.max(margin, window.innerWidth - width - margin);
+  const maxTop = Math.max(margin, window.innerHeight - height - margin);
+  let left = margin;
+  let top = margin;
+  // Keep the joke visible and move far enough that the choice escapes the pointer.
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    left = margin + Math.random() * (maxLeft - margin);
+    top = margin + Math.random() * (maxTop - margin);
+    if (Math.hypot(left - rect.left, top - rect.top) > 120) break;
+  }
+  canteenPosition.value = { optionId: option.id, left, top, width };
+}
+function onPollOptionKeydown(
+  event: KeyboardEvent,
+  option: { id: string; label: string },
+) {
+  if (!isCanteenOption(option) || !["Enter", " "].includes(event.key)) return;
+  dodgeCanteen(event, option);
+}
 const pollIdentityMode = computed(() => {
   const mode = pollBlock.value?.data.identityMode ?? pollSummary.value?.identityMode;
   if (mode === "NAME_REQUIRED" || mode === "LOGIN_REQUIRED") return mode;
@@ -239,7 +285,10 @@ async function submitRsvp() {
 }
 
 async function requestVote() {
-  if (props.preview || voteClosed.value || !voteChoice.value || voteSaving.value) return;
+  if (
+    props.preview || voteClosed.value || !voteChoice.value || voteSaving.value ||
+    (selectedVoteOption.value && isCanteenOption(selectedVoteOption.value))
+  ) return;
   if (pollRequiresLogin.value) {
     if (!isReady.value) await fetchMe();
     if (!user.value) {
@@ -252,7 +301,10 @@ async function requestVote() {
 }
 
 async function submitVote() {
-  if (!showVoteConfirm.value || voteClosed.value || !voteChoice.value || voteSaving.value) return;
+  if (
+    !showVoteConfirm.value || voteClosed.value || !voteChoice.value || voteSaving.value ||
+    (selectedVoteOption.value && isCanteenOption(selectedVoteOption.value))
+  ) return;
   voteSaving.value = true;
   voteError.value = "";
   try {
@@ -268,7 +320,7 @@ async function submitVote() {
     });
     localStorage.setItem(
       `${storageKey}_selection`,
-      JSON.stringify({ optionId: voteChoice.value, voterName: pollRequiresName.value ? voterName.value : "" }),
+      JSON.stringify({ optionId: voteChoice.value, voterName: pollRequiresName.value ? voterName.value : "", roundId: pollSummary.value.roundId }),
     );
     voteSaved.value = true;
     showVoteConfirm.value = false;
@@ -287,18 +339,20 @@ async function continueVoteAfterLogin() {
 
 onMounted(() => {
   if (props.preview || !pollBlock.value) return;
+  window.addEventListener("resize", resetCanteenPosition);
   voteNow.value = Date.now();
-  if (pollSummary.value?.closesAt) {
+  if (pollSummary.value?.closesAt || pollSummary.value?.voteDate) {
     let ticks = 0;
     voteTimer = setInterval(() => {
       voteNow.value = Date.now();
       ticks += 1;
-      if (ticks % 15 === 0 || (voteClosed.value && !pollSummary.value?.closed)) void refreshTimedVote();
+      if (ticks % 15 === 0 || (pollSummary.value?.closesAt && voteClosed.value && !pollSummary.value?.closed)) void refreshTimedVote();
     }, 1000);
   }
   try {
-    const saved = JSON.parse(localStorage.getItem(`chlatwork_moment_vote_${props.moment.slug}_selection`) ?? "null") as { optionId?: string; voterName?: string } | null;
-    if (saved?.optionId && pollOptions.value.some((option) => option.id === saved.optionId)) {
+    const saved = JSON.parse(localStorage.getItem(`chlatwork_moment_vote_${props.moment.slug}_selection`) ?? "null") as { optionId?: string; voterName?: string; roundId?: string } | null;
+    if (saved?.optionId && saved.roundId === pollSummary.value?.roundId &&
+      pollOptions.value.some((option) => option.id === saved.optionId && !isCanteenOption(option))) {
       voteChoice.value = saved.optionId;
       voterName.value = saved.voterName ?? "";
       voteSaved.value = true;
@@ -307,6 +361,10 @@ onMounted(() => {
     // A malformed local preference should never prevent someone from voting.
   }
 });
+
+function resetCanteenPosition() {
+  canteenPosition.value = null;
+}
 
 function pollVotes(optionId: string) {
   return pollSummary.value?.results.find((result) => result.optionId === optionId)?.votes ?? 0;
@@ -349,6 +407,7 @@ function revealSecret() {
 onBeforeUnmount(() => {
   cancelHold();
   if (voteTimer) clearInterval(voteTimer);
+  window.removeEventListener("resize", resetCanteenPosition);
 });
 </script>
 
@@ -466,6 +525,7 @@ onBeforeUnmount(() => {
     <section v-if="pollBlock" class="moment-section poll-section" aria-labelledby="poll-title">
       <p class="section-kicker">{{ experienceCopy.voteKicker }}</p>
       <h2 id="poll-title">{{ pollQuestion }}</h2>
+      <p v-if="voteAwaitingRound" class="rsvp-status" role="status">{{ experienceCopy.voteWaitingRound }}</p>
       <p v-if="pollSummary?.closesAt" class="rsvp-status" role="timer">{{ voteClosed ? experienceCopy.voteClosed : `${experienceCopy.voteTimeLeft}: ${voteCountdown}` }}</p>
       <p v-if="pollSummary?.closed" class="rsvp-success" role="status">
         {{ experienceCopy.voteFinalResults }} ·
@@ -477,8 +537,14 @@ onBeforeUnmount(() => {
         <fieldset class="poll-options-fieldset">
           <legend class="sr-only">{{ pollQuestion }}</legend>
           <div class="poll-options-grid">
-            <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id }">
-              <input v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
+            <label v-for="option in pollOptions" :key="option.id" class="poll-option" :class="{ selected: voteChoice === option.id, dodging: isCanteenOption(option) && !preview && !voteClosed }"
+              :style="canteenPosition?.optionId === option.id && !preview && !voteClosed ? { position: 'fixed', left: `${canteenPosition.left}px`, top: `${canteenPosition.top}px`, width: `${canteenPosition.width}px`, zIndex: 90 } : undefined"
+              :tabindex="isCanteenOption(option) && !preview && !voteClosed ? 0 : undefined"
+              :role="isCanteenOption(option) && !preview && !voteClosed ? 'button' : undefined"
+              :aria-disabled="isCanteenOption(option) && !preview && !voteClosed ? true : undefined"
+              :aria-label="isCanteenOption(option) && !preview && !voteClosed ? (locale === 'km' ? 'មិនអាចបោះឆ្នោតឱ្យ Canteen បានទេ' : 'Canteen cannot be voted for') : undefined"
+              @pointerenter="dodgeCanteen($event, option)" @pointerdown="dodgeCanteen($event, option)" @focus="dodgeCanteen($event, option)" @click="dodgeCanteen($event, option)" @keydown="onPollOptionKeydown($event, option)">
+              <input v-if="!isCanteenOption(option) || preview || voteClosed" v-model="voteChoice" type="radio" name="poll-option" :value="option.id" :disabled="preview || voteClosed" required />
               <span class="poll-option-copy"><span class="poll-option-name"><img v-if="option.imageId || option.imageUrl" :src="option.imageUrl ?? `/api/moments/${moment.slug}/media/${option.imageId}`" alt="" /><strong>{{ option.label }}</strong></span><small>{{ pollVotes(option.id) }} · {{ pollPercent(option.id) }}%</small></span>
               <i aria-hidden="true" :style="{ width: `${pollPercent(option.id)}%` }" />
               <span v-if="pollIdentityMode !== 'ANONYMOUS' && pollSummary?.results.find((result) => result.optionId === option.id)?.voters?.length" class="poll-voters">
@@ -909,6 +975,8 @@ onBeforeUnmount(() => {
 .poll-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .poll-option { position: relative; display: block; min-width: 0; overflow: hidden; cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem; text-align: left; }
 .poll-option.selected { border-color: var(--moment-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--moment-accent) 22%, transparent); }
+.poll-option.dodging { max-height: calc(100dvh - 2rem); cursor: not-allowed; overflow-y: auto; transition: left .18s ease, top .18s ease; }
+@media (prefers-reduced-motion: reduce) { .poll-option.dodging { transition: none; } }
 .poll-option:focus-within { outline: 2px solid var(--moment-accent); outline-offset: 2px; }
 .poll-option input { position: absolute; opacity: 0; }
 .poll-option i { position: absolute; inset: 0 auto 0 0; z-index: 0; background: color-mix(in srgb, var(--moment-accent) 13%, transparent); transition: width .3s ease; }

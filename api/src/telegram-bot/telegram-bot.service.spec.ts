@@ -8,6 +8,66 @@ import { createHash } from 'node:crypto';
 import { UnauthorizedException } from '@nestjs/common';
 
 describe('TelegramBotService', () => {
+  it('resets today only after the requesting linked admin confirms', async () => {
+    const chat = { id: -1001234567890, type: 'supergroup', title: 'Lunch team' };
+    const roundId = '00000000-0000-4000-8000-000000000004';
+    const prisma = {
+      $executeRaw: jest.fn().mockResolvedValue(1),
+      $queryRaw: jest.fn().mockResolvedValue([{ updateId: 1n }]),
+      telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
+      socialAccount: { findUnique: jest.fn().mockResolvedValue({
+        user: { id: '00000000-0000-4000-8000-000000000002', isActive: true },
+      }) },
+    };
+    const moments = {
+      getTodayTelegramVoteRound: jest.fn().mockResolvedValue({ id: roundId }),
+      resetTodayTelegramVote: jest.fn().mockResolvedValue({ deletedVotes: 2, messageId: 10 }),
+    };
+    const bot = {
+      sendMessage: jest.fn().mockResolvedValue({ message_id: 11 }),
+      answerCallback: jest.fn(),
+      deleteMessage: jest.fn().mockResolvedValue(true),
+      isChatAdministrator: jest.fn().mockResolvedValue(true),
+    };
+    const service = new TelegramBotService(
+      prisma as never,
+      {} as never,
+      bot as never,
+      moments as never,
+      {} as never,
+    );
+
+    await service.handleUpdate({
+      update_id: 1,
+      message: { message_id: 1, chat, from: { id: 123, first_name: 'Sokha' }, text: '/resettodayvote' },
+    });
+    expect(moments.resetTodayTelegramVote).not.toHaveBeenCalled();
+    const keyboard = bot.sendMessage.mock.calls[0]?.[2] as {
+      inline_keyboard: Array<Array<{ callback_data: string }>>;
+    };
+    const confirmData = keyboard.inline_keyboard[0]![0]!.callback_data;
+    await service.handleUpdate({
+      update_id: 2,
+      callback_query: {
+        id: 'other-admin', from: { id: 456, first_name: 'Dara' },
+        data: confirmData, message: { message_id: 11, chat },
+      },
+    });
+    expect(moments.resetTodayTelegramVote).not.toHaveBeenCalled();
+
+    await service.handleUpdate({
+      update_id: 3,
+      callback_query: {
+        id: 'owner-admin', from: { id: 123, first_name: 'Sokha' },
+        data: confirmData, message: { message_id: 11, chat },
+      },
+    });
+    expect(moments.resetTodayTelegramVote).toHaveBeenCalledWith(
+      '00000000-0000-4000-8000-000000000002', chat.id, roundId,
+    );
+    expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 10);
+  });
+
   it('uses a constant-length digest comparison for the webhook secret', () => {
     const config = {
       getOrThrow: jest.fn().mockReturnValue('correct_webhook_secret_1234'),
@@ -197,6 +257,26 @@ describe('Telegram group vote updates', () => {
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chat.id,
       expect.stringContaining('Pizza'),
+      expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+      undefined,
+      10,
+    );
+  });
+
+  it('allows a later added choice to reach the Telegram confirmation', async () => {
+    const { service, bot, callback, poll } = setup();
+    poll.results.push({ optionId: 'option-15', label: 'Noodles', votes: 0 });
+    await service.handleUpdate({
+      update_id: 1,
+      callback_query: {
+        ...callback,
+        data: `poll:vote:${poll.id}:option-15`,
+        message: { message_id: 10, chat },
+      },
+    });
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      chat.id,
+      expect.stringContaining('Noodles'),
       expect.objectContaining({ inline_keyboard: expect.any(Array) }),
       undefined,
       10,

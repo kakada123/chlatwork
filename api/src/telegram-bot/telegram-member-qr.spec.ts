@@ -109,6 +109,7 @@ describe('Telegram group member QR commands', () => {
         '/dailyvote',
         '/votetime',
         '/voteduration',
+        '/resettodayvote',
         '/stopdailyvote',
       ])
         expect(help).toContain(command);
@@ -541,7 +542,7 @@ describe('Telegram group member QR commands', () => {
     await send('/joinvote');
     expect(bot.sendMessage).toHaveBeenCalledWith(
       chatId,
-      expect.stringContaining('registered'),
+      'Vote reminders enabled.',
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });

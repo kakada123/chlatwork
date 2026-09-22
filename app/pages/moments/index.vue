@@ -203,6 +203,7 @@ async function resetVotes() {
         managerCopy.resetVotesConfirm(
           momentPendingVoteReset?.title ?? '',
           momentPendingVoteReset?.pollSummary?.totalVotes ?? 0,
+          Boolean(momentPendingVoteReset?.pollSchedule),
         )
       "
       :confirm-label="managerCopy.resetVotes"
