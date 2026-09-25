@@ -28,6 +28,7 @@ const GUIDE_SLUGS = [
   ["scan-barcode", "how-to-scan-barcode-from-image"],
   ["expense-tracker", "how-to-track-expenses-online"],
   ["lucky-draw", "how-to-run-lucky-draw-online"],
+  ["kla-klok", "how-to-play-kla-klok"],
   ["json-formatter", "how-to-format-json-online"],
   ["jwt-decoder", "how-to-decode-jwt-token"],
   ["base64", "how-to-encode-decode-base64"],

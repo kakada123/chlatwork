@@ -21,7 +21,7 @@ const readProjectFile = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("legacy generated guides permanently consolidate into unique tool canonicals", () => {
-  assert.equal(TOOL_GUIDE_ROUTES.length, 32);
+  assert.equal(TOOL_GUIDE_ROUTES.length, 33);
   assert.equal(
     new Set(TOOL_GUIDE_ROUTES.map((route) => route.path)).size,
     TOOL_GUIDE_ROUTES.length,

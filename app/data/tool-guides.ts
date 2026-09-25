@@ -2417,6 +2417,133 @@ const RAW_GUIDES: Record<string, ToolGuideContent> = {
     ],
     applicationCategory: "UtilitiesApplication",
   },
+  "kla-klok": {
+    metaTitle: "How to Play Kla Klok with Virtual Points | ChlatWork",
+    metaDescription:
+      "Learn how to choose symbols, roll three dice, and score virtual points in ChlatWork Kla Klok.",
+    heroTitle: "How to Play Kla Klok Online",
+    heroDescription:
+      "Choose classic Kla Klok symbols, roll three dice, and learn the matching rules using entertainment-only virtual points.",
+    ctaLabel: "Play Kla Klok",
+    whatIs: [
+      "Kla Klok is a Khmer dice game built around six familiar symbols: tiger, gourd, rooster, shrimp, crab, and fish. Players choose one or more symbols before three dice are rolled.",
+      "This ChlatWork version is designed for casual learning and entertainment. It uses virtual points only, requires no account, and does not support deposits, withdrawals, prizes, or real-money betting.",
+      "Rules can vary between communities and physical game sets. The guide below explains the scoring used by this browser version so every round is predictable.",
+    ],
+    whyUse: [
+      "It introduces the matching logic with clear Khmer and English labels.",
+      "It provides a quick casual game without registration or installation.",
+      "It uses virtual points, keeping play separate from real-money gambling.",
+      "It works on phones, tablets, and desktop browsers.",
+      "It keeps dice rolls and the five most recent results on the current page.",
+    ],
+    steps: [
+      "Open Kla Klok from the ChlatWork tools page.",
+      "Choose one or more of the six symbol cards.",
+      "Select how many virtual points to place on each chosen symbol.",
+      "Check the total virtual-point stake and your remaining balance.",
+      "Select Roll Dice to generate three symbols.",
+      "Review each matched symbol, its multiplier, and the updated virtual-point balance.",
+      "Use Reset whenever you want to restore the starting balance and clear recent results.",
+    ],
+    useCases: [
+      "A Khmer family demonstrates a familiar traditional game to younger relatives.",
+      "Friends play a short casual round using virtual points on a shared phone.",
+      "A teacher explains probability by comparing selections with three random dice.",
+      "A visitor learns the six symbols and basic matching rules before seeing a physical set.",
+      "A mobile user plays a lightweight browser game without creating an account.",
+    ],
+    practicalExamples: [
+      {
+        title: "Tiger appears twice",
+        scenario:
+          "You select Tiger for 10 virtual points, and two of the three dice show Tiger.",
+        steps: [
+          "The 10-point Tiger stake is returned because the symbol matched.",
+          "Two matching dice award 2 × 10, or 20 additional virtual points.",
+          "The total return for Tiger is 30 virtual points.",
+        ],
+        result:
+          "After subtracting the original 10-point stake, the round changes the balance by +20 virtual points.",
+      },
+      {
+        title: "One selected symbol matches",
+        scenario:
+          "You select Tiger and Fish for 25 virtual points each, but only one die shows Fish.",
+        steps: [
+          "The total stake is 50 virtual points.",
+          "The Fish stake is returned and its one match awards another 25 points.",
+          "The unmatched Tiger stake is not returned.",
+        ],
+        result:
+          "The round returns 50 virtual points, so the final balance change is zero.",
+      },
+    ],
+    practicalExamplesKm: [
+      {
+        title: "ខ្លាចេញ ២ គ្រាប់",
+        scenario:
+          "អ្នកជ្រើសរើសខ្លា ១០ ពិន្ទុ ហើយគ្រាប់ពីរក្នុងចំណោមបីចេញរូបខ្លា។",
+        steps: [
+          "ពិន្ទុ ១០ ដែលដាក់លើខ្លាត្រូវបានប្រគល់វិញ។",
+          "ខ្លាដែលត្រូវពីរគ្រាប់ ឈ្នះបន្ថែម ២ × ១០ ស្មើនឹង ២០ ពិន្ទុ។",
+          "ពិន្ទុត្រឡប់សរុបសម្រាប់ខ្លាគឺ ៣០ ពិន្ទុ។",
+        ],
+        result: "បន្ទាប់ពីដកពិន្ទុដែលបានដាក់ សមតុល្យកើនឡើង ២០ ពិន្ទុសិប្បនិម្មិត។",
+      },
+    ],
+    tips: [
+      "Start with one symbol and the smallest point value while learning the rules.",
+      "Check the total stake because the selected point value applies to every chosen symbol.",
+      "Use the recent-results list to compare the last five rolls.",
+      "Remember that a matched symbol returns its stake before adding its match winnings.",
+      "Treat every result as entertainment; virtual points have no cash or prize value.",
+    ],
+    commonMistakes: [
+      "Assuming the selected point value is divided between symbols instead of applied to each one.",
+      "Counting a symbol once when it appears on two or three dice.",
+      "Expecting an unmatched symbol's stake to be returned.",
+      "Confusing virtual points with money, prizes, or transferable value.",
+    ],
+    privacy: [
+      "Symbol selections, secure random dice rolls, virtual-point calculations, and recent results stay in the browser.",
+      "The casual game does not require an account or send game choices to a multiplayer service.",
+      "Refreshing or resetting the page can clear the current game session because results are not stored as account data.",
+    ],
+    faqs: [
+      {
+        question: "Does Kla Klok use real money?",
+        answer:
+          "No. This ChlatWork version uses entertainment-only virtual points with no deposits, withdrawals, prizes, or cash value.",
+      },
+      {
+        question: "How are matching symbols scored?",
+        answer:
+          "A matched symbol's stake is returned, then each matching die awards the selected point value once. Two matching dice award 2× and three award 3×.",
+      },
+      {
+        question: "Can I select more than one symbol?",
+        answer:
+          "Yes. The chosen point value is applied separately to every selected symbol, and each symbol is scored against all three dice.",
+      },
+      {
+        question: "Do I need an account?",
+        answer: "No. Casual Kla Klok play works without signing in.",
+      },
+      {
+        question: "Are the dice rolls generated on a server?",
+        answer:
+          "No. The game uses secure random values available in the browser and calculates the result on your device.",
+      },
+    ],
+    keywords: [
+      "Kla Klok game",
+      "Khmer dice game",
+      "how to play Kla Klok",
+      "Kla Klok virtual points",
+    ],
+    applicationCategory: "UtilitiesApplication",
+  },
   "json-formatter": {
     metaTitle: "How to Format JSON Online | ChlatWork",
     metaDescription:

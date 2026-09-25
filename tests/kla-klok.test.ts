@@ -66,6 +66,8 @@ test("Kla Klok page stays virtual-only and includes its main landing sections", 
 test("Kla Klok is registered as an available website tool", () => {
   const registry = readFileSync("app/lib/tool-registry.ts", "utf8");
   const routes = readFileSync("app/data/site-routes.ts", "utf8");
+  const guideRoutes = readFileSync("app/data/tool-guide-routes.ts", "utf8");
+  const guides = readFileSync("app/data/tool-guides.ts", "utf8");
   const availability = readFileSync(
     "api/src/feature-availability/feature-catalog.ts",
     "utf8",
@@ -74,5 +76,7 @@ test("Kla Klok is registered as an available website tool", () => {
   assert.match(registry, /key: "kla-klok"/);
   assert.match(registry, /route: "\/tools\/kla-klok"/);
   assert.match(routes, /"\/tools\/kla-klok"/);
+  assert.match(guideRoutes, /\["kla-klok", "how-to-play-kla-klok"\]/);
+  assert.match(guides, /"kla-klok": \{/);
   assert.match(availability, /'kla-klok': 'Kla Klok'/);
 });
