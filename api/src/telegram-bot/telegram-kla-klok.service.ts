@@ -84,7 +84,7 @@ export class TelegramKlaKlokService {
   }) {
     return this.prisma.$transaction(async (tx) => {
       // Serialize starts per group so concurrent commands cannot create two dealers.
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(${BigInt(input.telegramChatId)})`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(${BigInt(input.telegramChatId)})`;
       const existing = await tx.$queryRaw<GameRow[]>`
         SELECT id::text, telegram_chat_id AS "telegramChatId",
           telegram_chat_title AS "telegramChatTitle",

@@ -159,6 +159,16 @@ test("Telegram service routes Kla Klok commands and callbacks through its own fe
   assert.match(catalog, /'kla-klok': 'Kla Klok group game'/);
 });
 
+test("Telegram Kla Klok executes advisory locks without deserializing PostgreSQL void", () => {
+  const service = readFileSync(
+    "api/src/telegram-bot/telegram-kla-klok.service.ts",
+    "utf8",
+  );
+
+  assert.match(service, /\$executeRaw`SELECT pg_advisory_xact_lock/);
+  assert.doesNotMatch(service, /\$queryRaw`SELECT pg_advisory_xact_lock/);
+});
+
 test("standalone SQL enforces one open game and one symbol bet per player per round", () => {
   const sql = readFileSync(
     "database/updates/2026-09-25-add-telegram-kla-klok.sql",
