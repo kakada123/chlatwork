@@ -871,6 +871,65 @@ model TelegramGroupSplitParticipant {
   @@map("telegram_group_split_participants")
 }
 
+model TelegramKlaKlokGame {
+  id                       String                    @id @default(uuid()) @db.Uuid
+  telegramChatId           BigInt                    @map("telegram_chat_id")
+  telegramChatTitle        String                    @map("telegram_chat_title") @db.VarChar(120)
+  dealerTelegramUserId     String                    @map("dealer_telegram_user_id") @db.VarChar(20)
+  dealerDisplayName        String                    @map("dealer_display_name") @db.VarChar(80)
+  status                   String                    @default("OPEN") @db.VarChar(16)
+  currentRound             Int                       @default(1) @map("current_round")
+  groupMessageId           Int?                      @map("group_message_id")
+  dealerMessageId          Int?                      @map("dealer_message_id")
+  summaryMessageId         Int?                      @map("summary_message_id")
+  createdAt                DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                DateTime                  @updatedAt @map("updated_at") @db.Timestamptz
+  endedAt                  DateTime?                 @map("ended_at") @db.Timestamptz
+  rounds                   TelegramKlaKlokRound[]
+  bets                     TelegramKlaKlokBet[]
+
+  @@index([telegramChatId, status, createdAt(sort: Desc)])
+  @@index([dealerTelegramUserId, createdAt(sort: Desc)])
+  @@map("telegram_kla_klok_games")
+}
+
+model TelegramKlaKlokRound {
+  id               String                 @id @default(uuid()) @db.Uuid
+  gameId           String                 @map("game_id") @db.Uuid
+  game             TelegramKlaKlokGame    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  roundNumber      Int                    @map("round_number")
+  dieOne           String                 @map("die_one") @db.VarChar(16)
+  dieTwo           String                 @map("die_two") @db.VarChar(16)
+  dieThree         String                 @map("die_three") @db.VarChar(16)
+  totalStakeRiel   BigInt                 @map("total_stake_riel")
+  dealerNetRiel    BigInt                 @map("dealer_net_riel")
+  resultMessageId  Int?                   @map("result_message_id")
+  rolledAt         DateTime               @default(now()) @map("rolled_at") @db.Timestamptz
+
+  @@unique([gameId, roundNumber])
+  @@map("telegram_kla_klok_rounds")
+}
+
+model TelegramKlaKlokBet {
+  id               String                 @id @default(uuid()) @db.Uuid
+  gameId           String                 @map("game_id") @db.Uuid
+  game             TelegramKlaKlokGame    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  roundNumber      Int                    @map("round_number")
+  telegramUserId   String                 @map("telegram_user_id") @db.VarChar(20)
+  displayName      String                 @map("display_name") @db.VarChar(80)
+  symbol           String                 @db.VarChar(16)
+  amountRiel       BigInt                 @map("amount_riel")
+  matchCount       Int?                   @map("match_count")
+  netRiel          BigInt?                @map("net_riel")
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([gameId, roundNumber, telegramUserId, symbol])
+  @@index([gameId, roundNumber, createdAt])
+  @@index([telegramUserId, createdAt(sort: Desc)])
+  @@map("telegram_kla_klok_bets")
+}
+
 model SocialAccount {
   id             String       @id @default(uuid()) @db.Uuid
   provider       AuthProvider

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   GoneException,
   Injectable,
   Logger,
@@ -33,6 +34,20 @@ import {
   TelegramAssistantAiUnavailableError,
 } from './telegram-assistant-ai.service';
 import { TelegramBotClient } from './telegram-bot.client';
+import { TelegramKlaKlokService } from './telegram-kla-klok.service';
+import {
+  buildKlaKlokBoardText,
+  buildKlaKlokDealerKeyboard,
+  buildKlaKlokDealerText,
+  buildKlaKlokEndKeyboard,
+  buildKlaKlokGroupKeyboard,
+  buildKlaKlokRoundMessage,
+  buildKlaKlokStakeKeyboard,
+  callbackBelongsToUser,
+  getKlaKlokSymbol,
+  parseKlaKlokCallback,
+  telegramUserToken,
+} from './telegram-kla-klok';
 import type {
   TelegramCallbackQuery,
   TelegramInlineQuery,
@@ -103,6 +118,7 @@ export class TelegramBotService {
     private readonly ai: TelegramAssistantAiService,
     @Optional() private readonly personalAssistant?: PersonalAssistantService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
+    @Optional() private readonly klaKlok?: TelegramKlaKlokService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -171,6 +187,7 @@ export class TelegramBotService {
     const data = update.callback_query?.data ?? '';
     if (update.inline_query) return 'voting';
     if (data) {
+      if (data.startsWith('kk:')) return 'kla-klok';
       if (data.startsWith('khqr:')) return 'khqr';
       if (data.startsWith('split:')) return 'bill-split';
       if (data.startsWith('rv:')) return 'group-voting';
@@ -189,6 +206,7 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
+      if (command === 'klaklok') return 'kla-klok';
       if (command === 'split') return 'bill-split';
       if (
         ['joinvote', 'dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote']
@@ -289,6 +307,8 @@ export class TelegramBotService {
         await this.handleGroupVoteCommand(message, command!);
       } else if (command === 'split') {
         await this.handleGroupSplitCommand(message);
+      } else if (command === 'klaklok') {
+        await this.handleKlaKlokCommand(message);
       } else if (command) {
         await this.sendMemberQr(message, command);
       }
@@ -803,6 +823,10 @@ export class TelegramBotService {
   private async handleCallback(callback: TelegramCallbackQuery) {
     const data = typeof callback.data === 'string' ? callback.data : '';
     if (!data || data.length > 64) return;
+    if (data.startsWith('kk:')) {
+      await this.handleKlaKlokCallback(callback, data);
+      return;
+    }
     if (data.startsWith('khqr:member:')) {
       await this.handleMemberQrCallback(callback);
       return;
@@ -1505,6 +1529,325 @@ export class TelegramBotService {
           message.chat.id,
           'There is no daily poll owned by you in this group.',
         );
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async handleKlaKlokCommand(
+    message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
+  ) {
+    if (!this.klaKlok) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Kla Klok is temporarily unavailable.',
+      );
+      return;
+    }
+
+    const dealerTelegramUserId = String(message.from.id);
+    try {
+      const game = await this.klaKlok.createGame({
+        telegramChatId: message.chat.id,
+        telegramChatTitle: message.chat.title ?? 'Telegram group',
+        dealerTelegramUserId,
+        dealerDisplayName: this.telegramDisplayName(message.from),
+      });
+
+      let dealerMessage: TelegramMessage;
+      try {
+        // Telegram shows the same group keyboard to everyone, so dealer-only
+        // financial controls live in the dealer's verified private chat.
+        dealerMessage = await this.bot.sendMessage(
+          message.from.id,
+          buildKlaKlokDealerText({
+            groupTitle: game.telegramChatTitle,
+            round: game.currentRound,
+          }),
+          buildKlaKlokDealerKeyboard(game.id, game.currentRound),
+        );
+      } catch {
+        await this.klaKlok.cancelSetup(game.id, dealerTelegramUserId);
+        await this.bot.sendMessage(
+          message.chat.id,
+          'I could not send the dealer controls. Open a private chat with this bot, send /start, then retry /klaklok.',
+        );
+        return;
+      }
+
+      try {
+        const groupMessage = await this.bot.sendMessage(
+          message.chat.id,
+          buildKlaKlokBoardText({
+            dealerDisplayName: game.dealerDisplayName,
+            round: game.currentRound,
+          }),
+          buildKlaKlokGroupKeyboard(game.id, game.currentRound),
+        );
+        await this.klaKlok.setControlMessages(
+          game.id,
+          groupMessage.message_id,
+          dealerMessage.message_id,
+        );
+      } catch (error) {
+        await this.klaKlok.cancelSetup(game.id, dealerTelegramUserId);
+        await this.bot
+          .editMessage(
+            message.from.id,
+            dealerMessage.message_id,
+            'Kla Klok setup failed. Return to the group and retry /klaklok.',
+            { inline_keyboard: [] },
+          )
+          .catch(() => null);
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        await this.bot.sendMessage(message.chat.id, error.message);
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async handleKlaKlokCallback(
+    callback: TelegramCallbackQuery,
+    data: string,
+  ) {
+    if (!this.klaKlok) {
+      await this.bot.answerCallback(
+        callback.id,
+        'Kla Klok is temporarily unavailable.',
+      );
+      return;
+    }
+    const action = parseKlaKlokCallback(data);
+    const message = callback.message;
+    if (!action || !message) {
+      await this.bot.answerCallback(
+        callback.id,
+        'This Kla Klok action is invalid.',
+      );
+      return;
+    }
+
+    try {
+      if (action.action === 'select') {
+        if (!this.isGroupCallback(callback, message)) return;
+        const game = await this.klaKlok.requireOpenRound(
+          action.gameId,
+          action.round,
+        );
+        if (game.telegramChatId !== message.chat.id) {
+          throw new BadRequestException('This game belongs to another group.');
+        }
+        if (game.dealerTelegramUserId === String(callback.from.id)) {
+          throw new BadRequestException('The dealer cannot place a bet.');
+        }
+        const symbol = getKlaKlokSymbol(action.symbol);
+        await this.bot.sendMessage(
+          message.chat.id,
+          `${this.telegramDisplayName(callback.from)}, confirm ${symbol.glyph} ${symbol.labelKm} for round ${action.round}. Choose one amount:`,
+          buildKlaKlokStakeKeyboard(
+            action.gameId,
+            action.round,
+            action.symbol,
+            telegramUserToken(callback.from.id),
+          ),
+          undefined,
+          message.message_id,
+        );
+        await this.bot.answerCallback(callback.id);
+        return;
+      }
+
+      if (action.action === 'bet') {
+        if (!this.isGroupCallback(callback, message)) return;
+        if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
+          throw new UnauthorizedException(
+            'This bet confirmation belongs to another member.',
+          );
+        }
+        const game = await this.klaKlok.requireOpenRound(
+          action.gameId,
+          action.round,
+        );
+        if (game.telegramChatId !== message.chat.id) {
+          throw new BadRequestException('This game belongs to another group.');
+        }
+        const displayName = this.telegramDisplayName(callback.from);
+        await this.klaKlok.confirmBet({
+          gameId: action.gameId,
+          round: action.round,
+          telegramUserId: String(callback.from.id),
+          displayName,
+          symbol: action.symbol,
+          amountRiel: action.amountRiel,
+        });
+        const symbol = getKlaKlokSymbol(action.symbol);
+        await this.bot.editMessage(
+          message.chat.id,
+          message.message_id,
+          `✅ ${displayName} confirmed ${action.amountRiel.toLocaleString('en-US')}៛ on ${symbol.glyph} ${symbol.labelKm} for round ${action.round}.`,
+          { inline_keyboard: [] },
+        );
+        await this.bot.answerCallback(callback.id, 'Bet confirmed.');
+        return;
+      }
+
+      if (action.action === 'cancel') {
+        if (!this.isGroupCallback(callback, message)) return;
+        if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
+          throw new UnauthorizedException(
+            'This bet confirmation belongs to another member.',
+          );
+        }
+        const game = await this.klaKlok.getGame(action.gameId);
+        if (game.telegramChatId !== message.chat.id) {
+          throw new BadRequestException('This game belongs to another group.');
+        }
+        await this.bot.answerCallback(callback.id, 'Bet cancelled.');
+        await this.bot
+          .deleteMessage(message.chat.id, message.message_id)
+          .catch(() => null);
+        return;
+      }
+
+      if (!this.isPrivateCallback(callback, message)) return;
+      const dealerTelegramUserId = String(callback.from.id);
+
+      if (action.action === 'roll') {
+        const roll = await this.klaKlok.rollRound(
+          action.gameId,
+          dealerTelegramUserId,
+          action.round,
+        );
+        if (roll.resultMessageId === null) {
+          const resultMessage = await this.bot.sendMessage(
+            roll.game.telegramChatId,
+            buildKlaKlokRoundMessage(
+              roll.roundNumber,
+              roll.game.dealerDisplayName,
+              roll.result,
+            ),
+          );
+          // Persist delivery so a Telegram webhook retry does not repost a rolled round.
+          await this.klaKlok.markRoundMessage(
+            roll.game.id,
+            roll.roundNumber,
+            resultMessage.message_id,
+          );
+        }
+        if (roll.game.groupMessageId !== null) {
+          await this.bot.editMessage(
+            roll.game.telegramChatId,
+            roll.game.groupMessageId,
+            buildKlaKlokBoardText({
+              dealerDisplayName: roll.game.dealerDisplayName,
+              round: roll.game.currentRound,
+            }),
+            buildKlaKlokGroupKeyboard(roll.game.id, roll.game.currentRound),
+          );
+        }
+        await this.bot.editMessage(
+          message.chat.id,
+          message.message_id,
+          buildKlaKlokDealerText({
+            groupTitle: roll.game.telegramChatTitle,
+            round: roll.game.currentRound,
+          }),
+          buildKlaKlokDealerKeyboard(roll.game.id, roll.game.currentRound),
+        );
+        await this.bot.answerCallback(
+          callback.id,
+          `Round ${roll.roundNumber} rolled.`,
+        );
+        return;
+      }
+
+      const game = await this.klaKlok.getGame(action.gameId);
+      if (game.dealerTelegramUserId !== dealerTelegramUserId) {
+        throw new UnauthorizedException('Only the dealer can use this control.');
+      }
+      if (game.status !== 'OPEN' && action.action !== 'end-confirm') {
+        throw new GoneException('This Kla Klok game is closed.');
+      }
+
+      if (action.action === 'end') {
+        await this.bot.editMessage(
+          message.chat.id,
+          message.message_id,
+          'End this Kla Klok game and post the final payment summary to the group?',
+          buildKlaKlokEndKeyboard(
+            action.gameId,
+            telegramUserToken(callback.from.id),
+          ),
+        );
+        await this.bot.answerCallback(callback.id);
+        return;
+      }
+
+      if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
+        throw new UnauthorizedException(
+          'This confirmation belongs to another dealer.',
+        );
+      }
+      if (action.action === 'end-cancel') {
+        await this.bot.editMessage(
+          message.chat.id,
+          message.message_id,
+          buildKlaKlokDealerText({
+            groupTitle: game.telegramChatTitle,
+            round: game.currentRound,
+          }),
+          buildKlaKlokDealerKeyboard(game.id, game.currentRound),
+        );
+        await this.bot.answerCallback(callback.id, 'Keep playing.');
+        return;
+      }
+
+      const settlement = await this.klaKlok.endGame(
+        action.gameId,
+        dealerTelegramUserId,
+      );
+      if (settlement.game.summaryMessageId === null) {
+        const summaryMessage = await this.bot.sendMessage(
+          settlement.game.telegramChatId,
+          settlement.text.replace(
+            '🏁 Kla Klok final settlement',
+            `🏁 Kla Klok final settlement\nRounds played: ${settlement.rounds}`,
+          ),
+        );
+        await this.klaKlok.markSummaryMessage(
+          settlement.game.id,
+          summaryMessage.message_id,
+        );
+      }
+      if (settlement.game.groupMessageId !== null) {
+        await this.bot.editMessage(
+          settlement.game.telegramChatId,
+          settlement.game.groupMessageId,
+          `🏁 Kla Klok ended after ${settlement.rounds} round${settlement.rounds === 1 ? '' : 's'}. See the final settlement below.`,
+          { inline_keyboard: [] },
+        );
+      }
+      await this.bot.editMessage(
+        message.chat.id,
+        message.message_id,
+        `Kla Klok ended after ${settlement.rounds} round${settlement.rounds === 1 ? '' : 's'}. The final settlement was posted in the group.`,
+        { inline_keyboard: [] },
+      );
+      await this.bot.answerCallback(callback.id, 'Game ended.');
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException ||
+        error instanceof GoneException ||
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      ) {
+        await this.bot.answerCallback(callback.id, error.message.slice(0, 180));
         return;
       }
       throw error;
@@ -2881,6 +3224,7 @@ export class TelegramBotService {
           '/@username — Get a member’s KHQR, e.g. /@kakada',
           '/$ @username — Another way to request their KHQR',
           '/tg_<Telegram ID> — Get a known group member’s KHQR',
+          '/klaklok — Start a Kla Klok game as the dealer',
           '/joinvote — Register for this group’s voting reminders',
           '/split 60 — Split the final bill after voting closes (poll owner)',
           '/split 60 Alice, Bob — Split a bill with named participants',
@@ -2919,6 +3263,7 @@ export class TelegramBotService {
     const disabled = new Set((await this.availability?.disabledKeys()) ?? []);
     const commandFeature = (line: string) => {
       if (/^\/(?:\$|@|tg_)/.test(line)) return 'khqr';
+      if (/^\/klaklok\b/.test(line)) return 'kla-klok';
       if (/^\/split/.test(line)) return 'bill-split';
       if (
         /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote)/.test(line)

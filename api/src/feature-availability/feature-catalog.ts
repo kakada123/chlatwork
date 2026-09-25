@@ -41,6 +41,7 @@ export const MAIN_BOT_FEATURES = {
   voting: 'Voting Moments',
   'group-voting': 'Group voting and daily votes',
   'bill-split': 'Group bill split',
+  'kla-klok': 'Kla Klok group game',
   khqr: 'Group KHQR',
   notifications: 'Alerts and weekly digest',
   assistant: 'Personal assistant',
