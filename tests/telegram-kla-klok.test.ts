@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   KLA_KLOK_STAKES_RIEL,
   KLA_KLOK_SYMBOLS,
+  buildKlaKlokBoardText,
   buildKlaKlokDealerKeyboard,
   buildKlaKlokGroupKeyboard,
   buildKlaKlokRoundMessage,
@@ -74,7 +75,7 @@ test("round results are zero-sum between members and the dealer", () => {
   );
 });
 
-test("round result announces the reveal and net outcomes with lively bilingual copy", () => {
+test("round result keeps the bilingual outcome compact and easy to scan", () => {
   const result = calculateKlaKlokTelegramRound(
     [
       {
@@ -90,31 +91,39 @@ test("round result announces the reveal and net outcomes with lively bilingual c
   assert.equal(
     buildKlaKlokRoundMessage(2, "Kakada Ngen", result),
     [
-      "🎉🎲 លទ្ធផលជុំទី 2 · ROUND 2 🎲🎉",
+      "🎲 ជុំទី 2 · Round 2",
+      "🐯 ខ្លា • 🎃 ឃ្លោក • 🐟 ត្រី",
+      "💰 សរុប · Total: 5,000៛",
       "",
-      "✨ 🐯 ខ្លា  •  🎃 ឃ្លោក  •  🐟 ត្រី ✨",
-      "💰 ភ្នាល់សរុប · Total stake: 5,000៛",
-      "",
-      "🏆 លទ្ធផលសុទ្ធ · NET RESULTS",
-      "🟢 Chhom Phea ឈ្នះ · wins +5,000៛",
-      "🔴 Kakada Ngen (មេ · dealer) ចាញ់ · loses -5,000៛",
-      "",
-      "🔥 បន្តទៅជុំបន្ទាប់ · Balances carry forward!",
+      "🏆 Chhom Phea: +5,000៛",
+      "🔻 មេ · Dealer Kakada Ngen: -5,000៛",
     ].join("\n"),
   );
 });
 
-test("final settlement states only dealer-to-member transfers", () => {
-  const settlement = summarizeKlaKlokSettlement("Meeh Vanna", [
-    { telegramUserId: "101", displayName: "Dara", netRiel: 600n },
-    { telegramUserId: "202", displayName: "Sokha", netRiel: -200n },
-    { telegramUserId: "303", displayName: "Nary", netRiel: 0n },
-  ]);
+test("final settlement stays compact and states only dealer-to-member transfers", () => {
+  const settlement = summarizeKlaKlokSettlement(
+    "Meeh Vanna",
+    [
+      { telegramUserId: "101", displayName: "Dara", netRiel: 600n },
+      { telegramUserId: "202", displayName: "Sokha", netRiel: -200n },
+      { telegramUserId: "303", displayName: "Nary", netRiel: 0n },
+    ],
+    3,
+  );
 
   assert.equal(settlement.dealerNetRiel, -400n);
-  assert.match(settlement.text, /Meeh Vanna pays Dara 600៛/);
-  assert.match(settlement.text, /Sokha pays Meeh Vanna 200៛/);
-  assert.doesNotMatch(settlement.text, /Nary pays|pays Nary/);
+  assert.equal(
+    settlement.text,
+    [
+      "🏁 សរុបចុងក្រោយ · Final (3 rounds)",
+      "",
+      "💸 Meeh Vanna → Dara: 600៛",
+      "💸 Sokha → Meeh Vanna: 200៛",
+      "💰 មេ · Dealer: -400៛",
+    ].join("\n"),
+  );
+  assert.doesNotMatch(settlement.text, /Nary/);
 });
 
 test("group buttons contain no dealer controls and callbacks stay below Telegram's limit", () => {
@@ -147,6 +156,17 @@ test("group buttons contain no dealer controls and callbacks stay below Telegram
     }
   }
   assert.match(stakeKeyboard.inline_keyboard[0]![0]!.text, /Confirm 100៛/);
+});
+
+test("group betting board is short and immediately actionable", () => {
+  assert.equal(
+    buildKlaKlokBoardText({ dealerDisplayName: "Kakada Ngen", round: 2 }),
+    [
+      "🎲 ខ្លាឃ្លោក · Round 2",
+      "🎛 មេ · Dealer: Kakada Ngen",
+      "👇 ជ្រើសរើសរូប · Pick a symbol",
+    ].join("\n"),
+  );
 });
 
 test("bet confirmations are bound to one Telegram member and malformed callbacks fail closed", () => {

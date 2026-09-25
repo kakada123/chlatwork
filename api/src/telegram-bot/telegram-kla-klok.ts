@@ -224,12 +224,9 @@ export function buildKlaKlokBoardText(input: {
   round: number;
 }) {
   return [
-    `🎲 ខ្លាឃ្លោក · Kla Klok — Round ${input.round}`,
-    `មេ · Dealer: ${cleanDisplayName(input.dealerDisplayName)}`,
-    '',
-    'Pick a symbol, then explicitly confirm a stake from 100៛.',
-    'The dealer cannot bet. Roll and End controls are private.',
-    'No money is transferred by the bot; it records a final settlement only.',
+    `🎲 ខ្លាឃ្លោក · Round ${input.round}`,
+    `🎛 មេ · Dealer: ${cleanDisplayName(input.dealerDisplayName)}`,
+    '👇 ជ្រើសរើសរូប · Pick a symbol',
   ].join('\n');
 }
 
@@ -256,26 +253,23 @@ export function buildKlaKlokRoundMessage(
       const item = requireSymbol(symbol);
       return `${item.glyph} ${item.labelKm}`;
     })
-    .join('  •  ');
+    .join(' • ');
   return [
-    `🎉🎲 លទ្ធផលជុំទី ${round} · ROUND ${round} 🎲🎉`,
+    `🎲 ជុំទី ${round} · Round ${round}`,
+    diceText,
+    `💰 សរុប · Total: ${formatRiel(result.totalStakeRiel)}៛`,
     '',
-    `✨ ${diceText} ✨`,
-    `💰 ភ្នាល់សរុប · Total stake: ${formatRiel(result.totalStakeRiel)}៛`,
-    '',
-    '🏆 លទ្ធផលសុទ្ធ · NET RESULTS',
     ...result.players.map((player) =>
       formatRoundNet(player.displayName, player.netRiel),
     ),
-    formatRoundNet(dealerDisplayName, result.dealerNetRiel, ' (មេ · dealer)'),
-    '',
-    '🔥 បន្តទៅជុំបន្ទាប់ · Balances carry forward!',
+    formatRoundNet(dealerDisplayName, result.dealerNetRiel, 'មេ · Dealer '),
   ].join('\n');
 }
 
 export function summarizeKlaKlokSettlement(
   dealerDisplayName: string,
   players: readonly TelegramKlaKlokPlayerResult[],
+  rounds: number,
 ) {
   const dealer = cleanDisplayName(dealerDisplayName);
   const nonZeroPlayers = players.filter((player) => player.netRiel !== 0n);
@@ -285,18 +279,16 @@ export function summarizeKlaKlokSettlement(
   );
   const transfers = nonZeroPlayers.map((player) =>
     player.netRiel > 0n
-      ? `${dealer} pays ${cleanDisplayName(player.displayName)} ${formatRiel(player.netRiel)}៛`
-      : `${cleanDisplayName(player.displayName)} pays ${dealer} ${formatRiel(-player.netRiel)}៛`,
+      ? `💸 ${dealer} → ${cleanDisplayName(player.displayName)}: ${formatRiel(player.netRiel)}៛`
+      : `💸 ${cleanDisplayName(player.displayName)} → ${dealer}: ${formatRiel(-player.netRiel)}៛`,
   );
   return {
     dealerNetRiel,
     text: [
-      '🏁 Kla Klok final settlement',
+      `🏁 សរុបចុងក្រោយ · Final (${rounds} round${rounds === 1 ? '' : 's'})`,
       '',
-      ...(transfers.length ? transfers : ['No payments are needed.']),
-      '',
-      `Dealer net: ${formatSignedRiel(dealerNetRiel)}`,
-      'Please confirm payments directly with each other. The bot does not transfer money.',
+      ...(transfers.length ? transfers : ['➖ មិនមានការទូទាត់ · No payments']),
+      `💰 មេ · Dealer: ${formatSignedRiel(dealerNetRiel)}`,
     ].join('\n'),
   };
 }
@@ -428,14 +420,8 @@ function formatRiel(value: number | bigint) {
 }
 
 function formatRoundNet(displayName: string, value: bigint, role = '') {
-  const participant = `${cleanDisplayName(displayName)}${role}`;
-  if (value > 0n) {
-    return `🟢 ${participant} ឈ្នះ · wins ${formatSignedRiel(value)}`;
-  }
-  if (value < 0n) {
-    return `🔴 ${participant} ចាញ់ · loses ${formatSignedRiel(value)}`;
-  }
-  return `⚪ ${participant} ស្មើ · even ${formatSignedRiel(value)}`;
+  const marker = value > 0n ? '🏆' : value < 0n ? '🔻' : '➖';
+  return `${marker} ${role}${cleanDisplayName(displayName)}: ${formatSignedRiel(value)}`;
 }
 
 function cleanDisplayName(value: string) {

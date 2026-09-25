@@ -93,7 +93,7 @@ describe('Telegram Kla Klok round message lifecycle', () => {
     expect(bot.sendMessage).toHaveBeenNthCalledWith(
       1,
       telegramChatId,
-      expect.stringContaining('ROUND 1'),
+      expect.stringContaining('Round 1'),
     );
     expect(bot.deleteMessage).toHaveBeenCalledWith(telegramChatId, 10);
     expect(bot.sendMessage).toHaveBeenNthCalledWith(

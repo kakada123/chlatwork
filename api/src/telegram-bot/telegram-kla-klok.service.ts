@@ -365,6 +365,7 @@ export class TelegramKlaKlokService {
       const settlement = summarizeKlaKlokSettlement(
         game.dealerDisplayName,
         players,
+        rounds?.count ?? 0,
       );
       return {
         game: toGame(game),

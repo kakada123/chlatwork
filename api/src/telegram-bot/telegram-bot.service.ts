@@ -1823,10 +1823,7 @@ export class TelegramBotService {
       if (settlement.game.summaryMessageId === null) {
         const summaryMessage = await this.bot.sendMessage(
           settlement.game.telegramChatId,
-          settlement.text.replace(
-            '🏁 Kla Klok final settlement',
-            `🏁 Kla Klok final settlement\nRounds played: ${settlement.rounds}`,
-          ),
+          settlement.text,
         );
         await this.klaKlok.markSummaryMessage(
           settlement.game.id,
