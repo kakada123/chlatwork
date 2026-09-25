@@ -142,6 +142,16 @@ export const TOOLS: ToolDef[] = [
       "Add participants, spin a lucky draw wheel, and pick random winners.",
   },
   {
+    key: "kla-klok",
+    name: "Kla Klok",
+    route: "/tools/kla-klok",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description:
+      "Play the Khmer three-dice game casually with virtual points only.",
+  },
+  {
     key: "json-formatter",
     name: "JSON Formatter / Validator",
     route: "/tools/json-formatter",
@@ -380,6 +390,12 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
     "M5 21l3-3",
     "M12 15.3V21",
   ],
+  "kla-klok": [
+    "M5 5h6v6H5V5Z",
+    "M13 13h6v6h-6v-6Z",
+    "M16 5h3v3",
+    "M5 16h3v3",
+  ],
   "text-to-voice": [
     "M4 9v6h4l5 4V5L8 9H4Z",
     "M16 9.5a4 4 0 0 1 0 5",
@@ -487,6 +503,8 @@ export const TOOL_ICON_CLASSES: Record<string, string> = {
     "bg-rose-50 text-rose-700 group-hover:bg-rose-600 group-hover:text-white",
   "lucky-draw":
     "bg-fuchsia-50 text-fuchsia-700 group-hover:bg-fuchsia-600 group-hover:text-white",
+  "kla-klok":
+    "bg-amber-50 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
   "text-to-voice":
     "bg-teal-50 text-teal-700 group-hover:bg-teal-600 group-hover:text-white",
   "khmer-unicode-fixer":

@@ -58,6 +58,7 @@ const ICON_TONE_BY_KEY: Record<string, keyof typeof ICON_TONES> = {
   "password-generator": "rose",
   "security-encoding": "rose",
   "lucky-draw": "blue",
+  "kla-klok": "amber",
   generators: "violet",
 };
 

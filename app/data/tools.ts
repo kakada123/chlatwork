@@ -71,6 +71,7 @@ const TOOL_ACCENTS: Record<string, string> = {
   "text-to-pdf": "from-lime-300 to-green-500",
   "invoice-to-pdf": "from-rose-300 to-pink-500",
   "lucky-draw": "from-sky-400 to-cyan-300",
+  "kla-klok": "from-amber-300 to-red-400",
   "text-to-voice": "from-teal-300 to-emerald-400",
   "khmer-unicode-fixer": "from-emerald-300 to-cyan-400",
   base64: "from-indigo-400 to-blue-300",

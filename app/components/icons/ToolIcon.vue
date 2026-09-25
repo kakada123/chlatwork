@@ -69,6 +69,7 @@ const ICONS: Record<string, Component> = {
   "scan-barcode": ScanBarcode,
   "expense-tracker": ReceiptText,
   "lucky-draw": Dices,
+  "kla-klok": Dices,
   "json-formatter": Braces,
   "jwt-decoder": ShieldCheck,
   base64: Binary,

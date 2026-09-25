@@ -41,6 +41,7 @@ export const TOOL_ICON_IMAGE_PATHS: Record<string, string> = {
   "payback-calculator": `${ICON_BASE_PATH}/tools/tool-payback-calculator.png`,
   "expense-tracker": `${ICON_BASE_PATH}/tools/tool-expense-tracker.png`,
   "lucky-draw": `${ICON_BASE_PATH}/tools/tool-random-winner-picker.png`,
+  "kla-klok": `${ICON_BASE_PATH}/tools/tool-random-winner-picker.png`,
   "text-to-voice": `${ICON_BASE_PATH}/tools/tool-text-to-voice.png`,
   "khmer-unicode-fixer": `${ICON_BASE_PATH}/tools/tool-khmer-unicode-fixer.png`,
   "password-generator": `${ICON_BASE_PATH}/tools/tool-password-generator.png`,

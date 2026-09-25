@@ -21,6 +21,7 @@ const websiteNames: Record<string, string> = {
   'scan-barcode': 'Barcode Scanner',
   'expense-tracker': 'Expense Tracker',
   'lucky-draw': 'Lucky Draw',
+  'kla-klok': 'Kla Klok',
   'json-formatter': 'JSON Formatter',
   'jwt-decoder': 'JWT Decoder',
   base64: 'Base64',

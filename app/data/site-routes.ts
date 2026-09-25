@@ -68,6 +68,7 @@ export const ALL_TOOL_PAGE_PATHS = [
   "/tools/scan-barcode",
   "/tools/expense-tracker",
   "/tools/lucky-draw",
+  "/tools/kla-klok",
   "/tools/json-formatter",
   "/tools/jwt-decoder",
   "/tools/base64",
