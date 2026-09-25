@@ -325,16 +325,6 @@ export class TelegramKlaKlokService {
         throw new GoneException('This Kla Klok game is closed.');
       }
       if (game.status === 'OPEN') {
-        const [pending] = await tx.$queryRaw<Array<{ count: number }>>`
-          SELECT COUNT(*)::int AS count FROM telegram_kla_klok_bets
-          WHERE game_id = ${gameId}::uuid AND round_number = ${game.currentRound}
-            AND match_count IS NULL
-        `;
-        if ((pending?.count ?? 0) > 0) {
-          throw new BadRequestException(
-            'Roll the current confirmed bets before ending the game.',
-          );
-        }
         const [ended] = await tx.$queryRaw<GameRow[]>`
           UPDATE telegram_kla_klok_games
           SET status = 'ENDED', ended_at = now(), updated_at = now()

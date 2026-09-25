@@ -1787,7 +1787,7 @@ export class TelegramBotService {
         await this.bot.editMessage(
           message.chat.id,
           message.message_id,
-          'End this Kla Klok game and post the final payment summary to the group?',
+          'End this game? Unrolled bets will not count.',
           buildKlaKlokEndKeyboard(
             action.gameId,
             telegramUserToken(callback.from.id),

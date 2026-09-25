@@ -239,7 +239,7 @@ export function buildKlaKlokDealerText(input: {
     `Group: ${cleanDisplayName(input.groupTitle)}`,
     `Open round: ${input.round}`,
     '',
-    'Roll after members confirm their bets. End is blocked while the open round still has bets.',
+    'Roll when ready. Ending excludes unrolled bets.',
   ].join('\n');
 }
 
