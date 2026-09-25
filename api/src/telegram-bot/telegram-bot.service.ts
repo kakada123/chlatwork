@@ -1739,15 +1739,24 @@ export class TelegramBotService {
             resultMessage.message_id,
           );
         }
-        if (roll.game.groupMessageId !== null) {
-          await this.bot.editMessage(
+        if (!roll.replay) {
+          // Keep the next betting board below its result without reposting it on webhook retries.
+          if (roll.game.groupMessageId !== null) {
+            await this.bot
+              .deleteMessage(roll.game.telegramChatId, roll.game.groupMessageId)
+              .catch(() => null);
+          }
+          const groupMessage = await this.bot.sendMessage(
             roll.game.telegramChatId,
-            roll.game.groupMessageId,
             buildKlaKlokBoardText({
               dealerDisplayName: roll.game.dealerDisplayName,
               round: roll.game.currentRound,
             }),
             buildKlaKlokGroupKeyboard(roll.game.id, roll.game.currentRound),
+          );
+          await this.klaKlok.setGroupMessage(
+            roll.game.id,
+            groupMessage.message_id,
           );
         }
         await this.bot.editMessage(

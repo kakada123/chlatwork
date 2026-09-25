@@ -256,19 +256,20 @@ export function buildKlaKlokRoundMessage(
       const item = requireSymbol(symbol);
       return `${item.glyph} ${item.labelKm}`;
     })
-    .join(' · ');
+    .join('  •  ');
   return [
-    `🎲 Round ${round} result`,
-    diceText,
-    `Total stake: ${formatRiel(result.totalStakeRiel)}៛`,
+    `🎉🎲 លទ្ធផលជុំទី ${round} · ROUND ${round} 🎲🎉`,
     '',
-    ...result.players.map(
-      (player) =>
-        `${netMarker(player.netRiel)} ${cleanDisplayName(player.displayName)}: ${formatSignedRiel(player.netRiel)}`,
+    `✨ ${diceText} ✨`,
+    `💰 ភ្នាល់សរុប · Total stake: ${formatRiel(result.totalStakeRiel)}៛`,
+    '',
+    '🏆 លទ្ធផលសុទ្ធ · NET RESULTS',
+    ...result.players.map((player) =>
+      formatRoundNet(player.displayName, player.netRiel),
     ),
-    `${netMarker(result.dealerNetRiel)} ${cleanDisplayName(dealerDisplayName)} (dealer): ${formatSignedRiel(result.dealerNetRiel)}`,
+    formatRoundNet(dealerDisplayName, result.dealerNetRiel, ' (មេ · dealer)'),
     '',
-    'Balances accumulate until the dealer ends the game.',
+    '🔥 បន្តទៅជុំបន្ទាប់ · Balances carry forward!',
   ].join('\n');
 }
 
@@ -426,8 +427,15 @@ function formatRiel(value: number | bigint) {
     .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function netMarker(value: bigint) {
-  return value > 0n ? '🟢' : value < 0n ? '🔴' : '⚪';
+function formatRoundNet(displayName: string, value: bigint, role = '') {
+  const participant = `${cleanDisplayName(displayName)}${role}`;
+  if (value > 0n) {
+    return `🟢 ${participant} ឈ្នះ · wins ${formatSignedRiel(value)}`;
+  }
+  if (value < 0n) {
+    return `🔴 ${participant} ចាញ់ · loses ${formatSignedRiel(value)}`;
+  }
+  return `⚪ ${participant} ស្មើ · even ${formatSignedRiel(value)}`;
 }
 
 function cleanDisplayName(value: string) {

@@ -137,6 +137,14 @@ export class TelegramKlaKlokService {
     `;
   }
 
+  async setGroupMessage(gameId: string, groupMessageId: number) {
+    await this.prisma.$executeRaw`
+      UPDATE telegram_kla_klok_games
+      SET group_message_id = ${groupMessageId}, updated_at = now()
+      WHERE id = ${gameId}::uuid AND status = 'OPEN'
+    `;
+  }
+
   async cancelSetup(gameId: string, dealerTelegramUserId: string) {
     await this.prisma.$executeRaw`
       UPDATE telegram_kla_klok_games

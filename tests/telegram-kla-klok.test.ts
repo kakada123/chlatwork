@@ -7,6 +7,7 @@ import {
   KLA_KLOK_SYMBOLS,
   buildKlaKlokDealerKeyboard,
   buildKlaKlokGroupKeyboard,
+  buildKlaKlokRoundMessage,
   buildKlaKlokStakeKeyboard,
   callbackBelongsToUser,
   calculateKlaKlokTelegramRound,
@@ -70,6 +71,36 @@ test("round results are zero-sum between members and the dealer", () => {
     result.dealerNetRiel +
       result.players.reduce((sum, player) => sum + player.netRiel, 0n),
     0n,
+  );
+});
+
+test("round result announces the reveal and net outcomes with lively bilingual copy", () => {
+  const result = calculateKlaKlokTelegramRound(
+    [
+      {
+        telegramUserId: "101",
+        displayName: "Chhom Phea",
+        symbol: "tiger",
+        amountRiel: 5_000n,
+      },
+    ],
+    ["tiger", "gourd", "fish"],
+  );
+
+  assert.equal(
+    buildKlaKlokRoundMessage(2, "Kakada Ngen", result),
+    [
+      "🎉🎲 លទ្ធផលជុំទី 2 · ROUND 2 🎲🎉",
+      "",
+      "✨ 🐯 ខ្លា  •  🎃 ឃ្លោក  •  🐟 ត្រី ✨",
+      "💰 ភ្នាល់សរុប · Total stake: 5,000៛",
+      "",
+      "🏆 លទ្ធផលសុទ្ធ · NET RESULTS",
+      "🟢 Chhom Phea ឈ្នះ · wins +5,000៛",
+      "🔴 Kakada Ngen (មេ · dealer) ចាញ់ · loses -5,000៛",
+      "",
+      "🔥 បន្តទៅជុំបន្ទាប់ · Balances carry forward!",
+    ].join("\n"),
   );
 });
 
