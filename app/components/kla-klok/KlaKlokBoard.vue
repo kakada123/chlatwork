@@ -17,6 +17,8 @@ type RoundHistory = {
 };
 
 const STARTING_BALANCE = 500;
+const ROLL_SPIN_MS = 950;
+const ROLL_SETTLE_MS = 560;
 const pointOptions = [10, 25, 50, 100];
 const selectedSymbols = ref<KlaKlokSymbolId[]>(["tiger"]);
 const pointPerSymbol = ref(10);
@@ -27,18 +29,20 @@ const dice = ref<[KlaKlokSymbolId, KlaKlokSymbolId, KlaKlokSymbolId]>([
   "crab",
 ]);
 const isRolling = ref(false);
+const isSettling = ref(false);
 const history = ref<RoundHistory[]>([]);
 const lastResult = ref<KlaKlokRound | null>(null);
 const statusMessage = ref("ជ្រើសរើសរូប រួចចាក់គ្រាប់។");
 
 const totalStake = computed(() => selectedSymbols.value.length * pointPerSymbol.value);
 const hasEnoughPoints = computed(() => totalStake.value <= balance.value);
+const isAnimating = computed(() => isRolling.value || isSettling.value);
 const canRoll = computed(
-  () => selectedSymbols.value.length > 0 && hasEnoughPoints.value && !isRolling.value,
+  () => selectedSymbols.value.length > 0 && hasEnoughPoints.value && !isAnimating.value,
 );
 
 function toggleSymbol(symbolId: KlaKlokSymbolId) {
-  if (isRolling.value) return;
+  if (isAnimating.value) return;
 
   selectedSymbols.value = selectedSymbols.value.includes(symbolId)
     ? selectedSymbols.value.filter((selected) => selected !== symbolId)
@@ -50,7 +54,7 @@ function toggleSymbol(symbolId: KlaKlokSymbolId) {
 }
 
 function selectPointValue(value: number) {
-  if (isRolling.value) return;
+  if (isAnimating.value) return;
   pointPerSymbol.value = value;
   lastResult.value = null;
 }
@@ -59,10 +63,13 @@ async function rollDice() {
   if (!canRoll.value) return;
 
   isRolling.value = true;
-  statusMessage.value = "កំពុងចាក់គ្រាប់…";
+  statusMessage.value = "កំពុងក្រឡុក…";
 
   try {
-    await new Promise<void>((resolve) => window.setTimeout(resolve, 650));
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    await waitForAnimation(prefersReducedMotion ? 80 : ROLL_SPIN_MS);
     const rolledDice = rollKlaKlokDice();
     const result = calculateKlaKlokRound({
       selectedSymbols: selectedSymbols.value,
@@ -71,6 +78,12 @@ async function rollDice() {
     });
 
     dice.value = rolledDice;
+    // Keep controls locked while the cubes leave their spin and settle onto the result faces.
+    await nextTick();
+    isSettling.value = true;
+    isRolling.value = false;
+    await waitForAnimation(prefersReducedMotion ? 80 : ROLL_SETTLE_MS);
+
     balance.value += result.balanceDelta;
     lastResult.value = result;
     history.value.unshift({
@@ -89,6 +102,7 @@ async function rollDice() {
     statusMessage.value = "មិនអាចចាក់គ្រាប់បានទេ។ សូមសាកល្បងម្ដងទៀត។";
   } finally {
     isRolling.value = false;
+    isSettling.value = false;
   }
 }
 
@@ -104,6 +118,10 @@ function resetGame() {
 
 function formatSigned(value: number) {
   return value > 0 ? `+${value}` : String(value);
+}
+
+function waitForAnimation(duration: number) {
+  return new Promise<void>((resolve) => window.setTimeout(resolve, duration));
 }
 </script>
 
@@ -140,7 +158,7 @@ function formatSigned(value: number) {
               :key="symbol.id"
               :symbol="symbol"
               :selected="selectedSymbols.includes(symbol.id)"
-              :disabled="isRolling"
+              :disabled="isAnimating"
               @toggle="toggleSymbol"
             />
           </div>
@@ -163,7 +181,7 @@ function formatSigned(value: number) {
                   ? 'border-amber-300 bg-amber-300 text-[#401515]'
                   : 'border-white/10 bg-white/[0.04] text-white hover:border-white/25'"
                 :aria-pressed="pointPerSymbol === value"
-                :disabled="isRolling"
+                :disabled="isAnimating"
                 @click="selectPointValue(value)"
               >
                 {{ value }}
@@ -184,7 +202,7 @@ function formatSigned(value: number) {
             <button
               type="button"
               class="rounded-lg px-2 py-1 text-xs font-semibold text-white/45 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
-              :disabled="isRolling"
+              :disabled="isAnimating"
               @click="resetGame"
             >
               Reset
@@ -192,7 +210,14 @@ function formatSigned(value: number) {
           </div>
 
           <div class="mt-8 flex items-center justify-center gap-2 sm:gap-4">
-            <KlaKlokDice v-for="(symbolId, index) in dice" :key="index" :symbol="symbolId" :rolling="isRolling" size="game" />
+            <KlaKlokDice
+              v-for="(symbolId, index) in dice"
+              :key="index"
+              :symbol="symbolId"
+              :rolling="isRolling"
+              :roll-index="index"
+              size="game"
+            />
           </div>
 
           <div
@@ -201,6 +226,7 @@ function formatSigned(value: number) {
               ? 'border-amber-300/30 bg-amber-300/[0.08]'
               : 'border-white/10 bg-white/[0.035]'"
             aria-live="polite"
+            :aria-busy="isAnimating"
           >
             <p class="text-sm font-semibold" :class="lastResult?.matches.length ? 'text-amber-200' : 'text-white/65'">
               {{ statusMessage }}
@@ -224,7 +250,7 @@ function formatSigned(value: number) {
               @click="rollDice"
             >
               <span aria-hidden="true">🎲</span>
-              {{ isRolling ? "កំពុងចាក់…" : "ចាក់គ្រាប់ · Roll Dice" }}
+              {{ isAnimating ? "កំពុងក្រឡុក…" : "ក្រឡុកខ្លាឃ្លោក" }}
             </button>
           </div>
 

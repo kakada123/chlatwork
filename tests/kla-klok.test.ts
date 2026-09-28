@@ -63,6 +63,20 @@ test("Kla Klok page stays virtual-only and includes its main landing sections", 
   assert.doesNotMatch(`${page}\n${board}`, /real[- ]money|cash bet|deposit|withdraw/i);
 });
 
+test("Kla Klok dice use accessible 3D roll and settle animation", () => {
+  const board = readFileSync("app/components/kla-klok/KlaKlokBoard.vue", "utf8");
+  const dice = readFileSync("app/components/kla-klok/KlaKlokDice.vue", "utf8");
+
+  assert.match(dice, /KLA_KLOK_SYMBOLS/);
+  assert.match(dice, /v-for="face in KLA_KLOK_SYMBOLS"/);
+  assert.match(dice, /transform-style:\s*preserve-3d/);
+  assert.match(dice, /perspective:/);
+  assert.match(dice, /prefers-reduced-motion:\s*reduce/);
+  assert.match(board, /isSettling/);
+  assert.match(board, /roll-index/);
+  assert.match(board, /ក្រឡុកខ្លាឃ្លោក/);
+});
+
 test("Kla Klok is registered as an available website tool", () => {
   const registry = readFileSync("app/lib/tool-registry.ts", "utf8");
   const routes = readFileSync("app/data/site-routes.ts", "utf8");
