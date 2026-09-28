@@ -7,6 +7,7 @@ import {
   type KlaKlokRound,
   type KlaKlokSymbolId,
 } from "~/lib/kla-klok";
+import { playKlaKlokRollSound } from "~/lib/kla-klok-sound";
 
 type RoundHistory = {
   id: number;
@@ -17,8 +18,9 @@ type RoundHistory = {
 };
 
 const STARTING_BALANCE = 500;
-const ROLL_SPIN_MS = 950;
-const ROLL_SETTLE_MS = 560;
+const COVER_CLOSE_MS = 420;
+const BOWL_SHAKE_MS = 1_100;
+const COVER_REVEAL_MS = 650;
 const pointOptions = [10, 25, 50, 100];
 const selectedSymbols = ref<KlaKlokSymbolId[]>(["tiger"]);
 const pointPerSymbol = ref(10);
@@ -30,9 +32,12 @@ const dice = ref<[KlaKlokSymbolId, KlaKlokSymbolId, KlaKlokSymbolId]>([
 ]);
 const isRolling = ref(false);
 const isSettling = ref(false);
+const isCovered = ref(true);
+const isRevealing = ref(false);
+const soundEnabled = ref(true);
 const history = ref<RoundHistory[]>([]);
 const lastResult = ref<KlaKlokRound | null>(null);
-const statusMessage = ref("ជ្រើសរើសរូប រួចចាក់គ្រាប់។");
+const statusMessage = ref("ជ្រើសរូប រួចចុចក្រឡុកចាន 🎲");
 
 const totalStake = computed(() => selectedSymbols.value.length * pointPerSymbol.value);
 const hasEnoughPoints = computed(() => totalStake.value <= balance.value);
@@ -49,7 +54,7 @@ function toggleSymbol(symbolId: KlaKlokSymbolId) {
     : [...selectedSymbols.value, symbolId];
   lastResult.value = null;
   statusMessage.value = selectedSymbols.value.length
-    ? `បានជ្រើស ${selectedSymbols.value.length} រូប។ ត្រៀមចាក់គ្រាប់!`
+    ? `បានជ្រើស ${selectedSymbols.value.length} រូប។ ត្រៀមក្រឡុកចាន!`
     : "សូមជ្រើសរើសយ៉ាងហោចណាស់មួយរូប។";
 }
 
@@ -62,14 +67,27 @@ function selectPointValue(value: number) {
 async function rollDice() {
   if (!canRoll.value) return;
 
-  isRolling.value = true;
-  statusMessage.value = "កំពុងក្រឡុក…";
+  statusMessage.value = "កំពុងក្រឡុកចាន…";
+  let stopRollSound: (() => void) | null = null;
 
   try {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    await waitForAnimation(prefersReducedMotion ? 80 : ROLL_SPIN_MS);
+
+    if (!isCovered.value) {
+      isSettling.value = true;
+      isRevealing.value = false;
+      isCovered.value = true;
+      await waitForAnimation(prefersReducedMotion ? 80 : COVER_CLOSE_MS);
+      isSettling.value = false;
+    }
+
+    isRolling.value = true;
+    if (soundEnabled.value) {
+      stopRollSound = playKlaKlokRollSound(BOWL_SHAKE_MS);
+    }
+    await waitForAnimation(prefersReducedMotion ? 120 : BOWL_SHAKE_MS);
     const rolledDice = rollKlaKlokDice();
     const result = calculateKlaKlokRound({
       selectedSymbols: selectedSymbols.value,
@@ -78,11 +96,13 @@ async function rollDice() {
     });
 
     dice.value = rolledDice;
-    // Keep controls locked while the cubes leave their spin and settle onto the result faces.
+    // Reveal the result only after the covered dish has finished shaking.
     await nextTick();
     isSettling.value = true;
     isRolling.value = false;
-    await waitForAnimation(prefersReducedMotion ? 80 : ROLL_SETTLE_MS);
+    isRevealing.value = true;
+    isCovered.value = false;
+    await waitForAnimation(prefersReducedMotion ? 80 : COVER_REVEAL_MS);
 
     balance.value += result.balanceDelta;
     lastResult.value = result;
@@ -99,10 +119,12 @@ async function rollDice() {
       ? `ត្រូវ ${result.matches.reduce((total, match) => total + match.count, 0)} គ្រាប់ · ${formatSigned(result.balanceDelta)} ពិន្ទុ`
       : `មិនត្រូវទេ · ${formatSigned(result.balanceDelta)} ពិន្ទុ`;
   } catch {
-    statusMessage.value = "មិនអាចចាក់គ្រាប់បានទេ។ សូមសាកល្បងម្ដងទៀត។";
+    statusMessage.value = "ក្រឡុកចានមិនបានទេ។ សាកម្ដងទៀតណា។";
   } finally {
+    stopRollSound?.();
     isRolling.value = false;
     isSettling.value = false;
+    isRevealing.value = false;
   }
 }
 
@@ -111,9 +133,11 @@ function resetGame() {
   pointPerSymbol.value = 10;
   balance.value = STARTING_BALANCE;
   dice.value = ["tiger", "gourd", "crab"];
+  isCovered.value = true;
+  isRevealing.value = false;
   history.value = [];
   lastResult.value = null;
-  statusMessage.value = "ជ្រើសរើសរូប រួចចាក់គ្រាប់។";
+  statusMessage.value = "ជ្រើសរូប រួចចុចក្រឡុកចាន 🎲";
 }
 
 function formatSigned(value: number) {
@@ -199,17 +223,34 @@ function waitForAnimation(duration: number) {
               <p class="text-xs font-bold uppercase tracking-[0.14em] text-amber-300">3 · Roll</p>
               <h3 class="mt-1 text-lg font-bold text-white">លទ្ធផលគ្រាប់</h3>
             </div>
-            <button
-              type="button"
-              class="rounded-lg px-2 py-1 text-xs font-semibold text-white/45 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
-              :disabled="isAnimating"
-              @click="resetGame"
-            >
-              Reset
-            </button>
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                class="rounded-lg px-2 py-1 text-xs font-semibold text-white/55 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                :aria-label="soundEnabled ? 'បិទសំឡេង' : 'បើកសំឡេង'"
+                :aria-pressed="soundEnabled"
+                :disabled="isAnimating"
+                @click="soundEnabled = !soundEnabled"
+              >
+                {{ soundEnabled ? "🔊 សំឡេង" : "🔇 សំឡេង" }}
+              </button>
+              <button
+                type="button"
+                class="rounded-lg px-2 py-1 text-xs font-semibold text-white/45 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                :disabled="isAnimating"
+                @click="resetGame"
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
-          <div class="mt-8 flex items-center justify-center gap-2 sm:gap-4">
+          <KlaKlokBowl
+            class="mt-3"
+            :covered="isCovered"
+            :rolling="isRolling"
+            :revealing="isRevealing"
+          >
             <KlaKlokDice
               v-for="(symbolId, index) in dice"
               :key="index"
@@ -218,7 +259,7 @@ function waitForAnimation(duration: number) {
               :roll-index="index"
               size="game"
             />
-          </div>
+          </KlaKlokBowl>
 
           <div
             class="mt-7 min-h-20 rounded-2xl border p-4 text-center"

@@ -59,20 +59,31 @@ test("Kla Klok page stays virtual-only and includes its main landing sections", 
   assert.match(page, /KlaKlokRules/);
   assert.match(page, /ត្រៀមលេងខ្លាឃ្លោកហើយឬនៅ/);
   assert.match(board, /virtual coins/i);
-  assert.match(board, /ចាក់គ្រាប់/);
+  assert.match(board, /ក្រឡុកចាន/);
   assert.doesNotMatch(`${page}\n${board}`, /real[- ]money|cash bet|deposit|withdraw/i);
 });
 
-test("Kla Klok dice use accessible 3D roll and settle animation", () => {
+test("Kla Klok reveals 3D dice from a covered shaking dish with local sound", () => {
   const board = readFileSync("app/components/kla-klok/KlaKlokBoard.vue", "utf8");
   const dice = readFileSync("app/components/kla-klok/KlaKlokDice.vue", "utf8");
+  const bowl = readFileSync("app/components/kla-klok/KlaKlokBowl.vue", "utf8");
+  const sound = readFileSync("app/lib/kla-klok-sound.ts", "utf8");
 
   assert.match(dice, /KLA_KLOK_SYMBOLS/);
   assert.match(dice, /v-for="face in KLA_KLOK_SYMBOLS"/);
   assert.match(dice, /transform-style:\s*preserve-3d/);
   assert.match(dice, /perspective:/);
   assert.match(dice, /prefers-reduced-motion:\s*reduce/);
+  assert.match(bowl, /kla-bowl-cover/);
+  assert.match(bowl, /kla-bowl-stage--rolling/);
+  assert.match(bowl, /prefers-reduced-motion:\s*reduce/);
+  assert.match(sound, /AudioContext/);
+  assert.match(sound, /createOscillator/);
+  assert.doesNotMatch(sound, /https?:\/\//);
+  assert.match(board, /KlaKlokBowl/);
+  assert.match(board, /isCovered/);
   assert.match(board, /isSettling/);
+  assert.match(board, /soundEnabled/);
   assert.match(board, /roll-index/);
   assert.match(board, /ក្រឡុកខ្លាឃ្លោក/);
 });
