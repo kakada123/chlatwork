@@ -58,6 +58,7 @@ async function save(row: FeatureRow) {
         body: { enabled: draft[row.key] },
       },
     );
+    draft[row.key] = saved.enabled;
     data.value = (data.value ?? []).map((item) =>
       item.key === row.key
         ? { ...item, enabled: saved.enabled, updatedAt: saved.updatedAt }
@@ -66,10 +67,18 @@ async function save(row: FeatureRow) {
     await refreshPublic().catch(() => undefined);
     message.value = `${row.label} availability saved.`;
   } catch {
+    // Roll back the optimistic switch so the UI still reflects persisted state.
+    draft[row.key] = row.enabled;
     saveError.value = `Could not save ${row.label}. Please try again.`;
   } finally {
     saving.value = null;
   }
+}
+
+async function toggleAndSave(row: FeatureRow) {
+  if (saving.value) return;
+  draft[row.key] = !draft[row.key];
+  await save(row);
 }
 </script>
 
@@ -125,23 +134,27 @@ async function save(row: FeatureRow) {
               {{ row.key }}
             </p>
           </div>
-          <label class="flex min-h-11 items-center gap-2 text-sm font-medium">
-            <input
-              v-model="draft[row.key]"
-              type="checkbox"
+          <div class="flex min-h-11 items-center gap-3 text-sm font-medium">
+            <span class="min-w-16 text-right text-slate-600 dark:text-white/65">
+              {{ saving === row.key ? "Saving…" : draft[row.key] ? "Enabled" : "Disabled" }}
+            </span>
+            <button
+              type="button"
+              role="switch"
+              :aria-checked="draft[row.key]"
+              :aria-label="`${row.label} availability`"
               :disabled="Boolean(saving)"
-              class="size-5 accent-violet-600"
-            />
-            {{ draft[row.key] ? "Enabled" : "Disabled" }}
-          </label>
-          <button
-            type="button"
-            :disabled="Boolean(saving) || draft[row.key] === row.enabled"
-            class="min-h-11 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
-            @click="save(row)"
-          >
-            {{ saving === row.key ? "Saving…" : "Save" }}
-          </button>
+              class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+              :class="draft[row.key] ? 'bg-violet-600 dark:bg-violet-300' : 'bg-slate-300 dark:bg-white/20'"
+              @click="toggleAndSave(row)"
+            >
+              <span
+                class="ml-1 size-5 rounded-full bg-white shadow-sm transition dark:bg-slate-950"
+                :class="draft[row.key] ? 'translate-x-5' : ''"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
         </div>
       </div>
     </section>
