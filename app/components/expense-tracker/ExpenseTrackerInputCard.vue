@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type {
   ExpenseCurrency,
-  ExpenseRangeMode,
   ExpenseRow,
 } from "~/lib/expense-tracker";
 import {
   createExpenseRow,
   createIncomeRow,
+  formatExpenseMonthLabel,
+  getExpenseMonthISO,
   getPresetCategoriesForExpenseRow,
+  todayISO,
 } from "~/lib/expense-tracker";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
 
@@ -30,7 +32,7 @@ const emit = defineEmits<{
 }>();
 
 const currency = defineModel<ExpenseCurrency>("currency", { required: true });
-const rangeMode = defineModel<ExpenseRangeMode>("rangeMode", { required: true });
+const selectedMonth = defineModel<string>("selectedMonth", { required: true });
 const rows = defineModel<ExpenseRow[]>("rows", { required: true });
 const raw = defineModel<string>("raw", { required: true });
 const quickForm = ref<QuickExpenseFormHandle | null>(null);
@@ -52,6 +54,12 @@ function getRowKey(row: ExpenseRow) {
   return nextKey;
 }
 
+const activeSelectedMonth = computed(() =>
+  /^\d{4}-(0[1-9]|1[0-2])$/.test(selectedMonth.value)
+    ? selectedMonth.value
+    : getExpenseMonthISO(),
+);
+
 const displayRows = computed(() =>
   rows.value
     .map((row, sourceIndex) => ({
@@ -59,23 +67,41 @@ const displayRows = computed(() =>
       row,
       sourceIndex,
     }))
+    .filter(({ row }) => row.date.startsWith(`${activeSelectedMonth.value}-`))
     .reverse(),
 );
+
+const selectedMonthLabel = computed(() =>
+  formatExpenseMonthLabel(activeSelectedMonth.value),
+);
+
+function selectedMonthEntryDate() {
+  return activeSelectedMonth.value === getExpenseMonthISO()
+    ? todayISO()
+    : `${activeSelectedMonth.value}-01`;
+}
 
 function presetCategoriesForRow(row: ExpenseRow) {
   return getPresetCategoriesForExpenseRow(row);
 }
 
 function addRow() {
-  rows.value = [...rows.value, createExpenseRow()];
+  rows.value = [
+    ...rows.value,
+    createExpenseRow("Food", selectedMonthEntryDate()),
+  ];
 }
 
 function quickAddIncome() {
-  rows.value = [...rows.value, createIncomeRow()];
+  rows.value = [
+    ...rows.value,
+    createIncomeRow("Salary", selectedMonthEntryDate()),
+  ];
 }
 
 function addQuickExpense(row: ExpenseRow) {
   rows.value = [...rows.value, row];
+  selectedMonth.value = row.date.slice(0, 7);
   quickForm.value?.resetForm();
   emit("quick-add");
 }
@@ -107,23 +133,35 @@ function removeRow(index: number) {
 
     <QuickExpenseForm ref="quickForm" :currency="currency" @submit="addQuickExpense" />
 
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 dark:border-white/10 dark:bg-white/[0.035]">
+      <div class="min-w-0 flex-1">
+        <label for="expense-entry-month" class="mb-1 block text-xs font-bold text-slate-500 dark:text-white/55">
+          Viewing month
+        </label>
+        <input
+          id="expense-entry-month"
+          v-model="selectedMonth"
+          type="month"
+          required
+          class="h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold dark:border-white/10 dark:bg-white/[0.06]"
+        />
+      </div>
+      <p class="pb-3 text-xs font-semibold text-slate-500 dark:text-white/50">
+        {{ displayRows.length }} {{ displayRows.length === 1 ? "entry" : "entries" }}
+      </p>
+    </div>
+
     <details class="group mt-5 hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
       <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-black text-slate-700 dark:text-white/75">
         <span>
           Review and manage saved entries
-          <span class="ml-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs tabular-nums text-slate-600 dark:bg-white/10 dark:text-white/55">{{ rows.length }}</span>
+          <span class="ml-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs tabular-nums text-slate-600 dark:bg-white/10 dark:text-white/55">{{ displayRows.length }}</span>
         </span>
         <svg class="h-4 w-4 shrink-0 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>
 
       <div class="border-t border-slate-200 p-3 dark:border-white/10 sm:p-4">
-        <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto_auto]">
-          <select v-model="rangeMode" class="h-11 min-w-0 rounded-lg border px-3 text-sm">
-            <option value="all">All entries</option>
-            <option value="month">This month</option>
-            <option value="week">Last 7 days</option>
-            <option value="today">Today</option>
-          </select>
+        <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
 
       <button
         class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white dark:focus-visible:ring-cyan-200/15"
@@ -269,10 +307,10 @@ function removeRow(index: number) {
       </div>
 
       <div
-        v-if="rows.length === 0"
+        v-if="displayRows.length === 0"
         class="rounded-xl border p-3 text-sm text-gray-500"
       >
-        No rows yet. Click “Add expense”.
+        No entries for {{ selectedMonthLabel }}.
       </div>
     </div>
 
@@ -366,9 +404,9 @@ function removeRow(index: number) {
             </td>
           </tr>
 
-          <tr v-if="rows.length === 0">
+          <tr v-if="displayRows.length === 0">
             <td class="p-3 text-gray-500" colspan="6">
-              No rows yet. Click “Add expense”.
+              No entries for {{ selectedMonthLabel }}.
             </td>
           </tr>
         </tbody>

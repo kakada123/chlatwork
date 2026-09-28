@@ -5,7 +5,7 @@
     <div class="grid grid-cols-1 gap-4">
       <ExpenseTrackerInputCard
         v-model:currency="currency"
-        v-model:range-mode="rangeMode"
+        v-model:selected-month="selectedMonth"
         v-model:rows="rows"
         v-model:raw="raw"
         :copied="copied"
@@ -124,8 +124,9 @@ import {
   buildExpenseBreakdown,
   buildExpenseSummaryLines,
   buildExpenseInsights,
-  collectExpenseItems,
+  collectExpenseItemsForMonth,
   createDefaultBudget,
+  formatExpenseMonthLabel,
   getBudgetPercent,
   getBudgetRemaining,
   getBudgetStatus,
@@ -133,7 +134,7 @@ import {
   getExpenseDailyAverage,
   getExpenseDateSpanDays,
   getExpenseExampleState,
-  getExpenseRangeLabel,
+  getExpenseMonthISO,
   hasCompleteExpenseStoredRows,
   getNetBalance,
   getTopExpenseItems,
@@ -188,6 +189,7 @@ let quickSaveNoticeTimer: ReturnType<typeof setTimeout> | null = null;
 
 const currency = ref<ExpenseCurrency>("USD");
 const rangeMode = ref<ExpenseRangeMode>("month");
+const selectedMonth = ref(getExpenseMonthISO());
 const budget = ref(createDefaultBudget());
 const rows = ref<ExpenseRow[]>([]);
 const raw = ref("");
@@ -212,12 +214,12 @@ function flashCopied(ms = 1500) {
 }
 
 const parsedRowsState = computed(() =>
-  collectExpenseItems(rows.value, rangeMode.value),
+  collectExpenseItemsForMonth(rows.value, selectedMonth.value),
 );
 
 const filteredExpenses = computed(() => parsedRowsState.value.items);
 const error = computed(() => rawError.value || parsedRowsState.value.error);
-const rangeLabel = computed(() => getExpenseRangeLabel(rangeMode.value));
+const rangeLabel = computed(() => formatExpenseMonthLabel(selectedMonth.value));
 const totalSpent = computed(() => getTotalSpent(filteredExpenses.value));
 const totalIncome = computed(() => getTotalIncome(filteredExpenses.value));
 const netBalance = computed(() =>

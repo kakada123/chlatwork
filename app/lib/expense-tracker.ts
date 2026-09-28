@@ -235,6 +235,24 @@ export function startOfMonthISO(now = new Date()): string {
   return `${yyyy}-${mm}-01`;
 }
 
+export function getExpenseMonthISO(now = new Date()): string {
+  return startOfMonthISO(now).slice(0, 7);
+}
+
+export function formatExpenseMonthLabel(month: string): string {
+  const match = /^(\d{4})-(\d{2})$/.exec(month);
+  if (!match) return "Selected month";
+
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  if (monthIndex < 0 || monthIndex > 11) return "Selected month";
+
+  return new Intl.DateTimeFormat("en", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(year, monthIndex, 1));
+}
+
 export function isoToDate(value: string): Date | null {
   const [year, month, day] = (value || "")
     .split("-")
@@ -363,14 +381,14 @@ function filterExpenseItemsByRange(
   }
 
   const today = todayISO(now);
-  const monthStart = startOfMonthISO(now);
+  const currentMonth = getExpenseMonthISO(now);
   const weekStartDate = new Date(now);
   weekStartDate.setDate(now.getDate() - 6);
   const weekStart = todayISO(weekStartDate);
 
   return items.filter((item) => {
     if (rangeMode === "today") return item.date === today;
-    if (rangeMode === "month") return item.date >= monthStart;
+    if (rangeMode === "month") return item.date.startsWith(`${currentMonth}-`);
     if (rangeMode === "week") return item.date >= weekStart;
     return true;
   });
@@ -435,6 +453,22 @@ export function collectExpenseItems(
     items: filterExpenseItemsByRange(parsedItems, rangeMode, now),
     error,
   };
+}
+
+export function collectExpenseItemsForMonth(
+  rows: ExpenseRow[],
+  month: string,
+): {
+  items: ExpenseItem[];
+  error: string;
+} {
+  const monthPrefix = `${month}-`;
+
+  // Validate only visible rows so another month's unfinished draft cannot block this month.
+  return collectExpenseItems(
+    rows.filter((row) => row.date.startsWith(monthPrefix)),
+    "all",
+  );
 }
 
 export function getTotalSpent(items: ExpenseItem[]): number {

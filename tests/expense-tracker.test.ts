@@ -7,6 +7,7 @@ import {
   buildExpenseBreakdown,
   buildExpenseInsights,
   buildExpenseSharePayload,
+  collectExpenseItemsForMonth,
   collectExpenseItems,
   formatExpenseAmount,
   formatExpenseAmountDisplay,
@@ -14,6 +15,7 @@ import {
   getBudgetRemaining,
   getBudgetStatus,
   getExpenseDailyAverage,
+  getExpenseMonthISO,
   hasCompleteExpenseStoredRows,
   getNetBalance,
   getTotalIncome,
@@ -80,6 +82,27 @@ test("totals use decimal-safe cents instead of raw floating point addition", () 
   assert.equal(error, "");
   assert.equal(getTotalSpent(items), 0.3);
   assert.equal(formatExpenseAmount(getTotalSpent(items), "USD"), "$0.30");
+});
+
+test("monthly expense scope includes only the selected calendar month", () => {
+  const rows: ExpenseRow[] = [
+    { ...row("expense", "10"), date: "2026-08-31" },
+    { ...row("expense", "20"), date: "2026-09-01" },
+    { ...row("income", "30", "Salary"), date: "2026-09-30" },
+    { ...row("expense", "40"), date: "2026-10-01" },
+  ];
+
+  assert.equal(getExpenseMonthISO(new Date(2026, 8, 28)), "2026-09");
+  assert.deepEqual(
+    collectExpenseItemsForMonth(rows, "2026-09").items.map((item) => item.date),
+    ["2026-09-01", "2026-09-30"],
+  );
+  assert.deepEqual(
+    collectExpenseItems(rows, "month", new Date(2026, 8, 28)).items.map(
+      (item) => item.date,
+    ),
+    ["2026-09-01", "2026-09-30"],
+  );
 });
 
 test("large amounts use compact display without scientific notation", () => {
@@ -232,6 +255,12 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
 
   assert.match(input, /<QuickExpenseForm/);
   assert.match(input, /Review and manage saved entries/);
+  assert.match(input, /type="month"/);
+  assert.match(input, /v-model="selectedMonth"/);
+  assert.match(input, /row\.date\.startsWith\(`\$\{activeSelectedMonth\.value\}-`\)/);
+  assert.match(input, /Viewing month/);
+  assert.match(input, /v-if="displayRows\.length === 0"/);
+  assert.doesNotMatch(input, /<option value="all">All entries<\/option>/);
   assert.match(input, /<details class="group mt-5 hidden/);
   assert.match(account, /Quick Expense button/);
   assert.match(account, /aria-label="Show Quick Expense button"/);
@@ -242,6 +271,8 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
   assert.match(page, /Expense saved to your account/);
   assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(page, /@quick-add="saveQuickExpenseImmediately"/);
+  assert.match(page, /v-model:selected-month="selectedMonth"/);
+  assert.match(page, /collectExpenseItemsForMonth\(rows\.value, selectedMonth\.value\)/);
   assert.match(page, /canPersistFullState/);
   assert.match(page, /finishInitialStateLoad\(receivedCompleteState\)/);
   assert.match(page, /expectedRowCount: persistedRowCount\.value/);
