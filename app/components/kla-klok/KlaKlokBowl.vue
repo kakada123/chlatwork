@@ -93,19 +93,35 @@ defineProps<{
 
 .kla-bowl-dice {
   position: absolute;
-  right: 8%;
-  bottom: 4.2rem;
-  left: 8%;
+  right: 13%;
+  bottom: 4.15rem;
+  left: 13%;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
   opacity: 1;
-  transform: translateY(0) scale(0.78);
+  transform: translateY(0) scale(1);
   transition:
     opacity 180ms ease 240ms,
     transform 620ms cubic-bezier(0.16, 1, 0.3, 1) 180ms;
+}
+
+.kla-bowl-dice :deep(.kla-die-scene) {
+  --kla-die-size: 3.5rem;
+}
+
+.kla-bowl-dice :deep(.kla-die-scene:nth-child(1)) {
+  transform: translateY(0.3rem) rotate(-4deg);
+}
+
+.kla-bowl-dice :deep(.kla-die-scene:nth-child(2)) {
+  transform: translateY(-0.2rem) rotate(2deg);
+}
+
+.kla-bowl-dice :deep(.kla-die-scene:nth-child(3)) {
+  transform: translateY(0.25rem) rotate(4deg);
 }
 
 .kla-bowl-cover {
@@ -115,18 +131,29 @@ defineProps<{
   left: 7%;
   z-index: 4;
   height: 11.8rem;
-  transform: translate3d(32%, -8.2rem, 0) rotate(13deg) scale(0.82);
+  visibility: hidden;
+  opacity: 0;
+  transform: translate3d(42%, -9.5rem, 0) rotate(16deg) scale(0.78);
   transform-origin: 50% 92%;
-  transition: transform 620ms cubic-bezier(0.22, 0.8, 0.24, 1);
+  transition:
+    transform 620ms cubic-bezier(0.22, 0.8, 0.24, 1),
+    opacity 180ms ease 360ms,
+    visibility 0s linear 620ms;
 }
 
 .kla-bowl-stage--covered .kla-bowl-cover {
+  visibility: visible;
+  opacity: 1;
   transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  transition:
+    transform 420ms cubic-bezier(0.22, 0.8, 0.24, 1),
+    opacity 120ms ease,
+    visibility 0s;
 }
 
 .kla-bowl-stage--covered .kla-bowl-dice {
   opacity: 0;
-  transform: translateY(1.4rem) scale(0.64);
+  transform: translateY(1.4rem) scale(0.8);
   transition-delay: 0ms;
 }
 
@@ -220,21 +247,18 @@ defineProps<{
 }
 
 @keyframes kla-bowl-dice-land {
-  0% { opacity: 0; transform: translateY(-1.2rem) scale(0.64); }
-  70% { opacity: 1; transform: translateY(0.25rem) scale(0.82); }
-  100% { opacity: 1; transform: translateY(0) scale(0.78); }
+  0% { opacity: 0; transform: translateY(-1.2rem) scale(0.78); }
+  70% { opacity: 1; transform: translateY(0.2rem) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @media (min-width: 640px) {
   .kla-bowl-dice {
-    gap: 1rem;
-    transform: translateY(0) scale(0.86);
+    gap: 0.9rem;
   }
 
-  @keyframes kla-bowl-dice-land {
-    0% { opacity: 0; transform: translateY(-1.2rem) scale(0.7); }
-    70% { opacity: 1; transform: translateY(0.25rem) scale(0.9); }
-    100% { opacity: 1; transform: translateY(0) scale(0.86); }
+  .kla-bowl-dice :deep(.kla-die-scene) {
+    --kla-die-size: 4rem;
   }
 }
 

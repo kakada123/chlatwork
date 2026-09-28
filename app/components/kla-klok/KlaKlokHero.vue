@@ -1,7 +1,3 @@
-<script setup lang="ts">
-const heroDice = ["tiger", "gourd", "crab"] as const;
-</script>
-
 <template>
   <section class="relative overflow-hidden px-5 pb-16 pt-12 sm:px-10 sm:pb-20 sm:pt-16 lg:px-16">
     <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
@@ -35,10 +31,12 @@ const heroDice = ["tiger", "gourd", "crab"] as const;
         </div>
       </div>
 
-      <div class="relative mx-auto flex min-h-56 w-full max-w-md items-center justify-center" aria-label="Three Kla Klok dice">
-        <KlaKlokDice class="-mr-3 rotate-[-10deg] sm:-mr-5" :symbol="heroDice[0]" size="hero" />
-        <KlaKlokDice class="relative z-10 -translate-y-6 rotate-[4deg]" :symbol="heroDice[1]" size="hero" />
-        <KlaKlokDice class="-ml-3 rotate-[12deg] sm:-ml-5" :symbol="heroDice[2]" size="hero" />
+      <div class="relative mx-auto min-h-[17rem] w-full max-w-md">
+        <KlaKlokBowl
+          :covered="true"
+          :rolling="false"
+          aria-label="ចានខ្លាឃ្លោកមានគម្រប"
+        />
       </div>
     </div>
 
