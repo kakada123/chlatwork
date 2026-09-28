@@ -1,6 +1,25 @@
 import { TelegramKlaKlokService } from './telegram-kla-klok.service';
 
 describe('TelegramKlaKlokService', () => {
+  it('rejects a bet above the 2,000៛ limit before writing', async () => {
+    const transaction = jest.fn();
+    const service = new TelegramKlaKlokService({
+      $transaction: transaction,
+    } as never);
+
+    await expect(
+      service.confirmBet({
+        gameId: '00000000-0000-4000-8000-000000000001',
+        round: 1,
+        telegramUserId: '123',
+        displayName: 'ដារ៉ា',
+        symbol: 'tiger',
+        amountRiel: 5_000,
+      }),
+    ).rejects.toThrow('ជ្រើសទឹកប្រាក់ក្នុងបញ្ជី។');
+    expect(transaction).not.toHaveBeenCalled();
+  });
+
   it('reports bettors and a bounded list of observed members still waiting', async () => {
     const queryRaw = jest.fn().mockResolvedValue([
       {

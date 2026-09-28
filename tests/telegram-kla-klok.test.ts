@@ -21,12 +21,12 @@ import {
 
 const gameId = "00000000-0000-4000-8000-000000000001";
 
-test("Telegram Kla Klok exposes six symbols and whole-riel stakes from 100៛", () => {
+test("Telegram Kla Klok limits stakes to 2,000៛", () => {
   assert.deepEqual(
     KLA_KLOK_SYMBOLS.map((symbol) => symbol.id),
     ["tiger", "gourd", "rooster", "shrimp", "crab", "fish"],
   );
-  assert.deepEqual(KLA_KLOK_STAKES_RIEL, [100, 500, 1_000, 5_000, 10_000]);
+  assert.deepEqual(KLA_KLOK_STAKES_RIEL, [100, 500, 1_000, 2_000]);
 });
 
 test("round results are zero-sum between members and the dealer", () => {
@@ -312,3 +312,23 @@ test("standalone SQL enforces one open game and one symbol bet per player per ro
     /CHECK \(symbol IN \('tiger', 'gourd', 'rooster', 'shrimp', 'crab', 'fish'\)\)/,
   );
 });
+
+test(
+  "stake-limit SQL preserves old bets while restricting new bets to 2,000៛",
+  () => {
+    const sql = readFileSync(
+      "database/updates/2026-09-28-limit-telegram-kla-klok-stakes.sql",
+      "utf8",
+    );
+
+    assert.match(
+      sql,
+      /DROP CONSTRAINT IF EXISTS telegram_kla_klok_bets_amount_riel_check/,
+    );
+    assert.match(
+      sql,
+      /CHECK \(amount_riel IN \(100, 500, 1000, 2000\)\) NOT VALID/,
+    );
+    assert.doesNotMatch(sql, /VALIDATE CONSTRAINT/);
+  },
+);

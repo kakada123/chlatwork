@@ -19,7 +19,7 @@ export const KLA_KLOK_SYMBOLS = [
   { id: 'fish', code: 'f', labelKm: 'ត្រី', labelEn: 'Fish', glyph: '🐟' },
 ] as const;
 
-export const KLA_KLOK_STAKES_RIEL = [100, 500, 1_000, 5_000, 10_000] as const;
+export const KLA_KLOK_STAKES_RIEL = [100, 500, 1_000, 2_000] as const;
 export const KLA_KLOK_MAX_PLAYERS = 20;
 
 export type TelegramKlaKlokSymbol = (typeof KLA_KLOK_SYMBOLS)[number]['id'];
