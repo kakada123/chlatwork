@@ -1,6 +1,28 @@
 import { TelegramKlaKlokService } from './telegram-kla-klok.service';
 
 describe('TelegramKlaKlokService', () => {
+  it('reports bettors and a bounded list of observed members still waiting', async () => {
+    const queryRaw = jest.fn().mockResolvedValue([
+      {
+        playerCount: 3,
+        waitingCount: 4,
+        waitingNames: ['ដារ៉ា', 'សុខា'],
+        dealerNetRiel: -12_000n,
+      },
+    ]);
+    const service = new TelegramKlaKlokService({ $queryRaw: queryRaw } as never);
+
+    await expect(
+      service.getRoundStatus('00000000-0000-4000-8000-000000000001', 2),
+    ).resolves.toEqual({
+      playerCount: 3,
+      waitingCount: 4,
+      waitingNames: ['ដារ៉ា', 'សុខា'],
+      dealerNetRiel: -12_000n,
+    });
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
+
   it('ends an open game without counting confirmed bets that were never rolled', async () => {
     const gameId = '00000000-0000-4000-8000-000000000001';
     const openGame = {
@@ -42,7 +64,7 @@ describe('TelegramKlaKlokService', () => {
 
     expect(settlement.game.status).toBe('ENDED');
     expect(settlement.rounds).toBe(0);
-    expect(settlement.text).toContain('No payments');
+    expect(settlement.text).toContain('មិនបាច់ទូទាត់');
     expect(
       queryRaw.mock.calls.some(([strings]) =>
         (strings as unknown as TemplateStringsArray)

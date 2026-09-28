@@ -7,6 +7,8 @@ import {
   KLA_KLOK_SYMBOLS,
   buildKlaKlokBoardText,
   buildKlaKlokDealerKeyboard,
+  buildKlaKlokDealerText,
+  buildKlaKlokEndKeyboard,
   buildKlaKlokGroupKeyboard,
   buildKlaKlokRoundMessage,
   buildKlaKlokStakeKeyboard,
@@ -75,12 +77,12 @@ test("round results are zero-sum between members and the dealer", () => {
   );
 });
 
-test("round result keeps the bilingual outcome compact and easy to scan", () => {
+test("round result is short, fun, and fully Khmer", () => {
   const result = calculateKlaKlokTelegramRound(
     [
       {
         telegramUserId: "101",
-        displayName: "Chhom Phea",
+        displayName: "ភា",
         symbol: "tiger",
         amountRiel: 5_000n,
       },
@@ -89,25 +91,25 @@ test("round result keeps the bilingual outcome compact and easy to scan", () => 
   );
 
   assert.equal(
-    buildKlaKlokRoundMessage(2, "Kakada Ngen", result),
+    buildKlaKlokRoundMessage(2, "កក្កដា", result),
     [
-      "🎲 ជុំទី 2 · Round 2",
+      "🎲 លទ្ធផលជុំទី 2",
       "🐯 ខ្លា • 🎃 ឃ្លោក • 🐟 ត្រី",
-      "💰 សរុប · Total: 5,000៛",
+      "💰 សរុប៖ 5,000៛",
       "",
-      "🏆 Chhom Phea: +5,000៛",
-      "🔻 មេ · Dealer Kakada Ngen: -5,000៛",
+      "🏆 ភា៖ +5,000៛",
+      "🔻 មេ កក្កដា៖ -5,000៛",
     ].join("\n"),
   );
 });
 
 test("final settlement stays compact and states only dealer-to-member transfers", () => {
   const settlement = summarizeKlaKlokSettlement(
-    "Meeh Vanna",
+    "វណ្ណា",
     [
-      { telegramUserId: "101", displayName: "Dara", netRiel: 600n },
-      { telegramUserId: "202", displayName: "Sokha", netRiel: -200n },
-      { telegramUserId: "303", displayName: "Nary", netRiel: 0n },
+      { telegramUserId: "101", displayName: "ដារ៉ា", netRiel: 600n },
+      { telegramUserId: "202", displayName: "សុខា", netRiel: -200n },
+      { telegramUserId: "303", displayName: "ណារី", netRiel: 0n },
     ],
     3,
   );
@@ -116,20 +118,21 @@ test("final settlement stays compact and states only dealer-to-member transfers"
   assert.equal(
     settlement.text,
     [
-      "🏁 សរុបចុងក្រោយ · Final (3 rounds)",
+      "🏁 ចប់ហើយ! 3 ជុំ",
       "",
-      "💸 Meeh Vanna → Dara: 600៛",
-      "💸 Sokha → Meeh Vanna: 200៛",
-      "💰 មេ · Dealer: -400៛",
+      "💸 វណ្ណា → ដារ៉ា៖ 600៛",
+      "💸 សុខា → វណ្ណា៖ 200៛",
+      "💰 មេ៖ -400៛",
     ].join("\n"),
   );
-  assert.doesNotMatch(settlement.text, /Nary/);
+  assert.doesNotMatch(settlement.text, /ណារី/);
 });
 
 test("group buttons contain no dealer controls and callbacks stay below Telegram's limit", () => {
   const groupKeyboard = buildKlaKlokGroupKeyboard(gameId, 12);
   const dealerKeyboard = buildKlaKlokDealerKeyboard(gameId, 12);
   const stakeKeyboard = buildKlaKlokStakeKeyboard(gameId, 12, "tiger", "2n9c");
+  const endKeyboard = buildKlaKlokEndKeyboard(gameId, "2n9c");
   const groupLabels = groupKeyboard.inline_keyboard
     .flat()
     .map((button) => button.text);
@@ -138,34 +141,72 @@ test("group buttons contain no dealer controls and callbacks stay below Telegram
     .map((button) => button.text);
 
   assert.equal(
-    groupLabels.some((label) => /roll|end/i.test(label)),
+    groupLabels.some((label) => /ក្រឡុក|បញ្ចប់/.test(label)),
     false,
   );
   assert.equal(
-    dealerLabels.some((label) => /roll/i.test(label)),
+    dealerLabels.some((label) => /ក្រឡុក/.test(label)),
     true,
   );
   assert.equal(
-    dealerLabels.some((label) => /end/i.test(label)),
+    dealerLabels.some((label) => /បញ្ចប់/.test(label)),
     true,
   );
 
-  for (const keyboard of [groupKeyboard, dealerKeyboard, stakeKeyboard]) {
+  for (const keyboard of [
+    groupKeyboard,
+    dealerKeyboard,
+    stakeKeyboard,
+    endKeyboard,
+  ]) {
     for (const button of keyboard.inline_keyboard.flat()) {
       assert.ok((button.callback_data?.length ?? 0) <= 64);
+      assert.doesNotMatch(button.text, /[A-Za-z]/);
     }
   }
-  assert.match(stakeKeyboard.inline_keyboard[0]![0]!.text, /Confirm 100៛/);
+  assert.equal(stakeKeyboard.inline_keyboard[0]![0]!.text, "✅ 100៛");
 });
 
 test("group betting board is short and immediately actionable", () => {
   assert.equal(
-    buildKlaKlokBoardText({ dealerDisplayName: "Kakada Ngen", round: 2 }),
+    buildKlaKlokBoardText({ dealerDisplayName: "កក្កដា", round: 2 }),
     [
-      "🎲 ខ្លាឃ្លោក · Round 2",
-      "🎛 មេ · Dealer: Kakada Ngen",
-      "👇 ជ្រើសរើសរូប · Pick a symbol",
+      "🎲 ខ្លាឃ្លោក • ជុំទី 2",
+      "🎛 មេ៖ កក្កដា",
+      "👇 ចុចរូបដែលចង់ចាក់",
     ].join("\n"),
+  );
+
+  assert.equal(
+    buildKlaKlokDealerText({
+      groupTitle: "ក្រុមសប្បាយ",
+      round: 2,
+      playerCount: 3,
+      waitingNames: ["ដារ៉ា", "សុខា"],
+      waitingCount: 4,
+      dealerNetRiel: -12_000n,
+    }),
+    [
+      "🎛 ផ្ទាំងមេ",
+      "ក្រុម៖ ក្រុមសប្បាយ",
+      "ជុំទី 2 កំពុងលេង",
+      "✅ ចាក់ហើយ៖ 3 នាក់",
+      "⏳ មិនទាន់៖ ដារ៉ា, សុខា +2 នាក់",
+      "😅 មេចាញ់សរុប៖ 12,000៛",
+      "",
+      "ត្រៀមហើយ? ចុចក្រឡុក! 🎲",
+    ].join("\n"),
+  );
+  assert.match(
+    buildKlaKlokDealerText({
+      groupTitle: "ក្រុមសប្បាយ",
+      round: 3,
+      playerCount: 0,
+      waitingNames: [],
+      waitingCount: 0,
+      dealerNetRiel: 5_000n,
+    }),
+    /⏳ មិនទាន់មានអ្នកចាក់[\s\S]*🤑 មេឈ្នះសរុប៖ 5,000៛/,
   );
 });
 
@@ -208,6 +249,39 @@ test("Telegram service routes Kla Klok commands and callbacks through its own fe
   assert.match(service, /handleKlaKlokCallback/);
   assert.match(module, /TelegramKlaKlokService/);
   assert.match(catalog, /'kla-klok': 'Kla Klok group game'/);
+});
+
+test("Telegram Kla Klok user-facing service copy is Khmer", () => {
+  const botService = readFileSync(
+    "api/src/telegram-bot/telegram-bot.service.ts",
+    "utf8",
+  );
+  const gameService = readFileSync(
+    "api/src/telegram-bot/telegram-kla-klok.service.ts",
+    "utf8",
+  );
+
+  for (const oldCopy of [
+    "Kla Klok is temporarily unavailable.",
+    "This Kla Klok action is invalid.",
+    "The dealer cannot place a bet.",
+    "Bet confirmed.",
+    "Bet cancelled.",
+    "Only the dealer can use this control.",
+    "A Kla Klok game is already open in this group.",
+    "This Kla Klok round is closed.",
+    "Wait for at least one confirmed bet before rolling.",
+  ]) {
+    assert.doesNotMatch(botService, new RegExp(oldCopy.replaceAll(".", "\\.")));
+    assert.doesNotMatch(gameService, new RegExp(oldCopy.replaceAll(".", "\\.")));
+  }
+
+  assert.match(botService, /ចាក់រួច! 🎉/);
+  assert.match(botService, /ហ៊ានចាក់ប៉ុន្មាន\? 😏/);
+  assert.match(botService, /បើកល្បែងខ្លាឃ្លោក ជាមេល្បែង/);
+  assert.match(botService, /getRoundStatus/);
+  assert.match(botService, /dealerMessageId/);
+  assert.match(gameService, /ជុំនេះបិទហើយ/);
 });
 
 test("Telegram Kla Klok executes advisory locks without deserializing PostgreSQL void", () => {

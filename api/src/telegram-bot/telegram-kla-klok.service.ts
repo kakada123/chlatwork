@@ -51,6 +51,13 @@ type RoundRow = {
   resultMessageId: number | null;
 };
 
+type RoundStatusRow = {
+  playerCount: number;
+  waitingCount: number;
+  waitingNames: string[];
+  dealerNetRiel: bigint;
+};
+
 export type TelegramKlaKlokGame = {
   id: string;
   telegramChatId: number;
@@ -97,9 +104,7 @@ export class TelegramKlaKlokService {
         LIMIT 1
       `;
       if (existing.length) {
-        throw new ConflictException(
-          'A Kla Klok game is already open in this group.',
-        );
+        throw new ConflictException('មានល្បែងខ្លាឃ្លោកកំពុងលេងហើយ 🎲');
       }
 
       const id = randomUUID();
@@ -119,7 +124,7 @@ export class TelegramKlaKlokService {
           dealer_message_id AS "dealerMessageId", summary_message_id AS "summaryMessageId"
       `;
       if (!created)
-        throw new NotFoundException('Kla Klok game could not be created.');
+        throw new NotFoundException('បើកល្បែងមិនបាន 😵');
       return toGame(created);
     });
   }
@@ -165,16 +170,62 @@ export class TelegramKlaKlokService {
       FROM telegram_kla_klok_games WHERE id = ${gameId}::uuid
     `;
     if (!game)
-      throw new NotFoundException('This Kla Klok game is unavailable.');
+      throw new NotFoundException('រកល្បែងនេះមិនឃើញទេ។');
     return toGame(game);
   }
 
   async requireOpenRound(gameId: string, round: number) {
     const game = await this.getGame(gameId);
     if (game.status !== 'OPEN' || game.currentRound !== round) {
-      throw new GoneException('This Kla Klok round is closed.');
+      throw new GoneException('ជុំនេះបិទហើយ។');
     }
     return game;
+  }
+
+  async getRoundStatus(gameId: string, round: number) {
+    const [status] = await this.prisma.$queryRaw<RoundStatusRow[]>`
+      SELECT
+        (
+          SELECT COUNT(DISTINCT bet.telegram_user_id)::int
+          FROM telegram_kla_klok_bets bet
+          WHERE bet.game_id = game.id AND bet.round_number = ${round}
+        ) AS "playerCount",
+        (
+          SELECT COUNT(*)::int
+          FROM telegram_group_members member
+          WHERE member.telegram_chat_id = game.telegram_chat_id
+            AND member.is_active = TRUE
+            AND member.telegram_user_id <> game.dealer_telegram_user_id
+            AND NOT EXISTS (
+              SELECT 1 FROM telegram_kla_klok_bets bet
+              WHERE bet.game_id = game.id AND bet.round_number = ${round}
+                AND bet.telegram_user_id = member.telegram_user_id
+            )
+        ) AS "waitingCount",
+        ARRAY(
+          SELECT member.display_name
+          FROM telegram_group_members member
+          WHERE member.telegram_chat_id = game.telegram_chat_id
+            AND member.is_active = TRUE
+            AND member.telegram_user_id <> game.dealer_telegram_user_id
+            AND NOT EXISTS (
+              SELECT 1 FROM telegram_kla_klok_bets bet
+              WHERE bet.game_id = game.id AND bet.round_number = ${round}
+                AND bet.telegram_user_id = member.telegram_user_id
+            )
+          ORDER BY member.display_name, member.telegram_user_id
+          LIMIT 8
+        ) AS "waitingNames",
+        (
+          SELECT COALESCE(SUM(result.dealer_net_riel), 0)::bigint
+          FROM telegram_kla_klok_rounds result
+          WHERE result.game_id = game.id
+        ) AS "dealerNetRiel"
+      FROM telegram_kla_klok_games game
+      WHERE game.id = ${gameId}::uuid
+    `;
+    if (!status) throw new NotFoundException('រកល្បែងនេះមិនឃើញទេ។');
+    return status;
   }
 
   async confirmBet(input: {
@@ -188,18 +239,16 @@ export class TelegramKlaKlokService {
     if (
       !(KLA_KLOK_STAKES_RIEL as readonly number[]).includes(input.amountRiel)
     ) {
-      throw new BadRequestException(
-        'Choose one of the available riel amounts.',
-      );
+      throw new BadRequestException('ជ្រើសទឹកប្រាក់ក្នុងបញ្ជី។');
     }
 
     return this.prisma.$transaction(async (tx) => {
       const game = await this.lockGame(tx, input.gameId);
       if (game.status !== 'OPEN' || game.currentRound !== input.round) {
-        throw new GoneException('This Kla Klok round is closed.');
+        throw new GoneException('ជុំនេះបិទហើយ។');
       }
       if (game.dealerTelegramUserId === input.telegramUserId) {
-        throw new BadRequestException('The dealer cannot place a bet.');
+        throw new BadRequestException('មេល្បែងមិនអាចចាក់បានទេ 😄');
       }
 
       const [counts] = await tx.$queryRaw<
@@ -216,7 +265,7 @@ export class TelegramKlaKlokService {
         !counts?.alreadyJoined
       ) {
         throw new BadRequestException(
-          `This round already has ${KLA_KLOK_MAX_PLAYERS} players.`,
+          `ជុំនេះពេញ ${KLA_KLOK_MAX_PLAYERS} នាក់ហើយ។`,
         );
       }
 
@@ -249,7 +298,7 @@ export class TelegramKlaKlokService {
         return this.loadStoredRound(tx, game, expectedRound);
       }
       if (game.status !== 'OPEN' || expectedRound !== game.currentRound) {
-        throw new GoneException('This Kla Klok round is closed.');
+        throw new GoneException('ជុំនេះបិទហើយ។');
       }
 
       const bets = await tx.$queryRaw<BetRow[]>`
@@ -262,9 +311,7 @@ export class TelegramKlaKlokService {
         ORDER BY created_at, id
       `;
       if (!bets.length) {
-        throw new BadRequestException(
-          'Wait for at least one confirmed bet before rolling.',
-        );
+        throw new BadRequestException('រង់ចាំឱ្យមានអ្នកចាក់មុនសិន 😄');
       }
 
       const dice = rollTelegramKlaKlokDice();
@@ -298,7 +345,7 @@ export class TelegramKlaKlokService {
           current_round AS "currentRound", group_message_id AS "groupMessageId",
           dealer_message_id AS "dealerMessageId", summary_message_id AS "summaryMessageId"
       `;
-      if (!updated) throw new GoneException('This Kla Klok round is closed.');
+      if (!updated) throw new GoneException('ជុំនេះបិទហើយ។');
       return {
         game: toGame(updated),
         roundNumber: expectedRound,
@@ -322,7 +369,7 @@ export class TelegramKlaKlokService {
       let game = await this.lockGame(tx, gameId);
       this.requireDealer(game, dealerTelegramUserId);
       if (game.status === 'CANCELLED') {
-        throw new GoneException('This Kla Klok game is closed.');
+        throw new GoneException('ល្បែងនេះចប់ហើយ។');
       }
       if (game.status === 'OPEN') {
         const [ended] = await tx.$queryRaw<GameRow[]>`
@@ -385,13 +432,13 @@ export class TelegramKlaKlokService {
       FROM telegram_kla_klok_games WHERE id = ${gameId}::uuid FOR UPDATE
     `;
     if (!game)
-      throw new NotFoundException('This Kla Klok game is unavailable.');
+      throw new NotFoundException('រកល្បែងនេះមិនឃើញទេ។');
     return game;
   }
 
   private requireDealer(game: GameRow, telegramUserId: string) {
     if (game.dealerTelegramUserId !== telegramUserId) {
-      throw new UnauthorizedException('Only the dealer can use this control.');
+      throw new UnauthorizedException('ប៊ូតុងនេះសម្រាប់មេល្បែងប៉ុណ្ណោះ។');
     }
   }
 
@@ -407,7 +454,7 @@ export class TelegramKlaKlokService {
       FROM telegram_kla_klok_rounds
       WHERE game_id = ${game.id}::uuid AND round_number = ${roundNumber}
     `;
-    if (!round) throw new GoneException('This Kla Klok round is closed.');
+    if (!round) throw new GoneException('ជុំនេះបិទហើយ។');
     const bets = await tx.$queryRaw<BetRow[]>`
       SELECT id::text, telegram_user_id AS "telegramUserId",
         display_name AS "displayName", symbol, amount_riel AS "amountRiel",
@@ -434,15 +481,13 @@ export class TelegramKlaKlokService {
 function toGame(row: GameRow): TelegramKlaKlokGame {
   const telegramChatId = Number(row.telegramChatId);
   if (!Number.isSafeInteger(telegramChatId)) {
-    throw new BadRequestException(
-      'Telegram group ID is outside the supported range.',
-    );
+    throw new BadRequestException('ក្រុមនេះមិនអាចលេងបានទេ។');
   }
   return { ...row, telegramChatId };
 }
 
 function cleanText(value: string, maxLength: number) {
   return (
-    value.trim().replace(/\s+/g, ' ').slice(0, maxLength) || 'Telegram group'
+    value.trim().replace(/\s+/g, ' ').slice(0, maxLength) || 'ក្រុម Telegram'
   );
 }

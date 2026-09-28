@@ -169,13 +169,13 @@ export function buildKlaKlokStakeKeyboard(
   const symbolCode = requireSymbol(symbol).code;
   const gameToken = uuidToGameToken(gameId);
   const stakeButtons = KLA_KLOK_STAKES_RIEL.map((amount) => ({
-    text: `Confirm ${formatRiel(amount)}៛`,
+    text: `✅ ${formatRiel(amount)}៛`,
     callback_data: `kk:b:${gameToken}:${round.toString(36)}:${symbolCode}:${amount}:${userToken}`,
   }));
   return {
     inline_keyboard: [
       ...chunk(stakeButtons, 2),
-      [{ text: 'Cancel', callback_data: `kk:n:${gameToken}:${userToken}` }],
+      [{ text: '❌ បោះបង់', callback_data: `kk:n:${gameToken}:${userToken}` }],
     ],
   };
 }
@@ -189,11 +189,11 @@ export function buildKlaKlokDealerKeyboard(
     inline_keyboard: [
       [
         {
-          text: `🎲 Roll round ${round}`,
+          text: `🎲 ក្រឡុកជុំទី ${round}`,
           callback_data: `kk:r:${gameToken}:${round.toString(36)}`,
         },
       ],
-      [{ text: '🏁 End game', callback_data: `kk:e:${gameToken}` }],
+      [{ text: '🏁 បញ្ចប់', callback_data: `kk:e:${gameToken}` }],
     ],
   };
 }
@@ -207,11 +207,11 @@ export function buildKlaKlokEndKeyboard(
     inline_keyboard: [
       [
         {
-          text: 'Yes, end and summarize',
+          text: '✅ បញ្ចប់',
           callback_data: `kk:ey:${gameToken}:${userToken}`,
         },
         {
-          text: 'Keep playing',
+          text: '🎮 លេងបន្ត',
           callback_data: `kk:en:${gameToken}:${userToken}`,
         },
       ],
@@ -224,22 +224,48 @@ export function buildKlaKlokBoardText(input: {
   round: number;
 }) {
   return [
-    `🎲 ខ្លាឃ្លោក · Round ${input.round}`,
-    `🎛 មេ · Dealer: ${cleanDisplayName(input.dealerDisplayName)}`,
-    '👇 ជ្រើសរើសរូប · Pick a symbol',
+    `🎲 ខ្លាឃ្លោក • ជុំទី ${input.round}`,
+    `🎛 មេ៖ ${cleanDisplayName(input.dealerDisplayName)}`,
+    '👇 ចុចរូបដែលចង់ចាក់',
   ].join('\n');
 }
 
 export function buildKlaKlokDealerText(input: {
   groupTitle: string;
   round: number;
+  playerCount: number;
+  waitingCount: number;
+  waitingNames: readonly string[];
+  dealerNetRiel: bigint;
 }) {
+  const visibleWaitingNames = input.waitingNames
+    .slice(0, 8)
+    .map(cleanDisplayName);
+  const hiddenWaitingCount = Math.max(
+    0,
+    input.waitingCount - visibleWaitingNames.length,
+  );
+  const waitingText = input.waitingCount
+    ? `⏳ មិនទាន់៖ ${visibleWaitingNames.join(', ')}${hiddenWaitingCount ? ` +${hiddenWaitingCount} នាក់` : ''}`
+    : input.playerCount
+      ? '🎉 អ្នកដែលបុតស្គាល់ ចាក់រួចអស់ហើយ!'
+      : '⏳ មិនទាន់មានអ្នកចាក់';
+  const dealerText =
+    input.dealerNetRiel > 0n
+      ? `🤑 មេឈ្នះសរុប៖ ${formatRiel(input.dealerNetRiel)}៛`
+      : input.dealerNetRiel < 0n
+        ? `😅 មេចាញ់សរុប៖ ${formatRiel(-input.dealerNetRiel)}៛`
+        : '➖ មេនៅស្មើ 0៛';
+
   return [
-    '🎛 Kla Klok dealer controls',
-    `Group: ${cleanDisplayName(input.groupTitle)}`,
-    `Open round: ${input.round}`,
+    '🎛 ផ្ទាំងមេ',
+    `ក្រុម៖ ${cleanDisplayName(input.groupTitle)}`,
+    `ជុំទី ${input.round} កំពុងលេង`,
+    `✅ ចាក់ហើយ៖ ${input.playerCount} នាក់`,
+    waitingText,
+    dealerText,
     '',
-    'Roll when ready. Ending excludes unrolled bets.',
+    'ត្រៀមហើយ? ចុចក្រឡុក! 🎲',
   ].join('\n');
 }
 
@@ -255,14 +281,14 @@ export function buildKlaKlokRoundMessage(
     })
     .join(' • ');
   return [
-    `🎲 ជុំទី ${round} · Round ${round}`,
+    `🎲 លទ្ធផលជុំទី ${round}`,
     diceText,
-    `💰 សរុប · Total: ${formatRiel(result.totalStakeRiel)}៛`,
+    `💰 សរុប៖ ${formatRiel(result.totalStakeRiel)}៛`,
     '',
     ...result.players.map((player) =>
       formatRoundNet(player.displayName, player.netRiel),
     ),
-    formatRoundNet(dealerDisplayName, result.dealerNetRiel, 'មេ · Dealer '),
+    formatRoundNet(dealerDisplayName, result.dealerNetRiel, 'មេ '),
   ].join('\n');
 }
 
@@ -279,16 +305,16 @@ export function summarizeKlaKlokSettlement(
   );
   const transfers = nonZeroPlayers.map((player) =>
     player.netRiel > 0n
-      ? `💸 ${dealer} → ${cleanDisplayName(player.displayName)}: ${formatRiel(player.netRiel)}៛`
-      : `💸 ${cleanDisplayName(player.displayName)} → ${dealer}: ${formatRiel(-player.netRiel)}៛`,
+      ? `💸 ${dealer} → ${cleanDisplayName(player.displayName)}៖ ${formatRiel(player.netRiel)}៛`
+      : `💸 ${cleanDisplayName(player.displayName)} → ${dealer}៖ ${formatRiel(-player.netRiel)}៛`,
   );
   return {
     dealerNetRiel,
     text: [
-      `🏁 សរុបចុងក្រោយ · Final (${rounds} round${rounds === 1 ? '' : 's'})`,
+      `🏁 ចប់ហើយ! ${rounds} ជុំ`,
       '',
-      ...(transfers.length ? transfers : ['➖ មិនមានការទូទាត់ · No payments']),
-      `💰 មេ · Dealer: ${formatSignedRiel(dealerNetRiel)}`,
+      ...(transfers.length ? transfers : ['➖ ស្មើគ្នា មិនបាច់ទូទាត់ 😄']),
+      `💰 មេ៖ ${formatSignedRiel(dealerNetRiel)}`,
     ].join('\n'),
   };
 }
@@ -421,11 +447,11 @@ function formatRiel(value: number | bigint) {
 
 function formatRoundNet(displayName: string, value: bigint, role = '') {
   const marker = value > 0n ? '🏆' : value < 0n ? '🔻' : '➖';
-  return `${marker} ${role}${cleanDisplayName(displayName)}: ${formatSignedRiel(value)}`;
+  return `${marker} ${role}${cleanDisplayName(displayName)}៖ ${formatSignedRiel(value)}`;
 }
 
 function cleanDisplayName(value: string) {
-  return value.trim().replace(/\s+/g, ' ').slice(0, 80) || 'Telegram member';
+  return value.trim().replace(/\s+/g, ' ').slice(0, 80) || 'សមាជិក';
 }
 
 function chunk<T>(values: readonly T[], size: number): T[][] {
