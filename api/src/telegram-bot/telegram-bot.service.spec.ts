@@ -222,13 +222,14 @@ describe('Telegram group vote updates', () => {
     };
     const moments = {
       respondToTelegramVote: jest.fn().mockResolvedValue(poll),
+      getTelegramVoteRound: jest.fn(),
       getTelegramVotingMoment: jest.fn().mockResolvedValue(poll),
     };
     const bot = {
       answerCallback: jest.fn(),
       editMessage: jest.fn(),
       editInlineMessage: jest.fn(),
-      sendMessage: jest.fn(),
+      sendMessage: jest.fn().mockResolvedValue({ message_id: 12 }),
       deleteMessage: jest.fn().mockResolvedValue(true),
     };
     const service = new TelegramBotService(
@@ -247,24 +248,29 @@ describe('Telegram group vote updates', () => {
     return { prisma, poll, moments, bot, service, callback };
   }
 
-  it('asks the voter to confirm before recording a group vote', async () => {
+  it('records a group vote on the first button press', async () => {
     const { service, bot, callback, poll, moments } = setup();
     await service.handleUpdate({
       update_id: 1,
       callback_query: { ...callback, data: `poll:vote:${poll.id}:option-1`, message: { message_id: 10, chat } },
     });
-    expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
-    expect(bot.sendMessage).toHaveBeenCalledWith(
+    expect(moments.respondToTelegramVote).toHaveBeenCalledWith(
+      poll.id,
+      'option-1',
+      expect.objectContaining({ telegramUserId: '123', displayName: 'Sokha' }),
+    );
+    expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'Vote saved.');
+    expect(bot.sendMessage).not.toHaveBeenCalledWith(
       chat.id,
-      expect.stringContaining('Pizza'),
-      expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+      expect.stringContaining('Sure you want to vote'),
+      expect.anything(),
       undefined,
       10,
     );
   });
 
-  it('allows a later added choice to reach the Telegram confirmation', async () => {
-    const { service, bot, callback, poll } = setup();
+  it('records a vote for a later added choice on the first button press', async () => {
+    const { service, callback, poll, moments } = setup();
     poll.results.push({ optionId: 'option-15', label: 'Noodles', votes: 0 });
     await service.handleUpdate({
       update_id: 1,
@@ -274,12 +280,37 @@ describe('Telegram group vote updates', () => {
         message: { message_id: 10, chat },
       },
     });
-    expect(bot.sendMessage).toHaveBeenCalledWith(
-      chat.id,
-      expect.stringContaining('Noodles'),
-      expect.objectContaining({ inline_keyboard: expect.any(Array) }),
-      undefined,
-      10,
+    expect(moments.respondToTelegramVote).toHaveBeenCalledWith(
+      poll.id,
+      'option-15',
+      expect.objectContaining({ telegramUserId: '123' }),
+    );
+  });
+
+  it('records an active group-round vote on the first button press', async () => {
+    const { service, callback, poll, moments } = setup();
+    const roundId = '00000000-0000-4000-8000-000000000002';
+    moments.getTelegramVoteRound.mockResolvedValue({
+      id: roundId,
+      momentId: poll.id,
+      telegramChatId: BigInt(chat.id),
+    });
+    Object.assign(poll, { roundId });
+
+    await service.handleUpdate({
+      update_id: 1,
+      callback_query: {
+        ...callback,
+        data: `poll:cast:${roundId}:option-1`,
+        message: { message_id: 10, chat },
+      },
+    });
+
+    expect(moments.respondToTelegramVote).toHaveBeenCalledWith(
+      poll.id,
+      'option-1',
+      expect.objectContaining({ telegramUserId: '123' }),
+      roundId,
     );
   });
 
@@ -386,7 +417,7 @@ describe('Telegram group vote updates', () => {
     expect(bot.sendMessage.mock.calls[0]?.[3]).toEqual([]);
   });
 
-  it('does not cast an inline vote without confirmation', async () => {
+  it('records an inline vote on the first button press', async () => {
     const { service, bot, callback, moments, poll } = setup();
     await service.handleUpdate({
       update_id: 1,
@@ -397,21 +428,35 @@ describe('Telegram group vote updates', () => {
         inline_message_id: 'inline-1',
       },
     });
-    expect(bot.editInlineMessage).not.toHaveBeenCalled();
-    expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+    expect(moments.respondToTelegramVote).toHaveBeenCalledWith(
+      poll.id,
+      'option-1',
+      expect.objectContaining({ telegramUserId: '123' }),
+    );
+    expect(bot.editInlineMessage).toHaveBeenCalledWith(
+      'inline-1',
+      expect.stringContaining('Team lunch'),
+      expect.objectContaining({ inline_keyboard: expect.any(Array) }),
+    );
     expect(bot.sendMessage).not.toHaveBeenCalled();
     expect(bot.deleteMessage).not.toHaveBeenCalled();
   });
 
-  it('keeps private poll callbacks in place', async () => {
-    const { service, prisma, bot, callback } = setup();
-    callback.message.chat = { id: 123, type: 'private' };
-    callback.message.reply_to_message.chat = callback.message.chat;
-    await service.handleUpdate({ update_id: 1, callback_query: callback });
+  it('updates a private poll in place on the first button press', async () => {
+    const { service, prisma, bot, callback, poll } = setup();
+    const privateChat = { id: 123, type: 'private' };
+    await service.handleUpdate({
+      update_id: 1,
+      callback_query: {
+        ...callback,
+        data: `poll:vote:${poll.id}:option-1`,
+        message: { message_id: 10, chat: privateChat },
+      },
+    });
     expect(prisma.$executeRaw).not.toHaveBeenCalled();
     expect(bot.editMessage).toHaveBeenCalledTimes(1);
     expect(bot.sendMessage).not.toHaveBeenCalled();
-    expect(bot.deleteMessage).toHaveBeenCalledWith(123, 11);
+    expect(bot.deleteMessage).not.toHaveBeenCalled();
   });
 
   it('does not repost rejected votes or replayed webhook updates', async () => {

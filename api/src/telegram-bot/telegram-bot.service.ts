@@ -1048,21 +1048,21 @@ export class TelegramBotService {
 
   private async handlePollVote(callback: TelegramCallbackQuery, data: string) {
     if (!this.isValidPollCallback(callback)) return;
-    const confirmation = data.startsWith('pv:y:');
+    const legacyConfirmation = data.startsWith('pv:y:');
     const parts = data.split(':');
-    const action = confirmation
+    const action = legacyConfirmation
       ? parts[2] === 'c'
         ? 'cast'
         : parts[2] === 'v'
           ? 'vote'
           : ''
       : parts[1];
-    const momentId = confirmation
+    const momentId = legacyConfirmation
       ? parts[3]?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5')
       : parts[2];
-    const optionId = confirmation ? parts[4] : parts[3];
+    const optionId = legacyConfirmation ? parts[4] : parts[3];
     if (
-      (confirmation
+      (legacyConfirmation
         ? parts.length !== 6 || parts[5] !== BigInt(callback.from.id).toString(36)
         : parts[0] !== 'poll' || parts.length !== 4) ||
       !['vote', 'cast'].includes(action) ||
@@ -1076,63 +1076,20 @@ export class TelegramBotService {
       return;
     }
 
-    if (!confirmation) {
-      if (!callback.message) {
-        await this.bot.answerCallback(callback.id, 'Open the Moment page to confirm your vote.');
+    // Keep already-delivered confirmation buttons valid across deployment.
+    const pollMessage = legacyConfirmation
+      ? callback.message?.reply_to_message
+      : callback.message;
+    if (!pollMessage) {
+      if (legacyConfirmation || !callback.inline_message_id) {
+        await this.bot.answerCallback(
+          callback.id,
+          legacyConfirmation
+            ? 'This vote confirmation has expired.'
+            : 'This poll is unavailable.',
+        );
         return;
       }
-      try {
-        const round = action === 'cast'
-          ? await this.moments.getTelegramVoteRound(momentId!)
-          : null;
-        if (round && round.telegramChatId !== BigInt(callback.message.chat.id)) {
-          throw new BadRequestException('This poll belongs to another group.');
-        }
-        const poll = round
-          ? await this.moments.getTelegramVoteRoundResults(round.id)
-          : await this.moments.getTelegramVotingMoment(momentId!);
-        const option = poll.results.find((result) => result.optionId === optionId);
-        if (!option || poll.closed) {
-          throw new GoneException('This poll is unavailable.');
-        }
-        const compactId = momentId!.replace(/-/g, '');
-        const voterId = BigInt(callback.from.id).toString(36);
-        const confirmData = `pv:y:${action === 'cast' ? 'c' : 'v'}:${compactId}:${optionId}:${voterId}`;
-        if (confirmData.length > 64) {
-          throw new BadRequestException('Poll choice is invalid.');
-        }
-        await this.bot.sendMessage(
-          callback.message.chat.id,
-          `ប្រាកដថាចង់បោះឆ្នោតឱ្យ “${option.label}” មែនទេ?\nSure you want to vote for “${option.label}”?`,
-          {
-            inline_keyboard: [[
-              { text: 'Yes, vote', callback_data: confirmData },
-              { text: 'Cancel', callback_data: `pv:n:${voterId}` },
-            ]],
-          },
-          undefined,
-          callback.message.message_id,
-        );
-        await this.bot.answerCallback(callback.id);
-      } catch (error) {
-        if (
-          error instanceof NotFoundException ||
-          error instanceof GoneException ||
-          error instanceof BadRequestException
-        ) {
-          await this.bot.answerCallback(callback.id, 'This poll is unavailable.');
-          return;
-        }
-        throw error;
-      }
-      return;
-    }
-
-    // The reply identifies the original poll; only the voter named in callback data can confirm.
-    const pollMessage = callback.message?.reply_to_message;
-    if (!pollMessage) {
-      await this.bot.answerCallback(callback.id, 'This vote confirmation has expired.');
-      return;
     }
 
     const telegramUserId = String(callback.from.id);
@@ -1174,7 +1131,7 @@ export class TelegramBotService {
         );
       } else if (pollMessage) {
         if (['group', 'supergroup'].includes(pollMessage.chat.type)) {
-          // Other voters may have replaced the message while this confirmation was open.
+          // Another webhook may replace the poll while this vote is being saved.
           const chatId = pollMessage.chat.id;
           const pending = await this.pendingGroupVoters(chatId, poll);
           let mainMessage = true;
@@ -1208,7 +1165,7 @@ export class TelegramBotService {
           );
         }
       }
-      if (callback.message) {
+      if (legacyConfirmation && callback.message) {
         await this.bot
           .deleteMessage(callback.message.chat.id, callback.message.message_id)
           .catch(() => null);
