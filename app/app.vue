@@ -1,22 +1,25 @@
 <template>
   <Analytics />
   <div
-    :class="canShowAds ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_160px] lg:gap-4 lg:pr-4' : undefined"
+    :class="canShowAds ? 'flex flex-col lg:grid lg:grid-cols-[160px_minmax(0,1fr)_160px] lg:gap-4 lg:px-4' : undefined"
   >
-    <div class="min-w-0">
+    <div class="min-w-0 lg:order-2">
       <AdsBannerAd v-if="canShowAds" :key="route.path" />
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
-      <!-- Leave room below the ad for the fixed mobile navigation. -->
-      <div
-        v-if="canShowAds"
-        class="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-0"
-      >
+    </div>
+    <!-- Reuse the 160×300 footer ad on the left at desktop sizes on every route. -->
+    <aside
+      v-if="canShowAds"
+      class="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-0 lg:order-1"
+      :aria-label="isKhmer ? 'ពាណិជ្ជកម្ម' : 'Advertisement'"
+    >
+      <div class="lg:sticky lg:top-3">
         <AdsBannerAd :key="route.path" placement="footer" />
       </div>
-    </div>
-    <AdsDesktopAd v-if="canShowAds" :key="route.path" />
+    </aside>
+    <AdsDesktopAd v-if="canShowAds" :key="route.path" class="lg:order-3" />
   </div>
   <CookieConsent />
 </template>
