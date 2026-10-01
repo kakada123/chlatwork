@@ -1,150 +1,6 @@
 <template>
   <div class="mx-auto w-full max-w-[1440px] text-slate-950 dark:text-white">
-    <div
-      class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
-    >
-      <div class="max-w-3xl">
-        <p class="text-sm font-bold uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">
-          Free · Private · No sign-in
-        </p>
-        <h1 class="mt-2 text-2xl font-black leading-tight sm:text-3xl">Random Winner Picker</h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60 sm:text-base">
-          Paste your participants, spin the lucky draw wheel, and pick fair winners with no repeats.
-          Everything runs in your browser.
-        </p>
-      </div>
-
-      <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <button
-          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] sm:w-auto"
-          @click="reset"
-        >
-          Reset
-        </button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
-      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] sm:p-5">
-        <div class="mb-2 flex items-center justify-between gap-3">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">Step 1</p>
-            <h2 class="mt-1 text-lg font-bold">Add participants</h2>
-          </div>
-
-          <div class="rounded-full bg-sky-50 px-3 py-1 text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-            {{ participants.length }} {{ participants.length === 1 ? "person" : "people" }}
-          </div>
-        </div>
-
-        <label for="lucky-draw-paste" class="mt-5 block text-sm font-semibold">Paste a list</label>
-        <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/50">
-          Use one name per line, or separate names with commas.
-        </p>
-        <textarea
-          id="lucky-draw-paste"
-          v-model="raw"
-          class="mt-2 h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-black/20 dark:placeholder:text-white/30"
-          :disabled="isSpinning"
-          placeholder="Vann Mey&#10;Sokha Lim&#10;Sophea Kim&#10;Nita Phan"
-        />
-        <button
-          type="button"
-          class="mt-2 inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-4 text-sm font-bold text-white transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
-          :disabled="isSpinning || !raw.trim()"
-          @click="applyRawToRows"
-        >
-          Use this list
-        </button>
-
-        <div
-          v-if="duplicateNames.length"
-          class="mt-3 flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <span>{{ duplicateNames.length }} duplicate {{ duplicateNames.length === 1 ? "name" : "names" }} found.</span>
-          <button type="button" class="font-bold underline underline-offset-4" :disabled="isSpinning" @click="removeDuplicates">
-            Remove duplicates
-          </button>
-        </div>
-
-        <div class="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-white/35">
-          <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-          Or edit individually
-          <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-        </div>
-
-        <div class="max-h-[390px] overflow-auto rounded-xl border border-slate-200 dark:border-white/10">
-          <table class="w-full text-sm">
-            <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-[#17171b]">
-              <tr>
-                <th class="w-[85%] p-2 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">Name</th>
-                <th class="w-[15%] p-2"></th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr
-                v-for="(row, index) in rows"
-                :key="index"
-                class="align-top border-t border-slate-200 dark:border-white/10"
-              >
-                <td class="p-2">
-                  <input
-                    :ref="(element) => setNameInputRef(element, index)"
-                    v-model.trim="row.name"
-                    class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-white/15 dark:bg-black/20 dark:disabled:bg-white/[0.03] dark:disabled:text-white/35"
-                    :placeholder="`Participant ${index + 1}`"
-                    :disabled="isSpinning"
-                  />
-                </td>
-
-                <td class="p-2 text-right">
-                  <button
-                    class="rounded-lg border border-slate-200 px-2 py-2 text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white/50 dark:hover:border-red-300/20 dark:hover:bg-red-300/10 dark:hover:text-red-200"
-                    @click="removeRow(index)"
-                    :aria-label="`Remove row ${index + 1}`"
-                    :disabled="isSpinning"
-                  >
-                    ✕
-                  </button>
-                </td>
-              </tr>
-
-              <tr v-if="rows.length === 0">
-                <td colspan="2" class="p-3 text-slate-500 dark:text-white/45">
-                  No participants yet. Click “Add row”.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mt-3 grid grid-cols-2 gap-2">
-          <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
-            @click="addRow"
-            :disabled="isSpinning"
-          >
-            <span class="text-base leading-none">＋</span>
-            <span class="truncate">Add row</span>
-          </button>
-
-          <button
-            class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
-            @click="loadExample"
-            :disabled="isSpinning"
-          >
-            <span class="truncate">Load example</span>
-          </button>
-
-        </div>
-
-        <p v-if="error" class="mt-3 text-sm font-medium text-red-600 dark:text-red-300">{{ error }}</p>
-        <p class="mt-4 text-xs leading-5 text-slate-500 dark:text-white/45">
-          Participants, notes, and winner history are saved only in this browser. Avoid sensitive personal details on shared devices.
-        </p>
-      </div>
-
+    <div>
       <div
         ref="wheelStageRef"
         class="wheel-stage"
@@ -202,15 +58,32 @@
         <div class="wheel-stage-content relative z-10 flex h-full min-h-0 flex-col">
           <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">Step 2</p>
-              <h2 class="mt-1 text-lg font-bold">Spin the wheel</h2>
+              <h1 class="text-2xl font-black">Lucky Draw</h1>
+              <p class="mt-1 text-sm text-slate-600 dark:text-white/60">Try a spin, or add your names.</p>
 
               <div class="mt-1 text-sm text-slate-500 dark:text-white/50">
                 {{ spinStatus }}
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-4 text-sm font-bold text-white transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
+                :aria-expanded="isEditingNames"
+                aria-controls="lucky-draw-sidebar"
+                :disabled="isSpinning"
+                @click="toggleNameEditor"
+              >
+                {{ isEditingNames ? "Done" : "Edit names" }}
+              </button>
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                @click="reset"
+              >
+                Reset
+              </button>
               <button
                 type="button"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
@@ -298,13 +171,10 @@
             </label>
           </div>
 
+          <p v-if="error" role="alert" class="mb-3 text-sm font-medium text-red-600 dark:text-red-300">{{ error }}</p>
+
           <div
-            class="wheel-layout"
-            :class="
-              isFullscreen
-                ? 'grid min-h-0 flex-1 grid-rows-[auto_auto] gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:grid-rows-1 lg:gap-4'
-                : 'flex min-h-0 flex-1 flex-col'
-            "
+            class="wheel-layout grid min-h-0 flex-1 grid-rows-[auto_auto] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:grid-rows-1"
           >
             <div class="wheel-column flex min-h-0 flex-col">
               <div class="wheel-space flex min-h-0 flex-1 items-center justify-center">
@@ -399,18 +269,133 @@
                 :class="isFullscreen ? 'mt-2' : 'mt-4'"
                 class="wheel-note text-center text-xs leading-5 text-slate-500 dark:text-white/45"
               >
-                Secure browser randomness chooses the winner before the wheel animates.
+                Secure browser randomness · Names stay on this device.
               </p>
             </div>
 
             <div
-              :class="[
-                isFullscreen
-                  ? 'rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03] lg:min-h-0 lg:overflow-y-auto lg:p-4'
-                  : '',
-                isFullscreen && winnerHistory.length === 0 ? 'hidden lg:block' : '',
-              ]"
+              id="lucky-draw-sidebar"
+              class="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03] lg:min-h-0 lg:overflow-y-auto lg:p-4"
             >
+              <div v-if="isEditingNames" id="lucky-draw-names" class="mb-4">
+                <div class="mb-2 flex items-center justify-between gap-3">
+                  <div>
+                    <h2 class="text-lg font-bold">Your names</h2>
+                  </div>
+
+                  <div class="rounded-full bg-sky-50 px-3 py-1 text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
+                    {{ participants.length }} {{ participants.length === 1 ? "person" : "people" }}
+                  </div>
+                </div>
+
+                <label for="lucky-draw-paste" class="mt-3 block text-sm font-semibold">Paste names</label>
+                <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/50">
+                  One name per line, or comma-separated.
+                </p>
+                <textarea
+                  id="lucky-draw-paste"
+                  v-model="raw"
+                  class="mt-2 h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-black/20 dark:placeholder:text-white/30"
+                  :disabled="isSpinning"
+                  placeholder="Vann Mey&#10;Sokha Lim&#10;Sophea Kim&#10;Nita Phan"
+                />
+                <button
+                  type="button"
+                  class="mt-2 inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-4 text-sm font-bold text-white transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  :disabled="isSpinning || !raw.trim()"
+                  @click="applyRawToRows"
+                >
+                  Use this list
+                </button>
+
+                <div
+                  v-if="duplicateNames.length"
+                  class="mt-3 flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <span>{{ duplicateNames.length }} duplicate {{ duplicateNames.length === 1 ? "name" : "names" }} found.</span>
+                  <button type="button" class="font-bold underline underline-offset-4" :disabled="isSpinning" @click="removeDuplicates">
+                    Remove duplicates
+                  </button>
+                </div>
+
+                <div class="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-white/35">
+                  <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+                  Edit names
+                  <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+                </div>
+
+                <div class="max-h-[390px] overflow-auto rounded-xl border border-slate-200 dark:border-white/10">
+                  <table class="w-full text-sm">
+                    <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-[#17171b]">
+                      <tr>
+                        <th class="w-[85%] p-2 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">Name</th>
+                        <th class="w-[15%] p-2"></th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr
+                        v-for="(row, index) in rows"
+                        :key="index"
+                        class="align-top border-t border-slate-200 dark:border-white/10"
+                      >
+                        <td class="p-2">
+                          <input
+                            :ref="(element) => setNameInputRef(element, index)"
+                            v-model.trim="row.name"
+                            class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-white/15 dark:bg-black/20 dark:disabled:bg-white/[0.03] dark:disabled:text-white/35"
+                            :placeholder="`Participant ${index + 1}`"
+                            :aria-label="`Participant ${index + 1}`"
+                            :disabled="isSpinning"
+                          />
+                        </td>
+
+                        <td class="p-2 text-right">
+                          <button
+                            class="rounded-lg border border-slate-200 px-2 py-2 text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white/50 dark:hover:border-red-300/20 dark:hover:bg-red-300/10 dark:hover:text-red-200"
+                            @click="removeRow(index)"
+                            :aria-label="`Remove row ${index + 1}`"
+                            :disabled="isSpinning"
+                          >
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+
+                      <tr v-if="rows.length === 0">
+                        <td colspan="2" class="p-3 text-slate-500 dark:text-white/45">
+                          Add your first name.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                    @click="addRow"
+                    :disabled="isSpinning"
+                  >
+                    <span class="text-base leading-none">＋</span>
+                    <span class="truncate">Add name</span>
+                  </button>
+
+                  <button
+                    class="inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+                    @click="loadExample"
+                    :disabled="isSpinning"
+                  >
+                    <span class="truncate">Load example</span>
+                  </button>
+
+                </div>
+
+                <p class="mt-4 text-xs leading-5 text-slate-500 dark:text-white/45">
+                  Saved on this device.
+                </p>
+              </div>
+
               <LuckyDrawWinnerResult
                 v-if="lastWinner && !showWinnerDialog"
                 class="mt-3 overflow-hidden rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-cyan-50 p-4 text-center dark:border-cyan-300/20 dark:from-sky-300/10 dark:to-cyan-300/10"
@@ -422,83 +407,83 @@
                 @spin-again="runLuckyDraw"
               />
 
-            <div v-if="winnerHistory.length" class="mt-4 rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="font-bold">Winner history</h3>
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <button
-                    type="button"
-                    class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
-                    @click="copyWinnerList"
-                  >
-                    {{ winnerListCopied ? "List copied" : "Copy list" }}
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
-                    @click="exportWinnerList"
-                  >
-                    Export CSV
-                  </button>
-                  <button
-                    type="button"
-                    class="px-1.5 py-1.5 text-xs font-bold text-slate-500 underline underline-offset-4 hover:text-red-600 dark:text-white/45 dark:hover:text-red-300"
-                    @click="clearWinnerHistory"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-              <ol
-                :class="isFullscreen ? 'max-h-32 lg:max-h-48' : 'max-h-48'"
-                class="mt-2 space-y-2 overflow-auto pr-1"
-              >
-                <li v-for="(winner, index) in winnerHistory" :key="`${winner.name}-${index}`" class="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-white/[0.04]">
-                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">{{ index + 1 }}</span>
-                  <div class="min-w-0 flex-1">
-                    <span class="block truncate font-semibold">{{ winner.name }}</span>
-                    <span v-if="winner.note" class="mt-1 block break-words text-xs text-slate-600 dark:text-white/55">
-                      {{ winner.note }}
-                    </span>
+              <div v-if="winnerHistory.length" class="mt-4 rounded-xl border border-slate-200 p-3 dark:border-white/10">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <h2 class="font-bold">Winner history</h2>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
+                      @click="copyWinnerList"
+                    >
+                      {{ winnerListCopied ? "List copied" : "Copy list" }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
+                      @click="exportWinnerList"
+                    >
+                      Export CSV
+                    </button>
+                    <button
+                      type="button"
+                      class="px-1.5 py-1.5 text-xs font-bold text-slate-500 underline underline-offset-4 hover:text-red-600 dark:text-white/45 dark:hover:text-red-300"
+                      @click="clearWinnerHistory"
+                    >
+                      Clear
+                    </button>
                   </div>
-                </li>
-              </ol>
-              </div>
-
-            <div
-              :class="
-                isFullscreen
-                  ? 'mt-4 hidden lg:block'
-                  : 'mt-4 max-h-64 overflow-auto'
-              "
-            >
-              <h3 class="mb-2 font-semibold">On this wheel</h3>
-
-              <div
-                v-if="participants.length === 0"
-                class="text-sm text-slate-500 dark:text-white/45"
-              >
-                No participants yet.
-              </div>
-
-              <div
-                v-else
-                :class="isFullscreen ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'"
-                class="grid gap-2"
-              >
-                <div
-                  v-for="segment in wheelSegments"
-                  :key="`${segment.index}-${segment.name}`"
-                  class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/[0.04]"
+                </div>
+                <ol
+                  :class="isFullscreen ? 'max-h-32 lg:max-h-48' : 'max-h-48'"
+                  class="mt-2 space-y-2 overflow-auto pr-1"
                 >
-                  <span
-                    class="h-3 w-3 shrink-0 rounded-full"
-                    :style="{ backgroundColor: segment.color }"
-                  />
-                  <span class="truncate">{{ segment.name }}</span>
+                  <li v-for="(winner, index) in winnerHistory" :key="`${winner.name}-${index}`" class="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-white/[0.04]">
+                    <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">{{ index + 1 }}</span>
+                    <div class="min-w-0 flex-1">
+                      <span class="block truncate font-semibold">{{ winner.name }}</span>
+                      <span v-if="winner.note" class="mt-1 block break-words text-xs text-slate-600 dark:text-white/55">
+                        {{ winner.note }}
+                      </span>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+
+              <div v-if="!isEditingNames" class="mt-4 max-h-80 overflow-auto">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <h2 class="font-semibold">On this wheel</h2>
+                  <button
+                    type="button"
+                    class="text-sm font-bold text-sky-700 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-40 dark:text-cyan-200"
+                    :disabled="isSpinning"
+                    @click="toggleNameEditor"
+                  >
+                    Edit names
+                  </button>
+                </div>
+
+                <div
+                  v-if="participants.length === 0"
+                  class="text-sm text-slate-500 dark:text-white/45"
+                >
+                  No participants yet.
+                </div>
+
+                <div v-else class="grid grid-cols-1 gap-2">
+                  <div
+                    v-for="segment in wheelSegments"
+                    :key="`${segment.index}-${segment.name}`"
+                    class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/[0.04]"
+                  >
+                    <span
+                      class="h-3 w-3 shrink-0 rounded-full"
+                      :style="{ backgroundColor: segment.color }"
+                    />
+                    <span class="truncate">{{ segment.name }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
 
             <p class="sr-only" aria-live="polite">
@@ -577,6 +562,15 @@ const INITIAL_ROWS = (): InputRow[] => [
   { name: "" },
 ];
 
+const EXAMPLE_NAMES = [
+  "Vann Mey",
+  "Sokha Lim",
+  "Sophea Kim",
+  "Nita Phan",
+  "Rotha Chan",
+  "Vichea Long",
+];
+
 const SEGMENT_COLORS: [string, ...string[]] = [
   "#ef4444",
   "#f97316",
@@ -603,8 +597,10 @@ const WHEEL_RADIUS = 49;
 const LUCKY_DRAW_SESSION_STORAGE_KEY = "chlatwork:lucky-draw:session:v1";
 const DIALOG_CONFETTI_COLORS = ["#0ea5e9", "#22d3ee", "#facc15", "#fb7185", "#ffffff"];
 
-const rows = ref<InputRow[]>(INITIAL_ROWS());
-const raw = ref("");
+// A fresh visit shows a usable wheel; a validated saved session takes precedence on mount.
+const rows = ref<InputRow[]>(EXAMPLE_NAMES.map((name) => ({ name })));
+const raw = ref(EXAMPLE_NAMES.join("\n"));
+const isEditingNames = ref(false);
 const error = ref("");
 const isSpinning = ref(false);
 const wheelRotation = ref(0);
@@ -612,7 +608,7 @@ const lastWinner = ref("");
 const isFullscreen = ref(false);
 const activeWheelParticipants = ref<string[]>([]);
 const preventRepeatWinners = ref(true);
-const showWinnerDialog = ref(false);
+const showWinnerDialog = ref(true);
 const isWinnerDialogOpen = ref(false);
 const soundEnabled = ref(true);
 const spinSpeed = ref<SpinSpeed>("standard");
@@ -694,6 +690,7 @@ function restoreLuckyDrawSession() {
       ? session.rows.map((name) => ({ name }))
       : INITIAL_ROWS();
     raw.value = session.raw;
+    isEditingNames.value = parseRows(rows.value).length < 2;
     preventRepeatWinners.value = session.preventRepeatWinners;
     showWinnerDialog.value = session.showWinnerDialog;
     soundEnabled.value = session.soundEnabled;
@@ -853,7 +850,7 @@ const spinStatus = computed(() => {
   if (preventRepeatWinners.value && winnerHistory.value.length) {
     return `${eligibleParticipants.value.length} people remain`;
   }
-  return "Ready to spin";
+  return `${eligibleParticipants.value.length} people on the wheel`;
 });
 
 const segmentAngle = computed(() => {
@@ -1037,19 +1034,14 @@ function removeDuplicates() {
 }
 
 function loadExample() {
-  rows.value = [
-    { name: "Vann Mey" },
-    { name: "Sokha Lim" },
-    { name: "Sophea Kim" },
-    { name: "Nita Phan" },
-    { name: "Rotha Chan" },
-    { name: "Vichea Long" },
-  ];
+  clearWinnerHistory();
+  rows.value = EXAMPLE_NAMES.map((name) => ({ name }));
+  isEditingNames.value = false;
   raw.value = rows.value.map((row) => row.name).join("\n");
   error.value = "";
 }
 
-function reset() {
+async function reset() {
   spinRunId += 1;
   closeWinnerDialog();
   rows.value = INITIAL_ROWS();
@@ -1076,6 +1068,21 @@ function reset() {
   }
 
   stopSpinAnimation();
+  confettiLauncher?.reset();
+
+  // Reset clears the example or saved names and opens the editor for a new draw.
+  isEditingNames.value = true;
+  await focusRowNameInput(0);
+}
+
+async function toggleNameEditor() {
+  if (isSpinning.value) return;
+  isEditingNames.value = !isEditingNames.value;
+  if (isEditingNames.value) {
+    await focusRowNameInput(0);
+    nameInputRefs.value[0]?.select();
+    document.getElementById("lucky-draw-names")?.scrollIntoView({ block: "nearest" });
+  }
 }
 
 async function copyWinner() {
@@ -1586,7 +1593,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .wheel-box {
-  max-width: 380px;
+  max-width: 720px;
 }
 
 .wheel-stage:fullscreen .wheel-box {

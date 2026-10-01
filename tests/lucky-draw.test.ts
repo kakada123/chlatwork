@@ -139,7 +139,7 @@ test("lucky draw page exposes draw controls and explains its privacy boundary", 
   assert.match(page, /grid-rows-\[auto_auto\]/);
   assert.match(page, /max-h-32 lg:max-h-48/);
   assert.match(page, /dark:bg-cyan-300 dark:text-slate-950/);
-  assert.match(page, /mt-4 hidden lg:block/);
+  assert.match(page, /id="lucky-draw-sidebar"/);
   assert.doesNotMatch(page, /fuchsia|purple|violet/);
   assert.match(tools, /"lucky-draw": "from-sky-400 to-cyan-300"/);
   assert.match(iconTones, /"lucky-draw": "blue"/);
