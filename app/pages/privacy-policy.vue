@@ -5,7 +5,7 @@ import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 const title = "Privacy Policy - ChlatWork";
 const description =
   "How ChlatWork handles browser-based processing, data collection, cookies, analytics, ads, and third-party services.";
-const reviewedAt = "2026-08-29";
+const reviewedAt = "2026-10-01";
 
 useSeoMeta({
   title,
@@ -52,7 +52,7 @@ useHead({
         analytics, advertising, third-party services, and your choices.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 29, 2026
+        Last updated: October 1, 2026
       </p>
     </header>
 
@@ -196,24 +196,11 @@ useHead({
         usage information and does not use tracking cookies.
       </p>
       <p class="text-gray-700 dark:text-white/75">
-        ChlatWork may display ads using Google AdSense or other advertising
-        partners. Third-party vendors, including Google, may use cookies, web
+        ChlatWork may display ads using third-party advertising partners.
+        These vendors may use cookies, web
         beacons, IP addresses, or other identifiers to serve ads, limit repeated
         ads, measure ad performance, prevent fraud, and show personalized or
         non-personalized ads.
-      </p>
-      <p class="text-gray-700 dark:text-white/75">
-        Google may use advertising cookies to serve ads based on your prior
-        visits to ChlatWork or other websites. You can learn how Google uses
-        information from partner sites at
-        <a
-          href="https://policies.google.com/technologies/partner-sites"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-gray-900 underline dark:text-white"
-        >
-          policies.google.com/technologies/partner-sites </a
-        >.
       </p>
     </section>
 
@@ -227,7 +214,7 @@ useHead({
       </p>
       <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
         <li>Vercel for hosting, deployment, and web analytics.</li>
-        <li>Google AdSense or Google ad services for advertising.</li>
+        <li>Third-party advertising partners for ads.</li>
         <li>Google Identity Services and Telegram for optional account login.</li>
         <li>
           PostgreSQL and the infrastructure provider hosting the database for
@@ -256,26 +243,6 @@ useHead({
         You may ask to access, correct, or delete your ChlatWork account data by
         contacting us through the Contact page. We may need to verify that the
         request belongs to the account holder before acting on it.
-      </p>
-      <p class="text-gray-700 dark:text-white/75">
-        You can manage personalized Google advertising in
-        <a
-          href="https://myadcenter.google.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-gray-900 underline dark:text-white"
-        >
-          Google My Ad Center
-        </a>
-        and learn more about Google advertising cookies at
-        <a
-          href="https://policies.google.com/technologies/ads"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-gray-900 underline dark:text-white"
-        >
-          Google Advertising Technologies </a
-        >.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         For more detail about cookies, read the

@@ -6,7 +6,6 @@ import { POSTS, findPostByPath } from "../app/data/posts.ts";
 import {
   PUBLIC_SITEMAP_PATHS,
   getPublisherRobots,
-  isMonetizableRoute,
 } from "../app/data/site-routes.ts";
 
 const readProjectFile = (path: string) =>
@@ -29,11 +28,10 @@ test("the July 31 daily briefing is the first published post", () => {
   assert.equal(findPostByPath(`${post.path}/`), post);
 });
 
-test("unsourced briefing is published but excluded from search and ads", () => {
+test("unsourced briefing is published but excluded from search", () => {
   const path = POSTS[0].path;
 
   assert.equal(getPublisherRobots(path), "noindex, follow");
-  assert.equal(isMonetizableRoute(path), false);
   assert.equal(PUBLIC_SITEMAP_PATHS.includes(path), false);
 });
 

@@ -45,8 +45,6 @@ const canonicalUrl = computed(() => {
   return `${siteUrl}${path}`;
 });
 
-useAdSense();
-
 useSeoMeta({
   title: localizedTitle,
   description: localizedDescription,

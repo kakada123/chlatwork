@@ -2,7 +2,7 @@
 const title = "Terms of Use - ChlatWork";
 const description =
   "Terms for using ChlatWork online tools, guide pages, generated outputs, advertising, and browser-based workflows.";
-const reviewedAt = "2026-08-29";
+const reviewedAt = "2026-10-01";
 
 useSeoMeta({
   title,
@@ -49,7 +49,7 @@ useHead({
         checking results before using them.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 29, 2026
+        Last updated: October 1, 2026
       </p>
     </header>
 
@@ -146,7 +146,7 @@ useHead({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Advertising</h2>
       <p class="text-gray-700 dark:text-white/75">
-        ChlatWork may display ads from Google AdSense or other advertising
+        ChlatWork may display ads from third-party advertising
         partners. You must not click ads repeatedly, encourage others to click
         ads, use automated methods to generate ad impressions or clicks, or
         interact with ads in a way that violates advertising network policies.

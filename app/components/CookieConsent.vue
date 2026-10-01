@@ -9,8 +9,8 @@
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
         <p class="min-w-0 flex-1 text-xs leading-5 text-slate-600 dark:text-white/70 sm:text-sm">
           ChlatWork may use cookies and local storage for preferences, analytics,
-          and ads. Where required, a certified consent message may ask for your
-          ad cookie choices.
+          and ads. Read our policies for details and manage cookies in your
+          browser settings.
           <NuxtLink
             to="/privacy-policy"
             class="whitespace-nowrap font-semibold text-slate-900 underline underline-offset-2 dark:text-white"
@@ -66,8 +66,8 @@
             </h2>
             <p class="text-sm leading-6 text-slate-600 dark:text-white/70">
               ChlatWork uses local storage for preferences, and may use analytics
-              and ads services. Google&apos;s consent panel appears here when it is
-              available for your region and browser.
+              and ads services. Review our Cookie Policy and use your browser
+              settings to manage cookies and local storage.
             </p>
           </div>
 
@@ -83,9 +83,8 @@
 
         <div class="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-white/70">
           <p>
-            You can review ChlatWork&apos;s cookie details, manage ad
-            personalization through Google, or change browser cookie and local
-            storage permissions.
+            Your browser settings let you block, delete, or limit cookies and
+            local storage. Disabling them may affect some site features.
           </p>
         </div>
 
@@ -97,15 +96,6 @@
           >
             Cookie Policy
           </NuxtLink>
-
-          <a
-            href="https://myadcenter.google.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-          >
-            Google ad settings
-          </a>
 
           <button
             type="button"

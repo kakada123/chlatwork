@@ -2,17 +2,6 @@ export const COOKIE_NOTICE_STORAGE_KEY = "chlatwork_cookie_notice_closed";
 export const COOKIE_NOTICE_OPEN_EVENT = "chlatwork:open-cookie-notice";
 export const COOKIE_SETTINGS_OPEN_EVENT = "chlatwork:open-cookie-settings";
 
-type GoogleFundingChoices = {
-  callbackQueue?: Array<() => void>;
-  showRevocationMessage?: () => void;
-};
-
-declare global {
-  interface Window {
-    googlefc?: GoogleFundingChoices;
-  }
-}
-
 export function isCookieNoticeClosed() {
   if (!process.client) {
     return true;
@@ -47,21 +36,5 @@ export function openLocalCookieSettings() {
 }
 
 export function openPrivacyCookieSettings() {
-  if (!process.client) {
-    return false;
-  }
-
-  const googleFundingChoices = window.googlefc;
-
-  if (typeof googleFundingChoices?.showRevocationMessage === "function") {
-    // Google exposes this only when its certified CMP is available, so local dev and pre-approval pages fall back safely.
-    googleFundingChoices.callbackQueue = googleFundingChoices.callbackQueue ?? [];
-    googleFundingChoices.callbackQueue.push(googleFundingChoices.showRevocationMessage);
-
-    return true;
-  }
-
   openLocalCookieSettings();
-
-  return false;
 }

@@ -111,11 +111,6 @@ export const INDEXABLE_PAGE_PATHS = [
   ...INDEXABLE_EDITORIAL_GUIDE_PATHS,
 ];
 
-export const MONETIZABLE_PAGE_PATHS = [
-  ...INDEXABLE_TOOL_PAGE_PATHS,
-  ...INDEXABLE_EDITORIAL_GUIDE_PATHS,
-];
-
 export const NOINDEX_PAGE_PATHS = [
   ...BETA_TOOL_PAGE_PATHS,
   ...WEAK_TOOL_PAGE_PATHS,
@@ -123,12 +118,6 @@ export const NOINDEX_PAGE_PATHS = [
   ...COMMERCIAL_PAGE_PATHS,
   ...LEGAL_PAGE_PATHS,
   ...POST_PATHS,
-];
-
-export const NO_ADS_PAGE_PATHS = [
-  ...NOINDEX_PAGE_PATHS,
-  ...PUBLIC_TRUST_PAGE_PATHS,
-  "/",
 ];
 
 // The sitemap is generated from the same index allowlist used by robots metadata.
@@ -144,13 +133,6 @@ export function normalizePublisherPath(path: string) {
 
 export function isIndexableRoute(path: string) {
   return INDEXABLE_PAGE_PATHS.includes(normalizePublisherPath(path));
-}
-
-export function isMonetizableRoute(path: string, language = "en") {
-  return (
-    language === "en" &&
-    MONETIZABLE_PAGE_PATHS.includes(normalizePublisherPath(path))
-  );
 }
 
 export function getPublisherRobots(path: string) {

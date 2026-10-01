@@ -101,7 +101,6 @@ export default defineNuxtConfig({
     telegramMiniAppShortName: nodeEnv.NUXT_TELEGRAM_MINI_APP_SHORT_NAME || "",
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
-      adsenseClientId: "ca-pub-3732801458368248",
       googleClientId: nodeEnv.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       googleMeasurementId,
       telegramClientId: nodeEnv.NUXT_PUBLIC_TELEGRAM_CLIENT_ID || "",
@@ -169,10 +168,6 @@ export default defineNuxtConfig({
           name: "description",
           content:
             "Free online tools for documents, images, QR codes, barcodes, dates, calculators, and productivity.",
-        },
-        {
-          name: "google-adsense-account",
-          content: "ca-pub-3732801458368248",
         },
 
         // Open Graph (FB / Zalo / Telegram previews)

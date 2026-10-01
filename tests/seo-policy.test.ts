@@ -9,12 +9,10 @@ import {
   INDEXABLE_PAGE_PATHS,
   INDEXABLE_TOOL_PAGE_PATHS,
   LEGAL_PAGE_PATHS,
-  MONETIZABLE_PAGE_PATHS,
   NAVIGATION_ONLY_PAGE_PATHS,
   PUBLIC_SITEMAP_PATHS,
   getDisabledKhmerRedirect,
   getPublisherRobots,
-  isMonetizableRoute,
 } from "../app/data/site-routes.ts";
 
 const readProjectFile = (path: string) =>
@@ -34,14 +32,12 @@ test("legacy generated guides permanently consolidate into unique tool canonical
   }
 });
 
-test("publisher discovery uses explicit index and AdSense allowlists", () => {
-  const siteRoutes = readProjectFile("app/data/site-routes.ts");
+test("publisher discovery uses an explicit index allowlist", () => {
   const nuxtConfig = readProjectFile("nuxt.config.ts");
   const appShell = readProjectFile("app/app.vue");
 
   assert.deepEqual(PUBLIC_SITEMAP_PATHS, INDEXABLE_PAGE_PATHS);
   assert.equal(INDEXABLE_TOOL_PAGE_PATHS.length, 10);
-  assert.equal(MONETIZABLE_PAGE_PATHS.includes("/"), false);
 
   for (const path of [
     ...BETA_TOOL_PAGE_PATHS,
@@ -50,19 +46,12 @@ test("publisher discovery uses explicit index and AdSense allowlists", () => {
     ...NAVIGATION_ONLY_PAGE_PATHS,
   ]) {
     assert.equal(PUBLIC_SITEMAP_PATHS.includes(path), false);
-    assert.equal(MONETIZABLE_PAGE_PATHS.includes(path), false);
     assert.equal(getPublisherRobots(path), "noindex, follow");
   }
 
   assert.match(nuxtConfig, /\.\.\.legacyToolGuideRedirectRules/);
   assert.match(nuxtConfig, /statusCode: 301/);
-  assert.doesNotMatch(
-    nuxtConfig,
-    /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle/,
-  );
   assert.match(appShell, /getPublisherRobots\(normalizedPath\.value\)/);
-  assert.doesNotMatch(appShell, /adsbygoogle\.js/);
-  assert.match(siteRoutes, /isMonetizableRoute/);
 });
 
 test("navigation does not recreate legacy guide URLs or unconsented trackers", () => {
@@ -80,13 +69,9 @@ test("navigation does not recreate legacy guide URLs or unconsented trackers", (
   }
 
   const nuxtConfig = readProjectFile("nuxt.config.ts");
-  const adLoader = readProjectFile("app/composables/useAdSense.ts");
   assert.doesNotMatch(nuxtConfig, /connect\.facebook\.net|facebook\.com\/tr/);
   assert.match(nuxtConfig, /analytics_storage: "denied"/);
   assert.match(nuxtConfig, /ad_storage: "denied"/);
-  assert.match(adLoader, /CERTIFIED_AD_CONSENT_READY_EVENT/);
-  assert.match(adLoader, /getElementById\(ADSENSE_SCRIPT_ID\)/);
-  assert.match(adLoader, /isMonetizableRoute/);
 });
 
 test("Khmer and beta routes are permanently excluded from publishing", () => {
@@ -105,7 +90,6 @@ test("Khmer and beta routes are permanently excluded from publishing", () => {
 
   for (const path of BETA_TOOL_PAGE_PATHS) {
     assert.equal(getPublisherRobots(path), "noindex, follow");
-    assert.equal(isMonetizableRoute(path), false);
   }
 
   assert.match(pdfLayout, /tool\.status === 'beta'/);

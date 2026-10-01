@@ -31,7 +31,7 @@ useHead({
         technologies for functionality, analytics, security, and advertising.
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        Last updated: August 21, 2026
+        Last updated: October 1, 2026
       </p>
     </header>
 
@@ -126,40 +126,18 @@ useHead({
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Advertising cookies</h2>
       <p class="text-gray-700 dark:text-white/75">
-        ChlatWork may use Google AdSense or other advertising partners.
-        Third-party vendors, including Google, may use cookies, web beacons, IP
+        ChlatWork may use third-party advertising partners.
+        These vendors may use cookies, web beacons, IP
         addresses, or other identifiers to serve ads, measure ad performance,
         limit repeated ads, prevent fraud, and show personalized or
         non-personalized ads.
-      </p>
-      <p class="text-gray-700 dark:text-white/75">
-        Google may use advertising cookies to serve ads based on your visits to
-        this and other websites. Learn more about how Google uses data from
-        partner sites at
-        <a
-          href="https://policies.google.com/technologies/partner-sites"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-gray-900 underline dark:text-white"
-        >
-          policies.google.com/technologies/partner-sites </a
-        >.
       </p>
     </section>
 
     <section class="space-y-3">
       <h2 class="text-lg font-semibold">Managing cookies</h2>
       <p class="text-gray-700 dark:text-white/75">
-        You can block, delete, or limit cookies in your browser settings. You
-        can also manage personalized Google ads in
-        <a
-          href="https://myadcenter.google.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-gray-900 underline dark:text-white"
-        >
-          Google My Ad Center </a
-        >.
+        You can block, delete, or limit cookies in your browser settings.
       </p>
       <p class="text-gray-700 dark:text-white/75">
         If you disable cookies or local storage, some ChlatWork features may not
@@ -179,14 +157,12 @@ useHead({
       <p class="text-gray-700 dark:text-white/75">
         Some regions and advertising policies require additional consent controls
         before certain cookies, local storage, or personalized ads are used.
-        Where those requirements apply, ChlatWork may use Google&apos;s certified
-        consent management tools, non-personalized ads, limited ads, or other
-        advertising platform settings.
+        Advertising partners may provide additional privacy controls where
+        those requirements apply.
       </p>
       <p class="text-gray-700 dark:text-white/75">
-        ChlatWork&apos;s code waits for a consent signal from a certified CMP
-        before loading AdSense. The informational ChlatWork notice is not a CMP
-        and closing it does not grant advertising consent.
+        Closing ChlatWork&apos;s informational cookie notice does not grant
+        advertising consent.
       </p>
     </section>
 
