@@ -8,6 +8,13 @@
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
+      <!-- Leave room below the ad for the fixed mobile navigation. -->
+      <div
+        v-if="canShowAds"
+        class="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-0"
+      >
+        <AdsBannerAd :key="route.path" placement="footer" />
+      </div>
     </div>
     <AdsDesktopAd v-if="canShowAds" :key="route.path" />
   </div>

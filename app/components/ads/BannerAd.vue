@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 const props = withDefaults(
-  defineProps<{ placement?: "banner" | "sidebar" }>(),
+  defineProps<{ placement?: "banner" | "sidebar" | "footer" }>(),
   { placement: "banner" },
 );
 const { isKhmer } = useLanguage();
@@ -31,6 +31,11 @@ const placements = {
     key: "26c46514fdb02ba0f5d67bf09e7eb944",
     width: 160,
     height: 600,
+  },
+  footer: {
+    key: "11860aa2c18f03d7d89ab2518d75e7ca",
+    width: 160,
+    height: 300,
   },
 };
 const ad = computed(() => placements[props.placement]);
