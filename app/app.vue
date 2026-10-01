@@ -1,9 +1,16 @@
 <template>
   <Analytics />
-  <AdsBannerAd :key="route.path" />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div
+    :class="canShowAds ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_160px] lg:gap-4 lg:pr-4' : undefined"
+  >
+    <div class="min-w-0">
+      <AdsBannerAd v-if="canShowAds" :key="route.path" />
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </div>
+    <AdsDesktopAd v-if="canShowAds" :key="route.path" />
+  </div>
   <CookieConsent />
 </template>
 
@@ -14,6 +21,15 @@ import { getPublisherRobots } from "~/data/site-routes";
 const { copy, isKhmer } = useLanguage();
 useColorMode();
 const route = useRoute();
+const { canShowAds } = useAdVisibility();
+
+onMounted(() => {
+  watch(canShowAds, (allowed, previouslyAllowed) => {
+    // Signing in as Kakada also clears ads already injected by third-party scripts.
+    if (previouslyAllowed && !allowed) window.location.reload();
+  });
+});
+
 const siteUrl = "https://chlatwork.com";
 const ogImage = `${siteUrl}/og-home.png`;
 const localizedTitle = computed(() => copy.value.metaTitle);

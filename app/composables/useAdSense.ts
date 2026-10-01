@@ -8,12 +8,14 @@ const ADSENSE_SCRIPT_ID = "chlatwork-adsense";
 
 export function useAdSense() {
   const route = useRoute();
+  const { canShowAds } = useAdVisibility();
   const { isKhmer } = useLanguage();
   const adsenseClientId = useRuntimeConfig().public.adsenseClientId;
   const hasCertifiedConsent = ref(false);
 
   const canLoadAds = computed(
     () =>
+      canShowAds.value &&
       hasCertifiedConsent.value &&
       Boolean(adsenseClientId) &&
       isMonetizableRoute(route.path, isKhmer.value ? "km" : "en"),
@@ -24,6 +26,8 @@ export function useAdSense() {
   };
 
   const syncAdScript = () => {
+    if (import.meta.server) return;
+
     if (!canLoadAds.value) {
       removeAdScript();
       return;
@@ -57,7 +61,7 @@ export function useAdSense() {
   });
 
   watch(
-    () => [route.path, isKhmer.value, hasCertifiedConsent.value],
+    () => [route.path, isKhmer.value, hasCertifiedConsent.value, canShowAds.value],
     () => syncAdScript(),
   );
 

@@ -23,6 +23,8 @@ import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools, searchTextMatches } from "~/lib/tool-search";
 import { CREATOR_TOOLS, getCreatorToolByRoute } from "~/data/creator-tools";
 
+const { canShowAds } = useAdVisibility();
+
 type HeaderSearchResult = {
   key: string;
   title: string;
@@ -997,7 +999,7 @@ watch(
             :guide="currentToolGuide.guide"
           />
           <AdsNativeAd
-            v-if="ALL_TOOL_PAGE_PATHS.includes(normalizePublisherPath(route.path))"
+            v-if="canShowAds && ALL_TOOL_PAGE_PATHS.includes(normalizePublisherPath(route.path))"
             :key="normalizePublisherPath(route.path)"
           />
         </main>
