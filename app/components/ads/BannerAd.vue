@@ -3,13 +3,14 @@
     class="flex justify-center overflow-hidden py-3"
     :aria-label="isKhmer ? 'ពាណិជ្ជកម្ម' : 'Advertisement'"
   >
+    <!-- The provider reads cookies, so the ad document must retain its origin. -->
     <iframe
       :title="isKhmer ? 'ពាណិជ្ជកម្ម' : 'Advertisement'"
       :srcdoc="adDocument"
       width="320"
       height="50"
       class="max-w-full border-0"
-      sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
       referrerpolicy="strict-origin-when-cross-origin"
       scrolling="no"
     />
