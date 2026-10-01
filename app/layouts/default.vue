@@ -8,6 +8,7 @@ import FooterMenuGroup from "~/components/layout/FooterMenuGroup.vue";
 import MobileAppHeader from "~/components/layout/MobileAppHeader.vue";
 import MobileBottomNav from "~/components/layout/MobileBottomNav.vue";
 import MobileRouteSkeleton from "~/components/layout/MobileRouteSkeleton.vue";
+import { ALL_TOOL_PAGE_PATHS, normalizePublisherPath } from "~/data/site-routes";
 import {
   STARTER_GUIDES,
   type StarterGuide,
@@ -994,6 +995,10 @@ watch(
             v-if="currentToolGuide?.guide && shouldShowToolPageDetails"
             :class="route.path === '/tools/expense-tracker' ? 'hidden sm:block' : undefined"
             :guide="currentToolGuide.guide"
+          />
+          <AdsNativeAd
+            v-if="ALL_TOOL_PAGE_PATHS.includes(normalizePublisherPath(route.path))"
+            :key="normalizePublisherPath(route.path)"
           />
         </main>
       </div>
