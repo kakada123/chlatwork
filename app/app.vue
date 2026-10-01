@@ -1,5 +1,6 @@
 <template>
   <Analytics />
+  <AdsBannerAd :key="route.path" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
