@@ -18,6 +18,7 @@ import { CreatorTelegramModule } from './creator-telegram/creator-telegram.modul
 import { MemberKhqrModule } from './member-khqr/member-khqr.module';
 import { PersonalAssistantModule } from './personal-assistant/personal-assistant.module';
 import { FeatureAvailabilityModule } from './feature-availability/feature-availability.module';
+import { ProfilesModule } from './profiles/profiles.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { FeatureAvailabilityModule } from './feature-availability/feature-availa
     PrismaModule,
     AuthModule,
     FeatureAvailabilityModule,
+    ProfilesModule,
     ExpensesModule,
     PaybackModule,
     ToolUsageModule,

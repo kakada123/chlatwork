@@ -112,6 +112,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
       "Productivity tools keep common work tasks direct, whether you are preparing a team activity, support note, password, or quick record.",
     accent: "from-fuchsia-300 via-violet-300 to-indigo-400",
     toolKeys: [
+      "chlatwork-link",
       "payback-calculator",
       "expense-tracker",
       "lucky-draw",

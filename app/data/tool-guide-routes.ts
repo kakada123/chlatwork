@@ -6,6 +6,7 @@ export type ToolGuideRoute = {
 };
 
 const GUIDE_SLUGS = [
+  ["chlatwork-link", "how-to-create-link-page"],
   ["payback-calculator", "how-to-split-group-expenses"],
   ["image-compress", "how-to-compress-image-without-upload"],
   ["image-to-pdf", "how-to-convert-images-to-pdf"],
@@ -47,7 +48,7 @@ export const TOOL_GUIDE_ROUTES: ToolGuideRoute[] = GUIDE_SLUGS.map(
     toolKey,
     slug,
     path: `/${slug}`,
-    toolPath: `/tools/${toolKey}`,
+    toolPath: toolKey === "chlatwork-link" ? "/link" : `/tools/${toolKey}`,
   }),
 );
 

@@ -47,6 +47,7 @@ const props = defineProps<{
 
 // Centralizing the catalogue keeps every tool on one coherent icon system.
 const ICONS: Record<string, Component> = {
+  "chlatwork-link": Link2,
   "payback-calculator": ArrowLeftRight,
   "image-compress": ImageDown,
   "image-to-pdf": FileImage,

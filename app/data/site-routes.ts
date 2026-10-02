@@ -17,6 +17,7 @@ export const PUBLIC_TRUST_PAGE_PATHS = [
 ];
 
 export const NAVIGATION_ONLY_PAGE_PATHS = [
+  "/link",
   "/moments/create",
   "/moments",
   "/developer-commands",

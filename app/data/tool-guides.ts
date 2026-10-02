@@ -147,6 +147,26 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
 }
 
 const RAW_GUIDES: Record<string, ToolGuideContent> = {
+  "chlatwork-link": {
+    metaTitle: "Create Your Public Link Page | ChlatWork Link",
+    metaDescription: "Build a mobile-first profile with all your links, eight themes, custom photos, a QR code, and simple activity counts.",
+    heroTitle: "Create a ChlatWork Link Page",
+    heroDescription: "Give your social profiles, portfolio, business, and contact links one public home.",
+    ctaLabel: "Create your page",
+    whatIs: ["ChlatWork Link is a customizable public profile page for your links. One account owns one page with a unique username.", "Profiles are private drafts until you publish them."],
+    whyUse: ["Share one URL across social bios, business cards, and messages.", "Choose a preset and preview your page before publishing.", "Keep websites, email, phone, and social links together."],
+    steps: ["Sign in and open ChlatWork Link from your account.", "Choose a username, display name, headline, and bio.", "Add link titles and full URLs, then drag or use arrows to reorder.", "Choose a theme, photo, and button style in Appearance.", "Publish the page and copy its URL or download its QR code."],
+    useCases: ["A creator shares social channels and product links.", "A developer collects a portfolio, GitHub, and contact information.", "A business shares its shop, menu, and support links."],
+    tips: ["Place your most important link first.", "Use clear button titles so visitors know where each link goes.", "Upload your avatar for a consistent social preview."],
+    privacy: ["Published profiles and enabled links are visible to anyone with the URL and may be indexed by search engines.", "Views and clicks are aggregate activity counts. Visitor identities are not stored for these counters.", "Photo uploads are re-encoded to remove metadata. Uploads take effect immediately; other edits take effect when saved."],
+    faqs: [
+      { question: "Can I add links beyond social media?", answer: "Yes. Add public HTTP or HTTPS websites, shop and portfolio URLs, email links using mailto:, and phone links using tel:." },
+      { question: "Can I hide my page or individual links?", answer: "Unpublish your page to hide it publicly, or disable individual links and save. Your saved profile remains in your account." },
+      { question: "What happens if I change my username?", answer: "Your public URL changes after saving. The old URL stops working, so update any shared links and QR codes." },
+    ],
+    keywords: ["link in bio", "public profile", "ChlatWork Link", "social links", "profile QR"],
+    applicationCategory: "UtilitiesApplication",
+  },
   "payback-calculator": {
     metaTitle: "How to Split Group Expenses for Free | ChlatWork",
     metaDescription:

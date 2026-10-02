@@ -725,6 +725,12 @@ onBeforeUnmount(() => {
       @toggle="toggleTelegramPhone"
     />
 
+    <NuxtLink v-if="!mobileAccountSection && websiteEnabled('chlatwork-link')" to="/account/link" class="flex items-center gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/5">
+      <Link2 class="size-6 shrink-0 text-sky-600 dark:text-cyan-300" aria-hidden="true" />
+      <span class="flex-1"><strong class="block text-sm">ChlatWork Link</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/60">Create your public page. Add your links. Share anywhere.</span></span>
+      <ChevronRight class="size-5 text-sky-600 dark:text-cyan-300" aria-hidden="true" />
+    </NuxtLink>
+
     <section
       id="profile-expense-section"
       class="sm:rounded-2xl sm:border sm:border-cyan-200 sm:bg-cyan-50/60 sm:p-6 dark:sm:border-cyan-300/20 dark:sm:bg-cyan-300/[0.06]"

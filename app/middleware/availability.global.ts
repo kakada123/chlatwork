@@ -7,13 +7,14 @@ export default defineNuxtRouteMiddleware(async (to) => {
     (tool) => tool.route === to.path && tool.enabled,
   );
   const commandHub = to.path === "/developer-commands";
+  const linkEditor = /^\/account\/link(?:\/|$)/.test(to.path);
   const creatorTool = getCreatorToolByRoute(to.path);
   const availability = useFeatureAvailability();
   try {
     // Recheck on navigation so another admin's change is visible without a reload.
     await availability.refresh();
   } catch {
-    if (websiteTool || creatorTool || commandHub) {
+    if (websiteTool || creatorTool || commandHub || linkEditor) {
       return abortNavigation(
         createError({
           statusCode: 503,
@@ -27,6 +28,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (
     (websiteTool && !availability.websiteEnabled(websiteTool.key)) ||
+    (linkEditor && !availability.websiteEnabled("chlatwork-link")) ||
     (creatorTool && !availability.creatorEnabled(creatorTool.id)) ||
     (commandHub && !availability.websiteEnabled("developer-commands"))
   ) {

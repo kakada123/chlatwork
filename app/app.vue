@@ -27,16 +27,18 @@
 <script setup lang="ts">
 import { Analytics } from "@vercel/analytics/nuxt";
 import { getPublisherRobots } from "~/data/site-routes";
+import { canShowAdsForUser } from "~/lib/ad-visibility";
 
 const { copy, isKhmer } = useLanguage();
 useColorMode();
 const route = useRoute();
 const { canShowAds } = useAdVisibility();
+const { user, isReady } = useAuth();
 
 onMounted(() => {
   watch(canShowAds, (allowed, previouslyAllowed) => {
     // Signing in as Kakada also clears ads already injected by third-party scripts.
-    if (previouslyAllowed && !allowed) window.location.reload();
+    if (previouslyAllowed && !allowed && !canShowAdsForUser(isReady.value, user.value)) window.location.reload();
   });
 });
 

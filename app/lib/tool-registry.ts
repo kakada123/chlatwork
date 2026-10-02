@@ -15,6 +15,15 @@ export type ToolDef = {
 
 export const TOOLS: ToolDef[] = [
   {
+    key: "chlatwork-link",
+    name: "ChlatWork Link",
+    route: "/link",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Create a beautiful profile page for all your links, with themes and a shareable QR code.",
+  },
+  {
     key: "payback-calculator",
     name: "PayBack Calculator",
     route: "/tools/payback-calculator",
@@ -254,6 +263,7 @@ export const ALL_TOOLS_ICON_PATHS = [
 ];
 
 export const TOOL_ICON_PATHS: Record<string, string[]> = {
+  "chlatwork-link": ["M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1", "M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"],
   calculator: [
     "M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z",
     "M8 7.5h8",
@@ -464,6 +474,7 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
 };
 
 export const TOOL_ICON_CLASSES: Record<string, string> = {
+  "chlatwork-link": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
   calculator:
     "bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white",
   qr: "bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",

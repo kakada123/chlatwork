@@ -4,6 +4,7 @@ import type { RecordToolUsageDto } from './dto/record-tool-usage.dto';
 
 // Keep this allowlist server-owned so clients cannot create arbitrary analytics labels.
 const ENABLED_TOOL_KEYS = new Set([
+  'chlatwork-link',
   'payback-calculator',
   'image-compress',
   'image-to-pdf',

@@ -494,6 +494,7 @@ const routesWithEmbeddedMobileChrome = new Set(["/", "/km", "/account", "/tools"
 const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path));
 const mobileHeaderReturnsToAccount = computed(() => route.query.from === "account");
 const mobilePageTitle = computed(() => {
+  if (route.path.startsWith("/account/link")) return "ChlatWork Link";
   if (route.path === "/creator") return "Creator";
   const creatorTool = getCreatorToolByRoute(route.path);
   if (creatorTool) return creatorTool.shortTitle;
@@ -533,6 +534,7 @@ const mobilePageTitle = computed(() => {
   return "ChlatWork";
 });
 const mobileBackPath = computed(() => {
+  if (route.path.startsWith("/account/link")) return "/account";
   if (mobileHeaderReturnsToAccount.value) return "/account";
   if (route.path.startsWith("/creator/")) return "/creator";
   if (route.path.startsWith("/tools/")) return "/tools";
@@ -655,6 +657,7 @@ watch(
 
           <!-- Desktop Navigation -->
           <nav class="hidden items-center gap-1 text-sm sm:flex">
+            <NuxtLink v-if="websiteEnabled('chlatwork-link')" to="/link" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">Link</NuxtLink>
             <NuxtLink
               to="/tools"
               class="rounded-lg px-3 py-2 font-medium transition"

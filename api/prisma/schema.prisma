@@ -214,6 +214,7 @@ model User {
   toolUsageEvents                            ToolUsageEvent[]
   favorites                                  UserFavorite[]
   moments                                    Moment[]
+  linkProfile                                LinkProfile?
   telegramBotPendingExpenses                 TelegramBotPendingExpense[]
   telegramBotConversationState               TelegramBotConversationState?
   telegramBudgetAlertState                   TelegramBudgetAlertState?
@@ -231,6 +232,66 @@ model User {
   personalReminders                          PersonalReminder[]
 
   @@map("users")
+}
+
+model LinkProfile {
+  id              String        @id @default(uuid()) @db.Uuid
+  userId          String        @unique @map("user_id") @db.Uuid
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug            String        @unique @db.VarChar(40)
+  displayName     String        @map("display_name") @db.VarChar(100)
+  headline        String        @default("") @db.VarChar(160)
+  bio             String        @default("") @db.VarChar(320)
+  avatarUrl       String?       @map("avatar_url") @db.VarChar(2048)
+  backgroundUrl   String?       @map("background_url") @db.VarChar(2048)
+  theme           String        @default("minimal") @db.VarChar(20)
+  backgroundMode  String        @default("preset") @map("background_mode") @db.VarChar(20)
+  backgroundColor String        @default("#f8fafc") @map("background_color") @db.VarChar(7)
+  gradientColor   String        @default("#e9d5ff") @map("gradient_color") @db.VarChar(7)
+  colorMode       String        @default("preset") @map("color_mode") @db.VarChar(10)
+  font            String        @default("sans") @db.VarChar(10)
+  radius          String        @default("rounded") @db.VarChar(10)
+  buttonStyle     String        @default("solid") @map("button_style") @db.VarChar(10)
+  showBranding    Boolean       @default(true) @map("show_branding")
+  isPublished     Boolean       @default(false) @map("is_published")
+  seoTitle        String        @default("") @map("seo_title") @db.VarChar(100)
+  seoDescription  String        @default("") @map("seo_description") @db.VarChar(200)
+  viewCount       Int           @default(0) @map("view_count")
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  links           ProfileLink[]
+  images          ProfileImage[]
+
+  @@map("link_profiles")
+}
+
+model ProfileLink {
+  id         String      @id @default(uuid()) @db.Uuid
+  profileId  String      @map("profile_id") @db.Uuid
+  profile    LinkProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  type       String      @default("custom") @db.VarChar(20)
+  title      String      @db.VarChar(80)
+  url        String      @db.VarChar(2048)
+  position   Int         @default(0)
+  isEnabled  Boolean     @default(true) @map("is_enabled")
+  clickCount Int         @default(0) @map("click_count")
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([profileId, position])
+  @@map("profile_links")
+}
+
+model ProfileImage {
+  id        String      @id @default(uuid()) @db.Uuid
+  profileId String      @map("profile_id") @db.Uuid
+  profile   LinkProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  kind      String      @db.VarChar(10)
+  data      Bytes
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([profileId, kind])
+  @@map("profile_images")
 }
 
 model PersonalMemory {
