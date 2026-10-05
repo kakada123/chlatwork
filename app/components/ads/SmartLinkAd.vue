@@ -8,10 +8,15 @@
         ? 'បើកតំណពាណិជ្ជកម្មក្នុងផ្ទាំងថ្មី'
         : 'Open sponsored link in a new tab'
     "
-    class="mx-3 mb-3 flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
+    class="mx-3 mb-3 flex flex-col items-center justify-center gap-0.5 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-medium text-slate-600 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
   >
-    <span>{{ isKhmer ? "តំណពាណិជ្ជកម្ម" : "Sponsored link" }}</span>
-    <span aria-hidden="true">↗</span>
+    <span class="inline-flex items-center gap-1.5">
+      <span>{{ isKhmer ? "មើលឥឡូវនេះ" : "Explore now" }}</span>
+      <span aria-hidden="true">↗</span>
+    </span>
+    <span class="text-[10px] font-normal text-slate-400 dark:text-white/40">
+      {{ isKhmer ? "ពាណិជ្ជកម្ម" : "Ad" }}
+    </span>
   </a>
 </template>
 
