@@ -17,6 +17,8 @@
     >
       <div class="lg:sticky lg:top-3">
         <AdsBannerAd :key="route.path" placement="footer" />
+        <!-- Sponsored links follow the same session and route exclusions as other ads. -->
+        <AdsSmartLinkAd />
       </div>
     </aside>
     <AdsDesktopAd v-if="canShowAds" :key="route.path" class="lg:order-3" />
