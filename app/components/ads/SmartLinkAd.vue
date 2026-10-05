@@ -14,9 +14,6 @@
       <span>{{ isKhmer ? "មើលឥឡូវនេះ" : "Explore now" }}</span>
       <span aria-hidden="true">↗</span>
     </span>
-    <span class="text-[10px] font-normal text-slate-400 dark:text-white/40">
-      {{ isKhmer ? "ពាណិជ្ជកម្ម" : "Ad" }}
-    </span>
   </a>
 </template>
 
