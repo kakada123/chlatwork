@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { TelegramBusinessSecurityService } from './telegram-business-security.service';
 import { TelegramBotService } from './telegram-bot.service';
+import { SecurityService } from './security.service';
 
 describe('Telegram Business security', () => {
   function setup(overrides: Record<string, unknown> = {}) {
@@ -74,6 +75,7 @@ describe('Telegram Business security', () => {
       JSON.stringify({
         event: 'telegram_business_security_status',
         scanningEnabled: false,
+        fileScanEnabled: false,
         autoDeleteEnabled: false,
         riskThreshold: 96,
         confidenceThreshold: 99,
@@ -96,6 +98,82 @@ describe('Telegram Business security', () => {
       expect.stringContaining('"action":"deleted"'),
     );
   });
+
+  it.each([
+    {
+      verdict: 'infected',
+      autoDelete: 'true',
+      permission: true,
+      deleted: true,
+    },
+    {
+      verdict: 'infected',
+      autoDelete: 'false',
+      permission: true,
+      deleted: false,
+    },
+    {
+      verdict: 'infected',
+      autoDelete: 'true',
+      permission: false,
+      deleted: false,
+    },
+    { verdict: 'clean', autoDelete: 'true', permission: true, deleted: false },
+    {
+      verdict: 'unavailable',
+      autoDelete: 'true',
+      permission: true,
+      deleted: false,
+    },
+    {
+      verdict: 'unsupported',
+      autoDelete: 'true',
+      permission: true,
+      deleted: false,
+    },
+    { verdict: 'busy', autoDelete: 'true', permission: true, deleted: false },
+  ])(
+    'applies malware verdict $verdict with deletion=$autoDelete and permission=$permission',
+    async ({ verdict, autoDelete, permission, deleted }) => {
+      const test = setup({
+        TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: autoDelete,
+      });
+      test.connection.rights.can_delete_all_messages = permission;
+      const ai = {
+        isConfigured: () => false,
+        assessMessageSecurity: jest.fn(),
+      };
+      const files = { scan: jest.fn().mockResolvedValue({ status: verdict }) };
+      const security = new SecurityService(ai as never, files as never);
+      const service = new TelegramBusinessSecurityService(
+        test.config as never,
+        test.bot as never,
+        security,
+      );
+      await service.handleMessage({
+        ...test.message,
+        text: undefined,
+        document: {
+          file_id: 'private-file',
+          file_name: 'private-document.pdf',
+        },
+      });
+      expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(
+        deleted ? 1 : 0,
+      );
+      const logs = JSON.stringify(
+        (Logger.prototype.log as jest.Mock).mock.calls,
+      );
+      expect(
+        (Logger.prototype.log as jest.Mock).mock.calls.map(([line]) =>
+          JSON.parse(line),
+        ),
+      ).toContainEqual(expect.objectContaining({ fileScanStatus: verdict }));
+      expect(logs).not.toContain('private-file');
+      expect(logs).not.toContain('private-document');
+      expect(ai.assessMessageSecurity).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     { riskScore: 89 },
@@ -232,6 +310,10 @@ describe('Telegram Business security', () => {
     },
     { entities: [{ type: 'text_link', offset: 0, length: 1 }] },
     { document: { file_name: {} } },
+    { document: { file_name: 'missing-id.pdf' } },
+    { document: { file_id: '' } },
+    { document: { file_id: 'id', file_size: -1 } },
+    { document: { file_id: 'id', file_size: 1.5 } },
   ])(
     'rejects malformed input %j before making provider requests',
     async (input) => {

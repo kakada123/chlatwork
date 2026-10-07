@@ -1,3 +1,5 @@
+import { readClamavConfig } from './clamav';
+
 const REQUIRED = [
   'DATABASE_URL',
   'FRONTEND_ORIGIN',
@@ -158,9 +160,19 @@ export function validateEnvironment(config: Record<string, unknown>) {
     );
   }
 
+  const fileScanner = readClamavConfig((key) => config[key]);
+  if (
+    fileScanner &&
+    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() !== 'true'
+  ) {
+    throw new Error('Business security must be enabled before file scanning');
+  }
+
   const useGemini = String(config.AI_USE_GEMINI).toLowerCase() === 'true';
   if (
-    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() === 'true'
+    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() ===
+      'true' &&
+    !fileScanner
   ) {
     const providerKey = useGemini ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY';
     const key = String(config[providerKey] ?? '').trim();

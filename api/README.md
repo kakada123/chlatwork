@@ -221,7 +221,7 @@ the account whose inbox should be protected, and grant **Delete all messages**
 existing behavior. Re-register the webhook with the Business update types above.
 
 Set `TELEGRAM_BUSINESS_SECURITY_ENABLED=true` to scan new and edited incoming
-Business messages using the bot's selected AI provider (`AI_USE_GEMINI`,
+Business messages. Text assessment uses the bot's selected AI provider (`AI_USE_GEMINI`,
 `OPENAI_API_KEY` or `GEMINI_API_KEY`, and its existing Telegram text model).
 The example configuration keeps scanning and deletion disabled. Configure real
 provider values separately in runtime settings; no database migration is needed.
@@ -237,8 +237,8 @@ With automatic deletion off, decisions are logged and messages are preserved.
 metadata, spam, and explicit dangerous content. Only text, captions, linked URLs,
 and document names/MIME types go to the selected AI provider; sender IDs and file
 IDs are excluded, and OpenAI requests use `store: false`. Links are not fetched,
-and attachments are neither downloaded nor scanned for malware. File-only findings
-have confidence capped at 85. Photos, audio, video without scannable captions, and
+and document bytes are sent only to the opt-in private ClamAV scanner described below.
+AI file-only findings have confidence capped at 85. Photos, audio, video without scannable captions, and
 oversized scan payloads are preserved. AI scores are model estimates, not verified
 malware/reputation findings, and cannot guarantee detection or freedom from false
 positives. Spam is assessed from the current message, without a sender history.
@@ -254,7 +254,8 @@ update, so they do not repeatedly send private content to the provider.
 
 `TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE` defaults to 60 per API process
 (allowed range 1-300). Excess messages are preserved; multiple replicas each have
-their own limit. Logs contain only action, score, confidence, and fixed categories;
+their own limit. Logs contain only action, score, confidence, fixed categories, and
+optional fixed `fileScanStatus`/`fileScanReason` values;
 they contain no message content, URLs, filenames, or Telegram identities. Verify
 real inbox scanning, edit handling, and deletion permissions after deployment.
 
@@ -271,6 +272,90 @@ messages skipped before assessment log `telegram_business_security` with
 `action: "skipped"` and a fixed reason (`disabled`, `outgoing_message`,
 `bot_message`, `expired_message`, or `inactive_connection`). These diagnostics
 contain no message bodies, identities, filenames, URLs, or configuration secrets.
+
+#### Real document malware scanning (ClamAV)
+
+Set `TELEGRAM_BUSINESS_FILE_SCAN_ENABLED=true` and configure a **private** ClamD
+endpoint. Every supported incoming Telegram `document` is downloaded from Telegram
+and scanned as bytes, regardless of extension or reported MIME. The API keeps bytes
+only in bounded process memory; ClamD may use temporary files during scanning and
+removes them afterward. Bytes are never sent to the AI provider or a public file
+analysis service. Photos, voice messages, and videos sent as media are not scanned;
+send them as documents if document scanning is needed. Links are still assessed
+from message text; they are not fetched or reputation-checked.
+
+| Setting                                      | Default               | Accepted values                                      |
+| -------------------------------------------- | --------------------- | ---------------------------------------------------- |
+| `TELEGRAM_BUSINESS_FILE_SCAN_ENABLED`        | `false`               | `true` / `false`; requires Business security enabled |
+| `CLAMAV_HOST`                                | required when enabled | Loopback/private IP or `<service>.railway.internal`  |
+| `CLAMAV_PORT`                                | `3310`                | 1-65535                                              |
+| `CLAMAV_TIMEOUT_MS`                          | `10000`               | 1000-30000; total socket deadline                    |
+| `TELEGRAM_BUSINESS_FILE_SCAN_MAX_BYTES`      | `10485760` (10 MiB)   | 1-20971520 (20 MiB)                                  |
+| `TELEGRAM_BUSINESS_FILE_SCAN_MAX_CONCURRENT` | `2`                   | 1-4 per API process, including downloads             |
+
+ClamAV signature findings produce `riskScore: 100`, `confidence: 100`, category
+`suspicious_file`, and `fileScanStatus: "infected"`. These scores represent the
+engine verdict, not AI certainty. Existing auto-delete, thresholds, age, incoming
+message, and deletion permission gates still apply. With auto-delete off, infected
+documents are preserved and logged. A clean engine result means no known signature
+was detected; it does not prove a file is safe.
+
+Disabled scanning, missing/oversized files, saturated concurrency, download errors,
+scanner outages, malformed responses, encrypted files, and heuristic/scan-limit
+findings never authorize malware deletion. Logs show `disabled`, `unsupported`,
+`busy`, or `unavailable` and a fixed reason where relevant. Files are not queued
+or retried after an acknowledged update. Independent high-confidence phishing or
+scam text/captions can still trigger the existing AI deletion rules, including
+when file scanning is unavailable. With file scanning enabled, an AI provider is
+optional for document malware detection; text assessment still requires the
+selected provider. No database migration or additional webhook update type is needed.
+
+#### Railway scanner setup
+
+1. Add a separate service named `clamav` from this repository in the **same project
+   and environment** as the Nest API. Set its root directory to `/infra/clamav`;
+   Railway should use that directory's `Dockerfile`. Keep the existing API service
+   root/build/start settings. Use one scanner replica initially.
+2. Give the scanner about **4 GiB RAM** and attach a volume at `/var/lib/clamav`
+   for official signature updates. Leave FreshClam enabled. Initial signature
+   download/engine loading can take several minutes. Maintain the pinned ClamAV
+   image as upstream security patches are released. See the
+   [official Docker guide](https://docs.clamav.net/manual/Installing/Docker.html).
+3. Use only Railway private networking. Create **no public domain or TCP proxy**
+   for ClamAV: the [ClamD TCP protocol](https://docs.clamav.net/manual/Usage/Scanning.html)
+   has no authentication or TLS. Copy the scanner's private hostname into the
+   API's `CLAMAV_HOST` (normally `clamav.railway.internal`), port `3310`.
+   See [Railway private networking](https://docs.railway.com/networking/private-networking).
+4. In the API runtime settings, enable `TELEGRAM_BUSINESS_SECURITY_ENABLED` and
+   `TELEGRAM_BUSINESS_FILE_SCAN_ENABLED`. Start with
+   `TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE=false`, then deploy the API changes.
+   Startup logs should show `scanningEnabled: true` and `fileScanEnabled: true`.
+5. From the built API container, run this smoke check (no bot token needed):
+
+   ```sh
+   node scripts/check-clamav.cjs clamav.railway.internal 3310
+   ```
+
+   It uses the production client to check ordinary bytes and the harmless
+   [EICAR antivirus test marker](https://www.eicar.org/download-anti-malware-testfile/)
+   against the real scanner. It writes no attachment and sends no Telegram message.
+
+6. Send an ordinary test document and an EICAR test document **from another account**
+   into a chat covered by the bot connection. Check `fileScanStatus` in logs for
+   `"clean"` and `"infected"` with `action: "preserved"`. After this succeeds,
+   enable auto-delete and test incoming deletion permissions separately.
+
+For local development, build/run the scanner explicitly and expose its TCP port
+only on loopback, then run the smoke check after building the API:
+
+```sh
+docker build -t chlatwork-clamav infra/clamav
+docker run --name chlatwork-clamav -d -p 127.0.0.1:3310:3310 \
+  --mount source=chlatwork-clamav-db,target=/var/lib/clamav chlatwork-clamav
+cd api
+npm run build
+node scripts/check-clamav.cjs 127.0.0.1 3310
+```
 
 Enable inline mode in BotFather with `/setinline` and use a placeholder such as
 `Share a ChlatWork vote`. Without inline mode, the `/vote` share buttons cannot

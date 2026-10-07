@@ -128,3 +128,107 @@ describe('Telegram Business API', () => {
     ).rejects.toThrow('Telegram bot request failed');
   });
 });
+
+describe('Bounded Telegram file downloads', () => {
+  afterEach(() => jest.restoreAllMocks());
+  const client = () =>
+    new TelegramBotClient({
+      getOrThrow: () => 'dummy-test-token',
+    } as unknown as ConfigService);
+  const fileResponse = (
+    file: Record<string, unknown> = { file_path: 'documents/file.pdf' },
+  ) => new Response(JSON.stringify({ ok: true, result: file }));
+
+  it('downloads bytes without allowing redirects from the token-bearing URL', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(fileResponse())
+      .mockResolvedValueOnce(new Response(new Uint8Array([1, 2, 3])));
+    await expect(client().downloadFile('dummy-id', 10)).resolves.toEqual(
+      new Uint8Array([1, 2, 3]),
+    );
+    expect(fetchMock.mock.calls[1]![1]).toMatchObject({
+      redirect: 'error',
+      signal: expect.any(AbortSignal),
+    });
+  });
+
+  it('cancels when streamed bytes exceed the limit even without Content-Length', async () => {
+    const cancel = jest.fn();
+    let reads = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        reads++;
+        controller.enqueue(new Uint8Array(8));
+      },
+      cancel,
+    });
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(fileResponse())
+      .mockResolvedValueOnce(new Response(body));
+    await expect(client().downloadFile('dummy-id', 10)).rejects.toThrow(
+      'too large',
+    );
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(reads).toBeLessThanOrEqual(4);
+  });
+
+  it('rejects a declared oversized file before opening its download URL', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        fileResponse({ file_path: 'documents/file.pdf', file_size: 11 }),
+      );
+    await expect(client().downloadFile('dummy-id', 10)).rejects.toThrow(
+      'too large',
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['11', 'invalid'])(
+    'cancels oversized/invalid Content-Length %s',
+    async (length) => {
+      const cancel = jest.fn();
+      const body = new ReadableStream({ cancel });
+      jest
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValueOnce(fileResponse())
+        .mockResolvedValueOnce(
+          new Response(body, { headers: { 'Content-Length': length } }),
+        );
+      await expect(client().downloadFile('dummy-id', 10)).rejects.toThrow(
+        'too large',
+      );
+      expect(cancel).toHaveBeenCalled();
+    },
+  );
+
+  it('keeps read failures generic rather than exposing the token-bearing URL', async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.error(new Error('private token URL'));
+      },
+    });
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(fileResponse())
+      .mockResolvedValueOnce(new Response(body));
+    await expect(client().downloadFile('dummy-id', 10)).rejects.toThrow(
+      'Telegram file download failed',
+    );
+  });
+
+  it.each([0, -1, NaN, Infinity, 1.5])(
+    'rejects invalid byte limits %s before any network request',
+    async (maxBytes) => {
+      const fetchMock = jest
+        .spyOn(globalThis, 'fetch')
+        .mockRejectedValue(new Error('No test network requests'));
+      await expect(client().downloadFile('dummy-id', maxBytes)).rejects.toThrow(
+        'invalid',
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+});

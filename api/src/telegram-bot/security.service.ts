@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TelegramAssistantAiService } from './telegram-assistant-ai.service';
+import { TelegramFileSecurityService } from './telegram-file-security.service';
 import type {
   TelegramMessage,
   TelegramMessageEntity,
@@ -8,9 +9,38 @@ import type { SecurityScanInput, SecurityScanResult } from './security.types';
 
 @Injectable()
 export class SecurityService {
-  constructor(private readonly ai: TelegramAssistantAiService) {}
+  constructor(
+    private readonly ai: TelegramAssistantAiService,
+    private readonly files: TelegramFileSecurityService,
+  ) {}
 
   async scan(message: TelegramMessage): Promise<SecurityScanResult> {
+    const fileScan = message.document
+      ? await this.files.scan(message.document)
+      : undefined;
+    if (fileScan?.status === 'infected') {
+      // Only a real signature verdict can override the file-metadata confidence ceiling.
+      return {
+        status: 'scanned',
+        riskScore: 100,
+        confidence: 100,
+        categories: ['suspicious_file'],
+        fileScan,
+      };
+    }
+    const result = await this.assessMessage(message);
+    return {
+      ...result,
+      ...(fileScan ? { fileScan } : {}),
+      ...(fileScan?.status === 'clean' && result.status === 'unavailable'
+        ? { status: 'scanned' as const }
+        : {}),
+    };
+  }
+
+  private async assessMessage(
+    message: TelegramMessage,
+  ): Promise<SecurityScanResult> {
     const input: SecurityScanInput = {
       text: message.text ?? '',
       caption: message.caption ?? '',

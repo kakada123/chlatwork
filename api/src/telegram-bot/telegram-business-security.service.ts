@@ -31,6 +31,7 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
       JSON.stringify({
         event: 'telegram_business_security_status',
         scanningEnabled: this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED'),
+        fileScanEnabled: this.enabled('TELEGRAM_BUSINESS_FILE_SCAN_ENABLED'),
         autoDeleteEnabled: this.enabled(
           'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
         ),
@@ -180,6 +181,14 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         riskScore: result.riskScore,
         confidence: result.confidence,
         categories: result.categories,
+        ...(result.fileScan
+          ? {
+              fileScanStatus: result.fileScan.status,
+              ...(result.fileScan.reason
+                ? { fileScanReason: result.fileScan.reason }
+                : {}),
+            }
+          : {}),
       }),
     );
   }
@@ -253,6 +262,12 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
       const document = object(message.document);
       if (
         !document ||
+        typeof document.file_id !== 'string' ||
+        !document.file_id.trim() ||
+        document.file_id.length > 256 ||
+        (document.file_size !== undefined &&
+          (!Number.isSafeInteger(document.file_size) ||
+            Number(document.file_size) < 0)) ||
         !boundedText(document.file_name, 512) ||
         !boundedText(document.mime_type, 128)
       ) {

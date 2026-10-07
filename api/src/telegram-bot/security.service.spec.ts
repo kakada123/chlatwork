@@ -12,7 +12,12 @@ describe('SecurityService', () => {
       isConfigured: jest.fn().mockReturnValue(true),
       assessMessageSecurity: jest.fn().mockResolvedValue({ ...assessment }),
     };
-    return { ai, service: new SecurityService(ai as never) };
+    const files = { scan: jest.fn().mockResolvedValue({ status: 'disabled' }) };
+    return {
+      ai,
+      files,
+      service: new SecurityService(ai as never, files as never),
+    };
   }
   const message: TelegramMessage = {
     message_id: 1,
@@ -41,7 +46,11 @@ describe('SecurityService', () => {
         mime_type: 'application/octet-stream',
       },
     });
-    expect(result).toEqual({ ...assessment, status: 'scanned' });
+    expect(result).toEqual({
+      ...assessment,
+      status: 'scanned',
+      fileScan: { status: 'disabled' },
+    });
     expect(ai.assessMessageSecurity).toHaveBeenCalledWith({
       text: message.text,
       caption: 'invoice',
@@ -126,5 +135,62 @@ describe('SecurityService', () => {
       status: 'unavailable',
       categories: [],
     });
+  });
+
+  it('detects an infected document even without AI or text, and bypasses metadata confidence caps', async () => {
+    const { service, ai, files } = setup();
+    ai.isConfigured.mockReturnValue(false);
+    files.scan.mockResolvedValue({ status: 'infected' });
+    const document = { file_id: 'private-id', file_name: 'invoice.pdf' };
+    await expect(
+      service.scan({ ...message, text: undefined, document }),
+    ).resolves.toEqual({
+      status: 'scanned',
+      riskScore: 100,
+      confidence: 100,
+      categories: ['suspicious_file'],
+      fileScan: { status: 'infected' },
+    });
+    expect(files.scan).toHaveBeenCalledWith(document);
+    expect(ai.assessMessageSecurity).not.toHaveBeenCalled();
+  });
+
+  it.each(['clean', 'unavailable', 'unsupported', 'busy'])(
+    'does not turn a %s document scan into a high-confidence threat',
+    async (status) => {
+      const { service, files, ai } = setup();
+      files.scan.mockResolvedValue({ status });
+      ai.assessMessageSecurity.mockResolvedValue({
+        riskScore: 99,
+        confidence: 99,
+        categories: ['suspicious_file'],
+      });
+      await expect(
+        service.scan({
+          ...message,
+          text: undefined,
+          document: { file_id: 'id' },
+        }),
+      ).resolves.toMatchObject({ confidence: 85, fileScan: { status } });
+    },
+  );
+
+  it('retains independent phishing caption assessment alongside a clean file verdict', async () => {
+    const { service, files } = setup();
+    files.scan.mockResolvedValue({ status: 'clean' });
+    await expect(
+      service.scan({ ...message, document: { file_id: 'id' } }),
+    ).resolves.toMatchObject({ ...assessment, fileScan: { status: 'clean' } });
+  });
+
+  it('does not download attachments for text-only or unsupported photo messages', async () => {
+    const { service, files } = setup();
+    await service.scan(message);
+    await service.scan({
+      ...message,
+      text: undefined,
+      photo: [{ file_id: 'photo', width: 1, height: 1 }],
+    });
+    expect(files.scan).not.toHaveBeenCalled();
   });
 });

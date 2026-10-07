@@ -214,7 +214,13 @@ export class TelegramBotClient {
   }
 
   async downloadFile(fileId: string, maxBytes: number) {
-    if (!fileId || fileId.length > 256 || maxBytes <= 0) {
+    if (
+      typeof fileId !== 'string' ||
+      !fileId.trim() ||
+      fileId.length > 256 ||
+      !Number.isSafeInteger(maxBytes) ||
+      maxBytes <= 0
+    ) {
       throw new BadRequestException('Telegram file is invalid');
     }
     const file = (await this.call('getFile', { file_id: fileId })) as
@@ -222,7 +228,10 @@ export class TelegramBotClient {
     if (
       !file?.file_path ||
       !TELEGRAM_FILE_PATH_PATTERN.test(file.file_path) ||
-      (file.file_size !== undefined && file.file_size > maxBytes)
+      (file.file_size !== undefined &&
+        (!Number.isSafeInteger(file.file_size) ||
+          file.file_size < 0 ||
+          file.file_size > maxBytes))
     ) {
       throw new BadRequestException(
         'Telegram file is unavailable or too large',
@@ -230,25 +239,59 @@ export class TelegramBotClient {
     }
 
     const token = this.config.getOrThrow<string>(this.tokenConfigKey);
-    let response: Response;
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+    let complete = false;
     try {
-      response = await fetch(
+      const response = await fetch(
         `https://api.telegram.org/file/bot${token}/${file.file_path}`,
-        { signal: AbortSignal.timeout(15_000) },
+        { signal: AbortSignal.timeout(15_000), redirect: 'error' },
       );
-    } catch {
+      if (!response.ok || !response.body) {
+        throw new ServiceUnavailableException('Telegram file download failed');
+      }
+      reader = response.body.getReader();
+      const length = response.headers.get('content-length');
+      if (
+        length !== null &&
+        (!/^\d+$/.test(length) || Number(length) > maxBytes)
+      ) {
+        throw new BadRequestException(
+          'Telegram file is unavailable or too large',
+        );
+      }
+      // A fixed buffer also bounds memory when a sender streams millions of tiny chunks.
+      const bytes = new Uint8Array(maxBytes);
+      let receivedBytes = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          complete = true;
+          break;
+        }
+        receivedBytes += value.length;
+        // Enforce the real byte count before buffering; Content-Length is not a trusted limit.
+        if (receivedBytes > maxBytes) {
+          throw new BadRequestException(
+            'Telegram file is unavailable or too large',
+          );
+        }
+        bytes.set(value, receivedBytes - value.length);
+      }
+      if (!receivedBytes)
+        throw new BadRequestException(
+          'Telegram file is unavailable or too large',
+        );
+      return bytes.subarray(0, receivedBytes);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      // Body/redirect failures can contain the bot token URL; keep all download errors generic.
       throw new ServiceUnavailableException('Telegram file download failed');
+    } finally {
+      if (reader) {
+        if (!complete) await reader.cancel().catch(() => undefined);
+        reader.releaseLock();
+      }
     }
-    if (!response.ok) {
-      throw new ServiceUnavailableException('Telegram file download failed');
-    }
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    if (!bytes.length || bytes.length > maxBytes) {
-      throw new BadRequestException(
-        'Telegram file is unavailable or too large',
-      );
-    }
-    return bytes;
   }
 
   private async call(method: string, payload: Record<string, unknown>) {

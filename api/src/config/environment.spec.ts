@@ -13,6 +13,52 @@ const valid = {
 };
 
 describe('validateEnvironment', () => {
+  const fileScanner = {
+    TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',
+    TELEGRAM_BUSINESS_FILE_SCAN_ENABLED: 'true',
+    CLAMAV_HOST: 'clamav.railway.internal',
+  };
+
+  it('allows file scanning without an AI provider and validates private endpoint/limits', () => {
+    expect(validateEnvironment({ ...valid, ...fileScanner })).toMatchObject(
+      fileScanner,
+    );
+    for (const host of [
+      'localhost',
+      '127.0.0.1',
+      '10.0.0.2',
+      '172.16.1.2',
+      '192.168.1.2',
+      '::1',
+      'fd00::2',
+    ]) {
+      expect(() =>
+        validateEnvironment({ ...valid, ...fileScanner, CLAMAV_HOST: host }),
+      ).not.toThrow();
+    }
+    for (const override of [
+      { TELEGRAM_BUSINESS_FILE_SCAN_ENABLED: 'yes' },
+      { TELEGRAM_BUSINESS_SECURITY_ENABLED: 'false' },
+      { CLAMAV_HOST: '' },
+      { CLAMAV_HOST: 'example.com' },
+      { CLAMAV_HOST: 'https://clamav.railway.internal' },
+      { CLAMAV_HOST: 'clamav.railway.internal.attacker.com' },
+      { CLAMAV_HOST: '8.8.8.8' },
+      { CLAMAV_PORT: '0' },
+      { CLAMAV_PORT: '65536' },
+      { CLAMAV_TIMEOUT_MS: '999' },
+      { CLAMAV_TIMEOUT_MS: '30001' },
+      { TELEGRAM_BUSINESS_FILE_SCAN_MAX_BYTES: '0' },
+      { TELEGRAM_BUSINESS_FILE_SCAN_MAX_BYTES: String(20 * 1024 * 1024 + 1) },
+      { TELEGRAM_BUSINESS_FILE_SCAN_MAX_CONCURRENT: '0' },
+      { TELEGRAM_BUSINESS_FILE_SCAN_MAX_CONCURRENT: '5' },
+      { TELEGRAM_BUSINESS_FILE_SCAN_MAX_CONCURRENT: '1.5' },
+    ])
+      expect(() =>
+        validateEnvironment({ ...valid, ...fileScanner, ...override }),
+      ).toThrow();
+  });
+
   it('validates Business security opt-in and deletion thresholds', () => {
     expect(
       validateEnvironment({

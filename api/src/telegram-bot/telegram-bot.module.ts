@@ -12,6 +12,8 @@ import { PersonalAssistantModule } from '../personal-assistant/personal-assistan
 import { TelegramKlaKlokService } from './telegram-kla-klok.service';
 import { SecurityService } from './security.service';
 import { TelegramBusinessSecurityService } from './telegram-business-security.service';
+import { ClamavService } from './clamav.service';
+import { TelegramFileSecurityService } from './telegram-file-security.service';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { TelegramBusinessSecurityService } from './telegram-business-security.se
     TelegramMemberQrScheduler,
     TelegramKlaKlokService,
     SecurityService,
+    ClamavService,
+    TelegramFileSecurityService,
     TelegramBusinessSecurityService,
   ],
   exports: [TelegramBotClient, TelegramAssistantAiService],

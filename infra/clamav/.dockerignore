@@ -1,0 +1,4 @@
+# Keep local credentials and unrelated files out of the scanner build context.
+*
+!Dockerfile
+!clamd.conf
