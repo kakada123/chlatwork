@@ -1,6 +1,7 @@
 export const SECURITY_CATEGORIES = [
   'scam',
   'phishing_url',
+  'unsafe_url',
   'suspicious_file',
   'spam',
   'dangerous_content',
@@ -24,6 +25,32 @@ export interface SecurityScanInput {
 export interface SecurityScanResult extends SecurityAssessment {
   status: 'scanned' | 'unavailable' | 'unsupported';
   fileScan?: FileScanResult;
+  urlScan?: UrlScanResult;
+}
+
+export const URL_THREAT_TYPES = [
+  'MALWARE',
+  'SOCIAL_ENGINEERING',
+  'UNWANTED_SOFTWARE',
+] as const;
+export type UrlThreatType = (typeof URL_THREAT_TYPES)[number];
+export interface UrlScanResult {
+  status:
+    | 'disabled'
+    | 'not_listed'
+    | 'unsafe'
+    | 'unavailable'
+    | 'unsupported'
+    | 'busy';
+  threatTypes?: UrlThreatType[];
+  reason?:
+    | 'invalid_config'
+    | 'invalid_or_private_url'
+    | 'too_many_links'
+    | 'concurrency_limit'
+    | 'rate_limited'
+    | 'provider_unavailable'
+    | 'invalid_response';
 }
 
 export interface FileScanResult {

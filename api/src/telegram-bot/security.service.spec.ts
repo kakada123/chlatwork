@@ -13,10 +13,12 @@ describe('SecurityService', () => {
       assessMessageSecurity: jest.fn().mockResolvedValue({ ...assessment }),
     };
     const files = { scan: jest.fn().mockResolvedValue({ status: 'disabled' }) };
+    const urls = { scan: jest.fn().mockResolvedValue({ status: 'disabled' }) };
     return {
       ai,
       files,
-      service: new SecurityService(ai as never, files as never),
+      urls,
+      service: new SecurityService(ai as never, files as never, urls as never),
     };
   }
   const message: TelegramMessage = {
@@ -25,6 +27,53 @@ describe('SecurityService', () => {
     from: { id: 456, username: 'private-user' },
     text: 'Verify your account',
   };
+
+  it.each(['SOCIAL_ENGINEERING', 'MALWARE', 'UNWANTED_SOFTWARE'])(
+    'uses a real %s verdict even without AI',
+    async (threat) => {
+      const { service, urls, ai } = setup();
+      ai.isConfigured.mockReturnValue(false);
+      urls.scan.mockResolvedValue({
+        status: 'unsafe',
+        threatTypes: [threat],
+      } as never);
+      await expect(
+        service.scan({ ...message, text: 'https://example.com/a' }),
+      ).resolves.toMatchObject({
+        status: 'scanned',
+        riskScore: 100,
+        confidence: 100,
+        categories: [
+          threat === 'SOCIAL_ENGINEERING' ? 'phishing_url' : 'unsafe_url',
+        ],
+        urlScan: { status: 'unsafe' },
+      });
+      expect(ai.assessMessageSecurity).not.toHaveBeenCalled();
+    },
+  );
+  it('continues AI phishing assessment for an unlisted link or failed reputation lookup', async () => {
+    const { service, urls, ai } = setup();
+    for (const status of ['not_listed', 'unavailable', 'busy']) {
+      urls.scan.mockResolvedValue({ status } as never);
+      await expect(
+        service.scan({ ...message, text: 'https://example.com/login' }),
+      ).resolves.toMatchObject({ ...assessment, urlScan: { status } });
+    }
+    expect(ai.assessMessageSecurity).toHaveBeenCalledTimes(3);
+  });
+  it('cannot promote an inconclusive lookup into a malicious verdict without AI', async () => {
+    const { service, urls, ai } = setup();
+    ai.isConfigured.mockReturnValue(false);
+    urls.scan.mockResolvedValue({ status: 'unavailable' } as never);
+    await expect(
+      service.scan({ ...message, text: 'https://example.com/login' }),
+    ).resolves.toMatchObject({
+      status: 'unavailable',
+      riskScore: 0,
+      confidence: 0,
+      categories: [],
+    });
+  });
 
   it('scans text and disguised links without transmitting identity or file IDs', async () => {
     const { ai, service } = setup();
@@ -50,6 +99,7 @@ describe('SecurityService', () => {
       ...assessment,
       status: 'scanned',
       fileScan: { status: 'disabled' },
+      urlScan: { status: 'disabled' },
     });
     expect(ai.assessMessageSecurity).toHaveBeenCalledWith({
       text: message.text,

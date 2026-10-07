@@ -43,6 +43,8 @@ describe('Business security owner alerts and manual deletion', () => {
       source_message_date: new Date(message.date * 1000),
       expires_at: new Date(Date.now() + 3600000),
       decision: 'preserved',
+      threat_kind: 'infected_file',
+      notified_threat_kind: null as string | null,
       alert_message_id: null as bigint | null,
       notified_decision: null as string | null,
       deleted_at: null as Date | null,
@@ -98,6 +100,135 @@ describe('Business security owner alerts and manual deletion', () => {
   afterEach(() => {
     jest.restoreAllMocks();
     jest.useRealTimers();
+  });
+
+  it.each([
+    {
+      kind: 'unsafe_link',
+      urlScan: { status: 'unsafe', threatTypes: ['SOCIAL_ENGINEERING'] },
+      header: 'Unsafe link detected',
+    },
+    {
+      kind: 'suspicious_link',
+      urlScan: { status: 'not_listed' },
+      header: 'Suspicious link detected',
+    },
+  ])(
+    'delivers $kind warnings to both chats with an owner-only Delete message button',
+    async ({ kind, urlScan, header }) => {
+      const test = setup({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'false' });
+      Object.assign(test.message, { text: 'https://example.com/login' });
+      Object.assign(test.connection.rights, { can_reply: true });
+      Object.assign(test.record, { threat_kind: kind });
+      const chat = { ...test.record, audience: 'chat' };
+      test.prisma.$queryRaw
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([chat])
+        .mockResolvedValueOnce([chat]);
+      const result = {
+        status: 'scanned',
+        riskScore: 95,
+        confidence: 90,
+        categories: ['phishing_url'],
+        urlScan,
+      };
+      await test.service.notify(
+        test.message,
+        test.connection,
+        result as never,
+        'preserved',
+      );
+      expect(test.bot.sendMessage).toHaveBeenCalledWith(
+        999,
+        expect.stringContaining(header),
+        {
+          inline_keyboard: [
+            [
+              {
+                text: expect.stringContaining('Delete message'),
+                callback_data: `security:delete:${id}`,
+              },
+            ],
+          ],
+        },
+      );
+      expect(test.bot.sendBusinessMessage).toHaveBeenCalledWith(
+        test.connection.id,
+        222,
+        expect.stringContaining(header),
+      );
+      const text = test.bot.sendMessage.mock.calls[0]![1] as unknown as string;
+      expect(text).not.toContain('ClamAV');
+      expect(text).toContain(
+        kind === 'unsafe_link' ? 'Google Web Risk' : 'AI assessment',
+      );
+      expect(test.bot.deleteBusinessMessages).not.toHaveBeenCalled();
+      expect(test.prisma.$queryRaw.mock.calls[0]).toContain(kind);
+      expect(test.prisma.$executeRaw.mock.calls[0]![0].join('')).toContain(
+        'notified_threat_kind',
+      );
+    },
+  );
+
+  it('retries the persisted link verdict rather than showing an infected-file warning', async () => {
+    const test = setup();
+    Object.assign(test.record, { threat_kind: 'suspicious_link' });
+    await test.service.processPending();
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      999,
+      expect.stringContaining('AI assessment'),
+      expect.anything(),
+    );
+    expect(test.prisma.$queryRaw.mock.calls[0]![0].join('')).toContain(
+      'notified_threat_kind IS DISTINCT FROM threat_kind',
+    );
+  });
+
+  it('does not emit an AI link warning for a message containing only file metadata', async () => {
+    const test = setup();
+    await test.service.notify(
+      test.message,
+      test.connection,
+      {
+        status: 'scanned',
+        riskScore: 95,
+        confidence: 85,
+        categories: ['phishing_url'],
+      },
+      'preserved',
+    );
+    expect(test.prisma.$queryRaw).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('deletes a flagged link through the same owner authorization and removes its button', async () => {
+    const test = setup();
+    Object.assign(test.record, {
+      threat_kind: 'unsafe_link',
+      alert_message_id: 88n,
+    });
+    const deleted = {
+      ...test.record,
+      decision: 'deleted',
+      deleted_at: new Date(),
+    };
+    test.prisma.$queryRaw
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([deleted])
+      .mockResolvedValueOnce([deleted]);
+    await test.service.handleCallback(test.callback);
+    expect(test.bot.deleteBusinessMessages).toHaveBeenCalledWith(
+      test.connection.id,
+      [7],
+    );
+    expect(test.bot.editMessage).toHaveBeenCalledWith(
+      999,
+      88,
+      expect.stringContaining('Unsafe link detected'),
+      { inline_keyboard: [] },
+    );
   });
 
   it('alerts the connection owner, not the incoming chat, with an opaque Delete button', async () => {

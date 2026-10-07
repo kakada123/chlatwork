@@ -832,6 +832,8 @@ model TelegramBusinessSecurityAlert {
   sourceMessageDate    DateTime  @map("source_message_date") @db.Timestamptz
   expiresAt            DateTime  @map("expires_at") @db.Timestamptz
   decision             String    @db.VarChar(24)
+  threatKind           String    @default("infected_file") @map("threat_kind") @db.VarChar(24)
+  notifiedThreatKind   String?   @map("notified_threat_kind") @db.VarChar(24)
   alertMessageId       BigInt?   @map("alert_message_id")
   notifiedDecision     String?   @map("notified_decision") @db.VarChar(24)
   deletedAt            DateTime? @map("deleted_at") @db.Timestamptz

@@ -37,6 +37,7 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         event: 'telegram_business_security_status',
         scanningEnabled: this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED'),
         fileScanEnabled: this.enabled('TELEGRAM_BUSINESS_FILE_SCAN_ENABLED'),
+        urlScanEnabled: this.enabled('TELEGRAM_BUSINESS_URL_SCAN_ENABLED'),
         ownerAlertsEnabled: this.alerts.ownerAlertsEnabled(),
         chatAlertsEnabled: this.alerts.chatAlertsEnabled(),
         autoDeleteEnabled: this.enabled(
@@ -201,6 +202,14 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         riskScore: result.riskScore,
         confidence: result.confidence,
         categories: result.categories,
+        ...(result.urlScan
+          ? {
+              urlScanStatus: result.urlScan.status,
+              ...(result.urlScan.reason
+                ? { urlScanReason: result.urlScan.reason }
+                : {}),
+            }
+          : {}),
         ...(result.fileScan
           ? {
               fileScanStatus: result.fileScan.status,

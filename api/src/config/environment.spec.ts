@@ -13,6 +13,34 @@ const valid = {
 };
 
 describe('validateEnvironment', () => {
+  it('allows reputation scanning without AI and validates its opt-in, key, and limits', () => {
+    const scanner = {
+      TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',
+      TELEGRAM_BUSINESS_URL_SCAN_ENABLED: 'true',
+      WEBRISK_API_KEY: 'test-provider-key',
+    };
+    expect(validateEnvironment({ ...valid, ...scanner })).toMatchObject(
+      scanner,
+    );
+    for (const override of [
+      { TELEGRAM_BUSINESS_URL_SCAN_ENABLED: 'yes' },
+      { TELEGRAM_BUSINESS_SECURITY_ENABLED: 'false' },
+      { WEBRISK_API_KEY: '' },
+      { WEBRISK_API_KEY: 'invalid key' },
+      { WEBRISK_API_KEY: 'dummy_webrisk_api_key' },
+      { WEBRISK_TIMEOUT_MS: '999' },
+      { WEBRISK_TIMEOUT_MS: '10001' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_LINKS: '0' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_LINKS: '11' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_CONCURRENT: '0' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_CONCURRENT: '5' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_REQUESTS_PER_MINUTE: '0' },
+      { TELEGRAM_BUSINESS_URL_SCAN_MAX_REQUESTS_PER_MINUTE: '301' },
+    ])
+      expect(() =>
+        validateEnvironment({ ...valid, ...scanner, ...override }),
+      ).toThrow();
+  });
   const fileScanner = {
     TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',
     TELEGRAM_BUSINESS_FILE_SCAN_ENABLED: 'true',

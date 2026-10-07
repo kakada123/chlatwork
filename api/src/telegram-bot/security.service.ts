@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { TelegramAssistantAiService } from './telegram-assistant-ai.service';
 import { TelegramFileSecurityService } from './telegram-file-security.service';
-import type {
-  TelegramMessage,
-  TelegramMessageEntity,
-} from './telegram-bot.types';
+import { TelegramUrlSecurityService } from './telegram-url-security.service';
+import { extractSecurityLinks } from './security-links';
+import type { TelegramMessage } from './telegram-bot.types';
 import type { SecurityScanInput, SecurityScanResult } from './security.types';
 
 @Injectable()
@@ -12,6 +11,7 @@ export class SecurityService {
   constructor(
     private readonly ai: TelegramAssistantAiService,
     private readonly files: TelegramFileSecurityService,
+    private readonly urls: TelegramUrlSecurityService,
   ) {}
 
   async scan(message: TelegramMessage): Promise<SecurityScanResult> {
@@ -28,11 +28,29 @@ export class SecurityService {
         fileScan,
       };
     }
-    const result = await this.assessMessage(message);
+    const links = extractSecurityLinks(message);
+    const urlScan = links.length ? await this.urls.scan(links) : undefined;
+    if (urlScan?.status === 'unsafe') {
+      return {
+        status: 'scanned',
+        riskScore: 100,
+        confidence: 100,
+        categories: [
+          urlScan.threatTypes?.includes('SOCIAL_ENGINEERING')
+            ? 'phishing_url'
+            : 'unsafe_url',
+        ],
+        urlScan,
+        ...(fileScan ? { fileScan } : {}),
+      };
+    }
+    const result = await this.assessMessage(message, links);
     return {
       ...result,
       ...(fileScan ? { fileScan } : {}),
-      ...(fileScan?.status === 'clean' && result.status === 'unavailable'
+      ...(urlScan ? { urlScan } : {}),
+      ...((fileScan?.status === 'clean' || urlScan?.status === 'not_listed') &&
+      result.status === 'unavailable'
         ? { status: 'scanned' as const }
         : {}),
     };
@@ -40,14 +58,12 @@ export class SecurityService {
 
   private async assessMessage(
     message: TelegramMessage,
+    links: SecurityScanInput['links'],
   ): Promise<SecurityScanResult> {
     const input: SecurityScanInput = {
       text: message.text ?? '',
       caption: message.caption ?? '',
-      links: [
-        ...this.links(message.text ?? '', message.entities),
-        ...this.links(message.caption ?? '', message.caption_entities),
-      ],
+      links,
       document: message.document
         ? {
             fileName: message.document.file_name ?? '',
@@ -83,24 +99,5 @@ export class SecurityService {
       // Preserve the message on provider failures; never log private input or provider errors.
       return { ...unchanged, status: 'unavailable' };
     }
-  }
-
-  private links(text: string, entities?: TelegramMessageEntity[]) {
-    return (entities ?? []).flatMap((entity) => {
-      if (entity.type === 'text_link' && entity.url) {
-        return [
-          {
-            target: entity.url,
-            label: text.slice(entity.offset, entity.offset + entity.length),
-          },
-        ];
-      }
-      if (entity.type === 'url') {
-        return [
-          { target: text.slice(entity.offset, entity.offset + entity.length) },
-        ];
-      }
-      return [];
-    });
   }
 }

@@ -15,6 +15,7 @@ import { TelegramBusinessSecurityService } from './telegram-business-security.se
 import { TelegramBusinessSecurityAlertsService } from './telegram-business-security-alerts.service';
 import { ClamavService } from './clamav.service';
 import { TelegramFileSecurityService } from './telegram-file-security.service';
+import { TelegramUrlSecurityService } from './telegram-url-security.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TelegramFileSecurityService } from './telegram-file-security.service';
     SecurityService,
     ClamavService,
     TelegramFileSecurityService,
+    TelegramUrlSecurityService,
     TelegramBusinessSecurityService,
     TelegramBusinessSecurityAlertsService,
   ],

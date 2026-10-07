@@ -86,6 +86,7 @@ describe('Telegram Business security', () => {
         event: 'telegram_business_security_status',
         scanningEnabled: false,
         fileScanEnabled: false,
+        urlScanEnabled: false,
         ownerAlertsEnabled: false,
         chatAlertsEnabled: false,
         autoDeleteEnabled: false,
@@ -156,7 +157,11 @@ describe('Telegram Business security', () => {
         assessMessageSecurity: jest.fn(),
       };
       const files = { scan: jest.fn().mockResolvedValue({ status: verdict }) };
-      const security = new SecurityService(ai as never, files as never);
+      const security = new SecurityService(
+        ai as never,
+        files as never,
+        { scan: jest.fn().mockResolvedValue({ status: 'disabled' }) } as never,
+      );
       const service = new TelegramBusinessSecurityService(
         test.config as never,
         test.bot as never,

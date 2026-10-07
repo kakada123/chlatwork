@@ -225,7 +225,7 @@ Business messages. Text assessment uses the bot's selected AI provider (`AI_USE_
 `OPENAI_API_KEY` or `GEMINI_API_KEY`, and its existing Telegram text model).
 The example configuration keeps scanning and deletion disabled. Configure real
 provider values separately in runtime settings. Scanning itself needs no schema change;
-the infected-file alerts below require a reviewable SQL addition.
+the security alerts below require reviewable SQL additions.
 
 Set `TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE=true` to automatically delete when
 the result has at least one supported risk category, risk score **90 or greater**,
@@ -250,13 +250,14 @@ account/bot messages and messages at least 48 hours old. Deletion uses
 and requires an active connection with permission to delete incoming messages.
 Successful webhook updates use the existing database deduplication; failed
 connection/deletion requests release their update claim for Telegram to retry.
-Provider failures or invalid assessments preserve the message and complete the
-update, so they do not repeatedly send private content to the provider.
+Provider failures or invalid assessments cannot themselves authorize deletion;
+an independent scanner/AI verdict can still apply. Inconclusive scans complete
+the update so they do not repeatedly send private content to the provider.
 
 `TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE` defaults to 60 per API process
 (allowed range 1-300). Excess messages are preserved; multiple replicas each have
 their own limit. Logs contain only action, score, confidence, fixed categories, and
-optional fixed `fileScanStatus`/`fileScanReason` values;
+optional fixed `fileScanStatus`/`fileScanReason` and `urlScanStatus`/`urlScanReason` values;
 they contain no message content, URLs, filenames, or Telegram identities. Verify
 real inbox scanning, edit handling, and deletion permissions after deployment.
 
@@ -274,17 +275,27 @@ messages skipped before assessment log `telegram_business_security` with
 `bot_message`, `expired_message`, or `inactive_connection`). These diagnostics
 contain no message bodies, identities, filenames, URLs, or configuration secrets.
 
-#### Infected-file warnings and owner Delete button
+#### Security warnings and owner Delete button
 
 When Business security and ClamAV scanning are enabled, a confirmed `infected`
 file sends a Khmer/English warning to **both** the account owner's private bot
-chat and the original managed conversation. Other scan statuses and AI-only
-scores do not trigger malware warnings. Automatic deletion remains optional;
-the warning states whether the file message was kept or deleted.
+chat and the original managed conversation. Google Web Risk matches also warn
+in both destinations. AI findings with `phishing_url` or `unsafe_url`, risk at
+least 90 and confidence at least 80, produce a **suspicious-link** warning that
+clearly states it is an AI assessment. AI suspicion is never labelled confirmed
+malware. Automatic deletion remains optional and keeps its existing minimum
+90 risk / 95 confidence thresholds; warnings state whether the message was kept
+or deleted.
 
-Before deploying, review and manually run
+On first installation, review and manually run
 [`prisma/sql/telegram-business-security-alerts.sql`](prisma/sql/telegram-business-security-alerts.sql).
-The application does not apply this SQL. Redeploy the API after the table exists.
+Keep this original creation script unchanged. For both new installations and
+existing alerts tables, review and manually run the separate upgrade
+[`prisma/sql/telegram-business-security-link-alerts.sql`](prisma/sql/telegram-business-security-link-alerts.sql)
+before deploying. The application does not apply either SQL script. This upgrade
+adds the durable finding type so retries retain the
+correct file, unsafe-link, or suspicious-link warning. Existing delivered file
+alerts are retained without being resent by the upgrade.
 No changes to the webhook update list are needed if `callback_query` and the
 Business update types above are already registered.
 
@@ -306,6 +317,8 @@ Business update types above are already registered.
   the exact private alert message, active connection, and current **Delete all
   messages** permission again. Actions expire 48 hours after the source message.
   After success, both existing warnings show Deleted and the button is removed.
+  Link warnings use **Delete message / លុបសារ** with the same authorization and
+  expiry checks; it deletes the original message containing the link.
 
 Warnings contain the fixed scanner verdict, source message number/time, and
 deletion outcome, without file names, attachment contents, links, or sender
@@ -316,7 +329,7 @@ across API replicas. Delivery retries up to three attempts (after 1 minute, then
 5 minutes), with a current connection check; expired records are removed by a
 bounded background sweep. A lost Telegram response can still cause a duplicate
 warning on retry because Telegram offers no send-message idempotency key.
-Notification failures never stop malware handling. Logs use fixed
+Notification failures never stop security handling. Logs use fixed
 `telegram_business_security_alert` events without private context.
 
 Verify both warning destinations and the owner button after deployment using a
@@ -324,6 +337,60 @@ harmless EICAR test file. Local unit tests do not send Telegram messages or
 apply database changes. See Telegram's
 [`BusinessBotRights`](https://core.telegram.org/bots/api#businessbotrights) and
 [`sendMessage`](https://core.telegram.org/bots/api#sendmessage) reference.
+
+#### Real URL reputation scanning (Google Web Risk Lookup)
+
+This checks Google's reputation data for public HTTP/HTTPS targets in Telegram
+URL entities, disguised `text_link` targets, plain text, and captions. The API
+does **not** open submitted links, follow redirects, download linked files, or
+inspect webpage content. ClamAV handles Telegram document attachments separately.
+
+1. Enable **Web Risk API** in a Google Cloud project with billing configured.
+   Create a server API key restricted to Web Risk API; configure it in Railway's
+   **chlatwork API service**, separately from any AI-provider key.
+2. Set `TELEGRAM_BUSINESS_SECURITY_ENABLED=true`,
+   `TELEGRAM_BUSINESS_URL_SCAN_ENABLED=true`, and `WEBRISK_API_KEY` at runtime.
+   The placeholder in `.env.example` must be replaced in Railway. AI is optional
+   for reputation matches, but is needed to assess new/unlisted phishing links.
+3. Apply the reviewable SQL above manually and redeploy. At startup check
+   `urlScanEnabled: true`. Per-message logs report `urlScanStatus` and a fixed
+   `urlScanReason` on failures, without raw URLs or API keys.
+4. Send Google's harmless reputation test URL
+   `http://testsafebrowsing.appspot.com/s/malware.html` as a new incoming message
+   to the connected Business account. Expect `urlScanStatus: "unsafe"`, risk and
+   confidence 100, warnings in both chats, and the owner Delete button when kept.
+   The owner must have sent `/start`; current-chat warnings require Secretary
+   Mode's **Reply to messages** permission. Auto-delete remains opt-in.
+
+Lookup sends the URL path and query to Google; this feature is explicitly opt-in.
+Fragments, credential-bearing URLs, common token/password/signature query
+parameters, local/internal hosts, private IPv4 targets, and IPv6 literals are
+excluded from reputation requests. It does not resolve DNS. URLs that fail
+validation or exceed limits have an inconclusive status; a missing reputation
+match (`not_listed`) is **not** a guarantee of safety. AI assessment continues
+after missing matches or provider failures. Submitted links are not retained
+in the database or logs; bounded in-memory caches hold target hashes and verdicts.
+
+Default limits: 5 distinct links per message, 2 concurrent requests per API
+process, 60 requests/minute per process, and a 5-second deadline per lookup.
+Configure `TELEGRAM_BUSINESS_URL_SCAN_MAX_LINKS` (1–10),
+`TELEGRAM_BUSINESS_URL_SCAN_MAX_CONCURRENT` (1–4),
+`TELEGRAM_BUSINESS_URL_SCAN_MAX_REQUESTS_PER_MINUTE` (1–300), and
+`WEBRISK_TIMEOUT_MS` (1,000–10,000) as needed. Identical simultaneous targets
+share one request. Negative results cache for 30 seconds; matches cache for at
+most 10 minutes and never beyond Google's expiry. Failures are not cached.
+These limits are per process, so set a project-wide Google quota/billing budget
+as well when using replicas. The local rate limit is not a monthly spending cap.
+
+Google currently includes the first 100,000 Lookup requests/month at no charge,
+then charges $0.50 per 1,000 at the next tier. Using the Update API's
+`threatLists.computeDiff` in the same project changes Lookup pricing to the
+Update API rate; this implementation uses Lookup only. Review Google's
+[pricing](https://cloud.google.com/web-risk/pricing),
+[Lookup guide](https://docs.cloud.google.com/web-risk/docs/lookup-api), and
+[API-key header guidance](https://docs.cloud.google.com/docs/authentication/api-keys-use).
+Local tests mock Google and Telegram; live reputation and warning delivery
+must be checked after runtime configuration and deployment.
 
 #### Real document malware scanning (ClamAV)
 
