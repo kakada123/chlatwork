@@ -12,6 +12,7 @@ import { PersonalAssistantModule } from '../personal-assistant/personal-assistan
 import { TelegramKlaKlokService } from './telegram-kla-klok.service';
 import { SecurityService } from './security.service';
 import { TelegramBusinessSecurityService } from './telegram-business-security.service';
+import { TelegramBusinessSecurityAlertsService } from './telegram-business-security-alerts.service';
 import { ClamavService } from './clamav.service';
 import { TelegramFileSecurityService } from './telegram-file-security.service';
 
@@ -34,6 +35,7 @@ import { TelegramFileSecurityService } from './telegram-file-security.service';
     ClamavService,
     TelegramFileSecurityService,
     TelegramBusinessSecurityService,
+    TelegramBusinessSecurityAlertsService,
   ],
   exports: [TelegramBotClient, TelegramAssistantAiService],
 })

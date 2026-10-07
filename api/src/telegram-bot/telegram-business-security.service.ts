@@ -8,8 +8,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SecurityService } from './security.service';
 import { TelegramBotClient } from './telegram-bot.client';
-import type { TelegramMessage } from './telegram-bot.types';
+import type {
+  TelegramCallbackQuery,
+  TelegramMessage,
+} from './telegram-bot.types';
 import type { SecurityScanResult } from './security.types';
+import { TelegramBusinessSecurityAlertsService } from './telegram-business-security-alerts.service';
 
 const MAX_MESSAGE_AGE_SECONDS = 48 * 60 * 60;
 
@@ -23,6 +27,7 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly bot: TelegramBotClient,
     private readonly security: SecurityService,
+    private readonly alerts: TelegramBusinessSecurityAlertsService,
   ) {}
 
   onModuleInit() {
@@ -32,6 +37,8 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         event: 'telegram_business_security_status',
         scanningEnabled: this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED'),
         fileScanEnabled: this.enabled('TELEGRAM_BUSINESS_FILE_SCAN_ENABLED'),
+        ownerAlertsEnabled: this.alerts.ownerAlertsEnabled(),
+        chatAlertsEnabled: this.alerts.chatAlertsEnabled(),
         autoDeleteEnabled: this.enabled(
           'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
         ),
@@ -98,10 +105,17 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         result,
         result.status === 'scanned' ? 'preserved' : result.status,
       );
+      await this.alerts.notify(message, connection, result, 'preserved');
       return;
     }
     if (connection.rights?.can_delete_all_messages !== true) {
       this.recordDecision(result, 'permission_missing');
+      await this.alerts.notify(
+        message,
+        connection,
+        result,
+        'permission_missing',
+      );
       return;
     }
     try {
@@ -109,12 +123,18 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
       await this.bot.deleteBusinessMessages(connectionId, [message.message_id]);
     } catch {
       this.recordDecision(result, 'delete_failed');
+      await this.alerts.notify(message, connection, result, 'delete_failed');
       // Release the existing webhook claim so Telegram can retry transient deletion failures.
       throw new ServiceUnavailableException(
         'Telegram business deletion failed',
       );
     }
     this.recordDecision(result, 'deleted');
+    await this.alerts.notify(message, connection, result, 'deleted');
+  }
+
+  handleCallback(callback: TelegramCallbackQuery) {
+    return this.alerts.handleCallback(callback);
   }
 
   private shouldDelete(result: SecurityScanResult) {

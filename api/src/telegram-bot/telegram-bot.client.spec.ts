@@ -54,6 +54,63 @@ describe('Telegram Business API', () => {
     } as unknown as ConfigService);
   }
 
+  it('sends and edits security warnings through the Business connection', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(
+        async () =>
+          new Response(
+            JSON.stringify({ ok: true, result: { message_id: 99 } }),
+          ),
+      );
+    await client().sendBusinessMessage(
+      'test-connection',
+      222,
+      'Infected file detected',
+    );
+    await client().editBusinessMessage(
+      'test-connection',
+      222,
+      99,
+      'File message deleted',
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({
+      business_connection_id: 'test-connection',
+      chat_id: 222,
+      text: 'Infected file detected',
+    });
+    expect(JSON.parse(fetchMock.mock.calls[1]![1]!.body as string)).toEqual({
+      business_connection_id: 'test-connection',
+      chat_id: 222,
+      message_id: 99,
+      text: 'File message deleted',
+    });
+    expect(fetchMock.mock.calls[0]![0]).toMatch(/\/sendMessage$/);
+    expect(fetchMock.mock.calls[1]![0]).toMatch(/\/editMessageText$/);
+  });
+
+  it('rejects invalid Business warning recipients and contents before fetching', () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch');
+    for (const chatId of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(() =>
+        client().sendBusinessMessage('test-connection', chatId, 'Warning'),
+      ).toThrow(BadRequestException);
+    }
+    expect(() => client().sendBusinessMessage('', 222, 'Warning')).toThrow(
+      BadRequestException,
+    );
+    expect(() =>
+      client().sendBusinessMessage('test-connection', 222, ' '),
+    ).toThrow(BadRequestException);
+    expect(() =>
+      client().sendBusinessMessage('test-connection', 222, 'x'.repeat(4097)),
+    ).toThrow(BadRequestException);
+    expect(() =>
+      client().editBusinessMessage('test-connection', 222, 0, 'Warning'),
+    ).toThrow(BadRequestException);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('looks up current connection permissions and deletes using the connection ID', async () => {
     const connection = {
       id: 'test-connection',

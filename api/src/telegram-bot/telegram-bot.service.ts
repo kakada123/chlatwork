@@ -853,6 +853,11 @@ export class TelegramBotService {
   private async handleCallback(callback: TelegramCallbackQuery) {
     const data = typeof callback.data === 'string' ? callback.data : '';
     if (!data || data.length > 64) return;
+    if (data.startsWith('security:delete:')) {
+      // Business owners do not need a linked website account to remove an infected message.
+      await this.businessSecurity?.handleCallback(callback);
+      return;
+    }
     if (data.startsWith('kk:')) {
       await this.handleKlaKlokCallback(callback, data);
       return;

@@ -73,6 +73,8 @@ describe('validateEnvironment', () => {
     ).toMatchObject({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true' });
     for (const settings of [
       { TELEGRAM_BUSINESS_SECURITY_ENABLED: 'sometimes' },
+      { TELEGRAM_BUSINESS_SECURITY_OWNER_ALERTS: 'sometimes' },
+      { TELEGRAM_BUSINESS_SECURITY_CHAT_ALERTS: 'sometimes' },
       { TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true' },
       { TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '89' },
       { TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '101' },

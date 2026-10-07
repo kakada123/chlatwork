@@ -119,6 +119,8 @@ export function validateEnvironment(config: Record<string, unknown>) {
     'AI_USE_GEMINI',
     'TELEGRAM_BUSINESS_SECURITY_ENABLED',
     'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
+    'TELEGRAM_BUSINESS_SECURITY_OWNER_ALERTS',
+    'TELEGRAM_BUSINESS_SECURITY_CHAT_ALERTS',
   ] as const) {
     if (
       config[key] !== undefined &&

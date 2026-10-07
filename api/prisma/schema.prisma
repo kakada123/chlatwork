@@ -820,6 +820,34 @@ model TelegramBotUpdate {
   @@map("telegram_bot_updates")
 }
 
+model TelegramBusinessSecurityAlert {
+  id                   String    @id @default(uuid()) @db.Uuid
+  eventKey             String    @map("event_key") @db.VarChar(64)
+  audience             String    @db.VarChar(8)
+  businessConnectionId String    @map("business_connection_id") @db.VarChar(256)
+  ownerUserId          BigInt    @map("owner_user_id")
+  ownerChatId          BigInt    @map("owner_chat_id")
+  sourceChatId         BigInt    @map("source_chat_id")
+  sourceMessageId      BigInt    @map("source_message_id")
+  sourceMessageDate    DateTime  @map("source_message_date") @db.Timestamptz
+  expiresAt            DateTime  @map("expires_at") @db.Timestamptz
+  decision             String    @db.VarChar(24)
+  alertMessageId       BigInt?   @map("alert_message_id")
+  notifiedDecision     String?   @map("notified_decision") @db.VarChar(24)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz
+  deliveryStartedAt    DateTime? @map("delivery_started_at") @db.Timestamptz
+  deliveryToken        String?   @map("delivery_token") @db.Uuid
+  deliveryAttempts     Int       @default(0) @map("delivery_attempts")
+  nextDeliveryAt       DateTime  @default(now()) @map("next_delivery_at") @db.Timestamptz
+  deleteStartedAt      DateTime? @map("delete_started_at") @db.Timestamptz
+  deleteToken          String?   @map("delete_token") @db.Uuid
+
+  @@unique([eventKey, audience])
+  @@index([expiresAt])
+  @@index([nextDeliveryAt])
+  @@map("telegram_business_security_alerts")
+}
+
 model TelegramMemberQrMessage {
   telegramChatId BigInt   @map("telegram_chat_id")
   messageId      Int      @map("message_id")

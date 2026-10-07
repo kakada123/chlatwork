@@ -63,8 +63,9 @@ export interface TelegramMessageEntity {
 export interface TelegramBusinessConnection {
   id: string;
   user: TelegramUser;
+  user_chat_id?: number;
   is_enabled: boolean;
-  rights?: { can_delete_all_messages?: boolean };
+  rights?: { can_delete_all_messages?: boolean; can_reply?: boolean };
 }
 
 export interface TelegramCallbackQuery {

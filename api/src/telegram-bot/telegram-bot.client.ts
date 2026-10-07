@@ -68,6 +68,51 @@ export class TelegramBotClient {
     }) as Promise<TelegramBusinessConnection>;
   }
 
+  sendBusinessMessage(connectionId: string, chatId: number, text: string) {
+    this.validateBusinessReply(connectionId, chatId, text);
+    // Managed chats require the Business connection; ordinary bot chats are a different recipient.
+    return this.call('sendMessage', {
+      business_connection_id: connectionId,
+      chat_id: chatId,
+      text,
+    }) as Promise<TelegramMessage>;
+  }
+
+  editBusinessMessage(
+    connectionId: string,
+    chatId: number,
+    messageId: number,
+    text: string,
+  ) {
+    this.validateBusinessReply(connectionId, chatId, text);
+    if (!Number.isSafeInteger(messageId) || messageId <= 0) {
+      throw new BadRequestException('Telegram business message ID is invalid');
+    }
+    return this.call('editMessageText', {
+      business_connection_id: connectionId,
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+    }) as Promise<TelegramMessage>;
+  }
+
+  private validateBusinessReply(
+    connectionId: string,
+    chatId: number,
+    text: string,
+  ) {
+    this.validateBusinessConnectionId(connectionId);
+    if (
+      !Number.isSafeInteger(chatId) ||
+      chatId <= 0 ||
+      typeof text !== 'string' ||
+      !text.trim() ||
+      text.length > TELEGRAM_MESSAGE_MAX_LENGTH
+    ) {
+      throw new BadRequestException('Telegram business reply is invalid');
+    }
+  }
+
   async deleteBusinessMessages(connectionId: string, messageIds: number[]) {
     this.validateBusinessConnectionId(connectionId);
     if (

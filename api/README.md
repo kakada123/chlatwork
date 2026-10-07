@@ -224,7 +224,8 @@ Set `TELEGRAM_BUSINESS_SECURITY_ENABLED=true` to scan new and edited incoming
 Business messages. Text assessment uses the bot's selected AI provider (`AI_USE_GEMINI`,
 `OPENAI_API_KEY` or `GEMINI_API_KEY`, and its existing Telegram text model).
 The example configuration keeps scanning and deletion disabled. Configure real
-provider values separately in runtime settings; no database migration is needed.
+provider values separately in runtime settings. Scanning itself needs no schema change;
+the infected-file alerts below require a reviewable SQL addition.
 
 Set `TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE=true` to automatically delete when
 the result has at least one supported risk category, risk score **90 or greater**,
@@ -272,6 +273,57 @@ messages skipped before assessment log `telegram_business_security` with
 `action: "skipped"` and a fixed reason (`disabled`, `outgoing_message`,
 `bot_message`, `expired_message`, or `inactive_connection`). These diagnostics
 contain no message bodies, identities, filenames, URLs, or configuration secrets.
+
+#### Infected-file warnings and owner Delete button
+
+When Business security and ClamAV scanning are enabled, a confirmed `infected`
+file sends a Khmer/English warning to **both** the account owner's private bot
+chat and the original managed conversation. Other scan statuses and AI-only
+scores do not trigger malware warnings. Automatic deletion remains optional;
+the warning states whether the file message was kept or deleted.
+
+Before deploying, review and manually run
+[`prisma/sql/telegram-business-security-alerts.sql`](prisma/sql/telegram-business-security-alerts.sql).
+The application does not apply this SQL. Redeploy the API after the table exists.
+No changes to the webhook update list are needed if `callback_query` and the
+Business update types above are already registered.
+
+- `TELEGRAM_BUSINESS_SECURITY_OWNER_ALERTS` defaults to `true` when security
+  is enabled; set it to `false` to disable owner private alerts and Delete buttons.
+- `TELEGRAM_BUSINESS_SECURITY_CHAT_ALERTS` defaults to `true`; set it to `false`
+  to keep warnings in the owner's private bot chat only. Set both alert switches
+  to `false` to disable warnings.
+- Open the main bot and send `/start` so the owner can receive private messages.
+  The recipient is Telegram's `BusinessConnection.user_chat_id`, never the sender.
+- Enable **Reply to messages** (`can_reply`) in Secretary Mode to post warnings
+  in the managed chat. Telegram permits Business replies/edits in chats with
+  incoming messages in the last 24 hours; the app conservatively skips warnings
+  for source messages older than that. Missing reply permission does not prevent
+  the owner alert or deletion.
+- **Delete file / លុបឯកសារ** appears only in the owner alert while the source message
+  is retained. It deletes the original message containing the file, independently
+  of the automatic deletion setting. Only that owner may click it; the app checks
+  the exact private alert message, active connection, and current **Delete all
+  messages** permission again. Actions expire 48 hours after the source message.
+  After success, both existing warnings show Deleted and the button is removed.
+
+Warnings contain the fixed scanner verdict, source message number/time, and
+deletion outcome, without file names, attachment contents, links, or sender
+identities. They report a scanner finding and do not accuse the sender.
+Temporary action records store only routing/action identifiers and expire after
+48 hours. A shared database claim suppresses concurrent duplicate sends/clicks
+across API replicas. Delivery retries up to three attempts (after 1 minute, then
+5 minutes), with a current connection check; expired records are removed by a
+bounded background sweep. A lost Telegram response can still cause a duplicate
+warning on retry because Telegram offers no send-message idempotency key.
+Notification failures never stop malware handling. Logs use fixed
+`telegram_business_security_alert` events without private context.
+
+Verify both warning destinations and the owner button after deployment using a
+harmless EICAR test file. Local unit tests do not send Telegram messages or
+apply database changes. See Telegram's
+[`BusinessBotRights`](https://core.telegram.org/bots/api#businessbotrights) and
+[`sendMessage`](https://core.telegram.org/bots/api#sendmessage) reference.
 
 #### Real document malware scanning (ClamAV)
 

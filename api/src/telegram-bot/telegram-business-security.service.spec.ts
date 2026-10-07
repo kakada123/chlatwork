@@ -29,10 +29,19 @@ describe('Telegram Business security', () => {
       categories: ['phishing_url'],
     };
     const security = { scan: jest.fn().mockResolvedValue(result) };
+    const alerts = {
+      ownerAlertsEnabled: () =>
+        settings.TELEGRAM_BUSINESS_SECURITY_ENABLED === 'true',
+      chatAlertsEnabled: () =>
+        settings.TELEGRAM_BUSINESS_SECURITY_ENABLED === 'true',
+      notify: jest.fn().mockResolvedValue(undefined),
+      handleCallback: jest.fn().mockResolvedValue(undefined),
+    };
     const service = new TelegramBusinessSecurityService(
       config as never,
       bot as never,
       security as never,
+      alerts as never,
     );
     const message = {
       business_connection_id: 'test-connection',
@@ -49,6 +58,7 @@ describe('Telegram Business security', () => {
       bot,
       result,
       security,
+      alerts,
       service,
       message,
     };
@@ -76,6 +86,8 @@ describe('Telegram Business security', () => {
         event: 'telegram_business_security_status',
         scanningEnabled: false,
         fileScanEnabled: false,
+        ownerAlertsEnabled: false,
+        chatAlertsEnabled: false,
         autoDeleteEnabled: false,
         riskThreshold: 96,
         confidenceThreshold: 99,
@@ -149,6 +161,7 @@ describe('Telegram Business security', () => {
         test.config as never,
         test.bot as never,
         security,
+        test.alerts as never,
       );
       await service.handleMessage({
         ...test.message,
@@ -160,6 +173,16 @@ describe('Telegram Business security', () => {
       });
       expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(
         deleted ? 1 : 0,
+      );
+      expect(test.alerts.notify).toHaveBeenCalledWith(
+        expect.objectContaining({ document: expect.any(Object) }),
+        test.connection,
+        expect.objectContaining({ fileScan: { status: verdict } }),
+        deleted
+          ? 'deleted'
+          : verdict === 'infected' && autoDelete === 'true' && !permission
+            ? 'permission_missing'
+            : 'preserved',
       );
       const logs = JSON.stringify(
         (Logger.prototype.log as jest.Mock).mock.calls,
@@ -387,6 +410,20 @@ describe('Telegram Business security', () => {
     );
     return { prisma, service };
   }
+
+  it('routes the private Delete callback before website account lookup', async () => {
+    const test = setup();
+    const { service } = webhook(test);
+    const callback = {
+      id: 'test-callback',
+      from: { id: 111 },
+      message: { message_id: 9, chat: { id: 111, type: 'private' } },
+      data: 'security:delete:12345678-1234-4234-8234-123456789abc',
+    };
+    await service.handleUpdate({ update_id: 2, callback_query: callback });
+    expect(test.alerts.handleCallback).toHaveBeenCalledWith(callback);
+    expect(test.security.scan).not.toHaveBeenCalled();
+  });
 
   it.each(['business_message', 'edited_business_message'])(
     'routes %s through scanning and deduplicates webhook retries',
