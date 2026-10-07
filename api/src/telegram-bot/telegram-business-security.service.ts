@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   Logger,
+  type OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,7 +14,7 @@ import type { SecurityScanResult } from './security.types';
 const MAX_MESSAGE_AGE_SECONDS = 48 * 60 * 60;
 
 @Injectable()
-export class TelegramBusinessSecurityService {
+export class TelegramBusinessSecurityService implements OnModuleInit {
   private readonly logger = new Logger(TelegramBusinessSecurityService.name);
   private scanWindowStarted = 0;
   private scansInWindow = 0;
@@ -24,16 +25,42 @@ export class TelegramBusinessSecurityService {
     private readonly security: SecurityService,
   ) {}
 
+  onModuleInit() {
+    // Publish only non-sensitive switches so an idle scanner can be diagnosed in runtime logs.
+    this.logger.log(
+      JSON.stringify({
+        event: 'telegram_business_security_status',
+        scanningEnabled: this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED'),
+        autoDeleteEnabled: this.enabled(
+          'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
+        ),
+        riskThreshold: this.threshold(
+          'TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD',
+          90,
+        ),
+        confidenceThreshold: this.threshold(
+          'TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD',
+          95,
+        ),
+      }),
+    );
+  }
+
   async handleMessage(value: unknown) {
-    if (!this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED')) return;
+    if (!this.enabled('TELEGRAM_BUSINESS_SECURITY_ENABLED')) {
+      this.recordSkip('disabled');
+      return;
+    }
     const message = this.validateMessage(value);
     const ageSeconds = Date.now() / 1000 - message.date!;
-    if (
-      message.from?.is_bot ||
-      message.sender_business_bot ||
-      ageSeconds >= MAX_MESSAGE_AGE_SECONDS
-    )
+    if (message.from?.is_bot || message.sender_business_bot) {
+      this.recordSkip('bot_message');
       return;
+    }
+    if (ageSeconds >= MAX_MESSAGE_AGE_SECONDS) {
+      this.recordSkip('expired_message');
+      return;
+    }
 
     // A per-process ceiling bounds provider spending during webhook floods. Messages
     // beyond the ceiling stay untouched rather than being deleted without a scan.
@@ -55,8 +82,14 @@ export class TelegramBusinessSecurityService {
       );
     }
     // Outgoing account messages must never be mistaken for an incoming threat.
-    if (!connection.is_enabled || message.from!.id === connection.user.id)
+    if (!connection.is_enabled) {
+      this.recordSkip('inactive_connection');
       return;
+    }
+    if (message.from!.id === connection.user.id) {
+      this.recordSkip('outgoing_message');
+      return;
+    }
 
     const result = await this.security.scan(message);
     if (!this.shouldDelete(result)) {
@@ -126,6 +159,16 @@ export class TelegramBusinessSecurityService {
       return false;
     this.scansInWindow++;
     return true;
+  }
+
+  private recordSkip(reason: string) {
+    this.logger.log(
+      JSON.stringify({
+        event: 'telegram_business_security',
+        action: 'skipped',
+        reason,
+      }),
+    );
   }
 
   private recordDecision(result: SecurityScanResult, action: string) {

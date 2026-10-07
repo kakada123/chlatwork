@@ -62,6 +62,27 @@ describe('Telegram Business security', () => {
     jest.useRealTimers();
   });
 
+  it('reports only non-sensitive scanner settings at startup', () => {
+    const { service, bot, security } = setup({
+      TELEGRAM_BUSINESS_SECURITY_ENABLED: 'false',
+      TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'false',
+      TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '96',
+      TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD: '99',
+    });
+    service.onModuleInit();
+    expect(Logger.prototype.log).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: 'telegram_business_security_status',
+        scanningEnabled: false,
+        autoDeleteEnabled: false,
+        riskThreshold: 96,
+        confidenceThreshold: 99,
+      }),
+    );
+    expect(bot.getBusinessConnection).not.toHaveBeenCalled();
+    expect(security.scan).not.toHaveBeenCalled();
+  });
+
   it('deletes a 92/100 high-confidence incoming message using the Business API', async () => {
     const { service, message, bot, security } = setup();
     await service.handleMessage(message);
@@ -126,6 +147,13 @@ describe('Telegram Business security', () => {
     await service.handleMessage(message);
     expect(bot.getBusinessConnection).not.toHaveBeenCalled();
     expect(security.scan).not.toHaveBeenCalled();
+    expect(Logger.prototype.log).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: 'telegram_business_security',
+        action: 'skipped',
+        reason: 'disabled',
+      }),
+    );
   });
 
   it('requires permission to delete incoming messages, not merely bot replies', async () => {
@@ -153,6 +181,19 @@ describe('Telegram Business security', () => {
     await service.handleMessage(message);
     expect(security.scan).not.toHaveBeenCalled();
     expect(bot.deleteBusinessMessages).not.toHaveBeenCalled();
+    for (const reason of [
+      'outgoing_message',
+      'bot_message',
+      'inactive_connection',
+    ]) {
+      expect(Logger.prototype.log).toHaveBeenCalledWith(
+        JSON.stringify({
+          event: 'telegram_business_security',
+          action: 'skipped',
+          reason,
+        }),
+      );
+    }
   });
 
   it('preserves messages outside the Telegram deletion window', async () => {
@@ -162,6 +203,13 @@ describe('Telegram Business security', () => {
       date: message.date - 48 * 60 * 60,
     });
     expect(bot.getBusinessConnection).not.toHaveBeenCalled();
+    expect(Logger.prototype.log).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: 'telegram_business_security',
+        action: 'skipped',
+        reason: 'expired_message',
+      }),
+    );
   });
 
   it.each([
@@ -264,6 +312,9 @@ describe('Telegram Business security', () => {
       const test = setup();
       const { prisma, service } = webhook(test);
       await service.handleUpdate({ update_id: 1, [key]: test.message });
+      expect(Logger.prototype.log).toHaveBeenCalledWith(
+        JSON.stringify({ event: 'telegram_webhook_update', updateType: key }),
+      );
       expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(1);
       expect(prisma.telegramBotUpdate.update).toHaveBeenCalledWith({
         where: { updateId: 1n },
@@ -303,5 +354,28 @@ describe('Telegram Business security', () => {
     });
     expect(test.security.scan).not.toHaveBeenCalled();
     expect(prisma.telegramBotUpdate.update).toHaveBeenCalledTimes(1);
+    expect(Logger.prototype.log).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: 'telegram_webhook_update',
+        updateType: 'business_connection',
+      }),
+    );
+  });
+
+  it('logs receipt of ordinary updates without exposing their contents or identities', async () => {
+    const test = setup();
+    const { prisma, service } = webhook(test);
+    prisma.$queryRaw.mockResolvedValue([]);
+    await service.handleUpdate({ update_id: 1, message: test.message });
+    expect(Logger.prototype.log).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: 'telegram_webhook_update',
+        updateType: 'message',
+      }),
+    );
+    const logs = JSON.stringify((Logger.prototype.log as jest.Mock).mock.calls);
+    expect(logs).not.toContain(test.message.text);
+    expect(logs).not.toContain(test.message.business_connection_id);
+    expect(logs).not.toContain(String(test.message.from.id));
   });
 });

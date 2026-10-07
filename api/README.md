@@ -215,7 +215,7 @@ allowed_updates=["message","callback_query","inline_query","chat_member","busine
 
 ### Telegram Business inbox security
 
-Enable Business mode for the existing ChlatWork bot in BotFather, connect it to
+Enable Secretary Mode for the existing ChlatWork bot in BotFather, connect it to
 the account whose inbox should be protected, and grant **Delete all messages**
 (`can_delete_all_messages`). Ordinary bot chats and group commands keep their
 existing behavior. Re-register the webhook with the Business update types above.
@@ -257,6 +257,20 @@ update, so they do not repeatedly send private content to the provider.
 their own limit. Logs contain only action, score, confidence, and fixed categories;
 they contain no message content, URLs, filenames, or Telegram identities. Verify
 real inbox scanning, edit handling, and deletion permissions after deployment.
+
+If the normal bot responds but inbox scans produce no logs, inspect Telegram's
+`getWebhookInfo` and confirm `allowed_updates` includes `business_connection`,
+`business_message`, and `edited_business_message`. Enabling Secretary Mode in
+BotFather does not replace an existing explicit webhook update list. Re-register
+the webhook using the existing URL and secret and the complete update list above.
+
+Runtime logs include `telegram_business_security_status` at startup with only
+scanner switches and thresholds. `telegram_webhook_update` records only the
+received update type, including normal messages and Business updates. Business
+messages skipped before assessment log `telegram_business_security` with
+`action: "skipped"` and a fixed reason (`disabled`, `outgoing_message`,
+`bot_message`, `expired_message`, or `inactive_connection`). These diagnostics
+contain no message bodies, identities, filenames, URLs, or configuration secrets.
 
 Enable inline mode in BotFather with `/setinline` and use a placeholder such as
 `Share a ChlatWork vote`. Without inline mode, the `/vote` share buttons cannot

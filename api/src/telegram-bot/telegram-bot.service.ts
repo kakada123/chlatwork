@@ -136,6 +136,21 @@ export class TelegramBotService {
 
   async handleUpdate(value: unknown) {
     const update = this.parseUpdate(value);
+    // Log the update type before deduplication; bodies and identities stay out of diagnostics.
+    const updateType = (
+      [
+        'business_message',
+        'edited_business_message',
+        'business_connection',
+        'message',
+        'callback_query',
+        'inline_query',
+        'chat_member',
+      ] as const
+    ).find((key) => update[key]) ?? 'other';
+    this.logger.log(
+      JSON.stringify({ event: 'telegram_webhook_update', updateType }),
+    );
     if (!(await this.claimUpdate(update.update_id))) return;
 
     try {
