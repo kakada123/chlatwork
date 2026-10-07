@@ -1,10 +1,37 @@
 <script setup lang="ts">
 import { ArrowUpRight, Link2 } from "lucide-vue-next";
+import draggable from "vuedraggable";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
 import { LINK_THEMES } from "~/lib/link-profile";
 import LinkPlatformIcon from "./LinkPlatformIcon.vue";
-const props = defineProps<{ profile: LinkProfile; preview?: boolean }>();
-const emit = defineEmits<{ click: [link: ProfileLink] }>();
+const props = defineProps<{
+  profile: LinkProfile;
+  preview?: boolean;
+  sortable?: boolean;
+  disabled?: boolean;
+}>();
+const emit = defineEmits<{
+  click: [link: ProfileLink];
+  reorder: [links: ProfileLink[]];
+}>();
+const sortingReady = ref(false);
+// Wait for hydration before the drag library attaches to the preview DOM.
+onMounted(() => {
+  sortingReady.value = true;
+});
+function linkKey(link: ProfileLink & { editorKey?: string }) {
+  return link.editorKey || link.id || props.profile.links.indexOf(link);
+}
+function movePreviewLink(link: ProfileLink, direction: number) {
+  if (props.disabled) return;
+  const reordered = [...links.value];
+  const index = reordered.indexOf(link);
+  const target = index + direction;
+  if (index < 0 || target < 0 || target >= reordered.length) return;
+  reordered.splice(index, 1);
+  reordered.splice(target, 0, link);
+  emit("reorder", reordered);
+}
 const preset = computed(
   () =>
     LINK_THEMES.find((theme) => theme.id === props.profile.theme) ??
@@ -70,11 +97,40 @@ const links = computed(() =>
         {{ profile.headline }}
       </p>
       <p v-if="profile.bio" class="link-bio">{{ profile.bio }}</p>
-      <div class="link-list">
+      <draggable
+        v-if="preview && sortable && sortingReady"
+        :model-value="links"
+        :item-key="linkKey"
+        :animation="150"
+        :disabled="disabled"
+        :delay="150"
+        :delay-on-touch-only="true"
+        :touch-start-threshold="5"
+        class="link-list link-sortable"
+        @update:model-value="emit('reorder', $event)"
+      >
+        <template #item="{ element: link }">
+          <button
+            type="button"
+            class="link-button"
+            :class="`button-${profile.buttonStyle}`"
+            :aria-label="`Reorder ${link.title || 'Your link'}`"
+            :aria-disabled="disabled"
+            aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+            @keydown.alt.up.prevent="movePreviewLink(link, -1)"
+            @keydown.alt.down.prevent="movePreviewLink(link, 1)"
+          >
+            <LinkPlatformIcon :url="link.url" class="link-icon" />
+            <span>{{ link.title || "Your link" }}</span>
+            <ArrowUpRight class="link-arrow" aria-hidden="true" />
+          </button>
+        </template>
+      </draggable>
+      <div v-else class="link-list">
         <component
           :is="preview ? 'button' : 'a'"
-          v-for="(link, index) in links"
-          :key="link.id || index"
+          v-for="link in links"
+          :key="linkKey(link)"
           :type="preview ? 'button' : undefined"
           :href="preview ? undefined : link.url"
           :target="/^https?:/i.test(link.url) ? '_blank' : undefined"
@@ -182,6 +238,18 @@ h1 {
 .link-button:focus-visible {
   outline: 3px solid var(--link-accent);
   outline-offset: 4px;
+}
+.link-sortable .link-button {
+  cursor: grab;
+}
+.link-sortable .link-button[aria-disabled="true"] {
+  cursor: default;
+}
+.link-sortable .sortable-chosen {
+  cursor: grabbing;
+}
+.link-sortable .sortable-ghost {
+  opacity: 0.4;
 }
 .link-button span {
   flex: 1;

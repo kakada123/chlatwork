@@ -12,6 +12,7 @@ import type {
   TelegramPreformattedText,
   TelegramMessage,
   TelegramUser,
+  TelegramBusinessConnection,
 } from './telegram-bot.types';
 
 const TELEGRAM_MESSAGE_MAX_LENGTH = 4_096;
@@ -58,6 +59,48 @@ export class TelegramBotClient {
       chat_id: chatId,
       message_ids: messageIds,
     });
+  }
+
+  getBusinessConnection(connectionId: string) {
+    this.validateBusinessConnectionId(connectionId);
+    return this.call('getBusinessConnection', {
+      business_connection_id: connectionId,
+    }) as Promise<TelegramBusinessConnection>;
+  }
+
+  async deleteBusinessMessages(connectionId: string, messageIds: number[]) {
+    this.validateBusinessConnectionId(connectionId);
+    if (
+      !Array.isArray(messageIds) ||
+      messageIds.length < 1 ||
+      messageIds.length > 100 ||
+      messageIds.some((id) => !Number.isSafeInteger(id) || id <= 0) ||
+      new Set(messageIds).size !== messageIds.length
+    ) {
+      throw new BadRequestException(
+        'Telegram business message IDs are invalid',
+      );
+    }
+    const result = await this.call('deleteBusinessMessages', {
+      business_connection_id: connectionId,
+      message_ids: messageIds,
+    });
+    if (result !== true) {
+      throw new ServiceUnavailableException(
+        'Telegram business deletion failed',
+      );
+    }
+    return true;
+  }
+
+  private validateBusinessConnectionId(connectionId: string) {
+    if (
+      typeof connectionId !== 'string' ||
+      !connectionId.trim() ||
+      connectionId.length > 256
+    ) {
+      throw new BadRequestException('Telegram business connection is invalid');
+    }
   }
 
   sendPhoto(chatId: number, photoUrl: string, caption: string, replyToMessageId?: number) {

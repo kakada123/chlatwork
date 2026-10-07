@@ -10,6 +10,8 @@ import { TelegramFinanceScheduler } from './telegram-finance.scheduler';
 import { TelegramMemberQrScheduler } from './telegram-member-qr.scheduler';
 import { PersonalAssistantModule } from '../personal-assistant/personal-assistant.module';
 import { TelegramKlaKlokService } from './telegram-kla-klok.service';
+import { SecurityService } from './security.service';
+import { TelegramBusinessSecurityService } from './telegram-business-security.service';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { TelegramKlaKlokService } from './telegram-kla-klok.service';
     TelegramFinanceScheduler,
     TelegramMemberQrScheduler,
     TelegramKlaKlokService,
+    SecurityService,
+    TelegramBusinessSecurityService,
   ],
   exports: [TelegramBotClient, TelegramAssistantAiService],
 })

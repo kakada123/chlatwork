@@ -112,7 +112,12 @@ export function validateEnvironment(config: Record<string, unknown>) {
     }
   }
 
-  for (const key of ['AI_ENABLED', 'AI_USE_GEMINI'] as const) {
+  for (const key of [
+    'AI_ENABLED',
+    'AI_USE_GEMINI',
+    'TELEGRAM_BUSINESS_SECURITY_ENABLED',
+    'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
+  ] as const) {
     if (
       config[key] !== undefined &&
       !['true', 'false'].includes(String(config[key]).toLowerCase())
@@ -121,7 +126,50 @@ export function validateEnvironment(config: Record<string, unknown>) {
     }
   }
 
+  for (const key of [
+    'TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD',
+    'TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD',
+  ]) {
+    if (config[key] === undefined || config[key] === '') continue;
+    const value = Number(config[key]);
+    if (!Number.isInteger(value) || value < 90 || value > 100) {
+      throw new Error(`${key} must be an integer from 90 to 100`);
+    }
+  }
+  const scanLimit = config.TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE;
+  if (
+    scanLimit !== undefined &&
+    scanLimit !== '' &&
+    (!Number.isInteger(Number(scanLimit)) ||
+      Number(scanLimit) < 1 ||
+      Number(scanLimit) > 300)
+  ) {
+    throw new Error(
+      'TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE must be an integer from 1 to 300',
+    );
+  }
+  if (
+    String(config.TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE).toLowerCase() ===
+      'true' &&
+    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() !== 'true'
+  ) {
+    throw new Error(
+      'Business security must be enabled before automatic deletion',
+    );
+  }
+
   const useGemini = String(config.AI_USE_GEMINI).toLowerCase() === 'true';
+  if (
+    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() === 'true'
+  ) {
+    const providerKey = useGemini ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY';
+    const key = String(config[providerKey] ?? '').trim();
+    if (!key || /^(dummy_|replace_)/i.test(key)) {
+      throw new Error(
+        `${providerKey} is required when Business security is enabled`,
+      );
+    }
+  }
   if (useGemini) {
     const key = String(config.GEMINI_API_KEY ?? '').trim();
     if (!key || /^(dummy_|replace_)/i.test(key)) {

@@ -34,6 +34,7 @@ import {
   TelegramAssistantAiUnavailableError,
 } from './telegram-assistant-ai.service';
 import { TelegramBotClient } from './telegram-bot.client';
+import { TelegramBusinessSecurityService } from './telegram-business-security.service';
 import {
   TelegramKlaKlokService,
   type TelegramKlaKlokGame,
@@ -122,6 +123,7 @@ export class TelegramBotService {
     @Optional() private readonly personalAssistant?: PersonalAssistantService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
     @Optional() private readonly klaKlok?: TelegramKlaKlokService,
+    @Optional() private readonly businessSecurity?: TelegramBusinessSecurityService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -137,34 +139,40 @@ export class TelegramBotService {
     if (!(await this.claimUpdate(update.update_id))) return;
 
     try {
-      await this.observeGroupMembers(update);
-      const disabled = await this.disabledUpdateFeature(update);
-      if (disabled) {
-        // Callback buttons and old Telegram messages remain clickable after an
-        // admin switch, so the webhook checks each update before side effects.
-        const unavailableMessage =
-          disabled === 'kla-klok'
-            ? 'ខ្លាឃ្លោកកំពុងសម្រាក 😴 សាកពេលក្រោយ។'
-            : 'This feature is temporarily unavailable.';
-        if (update.callback_query) {
-          await this.bot.answerCallback(
-            update.callback_query.id,
-            unavailableMessage,
-          );
+      const businessMessage =
+        update.business_message ?? update.edited_business_message;
+      if (businessMessage) {
+        await this.businessSecurity?.handleMessage(businessMessage);
+      } else {
+        await this.observeGroupMembers(update);
+        const disabled = await this.disabledUpdateFeature(update);
+        if (disabled) {
+          // Callback buttons and old Telegram messages remain clickable after an
+          // admin switch, so the webhook checks each update before side effects.
+          const unavailableMessage =
+            disabled === 'kla-klok'
+              ? 'ខ្លាឃ្លោកកំពុងសម្រាក 😴 សាកពេលក្រោយ។'
+              : 'This feature is temporarily unavailable.';
+          if (update.callback_query) {
+            await this.bot.answerCallback(
+              update.callback_query.id,
+              unavailableMessage,
+            );
+          } else if (update.inline_query) {
+            await this.bot.answerInlineQuery(update.inline_query.id, []);
+          } else if (update.message) {
+            await this.bot.sendMessage(
+              update.message.chat.id,
+              unavailableMessage,
+            );
+          }
         } else if (update.inline_query) {
-          await this.bot.answerInlineQuery(update.inline_query.id, []);
+          await this.handleInlineQuery(update.inline_query);
+        } else if (update.callback_query) {
+          await this.handleCallback(update.callback_query);
         } else if (update.message) {
-          await this.bot.sendMessage(
-            update.message.chat.id,
-            unavailableMessage,
-          );
+          await this.handleMessage(update.message);
         }
-      } else if (update.inline_query) {
-        await this.handleInlineQuery(update.inline_query);
-      } else if (update.callback_query) {
-        await this.handleCallback(update.callback_query);
-      } else if (update.message) {
-        await this.handleMessage(update.message);
       }
 
       await this.prisma.telegramBotUpdate.update({

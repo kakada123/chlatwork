@@ -14,21 +14,26 @@ export interface TelegramChat {
 
 export interface TelegramMessage {
   message_id: number;
+  business_connection_id?: string;
+  sender_business_bot?: TelegramUser;
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  caption?: string;
+  caption_entities?: TelegramMessageEntity[];
+  document?: {
+    file_id: string;
+    file_name?: string;
+    mime_type?: string;
+    file_size?: number;
+  };
   contact?: {
     phone_number: string;
     first_name: string;
     last_name?: string;
     user_id?: number;
   };
-  entities?: Array<{
-    type: string;
-    offset: number;
-    length: number;
-    user?: TelegramUser;
-  }>;
+  entities?: TelegramMessageEntity[];
   date?: number;
   reply_to_message?: TelegramMessage;
   new_chat_members?: TelegramUser[];
@@ -45,6 +50,21 @@ export interface TelegramMessage {
     height: number;
     file_size?: number;
   }>;
+}
+
+export interface TelegramMessageEntity {
+  type: string;
+  offset: number;
+  length: number;
+  url?: string;
+  user?: TelegramUser;
+}
+
+export interface TelegramBusinessConnection {
+  id: string;
+  user: TelegramUser;
+  is_enabled: boolean;
+  rights?: { can_delete_all_messages?: boolean };
 }
 
 export interface TelegramCallbackQuery {
@@ -65,6 +85,9 @@ export interface TelegramInlineQuery {
 export interface TelegramUpdate {
   update_id: number;
   message?: TelegramMessage;
+  business_message?: TelegramMessage;
+  edited_business_message?: TelegramMessage;
+  business_connection?: TelegramBusinessConnection;
   callback_query?: TelegramCallbackQuery;
   inline_query?: TelegramInlineQuery;
   chat_member?: {

@@ -210,8 +210,53 @@ secret store; do not commit them:
 POST https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook
 url=https://chlatwork.com/api/telegram/webhook
 secret_token=<TELEGRAM_WEBHOOK_SECRET>
-allowed_updates=["message","callback_query","inline_query","chat_member"]
+allowed_updates=["message","callback_query","inline_query","chat_member","business_connection","business_message","edited_business_message"]
 ```
+
+### Telegram Business inbox security
+
+Enable Business mode for the existing ChlatWork bot in BotFather, connect it to
+the account whose inbox should be protected, and grant **Delete all messages**
+(`can_delete_all_messages`). Ordinary bot chats and group commands keep their
+existing behavior. Re-register the webhook with the Business update types above.
+
+Set `TELEGRAM_BUSINESS_SECURITY_ENABLED=true` to scan new and edited incoming
+Business messages using the bot's selected AI provider (`AI_USE_GEMINI`,
+`OPENAI_API_KEY` or `GEMINI_API_KEY`, and its existing Telegram text model).
+The example configuration keeps scanning and deletion disabled. Configure real
+provider values separately in runtime settings; no database migration is needed.
+
+Set `TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE=true` to automatically delete when
+the result has at least one supported risk category, risk score **90 or greater**,
+and confidence **95 or greater**. The thresholds are configurable through
+`TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD` and
+`TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD`; each accepts integers 90-100.
+With automatic deletion off, decisions are logged and messages are preserved.
+
+`SecurityService.scan(message)` classifies scams, phishing URLs, suspicious file
+metadata, spam, and explicit dangerous content. Only text, captions, linked URLs,
+and document names/MIME types go to the selected AI provider; sender IDs and file
+IDs are excluded, and OpenAI requests use `store: false`. Links are not fetched,
+and attachments are neither downloaded nor scanned for malware. File-only findings
+have confidence capped at 85. Photos, audio, video without scannable captions, and
+oversized scan payloads are preserved. AI scores are model estimates, not verified
+malware/reputation findings, and cannot guarantee detection or freedom from false
+positives. Spam is assessed from the current message, without a sender history.
+
+Each candidate checks its current Business connection and excludes outgoing
+account/bot messages and messages at least 48 hours old. Deletion uses
+[`deleteBusinessMessages`](https://core.telegram.org/bots/api#deletebusinessmessages)
+and requires an active connection with permission to delete incoming messages.
+Successful webhook updates use the existing database deduplication; failed
+connection/deletion requests release their update claim for Telegram to retry.
+Provider failures or invalid assessments preserve the message and complete the
+update, so they do not repeatedly send private content to the provider.
+
+`TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE` defaults to 60 per API process
+(allowed range 1-300). Excess messages are preserved; multiple replicas each have
+their own limit. Logs contain only action, score, confidence, and fixed categories;
+they contain no message content, URLs, filenames, or Telegram identities. Verify
+real inbox scanning, edit handling, and deletion permissions after deployment.
 
 Enable inline mode in BotFather with `/setinline` and use a placeholder such as
 `Share a ChlatWork vote`. Without inline mode, the `/vote` share buttons cannot

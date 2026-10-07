@@ -16,8 +16,10 @@ import LinkPlatformIcon from "~/components/link/LinkPlatformIcon.vue";
 import LinkShare from "~/components/link/LinkShare.vue";
 import {
   createLinkProfile,
+  getLinkEditingOrder,
   LINK_THEMES,
   profileSaveBody,
+  reorderEnabledProfileLinks,
 } from "~/lib/link-profile";
 import { getAuthErrorMessage } from "~/composables/useAuth";
 import { prepareMomentImage } from "~/lib/moment-image";
@@ -67,8 +69,17 @@ const draft = ref<LinkProfile>(
 );
 type EditorLink = ProfileLink & { editorKey: string };
 const editorLinks = ref<EditorLink[]>([]);
+const newestLinkKeys = ref<string[]>([]);
+const editingLinks = computed({
+  get: () => getLinkEditingOrder(editorLinks.value, newestLinkKeys.value),
+  set: (links: EditorLink[]) => {
+    newestLinkKeys.value = [];
+    editorLinks.value = links;
+  },
+});
 let nextKey = 0;
 function loadLinks(links: ProfileLink[]) {
+  newestLinkKeys.value = [];
   editorLinks.value = links.map((link) => ({
     ...link,
     editorKey: String(++nextKey),
@@ -175,20 +186,37 @@ async function save(publish?: boolean) {
     busy.value = false;
   }
 }
-function addLink() {
+async function addLink() {
   if (editorLinks.value.length >= 50) return;
+  const editorKey = String(++nextKey);
   editorLinks.value.push({
-    editorKey: String(++nextKey),
+    editorKey,
     title: "",
     url: "",
     isEnabled: true,
   });
+  newestLinkKeys.value.unshift(editorKey);
+  await nextTick();
+  document.getElementById(`link-title-${editorKey}`)?.focus();
 }
-function moveLink(index: number, direction: number) {
+function removeLink(editorKey: string) {
+  editorLinks.value = editorLinks.value.filter(
+    (link) => link.editorKey !== editorKey,
+  );
+  newestLinkKeys.value = newestLinkKeys.value.filter((key) => key !== editorKey);
+}
+function moveLink(editorKey: string, direction: number) {
+  const index = editorLinks.value.findIndex((link) => link.editorKey === editorKey);
   const target = index + direction;
-  if (target < 0 || target >= editorLinks.value.length) return;
+  if (index < 0 || target < 0 || target >= editorLinks.value.length) return;
+  newestLinkKeys.value = [];
   const [link] = editorLinks.value.splice(index, 1);
   if (link) editorLinks.value.splice(target, 0, link);
+}
+function reorderPreview(links: ProfileLink[]) {
+  if (busy.value || loadError.value) return;
+  editorLinks.value = reorderEnabledProfileLinks(editorLinks.value, links);
+  newestLinkKeys.value = [];
 }
 function chooseTheme(id: string) {
   draft.value.theme = id;
@@ -415,6 +443,9 @@ async function refreshAnalytics() {
               <div>
                 <h2 class="text-lg font-semibold">Your links</h2>
                 <small>Drag the handle or use the arrows to reorder.</small>
+                <small>
+                  New links appear here first and on your shared page last.
+                </small>
               </div>
               <button
                 type="button"
@@ -434,14 +465,14 @@ async function refreshAnalytics() {
             </p>
             <ClientOnly
               ><draggable
-                v-model="editorLinks"
+                v-model="editingLinks"
                 item-key="editorKey"
                 handle=".drag-handle"
                 :animation="150"
                 :disabled="busy"
                 class="space-y-4"
               >
-                <template #item="{ element, index }"
+                <template #item="{ element }"
                   ><article
                     class="link-edit-row rounded-2xl border border-slate-200 p-4 dark:border-white/10"
                   >
@@ -456,15 +487,15 @@ async function refreshAnalytics() {
                         :url="element.url"
                         class="size-5"
                       /><span class="flex-1 text-xs text-slate-500"
-                        >Link {{ index + 1 }}</span
+                        >Link {{ editorLinks.indexOf(element) + 1 }}</span
                       ><label class="enabled-label"
                         ><input v-model="element.isEnabled" type="checkbox" />
                         Enabled</label
                       ><button
                         type="button"
                         class="p-2 text-red-500"
-                        :aria-label="`Remove link ${index + 1}`"
-                        @click="editorLinks.splice(index, 1)"
+                        :aria-label="`Remove link ${editorLinks.indexOf(element) + 1}`"
+                        @click="removeLink(element.editorKey)"
                       >
                         <Trash2 :size="16" />
                       </button>
@@ -472,6 +503,7 @@ async function refreshAnalytics() {
                     <label
                       >Button title<input
                         v-model="element.title"
+                        :id="`link-title-${element.editorKey}`"
                         maxlength="80"
                         placeholder="My Instagram" /></label
                     ><label class="mt-3"
@@ -485,18 +517,20 @@ async function refreshAnalytics() {
                     <div class="mt-3 flex justify-end gap-2">
                       <button
                         type="button"
-                        :disabled="index === 0"
+                        :disabled="editorLinks.indexOf(element) === 0"
                         class="reorder-button"
-                        :aria-label="`Move link ${index + 1} up`"
-                        @click="moveLink(index, -1)"
+                        :aria-label="`Move link ${editorLinks.indexOf(element) + 1} up`"
+                        @click="moveLink(element.editorKey, -1)"
                       >
                         <ArrowUp :size="15" /></button
                       ><button
                         type="button"
-                        :disabled="index === editorLinks.length - 1"
+                        :disabled="
+                          editorLinks.indexOf(element) === editorLinks.length - 1
+                        "
                         class="reorder-button"
-                        :aria-label="`Move link ${index + 1} down`"
-                        @click="moveLink(index, 1)"
+                        :aria-label="`Move link ${editorLinks.indexOf(element) + 1} down`"
+                        @click="moveLink(element.editorKey, 1)"
                       >
                         <ArrowDown :size="15" />
                       </button>
@@ -735,10 +769,17 @@ async function refreshAnalytics() {
         <div
           class="overflow-hidden rounded-[38px] border-[8px] border-slate-900 shadow-2xl"
         >
-          <LinkProfileCard :profile="preview" preview />
+          <LinkProfileCard
+            :profile="preview"
+            preview
+            sortable
+            :disabled="busy || !!loadError"
+            @reorder="reorderPreview"
+          />
         </div>
         <p class="mt-4 text-center text-xs text-slate-500 dark:text-white/60">
-          Preview links stay inside the editor.
+          Drag preview links or use Alt + ↑/↓ to reorder. Save to update your
+          shared page.
         </p>
       </aside>
     </div>

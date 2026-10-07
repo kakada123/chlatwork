@@ -13,6 +13,34 @@ const valid = {
 };
 
 describe('validateEnvironment', () => {
+  it('validates Business security opt-in and deletion thresholds', () => {
+    expect(
+      validateEnvironment({
+        ...valid,
+        OPENAI_API_KEY: 'test-provider-key',
+        TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',
+        TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true',
+        TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '90',
+        TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD: '95',
+        TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE: '60',
+      }),
+    ).toMatchObject({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true' });
+    for (const settings of [
+      { TELEGRAM_BUSINESS_SECURITY_ENABLED: 'sometimes' },
+      { TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true' },
+      { TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '89' },
+      { TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '101' },
+      { TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD: '90.5' },
+      { TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE: '0' },
+      { TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE: '301' },
+      {
+        TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',
+        OPENAI_API_KEY: 'dummy_openai_key',
+      },
+    ])
+      expect(() => validateEnvironment({ ...valid, ...settings })).toThrow();
+  });
+
   it('accepts an optional separate Creator bot and rejects partial or shared configuration', () => {
     const creator = {
       CREATOR_TELEGRAM_BOT_TOKEN: '987654321:creator-test-token',

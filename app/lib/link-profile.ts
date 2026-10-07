@@ -1,4 +1,4 @@
-import type { LinkProfile } from "../types/link-profile.ts";
+import type { LinkProfile, ProfileLink } from "../types/link-profile.ts";
 
 export const LINK_THEMES = [
   {
@@ -108,6 +108,38 @@ export function getLinkPlatform(value: string) {
   } catch {
     return "custom";
   }
+}
+
+export function getLinkEditingOrder<T extends { editorKey: string }>(
+  links: T[],
+  newestKeys: string[],
+): T[] {
+  const newest = new Set(newestKeys);
+  const byKey = new Map(links.map((link) => [link.editorKey, link]));
+  // Newly added rows are easy to reach without changing the shared-page order.
+  return [
+    ...newestKeys.flatMap((key) => (byKey.has(key) ? [byKey.get(key)!] : [])),
+    ...links.filter((link) => !newest.has(link.editorKey)),
+  ];
+}
+
+export function reorderEnabledProfileLinks<T extends ProfileLink>(
+  links: T[],
+  reordered: ProfileLink[],
+): T[] {
+  const enabled = links.filter((link) => link.isEnabled);
+  const originals = new Map<ProfileLink, T>(enabled.map((link) => [link, link]));
+  if (
+    reordered.length !== enabled.length ||
+    new Set(reordered).size !== enabled.length ||
+    reordered.some((link) => !originals.has(link))
+  )
+    return links;
+  let index = 0;
+  // Disabled links stay in their slots because the preview cannot display them.
+  return links.map((link) =>
+    link.isEnabled ? originals.get(reordered[index++]!)! : link,
+  );
 }
 
 export function profileSaveBody(
