@@ -5,6 +5,7 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { readSecurityWarningThresholds } from '../config/security-warnings';
 import { createHash, randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { TelegramBotClient } from './telegram-bot.client';
@@ -15,6 +16,7 @@ import type {
 } from './telegram-bot.types';
 import type { SecurityScanResult } from './security.types';
 import { extractSecurityLinks } from './security-links';
+import { buildSecurityOwnerDetails } from './security-owner-details';
 import {
   securityAlertKind,
   type SecurityAlertKind,
@@ -39,6 +41,8 @@ interface AlertRecord {
   alert_message_id: bigint | null;
   deleted_at: Date | null;
   delivery_attempts: number;
+  owner_details: string | null;
+  owner_details_hash: string | null;
 }
 
 const DELETE_PREFIX = 'security:delete:';
@@ -101,8 +105,16 @@ export class TelegramBusinessSecurityAlertsService
     result: SecurityScanResult,
     decision: SecurityAlertDecision,
   ) {
-    const threatKind = securityAlertKind(result);
-    if (!this.isEnabled() || !threatKind) return;
+    if (!this.isEnabled()) return;
+    let thresholds;
+    try {
+      thresholds = readSecurityWarningThresholds((key) => this.config.get(key));
+    } catch {
+      this.record('invalid_warning_config');
+      return;
+    }
+    const threatKind = securityAlertKind(result, thresholds);
+    if (!threatKind) return;
     // A model's link category alone must not turn a text/file-only message into a link warning.
     if (
       threatKind === 'suspicious_link' &&
@@ -119,7 +131,18 @@ export class TelegramBusinessSecurityAlertsService
     const sourceDate = new Date(message.date! * 1000);
     const expires = new Date(sourceDate.getTime() + MAX_AGE_MS);
     if (expires.getTime() <= Date.now()) return;
-    // Store only identifiers required for delivery and authorization, never file contents, names, or URLs.
+    // Keep bounded owner-only metadata through retries; the existing 48-hour TTL also expires this snapshot.
+    let ownerDetails: string | null = null;
+    try {
+      if (this.ownerAlertsEnabled())
+        ownerDetails = buildSecurityOwnerDetails(message, result);
+    } catch {
+      // Optional report formatting must never interrupt scanning/deletion or suppress the brief warning.
+      this.record('owner_details_unavailable');
+    }
+    const ownerDetailsHash = ownerDetails
+      ? createHash('sha256').update(ownerDetails).digest('hex')
+      : null;
     const eventKey = createHash('sha256')
       .update(
         JSON.stringify([connection.id, message.chat.id, message.message_id]),
@@ -138,19 +161,25 @@ export class TelegramBusinessSecurityAlertsService
         const rows = await this.prisma.$queryRaw<AlertRecord[]>`
           INSERT INTO telegram_business_security_alerts
             (id, event_key, audience, business_connection_id, owner_user_id, owner_chat_id,
-             source_chat_id, source_message_id, source_message_date, expires_at, decision, deleted_at, threat_kind)
+             source_chat_id, source_message_id, source_message_date, expires_at, decision, deleted_at, threat_kind,
+             owner_details, owner_details_hash)
           VALUES (${randomUUID()}::uuid, ${eventKey}, ${audience}, ${connection.id}, ${BigInt(connection.user.id)},
             ${BigInt(connection.user_chat_id!)}, ${BigInt(message.chat.id)}, ${BigInt(message.message_id)},
-            ${sourceDate}, ${expires}, ${decision}, ${decision === 'deleted' ? new Date() : null}::timestamptz, ${threatKind})
+            ${sourceDate}, ${expires}, ${decision}, ${decision === 'deleted' ? new Date() : null}::timestamptz, ${threatKind},
+            ${audience === 'owner' ? ownerDetails : null}, ${audience === 'owner' ? ownerDetailsHash : null})
           ON CONFLICT (event_key, audience) DO UPDATE SET
             decision = CASE WHEN telegram_business_security_alerts.deleted_at IS NOT NULL THEN 'deleted' ELSE EXCLUDED.decision END,
             threat_kind = CASE WHEN telegram_business_security_alerts.deleted_at IS NOT NULL THEN telegram_business_security_alerts.threat_kind ELSE EXCLUDED.threat_kind END,
+            owner_details = CASE WHEN telegram_business_security_alerts.deleted_at IS NOT NULL THEN telegram_business_security_alerts.owner_details ELSE EXCLUDED.owner_details END,
+            owner_details_hash = CASE WHEN telegram_business_security_alerts.deleted_at IS NOT NULL THEN telegram_business_security_alerts.owner_details_hash ELSE EXCLUDED.owner_details_hash END,
             deleted_at = COALESCE(telegram_business_security_alerts.deleted_at, EXCLUDED.deleted_at),
             delivery_attempts = CASE WHEN (telegram_business_security_alerts.decision IS DISTINCT FROM EXCLUDED.decision
-              OR telegram_business_security_alerts.threat_kind IS DISTINCT FROM EXCLUDED.threat_kind)
+              OR telegram_business_security_alerts.threat_kind IS DISTINCT FROM EXCLUDED.threat_kind
+              OR telegram_business_security_alerts.owner_details_hash IS DISTINCT FROM EXCLUDED.owner_details_hash)
               AND telegram_business_security_alerts.deleted_at IS NULL THEN 0 ELSE telegram_business_security_alerts.delivery_attempts END,
             next_delivery_at = CASE WHEN (telegram_business_security_alerts.decision IS DISTINCT FROM EXCLUDED.decision
-              OR telegram_business_security_alerts.threat_kind IS DISTINCT FROM EXCLUDED.threat_kind)
+              OR telegram_business_security_alerts.threat_kind IS DISTINCT FROM EXCLUDED.threat_kind
+              OR telegram_business_security_alerts.owner_details_hash IS DISTINCT FROM EXCLUDED.owner_details_hash)
               AND telegram_business_security_alerts.deleted_at IS NULL THEN NOW() ELSE telegram_business_security_alerts.next_delivery_at END
           WHERE telegram_business_security_alerts.owner_user_id = EXCLUDED.owner_user_id
             AND telegram_business_security_alerts.owner_chat_id = EXCLUDED.owner_chat_id
@@ -253,13 +282,14 @@ export class TelegramBusinessSecurityAlertsService
     if (!this.isEnabled() || this.processing) return;
     this.processing = true;
     try {
-      // Expire action identifiers and recipient IDs once Telegram's deletion window closes.
+      // Expire owner metadata and action identifiers once Telegram's deletion window closes.
       await this.prisma
         .$executeRaw`DELETE FROM telegram_business_security_alerts WHERE id IN (
         SELECT id FROM telegram_business_security_alerts WHERE expires_at <= NOW() ORDER BY expires_at LIMIT 100)`;
       const rows = await this.prisma.$queryRaw<AlertRecord[]>`
         SELECT * FROM telegram_business_security_alerts WHERE expires_at > NOW() AND delivery_attempts < 3
-          AND next_delivery_at <= NOW() AND (alert_message_id IS NULL OR notified_decision IS DISTINCT FROM decision OR notified_threat_kind IS DISTINCT FROM threat_kind)
+          AND next_delivery_at <= NOW() AND (alert_message_id IS NULL OR notified_decision IS DISTINCT FROM decision OR notified_threat_kind IS DISTINCT FROM threat_kind
+            OR (audience = 'owner' AND notified_owner_details_hash IS DISTINCT FROM owner_details_hash))
           AND (delivery_started_at IS NULL OR delivery_started_at < NOW() - INTERVAL '60 seconds')
         ORDER BY next_delivery_at LIMIT 10`;
       for (const row of rows) {
@@ -285,7 +315,8 @@ export class TelegramBusinessSecurityAlertsService
       UPDATE telegram_business_security_alerts SET delivery_started_at = NOW(), delivery_token = ${lease}::uuid,
         delivery_attempts = delivery_attempts + 1
       WHERE id = ${row.id}::uuid AND expires_at > NOW() AND delivery_attempts < 3 AND next_delivery_at <= NOW()
-        AND (alert_message_id IS NULL OR notified_decision IS DISTINCT FROM decision OR notified_threat_kind IS DISTINCT FROM threat_kind)
+        AND (alert_message_id IS NULL OR notified_decision IS DISTINCT FROM decision OR notified_threat_kind IS DISTINCT FROM threat_kind
+          OR (audience = 'owner' AND notified_owner_details_hash IS DISTINCT FROM owner_details_hash))
         AND (delivery_started_at IS NULL OR delivery_started_at < NOW() - INTERVAL '60 seconds') RETURNING *`;
     const claimed = rows[0];
     if (!claimed) return;
@@ -345,18 +376,23 @@ export class TelegramBusinessSecurityAlertsService
             Number(messageId),
             text,
             keyboard,
+            { disableLinkPreview: true },
           );
         else {
           const sent = await this.bot.sendMessage(
             Number(claimed.owner_chat_id),
             text,
             keyboard,
+            undefined,
+            undefined,
+            { disableLinkPreview: true },
           );
           messageId = this.sentMessageId(sent, claimed.owner_chat_id);
         }
       }
       await this.prisma.$executeRaw`
         UPDATE telegram_business_security_alerts SET alert_message_id = ${messageId}, notified_decision = ${claimed.decision}, notified_threat_kind = ${claimed.threat_kind},
+          notified_owner_details_hash = ${claimed.audience === 'owner' ? claimed.owner_details_hash : null},
           delivery_started_at = NULL, delivery_token = NULL
         WHERE id = ${claimed.id}::uuid AND delivery_token = ${lease}::uuid`;
       this.record(
@@ -387,8 +423,14 @@ export class TelegramBusinessSecurityAlertsService
         ? '⚠️ Unsafe link detected / រកឃើញតំណគ្រោះថ្នាក់\nGoogle Web Risk flagged a link in this message as dangerous. Do not open it.\nកុំបើកតំណក្នុងសារនេះ។'
         : row.threat_kind === 'suspicious_link'
           ? '⚠️ Suspicious link detected / រកឃើញតំណគួរឲ្យសង្ស័យ\nAI assessment suspects phishing. Verify the sender and website before opening.\nសូមពិនិត្យអ្នកផ្ញើ និងគេហទំព័រ មុនបើកតំណ។'
-          : '⚠️ Infected file detected / រកឃើញឯកសារមានមេរោគ\nClamAV detected malware in the incoming file. Do not open or download it.\nកុំបើក ឬទាញយកឯកសារនេះ។';
-    return `${finding}\n${status}\nMessage #${row.source_message_id} · ${row.source_message_date.toISOString()}`;
+          : row.threat_kind === 'suspicious_message'
+            ? '⚠️ Security warning / ការព្រមានសុវត្ថិភាព\nAI assessment found a possible security risk. Review this message before opening links, downloading attachments, or sending money.\nសូមពិនិត្យសារនេះ មុនបើកតំណ ទាញយកឯកសារ ឬផ្ទេរប្រាក់។'
+            : '⚠️ Infected file detected / រកឃើញឯកសារមានមេរោគ\nClamAV detected malware in the incoming file. Do not open or download it.\nកុំបើក ឬទាញយកឯកសារនេះ។';
+    const summary = `${finding}\n${status}\nMessage #${row.source_message_id} · ${row.source_message_date.toISOString()}`;
+    // Never expose the private snapshot in a managed-chat warning, including delete/retry updates.
+    return row.audience === 'owner' && row.owner_details
+      ? `${summary}\n\n${row.owner_details}`
+      : summary;
   }
 
   private currentOwner(

@@ -1,5 +1,6 @@
 import { readClamavConfig } from './clamav';
 import { readWebRiskConfig } from './web-risk';
+import { readSecurityWarningThresholds } from './security-warnings';
 
 const REQUIRED = [
   'DATABASE_URL',
@@ -141,6 +142,7 @@ export function validateEnvironment(config: Record<string, unknown>) {
       throw new Error(`${key} must be an integer from 90 to 100`);
     }
   }
+  readSecurityWarningThresholds((key) => config[key]);
   const scanLimit = config.TELEGRAM_BUSINESS_SECURITY_MAX_SCANS_PER_MINUTE;
   if (
     scanLimit !== undefined &&

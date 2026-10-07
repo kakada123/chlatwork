@@ -1,4 +1,6 @@
 import { Logger } from '@nestjs/common';
+import { buildSecurityOwnerDetails } from './security-owner-details';
+import * as ownerDetails from './security-owner-details';
 import { TelegramBusinessSecurityAlertsService } from './telegram-business-security-alerts.service';
 
 describe('Business security owner alerts and manual deletion', () => {
@@ -50,6 +52,8 @@ describe('Business security owner alerts and manual deletion', () => {
       deleted_at: null as Date | null,
       delivery_started_at: new Date(),
       delivery_attempts: 1,
+      owner_details: null as string | null,
+      owner_details_hash: null as string | null,
     };
     const prisma = {
       $queryRaw: jest.fn().mockResolvedValue([record]),
@@ -102,6 +106,142 @@ describe('Business security owner alerts and manual deletion', () => {
     jest.useRealTimers();
   });
 
+  it('delivers and persists bounded details only for the owner, never the managed chat or logs', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-07T07:01:00Z'));
+    const test = setup();
+    Object.assign(test.message.from, {
+      first_name: 'Sok',
+      username: 'sok_dara',
+    });
+    Object.assign(test.message, {
+      text: 'https://example.com/login?token=private-token',
+    });
+    Object.assign(test.connection.rights, { can_reply: true });
+    test.record.owner_details = buildSecurityOwnerDetails(
+      test.message,
+      test.result as never,
+    );
+    const chat = { ...test.record, audience: 'chat' };
+    test.prisma.$queryRaw
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([chat])
+      .mockResolvedValueOnce([chat]);
+    await test.service.notify(
+      test.message,
+      test.connection,
+      test.result as never,
+      'preserved',
+    );
+    const privateText = test.bot.sendMessage.mock.calls[0]![1];
+    for (const field of [
+      'Sok',
+      '@sok_dara',
+      'private-filename.pdf',
+      'hxxps://example[.]com/login',
+      '100/100',
+      'UTC+07',
+      'Kept',
+    ])
+      expect(privateText).toContain(field);
+    expect(privateText).not.toContain('private-token');
+    expect(privateText.length).toBeLessThanOrEqual(4096);
+    const chatText = test.bot.sendBusinessMessage.mock.calls[0]![2];
+    for (const field of [
+      'Sok',
+      '@sok_dara',
+      'private-filename.pdf',
+      'example',
+      'Sender ID',
+      '100/100',
+    ])
+      expect(chatText).not.toContain(field);
+    const ownerInsert = test.prisma.$queryRaw.mock.calls[0]!;
+    expect(ownerInsert).toContain(test.record.owner_details);
+    const chatInsert = test.prisma.$queryRaw.mock.calls[2]!;
+    expect(chatInsert.slice(-2)).toEqual([null, null]);
+    expect(
+      JSON.stringify((Logger.prototype.log as jest.Mock).mock.calls),
+    ).not.toMatch(/Sok|private-filename|example\.com|private-token/);
+  });
+
+  it('uses the persisted private snapshot for queued deliveries and Delete-button updates', async () => {
+    const test = setup();
+    test.record.owner_details = buildSecurityOwnerDetails(
+      test.message,
+      test.result as never,
+    );
+    await test.service.processPending();
+    expect(test.bot.sendMessage.mock.calls[0]![1]).toContain(
+      'private-filename.pdf',
+    );
+    test.record.alert_message_id = 88n;
+    const deleted = {
+      ...test.record,
+      decision: 'deleted',
+      deleted_at: new Date(),
+    };
+    test.prisma.$queryRaw
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([test.record])
+      .mockResolvedValueOnce([deleted])
+      .mockResolvedValueOnce([deleted]);
+    await test.service.handleCallback(test.callback);
+    expect(test.bot.editMessage.mock.calls[0]![2]).toContain(
+      'private-filename.pdf',
+    );
+    expect(test.bot.editMessage.mock.calls[0]![2]).toContain('Deleted');
+    expect(test.bot.editMessage.mock.calls[0]![3]).toEqual({
+      inline_keyboard: [],
+    });
+  });
+
+  it('refreshes changed metadata even for the same finding and acknowledges the claimed snapshot', async () => {
+    const test = setup();
+    test.record.alert_message_id = 88n;
+    test.record.owner_details = 'Sender: updated sender';
+    test.record.owner_details_hash = 'b'.repeat(64);
+    await test.service.notify(
+      test.message,
+      test.connection,
+      test.result as never,
+      'preserved',
+    );
+    expect(test.prisma.$queryRaw.mock.calls[0]![0].join('')).toContain(
+      'owner_details_hash IS DISTINCT FROM EXCLUDED.owner_details_hash',
+    );
+    expect(test.prisma.$queryRaw.mock.calls[1]![0].join('')).toContain(
+      "audience = 'owner' AND notified_owner_details_hash IS DISTINCT FROM owner_details_hash",
+    );
+    expect(test.bot.editMessage.mock.calls[0]![2]).toContain('updated sender');
+    expect(test.prisma.$executeRaw.mock.calls[0]).toContain('b'.repeat(64));
+  });
+
+  it('still sends the brief warning when optional detail formatting fails', async () => {
+    const test = setup();
+    jest
+      .spyOn(ownerDetails, 'buildSecurityOwnerDetails')
+      .mockImplementation(() => {
+        throw new Error('private metadata');
+      });
+    await expect(
+      test.service.notify(
+        test.message,
+        test.connection,
+        test.result as never,
+        'preserved',
+      ),
+    ).resolves.toBeUndefined();
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.prisma.$queryRaw.mock.calls[0]!.slice(-2)).toEqual([
+      null,
+      null,
+    ]);
+    expect(
+      JSON.stringify((Logger.prototype.log as jest.Mock).mock.calls),
+    ).not.toContain('private metadata');
+  });
+
   it.each([
     {
       kind: 'unsafe_link',
@@ -152,6 +292,9 @@ describe('Business security owner alerts and manual deletion', () => {
             ],
           ],
         },
+        undefined,
+        undefined,
+        { disableLinkPreview: true },
       );
       expect(test.bot.sendBusinessMessage).toHaveBeenCalledWith(
         test.connection.id,
@@ -179,6 +322,9 @@ describe('Business security owner alerts and manual deletion', () => {
       999,
       expect.stringContaining('AI assessment'),
       expect.anything(),
+      undefined,
+      undefined,
+      { disableLinkPreview: true },
     );
     expect(test.prisma.$queryRaw.mock.calls[0]![0].join('')).toContain(
       'notified_threat_kind IS DISTINCT FROM threat_kind',
@@ -228,6 +374,7 @@ describe('Business security owner alerts and manual deletion', () => {
       88,
       expect.stringContaining('Unsafe link detected'),
       { inline_keyboard: [] },
+      { disableLinkPreview: true },
     );
   });
 
@@ -252,6 +399,9 @@ describe('Business security owner alerts and manual deletion', () => {
           ],
         ],
       },
+      undefined,
+      undefined,
+      { disableLinkPreview: true },
     );
     const text = test.bot.sendMessage.mock.calls[0]![1] as unknown as string;
     expect(text).toContain('Kept');
@@ -281,6 +431,9 @@ describe('Business security owner alerts and manual deletion', () => {
       999,
       expect.stringContaining('Deleted'),
       { inline_keyboard: [] },
+      undefined,
+      undefined,
+      { disableLinkPreview: true },
     );
   });
 
@@ -304,6 +457,7 @@ describe('Business security owner alerts and manual deletion', () => {
       88,
       expect.stringContaining('Deleted'),
       { inline_keyboard: [] },
+      { disableLinkPreview: true },
     );
   });
 
@@ -322,19 +476,148 @@ describe('Business security owner alerts and manual deletion', () => {
   });
 
   it.each(['clean', 'disabled', 'unsupported', 'unavailable', 'busy'])(
-    'does not alert for file verdict %s',
+    'does not alert for file verdict %s without a suspicious AI assessment',
     async (status) => {
       const test = setup();
       await test.service.notify(
         test.message,
         test.connection,
-        { ...test.result, fileScan: { status } } as never,
+        {
+          ...test.result,
+          riskScore: 0,
+          confidence: 0,
+          categories: [],
+          fileScan: { status },
+        } as never,
         'preserved',
       );
       expect(test.bot.sendMessage).not.toHaveBeenCalled();
       expect(test.prisma.$queryRaw).not.toHaveBeenCalled();
     },
   );
+
+  it.each([
+    {
+      category: 'phishing_url',
+      kind: 'suspicious_link',
+      header: 'Suspicious link detected',
+    },
+    {
+      category: 'scam',
+      kind: 'suspicious_message',
+      header: 'Security warning',
+    },
+    {
+      category: 'suspicious_file',
+      kind: 'suspicious_message',
+      header: 'Security warning',
+    },
+    {
+      category: 'spam',
+      kind: 'suspicious_message',
+      header: 'Security warning',
+    },
+    {
+      category: 'dangerous_content',
+      kind: 'suspicious_message',
+      header: 'Security warning',
+    },
+  ])(
+    'delivers a moderate $category warning to both chats without claiming confirmed malware',
+    async ({ category, kind, header }) => {
+      const test = setup({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'true' });
+      Object.assign(test.message, {
+        text:
+          category === 'phishing_url'
+            ? 'https://example.com/login'
+            : 'Untrusted message',
+      });
+      Object.assign(test.connection.rights, { can_reply: true });
+      Object.assign(test.record, { threat_kind: kind });
+      const chat = { ...test.record, audience: 'chat' };
+      test.prisma.$queryRaw
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([chat])
+        .mockResolvedValueOnce([chat]);
+      await test.service.notify(
+        test.message,
+        test.connection,
+        {
+          status: 'scanned',
+          riskScore: 50,
+          confidence: 60,
+          categories: [category],
+          fileScan: { status: 'clean' },
+        } as never,
+        'preserved',
+      );
+      expect(test.bot.sendMessage).toHaveBeenCalledWith(
+        999,
+        expect.stringContaining(header),
+        {
+          inline_keyboard: [
+            [
+              {
+                text: expect.stringContaining('Delete message'),
+                callback_data: `security:delete:${id}`,
+              },
+            ],
+          ],
+        },
+        undefined,
+        undefined,
+        { disableLinkPreview: true },
+      );
+      expect(test.bot.sendBusinessMessage).toHaveBeenCalledWith(
+        test.connection.id,
+        222,
+        expect.stringContaining(header),
+      );
+      const text = test.bot.sendMessage.mock.calls[0]![1] as unknown as string;
+      expect(text).toContain('AI assessment');
+      expect(text).toContain('Kept');
+      expect(text).not.toContain('ClamAV');
+      expect(text).not.toContain('Infected file');
+      expect(test.bot.deleteBusinessMessages).not.toHaveBeenCalled();
+      expect(test.prisma.$queryRaw.mock.calls[0]).toContain(kind);
+    },
+  );
+
+  it('retries generic warnings with the persisted AI evidence source', async () => {
+    const test = setup();
+    Object.assign(test.record, { threat_kind: 'suspicious_message' });
+    await test.service.processPending();
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      999,
+      expect.stringContaining('Security warning'),
+      expect.anything(),
+      undefined,
+      undefined,
+      { disableLinkPreview: true },
+    );
+    expect(test.bot.sendMessage.mock.calls[0]![1]).not.toContain('ClamAV');
+  });
+
+  it('honors custom warning thresholds and fails closed on invalid values', async () => {
+    for (const threshold of ['70', 'invalid']) {
+      const test = setup({
+        TELEGRAM_BUSINESS_SECURITY_WARNING_RISK_THRESHOLD: threshold,
+      });
+      await test.service.notify(
+        test.message,
+        test.connection,
+        {
+          status: 'scanned',
+          riskScore: 60,
+          confidence: 80,
+          categories: ['scam'],
+        },
+        'preserved',
+      );
+      expect(test.prisma.$queryRaw).not.toHaveBeenCalled();
+    }
+  });
 
   it.each([undefined, 0, -1, 1.5, '999'])(
     'never falls back to the incoming chat when owner chat ID is invalid: %s',
@@ -440,6 +723,7 @@ describe('Business security owner alerts and manual deletion', () => {
       88,
       expect.stringContaining('Deleted'),
       { inline_keyboard: [] },
+      { disableLinkPreview: true },
     );
   });
 
@@ -654,6 +938,7 @@ describe('Business security owner alerts and manual deletion', () => {
       88,
       expect.stringContaining('Deleted'),
       { inline_keyboard: [] },
+      { disableLinkPreview: true },
     );
     expect(test.bot.editBusinessMessage).toHaveBeenCalledWith(
       'private-connection',
@@ -739,6 +1024,7 @@ describe('Business security owner alerts and manual deletion', () => {
           ],
         ],
       },
+      { disableLinkPreview: true },
     );
   });
 

@@ -13,6 +13,35 @@ const valid = {
 };
 
 describe('validateEnvironment', () => {
+  it('accepts moderate warning thresholds while keeping deletion thresholds at 90 or higher', () => {
+    const warnings = {
+      TELEGRAM_BUSINESS_SECURITY_WARNING_RISK_THRESHOLD: '50',
+      TELEGRAM_BUSINESS_SECURITY_WARNING_CONFIDENCE_THRESHOLD: '60',
+    };
+    expect(validateEnvironment({ ...valid, ...warnings })).toMatchObject(
+      warnings,
+    );
+    for (const key of Object.keys(warnings)) {
+      for (const value of ['0', '101', '50.5', 'invalid'])
+        expect(() => validateEnvironment({ ...valid, [key]: value })).toThrow(
+          key,
+        );
+    }
+    expect(() =>
+      validateEnvironment({
+        ...valid,
+        ...warnings,
+        TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD: '50',
+      }),
+    ).toThrow('TELEGRAM_BUSINESS_SECURITY_RISK_THRESHOLD');
+    expect(() =>
+      validateEnvironment({
+        ...valid,
+        ...warnings,
+        TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD: '60',
+      }),
+    ).toThrow('TELEGRAM_BUSINESS_SECURITY_CONFIDENCE_THRESHOLD');
+  });
   it('allows reputation scanning without AI and validates its opt-in, key, and limits', () => {
     const scanner = {
       TELEGRAM_BUSINESS_SECURITY_ENABLED: 'true',

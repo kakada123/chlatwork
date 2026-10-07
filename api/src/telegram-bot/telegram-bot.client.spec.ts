@@ -1,5 +1,8 @@
 import type { ConfigService } from '@nestjs/config';
-import { BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { TelegramBotClient } from './telegram-bot.client';
 
 describe('Telegram animation delivery', () => {
@@ -53,6 +56,40 @@ describe('Telegram Business API', () => {
       getOrThrow: () => 'dummy-test-token',
     } as unknown as ConfigService);
   }
+
+  it('disables URL previews only when explicitly requested for private security reports', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(
+        async () =>
+          new Response(
+            JSON.stringify({ ok: true, result: { message_id: 99 } }),
+          ),
+      );
+    await client().sendMessage(
+      999,
+      'Private security report',
+      undefined,
+      undefined,
+      undefined,
+      { disableLinkPreview: true },
+    );
+    await client().editMessage(999, 99, 'Updated private report', undefined, {
+      disableLinkPreview: true,
+    });
+    await client().sendMessage(999, 'Ordinary message');
+    for (const index of [0, 1]) {
+      const payload = JSON.parse(
+        fetchMock.mock.calls[index]![1]!.body as string,
+      );
+      expect(payload.link_preview_options).toEqual({ is_disabled: true });
+      expect(payload.parse_mode).toBeUndefined();
+    }
+    expect(
+      JSON.parse(fetchMock.mock.calls[2]![1]!.body as string)
+        .link_preview_options,
+    ).toBeUndefined();
+  });
 
   it('sends and edits security warnings through the Business connection', async () => {
     const fetchMock = jest

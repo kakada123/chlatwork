@@ -280,10 +280,14 @@ contain no message bodies, identities, filenames, URLs, or configuration secrets
 When Business security and ClamAV scanning are enabled, a confirmed `infected`
 file sends a Khmer/English warning to **both** the account owner's private bot
 chat and the original managed conversation. Google Web Risk matches also warn
-in both destinations. AI findings with `phishing_url` or `unsafe_url`, risk at
-least 90 and confidence at least 80, produce a **suspicious-link** warning that
-clearly states it is an AI assessment. AI suspicion is never labelled confirmed
-malware. Automatic deletion remains optional and keeps its existing minimum
+in both destinations. AI findings with a supported risk category, risk at least
+50 and confidence at least 60, also warn in both destinations. Findings with
+`phishing_url` or `unsafe_url` and an actual extracted link use a **suspicious-link**
+warning; scam, suspicious-file metadata, spam, and dangerous-content findings
+use a **security warning**. Both clearly state they are AI assessments. A clean
+or unavailable ClamAV/reputation result alone never triggers these warnings;
+independent AI evidence must meet both warning thresholds. AI suspicion is never
+labelled confirmed malware. Automatic deletion remains optional and keeps its existing minimum
 90 risk / 95 confidence thresholds; warnings state whether the message was kept
 or deleted.
 
@@ -291,11 +295,13 @@ On first installation, review and manually run
 [`prisma/sql/telegram-business-security-alerts.sql`](prisma/sql/telegram-business-security-alerts.sql).
 Keep this original creation script unchanged. For both new installations and
 existing alerts tables, review and manually run the separate upgrade
-[`prisma/sql/telegram-business-security-link-alerts.sql`](prisma/sql/telegram-business-security-link-alerts.sql)
-before deploying. The application does not apply either SQL script. This upgrade
-adds the durable finding type so retries retain the
-correct file, unsafe-link, or suspicious-link warning. Existing delivered file
-alerts are retained without being resent by the upgrade.
+[`prisma/sql/telegram-business-security-owner-alert-details.sql`](prisma/sql/telegram-business-security-owner-alert-details.sql)
+before deploying. The application does not apply SQL scripts. This new upgrade
+adds private report snapshots and their delivery revisions, plus the durable
+finding types from the earlier link/warning upgrades if missing. Existing
+installations can run this latest upgrade directly on their alerts table.
+The previous creation, link-alert and warning-alert SQL files remain unchanged.
+Existing delivered file alerts are retained without being resent by the upgrade.
 No changes to the webhook update list are needed if `callback_query` and the
 Business update types above are already registered.
 
@@ -304,6 +310,16 @@ Business update types above are already registered.
 - `TELEGRAM_BUSINESS_SECURITY_CHAT_ALERTS` defaults to `true`; set it to `false`
   to keep warnings in the owner's private bot chat only. Set both alert switches
   to `false` to disable warnings.
+- AI warnings default to `TELEGRAM_BUSINESS_SECURITY_WARNING_RISK_THRESHOLD=50`
+  and `TELEGRAM_BUSINESS_SECURITY_WARNING_CONFIDENCE_THRESHOLD=60`. Each accepts
+  integers 1–100. Startup logs report `warningRiskThreshold` and
+  `warningConfidenceThreshold`. Empty risk categories, failed assessments, and
+  findings below either threshold do not warn. Confirmed ClamAV/Web Risk matches
+  still alert independently of these AI warning thresholds. These settings never
+  change the separate auto-delete thresholds or permissions. Moderate findings
+  are kept for the owner to review; the private alert offers **Delete message**.
+  Both Gemini and OpenAI receive guidance to assign review-level risks for
+  concrete warning signs; uncertainty or an unfamiliar URL alone is insufficient.
 - Open the main bot and send `/start` so the owner can receive private messages.
   The recipient is Telegram's `BusinessConnection.user_chat_id`, never the sender.
 - Enable **Reply to messages** (`can_reply`) in Secretary Mode to post warnings
@@ -320,11 +336,32 @@ Business update types above are already registered.
   Link warnings use **Delete message / លុបសារ** with the same authorization and
   expiry checks; it deletes the original message containing the link.
 
-Warnings contain the fixed scanner verdict, source message number/time, and
-deletion outcome, without file names, attachment contents, links, or sender
-identities. They report a scanner finding and do not accuse the sender.
-Temporary action records store only routing/action identifiers and expire after
-48 hours. A shared database claim suppresses concurrent duplicate sends/clicks
+Managed-chat warnings contain the scanner verdict, source message number/time,
+and deletion outcome. The owner's private report additionally includes the
+Telegram sender's name, username and ID; source chat ID; filename, reported MIME
+type and size; up to five distinct link destinations and their displayed labels;
+sent/scan times in Phnom Penh (UTC+07); risk/confidence, categories, file/link scan
+status, failure reasons and reputation threat types where available. Missing
+metadata is reported as unavailable. An unlisted URL is not proof of safety, and
+an aggregate link finding does not necessarily identify which individual URL
+triggered it. Names are Telegram display metadata, not verified identities.
+
+Private link destinations use `hxxps://example[.]com/path` to prevent accidental
+opening. Credentials, query strings and fragments are omitted, including URLs
+embedded in filenames, names or link labels; control/bidirectional formatting
+characters are removed. Owner reports use plain text and disable link previews
+on both sends and edits ([Telegram link preview options](https://core.telegram.org/bots/api#linkpreviewoptions)).
+No complete message body, attachment bytes, or Telegram file token is retained.
+Sender details stay out of AI requests and logs. Reports describe scanner
+findings without accusing the sender.
+
+Temporary action records retain a bounded metadata snapshot only for the owner
+audience, enforced by a database constraint. The snapshot survives delivery
+retries and Delete-button updates; same-finding edited messages refresh the
+details and scores. It expires with the existing action record, 48 hours after
+the source message (the background sweep does not erase already-sent Telegram
+alerts). Existing queued alerts without a snapshot keep their brief report.
+A shared database claim suppresses concurrent duplicate sends/clicks
 across API replicas. Delivery retries up to three attempts (after 1 minute, then
 5 minutes), with a current connection check; expired records are removed by a
 bounded background sweep. A lost Telegram response can still cause a duplicate

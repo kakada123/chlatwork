@@ -6,6 +6,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { readSecurityWarningThresholds } from '../config/security-warnings';
 import { SecurityService } from './security.service';
 import { TelegramBotClient } from './telegram-bot.client';
 import type {
@@ -31,6 +32,9 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
+    const warnings = readSecurityWarningThresholds((key) =>
+      this.config.get(key),
+    );
     // Publish only non-sensitive switches so an idle scanner can be diagnosed in runtime logs.
     this.logger.log(
       JSON.stringify({
@@ -40,6 +44,8 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
         urlScanEnabled: this.enabled('TELEGRAM_BUSINESS_URL_SCAN_ENABLED'),
         ownerAlertsEnabled: this.alerts.ownerAlertsEnabled(),
         chatAlertsEnabled: this.alerts.chatAlertsEnabled(),
+        warningRiskThreshold: warnings.riskScore,
+        warningConfidenceThreshold: warnings.confidence,
         autoDeleteEnabled: this.enabled(
           'TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE',
         ),

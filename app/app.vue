@@ -23,7 +23,7 @@
     </aside>
     <AdsDesktopAd v-if="canShowAds" :key="route.path" class="lg:order-3" />
   </div>
-  <CookieConsent />
+  <CookieConsent v-if="route.meta.blankCanvas !== true" />
 </template>
 
 <script setup lang="ts">

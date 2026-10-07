@@ -94,7 +94,9 @@ describe('TelegramAssistantAiService', () => {
         model: 'test-security-model',
         contents: [{ role: 'user', parts: [{ text: JSON.stringify(input) }] }],
         config: expect.objectContaining({
-          systemInstruction: expect.stringContaining('untrusted data'),
+          systemInstruction: expect.stringMatching(
+            /untrusted data[\s\S]*50 to 89/,
+          ),
           responseMimeType: 'application/json',
           responseJsonSchema: expect.objectContaining({
             required: ['riskScore', 'confidence', 'categories'],
@@ -103,6 +105,33 @@ describe('TelegramAssistantAiService', () => {
       }),
     );
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('accepts evidence-based moderate findings and asks the provider to distinguish warning signs from confirmed malicious content', async () => {
+    const result = {
+      riskScore: 60,
+      confidence: 70,
+      categories: ['phishing_url'],
+    };
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(securityResponse(result));
+    await expect(
+      securityService().assessMessageSecurity({
+        text: 'Please verify your payment account',
+        caption: '',
+        links: [{ target: 'https://example.invalid/verify' }],
+        document: null,
+      }),
+    ).resolves.toEqual(result);
+    const body = JSON.parse(fetchMock.mock.calls[0]![1]!.body as string);
+    expect(body.instructions).toContain('50 to 89');
+    expect(body.instructions).toContain('concrete warning signs');
+    expect(body.instructions).toContain(
+      'Uncertainty or an unfamiliar URL alone is not evidence',
+    );
+    expect(body.instructions).toContain('URLs have not been visited');
+    expect(body.store).toBe(false);
   });
 
   it.each([

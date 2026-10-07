@@ -30,6 +30,7 @@ export class TelegramBotClient {
     replyMarkup?: TelegramReplyMarkup,
     entities?: (TelegramTextMention | TelegramPreformattedText)[],
     replyToMessageId?: number,
+    options?: { disableLinkPreview?: boolean },
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');
@@ -37,6 +38,9 @@ export class TelegramBotClient {
     return this.call('sendMessage', {
       chat_id: chatId,
       text,
+      ...(options?.disableLinkPreview
+        ? { link_preview_options: { is_disabled: true } }
+        : {}),
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
       ...(entities?.length ? { entities } : {}),
       ...(replyToMessageId ? { reply_parameters: {
@@ -175,6 +179,7 @@ export class TelegramBotClient {
     messageId: number,
     text: string,
     replyMarkup?: TelegramInlineKeyboard,
+    options?: { disableLinkPreview?: boolean },
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');
@@ -183,6 +188,9 @@ export class TelegramBotClient {
       chat_id: chatId,
       message_id: messageId,
       text,
+      ...(options?.disableLinkPreview
+        ? { link_preview_options: { is_disabled: true } }
+        : {}),
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
     });
   }

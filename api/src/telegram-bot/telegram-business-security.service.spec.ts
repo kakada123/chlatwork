@@ -89,6 +89,8 @@ describe('Telegram Business security', () => {
         urlScanEnabled: false,
         ownerAlertsEnabled: false,
         chatAlertsEnabled: false,
+        warningRiskThreshold: 50,
+        warningConfidenceThreshold: 60,
         autoDeleteEnabled: false,
         riskThreshold: 96,
         confidenceThreshold: 99,
@@ -230,6 +232,34 @@ describe('Telegram Business security', () => {
       ...test.result,
       riskScore: 96,
       confidence: 99,
+    });
+    await test.service.handleMessage(test.message);
+    expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves a moderate risk message while forwarding it to warning delivery even with auto-delete enabled', async () => {
+    const test = setup({
+      TELEGRAM_BUSINESS_SECURITY_WARNING_RISK_THRESHOLD: '50',
+      TELEGRAM_BUSINESS_SECURITY_WARNING_CONFIDENCE_THRESHOLD: '60',
+    });
+    test.security.scan.mockResolvedValue({
+      ...test.result,
+      riskScore: 50,
+      confidence: 60,
+      categories: ['scam'],
+    });
+    await test.service.handleMessage(test.message);
+    expect(test.bot.deleteBusinessMessages).not.toHaveBeenCalled();
+    expect(test.alerts.notify).toHaveBeenCalledWith(
+      test.message,
+      test.connection,
+      expect.objectContaining({ riskScore: 50, confidence: 60 }),
+      'preserved',
+    );
+    test.security.scan.mockResolvedValue({
+      ...test.result,
+      riskScore: 90,
+      confidence: 95,
     });
     await test.service.handleMessage(test.message);
     expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(1);
