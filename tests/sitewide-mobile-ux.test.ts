@@ -66,6 +66,7 @@ test("all page routes inherit the app shell unless they are responsive immersive
   assert.ok(pages.length >= 64, `expected the complete page inventory, found ${pages.length}`);
   assert.deepEqual(layoutFreePages, [
     "app/pages/cockroach.vue",
+    "app/pages/dont-get-mad.vue",
     "app/pages/i/[token].vue",
     "app/pages/link-alias.vue",
     "app/pages/love-probation.vue",

@@ -13,11 +13,15 @@ import ts from "../api/node_modules/typescript/lib/typescript.js";
 
 const { renderToString } = serverRenderer;
 
-const filename = "app/pages/most-annoying.vue";
+const filename = "app/pages/dont-get-mad.vue";
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
 
 // Run the actual page handlers with controlled browser events, timers and audio.
-function pageHarness() {
+function pageHarness({
+  autoAcknowledgeFeedback = true,
+  fixedQuestions = true,
+  randomSeed = 7,
+} = {}) {
   const mounts: (() => void)[] = [];
   const unmounts: (() => void)[] = [];
   const intervals = new Map<number, () => void>();
@@ -37,7 +41,14 @@ function pageHarness() {
   const audio = { created: 0, played: 0, disposed: 0 };
   const confetti = { created: 0, fired: 0, reset: 0, fail: false };
   let intervalId = 0;
+  let randomState = randomSeed >>> 0;
+  const seededMath = Object.create(Math);
+  seededMath.random = () => {
+    randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0;
+    return randomState / 4294967296;
+  };
   const globals = {
+    Math: seededMath,
     ref: vue.ref,
     shallowRef: vue.shallowRef,
     computed: vue.computed,
@@ -111,6 +122,67 @@ function pageHarness() {
     ...Object.values(globals),
   );
   const state = module.exports.default.setup({}, { expose() {} });
+  let disposed = false;
+  if (fixedQuestions) {
+    const start = state.startTest;
+    state.startTest = () => {
+      start();
+      if (disposed) return;
+      // Known cases keep wrong-answer regressions reproducible; rotation tests opt out.
+      state.challengeOrder.value = [...state.challengePhases];
+      state.captchaTargets.value = state.insects.slice(0, 3);
+      state.captchaRoundTiles.value = Array.from({ length: 3 }, () => [
+        ...state.insects,
+      ]);
+      state.consentPrompt.value = "ខ្ញុំនៅតែអត់ធ្មត់បាន";
+      state.inkColor.value = state.colorChoices.find(
+        (choice: { id: string }) => choice.id === "blue",
+      );
+      state.colorWord.value = state.colorChoices.find(
+        (choice: { id: string }) => choice.id === "red",
+      );
+      state.sliderOriginalTarget.value = 70;
+      state.sliderTarget.value = 70;
+      state.sliderSecondTarget.value = 73;
+      state.sequenceOrder.value = [3, 2, 1];
+      state.requiredPhrase.value = "ខ្ញុំអត់ធ្មត់";
+      state.counterTotal.value = 5;
+      state.counterResetAt.value = 3;
+      state.oppositePrompts.value = state.directionChoices.slice(0, 3);
+      state.memoryPattern.value = ["apple", "grape", "banana"].map((id) =>
+        state.fruitChoices.find((fruit: { id: string }) => fruit.id === id),
+      );
+      state.sizeChoices.value = [
+        { value: 9, size: "large" },
+        { value: 42, size: "small" },
+        { value: 7, size: "medium" },
+      ];
+    };
+  }
+  // Existing flow tests click the dialog's Continue button after each response.
+  // Dialog-specific tests disable this to inspect blocking, copy and delayed transitions.
+  let acknowledgeAutomatically = autoAcknowledgeFeedback;
+  const feedbackEvents: string[] = [];
+  for (const action of [
+    "selectCaptcha",
+    "checkConsent",
+    "submitConsent",
+    "selectColor",
+    "submitSlider",
+    "selectSequence",
+    "submitPhrase",
+    "clickCounter",
+    "selectOpposite",
+    "selectMemory",
+    "selectLargest",
+  ]) {
+    const handler = state[action];
+    state[action] = (...args: unknown[]) => {
+      handler(...args);
+      if (state.feedback.value) feedbackEvents.push(state.feedback.value.kind);
+      if (acknowledgeAutomatically) state.acknowledgeFeedback();
+    };
+  }
   mounts.forEach((fn) => fn());
   return {
     state,
@@ -120,11 +192,16 @@ function pageHarness() {
     media,
     audio,
     confetti,
+    feedbackEvents,
+    setAutoAcknowledgeFeedback(value: boolean) {
+      acknowledgeAutomatically = value;
+    },
     tick(count = 1) {
       for (let index = 0; index < count; index++)
         [...intervals.values()].forEach((fn) => fn());
     },
     dispose() {
+      disposed = true;
       unmounts.forEach((fn) => fn());
     },
   };
@@ -176,10 +253,10 @@ function completeExtraTests(page: ReturnType<typeof pageHarness>) {
 function completeNewChallenges(page: ReturnType<typeof pageHarness>) {
   const { state } = page;
   assert.equal(state.phase.value, "typing");
-  state.typedPhrase.value = state.requiredPhrase;
+  state.typedPhrase.value = state.requiredPhrase.value;
   state.submitPhrase();
   assert.equal(state.typedPhrase.value, "");
-  state.typedPhrase.value = state.requiredPhrase;
+  state.typedPhrase.value = state.requiredPhrase.value;
   state.submitPhrase();
   assert.equal(state.phase.value, "counter");
   for (let click = 0; click < 8; click++) state.clickCounter();
@@ -188,10 +265,257 @@ function completeNewChallenges(page: ReturnType<typeof pageHarness>) {
     state.selectOpposite(direction);
   assert.equal(state.phase.value, "memory");
   state.beginMemory();
-  for (const fruit of state.memoryPattern) state.selectMemory(fruit.id);
+  for (const fruit of state.memoryPattern.value) state.selectMemory(fruit.id);
   assert.equal(state.phase.value, "size");
   state.selectLargest(42);
 }
+
+test("wrong answers and pranks open dialogs while correct answers advance without acknowledgement", async () => {
+  const page = pageHarness({ autoAcknowledgeFeedback: false }),
+    { state } = page;
+  try {
+    const dialog = {
+      open: false,
+      shown: 0,
+      closed: 0,
+      showModal() {
+        this.open = true;
+        this.shown++;
+      },
+      close() {
+        this.open = false;
+        this.closed++;
+      },
+    };
+    state.feedbackDialog.value = dialog;
+    reachCaptcha(page);
+    state.selectCaptcha(-1);
+    assert.equal(state.feedback.value.kind, "wrong");
+    assert.equal(state.feedback.value.title, "ខុសហើយ! 😅");
+    assert.ok(
+      state.feedback.value.message.includes(state.captchaTarget.value.label),
+    );
+    assert.equal(state.active.value, false);
+    await vue.nextTick();
+    assert.equal(dialog.shown, 1);
+    selectTarget(page);
+    assert.equal(state.captchaStep.value, 1);
+    state.acknowledgeFeedback();
+    assert.equal(state.feedback.value, null);
+    assert.equal(state.active.value, true);
+    for (let step = 0; step < 3; step++) {
+      selectTarget(page);
+      assert.equal(state.feedback.value, null);
+      assert.equal(state.active.value, true);
+      assert.match(state.status.value, /ត្រូវហើយ/);
+    }
+    assert.equal(state.phase.value, "consent");
+    state.consentChecked.value = true;
+    state.checkConsent();
+    assert.equal(state.feedback.value.kind, "prank");
+    assert.equal(state.feedback.value.title, "អ្នកធ្វើត្រូវហើយ 🙃");
+    state.acknowledgeFeedback();
+    state.consentChecked.value = true;
+    state.checkConsent();
+    state.submitConsent();
+    assert.equal(state.feedback.value, null);
+    assert.equal(state.phase.value, "color");
+    state.selectColor("red");
+    assert.equal(state.feedback.value.kind, "wrong");
+    assert.match(state.feedback.value.message, /ខៀវ/);
+    state.acknowledgeFeedback();
+    state.selectColor("blue");
+    assert.equal(state.feedback.value, null);
+    assert.equal(state.phase.value, "slider");
+    state.sliderValue.value = 70;
+    state.submitSlider();
+    assert.equal(state.feedback.value.kind, "prank");
+    assert.match(state.feedback.value.message, /70.*73/);
+    const entry = state.feedback.value;
+    state.submitSlider();
+    assert.equal(state.feedback.value, entry);
+    state.acknowledgeFeedback();
+    state.sliderValue.value = 73;
+    state.submitSlider();
+    assert.equal(state.phase.value, "sequence");
+    assert.equal(state.feedback.value, null);
+    state.selectSequence(1);
+    assert.equal(state.feedback.value.kind, "wrong");
+    state.startTest();
+    assert.equal(state.feedback.value, null);
+    assert.equal(state.phase.value, "question");
+    await vue.nextTick();
+    assert.equal(dialog.open, false);
+    state.acknowledgeFeedback();
+    assert.equal(state.phase.value, "question");
+  } finally {
+    page.dispose();
+  }
+});
+
+test("a perfect run opens only the four prank dialogs, with no popup for ordinary progress", () => {
+  const page = pageHarness();
+  try {
+    reachPopup(page);
+    assert.deepEqual(page.feedbackEvents, ["prank", "prank", "prank", "prank"]);
+  } finally {
+    page.dispose();
+  }
+});
+
+test("restarts rotate the challenge order and every question without changing a question during play", () => {
+  const page = pageHarness({ fixedQuestions: false }),
+    { state } = page;
+  const snapshot = () => ({
+    order: state.challengeOrder.value.join(","),
+    captcha: state.captchaTargets.value
+      .map((target: { id: string }) => target.id)
+      .join(","),
+    consent: state.consentPrompt.value,
+    color: state.inkColor.value.id,
+    slider: state.sliderOriginalTarget.value,
+    sequence: state.sequenceOrder.value.join(","),
+    typing: state.requiredPhrase.value,
+    counter: state.counterTotal.value,
+    opposite: state.oppositePrompts.value
+      .map((prompt: { id: string }) => prompt.id)
+      .join(","),
+    memory: state.memoryPattern.value
+      .map((fruit: { id: string }) => fruit.id)
+      .join(","),
+    size: state.largestNumber.value,
+  });
+  try {
+    state.startTest();
+    let previous = snapshot();
+    for (let run = 0; run < 6; run++) {
+      assert.equal(new Set(state.challengeOrder.value).size, 9);
+      assert.equal(
+        new Set(
+          state.captchaTargets.value.map((target: { id: string }) => target.id),
+        ).size,
+        3,
+      );
+      state.answerPatience({ detail: 0 });
+      for (let tick = 0; tick < 100 && state.phase.value !== "captcha"; tick++)
+        page.tick();
+      state.selectCaptcha(-1);
+      assert.deepEqual(snapshot(), previous);
+      state.startTest();
+      const current = snapshot();
+      for (const key of Object.keys(current) as (keyof typeof current)[])
+        assert.notEqual(
+          current[key],
+          previous[key],
+          `${key} should change on restart`,
+        );
+      previous = current;
+    }
+  } finally {
+    page.dispose();
+  }
+});
+
+test("varied runs complete each of the nine challenges exactly once in the generated order", () => {
+  const page = pageHarness({ fixedQuestions: false, randomSeed: 99 }),
+    { state } = page;
+  try {
+    for (let run = 0; run < 12; run++) {
+      reachCaptcha(page);
+      const order = [...state.challengeOrder.value];
+      assert.notEqual(state.inkColor.value.id, state.colorWord.value.id);
+      assert.ok(
+        state.sliderSecondTarget.value >= 0 &&
+          state.sliderSecondTarget.value <= 100,
+      );
+      assert.notEqual(
+        state.sliderOriginalTarget.value,
+        state.sliderSecondTarget.value,
+      );
+      assert.ok(state.counterResetAt.value < state.counterTotal.value);
+      assert.equal(new Set(state.sequenceOrder.value).size, 3);
+      assert.equal(
+        new Set(
+          state.memoryPattern.value.map((fruit: { id: string }) => fruit.id),
+        ).size,
+        3,
+      );
+      assert.equal(
+        state.sizeChoices.value.find(
+          (choice: { size: string }) => choice.size === "small",
+        ).value,
+        state.largestNumber.value,
+      );
+      for (let round = 0; round < 3; round++) selectTarget(page);
+      for (const [index, challenge] of order.entries()) {
+        assert.equal(state.phase.value, challenge);
+        assert.equal(state.stageLabel.value, `តេស្តបន្ថែម ${index + 1}/9`);
+        switch (challenge) {
+          case "consent":
+            state.consentChecked.value = true;
+            state.checkConsent();
+            state.consentChecked.value = true;
+            state.checkConsent();
+            state.submitConsent();
+            break;
+          case "color":
+            state.selectColor(state.inkColor.value.id);
+            break;
+          case "slider":
+            state.sliderValue.value = state.sliderTarget.value;
+            state.submitSlider();
+            assert.ok(
+              state.status.value.includes(
+                String(state.sliderSecondTarget.value),
+              ),
+            );
+            state.sliderValue.value = state.sliderTarget.value;
+            state.submitSlider();
+            break;
+          case "sequence":
+            for (const number of state.sequenceOrder.value)
+              state.selectSequence(number);
+            break;
+          case "typing":
+            for (let attempt = 0; attempt < 2; attempt++) {
+              state.typedPhrase.value = state.requiredPhrase.value;
+              state.submitPhrase();
+            }
+            break;
+          case "counter":
+            for (
+              let click = 0;
+              click < state.counterResetAt.value + state.counterTotal.value;
+              click++
+            )
+              state.clickCounter();
+            break;
+          case "opposite":
+            for (let round = 0; round < 3; round++)
+              state.selectOpposite(state.directionPrompt.value.opposite);
+            break;
+          case "memory":
+            state.beginMemory();
+            for (const fruit of state.memoryPattern.value)
+              state.selectMemory(fruit.id);
+            break;
+          case "size":
+            state.selectLargest(state.largestNumber.value);
+            break;
+          default:
+            assert.fail(`Unhandled challenge ${challenge}`);
+        }
+        assert.equal(state.phase.value, order[index + 1] ?? "annoyed");
+      }
+      state.answerAnnoyed();
+      page.tick(10);
+      assert.equal(state.phase.value, "result");
+      assert.equal(page.intervals.size, 0);
+    }
+  } finally {
+    page.dispose();
+  }
+});
 
 test("START asks about patience, loads from zero to 99, fails and restarts before captcha", () => {
   const page = pageHarness(),
@@ -417,11 +741,11 @@ test("five new challenges enforce their answers and spring typing and counter tr
     state.submitPhrase();
     assert.equal(state.typingTricked.value, false);
     assert.equal(state.phase.value, "typing");
-    state.typedPhrase.value = state.requiredPhrase;
+    state.typedPhrase.value = state.requiredPhrase.value;
     state.submitPhrase();
     assert.equal(state.typingTricked.value, true);
     assert.equal(state.typedPhrase.value, "");
-    state.typedPhrase.value = ` ${state.requiredPhrase} `;
+    state.typedPhrase.value = ` ${state.requiredPhrase.value} `;
     state.submitPhrase();
     assert.equal(state.phase.value, "counter");
     page.tick(100);
@@ -452,7 +776,7 @@ test("five new challenges enforce their answers and spring typing and counter tr
     state.showMemory();
     assert.equal(state.memoryRevealed.value, true);
     state.beginMemory();
-    for (const fruit of state.memoryPattern) state.selectMemory(fruit.id);
+    for (const fruit of state.memoryPattern.value) state.selectMemory(fruit.id);
     assert.equal(state.phase.value, "size");
     for (const wrong of [9, 7, NaN, 99]) state.selectLargest(wrong);
     assert.equal(state.phase.value, "size");
@@ -480,14 +804,14 @@ test("new challenges reject paused and hidden actions and reset all new progress
       reachCaptcha(page);
       for (let step = 0; step < 3; step++) selectTarget(page);
       completeExtraTests(page);
-      state.typedPhrase.value = state.requiredPhrase;
+      state.typedPhrase.value = state.requiredPhrase.value;
       setBlocked(true);
       state.submitPhrase();
       assert.equal(state.typingTricked.value, false);
-      assert.equal(state.typedPhrase.value, state.requiredPhrase);
+      assert.equal(state.typedPhrase.value, state.requiredPhrase.value);
       setBlocked(false);
       state.submitPhrase();
-      state.typedPhrase.value = state.requiredPhrase;
+      state.typedPhrase.value = state.requiredPhrase.value;
       state.submitPhrase();
       state.clickCounter();
       setBlocked(true);
@@ -797,10 +1121,10 @@ test("the focused test renders every phase and accessible label in Khmer without
     assert.match(await render(), /តេស្តបន្ថែម 4\/9/);
     for (const number of [3, 2, 1]) page.state.selectSequence(number);
     assert.match(await render(), /តេស្តបន្ថែម 5\/9/);
-    page.state.typedPhrase.value = page.state.requiredPhrase;
+    page.state.typedPhrase.value = page.state.requiredPhrase.value;
     page.state.submitPhrase();
     assert.match(await render(), /អក្សរបាត់អស់ហើយ/);
-    page.state.typedPhrase.value = page.state.requiredPhrase;
+    page.state.typedPhrase.value = page.state.requiredPhrase.value;
     page.state.submitPhrase();
     assert.match(await render(), /តេស្តបន្ថែម 6\/9/);
     for (let click = 0; click < 8; click++) page.state.clickCounter();
@@ -812,7 +1136,7 @@ test("the focused test renders every phase and accessible label in Khmer without
     page.state.beginMemory();
     assert.match(await render(), /រូបទី 1 លាក់/);
     assert.match(await render(), /មើលគំរូម្ដងទៀត/);
-    for (const fruit of page.state.memoryPattern)
+    for (const fruit of page.state.memoryPattern.value)
       page.state.selectMemory(fruit.id);
     assert.match(await render(), /តេស្តបន្ថែម 9\/9/);
     assert.match(await render(), /size-small[^>]*aria-label="លេខ 42"/);
@@ -824,9 +1148,62 @@ test("the focused test renders every phase and accessible label in Khmer without
     const html = await render();
     assert.match(html, /ពិន្ទុភាពអត់ធ្មត់របស់អ្នក/);
     assert.match(html, /<strong>2%<\/strong>/);
+    page.setAutoAcknowledgeFeedback(false);
+    reachCaptcha(page);
+    page.state.selectCaptcha(-1);
+    const wrongDialog = await render();
+    assert.match(wrongDialog, /<dialog[^>]*feedback-wrong/);
+    assert.match(wrongDialog, /aria-labelledby="feedback-title"/);
+    assert.match(wrongDialog, /id="feedback-title">ខុសហើយ! 😅/);
+    assert.match(wrongDialog, /យល់ហើយ! សាកម្ដងទៀត/);
+    assert.match(wrongDialog, /ចុចលឿនពេកហើយមែនទេ/);
+    page.state.acknowledgeFeedback();
+    selectTarget(page);
+    const correctInline = await render();
+    assert.doesNotMatch(correctInline, /<dialog/);
+    assert.match(correctInline, /ត្រូវហើយ/);
+    page.state.acknowledgeFeedback();
+    for (let round = 0; round < 2; round++) {
+      selectTarget(page);
+      page.state.acknowledgeFeedback();
+    }
+    page.state.consentChecked.value = true;
+    page.state.checkConsent();
+    const prankDialog = await render();
+    assert.match(prankDialog, /id="feedback-title">អ្នកធ្វើត្រូវហើយ 🙃/);
+    assert.match(prankDialog, /មិនមែនអ្នកខុសទេ/);
   } finally {
     page.dispose();
   }
+});
+
+test("previously shared game links redirect to the new inviting route", () => {
+  const { descriptor: legacy } = parse(
+    readFileSync("app/pages/most-annoying.vue", "utf8"),
+  );
+  let metadata: Record<string, unknown> = {};
+  new Function(
+    "definePageMeta",
+    ts.transpileModule(legacy.scriptSetup!.content, {
+      compilerOptions: { target: ts.ScriptTarget.ES2022 },
+    }).outputText,
+  )((value: Record<string, unknown>) => {
+    metadata = value;
+  });
+  assert.equal(metadata.redirect, "/dont-get-mad");
+  assert.equal(metadata.layout, false);
+  assert.equal(metadata.blankCanvas, true);
+  for (const ssr of [false, true])
+    assert.deepEqual(
+      compileTemplate({
+        source: legacy.template!.content,
+        filename: "app/pages/most-annoying.vue",
+        id: "legacy-game",
+        ssr,
+        ssrCssVars: [],
+      }).errors,
+      [],
+    );
 });
 
 test("the page compiles client and SSR templates and scoped styles", () => {
