@@ -41,6 +41,11 @@ const slipperReady = ref(false);
 // DOM transforms update outside Vue's reactive graph to keep a dense mobile swarm inexpensive.
 const roaches = shallowRef<Roach[]>([]);
 const deadRoaches = computed(() => roaches.value.filter((roach) => roach.dead));
+const bloodDrops = shallowRef<{ id: number; style: Record<string, string> }[]>(
+  [],
+);
+const bloodRainPaused = ref(true);
+const bloodFallDistance = ref(160);
 const strike = shallowRef<{ id: number; x: number; y: number } | null>(null);
 const impact = shallowRef<{ id: number; x: number; y: number } | null>(null);
 const soundEnabled = ref(true);
@@ -163,6 +168,8 @@ function refreshMotion() {
   cancelAnimationFrame(animationFrame);
   animationFrame = 0;
   previousTime = 0;
+  bloodRainPaused.value =
+    disposed || document.hidden || !!reducedMotion?.matches;
   if (disposed || document.hidden) return;
   for (const roach of roaches.value) renderRoach(roach);
   // Respect the device's accessibility setting and stop all animation in background tabs.
@@ -177,6 +184,22 @@ async function resizeSwarm() {
   if (!width || !height) return;
   const previous = viewport;
   viewport = { width, height };
+  bloodFallDistance.value = height + 160;
+  // Reuse a bounded set of CSS droplets instead of spawning particles or timers indefinitely.
+  const dropCount = Math.min(72, Math.max(32, Math.ceil(width / 18)));
+  if (bloodDrops.value.length !== dropCount) {
+    bloodDrops.value = Array.from({ length: dropCount }, (_, id) => ({
+      id,
+      style: {
+        left: `${random(0, 100).toFixed(2)}%`,
+        width: `${random(5, 15).toFixed(2)}px`,
+        height: `${random(20, 65).toFixed(2)}px`,
+        "--duration": `${random(3, 8).toFixed(2)}s`,
+        "--delay": `${(-random(0, 8)).toFixed(2)}s`,
+        "--drift": `${random(-24, 24).toFixed(2)}px`,
+      },
+    }));
+  }
   // A bounded population keeps phones busy-looking without hundreds of compositor layers.
   // Retain existing insects on resize so a dead roach cannot respawn when the viewport grows again.
   const count = Math.max(
@@ -362,8 +385,22 @@ onBeforeUnmount(() => {
     <h1 class="sr-only">Cockroach screen</h1>
     <p class="sr-only">
       Click or tap a cockroach to hit it with the flip-flop. Dead cockroaches
-      stay on the screen. Motion follows your device's reduced-motion setting.
+      stay on the screen. Blood drips from the top of the screen. Motion follows
+      your device's reduced-motion setting.
     </p>
+    <div
+      class="blood-rain"
+      :class="{ 'is-paused': bloodRainPaused }"
+      :style="{ '--fall-distance': `${bloodFallDistance}px` }"
+      aria-hidden="true"
+    >
+      <span
+        v-for="drop in bloodDrops"
+        :key="drop.id"
+        class="blood-drop"
+        :style="drop.style"
+      />
+    </div>
     <div
       class="kill-counter"
       role="status"
@@ -506,6 +543,27 @@ onBeforeUnmount(() => {
   border-color: rgb(255 255 255 / 20%);
   background: rgb(30 30 30 / 90%);
   color: #fafafa;
+}
+
+.blood-rain {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blood-drop {
+  position: absolute;
+  top: -80px;
+  border-radius: 35% 35% 55% 55%;
+  background: linear-gradient(to bottom, #b80d22, #e51e36 75%, #8b0716);
+  box-shadow: inset -2px 0 2px rgb(65 0 8 / 25%);
+  animation: blood-fall var(--duration) var(--delay) linear infinite;
+}
+
+.blood-rain.is-paused .blood-drop {
+  animation-play-state: paused;
 }
 
 .cockroach {
@@ -664,6 +722,23 @@ onBeforeUnmount(() => {
   }
 }
 
+@keyframes blood-fall {
+  0% {
+    transform: translate3d(0, 0, 0) scaleY(0.6);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(var(--drift), var(--fall-distance), 0) scaleY(1.3);
+    opacity: 0;
+  }
+}
+
 @keyframes blood-appear {
   from {
     opacity: 0;
@@ -674,6 +749,10 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .blood-rain {
+    display: none;
+  }
+
   .flip-flop-strike,
   .blood-pool,
   .impact-ring,
