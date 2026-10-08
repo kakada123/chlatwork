@@ -4,6 +4,11 @@ NestJS authentication and account-data service for ChlatWork. It verifies Google
 
 ## Local setup
 
+For the optional YouTube MP4 downloader, see the
+[downloader setup guide](src/youtube-downloader/README.md). It provides an opt-in
+Railway image with yt-dlp, its pinned YouTube challenge solver, and ffmpeg. The
+downloader remains disabled until its runtime flag and public API origin are configured.
+
 For the separate Khmer AI & Creator bot and admin daily usage limits, see the
 [Creator bot setup guide](src/creator-telegram/README.md). Its SQL updates must be
 applied manually before deploying these features.

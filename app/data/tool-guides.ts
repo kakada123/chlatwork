@@ -147,6 +147,27 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
 }
 
 const RAW_GUIDES: Record<string, ToolGuideContent> = {
+  "youtube-downloader": {
+    metaTitle: "How to Download a YouTube Video as MP4 | ChlatWork",
+    metaDescription: "Prepare an MP4 from a public YouTube video you own or have permission to save, with quality selection and expiring downloads.",
+    heroTitle: "Download a YouTube video as MP4",
+    heroDescription: "Paste a public video link, preview it, choose an available quality, and prepare your download.",
+    ctaLabel: "Open YouTube Downloader",
+    whatIs: ["This tool prepares one public YouTube video as an MP4 containing both video and audio.", "Videos are processed on the ChlatWork server, with bounded temporary storage and short-lived download links."],
+    whyUse: ["Choose an available MP4 quality up to 1080p.", "Save a permitted public video for offline use."],
+    steps: ["Sign in and paste a YouTube video or Shorts link.", "Preview the title and duration.", "Select an available quality and click Prepare download.", "Wait for preparation, then click Download MP4 before the file expires."],
+    useCases: ["Save your own published tutorial.", "Download a video whose creator has given you permission to keep a copy."],
+    tips: ["Choose a lower quality for a smaller download.", "Keep this page open during preparation.", "Ready files expire after ten minutes; preparation jobs are lost if the service restarts."],
+    commonMistakes: ["Pasting an entire playlist instead of one video link.", "Trying to download a private, restricted, live, or DRM-protected video."],
+    privacy: ["Your video URL is sent to the ChlatWork server and YouTube to prepare the download.", "Temporary video files expire ten minutes after preparation. Download links last at most two minutes.", "Source links and video IDs are not sent in tool usage events."],
+    faqs: [
+      { question: "What are the limits?", answer: "One video at a time, up to twenty minutes, 200 MiB, and 1080p. Only available MP4-compatible qualities are offered." },
+      { question: "Can I download any video?", answer: "Download only videos you own or have permission to save. Private, restricted, live, DRM-protected videos and entire playlists are unsupported." },
+      { question: "Why might a download fail?", answer: "YouTube may reject a request, a compatible format may be unavailable, or the video may exceed the limits. Try a smaller public video or prepare it again." },
+    ],
+    keywords: ["youtube video downloader", "youtube to mp4", "download permitted YouTube video"],
+    applicationCategory: "UtilitiesApplication",
+  },
   "chlatwork-link": {
     metaTitle: "Create Your Public Link Page | ChlatWork Link",
     metaDescription: "Build a mobile-first profile with all your links, eight themes, custom photos, a QR code, and simple activity counts.",

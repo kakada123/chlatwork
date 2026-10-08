@@ -19,6 +19,7 @@ import { MemberKhqrModule } from './member-khqr/member-khqr.module';
 import { PersonalAssistantModule } from './personal-assistant/personal-assistant.module';
 import { FeatureAvailabilityModule } from './feature-availability/feature-availability.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProfilesModule } from './profiles/profiles.module';
     AuthModule,
     FeatureAvailabilityModule,
     ProfilesModule,
+    YoutubeDownloaderModule,
     ExpensesModule,
     PaybackModule,
     ToolUsageModule,

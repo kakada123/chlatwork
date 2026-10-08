@@ -220,11 +220,12 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     path: "/tools/file-conversion",
     title: "File Conversion Tools",
     description:
-      "Convert images and PDFs into practical file formats using focused browser tools.",
+      "Convert images and PDFs, or prepare an MP4 from a public YouTube video you have permission to save.",
     intro:
       "Prepare common documents and images for sharing, archiving, upload, and everyday office workflows.",
     accent: "from-blue-300 via-indigo-300 to-violet-400",
     toolKeys: [
+      "youtube-downloader",
       "image-to-pdf",
       "pdf-to-jpg",
       "invoice-to-pdf",

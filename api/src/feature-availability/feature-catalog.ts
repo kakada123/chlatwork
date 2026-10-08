@@ -1,6 +1,7 @@
 import { AiFeature } from '@prisma/client';
 
 const websiteNames: Record<string, string> = {
+  'youtube-downloader': 'YouTube Downloader',
   'chlatwork-link': 'ChlatWork Link',
   'payback-calculator': 'PayBack Calculator',
   'image-compress': 'Image Compressor',

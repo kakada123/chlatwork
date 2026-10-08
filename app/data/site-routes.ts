@@ -47,6 +47,7 @@ export const BETA_TOOL_PAGE_PATHS = [
 ];
 
 export const ALL_TOOL_PAGE_PATHS = [
+  "/tools/youtube-downloader",
   "/tools/payback-calculator",
   "/tools/image-compress",
   "/tools/image-to-pdf",

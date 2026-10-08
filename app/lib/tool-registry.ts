@@ -15,6 +15,15 @@ export type ToolDef = {
 
 export const TOOLS: ToolDef[] = [
   {
+    key: "youtube-downloader",
+    name: "YouTube Video Downloader",
+    route: "/tools/youtube-downloader",
+    enabled: true,
+    status: "beta",
+    category: "Utilities",
+    description: "Download a public YouTube video you own or have permission to save as an MP4.",
+  },
+  {
     key: "chlatwork-link",
     name: "ChlatWork Link",
     route: "/link",
@@ -263,6 +272,7 @@ export const ALL_TOOLS_ICON_PATHS = [
 ];
 
 export const TOOL_ICON_PATHS: Record<string, string[]> = {
+  "youtube-downloader": ["M4 5h16v10H4V5Z", "M10 8l5 2-5 2V8Z", "M12 17v5", "M9 19l3 3 3-3"],
   "chlatwork-link": ["M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1", "M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"],
   calculator: [
     "M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z",
@@ -474,6 +484,7 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
 };
 
 export const TOOL_ICON_CLASSES: Record<string, string> = {
+  "youtube-downloader": "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
   "chlatwork-link": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
   calculator:
     "bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white",

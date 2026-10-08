@@ -6,6 +6,7 @@ export type ToolGuideRoute = {
 };
 
 const GUIDE_SLUGS = [
+  ["youtube-downloader", "how-to-download-youtube-video"],
   ["chlatwork-link", "how-to-create-link-page"],
   ["payback-calculator", "how-to-split-group-expenses"],
   ["image-compress", "how-to-compress-image-without-upload"],
