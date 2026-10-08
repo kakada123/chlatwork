@@ -13,7 +13,14 @@ const mediaMetadata = (width = 1280, height = 720) =>
     duration: 60,
     availability: 'public',
     formats: [
-      { format_id: '18', ext: 'mp4', vcodec: 'avc1.640028', acodec: 'mp4a.40.2', width, height },
+      {
+        format_id: '18',
+        ext: 'mp4',
+        vcodec: 'avc1.640028',
+        acodec: 'mp4a.40.2',
+        width,
+        height,
+      },
     ],
   });
 
@@ -87,58 +94,76 @@ describe('bounded YouTube subprocesses', () => {
       }),
     ).rejects.toMatchObject({ code: 'TOO_LARGE' });
   });
-  it('uses fixed YouTube arguments and verifies final video and audio', async () => {
-    const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-test-'));
-    directories.push(directory);
-    await writeFile(join(directory, 'video.mp4'), 'test-file');
-    const runner = new YoutubeDownloaderRunner(new ConfigService({}));
-    const exec = jest
-      .spyOn(runner, 'execute')
-      .mockResolvedValueOnce(mediaMetadata())
-      .mockResolvedValueOnce('')
-      .mockResolvedValueOnce(
-        JSON.stringify({
-          format: { duration: '60' },
-          streams: [
-            { codec_type: 'video', codec_name: 'h264', width: 1280, height: 720 },
-            { codec_type: 'audio', codec_name: 'aac' },
-          ],
-        }),
-      );
-    await expect(
-      runner.download(
-        'https://www.youtube.com/watch?v=BaW_jenozKc',
-        720,
-        directory,
-        new AbortController().signal,
-      ),
-    ).resolves.toEqual({ path: join(directory, 'video.mp4'), sizeBytes: 9 });
-    const args = exec.mock.calls[1][1];
-    expect(args).toContain('--ignore-config');
-    expect(args).toContain('--no-playlist');
-    expect(args).not.toContain('--cookies');
-    expect(args).toContain('--js-runtimes');
-    expect(args).toContain('node');
-    expect(args[args.indexOf('--format') + 1]).toBe('18');
-    exec
-      .mockReset()
-      .mockResolvedValueOnce(mediaMetadata())
-      .mockResolvedValueOnce('')
-      .mockResolvedValueOnce(
-        JSON.stringify({
-          format: { duration: '60' },
-          streams: [{ codec_type: 'video', codec_name: 'h264', width: 1280, height: 720 }],
-        }),
-      );
-    await expect(
-      runner.download(
-        'https://www.youtube.com/watch?v=BaW_jenozKc',
-        720,
-        directory,
-        new AbortController().signal,
-      ),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_VIDEO' });
-  });
+  it.each(['ffmpeg', '/usr/bin/ffmpeg'])(
+    'uses fixed YouTube arguments and verifies final video and audio with %s',
+    async (ffmpegPath) => {
+      const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-test-'));
+      directories.push(directory);
+      await writeFile(join(directory, 'video.mp4'), 'test-file');
+      const runner = new YoutubeDownloaderRunner(new ConfigService({ FFMPEG_PATH: ffmpegPath }));
+      const exec = jest
+        .spyOn(runner, 'execute')
+        .mockResolvedValueOnce(mediaMetadata())
+        .mockResolvedValueOnce('')
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            format: { duration: '60' },
+            streams: [
+              {
+                codec_type: 'video',
+                codec_name: 'h264',
+                width: 1280,
+                height: 720,
+              },
+              { codec_type: 'audio', codec_name: 'aac' },
+            ],
+          }),
+        );
+      await expect(
+        runner.download(
+          'https://www.youtube.com/watch?v=BaW_jenozKc',
+          720,
+          directory,
+          new AbortController().signal,
+        ),
+      ).resolves.toEqual({ path: join(directory, 'video.mp4'), sizeBytes: 9 });
+      const args = exec.mock.calls[1][1];
+      expect(args).toContain('--ignore-config');
+      expect(args).toContain('--no-playlist');
+      expect(args).not.toContain('--cookies');
+      expect(args).toContain('--js-runtimes');
+      expect(args).toContain('node');
+      expect(args[args.indexOf('--format') + 1]).toBe('18');
+      // yt-dlp's location option expects a filesystem path, not a PATH lookup name.
+      if (ffmpegPath === 'ffmpeg') expect(args).not.toContain('--ffmpeg-location');
+      else expect(args[args.indexOf('--ffmpeg-location') + 1]).toBe(ffmpegPath);
+      exec
+        .mockReset()
+        .mockResolvedValueOnce(mediaMetadata())
+        .mockResolvedValueOnce('')
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            format: { duration: '60' },
+            streams: [
+              {
+                codec_type: 'video',
+                codec_name: 'h264',
+                width: 1280,
+                height: 720,
+              },
+            ],
+          }),
+        );
+      await expect(
+        runner.download(
+          'https://www.youtube.com/watch?v=BaW_jenozKc',
+          720,
+          directory,
+          new AbortController().signal,
+        ),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_VIDEO' });
+    },
+  );
   it('accepts portrait video while limiting its short dimension', async () => {
     const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-portrait-'));
     directories.push(directory);
@@ -152,7 +177,12 @@ describe('bounded YouTube subprocesses', () => {
         JSON.stringify({
           format: { duration: '60' },
           streams: [
-            { codec_type: 'video', codec_name: 'h264', width: 720, height: 1280 },
+            {
+              codec_type: 'video',
+              codec_name: 'h264',
+              width: 720,
+              height: 1280,
+            },
             { codec_type: 'audio', codec_name: 'aac' },
           ],
         }),

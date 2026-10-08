@@ -250,16 +250,18 @@ useSeoMeta({
               </option>
             </select>
           </div>
+          <!-- Keep the primary action colored: the dark theme maps white surfaces to black. -->
           <button
             v-if="state.phase !== 'preparing'"
             type="button"
             :disabled="busy || !user"
-            class="min-h-11 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-900"
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-black"
             @click="
               downloadStarted = false;
               prepare(quality);
             "
           >
+            <Download class="h-4 w-4" aria-hidden="true" />
             {{ copy.prepare }}
           </button>
         </div>

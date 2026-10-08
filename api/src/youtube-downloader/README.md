@@ -37,6 +37,11 @@ Keep the existing API authentication/database/origin configuration and Nuxt
 `NUXT_AUTH_API_BASE_URL` configuration. Configure the real public origin at
 deployment; none is invented by this implementation. No database migration is needed.
 
+The default `ffmpeg` executable is discovered on `PATH` by yt-dlp. If overriding
+`FFMPEG_PATH`, use a real executable path such as `/usr/bin/ffmpeg`, not a command
+name. Preview does not merge media; verify an adaptive video-and-audio download
+before enabling the tool for users.
+
 The admin availability switch controls the tool's website discovery and backend
 requests. The runtime flag is an additional fail-closed dependency gate. An admin
 switch alone cannot activate a runtime that has not been configured.

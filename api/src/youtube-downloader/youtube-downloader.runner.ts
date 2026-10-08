@@ -110,8 +110,8 @@ export class YoutubeDownloaderRunner {
         '1',
         '--match-filter',
         'duration <= 1200 & !is_live',
-        '--ffmpeg-location',
-        settings.ffmpegPath,
+        // A bare location is treated as a missing file by yt-dlp; use its PATH discovery.
+        ...(settings.ffmpegPath === 'ffmpeg' ? [] : ['--ffmpeg-location', settings.ffmpegPath]),
         '--format',
         selectedFormat,
         '--merge-output-format',
