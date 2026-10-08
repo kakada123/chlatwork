@@ -33,10 +33,10 @@ export class YoutubeDownloaderRunner {
         await this.execute(
           settings.ytdlpPath,
           ['--ignore-config', '--no-plugin-dirs', '--version'],
-          { timeoutMs: 5000 },
+          { timeoutMs: 5000, stage: 'health' },
         );
-        await this.execute(settings.ffmpegPath, ['-version'], { timeoutMs: 5000 });
-        await this.execute(settings.ffprobePath, ['-version'], { timeoutMs: 5000 });
+        await this.execute(settings.ffmpegPath, ['-version'], { timeoutMs: 5000, stage: 'health' });
+        await this.execute(settings.ffprobePath, ['-version'], { timeoutMs: 5000, stage: 'health' });
         this.healthyUntil = Date.now() + 60_000;
       } catch {
         throw new YoutubeDownloaderError('UNAVAILABLE', 503);
@@ -76,7 +76,7 @@ export class YoutubeDownloaderRunner {
     const output = await this.execute(
       settings.ytdlpPath,
       [...this.arguments(), '--skip-download', '--dump-single-json', '--', url],
-      { timeoutMs: YOUTUBE_LIMITS.previewTimeoutMs, signal },
+      { timeoutMs: YOUTUBE_LIMITS.previewTimeoutMs, signal, stage: 'metadata' },
     );
     try {
       return { raw: JSON.parse(output) as unknown, videoId, url };
@@ -126,6 +126,7 @@ export class YoutubeDownloaderRunner {
         signal,
         directory,
         maxDirectoryBytes: YOUTUBE_LIMITS.workingBytes,
+        stage: 'download',
       },
     );
     const file = await lstat(path).catch(() => null);
@@ -144,7 +145,7 @@ export class YoutubeDownloaderRunner {
         'json',
         path,
       ],
-      { timeoutMs: 15_000, signal },
+      { timeoutMs: 15_000, signal, stage: 'verify' },
     );
     try {
       const info = JSON.parse(output) as {

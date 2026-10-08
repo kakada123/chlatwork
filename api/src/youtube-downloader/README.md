@@ -71,6 +71,12 @@ would store full ticket URLs; tickets are short-lived access capabilities.
 
 ## Verification
 
+Failed subprocesses emit a structured `youtube_process_failed` warning with only
+the stage, exit code, and a fixed reason label (for example `UPSTREAM_FORBIDDEN`,
+`FFMPEG_UNAVAILABLE`, or `DISK_FULL`). No raw stderr, source URL, account ID, ticket,
+or file path is logged. These labels help diagnose failures but do not establish
+why YouTube rejected a request or guarantee that a retry will succeed.
+
 Automated tests use synthetic local media metadata and subprocess/file fixtures.
 They do not contact YouTube or a database. They exercise URL policy, admission,
 ownership, cancellation, expiry, tickets, polling races, and socket-free Nest HTTP

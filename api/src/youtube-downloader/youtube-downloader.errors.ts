@@ -14,10 +14,23 @@ const MESSAGES = {
 } as const;
 
 export type YoutubeErrorCode = keyof typeof MESSAGES;
+export type YoutubeProcessDiagnostic = {
+  stage: 'health' | 'metadata' | 'download' | 'verify' | 'unknown';
+  reason:
+    | 'UPSTREAM_FORBIDDEN'
+    | 'UPSTREAM_RATE_LIMITED'
+    | 'UPSTREAM_AUTH_REQUIRED'
+    | 'FFMPEG_UNAVAILABLE'
+    | 'CHALLENGE_FAILED'
+    | 'DISK_FULL'
+    | 'UNKNOWN_PROCESS_FAILURE';
+  exitCode: number | null;
+};
 export class YoutubeDownloaderError extends HttpException {
   constructor(
     public readonly code: YoutubeErrorCode,
     status = 400,
+    public readonly diagnostic?: YoutubeProcessDiagnostic,
   ) {
     super({ code, message: MESSAGES[code] }, status);
   }

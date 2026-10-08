@@ -5,6 +5,8 @@ import { runYoutubeProcess } from './youtube-downloader.process';
 import { YoutubeDownloaderRunner } from './youtube-downloader.runner';
 import { allowRestrictedFixtureCleanup } from '../../test/youtube-fixtures';
 import * as processes from 'node:child_process';
+import { Logger } from '@nestjs/common';
+import { YoutubeDownloaderError } from './youtube-downloader.errors';
 
 const mediaMetadata = (width = 1280, height = 720) =>
   JSON.stringify({
@@ -65,6 +67,41 @@ describe('bounded YouTube subprocesses', () => {
         maxOutputBytes: 100,
       }),
     ).rejects.toMatchObject({ code: 'DOWNLOAD_FAILED' });
+  });
+  it.each([
+    ['ERROR: unable to download video data: HTTP Error 403: Forbidden', 'UPSTREAM_FORBIDDEN'],
+    ['ERROR: HTTP Error 429: Too Many Requests', 'UPSTREAM_RATE_LIMITED'],
+    ["ERROR: Sign in to confirm you're not a bot", 'UPSTREAM_AUTH_REQUIRED'],
+    ['ERROR: ffmpeg not found. Please install ffmpeg', 'FFMPEG_UNAVAILABLE'],
+    ['ERROR: Signature solving failed', 'CHALLENGE_FAILED'],
+    ['ERROR: No space left on device', 'DISK_FULL'],
+    ['ERROR: unrecognized provider error', 'UNKNOWN_PROCESS_FAILURE'],
+  ])('reports a safe diagnostic for %s', async (message, reason) => {
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
+    const privateDetail = 'https://example.test/private?token=dummy-private-value';
+    const options = { timeoutMs: 2000, stage: 'download' as const };
+    const failure = await runYoutubeProcess(
+      process.execPath,
+      [
+        '-e',
+        'process.stderr.write(process.argv[1]); process.exitCode = 1',
+        `${message} ${privateDetail}`,
+      ],
+      options,
+    ).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(YoutubeDownloaderError);
+    expect(failure).toMatchObject({
+      code: 'DOWNLOAD_FAILED',
+      diagnostic: { stage: 'download', reason, exitCode: 1 },
+    });
+    expect(warn).toHaveBeenCalledWith({
+      event: 'youtube_process_failed',
+      stage: 'download',
+      reason,
+      exitCode: 1,
+    });
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('dummy-private-value');
+    expect(JSON.stringify((failure as YoutubeDownloaderError).getResponse())).not.toContain(reason);
   });
   it('terminates timed-out work', async () => {
     await expect(

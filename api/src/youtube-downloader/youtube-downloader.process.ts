@@ -1,7 +1,23 @@
 import { spawn } from 'node:child_process';
 import { readdir, lstat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { YoutubeDownloaderError } from './youtube-downloader.errors';
+import { Logger } from '@nestjs/common';
+import { YoutubeDownloaderError, type YoutubeProcessDiagnostic } from './youtube-downloader.errors';
+
+const logger = new Logger('YoutubeDownloaderProcess');
+
+function failureReason(text: string): YoutubeProcessDiagnostic['reason'] {
+  if (/HTTP(?: Error)?\s*403\b/i.test(text)) return 'UPSTREAM_FORBIDDEN';
+  if (/HTTP(?: Error)?\s*429\b/i.test(text)) return 'UPSTREAM_RATE_LIMITED';
+  if (/sign in to confirm|login required|authentication required/i.test(text))
+    return 'UPSTREAM_AUTH_REQUIRED';
+  if (/ffmpeg.*(?:not found|not installed)|ffmpeg-location.*does not exist/i.test(text))
+    return 'FFMPEG_UNAVAILABLE';
+  if (/(?:signature|challenge|n challenge).*solv(?:ing|er).*fail/i.test(text))
+    return 'CHALLENGE_FAILED';
+  if (/no space left on device/i.test(text)) return 'DISK_FULL';
+  return 'UNKNOWN_PROCESS_FAILURE';
+}
 
 export type YoutubeProcessOptions = {
   timeoutMs: number;
@@ -9,6 +25,7 @@ export type YoutubeProcessOptions = {
   maxOutputBytes?: number;
   directory?: string;
   maxDirectoryBytes?: number;
+  stage?: YoutubeProcessDiagnostic['stage'];
 };
 
 async function directoryBytes(directory: string): Promise<number> {
@@ -46,6 +63,8 @@ export async function runYoutubeProcess(
     const chunks: Buffer[] = [];
     let outputBytes = 0;
     let errorBytes = 0;
+    let errorTail = '';
+    let reason: YoutubeProcessDiagnostic['reason'] = 'UNKNOWN_PROCESS_FAILURE';
     let failure: YoutubeDownloaderError | null = null;
     let monitoring = false;
     let settled = false;
@@ -86,6 +105,7 @@ export async function runYoutubeProcess(
       settled = true;
       clearTimeout(timeout);
       if (monitor) clearInterval(monitor);
+      errorTail = '';
       options.signal?.removeEventListener('abort', abort);
       if (error) reject(error);
       else resolve(Buffer.concat(chunks).toString('utf8'));
@@ -99,15 +119,24 @@ export async function runYoutubeProcess(
       else chunks.push(chunk);
     });
     child.stderr.on('data', (chunk: Buffer) => {
-      // Bound error output without retaining provider URLs or diagnostic details.
+      // Classify a bounded rolling fragment; only fixed labels are retained or logged.
+      const fragment = errorTail + chunk.toString('utf8');
+      const classified = failureReason(fragment);
+      if (classified !== 'UNKNOWN_PROCESS_FAILURE') reason = classified;
+      errorTail = fragment.slice(-256);
       errorBytes += chunk.length;
       if (errorBytes > 64 * 1024) stop(new YoutubeDownloaderError('DOWNLOAD_FAILED', 502));
     });
     child.once('error', () => finish(new YoutubeDownloaderError('UNAVAILABLE', 503)));
-    child.once('close', (code) =>
-      finish(
-        failure ?? (code === 0 ? undefined : new YoutubeDownloaderError('DOWNLOAD_FAILED', 502)),
-      ),
-    );
+    child.once('close', (code) => {
+      if (settled) return;
+      const error =
+        failure ?? (code === 0 ? undefined : new YoutubeDownloaderError('DOWNLOAD_FAILED', 502));
+      if (!error) return finish();
+      const diagnostic = { stage: options.stage ?? 'unknown', reason, exitCode: code };
+      // Never log raw stderr, argv, source links, account IDs, or filesystem paths.
+      if (error.code !== 'CANCELLED') logger.warn({ event: 'youtube_process_failed', ...diagnostic });
+      finish(new YoutubeDownloaderError(error.code, error.getStatus(), diagnostic));
+    });
   });
 }
