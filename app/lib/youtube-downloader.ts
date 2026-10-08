@@ -29,8 +29,15 @@ type Dependencies = {
 };
 
 function errorCode(error: unknown) {
-  const value = error as { statusCode?: number; status?: number; response?: { status?: number } };
+  const value = error as {
+    statusCode?: number;
+    status?: number;
+    data?: { code?: unknown; data?: { code?: unknown } };
+    response?: { status?: number; _data?: { data?: { code?: unknown } } };
+  };
   const status = value?.statusCode ?? value?.status ?? value?.response?.status;
+  const code = value?.data?.data?.code ?? value?.data?.code ?? value?.response?._data?.data?.code;
+  if (status === 502 && code === "UPSTREAM_AUTH_REQUIRED") return "UPSTREAM_AUTH_REQUIRED";
   return status === 401 || status === 403
     ? "AUTH_REQUIRED"
     : status === 429

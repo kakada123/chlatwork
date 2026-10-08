@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { YoutubeDownloaderService } from './youtube-downloader.service';
 import { YoutubeDownloaderRunner } from './youtube-downloader.runner';
 import { allowRestrictedFixtureCleanup } from '../../test/youtube-fixtures';
+import { YoutubeDownloaderError } from './youtube-downloader.errors';
 
 const preview = {
   videoId: 'BaW_jenozKc',
@@ -41,8 +42,8 @@ describe('temporary YouTube jobs', () => {
     jest.restoreAllMocks();
   });
 
-  async function ready(userId = 'alice') {
-    const job = await service.createJob(userId, url, 720);
+  async function ready(userId = 'alice', source = url) {
+    const job = await service.createJob(userId, source, 720);
     for (let n = 0; n < 50 && service.getJob(userId, job.id).status === 'preparing'; n++)
       await tick();
     expect(service.getJob(userId, job.id).status).toBe('ready');
@@ -54,6 +55,45 @@ describe('temporary YouTube jobs', () => {
     expect(() => service.getJob('bob', job.id)).toThrow();
     expect(() => service.issueTicket('bob', job.id)).toThrow();
     await expect(service.cancelJob('bob', job.id)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+  it('rejects a playlist-only link without reserving work for the account', async () => {
+    const playlist = 'https://www.youtube.com/playlist?list=fixture';
+    await expect(service.preview('alice', playlist)).rejects.toMatchObject({ code: 'INVALID_URL' });
+    await expect(service.createJob('alice', playlist, 720)).rejects.toMatchObject({
+      code: 'INVALID_URL',
+    });
+    expect(runner.preview).not.toHaveBeenCalled();
+    await ready();
+  });
+  it('accepts a new source after a failed metadata request and strips playlist parameters', async () => {
+    runner.preview.mockRejectedValueOnce(
+      new YoutubeDownloaderError('UPSTREAM_AUTH_REQUIRED', 502),
+    );
+    const failed = await service.createJob(
+      'alice',
+      'https://www.youtube.com/watch?v=hQaL49Z4gvU&list=WL&index=7',
+      720,
+    );
+    for (let n = 0; n < 50 && service.getJob('alice', failed.id).status === 'preparing'; n++)
+      await tick();
+    expect(service.getJob('alice', failed.id)).toMatchObject({
+      status: 'failed',
+      errorCode: 'UPSTREAM_AUTH_REQUIRED',
+    });
+    expect(runner.preview).toHaveBeenCalledWith(
+      'https://www.youtube.com/watch?v=hQaL49Z4gvU',
+      expect.any(AbortSignal),
+    );
+    runner.preview.mockResolvedValue({ ...preview, videoId: 'XXXXXXXXXXX' });
+    const next = await ready('alice', 'https://youtu.be/XXXXXXXXXXX');
+    expect(next.id).not.toBe(failed.id);
+    expect(runner.download).toHaveBeenLastCalledWith(
+      'https://www.youtube.com/watch?v=XXXXXXXXXXX',
+      720,
+      expect.any(String),
+      expect.any(AbortSignal),
+    );
+    expect(() => service.getJob('alice', failed.id)).toThrow();
   });
   it('reserves per-user and global capacity before asynchronous work', async () => {
     runner.preview.mockImplementation(

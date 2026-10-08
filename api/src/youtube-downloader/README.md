@@ -64,6 +64,13 @@ switch alone cannot activate a runtime that has not been configured.
   Do not attach a persistent download volume to this single-process implementation;
   abrupt termination can leave files until the ephemeral container disk is discarded.
 
+A video URL containing `list` parameters is normalized to its single video ID.
+Playlist-only URLs are rejected before reserving work. Failed preparations publish
+their terminal status after cleanup completes, allowing the same account to start
+the next job without observing a failed job whose worker slot is still occupied.
+Changing the page's input clears the old result, stops its polling, and requests
+deletion of its known job.
+
 Before increasing replicas, implement shared metadata/storage and distributed
 admission controls. Before increasing limits, review disk, network, and CPU budgets.
 Exclude `/youtube-downloader/files/*` from any application or proxy access log that
@@ -76,6 +83,13 @@ the stage, exit code, and a fixed reason label (for example `UPSTREAM_FORBIDDEN`
 `FFMPEG_UNAVAILABLE`, or `DISK_FULL`). No raw stderr, source URL, account ID, ticket,
 or file path is logged. These labels help diagnose failures but do not establish
 why YouTube rejected a request or guarantee that a retry will succeed.
+
+`UPSTREAM_AUTH_REQUIRED` failures use a distinct public error code with HTTP 502;
+they do not trigger the ChlatWork login flow. This indicates an upstream sign-in
+requirement, which can be a bot challenge or content requiring an account. Changing
+quality cannot resolve a failed metadata request. The cookie-free runtime cannot
+complete a request while YouTube enforces that requirement; a successful deployment
+or additional Railway usage credit does not grant access to YouTube.
 
 Automated tests use synthetic local media metadata and subprocess/file fixtures.
 They do not contact YouTube or a database. They exercise URL policy, admission,

@@ -91,7 +91,7 @@ describe('bounded YouTube subprocesses', () => {
     ).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(YoutubeDownloaderError);
     expect(failure).toMatchObject({
-      code: 'DOWNLOAD_FAILED',
+      code: reason === 'UPSTREAM_AUTH_REQUIRED' ? 'UPSTREAM_AUTH_REQUIRED' : 'DOWNLOAD_FAILED',
       diagnostic: { stage: 'download', reason, exitCode: 1 },
     });
     expect(warn).toHaveBeenCalledWith({
@@ -101,7 +101,9 @@ describe('bounded YouTube subprocesses', () => {
       exitCode: 1,
     });
     expect(JSON.stringify(warn.mock.calls)).not.toContain('dummy-private-value');
-    expect(JSON.stringify((failure as YoutubeDownloaderError).getResponse())).not.toContain(reason);
+    expect(JSON.stringify((failure as YoutubeDownloaderError).getResponse())).not.toContain(
+      'dummy-private-value',
+    );
   });
   it('terminates timed-out work', async () => {
     await expect(

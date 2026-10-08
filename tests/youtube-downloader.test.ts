@@ -186,3 +186,74 @@ test("untrusted or malformed ticket URLs cannot trigger navigation", async () =>
   assert.equal(await controller.download(), null);
   assert.equal(controller.state.errorCode, "DOWNLOAD_FAILED");
 });
+
+test("YouTube authentication failures are distinct from app login failures", async () => {
+  for (const statusCode of [502, 401]) {
+    const { controller } = harness(async () => {
+      throw { statusCode, data: { data: { code: "UPSTREAM_AUTH_REQUIRED" } } };
+    });
+    await controller.preview("url");
+    assert.equal(
+      controller.state.errorCode,
+      statusCode === 401 ? "AUTH_REQUIRED" : "UPSTREAM_AUTH_REQUIRED",
+    );
+  }
+});
+
+test("a failed playlist preview does not prevent previewing a new video", async () => {
+  const playlist = "https://www.youtube.com/playlist?list=fixture";
+  const nextUrl = "https://youtu.be/BaW_jenozKc";
+  const requested: string[] = [];
+  const { controller } = harness(async (_path, options) => {
+    const url = (options?.body as { url: string }).url;
+    requested.push(url);
+    if (url === playlist) throw { statusCode: 400 };
+    return preview;
+  });
+  await controller.preview(playlist);
+  assert.equal(controller.state.errorCode, "UNSUPPORTED_VIDEO");
+  await controller.preview(nextUrl);
+  assert.deepEqual(requested, [playlist, nextUrl]);
+  assert.equal(controller.state.errorCode, null);
+  assert.equal(controller.state.phase, "previewed");
+  assert.deepEqual(controller.state.preview, preview);
+});
+
+test("changing videos after a failed job clears old polling and prepares the new source", async () => {
+  const oldUrl = "https://www.youtube.com/watch?v=hQaL49Z4gvU&list=WL&index=7";
+  const nextUrl = "https://youtu.be/XXXXXXXXXXX";
+  const nextJob = { ...preparing, id: "87654321-1234-4234-8234-123456789abc" };
+  const prepared: string[] = [];
+  const deleted: string[] = [];
+  const { controller, scheduled, poll } = harness(async (path, options) => {
+    if (options?.method === "DELETE") {
+      deleted.push(path);
+      return;
+    }
+    if (path.endsWith("/preview")) return preview;
+    if (options?.method === "POST") {
+      prepared.push((options.body as { url: string }).url);
+      return prepared.length === 1 ? preparing : nextJob;
+    }
+    return path.endsWith(preparing.id)
+      ? { ...preparing, status: "failed", errorCode: "UPSTREAM_AUTH_REQUIRED" }
+      : { ...nextJob, status: "ready" };
+  });
+  await controller.preview(oldUrl);
+  await controller.prepare(720);
+  await poll();
+  assert.equal(controller.state.errorCode, "UPSTREAM_AUTH_REQUIRED");
+  assert.equal(scheduled.size, 0);
+  controller.reset();
+  assert.equal(controller.state.job, null);
+  assert.equal(controller.state.errorCode, null);
+  await controller.preview(nextUrl);
+  await controller.prepare(720);
+  await poll();
+  assert.deepEqual(prepared, [oldUrl, nextUrl]);
+  assert.deepEqual(deleted, [`/api/youtube-downloader/jobs/${preparing.id}`]);
+  assert.equal(controller.state.phase, "ready");
+  assert.equal(controller.state.job?.id, nextJob.id);
+  assert.equal(controller.state.errorCode, null);
+  assert.equal(scheduled.size, 0);
+});

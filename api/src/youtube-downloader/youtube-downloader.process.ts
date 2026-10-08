@@ -136,7 +136,11 @@ export async function runYoutubeProcess(
       const diagnostic = { stage: options.stage ?? 'unknown', reason, exitCode: code };
       // Never log raw stderr, argv, source links, account IDs, or filesystem paths.
       if (error.code !== 'CANCELLED') logger.warn({ event: 'youtube_process_failed', ...diagnostic });
-      finish(new YoutubeDownloaderError(error.code, error.getStatus(), diagnostic));
+      const publicCode =
+        error.code === 'DOWNLOAD_FAILED' && reason === 'UPSTREAM_AUTH_REQUIRED'
+          ? 'UPSTREAM_AUTH_REQUIRED'
+          : error.code;
+      finish(new YoutubeDownloaderError(publicCode, error.getStatus(), diagnostic));
     });
   });
 }

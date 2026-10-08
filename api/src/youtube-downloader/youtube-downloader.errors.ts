@@ -8,6 +8,8 @@ const MESSAGES = {
   NOT_FOUND: 'This download has expired or is unavailable. Please prepare it again.',
   NOT_READY: 'This download is not ready yet.',
   DOWNLOAD_FAILED: 'The video could not be downloaded. Try another public video.',
+  UPSTREAM_AUTH_REQUIRED:
+    'YouTube requires authentication for this request. This video cannot be downloaded from our server right now.',
   TIMEOUT: 'Preparing the video took too long. Please try a smaller video.',
   TOO_LARGE: 'The video exceeds the download size limit.',
   CANCELLED: 'The download was cancelled.',

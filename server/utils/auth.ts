@@ -30,6 +30,7 @@ export interface AuthTokenResponse {
 }
 
 interface ApiErrorBody {
+  code?: unknown;
   message?: string | string[];
   error?: string;
 }
@@ -76,7 +77,15 @@ export async function requestAuthApi<T>(
     const message = Array.isArray(body?.message)
       ? body.message.join(", ")
       : body?.message || body?.error || "Authentication request failed";
-    throw createError({ statusCode: fetchError.response?.status ?? 502, statusMessage: message });
+    const statusCode = fetchError.response?.status ?? 502;
+    // Preserve only this public downloader code; never forward upstream diagnostics.
+    const data =
+      statusCode === 502 &&
+      path.startsWith("/youtube-downloader/") &&
+      body?.code === "UPSTREAM_AUTH_REQUIRED"
+        ? { code: "UPSTREAM_AUTH_REQUIRED" }
+        : undefined;
+    throw createError({ statusCode, statusMessage: message, data });
   }
 }
 

@@ -126,21 +126,23 @@ export class YoutubeDownloaderService implements OnModuleDestroy {
         sizeBytes: output.sizeBytes,
       };
     } catch (error) {
-      const code = timedOut
+      const failureCode = timedOut
         ? 'TIMEOUT'
         : job.view.status === 'cancelled'
           ? 'CANCELLED'
           : error instanceof YoutubeDownloaderError
             ? error.code
             : 'DOWNLOAD_FAILED';
+      // Publish failure after cleanup so a terminal response means the worker slot is released.
+      // Failed cleanup retains the directory reference for retry by sweep.
+      await this.removeFiles(job).catch(() => undefined);
+      const code = job.view.status === 'cancelled' ? 'CANCELLED' : failureCode;
       job.view = {
         id: job.view.id,
         status: code === 'CANCELLED' ? 'cancelled' : 'failed',
         expiresAt: null,
         errorCode: code,
       };
-      // Failed cleanup retains the job's directory reference and capacity for retry by sweep.
-      await this.removeFiles(job).catch(() => undefined);
     } finally {
       clearTimeout(timeout);
       this.active -= 1;

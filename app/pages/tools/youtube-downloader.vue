@@ -66,6 +66,8 @@ const errors = computed<Record<string, string>>(() =>
   isKhmer.value
     ? {
         AUTH_REQUIRED: "សូមចូលគណនីដើម្បីបន្ត។",
+        UPSTREAM_AUTH_REQUIRED:
+          "YouTube ទាមទារការចូលគណនីសម្រាប់សំណើនេះ។ ម៉ាស៊ីនមេរបស់យើងមិនអាចទាញយកវីដេអូនេះបាននៅពេលនេះទេ។ សូមសាកល្បងពេលក្រោយ។",
         CAPACITY: "សេវាកំពុងរវល់។ សូមសាកល្បងម្តងទៀតបន្តិចទៀត។",
         NOT_FOUND: "ឯកសារផុតកំណត់ ឬសេវាបានចាប់ផ្តើមឡើងវិញ។ សូមរៀបចំម្តងទៀត។",
         UNAVAILABLE: "សេវាទាញយកមិនទាន់អាចប្រើបាន។ សូមសាកល្បងពេលក្រោយ។",
@@ -78,6 +80,8 @@ const errors = computed<Record<string, string>>(() =>
       }
     : {
         AUTH_REQUIRED: "Sign in to continue.",
+        UPSTREAM_AUTH_REQUIRED:
+          "YouTube requires authentication for this request. Our server cannot download this video right now. Try again later.",
         CAPACITY: "The downloader is busy. Please try again shortly.",
         NOT_FOUND: "This download expired or the service restarted. Please prepare it again.",
         UNAVAILABLE: "The downloader is temporarily unavailable. Please try again later.",
