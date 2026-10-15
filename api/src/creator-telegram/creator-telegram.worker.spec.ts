@@ -129,7 +129,7 @@ describe('Creator Telegram worker', () => {
       );
       expect(
         test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
-      ).toEqual(['…']);
+      ).toEqual(['Typing...']);
     } finally {
       release(result);
       await running;
@@ -185,7 +185,7 @@ describe('Creator Telegram worker', () => {
       }
       expect(
         test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
-      ).toEqual(['…']);
+      ).toEqual(['Typing...']);
     },
   );
 
@@ -235,7 +235,7 @@ describe('Creator Telegram worker', () => {
     expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(3);
     expect(
       test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
-    ).toEqual(['…', 'អត្ថបទថ្មី', 'អត្ថបទថ្មី']);
+    ).toEqual(['Typing...', 'អត្ថបទថ្មី', 'អត្ថបទថ្មី']);
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
 
@@ -283,7 +283,7 @@ describe('Creator Telegram worker', () => {
         'test-business',
         456,
         10,
-        '…',
+        'Typing...',
       );
       return {
         data: {
@@ -306,7 +306,7 @@ describe('Creator Telegram worker', () => {
       'test-business',
       456,
       10,
-      '…',
+      'Typing...',
     );
   });
 
@@ -377,7 +377,7 @@ describe('Creator Telegram worker', () => {
       'test-business',
       456,
       10,
-      '…',
+      'Typing...',
     );
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
@@ -389,7 +389,7 @@ describe('Creator Telegram worker', () => {
     );
     await test.worker.tick();
     expect(test.bot.editBusinessMessage.mock.calls).toEqual([
-      ['test-business', 456, 10, '…'],
+      ['test-business', 456, 10, 'Typing...'],
     ]);
     expect(test.bot.sendMessage).not.toHaveBeenCalled();
     expect(test.job.content).toBeNull();

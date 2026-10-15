@@ -483,7 +483,12 @@ export class CreatorTelegramService {
       });
       if (update.edited_business_message) {
         // Telegram may echo our placeholder without a bot sender marker, even after AI finishes.
-        if (duplicate && message.text === CREATOR_BUSINESS_PENDING_TEXT) return;
+        if (
+          duplicate &&
+          (message.text === CREATOR_BUSINESS_PENDING_TEXT || message.text === '…')
+        )
+          // Accept the previous placeholder too when an update crosses a deployment.
+          return;
         // A content-free cancellation receipt also blocks a delayed original webhook.
         if (!duplicate) {
           await tx.creatorTelegramRequest.create({

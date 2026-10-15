@@ -193,7 +193,7 @@ describe('Creator Telegram bot', () => {
       'test-business',
       456,
       10,
-      '…',
+      'Typing...',
     );
     expect(test.requests[0].leaseId).toBeNull();
     expect(test.requests[0].lockedUntil).toBeNull();
@@ -218,16 +218,21 @@ describe('Creator Telegram bot', () => {
     });
   });
 
-  it.each([false, true])(
-    'ignores a delayed placeholder echo with saved output: %s',
-    async (saved) => {
+  it.each([
+    { saved: false, text: 'Typing...' },
+    { saved: true, text: 'Typing...' },
+    { saved: false, text: '…' },
+    { saved: true, text: '…' },
+  ])(
+    'ignores a delayed $text placeholder echo with saved output: $saved',
+    async ({ saved, text }) => {
       const test = setup();
       await test.service.handleUpdate(businessUpdate('/grammar She go.'));
       if (saved) {
         test.requests[0].content = null;
         test.requests[0].replyParts = [{ text: 'She goes.', copyable: true }];
       }
-      const update = businessUpdate('…', 2);
+      const update = businessUpdate(text, 2);
       await test.service.handleUpdate({
         update_id: 2,
         edited_business_message: update.business_message,
@@ -250,7 +255,7 @@ describe('Creator Telegram bot', () => {
     test.bot.editBusinessMessage.mockImplementationOnce(async () => {
       const initialLease = test.requests[0].leaseId;
       await test.service.handleUpdate(businessUpdate('/grammar She go.', 2));
-      const echo = businessUpdate('…', 3);
+      const echo = businessUpdate('Typing...', 3);
       await test.service.handleUpdate({
         update_id: 3,
         edited_business_message: echo.business_message,
