@@ -38,7 +38,7 @@ useHead({
   ],
 });
 
-const email = "kakada127@gmail.com";
+const email = "support@chlatwork.com";
 </script>
 
 <template>
