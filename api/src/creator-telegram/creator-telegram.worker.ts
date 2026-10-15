@@ -468,15 +468,37 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         CREATOR_BUSINESS_PENDING_TEXT,
       );
       // Cancellation during Telegram's check must prevent subsequent AI spending.
+      const generationDeadline = this.leaseDeadline();
       const stillHeld = await this.prisma.creatorTelegramRequest.updateMany({
         where: {
           updateId: job.updateId,
           leaseId: job.leaseId,
           processedAt: null,
         },
-        data: { lockedUntil: this.leaseDeadline() },
+        data: { lockedUntil: generationDeadline },
       });
       if (stillHeld.count !== 1 || this.stopping) return;
+      const progress = new CreatorTelegramProgress(
+        this.bot,
+        Number(job.chatId),
+        null,
+        {
+          connectionId: job.businessConnectionId!,
+          isActive: async () =>
+            !this.stopping &&
+            !!(await this.prisma.creatorTelegramRequest.findFirst({
+              where: {
+                updateId: job.updateId,
+                leaseId: job.leaseId,
+                processedAt: null,
+                lockedUntil: { gt: new Date() },
+              },
+              select: { updateId: true },
+            })),
+        },
+      );
+      this.progress = progress;
+      progress.start(job.feature, generationDeadline);
       try {
         const result = await this.generations.generate(
           job.userId,
@@ -508,6 +530,10 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         );
         await this.finish(job);
         return;
+      } finally {
+        // Drain native typing before editing the result, including failures and shutdown.
+        await progress.stop();
+        this.progress = null;
       }
       const saved = await this.prisma.creatorTelegramRequest.updateMany({
         where: {

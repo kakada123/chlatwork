@@ -278,6 +278,23 @@ export class TelegramBotClient {
     }
   }
 
+  sendBusinessChatAction(
+    connectionId: string,
+    chatId: number,
+    action: 'typing' | 'upload_photo',
+  ) {
+    this.validateBusinessConnectionId(connectionId);
+    if (!Number.isSafeInteger(chatId) || chatId <= 0) {
+      throw new BadRequestException('Telegram business chat ID is invalid');
+    }
+    // Ordinary bot typing uses a different identity; managed chats require the connection.
+    return this.call('sendChatAction', {
+      business_connection_id: connectionId,
+      chat_id: chatId,
+      action,
+    });
+  }
+
   async downloadFile(fileId: string, maxBytes: number) {
     if (
       typeof fileId !== 'string' ||

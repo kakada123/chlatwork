@@ -30,34 +30,44 @@ export class CreatorTelegramProgress {
     private readonly bot: CreatorTelegramClient,
     private readonly chatId: number,
     private readonly messageId: number | null,
+    private readonly business?: {
+      connectionId: string;
+      isActive: () => Promise<boolean>;
+    },
   ) {}
 
   start(feature: AiFeature, deadline: Date) {
-    this.edit(PROCESSING_STATUS[feature] ?? '✍️ Working on your text…');
+    if (!this.business) {
+      this.edit(PROCESSING_STATUS[feature] ?? '✍️ Working on your text…');
+      this.slowTimer = setTimeout(() => {
+        this.edit(
+          '⏳ Still working. No need to resend—I’ll reply here when it’s ready.',
+        );
+      }, 15000);
+      this.slowTimer.unref();
+    }
     this.pulse();
     // Telegram clears typing after five seconds. Skip overlapping slow calls.
     this.typingTimer = setInterval(() => this.pulse(), 4000);
-    this.slowTimer = setTimeout(() => {
-      this.edit(
-        '⏳ Still working. No need to resend—I’ll reply here when it’s ready.',
-      );
-    }, 15000);
     // Never advertise activity beyond this worker's lease if generation hangs.
     this.deadlineTimer = setTimeout(
       () => void this.stop(),
       Math.max(0, deadline.getTime() - Date.now()),
     );
     this.typingTimer.unref();
-    this.slowTimer.unref();
     this.deadlineTimer.unref();
   }
 
   async stop() {
+    this.stopRefreshing();
+    await Promise.all([this.editing, this.typing]);
+  }
+
+  private stopRefreshing() {
     this.stopped = true;
     clearInterval(this.typingTimer);
     clearTimeout(this.slowTimer);
     clearTimeout(this.deadlineTimer);
-    await Promise.all([this.editing, this.typing]);
   }
 
   private edit(text: string) {
@@ -72,7 +82,23 @@ export class CreatorTelegramProgress {
   private pulse() {
     if (this.stopped || this.typing) return;
     this.typing = Promise.resolve()
-      .then(() => this.bot.sendChatAction(this.chatId, 'typing'))
+      .then(async () => {
+        if (this.business) {
+          const active = await this.business.isActive();
+          // Cancellation/shutdown can arrive while checking the lease; never restart typing afterward.
+          if (this.stopped) return;
+          if (!active) {
+            this.stopRefreshing();
+            return;
+          }
+          return this.bot.sendBusinessChatAction(
+            this.business.connectionId,
+            this.chatId,
+            'typing',
+          );
+        }
+        return this.bot.sendChatAction(this.chatId, 'typing');
+      })
       .catch(() => undefined)
       .finally(() => {
         this.typing = null;

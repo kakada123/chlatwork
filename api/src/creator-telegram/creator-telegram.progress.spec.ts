@@ -1,18 +1,119 @@
 import { AiFeature } from '@prisma/client';
 import { CreatorTelegramProgress } from './creator-telegram.progress';
 
-function setup() {
+function setup(business?: {
+  connectionId: string;
+  isActive: () => Promise<boolean>;
+}) {
   const bot = {
     sendChatAction: jest.fn().mockResolvedValue(true),
+    sendBusinessChatAction: jest.fn().mockResolvedValue(true),
     updateStatus: jest.fn().mockResolvedValue(undefined),
   };
-  const progress = new CreatorTelegramProgress(bot as never, 123, 55);
+  const progress = new CreatorTelegramProgress(
+    bot as never,
+    123,
+    business ? null : 55,
+    business,
+  );
   return { bot, progress };
 }
 
 describe('Creator Telegram waiting feedback', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
+
+  it('refreshes Business typing through its connection without changing the placeholder', async () => {
+    const { bot, progress } = setup({
+      connectionId: 'test-business',
+      isActive: async () => true,
+    });
+    progress.start(AiFeature.KHMER_GRAMMAR, new Date(Date.now() + 300000));
+    await jest.advanceTimersByTimeAsync(16000);
+    expect(bot.sendBusinessChatAction.mock.calls).toEqual(
+      Array(5).fill(['test-business', 123, 'typing']),
+    );
+    expect(bot.sendChatAction).not.toHaveBeenCalled();
+    expect(bot.updateStatus).not.toHaveBeenCalled();
+    await progress.stop();
+    await jest.advanceTimersByTimeAsync(10000);
+    expect(bot.sendBusinessChatAction).toHaveBeenCalledTimes(5);
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('stops Business typing when the request is cancelled or loses its lease', async () => {
+    let active = true;
+    const { bot, progress } = setup({
+      connectionId: 'test-business',
+      isActive: async () => active,
+    });
+    progress.start(AiFeature.KHMER_REWRITE, new Date(Date.now() + 300000));
+    await jest.advanceTimersByTimeAsync(0);
+    active = false;
+    await jest.advanceTimersByTimeAsync(12000);
+    expect(bot.sendBusinessChatAction).toHaveBeenCalledTimes(1);
+    expect(jest.getTimerCount()).toBe(0);
+    await progress.stop();
+  });
+
+  it('drains in-flight Business typing before completion without overlapping requests', async () => {
+    const { bot, progress } = setup({
+      connectionId: 'test-business',
+      isActive: async () => true,
+    });
+    let release!: () => void;
+    bot.sendBusinessChatAction.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+    );
+    progress.start(AiFeature.KHMER_REWRITE, new Date(Date.now() + 300000));
+    await jest.advanceTimersByTimeAsync(12000);
+    expect(bot.sendBusinessChatAction).toHaveBeenCalledTimes(1);
+    let stopped = false;
+    const stopping = progress.stop().then(() => {
+      stopped = true;
+    });
+    await jest.advanceTimersByTimeAsync(0);
+    expect(stopped).toBe(false);
+    release();
+    await stopping;
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('tolerates failed Business typing and stops at the generation deadline', async () => {
+    const { bot, progress } = setup({
+      connectionId: 'test-business',
+      isActive: async () => true,
+    });
+    bot.sendBusinessChatAction.mockRejectedValue(
+      new Error('Telegram unavailable'),
+    );
+    progress.start(AiFeature.HUMANIZE, new Date(Date.now() + 10000));
+    await jest.advanceTimersByTimeAsync(20000);
+    expect(bot.sendBusinessChatAction).toHaveBeenCalledTimes(3);
+    expect(bot.updateStatus).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+    await progress.stop();
+  });
+
+  it('does not dispatch Business typing if shutdown happens during the lease check', async () => {
+    let release!: (active: boolean) => void;
+    const { bot, progress } = setup({
+      connectionId: 'test-business',
+      isActive: () =>
+        new Promise<boolean>((resolve) => {
+          release = resolve;
+        }),
+    });
+    progress.start(AiFeature.KHMER_GRAMMAR, new Date(Date.now() + 300000));
+    await jest.advanceTimersByTimeAsync(0);
+    const stopping = progress.stop();
+    release(true);
+    await stopping;
+    expect(bot.sendBusinessChatAction).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+  });
 
   it('refreshes typing and edits one status after 15 seconds without repeated notices', async () => {
     const { bot, progress } = setup();

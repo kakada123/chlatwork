@@ -79,6 +79,41 @@ describe('Telegram Business API', () => {
     } as unknown as ConfigService);
   }
 
+  it('sends native typing on behalf of the Business owner without affecting ordinary typing', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(
+        async () => new Response(JSON.stringify({ ok: true, result: true })),
+      );
+    await client().sendBusinessChatAction('test-connection', 222, 'typing');
+    await client().sendChatAction(333, 'typing');
+    expect(fetchMock.mock.calls[0]![0]).toMatch(/\/sendChatAction$/);
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({
+      business_connection_id: 'test-connection',
+      chat_id: 222,
+      action: 'typing',
+    });
+    expect(JSON.parse(fetchMock.mock.calls[1]![1]!.body as string)).toEqual({
+      chat_id: 333,
+      action: 'typing',
+    });
+  });
+
+  it('rejects invalid Business typing connections and recipients before fetching', () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch');
+    for (const chatId of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(() =>
+        client().sendBusinessChatAction('test-connection', chatId, 'typing'),
+      ).toThrow(BadRequestException);
+    }
+    for (const connection of ['', ' ', 'x'.repeat(257)]) {
+      expect(() =>
+        client().sendBusinessChatAction(connection, 222, 'typing'),
+      ).toThrow(BadRequestException);
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('disables URL previews only when explicitly requested for private security reports', async () => {
     const fetchMock = jest
       .spyOn(globalThis, 'fetch')

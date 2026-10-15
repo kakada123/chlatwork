@@ -33,6 +33,14 @@ function setup(overrides: Record<string, unknown> = {}) {
         .mockResolvedValue({ user: { id: 'owner', isActive: true } }),
     },
     creatorTelegramRequest: {
+      findFirst: jest.fn(async ({ where }) =>
+        job.updateId === where.updateId &&
+        job.leaseId === where.leaseId &&
+        job.processedAt === null &&
+        job.lockedUntil > new Date()
+          ? { updateId: job.updateId }
+          : null,
+      ),
       findMany: jest.fn(async () => (available() ? [{ ...job }] : [])),
       updateMany: jest.fn(async ({ where, data }) => {
         if ('leaseId' in where && where.leaseId !== job.leaseId)
@@ -70,6 +78,7 @@ function setup(overrides: Record<string, unknown> = {}) {
     sendMessage: jest.fn(),
     sendCopyableMessage: jest.fn(),
     sendChatAction: jest.fn(),
+    sendBusinessChatAction: jest.fn().mockResolvedValue(true),
     sendStatus: jest.fn().mockResolvedValue(56),
     updateStatus: jest.fn(),
     clearStatus: jest.fn(),
@@ -94,6 +103,91 @@ describe('Creator Telegram worker', () => {
     sourceMessageDate: new Date(),
     statusMessageId: null,
   };
+
+  it('shows Business typing during AI work and stops refreshing before editing the result', async () => {
+    jest.useFakeTimers();
+    const test = setup(businessJob);
+    const result = {
+      data: {
+        title: 'Result',
+        sections: [{ label: 'Result', content: 'Done' }],
+      },
+      usage: { creditsCharged: 1, creditsRemaining: 19 },
+    };
+    let release!: (value: typeof result) => void;
+    test.generations.generate.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    const running = test.worker.tick();
+    try {
+      await jest.advanceTimersByTimeAsync(9000);
+      expect(test.bot.sendBusinessChatAction.mock.calls).toEqual(
+        Array(3).fill(['test-business', 456, 'typing']),
+      );
+      expect(
+        test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
+      ).toEqual(['…']);
+    } finally {
+      release(result);
+      await running;
+      await jest.advanceTimersByTimeAsync(10000);
+      jest.useRealTimers();
+    }
+    expect(test.bot.sendBusinessChatAction).toHaveBeenCalledTimes(3);
+    expect(test.bot.editBusinessMessage).toHaveBeenLastCalledWith(
+      'test-business',
+      456,
+      10,
+      'Done',
+    );
+    expect(test.bot.updateStatus).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it.each(['cancelled', 'shutdown'])(
+    'stops Business typing when %s during generation',
+    async (reason) => {
+      jest.useFakeTimers();
+      const test = setup(businessJob);
+      const result = {
+        data: {
+          title: 'Result',
+          sections: [{ label: 'Result', content: 'Done' }],
+        },
+        usage: { creditsCharged: 1, creditsRemaining: 19 },
+      };
+      let release!: (value: typeof result) => void;
+      test.generations.generate.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            release = resolve;
+          }),
+      );
+      const running = test.worker.tick();
+      try {
+        await jest.advanceTimersByTimeAsync(0);
+        expect(test.bot.sendBusinessChatAction).toHaveBeenCalledTimes(1);
+        if (reason === 'cancelled') {
+          test.job.leaseId = null;
+          test.job.processedAt = new Date();
+        } else {
+          await test.worker.onModuleDestroy();
+        }
+        await jest.advanceTimersByTimeAsync(9000);
+        expect(test.bot.sendBusinessChatAction).toHaveBeenCalledTimes(1);
+      } finally {
+        release(result);
+        await running;
+        jest.useRealTimers();
+      }
+      expect(
+        test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
+      ).toEqual(['…']);
+    },
+  );
 
   it('edits the owner’s source message with only the result, without status, replies, or credit details', async () => {
     const test = setup(businessJob);
@@ -133,9 +227,11 @@ describe('Creator Telegram worker', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error('Telegram timeout'));
     await test.worker.tick();
+    const typingCalls = test.bot.sendBusinessChatAction.mock.calls.length;
     test.job.nextAttemptAt = new Date(0);
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendBusinessChatAction).toHaveBeenCalledTimes(typingCalls);
     expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(3);
     expect(
       test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
