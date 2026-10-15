@@ -51,6 +51,7 @@ export interface CreatorReservation {
 }
 
 export interface CreatorTextGenerationInput {
+  outputMode?: 'BUSINESS_EDIT';
   feature: AiFeature;
   payload: Record<string, unknown>;
   idempotencyKey: string;

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AiFeature, AuthProvider } from '@prisma/client';
+import { AiFeature, AuthProvider, Prisma } from '@prisma/client';
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from '../creator-ai/creator-credits.service';
@@ -84,6 +84,10 @@ export class CreatorTelegramService {
     const update = value as TelegramUpdate;
     if (!Number.isSafeInteger(update.update_id) || update.update_id < 0)
       throw new BadRequestException('Invalid Creator bot update');
+    if (update.business_message || update.edited_business_message) {
+      await this.handleBusinessUpdate(update);
+      return;
+    }
     const callback = update.callback_query;
     const message = callback?.message ?? update.message;
     const sender = callback?.from ?? message?.from;
@@ -386,6 +390,147 @@ export class CreatorTelegramService {
     return this.keyboardFor(
       Object.values(KHMER_CHAT_MODES).map((mode) => mode.feature),
     );
+  }
+
+  private async handleBusinessUpdate(update: TelegramUpdate) {
+    const message = update.business_message ?? update.edited_business_message;
+    const sender = message?.from;
+    const connectionId = message?.business_connection_id;
+    const age = Date.now() / 1000 - (message?.date ?? 0);
+    if (
+      !message ||
+      !sender ||
+      sender.is_bot ||
+      message.sender_business_bot ||
+      message.sender_chat ||
+      message.chat?.type !== 'private' ||
+      !Number.isSafeInteger(message.chat.id) ||
+      message.chat.id <= 0 ||
+      !Number.isSafeInteger(sender.id) ||
+      sender.id <= 0 ||
+      sender.id === message.chat.id ||
+      !Number.isSafeInteger(message.message_id) ||
+      message.message_id <= 0 ||
+      !Number.isSafeInteger(message.date) ||
+      age < -60 ||
+      age >= 48 * 3600 ||
+      typeof connectionId !== 'string' ||
+      !connectionId.trim() ||
+      connectionId.length > 256
+    )
+      return;
+
+    const text = typeof message.text === 'string' ? message.text.trim() : '';
+    const command =
+      /^\/([a-z][a-z0-9_]{0,31})(?:@([A-Za-z0-9_]+))?(?:\s+([\s\S]*))?$/i.exec(
+        text,
+      );
+    const mode = command ? this.mode(command[1].toLowerCase()) : null;
+    const content = command?.[3]?.trim();
+    // No saved mode is applied here: an outgoing message must explicitly request an edit.
+    if (
+      !update.edited_business_message &&
+      (!mode ||
+        !content ||
+        text.length > 4000 ||
+        (message.text?.length ?? 0) > 4000)
+    )
+      return;
+    if (
+      !update.edited_business_message &&
+      command?.[2] &&
+      command[2].toLowerCase() !==
+        (await this.bot.getIdentity()).username?.toLowerCase()
+    )
+      return;
+    const connection = await this.bot.getBusinessConnection(connectionId);
+    if (
+      connection?.id !== connectionId ||
+      connection.is_enabled !== true ||
+      connection.user?.id !== sender.id ||
+      connection.rights?.can_reply !== true
+    )
+      return;
+    const linked = await this.prisma.socialAccount.findUnique({
+      where: {
+        provider_providerUserId: {
+          provider: AuthProvider.TELEGRAM,
+          providerUserId: String(sender.id),
+        },
+      },
+      select: { user: { select: { id: true, isActive: true } } },
+    });
+    if (!linked?.user.isActive) return;
+
+    const source = {
+      businessConnectionId: connectionId,
+      chatId: BigInt(message.chat.id),
+      sourceMessageId: message.message_id,
+    };
+    if (
+      !update.edited_business_message &&
+      !(await this.modeEnabled(mode!.feature))
+    )
+      return;
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-telegram-queue:${linked.user.id}`}))`;
+      const duplicate = await tx.creatorTelegramRequest.findFirst({
+        where: source,
+      });
+      if (update.edited_business_message) {
+        // A content-free cancellation receipt also blocks a delayed original webhook.
+        if (!duplicate) {
+          await tx.creatorTelegramRequest.create({
+            data: {
+              ...source,
+              updateId: BigInt(update.update_id),
+              userId: linked.user.id,
+              telegramUserId: BigInt(sender.id),
+              sourceMessageDate: new Date(message.date! * 1000),
+              feature: AiFeature.KHMER_GRAMMAR,
+              content: null,
+              processedAt: new Date(),
+            },
+          });
+        } else {
+          await tx.creatorTelegramRequest.updateMany({
+            where: {
+              ...source,
+              userId: linked.user.id,
+              processedAt: null,
+              updateId: { lt: BigInt(update.update_id) },
+            },
+            data: {
+              processedAt: new Date(),
+              content: null,
+              replyParts: Prisma.DbNull,
+              leaseId: null,
+              lockedUntil: null,
+            },
+          });
+        }
+        return;
+      }
+      if (
+        duplicate ||
+        (await tx.creatorTelegramRequest.count({
+          where: { userId: linked.user.id, processedAt: null },
+        })) >= 3
+      )
+        return;
+      await tx.creatorTelegramRequest.create({
+        data: {
+          ...source,
+          updateId: BigInt(update.update_id),
+          userId: linked.user.id,
+          telegramUserId: BigInt(sender.id),
+          sourceMessageDate: new Date(message.date! * 1000),
+          feature: mode!.feature,
+          // Retain the exact command until Telegram confirms that this source is editable.
+          content: message.text!,
+        },
+      });
+    });
   }
 
   async availableKeyboard(chatId = 1): Promise<TelegramInlineKeyboard> {

@@ -60,6 +60,13 @@ function setup(overrides: Record<string, unknown> = {}) {
     }),
   };
   const bot = {
+    getBusinessConnection: jest.fn().mockResolvedValue({
+      id: 'test-business',
+      user: { id: 123 },
+      is_enabled: true,
+      rights: { can_reply: true },
+    }),
+    editBusinessMessage: jest.fn(),
     sendMessage: jest.fn(),
     sendCopyableMessage: jest.fn(),
     sendChatAction: jest.fn(),
@@ -78,6 +85,176 @@ function setup(overrides: Record<string, unknown> = {}) {
 }
 
 describe('Creator Telegram worker', () => {
+  const businessJob = {
+    content: '/rewrite original content',
+    chatId: 456n,
+    telegramUserId: 123n,
+    businessConnectionId: 'test-business',
+    sourceMessageId: 10,
+    sourceMessageDate: new Date(),
+    statusMessageId: null,
+  };
+
+  it('edits the owner’s source message with only the result, without status, replies, or credit details', async () => {
+    const test = setup(businessJob);
+    test.generations.generate.mockResolvedValue({
+      data: {
+        title: 'Corrected text',
+        sections: [
+          { label: 'Corrected text', content: 'She goes to school.' },
+          { label: 'What changed', content: 'Private explanation' },
+        ],
+      },
+      usage: { creditsCharged: 1, creditsRemaining: 19 },
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledWith(
+      'owner',
+      expect.objectContaining({ outputMode: 'BUSINESS_EDIT' }),
+      'creator-telegram:42',
+    );
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledWith(
+      'test-business',
+      456,
+      10,
+      'She goes to school.',
+    );
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendStatus).not.toHaveBeenCalled();
+    expect(test.bot.sendChatAction).not.toHaveBeenCalled();
+    expect(test.bot.clearStatus).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('retries the same saved Business edit without generating or charging again', async () => {
+    const test = setup(businessJob);
+    test.bot.editBusinessMessage
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Telegram timeout'));
+    await test.worker.tick();
+    test.job.nextAttemptAt = new Date(0);
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(3);
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('does not generate or charge when Telegram cannot edit the conversation', async () => {
+    const test = setup(businessJob);
+    test.bot.editBusinessMessage.mockRejectedValue(
+      new Error('Business reply window expired'),
+    );
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.job.content).toBe('/rewrite original content');
+  });
+
+  it('does not start AI work when a manual edit cancels the eligibility probe', async () => {
+    const test = setup(businessJob);
+    test.bot.editBusinessMessage.mockImplementationOnce(async () => {
+      test.job.leaseId = null;
+      test.job.processedAt = new Date();
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves the raw source during eligibility checks and sends only trimmed command content to AI', async () => {
+    const test = setup({
+      ...businessJob,
+      content: ' \n/rewrite text to improve  ',
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledWith(
+      'owner',
+      expect.objectContaining({
+        payload: expect.objectContaining({ content: 'text to improve' }),
+      }),
+      'creator-telegram:42',
+    );
+    expect(test.bot.editBusinessMessage).toHaveBeenNthCalledWith(
+      1,
+      'test-business',
+      456,
+      10,
+      ' \n/rewrite text to improve  ',
+    );
+  });
+
+  it.each([
+    'disabled',
+    'rights',
+    'owner',
+    'expired',
+    'missing-source',
+    'unlinked',
+  ])('never generates or edits a Business message when %s', async (kind) => {
+    const test = setup({
+      ...businessJob,
+      ...(kind === 'expired'
+        ? { sourceMessageDate: new Date(Date.now() - 49 * 3600_000) }
+        : {}),
+      ...(kind === 'missing-source' ? { sourceMessageId: null } : {}),
+    });
+    if (kind === 'disabled')
+      test.bot.getBusinessConnection.mockResolvedValue({
+        id: 'test-business',
+        user: { id: 123 },
+        is_enabled: false,
+        rights: { can_reply: true },
+      });
+    if (kind === 'rights')
+      test.bot.getBusinessConnection.mockResolvedValue({
+        id: 'test-business',
+        user: { id: 123 },
+        is_enabled: true,
+        rights: { can_reply: false },
+      });
+    if (kind === 'owner')
+      test.bot.getBusinessConnection.mockResolvedValue({
+        id: 'test-business',
+        user: { id: 999 },
+        is_enabled: true,
+        rights: { can_reply: true },
+      });
+    if (kind === 'unlinked')
+      test.prisma.socialAccount.findUnique.mockResolvedValue(null);
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.editBusinessMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('rechecks Business permissions after generation and leaves the original unchanged if revoked', async () => {
+    const test = setup(businessJob);
+    test.bot.getBusinessConnection
+      .mockResolvedValueOnce({
+        id: 'test-business',
+        user: { id: 123 },
+        is_enabled: true,
+        rights: { can_reply: true },
+      })
+      .mockResolvedValue({
+        id: 'test-business',
+        user: { id: 123 },
+        is_enabled: false,
+        rights: { can_reply: false },
+      });
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledWith(
+      'test-business',
+      456,
+      10,
+      '/rewrite original content',
+    );
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
   it('routes stored-output rejection to the source forum topic', async () => {
     const test = setup({
       chatId: -100123n,

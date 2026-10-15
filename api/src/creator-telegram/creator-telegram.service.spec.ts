@@ -36,6 +36,14 @@ function setup() {
       }),
     },
     creatorTelegramRequest: {
+      findFirst: jest.fn(async ({ where }) =>
+        requests.find(
+          (job) =>
+            job.businessConnectionId === where.businessConnectionId &&
+            job.chatId === where.chatId &&
+            job.sourceMessageId === where.sourceMessageId,
+        ),
+      ),
       findUnique: jest.fn(async ({ where }) =>
         requests.find((job) => job.updateId === where.updateId),
       ),
@@ -47,8 +55,14 @@ function setup() {
       updateMany: jest.fn(async ({ where, data }) => {
         const job = requests.find(
           (request) =>
-            request.updateId === where.updateId &&
-            request.leaseId === where.leaseId,
+            (typeof where.updateId === 'object'
+              ? request.updateId < where.updateId.lt
+              : request.updateId === where.updateId) &&
+            (!('leaseId' in where) || request.leaseId === where.leaseId) &&
+            (!where.businessConnectionId ||
+              (request.businessConnectionId === where.businessConnectionId &&
+                request.chatId === where.chatId &&
+                request.sourceMessageId === where.sourceMessageId)),
         );
         if (!job) return { count: 0 };
         Object.assign(job, data);
@@ -68,6 +82,12 @@ function setup() {
     getOrThrow: jest.fn((key: string) => values[key]),
   };
   const bot = {
+    getBusinessConnection: jest.fn().mockResolvedValue({
+      id: 'test-business',
+      user: { id: 123 },
+      is_enabled: true,
+      rights: { can_reply: true },
+    }),
     getIdentity: jest.fn().mockResolvedValue({
       id: 987654321,
       is_bot: true,
@@ -118,6 +138,156 @@ function setup() {
 }
 
 describe('Creator Telegram bot', () => {
+  const businessUpdate = (text: string, updateId = 1) => ({
+    update_id: updateId,
+    business_message: {
+      message_id: 10,
+      date: Math.floor(Date.now() / 1000),
+      business_connection_id: 'test-business',
+      from: { id: 123 },
+      chat: { id: 456, type: 'private' },
+      text,
+    },
+  });
+
+  it('queues only the owner’s explicit Business command and never replies in the managed chat', async () => {
+    const test = setup();
+    await test.service.handleUpdate(businessUpdate('ordinary outgoing text'));
+    expect(test.bot.getBusinessConnection).not.toHaveBeenCalled();
+    await test.service.handleUpdate(
+      businessUpdate('/grammar She go to school.'),
+    );
+    await test.service.handleUpdate(
+      businessUpdate('/grammar She go to school.', 2),
+    );
+    expect(test.requests).toHaveLength(1);
+    expect(test.requests[0]).toMatchObject({
+      userId: 'owner',
+      telegramUserId: 123n,
+      chatId: 456n,
+      sourceMessageId: 10,
+      businessConnectionId: 'test-business',
+      sourceMessageDate: expect.any(Date),
+      feature: AiFeature.KHMER_GRAMMAR,
+      content: '/grammar She go to school.',
+    });
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendStatus).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'incoming',
+    'bot',
+    'old',
+    'group',
+    'blank',
+    'unknown',
+    'long',
+    'foreign-command',
+  ])(
+    'ignores %s Business messages without queuing or replying',
+    async (kind) => {
+      const test = setup();
+      const update = businessUpdate('/grammar She go.');
+      const message: any = update.business_message;
+      if (kind === 'incoming') message.from.id = 456;
+      if (kind === 'bot')
+        message.sender_business_bot = { id: 987654321, is_bot: true };
+      if (kind === 'old') message.date -= 49 * 3600;
+      if (kind === 'group') message.chat = { id: -100, type: 'group' };
+      if (kind === 'blank') message.text = '/grammar';
+      if (kind === 'unknown') message.text = '/unknown hello';
+      if (kind === 'long') message.text = `/grammar ${'x'.repeat(4001)}`;
+      if (kind === 'foreign-command') message.text = '/grammar@other_bot hello';
+      await test.service.handleUpdate(update);
+      expect(test.requests).toHaveLength(0);
+      expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['disabled', 'no-rights', 'wrong-owner', 'unlinked', 'queue-full'])(
+    'preserves the original Business message when %s',
+    async (kind) => {
+      const test = setup();
+      if (kind === 'disabled')
+        test.bot.getBusinessConnection.mockResolvedValue({
+          id: 'test-business',
+          user: { id: 123 },
+          is_enabled: false,
+          rights: { can_reply: true },
+        });
+      if (kind === 'no-rights')
+        test.bot.getBusinessConnection.mockResolvedValue({
+          id: 'test-business',
+          user: { id: 123 },
+          is_enabled: true,
+          rights: { can_reply: false },
+        });
+      if (kind === 'wrong-owner')
+        test.bot.getBusinessConnection.mockResolvedValue({
+          id: 'test-business',
+          user: { id: 999 },
+          is_enabled: true,
+          rights: { can_reply: true },
+        });
+      if (kind === 'unlinked')
+        test.prisma.socialAccount.findUnique.mockResolvedValue(null);
+      if (kind === 'queue-full')
+        test.prisma.creatorTelegramRequest.count.mockResolvedValue(3);
+      await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+      expect(test.requests).toHaveLength(0);
+      expect(test.bot.sendMessage).not.toHaveBeenCalled();
+      expect(test.bot.sendStatus).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['I rewrote this myself.', '/grammar@other_bot I rewrote this.'])(
+    'cancels a pending source edit when the owner changes it to %s',
+    async (text) => {
+      const test = setup();
+      await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+      test.prisma.creatorTelegramRequest.updateMany.mockClear();
+      const update = businessUpdate(text, 2);
+      await test.service.handleUpdate({
+        update_id: 2,
+        edited_business_message: update.business_message,
+      });
+      expect(
+        test.prisma.creatorTelegramRequest.updateMany,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            businessConnectionId: 'test-business',
+            chatId: 456n,
+            sourceMessageId: 10,
+            processedAt: null,
+          }),
+          data: expect.objectContaining({
+            processedAt: expect.any(Date),
+            content: null,
+            leaseId: null,
+          }),
+        }),
+      );
+      expect(test.requests).toHaveLength(1);
+      expect(test.requests[0].processedAt).toBeInstanceOf(Date);
+      expect(test.requests[0].content).toBeNull();
+    },
+  );
+
+  it('remembers cancellation when an edited update arrives before its original command', async () => {
+    const test = setup();
+    const update = businessUpdate('Rewritten manually', 2);
+    await test.service.handleUpdate({
+      update_id: 2,
+      edited_business_message: update.business_message,
+    });
+    await test.service.handleUpdate(businessUpdate('/grammar She go.', 1));
+    expect(test.requests).toHaveLength(1);
+    expect(test.requests[0].processedAt).toBeInstanceOf(Date);
+    expect(test.requests[0].content).toBeNull();
+  });
+
   const groupMessage = (text: string, userId = 123, updateId = 1) => ({
     update_id: updateId,
     message: {

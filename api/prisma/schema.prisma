@@ -393,6 +393,8 @@ model CreatorTelegramRequest {
   telegramUserId  BigInt?   @map("telegram_user_id")
   sourceMessageId Int?      @map("source_message_id")
   messageThreadId Int?      @map("message_thread_id")
+  businessConnectionId String? @map("business_connection_id") @db.VarChar(256)
+  sourceMessageDate DateTime? @map("source_message_date")
   feature         AiFeature
   content         String?   @db.VarChar(4000)
   replyParts      Json?     @map("reply_parts")
@@ -406,6 +408,7 @@ model CreatorTelegramRequest {
 
   @@index([processedAt, nextAttemptAt])
   @@index([userId, processedAt])
+  @@unique([businessConnectionId, chatId, sourceMessageId], map: "creator_telegram_requests_business_source_key")
   @@map("creator_telegram_requests")
 }
 

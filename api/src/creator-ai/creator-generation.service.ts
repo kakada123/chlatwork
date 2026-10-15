@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto';
 import { HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { AiFeature } from '@prisma/client';
-import { CreatorAiGatewayService, CreatorProviderError } from './creator-ai-gateway.service';
+import {
+  CreatorAiGatewayService,
+  CreatorProviderError,
+} from './creator-ai-gateway.service';
 import {
   CreatorAiException,
   creatorGenerationFailed,
@@ -12,6 +15,7 @@ import { FeatureAvailabilityService } from '../feature-availability/feature-avai
 import { buildCreatorTextPrompt } from './creator-prompts';
 import { CreatorPricingService } from './creator-pricing.service';
 import { containsThaiScript } from './creator-output-language';
+import { creatorBusinessEditText } from './creator-business-edit';
 import type {
   CreatorGenerationResult,
   CreatorTextGenerationInput,
@@ -40,9 +44,16 @@ export class CreatorGenerationService {
     idempotencyHeader: string | undefined,
   ) {
     await this.availability?.assertCreatorEnabled(input.feature);
-    const idempotencyKey = this.credits.validateIdempotencyKey(idempotencyHeader);
+    const idempotencyKey =
+      this.credits.validateIdempotencyKey(idempotencyHeader);
     const image = input.image ? this.validateImage(input.image) : undefined;
-    const requestHash = hashRequest(input.feature, input.payload, image?.bytes);
+    const requestHash = hashRequest(
+      input.feature,
+      input.outputMode
+        ? { ...input.payload, creatorOutputMode: input.outputMode }
+        : input.payload,
+      image?.bytes,
+    );
     const cost = this.pricing.fixed(input.feature);
     const reservation = await this.credits.reserve({
       userId,
@@ -60,12 +71,20 @@ export class CreatorGenerationService {
 
     try {
       await this.credits.markProcessing(reservation.generation.id);
+      const prompt = buildCreatorTextPrompt(input.feature, input.payload);
+      if (input.outputMode === 'BUSINESS_EDIT') {
+        prompt.instructions +=
+          '\nThe main result replaces one Telegram text message. Keep that result within 4096 UTF-16 code units. Put no command prefix, labels or explanations inside the main result.';
+      }
       const generated = await this.gateway.generateStructured(
         input.feature,
         reservation.generation.id,
-        buildCreatorTextPrompt(input.feature, input.payload),
+        prompt,
         image,
       );
+      // Reject uneditable output before finalizing the charge so the reservation is refunded.
+      if (input.outputMode === 'BUSINESS_EDIT')
+        creatorBusinessEditText(generated.data);
       const charged = await this.credits.complete(
         reservation.generation.id,
         generated.data,
@@ -80,21 +99,31 @@ export class CreatorGenerationService {
         },
       };
     } catch (error) {
-      await this.credits.refund(reservation.generation.id, 'AI_GENERATION_FAILED', {
-        ...(error instanceof CreatorProviderError ? error.usage : undefined),
-        durationMs:
-          error && typeof error === 'object' && 'durationMs' in error
-            ? Number((error as { durationMs: unknown }).durationMs) || 0
-            : 0,
-      });
+      await this.credits.refund(
+        reservation.generation.id,
+        'AI_GENERATION_FAILED',
+        {
+          ...(error instanceof CreatorProviderError ? error.usage : undefined),
+          durationMs:
+            error && typeof error === 'object' && 'durationMs' in error
+              ? Number((error as { durationMs: unknown }).durationMs) || 0
+              : 0,
+        },
+      );
       throw creatorGenerationFailed();
     }
   }
 
-  private existingResponse(reservation: Awaited<ReturnType<CreatorCreditsService['reserve']>>) {
+  private existingResponse(
+    reservation: Awaited<ReturnType<CreatorCreditsService['reserve']>>,
+  ) {
     const generation = reservation.generation;
-    if (generation.status === 'COMPLETED' && isCreatorResult(generation.result)) {
-      if (containsThaiScript(generation.result)) throw creatorOutputLanguageRejected();
+    if (
+      generation.status === 'COMPLETED' &&
+      isCreatorResult(generation.result)
+    ) {
+      if (containsThaiScript(generation.result))
+        throw creatorOutputLanguageRejected();
       return {
         generationId: generation.id,
         data: generation.result,

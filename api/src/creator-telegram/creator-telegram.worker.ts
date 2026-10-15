@@ -12,6 +12,7 @@ import { CreatorGenerationService } from '../creator-ai/creator-generation.servi
 import { CreatorAiException } from '../creator-ai/creator-ai.errors';
 import { CREATOR_AI_DEFAULTS } from '../creator-ai/creator-ai.config';
 import { containsThaiScript } from '../creator-ai/creator-output-language';
+import { creatorBusinessEditText } from '../creator-ai/creator-business-edit';
 import { CreatorTelegramClient } from './creator-telegram.client';
 import {
   CREATOR_QUEUED_STATUS,
@@ -118,7 +119,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
               nextAttemptAt: new Date(Date.now() + 30000),
             },
           });
-          if (deferred.count === 1) {
+          if (deferred.count === 1 && !job.businessConnectionId) {
             await this.bot.updateStatus(
               Number(job.chatId),
               job.statusMessageId,
@@ -175,6 +176,10 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   private async process(job: CreatorTelegramRequest) {
+    if (job.businessConnectionId) {
+      await this.processBusinessEdit(job);
+      return;
+    }
     const isGroup = job.chatId < 0n;
     const telegramUserId = job.telegramUserId ?? (isGroup ? null : job.chatId);
     // Old private jobs can use their chat ID. Group jobs must carry the real sender.
@@ -377,6 +382,181 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     await this.finish(job, 'Request finished. See the reply above.');
   }
 
+  private async businessEditAllowed(job: CreatorTelegramRequest) {
+    const sender = job.telegramUserId;
+    const sourceAge = job.sourceMessageDate
+      ? Date.now() - job.sourceMessageDate.getTime()
+      : Infinity;
+    if (
+      !job.businessConnectionId ||
+      !sender ||
+      sender <= 0n ||
+      job.chatId <= 0n ||
+      sender === job.chatId ||
+      !job.sourceMessageId ||
+      job.sourceMessageId <= 0 ||
+      sourceAge < -60000 ||
+      sourceAge >= 48 * 3600_000 ||
+      Date.now() - job.createdAt.getTime() > DAY_MS ||
+      !Object.values(KHMER_CHAT_MODES).some(
+        (mode) => mode.feature === job.feature,
+      )
+    )
+      return false;
+    const owner = await this.prisma.socialAccount.findUnique({
+      where: {
+        provider_providerUserId: {
+          provider: 'TELEGRAM',
+          providerUserId: sender.toString(),
+        },
+      },
+      select: { user: { select: { id: true, isActive: true } } },
+    });
+    if (!owner?.user.isActive || owner.user.id !== job.userId) return false;
+    const connection = await this.bot.getBusinessConnection(
+      job.businessConnectionId,
+    );
+    return (
+      connection?.id === job.businessConnectionId &&
+      connection.is_enabled === true &&
+      connection.user?.id === Number(sender) &&
+      connection.rights?.can_reply === true
+    );
+  }
+
+  private async processBusinessEdit(job: CreatorTelegramRequest) {
+    if (!(await this.businessEditAllowed(job))) {
+      await this.finish(job);
+      return;
+    }
+    let parts = readReplyParts(job.replyParts);
+    if (!parts) {
+      if (!job.content || this.stopping) {
+        if (!job.content) await this.finish(job);
+        return;
+      }
+      // Extend the claim before reserving credits; a cancelled command loses its lease.
+      const held = await this.prisma.creatorTelegramRequest.updateMany({
+        where: {
+          updateId: job.updateId,
+          leaseId: job.leaseId,
+          processedAt: null,
+        },
+        data: { lockedUntil: this.leaseDeadline() },
+      });
+      if (held.count !== 1) return;
+      const command =
+        /^\/([a-z][a-z0-9_]{0,31})(?:@[A-Za-z0-9_]+)?\s+([\s\S]+)$/i.exec(
+          job.content.trim(),
+        );
+      const mode =
+        command &&
+        Object.entries(KHMER_CHAT_MODES).find(
+          ([key, value]) =>
+            key === command[1].toLowerCase() && value.feature === job.feature,
+        );
+      if (!mode || !command?.[2].trim()) {
+        await this.finish(job);
+        return;
+      }
+      // An identical-text edit checks Telegram's actual per-chat reply window before AI spending.
+      await this.bot.editBusinessMessage(
+        job.businessConnectionId!,
+        Number(job.chatId),
+        job.sourceMessageId!,
+        job.content,
+      );
+      // Cancellation during Telegram's check must prevent subsequent AI spending.
+      const stillHeld = await this.prisma.creatorTelegramRequest.updateMany({
+        where: {
+          updateId: job.updateId,
+          leaseId: job.leaseId,
+          processedAt: null,
+        },
+        data: { lockedUntil: this.leaseDeadline() },
+      });
+      if (stillHeld.count !== 1 || this.stopping) return;
+      try {
+        const result = await this.generations.generate(
+          job.userId,
+          {
+            feature: job.feature,
+            payload: {
+              content: command[2].trim(),
+              language: 'KHMER',
+              tone: 'NATURAL_KHMER',
+            },
+            inputSummary: 'Telegram Business command',
+            outputMode: 'BUSINESS_EDIT',
+          },
+          `creator-telegram:${job.updateId}`,
+        );
+        parts = [
+          { text: creatorBusinessEditText(result.data), copyable: true },
+        ];
+      } catch (error) {
+        if (
+          !(error instanceof CreatorAiException) ||
+          (error.getResponse() as { code?: string }).code ===
+            'AI_REQUEST_IN_PROGRESS'
+        )
+          throw error;
+        // Errors stay out of the recipient's conversation and never replace the owner's text.
+        this.logger.warn(
+          'Creator Business command failed; original message preserved',
+        );
+        await this.finish(job);
+        return;
+      }
+      const saved = await this.prisma.creatorTelegramRequest.updateMany({
+        where: {
+          updateId: job.updateId,
+          leaseId: job.leaseId,
+          processedAt: null,
+        },
+        data: {
+          replyParts: parts,
+          content: null,
+          lockedUntil: this.leaseDeadline(),
+        },
+      });
+      if (saved.count !== 1) return;
+      job.content = null;
+    }
+    // An edit is one indivisible message. Never insert stored credit/error reply parts.
+    if (
+      parts.length !== 1 ||
+      !parts[0].copyable ||
+      !parts[0].text.trim() ||
+      parts[0].text.length > 4096 ||
+      containsThaiScript(parts)
+    ) {
+      await this.finish(job);
+      return;
+    }
+    if (!(await this.businessEditAllowed(job))) {
+      await this.finish(job);
+      return;
+    }
+    const held = await this.prisma.creatorTelegramRequest.updateMany({
+      where: {
+        updateId: job.updateId,
+        leaseId: job.leaseId,
+        processedAt: null,
+      },
+      data: { lockedUntil: this.leaseDeadline() },
+    });
+    if (held.count !== 1 || this.stopping) return;
+    // Retrying the same text edits the same message; Telegram's not-modified response is success.
+    await this.bot.editBusinessMessage(
+      job.businessConnectionId!,
+      Number(job.chatId),
+      job.sourceMessageId!,
+      parts[0].text,
+    );
+    await this.finish(job);
+  }
+
   private async ensureStatus(job: CreatorTelegramRequest) {
     if (job.statusMessageId !== null) return true;
     const messageId =
@@ -431,7 +611,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         lockedUntil: null,
       },
     });
-    if (finished.count === 1)
+    if (finished.count === 1 && !job.businessConnectionId)
       await this.bot.clearStatus(
         Number(job.chatId),
         job.statusMessageId,

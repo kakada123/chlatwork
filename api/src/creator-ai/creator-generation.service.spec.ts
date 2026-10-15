@@ -235,6 +235,31 @@ describe('CreatorGenerationService', () => {
     expect(credits.complete).not.toHaveBeenCalled();
   });
 
+  it('refunds Business-edit output that cannot fit in the original Telegram message', async () => {
+    const { service, gateway, credits } = setup();
+    gateway.generateStructured.mockResolvedValue({
+      data: {
+        title: 'Result',
+        sections: [{ id: 'result', label: 'Text', content: 'x'.repeat(4097) }],
+      },
+      usage: {},
+    } as any);
+    await expect(
+      service.generate(
+        'user-id',
+        {
+          feature: AiFeature.KHMER_GRAMMAR,
+          payload: { content: 'Hello' },
+          inputSummary: 'Business edit',
+          outputMode: 'BUSINESS_EDIT',
+        } as any,
+        'idempotency-key-1234',
+      ),
+    ).rejects.toMatchObject({ response: { code: 'AI_GENERATION_FAILED' } });
+    expect(credits.complete).not.toHaveBeenCalled();
+    expect(credits.refund).toHaveBeenCalledTimes(1);
+  });
+
   it('returns a completed idempotent request without another provider call', async () => {
     const { service, gateway, credits } = setup();
     credits.reserve.mockResolvedValue({

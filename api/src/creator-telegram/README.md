@@ -6,6 +6,8 @@ The expense/voting bot keeps its existing webhook, commands, and token.
 
 ## Runtime setup
 
+For outgoing command edits, see [Business / Secretary mode](../../../docs/creator-business-command-edits.md).
+
 1. Create a new bot using `/newbot` in Telegram's verified **@BotFather** account.
    Choose its display name and available username there.
 2. Apply these standalone SQL files manually before deploying the updated API:
@@ -14,7 +16,7 @@ The expense/voting bot keeps its existing webhook, commands, and token.
    - `database/updates/2026-09-09-add-creator-telegram-progress.sql`
    - `database/updates/2026-09-09-add-creator-telegram-reply-settings.sql`
    - `database/updates/2026-09-09-deduplicate-creator-telegram-start.sql`
-   These assume the existing Creator AI schema has already been installed.
+     These assume the existing Creator AI schema has already been installed.
 3. Configure `CREATOR_TELEGRAM_BOT_TOKEN` and
    `CREATOR_TELEGRAM_WEBHOOK_SECRET` in the API's runtime secret store. Use a new
    webhook secret containing 16–256 letters, numbers, underscores, or hyphens.
@@ -30,13 +32,14 @@ The expense/voting bot keeps its existing webhook, commands, and token.
    POST https://api.telegram.org/bot<CREATOR_TELEGRAM_BOT_TOKEN>/setWebhook
    url=<FRONTEND_ORIGIN>/api/creator-telegram/webhook
    secret_token=<CREATOR_TELEGRAM_WEBHOOK_SECRET>
-   allowed_updates=["message","callback_query"]
+   allowed_updates=["message","callback_query","business_connection","business_message","edited_business_message"]
    ```
 
    The public Nuxt endpoint forwards to `POST /creator-telegram/webhook` on Nest.
    Nest verifies the dedicated webhook secret before doing any work. The running
    Nest API processes the persistent queue; use the same always-running service
    that hosts the existing Creator worker.
+
 6. Enable the existing Creator AI provider configuration and budgets as usual.
    The new bot uses the same `AI_ENABLED`, models, feature prices, account wallet,
    rate limits, daily allowance, provider budgets, and refund logic. Set
