@@ -6,10 +6,7 @@ import {
   proxyRequest,
   setResponseHeader,
 } from "h3";
-import {
-  apiBaseUrl,
-  getFreshAccessToken,
-} from "../../utils/auth";
+import { apiBaseUrl, getFreshAccessToken } from "../../utils/auth";
 
 const POST_PATHS = new Set([
   "posts/generate",
@@ -19,6 +16,10 @@ const POST_PATHS = new Set([
   "khmer/grammar",
   "khmer/rewrite",
   "khmer/latin-to-khmer",
+  "khmer/khmer-to-latin",
+  "khmer/khmer-to-english",
+  "khmer/latin-to-english",
+  "khmer/english-to-latin",
   "khmer/humanize",
   "repurpose/facebook-to-tiktok",
   "repurpose/long-to-short",
@@ -37,6 +38,9 @@ const isAllowedGet = (path: string) =>
   path === "credits/transactions" ||
   path === "credits/overview" ||
   path === "history" ||
+  /^history\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    path,
+  ) ||
   path === "admin/credits/users" ||
   /^admin\/credits\/users\/[0-9a-f-]{36}$/i.test(path) ||
   /^video\/jobs\/[0-9a-f-]{36}(?:\/subtitles)?$/i.test(path);
@@ -46,20 +50,29 @@ export default defineEventHandler(async (event) => {
   const path = (getRouterParam(event, "path") ?? "").replace(/^\/+|\/+$/g, "");
   if (
     !path ||
-    (method === "POST" ? !POST_PATHS.has(path) : method !== "GET" || !isAllowedGet(path))
+    (method === "POST"
+      ? !POST_PATHS.has(path)
+      : method !== "GET" || !isAllowedGet(path))
   ) {
-    throw createError({ statusCode: 404, statusMessage: "Creator API route not found" });
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Creator API route not found",
+    });
   }
 
   const accessToken = await getFreshAccessToken(event);
   const query = getRequestURL(event).search;
   setResponseHeader(event, "Cache-Control", "no-store");
   // Streaming preserves large video uploads without buffering them inside Nuxt.
-  return proxyRequest(event, `${apiBaseUrl(event)}/creator-ai/${path}${query}`, {
-    streamRequest: true,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Cookie: "",
+  return proxyRequest(
+    event,
+    `${apiBaseUrl(event)}/creator-ai/${path}${query}`,
+    {
+      streamRequest: true,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Cookie: "",
+      },
     },
-  });
+  );
 });

@@ -8,6 +8,10 @@ const PROCESSING_STATUS: Partial<Record<AiFeature, string>> = {
   KHMER_GRAMMAR: '✍️ Checking your grammar…',
   KHMER_REWRITE: '✍️ Rewriting your text…',
   LATIN_TO_KHMER: '✍️ Converting your text to Khmer…',
+  KHMER_TO_LATIN: '✍️ Converting Khmer to Latin letters…',
+  KHMER_TO_ENGLISH: '✍️ Translating Khmer to English…',
+  LATIN_TO_ENGLISH: '✍️ Translating Latin Khmer to English…',
+  ENGLISH_TO_LATIN: '✍️ Translating English to Latin Khmer…',
   HUMANIZE: '✍️ Making your writing sound natural…',
 };
 

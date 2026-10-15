@@ -64,6 +64,7 @@ test("prepared audio uploads through the existing ticket with one idempotency ke
       };
     return {
       data: {
+        generationId: "saved-video-generation",
         status: "COMPLETED",
         stage: "COMPLETED",
         result: { title: "Subtitles", sections: [] },
@@ -101,6 +102,7 @@ test("prepared audio uploads through the existing ticket with one idempotency ke
     assert.equal(form.get("subtitleStyle"), "SHORT_PHRASES");
     assert.deepEqual(stages, ["UPLOADING", "COMPLETED"]);
     assert.equal(result.usage.creditsCharged, 5);
+    assert.equal(result.generationId, "saved-video-generation");
 
     requests.length = 0;
     await service.runCreatorGeneration("video-subtitle", {

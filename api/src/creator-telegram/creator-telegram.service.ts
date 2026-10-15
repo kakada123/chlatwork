@@ -14,6 +14,12 @@ import type {
 import { CreatorTelegramClient } from './creator-telegram.client';
 import { CREATOR_QUEUED_STATUS } from './creator-telegram.progress';
 
+type CreatorReplyContext = {
+  telegramUserId: number;
+  sourceMessageId: number;
+  messageThreadId?: number;
+};
+
 export const KHMER_CHAT_MODES = {
   grammar: {
     feature: AiFeature.KHMER_GRAMMAR,
@@ -23,6 +29,22 @@ export const KHMER_CHAT_MODES = {
   latin: {
     feature: AiFeature.LATIN_TO_KHMER,
     label: 'ឡាតាំងទៅខ្មែរ · Latin → Khmer',
+  },
+  khmer_to_latin: {
+    feature: AiFeature.KHMER_TO_LATIN,
+    label: 'ខ្មែរ → ឡាតាំង · Khmer → Latin',
+  },
+  khmer_to_english: {
+    feature: AiFeature.KHMER_TO_ENGLISH,
+    label: 'ខ្មែរ → អង់គ្លេស · Khmer → English',
+  },
+  latin_to_english: {
+    feature: AiFeature.LATIN_TO_ENGLISH,
+    label: 'ឡាតាំង → អង់គ្លេស · Latin → English',
+  },
+  english_to_latin: {
+    feature: AiFeature.ENGLISH_TO_LATIN,
+    label: 'អង់គ្លេស → ឡាតាំង · English → Latin',
   },
   humanize: {
     feature: AiFeature.HUMANIZE,
@@ -65,20 +87,33 @@ export class CreatorTelegramService {
     const callback = update.callback_query;
     const message = callback?.message ?? update.message;
     const sender = callback?.from ?? message?.from;
-    // Private, user-owned chats only: groups and bot-originated messages cannot
-    // charge accounts or receive private wallet information.
+    const isGroup =
+      message?.chat?.type === 'group' || message?.chat?.type === 'supergroup';
+    // The sender authorizes paid work. A group or anonymous sender never owns a wallet.
     if (
       !message ||
-      message.chat?.type !== 'private' ||
+      (!isGroup && message.chat?.type !== 'private') ||
       !sender ||
       sender.is_bot ||
+      (!callback && message.sender_chat) ||
       !Number.isSafeInteger(sender.id) ||
       sender.id <= 0 ||
-      message.chat.id !== sender.id
+      !Number.isSafeInteger(message.chat.id) ||
+      !Number.isSafeInteger(message.message_id) ||
+      message.message_id <= 0 ||
+      (isGroup ? message.chat.id >= 0 : message.chat.id !== sender.id) ||
+      (message.message_thread_id !== undefined &&
+        (!Number.isSafeInteger(message.message_thread_id) ||
+          message.message_thread_id <= 0))
     )
       return;
 
-    const chatId = sender.id;
+    const chatId = message.chat.id;
+    const context: CreatorReplyContext = {
+      telegramUserId: sender.id,
+      sourceMessageId: message.message_id,
+      messageThreadId: message.message_thread_id,
+    };
     if (callback) {
       if (
         typeof callback.id !== 'string' ||
@@ -91,6 +126,10 @@ export class CreatorTelegramService {
         callback.data === 'settings:view' ||
         /^settings:(corrections|credits):[01]$/.test(callback.data)
       ) {
+        if (isGroup) {
+          await this.privateAccountNotice(chatId, context);
+          return;
+        }
         const setting = /^settings:(corrections|credits):([01])$/.exec(
           callback.data,
         );
@@ -111,29 +150,65 @@ export class CreatorTelegramService {
       const mode = this.mode(callback.data.replace(/^mode:/, ''));
       if (!callback.data.startsWith('mode:') || !mode) return;
       if (!(await this.modeEnabled(mode.feature))) {
-        await this.bot.sendMessage(
+        await this.sendReply(
           chatId,
           'This Creator tool is temporarily unavailable.',
-          await this.availableKeyboard(),
+          await this.availableKeyboard(chatId),
+          context,
         );
         return;
       }
-      await this.setMode(chatId, mode.feature, update.update_id);
-      await this.bot.sendMessage(
-        chatId,
-        this.modePrompt(mode),
-        await this.availableKeyboard(),
-      );
+      await this.setMode(sender.id, mode.feature, update.update_id);
+      await this.showModePrompt(chatId, mode, false, context);
       return;
     }
 
     const text = typeof message.text === 'string' ? message.text.trim() : '';
     const commandMatch =
-      /^\/([a-z]+)(?:@[A-Za-z0-9_]+)?(?:\s+([\s\S]*))?$/i.exec(text);
+      /^\/([a-z][a-z0-9_]{0,31})(?:@([A-Za-z0-9_]+))?(?:\s+([\s\S]*))?$/i.exec(
+        text,
+      );
     const command = commandMatch?.[1]?.toLowerCase();
+    const commandText = commandMatch?.[3]?.trim();
     const mode = command ? this.mode(command) : null;
+    if (isGroup) {
+      const addressedTo = commandMatch?.[2];
+      if (
+        addressedTo &&
+        addressedTo.toLowerCase() !==
+          (await this.bot.getIdentity()).username?.toLowerCase()
+      )
+        return;
+      if (!command) {
+        const replySender = message.reply_to_message?.from;
+        // Ordinary conversation and replies to other members/bots never spend credits.
+        if (
+          !replySender?.is_bot ||
+          replySender.id !== (await this.bot.getIdentity()).id
+        )
+          return;
+      }
+      if (
+        command &&
+        !mode &&
+        ![
+          'start',
+          'settings',
+          'help',
+          'menu',
+          'creator',
+          'khmer',
+          'credits',
+        ].includes(command)
+      )
+        return;
+      if (command === 'settings' || command === 'credits') {
+        await this.privateAccountNotice(chatId, context);
+        return;
+      }
+    }
     if (command === 'start') {
-      await this.showWelcome(chatId, update.update_id);
+      await this.showWelcome(chatId, update.update_id, context);
       return;
     }
     if (command === 'settings') {
@@ -141,36 +216,34 @@ export class CreatorTelegramService {
       return;
     }
     if (command && ['help', 'menu', 'creator', 'khmer'].includes(command)) {
-      await this.showMenu(chatId);
+      await this.showMenu(chatId, context);
       return;
     }
     if (mode) {
       if (!(await this.modeEnabled(mode.feature))) {
-        await this.bot.sendMessage(
+        await this.sendReply(
           chatId,
           'This Creator tool is temporarily unavailable.',
-          await this.availableKeyboard(),
+          await this.availableKeyboard(chatId),
+          context,
         );
         return;
       }
-      if (!commandMatch?.[2]?.trim()) {
-        await this.setMode(chatId, mode.feature, update.update_id);
-        await this.bot.sendMessage(
-          chatId,
-          this.modePrompt(mode),
-          await this.availableKeyboard(),
-        );
+      if (!commandText) {
+        await this.setMode(sender.id, mode.feature, update.update_id);
+        await this.showModePrompt(chatId, mode, false, context);
         return;
       }
     } else if (command && command !== 'credits') {
-      await this.showMenu(chatId);
+      await this.showMenu(chatId, context);
       return;
     }
     if (!text) {
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         'Send text for Khmer AI. Use the Creator buttons for images and video tools.',
-        await this.availableKeyboard(),
+        await this.availableKeyboard(chatId),
+        context,
       );
       return;
     }
@@ -185,10 +258,11 @@ export class CreatorTelegramService {
       select: { user: { select: { id: true, isActive: true } } },
     });
     if (!linked?.user.isActive) {
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         'Open Creator once to sign in with Telegram, then return here to use Khmer AI. Your linked account shares its existing credits and daily limit.',
-        await this.availableKeyboard(),
+        await this.availableKeyboard(chatId),
+        context,
       );
       return;
     }
@@ -197,33 +271,36 @@ export class CreatorTelegramService {
         this.credits.getBalance(linked.user.id),
         this.plans.dailyUsage(this.prisma, linked.user.id),
       ]);
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         `Credits: ${wallet.balance}\nDaily usage: ${usage.used} / ${usage.limit} credits\nRemaining today: ${usage.remaining}\nResets at 07:00 Cambodia (00:00 UTC).`,
-        await this.availableKeyboard(),
+        await this.availableKeyboard(chatId),
+        context,
       );
       return;
     }
 
-    const content = mode ? commandMatch![2]!.trim() : text;
+    const content = mode ? commandText! : text;
     if (content.length > 4000 || content.startsWith('/')) {
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         'Please send 1–4,000 characters of text, or use /help for commands.',
-        await this.availableKeyboard(),
+        await this.availableKeyboard(chatId),
+        context,
       );
       return;
     }
     const preference = await this.prisma.creatorTelegramChat.findUnique({
-      where: { telegramUserId: BigInt(chatId) },
+      where: { telegramUserId: BigInt(sender.id) },
     });
     const feature =
       mode?.feature ?? preference?.feature ?? AiFeature.KHMER_GRAMMAR;
     if (!(await this.modeEnabled(feature))) {
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         'This Creator tool is temporarily unavailable. Choose an available mode.',
-        await this.availableKeyboard(),
+        await this.availableKeyboard(chatId),
+        context,
       );
       return;
     }
@@ -245,6 +322,15 @@ export class CreatorTelegramService {
           updateId: BigInt(update.update_id),
           userId: linked.user.id,
           chatId: BigInt(chatId),
+          telegramUserId: BigInt(sender.id),
+          ...(isGroup
+            ? {
+                sourceMessageId: message.message_id,
+                ...(message.message_thread_id
+                  ? { messageThreadId: message.message_thread_id }
+                  : {}),
+              }
+            : {}),
           feature,
           content,
           // Let the webhook save its acknowledgement before a worker takes over.
@@ -256,15 +342,21 @@ export class CreatorTelegramService {
       return 'queued';
     });
     if (queued === 'full')
-      await this.bot.sendMessage(
+      await this.sendReply(
         chatId,
         'Your earlier requests are still processing. Please wait for a reply before sending more text.',
+        undefined,
+        context,
       );
     if (queued === 'queued') {
-      const statusMessageId = await this.bot.sendStatus(
-        chatId,
-        CREATOR_QUEUED_STATUS,
-      );
+      const statusMessageId = isGroup
+        ? await this.bot.sendStatus(
+            chatId,
+            CREATOR_QUEUED_STATUS,
+            message.message_id,
+            message.message_thread_id,
+          )
+        : await this.bot.sendStatus(chatId, CREATOR_QUEUED_STATUS);
       try {
         const saved = await this.prisma.creatorTelegramRequest.updateMany({
           where: {
@@ -296,32 +388,57 @@ export class CreatorTelegramService {
     );
   }
 
-  async availableKeyboard(): Promise<TelegramInlineKeyboard> {
+  async availableKeyboard(chatId = 1): Promise<TelegramInlineKeyboard> {
     const disabled = new Set((await this.availability?.disabledKeys()) ?? []);
     return this.keyboardFor(
       Object.values(AiFeature).filter(
         (feature) => !disabled.has(`creator:${feature}`),
       ),
+      chatId < 0,
     );
   }
 
-  private keyboardFor(available: AiFeature[]): TelegramInlineKeyboard {
+  private keyboardFor(
+    available: AiFeature[],
+    group = false,
+  ): TelegramInlineKeyboard {
     const toolRows = [
       [
-        { feature: AiFeature.POST, text: '📝 Posts', path: '/creator/create/post' },
-        { feature: AiFeature.SCRIPT, text: '🎬 Scripts', path: '/creator/create/script' },
+        {
+          feature: AiFeature.POST,
+          text: '📝 Posts',
+          path: '/creator/create/post',
+        },
+        {
+          feature: AiFeature.SCRIPT,
+          text: '🎬 Scripts',
+          path: '/creator/create/script',
+        },
       ],
       [
-        { feature: AiFeature.CONTENT_IDEAS, text: '💡 Ideas', path: '/creator/create/ideas' },
-        { feature: AiFeature.HOOK, text: '🪝 Hooks', path: '/creator/create/hook' },
+        {
+          feature: AiFeature.CONTENT_IDEAS,
+          text: '💡 Ideas',
+          path: '/creator/create/ideas',
+        },
+        {
+          feature: AiFeature.HOOK,
+          text: '🪝 Hooks',
+          path: '/creator/create/hook',
+        },
       ],
     ].map((row) =>
       row
         .filter((tool) => available.includes(tool.feature))
-        .map((tool) => ({ text: tool.text, web_app: { url: this.appUrl(tool.path) } })),
+        .map((tool) => ({
+          text: tool.text,
+          web_app: { url: this.appUrl(tool.path) },
+        })),
     );
-    const videoAvailable = available.some((feature) => feature.startsWith('VIDEO_'));
-    return {
+    const videoAvailable = available.some((feature) =>
+      feature.startsWith('VIDEO_'),
+    );
+    const keyboard: TelegramInlineKeyboard = {
       inline_keyboard: [
         ...Object.entries(KHMER_CHAT_MODES)
           .filter(([, mode]) => available.includes(mode.feature))
@@ -338,7 +455,12 @@ export class CreatorTelegramService {
         ...toolRows,
         [
           ...(videoAvailable
-            ? [{ text: '🎞 Video tools', web_app: { url: this.appUrl('/creator#creator-video-title') } }]
+            ? [
+                {
+                  text: '🎞 Video tools',
+                  web_app: { url: this.appUrl('/creator#creator-video-title') },
+                },
+              ]
             : []),
           {
             text: '💳 Credits',
@@ -347,6 +469,33 @@ export class CreatorTelegramService {
         ],
       ].filter((row) => row.length > 0),
     };
+    if (!group) return keyboard;
+    // Telegram Web App buttons are private-chat-only; group links open the website.
+    return {
+      inline_keyboard: keyboard.inline_keyboard
+        .map((row) =>
+          row
+            .filter((button) => button.callback_data !== 'settings:view')
+            .map((button) => {
+              if (!button.web_app) return button;
+              const { web_app, ...rest } = button;
+              return { ...rest, url: web_app.url };
+            }),
+        )
+        .filter((row) => row.length > 0),
+    };
+  }
+
+  private async privateAccountNotice(
+    chatId: number,
+    context?: CreatorReplyContext,
+  ) {
+    await this.sendReply(
+      chatId,
+      'Open a private chat with the Creator bot for credits and reply settings.',
+      await this.availableKeyboard(chatId),
+      context,
+    );
   }
 
   private async modeEnabled(feature: AiFeature) {
@@ -435,30 +584,68 @@ export class CreatorTelegramService {
     });
   }
 
-  private modePrompt(
+  private async showModePrompt(
+    chatId: number,
     mode: (typeof KHMER_CHAT_MODES)[keyof typeof KHMER_CHAT_MODES],
+    welcome = false,
+    context?: CreatorReplyContext,
   ) {
-    const instruction =
-      mode.feature === AiFeature.KHMER_GRAMMAR
-        ? 'Send Khmer or English text. Get corrected text in the original language, plus a separate list explaining mistakes and missing words.'
-        : 'Send your text here.';
-    return `${mode.label}\n\nផ្ញើអត្ថបទរបស់អ្នកនៅទីនេះ។\n${instruction} ${this.pricing.fixed(mode.feature)} credit(s) per request, using your account's daily allowance.`;
+    // Inline buttons always render below their message, so send the prompt separately.
+    await this.sendReply(
+      chatId,
+      `${welcome ? 'Khmer AI & Creator\n\n' : ''}${mode.label} · ${this.pricing.fixed(mode.feature)} credit(s)`,
+      await this.availableKeyboard(chatId),
+      context,
+    );
+    await this.sendReply(
+      chatId,
+      chatId < 0
+        ? 'ឆ្លើយតបជាមួយអត្ថបទ។ / Reply with your text.'
+        : 'ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.',
+      undefined,
+      context,
+    );
   }
 
-  private async showWelcome(chatId: number, updateId: number) {
+  private sendReply(
+    chatId: number,
+    text: string,
+    keyboard?: TelegramInlineKeyboard,
+    context?: CreatorReplyContext,
+  ) {
+    if (chatId < 0)
+      return this.bot.sendMessage(
+        chatId,
+        text,
+        keyboard,
+        undefined,
+        context?.sourceMessageId,
+        { messageThreadId: context?.messageThreadId },
+      );
+    return keyboard
+      ? this.bot.sendMessage(chatId, text, keyboard)
+      : this.bot.sendMessage(chatId, text);
+  }
+
+  private async showWelcome(
+    chatId: number,
+    updateId: number,
+    context?: CreatorReplyContext,
+  ) {
+    const telegramUserId = context?.telegramUserId ?? chatId;
     const claimed = await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-telegram-welcome:${chatId}`}))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-telegram-welcome:${telegramUserId}`}))`;
       await tx.creatorTelegramChat.createMany({
-        data: [{ telegramUserId: BigInt(chatId) }],
+        data: [{ telegramUserId: BigInt(telegramUserId) }],
         skipDuplicates: true,
       });
       const previous = await tx.creatorTelegramChat.findUniqueOrThrow({
-        where: { telegramUserId: BigInt(chatId) },
+        where: { telegramUserId: BigInt(telegramUserId) },
         select: { welcomeUpdateId: true },
       });
       const saved = await tx.creatorTelegramChat.updateMany({
         where: {
-          telegramUserId: BigInt(chatId),
+          telegramUserId: BigInt(telegramUserId),
           welcomeUpdateId: { lt: BigInt(updateId) },
         },
         data: { welcomeUpdateId: BigInt(updateId) },
@@ -469,12 +656,12 @@ export class CreatorTelegramService {
     try {
       // Claim before sending, across replicas, without holding a DB transaction
       // open during Telegram calls. A later intentional Start still works.
-      await this.showMenu(chatId);
+      await this.showMenu(chatId, context);
     } catch (error) {
       // Retry a failed welcome without undoing a newer Start claim.
       await this.prisma.creatorTelegramChat.updateMany({
         where: {
-          telegramUserId: BigInt(chatId),
+          telegramUserId: BigInt(telegramUserId),
           welcomeUpdateId: BigInt(updateId),
         },
         data: { welcomeUpdateId: claimed },
@@ -483,26 +670,31 @@ export class CreatorTelegramService {
     }
   }
 
-  private async showMenu(chatId: number) {
+  private async showMenu(chatId: number, context?: CreatorReplyContext) {
     const preference = await this.prisma.creatorTelegramChat.findUnique({
-      where: { telegramUserId: BigInt(chatId) },
+      where: { telegramUserId: BigInt(context?.telegramUserId ?? chatId) },
     });
-    const selected =
-      Object.values(KHMER_CHAT_MODES).find(
-        (mode) => mode.feature === preference?.feature,
-      );
+    const selected = Object.values(KHMER_CHAT_MODES).find(
+      (mode) => mode.feature === preference?.feature,
+    );
     const availableModes = [];
     for (const mode of Object.values(KHMER_CHAT_MODES)) {
       if (await this.modeEnabled(mode.feature)) availableModes.push(mode);
     }
-    const active = availableModes.find((mode) => mode.feature === selected?.feature) ?? availableModes[0];
-    await this.bot.sendMessage(
-      chatId,
-      active
-        ? `សួស្តី! ខ្ញុំជាជំនួយការ Khmer AI & Creator។\n\nChoose a Khmer AI mode below, then send text for a reply here.\n\n${this.modePrompt(active)}\n\n/credits shows your balance and daily usage. Other available tools open in Creator.`
-        : 'Khmer AI chat modes are temporarily unavailable. Available Creator tools can still be opened below.',
-      await this.availableKeyboard(),
-    );
+    const active =
+      availableModes.find((mode) => mode.feature === selected?.feature) ??
+      availableModes[0];
+    if (active) {
+      await this.showModePrompt(chatId, active, true, context);
+    } else {
+      await this.sendReply(
+        chatId,
+        'Khmer AI chat modes are temporarily unavailable. Available Creator tools can still be opened below.',
+        await this.availableKeyboard(chatId),
+        context,
+      );
+    }
+    if (chatId < 0) return;
     try {
       await this.bot.setChatMenuButton(
         chatId,

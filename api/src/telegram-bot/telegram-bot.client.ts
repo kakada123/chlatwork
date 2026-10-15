@@ -24,13 +24,17 @@ export class TelegramBotClient {
   protected readonly tokenConfigKey: string = 'TELEGRAM_BOT_TOKEN';
   constructor(private readonly config: ConfigService) {}
 
+  getMe() {
+    return this.call('getMe', {}) as Promise<TelegramUser>;
+  }
+
   sendMessage(
     chatId: number,
     text: string,
     replyMarkup?: TelegramReplyMarkup,
     entities?: (TelegramTextMention | TelegramPreformattedText)[],
     replyToMessageId?: number,
-    options?: { disableLinkPreview?: boolean },
+    options?: { disableLinkPreview?: boolean; messageThreadId?: number },
   ) {
     if (!text.trim() || text.length > TELEGRAM_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException('Telegram bot message is invalid');
@@ -38,14 +42,22 @@ export class TelegramBotClient {
     return this.call('sendMessage', {
       chat_id: chatId,
       text,
+      ...(options?.messageThreadId
+        ? { message_thread_id: options.messageThreadId }
+        : {}),
       ...(options?.disableLinkPreview
         ? { link_preview_options: { is_disabled: true } }
         : {}),
       ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
       ...(entities?.length ? { entities } : {}),
-      ...(replyToMessageId ? { reply_parameters: {
-        message_id: replyToMessageId, allow_sending_without_reply: true,
-      } } : {}),
+      ...(replyToMessageId
+        ? {
+            reply_parameters: {
+              message_id: replyToMessageId,
+              allow_sending_without_reply: true,
+            },
+          }
+        : {}),
     }) as Promise<TelegramMessage>;
   }
 

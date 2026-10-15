@@ -112,7 +112,11 @@ function chooseImage(event: Event) {
         <span
           v-if="tool.inputType === 'text'"
           class="text-xs text-slate-400 dark:text-white/35"
-          >{{ text.length.toLocaleString() }} characters</span
+          >{{ text.length.toLocaleString()
+          }}<template v-if="tool.maxInputLength">
+            / {{ tool.maxInputLength.toLocaleString() }}</template
+          >
+          characters</span
         >
       </div>
 
@@ -123,6 +127,7 @@ function chooseImage(event: Event) {
         rows="7"
         class="mt-2 min-h-40 w-full resize-y rounded-2xl border border-slate-200 bg-white p-3.5 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:placeholder:text-white/30 dark:focus:border-cyan-300/50 dark:focus:ring-cyan-300/15"
         :placeholder="tool.inputPlaceholder"
+        :maxlength="tool.maxInputLength"
         :disabled="busy"
       />
 

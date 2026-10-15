@@ -169,6 +169,152 @@ test("pasted and typed unsupported edits cannot enter displayed or copied sectio
   }
 });
 
+test("saved history shows every content-pack section without generation actions", async () => {
+  const component = compileComponent(
+    "app/components/creator/CreatorResult.vue",
+    true,
+  );
+  const html = await renderToString(
+    vue.createSSRApp(component, {
+      tool,
+      state: "success",
+      historyView: true,
+      result: {
+        ...safe,
+        sections: [
+          ...safe.sections,
+          { id: "caption", label: "Caption", content: "Full saved caption" },
+        ],
+      },
+    }),
+  );
+  assert.match(html, /សួស្តី iPhone 16/);
+  assert.match(html, /Full saved caption/);
+  assert.match(html, /Download \.srt/);
+  assert.doesNotMatch(html, /Regenerate|New variation|Done editing|>Edit</);
+  assert.doesNotMatch(html, /role="tablist"/);
+});
+
+test("history details fetch the signed-in account's saved result and discard stale responses", async () => {
+  const session = vue.ref<any>({ id: "first-account" });
+  const route = vue.reactive({ params: { id: "saved-generation" } });
+  const requests: ((value: any) => void)[] = [];
+  const scope = vue.effectScope();
+  const component = compileComponent(
+    "app/pages/creator/history/[id].vue",
+    false,
+    {
+      definePageMeta() {},
+      useSeoMeta() {},
+      onMounted() {},
+      onBeforeUnmount() {},
+      shallowRef: vue.shallowRef,
+      useRoute: () => route,
+      useAuth: () => ({ user: session }),
+      useFeatureAvailability: () => ({ creatorEnabled: () => true }),
+    },
+    {
+      "~/services/creator-ai.service": {
+        getCreatorHistoryEntry: (id: string) => {
+          assert.equal(id, "saved-generation");
+          return new Promise((resolve) => requests.push(resolve));
+        },
+      },
+      "~/data/creator-tools": {
+        CREATOR_TOOLS: [tool],
+        CREATOR_FEATURE_TO_TOOL: { VIDEO_CONTENT_PACK: tool.id },
+      },
+    },
+  );
+  const entry = {
+    id: "saved-generation",
+    feature: "VIDEO_CONTENT_PACK",
+    result: safe,
+    createdAt: "2026-10-15T00:00:00Z",
+  };
+  try {
+    const page = scope.run(() => component.setup({}, { expose() {} }));
+    const first = page.load();
+    requests.shift()!(entry);
+    await first;
+    assert.deepEqual(page.result.value, safe);
+
+    const stale = page.load();
+    assert.equal(page.result.value, null);
+    session.value = { id: "second-account" };
+    await vue.nextTick();
+    requests.shift()!(entry);
+    await stale;
+    assert.equal(page.result.value, null);
+    requests.shift()!(null);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.match(page.errorMessage.value, /no longer available/i);
+
+    const blocked = page.load();
+    requests.shift()!({ ...entry, result: badResults[0] });
+    await blocked;
+    assert.equal(page.result.value, null);
+
+    const failed = page.load();
+    requests.shift()!(Promise.reject(new Error("Private upstream error")));
+    await failed;
+    assert.match(page.errorMessage.value, /Could not load/);
+    assert.doesNotMatch(page.errorMessage.value, /Private upstream/);
+    assert.equal(page.loading.value, false);
+
+    session.value = null;
+    await vue.nextTick();
+    assert.equal(page.result.value, null);
+    assert.equal(requests.length, 0);
+  } finally {
+    scope.stop();
+  }
+});
+
+test("the Creator dashboard refreshes recent results when the session finishes loading", async () => {
+  const session = vue.ref<any>(null);
+  const mounted: (() => void)[] = [];
+  let refreshes = 0;
+  const scope = vue.effectScope();
+  const component = compileComponent(
+    "app/pages/creator/index.vue",
+    false,
+    {
+      definePageMeta() {},
+      useSeoMeta() {},
+      onMounted: (fn: () => void) => mounted.push(fn),
+      useAuth: () => ({ user: session }),
+      useState: () => vue.ref(null),
+      useCreatorHistory: () => ({
+        items: vue.ref([]),
+        refresh: async () => {
+          refreshes++;
+        },
+      }),
+      useFeatureAvailability: () => ({ creatorEnabled: () => true }),
+    },
+    {
+      "~/data/creator-tools": {
+        CREATOR_TOOLS: [tool],
+        getCreatorToolsByCategory: () => [],
+      },
+    },
+  );
+  try {
+    scope.run(() => {
+      component.setup({}, { expose() {} });
+      mounted.forEach((fn) => fn());
+    });
+    await vue.nextTick();
+    refreshes = 0;
+    session.value = { id: "restored-account" };
+    await vue.nextTick();
+    assert.equal(refreshes, 1);
+  } finally {
+    scope.stop();
+  }
+});
+
 test("download handler independently blocks unsupported SRT and uses a neutral filename", () => {
   const result = vue.ref<any>(badResults.at(-1));
   const state = vue.ref("success");

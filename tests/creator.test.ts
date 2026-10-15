@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   CREATOR_CATEGORIES,
+  CREATOR_FEATURE_TO_TOOL,
   CREATOR_ROUTE_PATHS,
   CREATOR_TOOLS,
   estimateCreatorCredits,
@@ -13,7 +14,7 @@ const read = (path: string) =>
 
 test("Creator registry exposes every requested workflow with unique nested routes", () => {
   assert.equal(CREATOR_CATEGORIES.length, 4);
-  assert.equal(CREATOR_TOOLS.length, 15);
+  assert.equal(CREATOR_TOOLS.length, 19);
   assert.equal(
     new Set(CREATOR_TOOLS.map((tool) => tool.id)).size,
     CREATOR_TOOLS.length,
@@ -66,8 +67,33 @@ test("Creator credits use fixed or duration-based estimates without token langua
     "khmer-grammar": 1,
     "khmer-rewrite": 1,
     "latin-to-khmer": 1,
+    "khmer-to-latin": 1,
+    "khmer-to-english": 1,
+    "latin-to-english": 1,
+    "english-to-latin": 1,
     "khmer-humanize": 1,
   });
+});
+
+test("Khmer translation tools have fixed directions and history feature mappings", () => {
+  const directions = [
+    "khmer-to-latin",
+    "khmer-to-english",
+    "latin-to-english",
+    "english-to-latin",
+  ];
+  const service = read("app/services/creator-ai.service.ts");
+  for (const direction of directions) {
+    const tool = CREATOR_TOOLS.find((item) => item.id === direction);
+    assert.ok(tool, direction);
+    assert.equal(tool.route, `/creator/khmer/${direction}`);
+    assert.deepEqual(tool.config, []);
+    assert.match(service, new RegExp(`/api/creator-ai/khmer/${direction}`));
+    assert.equal(
+      CREATOR_FEATURE_TO_TOOL[direction.replaceAll("-", "_").toUpperCase()],
+      direction,
+    );
+  }
 });
 
 test("subtitle style appears only on workflows that produce an SRT", () => {

@@ -1,18 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TelegramBotClient } from '../telegram-bot/telegram-bot.client';
+import type { TelegramUser } from '../telegram-bot/telegram-bot.types';
 
 @Injectable()
 export class CreatorTelegramClient extends TelegramBotClient {
   protected override readonly tokenConfigKey = 'CREATOR_TELEGRAM_BOT_TOKEN';
+  private identityRequest?: Promise<TelegramUser>;
 
   constructor(config: ConfigService) {
     super(config);
   }
 
-  async sendStatus(chatId: number, text: string): Promise<number | null> {
+  getIdentity() {
+    // Resolve this bot through Telegram, rather than trusting a mentioned username.
+    this.identityRequest ??= this.getMe().catch((error) => {
+      this.identityRequest = undefined;
+      throw error;
+    });
+    return this.identityRequest;
+  }
+
+  async sendStatus(
+    chatId: number,
+    text: string,
+    replyToMessageId?: number,
+    messageThreadId?: number,
+  ): Promise<number | null> {
     try {
-      const message = await this.sendMessage(chatId, text);
+      const message =
+        chatId < 0
+          ? await this.sendMessage(
+              chatId,
+              text,
+              undefined,
+              undefined,
+              replyToMessageId,
+              { messageThreadId },
+            )
+          : await this.sendMessage(chatId, text);
       return message.message_id;
     } catch {
       // Optional feedback must never block a queued generation or cause a charge.
@@ -42,10 +68,25 @@ export class CreatorTelegramClient extends TelegramBotClient {
     }
   }
 
-  sendCopyableMessage(chatId: number, text: string) {
+  sendCopyableMessage(
+    chatId: number,
+    text: string,
+    replyToMessageId?: number,
+    messageThreadId?: number,
+  ) {
     // Explicit entities preserve Khmer, backticks and markup characters verbatim.
-    return this.sendMessage(chatId, text, undefined, [
+    const entities = [
       { type: 'pre', offset: 0, length: text.length, language: 'copy' },
-    ]);
+    ] as const;
+    return chatId < 0
+      ? this.sendMessage(
+          chatId,
+          text,
+          undefined,
+          [...entities],
+          replyToMessageId,
+          { messageThreadId },
+        )
+      : this.sendMessage(chatId, text, undefined, [...entities]);
   }
 }

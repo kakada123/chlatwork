@@ -22,6 +22,7 @@ const props = defineProps<{
   tool: CreatorToolDefinition;
   state: CreatorGenerationState;
   result: CreatorGenerationResult | null;
+  historyView?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -78,8 +79,9 @@ watch(
 
 const usesTabs = computed(
   () =>
-    props.tool.resultKind === "platforms" ||
-    props.tool.resultKind === "content-pack",
+    !props.historyView &&
+    (props.tool.resultKind === "platforms" ||
+      props.tool.resultKind === "content-pack"),
 );
 const activeSection = computed(
   () =>
@@ -238,7 +240,7 @@ const allText = computed(() => {
                   {{ item.description }}
                 </p>
                 <div
-                  v-if="tool.resultKind === 'ideas'"
+                  v-if="!historyView && tool.resultKind === 'ideas'"
                   class="mt-3 flex flex-wrap gap-2"
                 >
                   <button
@@ -316,10 +318,12 @@ const allText = computed(() => {
       </div>
 
       <footer
+        v-if="!historyView || result.srt"
         class="border-t border-slate-200 px-4 py-3.5 dark:border-white/10 sm:px-5"
       >
         <div class="flex flex-wrap gap-2">
           <button
+            v-if="!historyView"
             type="button"
             class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
             @click="editing = !editing"
@@ -329,6 +333,7 @@ const allText = computed(() => {
             }}
           </button>
           <button
+            v-if="!historyView"
             type="button"
             class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
             @click="emit('regenerate')"
@@ -336,7 +341,10 @@ const allText = computed(() => {
             <RotateCcw class="size-4" aria-hidden="true" />Regenerate
           </button>
           <button
-            v-if="tool.resultKind === 'text' || tool.resultKind === 'script'"
+            v-if="
+              !historyView &&
+              (tool.resultKind === 'text' || tool.resultKind === 'script')
+            "
             type="button"
             class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
             @click="emit('variation')"
@@ -344,7 +352,7 @@ const allText = computed(() => {
             <Sparkles class="size-4" aria-hidden="true" />New variation
           </button>
           <button
-            v-if="tool.id === 'khmer-grammar'"
+            v-if="!historyView && tool.id === 'khmer-grammar'"
             type="button"
             class="min-h-11 rounded-xl bg-[#082552] px-3.5 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-cyan-300 dark:text-slate-950"
             @click="emit('replace')"

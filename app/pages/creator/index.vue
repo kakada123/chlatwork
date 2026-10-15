@@ -5,16 +5,29 @@ import { CREATOR_TOOLS, getCreatorToolsByCategory } from "~/data/creator-tools";
 definePageMeta({ layout: "creator" });
 
 const { items: recentItems, refresh: refreshHistory } = useCreatorHistory();
+const { user } = useAuth();
 const creditBalance = useState<number | null>(
   "creator:credit-balance",
   () => null,
 );
 const { creatorEnabled } = useFeatureAvailability();
-const visibleRecentItems = computed(() => recentItems.value.filter((item) => creatorEnabled(item.toolId)));
-const createTools = computed(() => getCreatorToolsByCategory("create").filter((tool) => creatorEnabled(tool.id)));
-const videoTools = computed(() => getCreatorToolsByCategory("video").filter((tool) => creatorEnabled(tool.id)));
-const khmerTools = computed(() => getCreatorToolsByCategory("khmer").filter((tool) => creatorEnabled(tool.id)));
-const repurposeTools = computed(() => getCreatorToolsByCategory("repurpose").filter((tool) => creatorEnabled(tool.id)));
+const visibleRecentItems = computed(() =>
+  recentItems.value.filter((item) => creatorEnabled(item.toolId)),
+);
+const createTools = computed(() =>
+  getCreatorToolsByCategory("create").filter((tool) => creatorEnabled(tool.id)),
+);
+const videoTools = computed(() =>
+  getCreatorToolsByCategory("video").filter((tool) => creatorEnabled(tool.id)),
+);
+const khmerTools = computed(() =>
+  getCreatorToolsByCategory("khmer").filter((tool) => creatorEnabled(tool.id)),
+);
+const repurposeTools = computed(() =>
+  getCreatorToolsByCategory("repurpose").filter((tool) =>
+    creatorEnabled(tool.id),
+  ),
+);
 const contentPack = CREATOR_TOOLS.find(
   (tool) => tool.id === "video-content-pack",
 )!;
@@ -29,14 +42,19 @@ useSeoMeta({
   robots: "noindex, follow",
 });
 
-onMounted(async () => {
-  await refreshHistory();
+onMounted(() => {
+  // The public dashboard can mount before the shared layout restores sign-in.
+  watch(
+    () => user.value?.id,
+    () => void refreshHistory(),
+    { immediate: true },
+  );
 });
 </script>
 
 <template>
   <main
-    class="mx-auto w-full max-w-[1180px] space-y-7 text-slate-950 dark:text-white"
+    class="creator-khmer-content mx-auto w-full max-w-[1180px] space-y-7 text-slate-950 dark:text-white"
   >
     <header
       class="border-b border-slate-200 pb-5 dark:border-white/10 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:pb-6"
@@ -239,7 +257,10 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section v-if="repurposeTools.length" aria-labelledby="creator-repurpose-title">
+      <section
+        v-if="repurposeTools.length"
+        aria-labelledby="creator-repurpose-title"
+      >
         <div class="flex items-center gap-2">
           <CreatorIcon
             name="repurpose"
@@ -301,8 +322,8 @@ onMounted(async () => {
         <NuxtLink
           v-for="item in visibleRecentItems"
           :key="item.id"
-          :to="item.route"
-          class="rounded-2xl border border-slate-200 bg-white p-3.5 transition hover:border-sky-300 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
+          :to="`/creator/history/${encodeURIComponent(item.id)}`"
+          class="rounded-2xl border border-slate-200 bg-white p-3.5 transition hover:border-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
           ><p class="text-sm font-semibold text-slate-900 dark:text-white">
             {{ item.title }}
           </p>
@@ -310,8 +331,13 @@ onMounted(async () => {
             class="mt-2 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-white/45"
           >
             {{ item.preview }}
-          </p></NuxtLink
-        >
+          </p>
+          <span
+            class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-cyan-300"
+          >
+            View details
+            <ArrowRight class="size-3.5" aria-hidden="true" /> </span
+        ></NuxtLink>
       </div>
       <div
         v-else

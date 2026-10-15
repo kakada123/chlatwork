@@ -68,6 +68,11 @@ function setup() {
     getOrThrow: jest.fn((key: string) => values[key]),
   };
   const bot = {
+    getIdentity: jest.fn().mockResolvedValue({
+      id: 987654321,
+      is_bot: true,
+      username: 'cw_creator_bot',
+    }),
     sendMessage: jest.fn(),
     sendChatAction: jest.fn(),
     sendStatus: jest.fn().mockResolvedValue(55),
@@ -113,6 +118,249 @@ function setup() {
 }
 
 describe('Creator Telegram bot', () => {
+  const groupMessage = (text: string, userId = 123, updateId = 1) => ({
+    update_id: updateId,
+    message: {
+      message_id: 10,
+      from: { id: userId },
+      chat: { id: -100123, type: 'supergroup' },
+      text,
+    },
+  });
+
+  it('queues group commands under the sender account and keeps the group as the destination', async () => {
+    const test = setup();
+    await test.service.handleUpdate(groupMessage('/latin nh jol jit'));
+    expect(test.requests[0]).toMatchObject({
+      userId: 'owner',
+      telegramUserId: 123n,
+      chatId: -100123n,
+      sourceMessageId: 10,
+      feature: AiFeature.LATIN_TO_KHMER,
+      content: 'nh jol jit',
+    });
+    expect(test.prisma.socialAccount.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          provider_providerUserId: {
+            provider: 'TELEGRAM',
+            providerUserId: '123',
+          },
+        },
+      }),
+    );
+  });
+
+  it('ignores ambient group text and commands addressed to another bot', async () => {
+    const test = setup();
+    await test.service.handleUpdate(
+      groupMessage('ordinary group conversation'),
+    );
+    await test.service.handleUpdate(
+      groupMessage('/latin@another_bot hello', 123, 2),
+    );
+    expect(test.requests).toHaveLength(0);
+    expect(test.prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('accepts addressed commands and replies to this bot using the replying member’s mode', async () => {
+    const test = setup();
+    test.prisma.creatorTelegramChat.findUnique.mockResolvedValue({
+      feature: AiFeature.KHMER_TO_ENGLISH,
+    });
+    await test.service.handleUpdate(
+      groupMessage('/latin@cw_creator_bot hello'),
+    );
+    const update = groupMessage('សួស្តី', 456, 2);
+    await test.service.handleUpdate({
+      ...update,
+      message: {
+        ...update.message,
+        reply_to_message: {
+          message_id: 9,
+          from: { id: 987654321, is_bot: true },
+          chat: update.message.chat,
+        },
+      },
+    });
+    expect(test.requests).toHaveLength(2);
+    expect(test.requests[1]).toMatchObject({
+      telegramUserId: 456n,
+      feature: AiFeature.KHMER_TO_ENGLISH,
+    });
+  });
+
+  it('uses normal URL buttons and sender-owned mode preferences for group menus', async () => {
+    const test = setup();
+    await test.service.handleUpdate(groupMessage('/latin'));
+    const [menu, prompt] = test.bot.sendMessage.mock.calls;
+    expect(menu[0]).toBe(-100123);
+    expect(
+      menu[2].inline_keyboard.flat().some((button: any) => button.web_app),
+    ).toBe(false);
+    expect(menu[2].inline_keyboard.flat()).toContainEqual({
+      text: '✨ Open Creator / Sign in',
+      url: 'https://creator.example.com/creator',
+    });
+    expect(prompt[1]).toContain('Reply');
+    expect(test.prisma.creatorTelegramChat.updateMany).toHaveBeenCalledWith({
+      where: { telegramUserId: 123n, lastUpdateId: { lt: 1n } },
+      data: { feature: AiFeature.LATIN_TO_KHMER, lastUpdateId: 1n },
+    });
+  });
+
+  it('keeps group members’ accounts and selected modes independent', async () => {
+    const test = setup();
+    test.prisma.socialAccount.findUnique.mockImplementation(
+      async ({ where }) => ({
+        user: {
+          id: `account-${where.provider_providerUserId.providerUserId}`,
+          isActive: true,
+        },
+      }),
+    );
+    test.prisma.creatorTelegramChat.findUnique.mockImplementation(
+      async ({ where }) => ({
+        feature:
+          where.telegramUserId === 123n
+            ? AiFeature.LATIN_TO_KHMER
+            : AiFeature.HUMANIZE,
+      }),
+    );
+    for (const [sender, updateId] of [
+      [123, 1],
+      [456, 2],
+    ]) {
+      const update = groupMessage('convert my text', sender, updateId);
+      await test.service.handleUpdate({
+        ...update,
+        message: {
+          ...update.message,
+          message_thread_id: 77,
+          reply_to_message: {
+            message_id: 9,
+            from: { id: 987654321, is_bot: true },
+            chat: update.message.chat,
+          },
+        },
+      });
+    }
+    expect(test.requests).toEqual([
+      expect.objectContaining({
+        userId: 'account-123',
+        telegramUserId: 123n,
+        feature: AiFeature.LATIN_TO_KHMER,
+        messageThreadId: 77,
+      }),
+      expect.objectContaining({
+        userId: 'account-456',
+        telegramUserId: 456n,
+        feature: AiFeature.HUMANIZE,
+        messageThreadId: 77,
+      }),
+    ]);
+  });
+
+  it('rejects anonymous group senders, channels, and replies addressed to other participants', async () => {
+    const test = setup();
+    const update = groupMessage('/latin hello');
+    await test.service.handleUpdate({
+      ...update,
+      message: { ...update.message, sender_chat: update.message.chat },
+    });
+    await test.service.handleUpdate({
+      ...update,
+      message: { ...update.message, chat: { id: -100123, type: 'channel' } },
+    });
+    for (const from of [
+      { id: 456, is_bot: false },
+      { id: 999, is_bot: true },
+    ]) {
+      await test.service.handleUpdate({
+        ...update,
+        message: {
+          ...update.message,
+          text: 'not for Creator',
+          reply_to_message: { message_id: 3, from, chat: update.message.chat },
+        },
+      });
+    }
+    expect(test.requests).toHaveLength(0);
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('opens a group welcome without private-only menu API calls', async () => {
+    const test = setup();
+    await test.service.handleUpdate(groupMessage('/start'));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.setChatMenuButton).not.toHaveBeenCalled();
+    expect(test.prisma.creatorTelegramChat.createMany).toHaveBeenCalledWith({
+      data: [{ telegramUserId: 123n }],
+      skipDuplicates: true,
+    });
+  });
+
+  it('a group mode button updates only the member who clicked it', async () => {
+    const test = setup();
+    await test.service.handleUpdate({
+      update_id: 3,
+      callback_query: {
+        id: 'group-mode',
+        from: { id: 456 },
+        data: 'mode:latin',
+        message: {
+          message_id: 7,
+          from: { id: 987654321, is_bot: true },
+          chat: { id: -100123, type: 'group' },
+        },
+      },
+    });
+    expect(test.prisma.creatorTelegramChat.updateMany).toHaveBeenCalledWith({
+      where: { telegramUserId: 456n, lastUpdateId: { lt: 3n } },
+      data: { feature: AiFeature.LATIN_TO_KHMER, lastUpdateId: 3n },
+    });
+    expect(test.bot.sendMessage.mock.calls[0][0]).toBe(-100123);
+    expect(test.requests).toHaveLength(0);
+  });
+
+  it.each(['credits', 'settings'])(
+    'keeps /%s personal information out of group replies',
+    async (command) => {
+      const test = setup();
+      await test.service.handleUpdate(groupMessage(`/${command}`));
+      expect(test.bot.sendMessage.mock.calls[0][1]).toContain('private chat');
+      expect(test.credits.getBalance).not.toHaveBeenCalled();
+      expect(test.plans.dailyUsage).not.toHaveBeenCalled();
+      expect(test.requests).toHaveLength(0);
+    },
+  );
+
+  it.each(['credits', 'settings', 'unlinked', 'full', 'oversized'])(
+    'keeps %s feedback in the requesting forum topic',
+    async (scenario) => {
+      const test = setup();
+      if (scenario === 'unlinked')
+        test.prisma.socialAccount.findUnique.mockResolvedValue(null);
+      if (scenario === 'full')
+        test.prisma.creatorTelegramRequest.count.mockResolvedValue(3);
+      const text = ['credits', 'settings'].includes(scenario)
+        ? `/${scenario}`
+        : `/latin ${scenario === 'oversized' ? 'x'.repeat(4001) : 'hello'}`;
+      const update = groupMessage(text);
+      await test.service.handleUpdate({
+        ...update,
+        message: { ...update.message, message_thread_id: 77 },
+      });
+      expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+      const reply = test.bot.sendMessage.mock.calls[0];
+      expect(reply[0]).toBe(-100123);
+      expect(reply.slice(4)).toEqual([10, { messageThreadId: 77 }]);
+      expect(test.requests).toHaveLength(0);
+    },
+  );
+
   it('rejects absent, wrong, and main-bot webhook secrets before processing', async () => {
     const test = setup();
     const controller = new CreatorTelegramController(test.service);
@@ -139,6 +387,7 @@ describe('Creator Telegram bot', () => {
         updateId: 1n,
         userId: 'owner',
         chatId: 123n,
+        telegramUserId: 123n,
         feature: AiFeature.KHMER_GRAMMAR,
         content: 'សួស្តី',
         statusMessageId: 55,
@@ -207,6 +456,10 @@ describe('Creator Telegram bot', () => {
     ['grammar', AiFeature.KHMER_GRAMMAR],
     ['rewrite', AiFeature.KHMER_REWRITE],
     ['latin', AiFeature.LATIN_TO_KHMER],
+    ['khmer_to_latin', AiFeature.KHMER_TO_LATIN],
+    ['khmer_to_english', AiFeature.KHMER_TO_ENGLISH],
+    ['latin_to_english', AiFeature.LATIN_TO_ENGLISH],
+    ['english_to_latin', AiFeature.ENGLISH_TO_LATIN],
     ['humanize', AiFeature.HUMANIZE],
   ])(
     'maps /%s with text to the existing Creator feature',
@@ -237,7 +490,100 @@ describe('Creator Telegram bot', () => {
     });
     expect(test.requests).toHaveLength(0);
     expect(test.bot.sendMessage.mock.calls[0][1]).toContain('1 credit(s)');
+    expect(test.bot.sendMessage.mock.calls[0][2]).toHaveProperty(
+      'inline_keyboard',
+    );
+    expect(test.bot.sendMessage.mock.calls[1][2]).toBeUndefined();
   });
+
+  it.each([
+    'grammar',
+    'rewrite',
+    'latin',
+    'humanize',
+    'khmer_to_latin',
+    'khmer_to_english',
+    'latin_to_english',
+    'english_to_latin',
+    'start',
+    'help',
+    'menu',
+    'creator',
+    'khmer',
+    'unknown',
+  ])('puts the menu above the input prompt for /%s', async (command) => {
+    const test = setup();
+    await test.service.handleUpdate(test.message(`/${command}`));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    const [menu, prompt] = test.bot.sendMessage.mock.calls;
+    expect(menu[0]).toBe(123);
+    expect(menu[2].inline_keyboard.flat()).toContainEqual(
+      expect.objectContaining({ callback_data: 'mode:latin' }),
+    );
+    expect(menu[1]).not.toContain('ផ្ញើអត្ថបទនៅទីនេះ');
+    expect(prompt[0]).toBe(123);
+    expect(prompt[1]).toBe('ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.');
+    expect(prompt[2]).toBeUndefined();
+    expect(test.requests).toHaveLength(0);
+    expect(test.credits.getBalance).not.toHaveBeenCalled();
+  });
+
+  it('waits for the menu to finish sending before sending the input prompt', async () => {
+    const test = setup();
+    let started!: () => void;
+    let complete!: () => void;
+    const sending = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    test.bot.sendMessage.mockImplementationOnce(() => {
+      started();
+      return new Promise<void>((resolve) => {
+        complete = resolve;
+      });
+    });
+    const response = test.service.handleUpdate(test.message('/latin'));
+    await sending;
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage.mock.calls[0][2]).toHaveProperty(
+      'inline_keyboard',
+    );
+    complete();
+    await response;
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.sendMessage.mock.calls[1][2]).toBeUndefined();
+  });
+
+  it.each([
+    ['khmer_to_latin', AiFeature.KHMER_TO_LATIN],
+    ['khmer_to_english', AiFeature.KHMER_TO_ENGLISH],
+    ['latin_to_english', AiFeature.LATIN_TO_ENGLISH],
+    ['english_to_latin', AiFeature.ENGLISH_TO_LATIN],
+  ])(
+    'selects %s from a menu button before accepting text',
+    async (command, feature) => {
+      const test = setup();
+      await test.service.handleUpdate({
+        update_id: 8,
+        callback_query: {
+          id: 'translation-mode',
+          from: { id: 123 },
+          message: { message_id: 1, chat: { id: 123, type: 'private' } },
+          data: `mode:${command}`,
+        },
+      });
+      expect(test.prisma.creatorTelegramChat.updateMany).toHaveBeenCalledWith({
+        where: { telegramUserId: 123n, lastUpdateId: { lt: 8n } },
+        data: { feature, lastUpdateId: 8n },
+      });
+      expect(test.requests).toHaveLength(0);
+      test.prisma.creatorTelegramChat.findUnique.mockResolvedValue({ feature });
+      await test.service.handleUpdate(test.message('text to convert', 9));
+      expect(test.requests[0]).toMatchObject({
+        feature,
+        content: 'text to convert',
+      });
+    },
+  );
 
   it('uses a saved mode for subsequent plain text', async () => {
     const test = setup();
@@ -262,7 +608,7 @@ describe('Creator Telegram bot', () => {
     );
   });
 
-  it('ignores groups, bot senders, and mismatched private-chat owners', async () => {
+  it('ignores invalid group chat IDs, bot senders, and mismatched private-chat owners', async () => {
     const test = setup();
     for (const override of [
       { chat: { id: 123, type: 'group' } },
@@ -431,7 +777,17 @@ describe('Creator Telegram bot', () => {
     const buttons = test.service.keyboard().inline_keyboard.flat();
     expect(
       buttons.filter((button) => button.callback_data?.startsWith('mode:')),
-    ).toHaveLength(4);
+    ).toHaveLength(8);
+    for (const command of [
+      'khmer_to_latin',
+      'khmer_to_english',
+      'latin_to_english',
+      'english_to_latin',
+    ]) {
+      expect(buttons).toContainEqual(
+        expect.objectContaining({ callback_data: `mode:${command}` }),
+      );
+    }
     expect(buttons).toContainEqual({
       text: '⚙️ Settings',
       callback_data: 'settings:view',
@@ -451,10 +807,10 @@ describe('Creator Telegram bot', () => {
     await test.service.handleUpdate(test.message('/start', 10));
     await test.service.handleUpdate(test.message('/start', 10));
     await test.service.handleUpdate(test.message('/start', 9));
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
     expect(test.bot.setChatMenuButton).toHaveBeenCalledTimes(1);
     await test.service.handleUpdate(test.message('/start creator', 11));
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(4);
     expect(test.requests).toHaveLength(0);
   });
 
@@ -490,7 +846,7 @@ describe('Creator Telegram bot', () => {
     );
     await test.service.handleUpdate(test.message('/start'));
     await test.service.handleUpdate(test.message('/start'));
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(3);
     expect(test.bot.setChatMenuButton).toHaveBeenCalledTimes(1);
   });
 
@@ -514,7 +870,7 @@ describe('Creator Telegram bot', () => {
     fail(new Error('Old welcome failed'));
     await rejected;
     await test.service.handleUpdate(test.message('/start', 11));
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(3);
   });
 
   it('sends through the separate bot token and keeps provider failures generic', async () => {
@@ -536,6 +892,28 @@ describe('Creator Telegram bot', () => {
     } finally {
       fetchMock.mockRestore();
     }
+  });
+
+  it('caches the Creator bot identity and retries a failed lookup', async () => {
+    const test = setup();
+    const client = new CreatorTelegramClient(test.config as never);
+    const identity = {
+      id: 987654321,
+      is_bot: true,
+      username: 'cw_creator_bot',
+    };
+    const getMe = jest
+      .spyOn(client, 'getMe')
+      .mockRejectedValueOnce(new Error('Lookup failed'))
+      .mockResolvedValue(identity);
+    await expect(client.getIdentity()).rejects.toThrow('Lookup failed');
+    const [first, second] = await Promise.all([
+      client.getIdentity(),
+      client.getIdentity(),
+    ]);
+    expect(first).toEqual(identity);
+    expect(second).toEqual(identity);
+    expect(getMe).toHaveBeenCalledTimes(2);
   });
 
   it('sends copyable text verbatim with a preformatted entity and no buttons', async () => {

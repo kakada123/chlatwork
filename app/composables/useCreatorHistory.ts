@@ -16,18 +16,43 @@ export type CreatorHistoryItem = {
 };
 
 export function useCreatorHistory() {
+  const { user } = useAuth();
   const items = useState<CreatorHistoryItem[]>(
     "creator:session-history",
     () => [],
   );
+  const owner = useState<string | null>("creator:history-owner", () => null);
+  const requestVersion = useState<number>("creator:history-version", () => 0);
 
-  function add(item: Omit<CreatorHistoryItem, "id" | "createdAt">) {
-    if (containsThaiScript(item)) return;
+  watch(
+    () => user.value?.id ?? null,
+    (userId) => {
+      if (owner.value !== userId) {
+        requestVersion.value++;
+        items.value = [];
+        owner.value = userId;
+      }
+    },
+    { immediate: true, flush: "sync" },
+  );
+
+  function add(
+    item: Omit<CreatorHistoryItem, "createdAt">,
+    expectedOwner: string | undefined,
+  ) {
+    if (
+      !expectedOwner ||
+      user.value?.id !== expectedOwner ||
+      !item.id ||
+      containsThaiScript(item)
+    )
+      return;
+    // Every instance shares this revision so an older refresh cannot erase new work.
+    requestVersion.value++;
     const createdAt = new Date().toISOString();
     items.value = [
       {
         ...item,
-        id: `${item.toolId}-${createdAt}`,
         createdAt,
       },
       ...items.value,
@@ -35,7 +60,17 @@ export function useCreatorHistory() {
   }
 
   async function refresh() {
-    const history = await getCreatorHistory();
+    const userId = user.value?.id;
+    const version = ++requestVersion.value;
+    if (!userId) return;
+    let history;
+    try {
+      history = await getCreatorHistory();
+    } catch {
+      // Retain this account's session results when the optional recent list fails.
+      return;
+    }
+    if (version !== requestVersion.value || user.value?.id !== userId) return;
     items.value = history.flatMap((entry) => {
       if (containsThaiScript(entry)) return [];
       const toolId = FEATURE_TO_TOOL[entry.feature];

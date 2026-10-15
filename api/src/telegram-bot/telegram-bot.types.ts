@@ -16,6 +16,8 @@ export interface TelegramMessage {
   message_id: number;
   business_connection_id?: string;
   sender_business_bot?: TelegramUser;
+  sender_chat?: TelegramChat;
+  message_thread_id?: number;
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;

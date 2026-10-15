@@ -8,6 +8,7 @@ import {
   IsString,
   Max,
   MaxLength,
+  Matches,
   Min,
   MinLength,
 } from 'class-validator';
@@ -18,11 +19,7 @@ export const CREATOR_PLATFORMS = [
   'INSTAGRAM',
   'YOUTUBE',
 ] as const;
-export const CREATOR_LANGUAGES = [
-  'KHMER',
-  'ENGLISH',
-  'KHMER_ENGLISH',
-] as const;
+export const CREATOR_LANGUAGES = ['KHMER', 'ENGLISH', 'KHMER_ENGLISH'] as const;
 export const CREATOR_TONES = [
   'NATURAL',
   'FRIENDLY',
@@ -139,6 +136,14 @@ export class LatinToKhmerDto {
   @IsString()
   @MinLength(1)
   @MaxLength(4_000)
+  content!: string;
+}
+
+export class TextConversionDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(4_000)
+  @Matches(/\S/u, { message: 'content must contain non-whitespace text' })
   content!: string;
 }
 

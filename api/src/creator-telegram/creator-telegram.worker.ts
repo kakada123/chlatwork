@@ -175,11 +175,22 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   private async process(job: CreatorTelegramRequest) {
+    const isGroup = job.chatId < 0n;
+    const telegramUserId = job.telegramUserId ?? (isGroup ? null : job.chatId);
+    // Old private jobs can use their chat ID. Group jobs must carry the real sender.
+    if (
+      !telegramUserId ||
+      telegramUserId <= 0n ||
+      (!isGroup && telegramUserId !== job.chatId)
+    ) {
+      await this.finish(job);
+      return;
+    }
     const owner = await this.prisma.socialAccount.findUnique({
       where: {
         provider_providerUserId: {
           provider: 'TELEGRAM',
-          providerUserId: job.chatId.toString(),
+          providerUserId: telegramUserId.toString(),
         },
       },
       select: { user: { select: { id: true, isActive: true } } },
@@ -230,7 +241,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           `creator-telegram:${job.updateId}`,
         );
         const preference = await this.prisma.creatorTelegramChat.findUnique({
-          where: { telegramUserId: job.chatId },
+          where: { telegramUserId },
         });
         // Keep headings, credits and navigation out of the user's copied text.
         parts = result.data.sections.flatMap((section) => {
@@ -246,7 +257,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
             copyable: !explanation,
           }));
         });
-        if (preference?.showCredits !== false) {
+        if (!isGroup && preference?.showCredits !== false) {
           parts.push({
             text: `Credits used: ${result.usage.creditsCharged} · Balance: ${result.usage.creditsRemaining}`,
             copyable: false,
@@ -263,9 +274,10 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         // errors remain private and retry with the same generation key.
         parts = [
           {
-            text:
-              response.message ||
-              'AI generation is unavailable. Please try again later.',
+            text: isGroup
+              ? 'This request could not be completed. Check your account in a private chat with the Creator bot.'
+              : response.message ||
+                'AI generation is unavailable. Please try again later.',
             copyable: false,
           },
         ];
@@ -289,7 +301,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       where: {
         provider_providerUserId: {
           provider: 'TELEGRAM',
-          providerUserId: job.chatId.toString(),
+          providerUserId: telegramUserId.toString(),
         },
       },
       select: { user: { select: { id: true, isActive: true } } },
@@ -300,11 +312,21 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     }
     // Stored reply parts can bypass today's generation checks on a later retry.
     if (containsThaiScript(parts)) {
-      await this.bot.sendMessage(
-        Number(job.chatId),
-        'The AI result contained unsupported script and was not sent. Please contact support if credits were used.',
-        await this.menu.availableKeyboard(),
-      );
+      const notice =
+        'The AI result contained unsupported script and was not sent. Please contact support if credits were used.';
+      const keyboard = await this.menu.availableKeyboard(Number(job.chatId));
+      if (isGroup) {
+        await this.bot.sendMessage(
+          Number(job.chatId),
+          notice,
+          keyboard,
+          undefined,
+          job.sourceMessageId ?? undefined,
+          { messageThreadId: job.messageThreadId ?? undefined },
+        );
+      } else {
+        await this.bot.sendMessage(Number(job.chatId), notice, keyboard);
+      }
       await this.finish(job);
       return;
     }
@@ -316,13 +338,33 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       if (held.count !== 1) return;
       const part = parts[index];
       if (part.copyable) {
-        await this.bot.sendCopyableMessage(Number(job.chatId), part.text);
+        if (isGroup) {
+          await this.bot.sendCopyableMessage(
+            Number(job.chatId),
+            part.text,
+            job.sourceMessageId ?? undefined,
+            job.messageThreadId ?? undefined,
+          );
+        } else {
+          await this.bot.sendCopyableMessage(Number(job.chatId), part.text);
+        }
       } else {
-        await this.bot.sendMessage(
-          Number(job.chatId),
-          part.text,
-          index === parts.length - 1 ? await this.menu.availableKeyboard() : undefined,
-        );
+        const keyboard =
+          index === parts.length - 1
+            ? await this.menu.availableKeyboard(Number(job.chatId))
+            : undefined;
+        if (isGroup) {
+          await this.bot.sendMessage(
+            Number(job.chatId),
+            part.text,
+            keyboard,
+            undefined,
+            job.sourceMessageId ?? undefined,
+            { messageThreadId: job.messageThreadId ?? undefined },
+          );
+        } else {
+          await this.bot.sendMessage(Number(job.chatId), part.text, keyboard);
+        }
       }
       // Checkpoint successful parts so a later delivery failure resumes here.
       // A lost Telegram send response can repeat that part, but never the charge.
@@ -337,10 +379,15 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
 
   private async ensureStatus(job: CreatorTelegramRequest) {
     if (job.statusMessageId !== null) return true;
-    const messageId = await this.bot.sendStatus(
-      Number(job.chatId),
-      CREATOR_QUEUED_STATUS,
-    );
+    const messageId =
+      job.chatId < 0n
+        ? await this.bot.sendStatus(
+            Number(job.chatId),
+            CREATOR_QUEUED_STATUS,
+            job.sourceMessageId ?? undefined,
+            job.messageThreadId ?? undefined,
+          )
+        : await this.bot.sendStatus(Number(job.chatId), CREATOR_QUEUED_STATUS);
     if (messageId === null) return true;
     try {
       const saved = await this.prisma.creatorTelegramRequest.updateMany({

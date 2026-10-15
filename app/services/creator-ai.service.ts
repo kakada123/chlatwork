@@ -45,6 +45,7 @@ export type CreatorServiceErrorCode =
   | "GENERATION_FAILED";
 
 export interface CreatorGenerationResponse {
+  generationId: string;
   data: CreatorGenerationResult;
   usage: { creditsCharged: number; creditsRemaining: number };
 }
@@ -84,6 +85,10 @@ const TEXT_ENDPOINTS: Partial<Record<CreatorToolId, string>> = {
   "khmer-grammar": "/api/creator-ai/khmer/grammar",
   "khmer-rewrite": "/api/creator-ai/khmer/rewrite",
   "latin-to-khmer": "/api/creator-ai/khmer/latin-to-khmer",
+  "khmer-to-latin": "/api/creator-ai/khmer/khmer-to-latin",
+  "khmer-to-english": "/api/creator-ai/khmer/khmer-to-english",
+  "latin-to-english": "/api/creator-ai/khmer/latin-to-english",
+  "english-to-latin": "/api/creator-ai/khmer/english-to-latin",
   "khmer-humanize": "/api/creator-ai/khmer/humanize",
 };
 
@@ -251,6 +256,12 @@ export async function getCreatorHistory() {
   return $fetch<CreatorHistoryApiItem[]>("/api/creator-ai/history");
 }
 
+export async function getCreatorHistoryEntry(id: string) {
+  return $fetch<CreatorHistoryApiItem>(
+    `/api/creator-ai/history/${encodeURIComponent(id)}`,
+  );
+}
+
 async function requestTextGeneration(
   toolId: CreatorToolId,
   endpoint: string,
@@ -295,7 +306,10 @@ async function requestVideoGeneration(
   form.append("language", enumValue(request.language));
   form.append("tone", enumValue(request.tone));
   if (toolId === "video-subtitle" || toolId === "video-content-pack") {
-    form.append("subtitleStyle", enumValue(request.subtitleStyle || "Short phrases"));
+    form.append(
+      "subtitleStyle",
+      enumValue(request.subtitleStyle || "Short phrases"),
+    );
   }
   context.onVideoStage?.("UPLOADING");
   try {
@@ -329,6 +343,7 @@ async function requestVideoGeneration(
     for (let attempt = 0; attempt < 400; attempt += 1) {
       if (job.data.status === "COMPLETED" && job.data.result) {
         return {
+          generationId: job.data.generationId,
           data: job.data.result,
           usage: {
             creditsCharged: job.usage.creditsCharged,
@@ -424,6 +439,10 @@ function textPayload(toolId: CreatorToolId, request: CreatorRequest) {
       };
     case "khmer-grammar":
     case "latin-to-khmer":
+    case "khmer-to-latin":
+    case "khmer-to-english":
+    case "latin-to-english":
+    case "english-to-latin":
       return { content: request.text.trim() };
     case "khmer-rewrite":
     case "khmer-humanize":

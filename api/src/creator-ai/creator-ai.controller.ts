@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   Headers,
+  Param,
+  ParseUUIDPipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -24,6 +26,7 @@ import {
   GenerateScriptDto,
   KhmerGrammarDto,
   LatinToKhmerDto,
+  TextConversionDto,
   LongToShortDto,
   RewriteDto,
   CreatorVideoUploadTicketDto,
@@ -97,6 +100,66 @@ export class CreatorAiController {
     return this.generate(user.id, AiFeature.HUMANIZE, { ...dto }, 'Humanized content', key);
   }
 
+  @Post('khmer/khmer-to-latin')
+  khmerToLatin(
+    @CurrentAuthUser() user: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: TextConversionDto,
+  ) {
+    return this.generate(
+      user.id,
+      AiFeature.KHMER_TO_LATIN,
+      { ...dto },
+      'Khmer to Latin',
+      key,
+    );
+  }
+
+  @Post('khmer/khmer-to-english')
+  khmerToEnglish(
+    @CurrentAuthUser() user: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: TextConversionDto,
+  ) {
+    return this.generate(
+      user.id,
+      AiFeature.KHMER_TO_ENGLISH,
+      { ...dto },
+      'Khmer to English',
+      key,
+    );
+  }
+
+  @Post('khmer/latin-to-english')
+  latinToEnglish(
+    @CurrentAuthUser() user: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: TextConversionDto,
+  ) {
+    return this.generate(
+      user.id,
+      AiFeature.LATIN_TO_ENGLISH,
+      { ...dto },
+      'Latin Khmer to English',
+      key,
+    );
+  }
+
+  @Post('khmer/english-to-latin')
+  englishToLatin(
+    @CurrentAuthUser() user: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: TextConversionDto,
+  ) {
+    return this.generate(
+      user.id,
+      AiFeature.ENGLISH_TO_LATIN,
+      { ...dto },
+      'English to Latin Khmer',
+      key,
+    );
+  }
+
   @Post('repurpose/facebook-to-tiktok')
   facebookToTikTok(@CurrentAuthUser() user: CurrentUser, @Headers('idempotency-key') key: string | undefined, @Body() dto: FacebookToTikTokDto) {
     return this.generate(user.id, AiFeature.FACEBOOK_TO_TIKTOK, { ...dto }, 'Facebook to TikTok', key);
@@ -125,6 +188,14 @@ export class CreatorAiController {
   @Get('history')
   getHistory(@CurrentAuthUser() user: CurrentUser) {
     return this.credits.history(user.id);
+  }
+
+  @Get('history/:id')
+  getHistoryEntry(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.credits.historyEntry(user.id, id);
   }
 
   @Post('video/upload-ticket')

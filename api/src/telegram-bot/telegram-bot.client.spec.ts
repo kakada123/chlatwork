@@ -14,6 +14,28 @@ describe('Telegram animation delivery', () => {
     } as unknown as ConfigService);
   }
 
+  it('preserves the source message and forum topic for group text replies', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
+        new Response(JSON.stringify({ ok: true, result: { message_id: 99 } })),
+      );
+    await client().sendMessage(
+      -100123,
+      'Group result',
+      undefined,
+      undefined,
+      88,
+      { messageThreadId: 77 },
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({
+      chat_id: -100123,
+      text: 'Group result',
+      message_thread_id: 77,
+      reply_parameters: { message_id: 88, allow_sending_without_reply: true },
+    });
+  });
+
   it('sends the bundled animation as a reply to the final results', async () => {
     const fetchMock = jest
       .spyOn(globalThis, 'fetch')

@@ -142,6 +142,10 @@ enum AiFeature {
   KHMER_GRAMMAR
   KHMER_REWRITE
   LATIN_TO_KHMER
+  KHMER_TO_LATIN
+  KHMER_TO_ENGLISH
+  LATIN_TO_ENGLISH
+  ENGLISH_TO_LATIN
   HUMANIZE
   FACEBOOK_TO_TIKTOK
   LONG_TO_SHORT
@@ -386,6 +390,9 @@ model CreatorTelegramRequest {
   userId          String    @map("user_id") @db.Uuid
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatId          BigInt    @map("chat_id")
+  telegramUserId  BigInt?   @map("telegram_user_id")
+  sourceMessageId Int?      @map("source_message_id")
+  messageThreadId Int?      @map("message_thread_id")
   feature         AiFeature
   content         String?   @db.VarChar(4000)
   replyParts      Json?     @map("reply_parts")

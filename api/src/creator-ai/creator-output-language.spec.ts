@@ -76,6 +76,42 @@ describe('Creator output script boundaries', () => {
     );
   });
 
+  it('loads an older saved result by ID with account and completed-status scope', async () => {
+    const entry = { id: 'saved-generation', result: safe };
+    const findFirst = jest.fn().mockResolvedValue(entry);
+    const service = new CreatorCreditsService(
+      { aiGeneration: { findFirst } } as any,
+      {} as any,
+      {} as any,
+      {} as any,
+    );
+    expect(
+      await (service as any).historyEntry('owner', 'saved-generation'),
+    ).toEqual(entry);
+    expect(findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'saved-generation', userId: 'owner', status: 'COMPLETED' },
+      }),
+    );
+  });
+
+  it.each([null, { id: 'unsafe', result: cases[0] }])(
+    'does not expose a missing, foreign, or unsupported saved result',
+    async (entry) => {
+      const service = new CreatorCreditsService(
+        {
+          aiGeneration: { findFirst: jest.fn().mockResolvedValue(entry) },
+        } as any,
+        {} as any,
+        {} as any,
+        {} as any,
+      );
+      await expect(
+        (service as any).historyEntry('owner', 'saved-generation'),
+      ).rejects.toMatchObject({ status: 404 });
+    },
+  );
+
   it.each(['poll', 'subtitles', 'videoReplay', 'textReplay'])(
     'blocks old stored output through %s',
     async (boundary) => {

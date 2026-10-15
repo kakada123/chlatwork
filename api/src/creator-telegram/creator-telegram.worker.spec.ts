@@ -78,6 +78,149 @@ function setup(overrides: Record<string, unknown> = {}) {
 }
 
 describe('Creator Telegram worker', () => {
+  it('routes stored-output rejection to the source forum topic', async () => {
+    const test = setup({
+      chatId: -100123n,
+      telegramUserId: 123n,
+      sourceMessageId: 10,
+      messageThreadId: 77,
+      content: null,
+      replyParts: [{ text: 'unsupported \u0e01', copyable: true }],
+    });
+    await test.worker.tick();
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      -100123,
+      expect.stringContaining('unsupported script'),
+      expect.anything(),
+      undefined,
+      10,
+      { messageThreadId: 77 },
+    );
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+  it('charges the group sender, replies in the group, and never publishes the balance', async () => {
+    const test = setup({
+      chatId: -100123n,
+      telegramUserId: 123n,
+      sourceMessageId: 10,
+    });
+    await test.worker.tick();
+    expect(test.prisma.socialAccount.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          provider_providerUserId: {
+            provider: 'TELEGRAM',
+            providerUserId: '123',
+          },
+        },
+      }),
+    );
+    expect(test.generations.generate).toHaveBeenCalledWith(
+      'owner',
+      expect.anything(),
+      'creator-telegram:42',
+    );
+    expect(test.bot.sendCopyableMessage).toHaveBeenCalledWith(
+      -100123,
+      'អត្ថបទថ្មី',
+      10,
+      undefined,
+    );
+    expect(
+      test.bot.sendMessage.mock.calls.some((call) =>
+        /Balance|Credits used/.test(call[1]),
+      ),
+    ).toBe(false);
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('drops group jobs without an authenticated sender identity, including saved replies', async () => {
+    const test = setup({
+      chatId: -100123n,
+      telegramUserId: null,
+      replyParts: ['private wallet data'],
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('resumes group delivery in its original topic without generating or charging again', async () => {
+    const test = setup({
+      chatId: -100123n,
+      telegramUserId: 123n,
+      sourceMessageId: 10,
+      messageThreadId: 77,
+    });
+    test.bot.sendCopyableMessage.mockRejectedValueOnce(
+      new Error('Delivery failed'),
+    );
+    await test.worker.tick();
+    test.job.nextAttemptAt = new Date(0);
+    await test.worker.tick();
+    expect(test.generations.generate).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendCopyableMessage).toHaveBeenLastCalledWith(
+      -100123,
+      'អត្ថបទថ្មី',
+      10,
+      77,
+    );
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('keeps account-specific error details out of group replies', async () => {
+    const test = setup({
+      chatId: -100123n,
+      telegramUserId: 123n,
+      sourceMessageId: 10,
+    });
+    test.generations.generate.mockRejectedValue(
+      new CreatorAiException(
+        402,
+        'INSUFFICIENT_AI_CREDITS',
+        'Private balance: 19',
+      ),
+    );
+    await test.worker.tick();
+    expect(test.bot.sendMessage.mock.calls[0][1]).toContain('private chat');
+    expect(test.bot.sendMessage.mock.calls[0][1]).not.toContain('balance');
+  });
+
+  it.each([
+    AiFeature.KHMER_TO_LATIN,
+    AiFeature.KHMER_TO_ENGLISH,
+    AiFeature.LATIN_TO_ENGLISH,
+    AiFeature.ENGLISH_TO_LATIN,
+  ])(
+    'delivers %s through the existing generation and cleanup workflow',
+    async (feature) => {
+      const test = setup({ feature });
+      test.generations.generate.mockResolvedValue({
+        data: {
+          title: 'Translation',
+          sections: [{ label: 'Result', content: 'Converted text' }],
+        },
+        usage: { creditsCharged: 1, creditsRemaining: 19 },
+      });
+      await test.worker.tick();
+      expect(test.generations.generate).toHaveBeenCalledWith(
+        'owner',
+        expect.objectContaining({ feature }),
+        'creator-telegram:42',
+      );
+      expect(test.bot.sendCopyableMessage).toHaveBeenCalledWith(
+        123,
+        'Converted text',
+      );
+      expect(test.job.content).toBeNull();
+      expect(test.job.processedAt).toBeInstanceOf(Date);
+    },
+  );
+
   it('never sends Thai script from queued reply parts', async () => {
     const test = setup({
       content: null,

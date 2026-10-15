@@ -15,6 +15,10 @@ export type CreatorToolId =
   | "khmer-grammar"
   | "khmer-rewrite"
   | "latin-to-khmer"
+  | "khmer-to-latin"
+  | "khmer-to-english"
+  | "latin-to-english"
+  | "english-to-latin"
   | "khmer-humanize";
 
 export type CreatorIconName =
@@ -68,6 +72,7 @@ export type CreatorToolDefinition = {
   inputType: "text" | "video";
   inputLabel: string;
   inputPlaceholder: string;
+  maxInputLength?: number;
   config: CreatorConfigField[];
   resultKind: CreatorResultKind;
   submitLabel: string;
@@ -344,6 +349,82 @@ export const CREATOR_TOOLS: CreatorToolDefinition[] = [
     fast: true,
   },
   {
+    id: "khmer-to-latin",
+    title: "Khmer → Latin",
+    shortTitle: "Khmer to Latin",
+    description:
+      "Write Khmer text in everyday Latin letters while keeping its Khmer meaning and pronunciation.",
+    category: "khmer",
+    route: "/creator/khmer/khmer-to-latin",
+    icon: "convert",
+    inputType: "text",
+    inputLabel: "Khmer text",
+    inputPlaceholder: "Example: ខ្ញុំចូលចិត្តវីដេអូនេះណាស់",
+    maxInputLength: 4_000,
+    config: [],
+    resultKind: "text",
+    submitLabel: "Convert to Latin",
+    creditCost: { type: "fixed", credits: 1 },
+    fast: true,
+  },
+  {
+    id: "khmer-to-english",
+    title: "Khmer → English",
+    shortTitle: "Khmer to English",
+    description:
+      "Translate Khmer text into natural English while preserving its original meaning.",
+    category: "khmer",
+    route: "/creator/khmer/khmer-to-english",
+    icon: "convert",
+    inputType: "text",
+    inputLabel: "Khmer text",
+    inputPlaceholder: "Paste the Khmer text you want to translate…",
+    maxInputLength: 4_000,
+    config: [],
+    resultKind: "text",
+    submitLabel: "Translate to English",
+    creditCost: { type: "fixed", credits: 1 },
+    fast: true,
+  },
+  {
+    id: "latin-to-english",
+    title: "Latin → English",
+    shortTitle: "Latin to English",
+    description:
+      "Translate Khmer written in Latin letters, such as “nh jol jit”, into natural English.",
+    category: "khmer",
+    route: "/creator/khmer/latin-to-english",
+    icon: "convert",
+    inputType: "text",
+    inputLabel: "Romanized Khmer",
+    inputPlaceholder: "Example: nh jol jit video ng nas",
+    maxInputLength: 4_000,
+    config: [],
+    resultKind: "text",
+    submitLabel: "Translate to English",
+    creditCost: { type: "fixed", credits: 1 },
+    fast: true,
+  },
+  {
+    id: "english-to-latin",
+    title: "English → Latin",
+    shortTitle: "English to Latin",
+    description:
+      "Translate English into Khmer written in everyday Latin letters.",
+    category: "khmer",
+    route: "/creator/khmer/english-to-latin",
+    icon: "convert",
+    inputType: "text",
+    inputLabel: "English text",
+    inputPlaceholder: "Example: I really like this video.",
+    maxInputLength: 4_000,
+    config: [],
+    resultKind: "text",
+    submitLabel: "Translate to Latin Khmer",
+    creditCost: { type: "fixed", credits: 1 },
+    fast: true,
+  },
+  {
     id: "khmer-humanize",
     title: "Tone / Humanize",
     shortTitle: "Humanize",
@@ -403,5 +484,9 @@ export const CREATOR_FEATURE_TO_TOOL: Record<string, CreatorToolId> = {
   KHMER_GRAMMAR: "khmer-grammar",
   KHMER_REWRITE: "khmer-rewrite",
   LATIN_TO_KHMER: "latin-to-khmer",
+  KHMER_TO_LATIN: "khmer-to-latin",
+  KHMER_TO_ENGLISH: "khmer-to-english",
+  LATIN_TO_ENGLISH: "latin-to-english",
+  ENGLISH_TO_LATIN: "english-to-latin",
   HUMANIZE: "khmer-humanize",
 };

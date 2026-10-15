@@ -1,4 +1,9 @@
-import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   AiCreditTransactionType,
@@ -22,6 +27,15 @@ import type {
   CreatorProviderUsage,
   CreatorReservation,
 } from './creator-ai.types';
+
+const HISTORY_FIELDS = {
+  id: true,
+  feature: true,
+  inputSummary: true,
+  result: true,
+  creditCost: true,
+  createdAt: true,
+} as const;
 
 @Injectable()
 export class CreatorCreditsService {
@@ -394,17 +408,22 @@ export class CreatorCreditsService {
       where: { userId, status: AiGenerationStatus.COMPLETED },
       orderBy: { createdAt: 'desc' },
       take: 30,
-      select: {
-        id: true,
-        feature: true,
-        inputSummary: true,
-        result: true,
-        creditCost: true,
-        createdAt: true,
-      },
+      select: HISTORY_FIELDS,
     });
     // Older generations predate this rule. Hide them without changing stored data.
     return entries.filter((entry) => !containsThaiScript(entry));
+  }
+
+  async historyEntry(userId: string, id: string) {
+    // A bookmarked result remains accessible after it leaves the recent list.
+    const entry = await this.prisma.aiGeneration.findFirst({
+      where: { id, userId, status: AiGenerationStatus.COMPLETED },
+      select: HISTORY_FIELDS,
+    });
+    if (!entry?.result || containsThaiScript(entry)) {
+      throw new NotFoundException('Saved generation is not available');
+    }
+    return entry;
   }
 
   private async ensureWallet(tx: Prisma.TransactionClient, userId: string) {

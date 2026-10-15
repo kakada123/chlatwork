@@ -41,6 +41,8 @@ export const CREATOR_VIDEO_STAGES: CreatorVideoStage[] = [
 ];
 
 export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
+  const { user } = useAuth();
+  let sessionVersion = 0;
   const { add: addHistory } = useCreatorHistory();
   const form = reactive({
     text: initialText,
@@ -69,12 +71,33 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
     () => null,
   );
 
+  watch(
+    () => user.value?.id,
+    () => {
+      // Async provider responses belong to the account that started the request.
+      sessionVersion++;
+      result.value = null;
+      creditBalance.value = null;
+      errorMessage.value = "";
+      requiredCredits.value = null;
+      availableCredits.value = null;
+      activeVideoStage.value = -1;
+      state.value = "idle";
+    },
+    { flush: "sync" },
+  );
+  onBeforeUnmount(() => {
+    sessionVersion++;
+  });
+
   const canGenerate = computed(
     () =>
       state.value !== "generating" &&
       (tool.inputType === "video"
         ? Boolean(videoFile.value)
-        : form.text.trim().length > 0),
+        : form.text.trim().length > 0 &&
+          (!tool.maxInputLength ||
+            form.text.trim().length <= tool.maxInputLength)),
   );
   const estimatedCredits = computed(() =>
     estimateCreatorCredits(tool.creditCost, videoDuration.value),
@@ -120,6 +143,10 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
 
   async function generate(options: { variation?: boolean } = {}) {
     if (!canGenerate.value) return;
+    const userId = user.value?.id;
+    const version = sessionVersion;
+    const currentSession = () =>
+      version === sessionVersion && user.value?.id === userId;
 
     if (options.variation) form.variation += 1;
     errorMessage.value = "";
@@ -137,8 +164,11 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
 
     try {
       const response = await runCreatorGeneration(tool.id, request, {
-        onVideoStage: setVideoStage,
+        onVideoStage: (stage) => {
+          if (currentSession()) setVideoStage(stage);
+        },
       });
+      if (!currentSession()) return;
       if (containsThaiScript(response.data)) {
         throw new CreatorServiceError(
           "GENERATION_FAILED",
@@ -157,13 +187,18 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
         response.data.sections[0]?.content ||
         response.data.items?.[0]?.content ||
         response.data.title;
-      addHistory({
-        toolId: tool.id,
-        title: tool.title,
-        route: tool.route,
-        preview: preview.slice(0, 110),
-      });
+      addHistory(
+        {
+          id: response.generationId,
+          toolId: tool.id,
+          title: tool.title,
+          route: tool.route,
+          preview: preview.slice(0, 110),
+        },
+        userId,
+      );
     } catch (error) {
+      if (!currentSession()) return;
       if (error instanceof CreatorServiceError) {
         requiredCredits.value = error.requiredCredits ?? estimatedCredits.value;
         availableCredits.value = error.availableCredits ?? null;
@@ -200,8 +235,14 @@ export function useCreatorTool(tool: CreatorToolDefinition, initialText = "") {
   }
 
   onMounted(async () => {
+    const userId = user.value?.id;
+    const version = sessionVersion;
+    if (!userId) return;
     try {
-      creditBalance.value = (await getCreatorCredits()).balance;
+      const wallet = await getCreatorCredits();
+      if (version === sessionVersion && user.value?.id === userId) {
+        creditBalance.value = wallet.balance;
+      }
     } catch {
       // Authentication and API failures are surfaced only when the user generates.
     }
