@@ -12,7 +12,10 @@ import type {
   TelegramUpdate,
 } from '../telegram-bot/telegram-bot.types';
 import { CreatorTelegramClient } from './creator-telegram.client';
-import { CREATOR_QUEUED_STATUS } from './creator-telegram.progress';
+import {
+  CREATOR_BUSINESS_PENDING_TEXT,
+  CREATOR_QUEUED_STATUS,
+} from './creator-telegram.progress';
 
 type CreatorReplyContext = {
   telegramUserId: number;
@@ -472,12 +475,15 @@ export class CreatorTelegramService {
       !(await this.modeEnabled(mode!.feature))
     )
       return;
-    await this.prisma.$transaction(async (tx) => {
+    const maskingLeaseId = randomUUID();
+    const queued = await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-telegram-queue:${linked.user.id}`}))`;
       const duplicate = await tx.creatorTelegramRequest.findFirst({
         where: source,
       });
       if (update.edited_business_message) {
+        // Telegram may echo our placeholder without a bot sender marker, even after AI finishes.
+        if (duplicate && message.text === CREATOR_BUSINESS_PENDING_TEXT) return;
         // A content-free cancellation receipt also blocks a delayed original webhook.
         if (!duplicate) {
           await tx.creatorTelegramRequest.create({
@@ -518,7 +524,7 @@ export class CreatorTelegramService {
         })) >= 3
       )
         return;
-      await tx.creatorTelegramRequest.create({
+      return tx.creatorTelegramRequest.create({
         data: {
           ...source,
           updateId: BigInt(update.update_id),
@@ -526,11 +532,35 @@ export class CreatorTelegramService {
           telegramUserId: BigInt(sender.id),
           sourceMessageDate: new Date(message.date! * 1000),
           feature: mode!.feature,
-          // Retain the exact command until Telegram confirms that this source is editable.
+          // Only the private queue retains the command while the recipient sees a placeholder.
           content: message.text!,
+          // Keep the worker behind this edit; an expired lease recovers a crashed webhook.
+          leaseId: maskingLeaseId,
+          lockedUntil: new Date(Date.now() + 60_000),
         },
       });
     });
+    if (!queued) return;
+    try {
+      // Mask on receipt, outside the transaction, without waiting for earlier AI jobs.
+      await this.bot.editBusinessMessage(
+        connectionId,
+        message.chat.id,
+        message.message_id,
+        CREATOR_BUSINESS_PENDING_TEXT,
+      );
+    } finally {
+      // The worker retries masking before AI if Telegram failed or its response was lost.
+      // Never release a lease acquired later, or revive a manually cancelled request.
+      await this.prisma.creatorTelegramRequest.updateMany({
+        where: {
+          updateId: queued.updateId,
+          leaseId: maskingLeaseId,
+          processedAt: null,
+        },
+        data: { leaseId: null, lockedUntil: null },
+      });
+    }
   }
 
   async availableKeyboard(chatId = 1): Promise<TelegramInlineKeyboard> {

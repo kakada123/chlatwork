@@ -15,6 +15,7 @@ import { containsThaiScript } from '../creator-ai/creator-output-language';
 import { creatorBusinessEditText } from '../creator-ai/creator-business-edit';
 import { CreatorTelegramClient } from './creator-telegram.client';
 import {
+  CREATOR_BUSINESS_PENDING_TEXT,
   CREATOR_QUEUED_STATUS,
   CreatorTelegramProgress,
 } from './creator-telegram.progress';
@@ -459,12 +460,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
         await this.finish(job);
         return;
       }
-      // An identical-text edit checks Telegram's actual per-chat reply window before AI spending.
+      // Reapply only the placeholder: recover a failed initial mask and check edit access before spending.
       await this.bot.editBusinessMessage(
         job.businessConnectionId!,
         Number(job.chatId),
         job.sourceMessageId!,
-        job.content,
+        CREATOR_BUSINESS_PENDING_TEXT,
       );
       // Cancellation during Telegram's check must prevent subsequent AI spending.
       const stillHeld = await this.prisma.creatorTelegramRequest.updateMany({
@@ -501,9 +502,9 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
             'AI_REQUEST_IN_PROGRESS'
         )
           throw error;
-        // Errors stay out of the recipient's conversation and never replace the owner's text.
+        // Keep the original hidden on failure; neither account errors nor raw commands belong in this chat.
         this.logger.warn(
-          'Creator Business command failed; original message preserved',
+          'Creator Business command failed; placeholder preserved',
         );
         await this.finish(job);
         return;

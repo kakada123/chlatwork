@@ -49,8 +49,9 @@ function setup() {
       ),
       count: jest.fn().mockResolvedValue(0),
       create: jest.fn(async ({ data }) => {
-        requests.push(data);
-        return data;
+        const job = { processedAt: null, replyParts: null, ...data };
+        requests.push(job);
+        return job;
       }),
       updateMany: jest.fn(async ({ where, data }) => {
         const job = requests.find(
@@ -59,6 +60,8 @@ function setup() {
               ? request.updateId < where.updateId.lt
               : request.updateId === where.updateId) &&
             (!('leaseId' in where) || request.leaseId === where.leaseId) &&
+            (!('processedAt' in where) ||
+              request.processedAt === where.processedAt) &&
             (!where.businessConnectionId ||
               (request.businessConnectionId === where.businessConnectionId &&
                 request.chatId === where.chatId &&
@@ -98,6 +101,7 @@ function setup() {
     sendStatus: jest.fn().mockResolvedValue(55),
     clearStatus: jest.fn(),
     editMessage: jest.fn(),
+    editBusinessMessage: jest.fn(),
     answerCallback: jest.fn(),
     setChatMenuButton: jest.fn(),
   };
@@ -175,6 +179,106 @@ describe('Creator Telegram bot', () => {
     expect(test.bot.sendStatus).not.toHaveBeenCalled();
   });
 
+  it('hides an accepted command before returning and never masks it again on replay', async () => {
+    const test = setup();
+    test.bot.editBusinessMessage.mockImplementationOnce(async () => {
+      expect(test.requests[0].leaseId).toEqual(expect.any(String));
+      expect(test.requests[0].lockedUntil.getTime()).toBeGreaterThan(
+        Date.now(),
+      );
+      expect(test.requests[0].content).toBe('/grammar She go.');
+    });
+    await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledWith(
+      'test-business',
+      456,
+      10,
+      '…',
+    );
+    expect(test.requests[0].leaseId).toBeNull();
+    expect(test.requests[0].lockedUntil).toBeNull();
+    test.requests[0].processedAt = new Date();
+    await test.service.handleUpdate(businessUpdate('/grammar She go.', 3));
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('releases a failed initial mask for worker recovery without losing the source', async () => {
+    const test = setup();
+    test.bot.editBusinessMessage.mockRejectedValueOnce(
+      new Error('Telegram unavailable'),
+    );
+    await expect(
+      test.service.handleUpdate(businessUpdate('/grammar She go.')),
+    ).rejects.toThrow('Telegram unavailable');
+    expect(test.requests[0]).toMatchObject({
+      leaseId: null,
+      lockedUntil: null,
+      content: '/grammar She go.',
+      processedAt: null,
+    });
+  });
+
+  it.each([false, true])(
+    'ignores a delayed placeholder echo with saved output: %s',
+    async (saved) => {
+      const test = setup();
+      await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+      if (saved) {
+        test.requests[0].content = null;
+        test.requests[0].replyParts = [{ text: 'She goes.', copyable: true }];
+      }
+      const update = businessUpdate('…', 2);
+      await test.service.handleUpdate({
+        update_id: 2,
+        edited_business_message: update.business_message,
+      });
+      expect(test.requests[0].processedAt).toBeNull();
+    },
+  );
+
+  it('does not release a newer lease after masking', async () => {
+    const test = setup();
+    test.bot.editBusinessMessage.mockImplementationOnce(async () => {
+      test.requests[0].leaseId = 'newer-worker-lease';
+    });
+    await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+    expect(test.requests[0].leaseId).toBe('newer-worker-lease');
+  });
+
+  it('keeps the masking lease through overlapping original and placeholder deliveries', async () => {
+    const test = setup();
+    test.bot.editBusinessMessage.mockImplementationOnce(async () => {
+      const initialLease = test.requests[0].leaseId;
+      await test.service.handleUpdate(businessUpdate('/grammar She go.', 2));
+      const echo = businessUpdate('…', 3);
+      await test.service.handleUpdate({
+        update_id: 3,
+        edited_business_message: echo.business_message,
+      });
+      expect(test.requests[0].leaseId).toBe(initialLease);
+      expect(test.requests[0].processedAt).toBeNull();
+    });
+    await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+    expect(test.requests).toHaveLength(1);
+    expect(test.requests[0].leaseId).toBeNull();
+    expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a manual cancellation that arrives while the initial mask is in flight', async () => {
+    const test = setup();
+    test.bot.editBusinessMessage.mockImplementationOnce(async () => {
+      const edit = businessUpdate('My own replacement', 2);
+      await test.service.handleUpdate({
+        update_id: 2,
+        edited_business_message: edit.business_message,
+      });
+    });
+    await test.service.handleUpdate(businessUpdate('/grammar She go.'));
+    expect(test.requests[0].processedAt).toBeInstanceOf(Date);
+    expect(test.requests[0].content).toBeNull();
+    expect(test.requests[0].leaseId).toBeNull();
+  });
+
   it.each([
     'incoming',
     'bot',
@@ -238,6 +342,7 @@ describe('Creator Telegram bot', () => {
       expect(test.requests).toHaveLength(0);
       expect(test.bot.sendMessage).not.toHaveBeenCalled();
       expect(test.bot.sendStatus).not.toHaveBeenCalled();
+      expect(test.bot.editBusinessMessage).not.toHaveBeenCalled();
     },
   );
 
@@ -563,6 +668,8 @@ describe('Creator Telegram bot', () => {
         statusMessageId: 55,
         leaseId: null,
         lockedUntil: null,
+        processedAt: null,
+        replyParts: null,
       },
     ]);
     expect(test.bot.sendStatus).toHaveBeenCalledTimes(1);

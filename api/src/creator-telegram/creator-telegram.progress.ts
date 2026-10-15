@@ -4,6 +4,8 @@ import { CreatorTelegramClient } from './creator-telegram.client';
 export const CREATOR_QUEUED_STATUS =
   '✅ Received! Your request is queued. I’ll reply here when it’s ready—no need to resend.';
 
+export const CREATOR_BUSINESS_PENDING_TEXT = '…';
+
 const PROCESSING_STATUS: Partial<Record<AiFeature, string>> = {
   KHMER_GRAMMAR: '✍️ Checking your grammar…',
   KHMER_REWRITE: '✍️ Rewriting your text…',

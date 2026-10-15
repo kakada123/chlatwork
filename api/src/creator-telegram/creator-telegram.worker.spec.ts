@@ -137,6 +137,9 @@ describe('Creator Telegram worker', () => {
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledTimes(1);
     expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(3);
+    expect(
+      test.bot.editBusinessMessage.mock.calls.map((call) => call[3]),
+    ).toEqual(['…', 'អត្ថបទថ្មី', 'អត្ថបទថ្មី']);
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
 
@@ -151,6 +154,18 @@ describe('Creator Telegram worker', () => {
     expect(test.job.content).toBe('/rewrite original content');
   });
 
+  it('waits for the webhook masking lease before generating or editing', async () => {
+    const test = setup({
+      ...businessJob,
+      leaseId: 'webhook-mask-lease',
+      lockedUntil: new Date(Date.now() + 60_000),
+    });
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.editBusinessMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeNull();
+  });
+
   it('does not start AI work when a manual edit cancels the eligibility probe', async () => {
     const test = setup(businessJob);
     test.bot.editBusinessMessage.mockImplementationOnce(async () => {
@@ -162,10 +177,25 @@ describe('Creator Telegram worker', () => {
     expect(test.bot.editBusinessMessage).toHaveBeenCalledTimes(1);
   });
 
-  it('preserves the raw source during eligibility checks and sends only trimmed command content to AI', async () => {
+  it('masks the source before AI and sends only trimmed command content to AI', async () => {
     const test = setup({
       ...businessJob,
       content: ' \n/rewrite text to improve  ',
+    });
+    test.generations.generate.mockImplementationOnce(async () => {
+      expect(test.bot.editBusinessMessage).toHaveBeenCalledWith(
+        'test-business',
+        456,
+        10,
+        '…',
+      );
+      return {
+        data: {
+          title: 'Result',
+          sections: [{ label: 'Result', content: 'Improved text' }],
+        },
+        usage: { creditsCharged: 1, creditsRemaining: 19 },
+      };
     });
     await test.worker.tick();
     expect(test.generations.generate).toHaveBeenCalledWith(
@@ -180,7 +210,7 @@ describe('Creator Telegram worker', () => {
       'test-business',
       456,
       10,
-      ' \n/rewrite text to improve  ',
+      '…',
     );
   });
 
@@ -229,7 +259,7 @@ describe('Creator Telegram worker', () => {
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
 
-  it('rechecks Business permissions after generation and leaves the original unchanged if revoked', async () => {
+  it('rechecks Business permissions after generation and leaves the command hidden if revoked', async () => {
     const test = setup(businessJob);
     test.bot.getBusinessConnection
       .mockResolvedValueOnce({
@@ -251,8 +281,22 @@ describe('Creator Telegram worker', () => {
       'test-business',
       456,
       10,
-      '/rewrite original content',
+      '…',
     );
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('never restores the original command after generation fails', async () => {
+    const test = setup(businessJob);
+    test.generations.generate.mockRejectedValueOnce(
+      new CreatorAiException(502, 'AI_GENERATION_FAILED', 'Failed'),
+    );
+    await test.worker.tick();
+    expect(test.bot.editBusinessMessage.mock.calls).toEqual([
+      ['test-business', 456, 10, '…'],
+    ]);
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.job.content).toBeNull();
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });
   it('routes stored-output rejection to the source forum topic', async () => {
