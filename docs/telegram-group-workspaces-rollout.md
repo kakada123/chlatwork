@@ -23,6 +23,14 @@ The SQL is additive and enclosed in a transaction. It adds workspaces, connectio
 
 No new environment variable or production secret is required. Continue configuring the existing bot credentials, frontend origin, JWT keys and webhook authentication through your normal production process; do not copy them into docs or source.
 
+## Missing KHQR draft columns after deployment
+
+PostgreSQL `42703` from `BotKhqrService.begin` mentioning `telegram_bot_qr_drafts.group_workspace_id` means the deployed API is using a database without the required draft columns. Both `group_workspace_id` and `workspace_version` are required by the upload and confirmation flow. Restarting the bot or regenerating Prisma alone does not add database columns.
+
+If the group-workspace migration has not been applied, manually execute the complete `2026-10-16-add-telegram-group-workspaces.sql` file after its prerequisites. If workspace tables already exist and only the draft columns are missing, review and manually execute `database/updates/2026-10-16-repair-telegram-bot-qr-draft-workspace-columns.sql` in the same database used by the API. The repair stops if its prerequisite tables are absent, adds nullable columns without modifying existing rows, and returns the two column definitions for verification. If a statement fails, roll back the transaction before retrying.
+
+After the two columns are present, open `/myqr` privately and start a fresh upload. Verify preview and confirmation in both bots. The repeated `Bot access notification delivery deferred` warning is a separate notification failure path; its generic message does not establish that it has the same cause as the KHQR error.
+
 ## Telegram setup
 
 - Configure each bot's private Mini App domain to the deployed frontend and enable the Mini App in BotFather.
