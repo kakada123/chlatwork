@@ -331,13 +331,6 @@ export class MomentsService {
       if (!block || !poll || !option) {
         throw new NotFoundException('Poll choice not found');
       }
-      const activeRound = await tx.momentVoteRound.findFirst({
-        where: { momentId, finalizedAt: null, closesAt: { gt: new Date() } },
-        select: { id: true },
-      });
-      if (activeRound) {
-        throw new ConflictException('Wait for the active Telegram vote to close');
-      }
       const lastMedia = await tx.momentMedia.findFirst({
         where: { momentId },
         orderBy: { position: 'desc' },
@@ -1288,7 +1281,8 @@ export class MomentsService {
       this.getActiveVoteDate(moment.voteSchedule),
       roundId ?? null,
     );
-    return this.toTelegramPollView(moment, poll);
+    // Publish the latest choice list after an edit that may have preceded the ballot lock.
+    return this.getTelegramVotingMoment(moment.id);
   }
 
   async resetVotes(userId: string, momentId: string) {
@@ -1411,26 +1405,21 @@ export class MomentsService {
       const hasNewOptions = options.some((option) => option.id === undefined);
       if (!changedIds.length && !hasNewOptions) return;
 
-      const activeRound = await tx.momentVoteRound.findFirst({
-        where: { momentId, finalizedAt: null, closesAt: { gt: new Date() } },
-        select: { id: true },
-      });
-      if (activeRound) {
-        throw new ConflictException('Wait for the active Telegram vote to close');
-      }
-      const usedChoice = changedIds.length ? await tx.momentVote.findFirst({
-        where: { momentId, optionId: { in: changedIds } },
-        select: { id: true },
-      }) : null;
-      if (usedChoice) {
-        throw new ConflictException('Choices with votes cannot be edited or deleted');
+      const removedOptions = poll.options.filter((option) => !ids.has(option.id));
+      // Renames retain ballots. Deletions remove only that choice's ballots across all days.
+      if (removedOptions.length) {
+        await tx.momentVote.deleteMany({
+          where: { momentId, optionId: { in: removedOptions.map((option) => option.id) } },
+        });
       }
 
-      // Allocate IDs under the owner lock so new choices cannot collide.
+      // Persist the counter so old Telegram buttons never target a replacement choice.
+      const savedNextOptionNumber = (block.data as Prisma.JsonObject).nextOptionNumber;
       let nextOptionNumber = Math.max(
-        0,
-        ...poll.options.map((option) => Number(option.id.slice('option-'.length))),
-      ) + 1;
+        typeof savedNextOptionNumber === 'number' && Number.isSafeInteger(savedNextOptionNumber)
+          ? savedNextOptionNumber : 1,
+        ...poll.options.map((option) => Number(option.id.slice('option-'.length)) + 1),
+      );
       const savedOptions = options.map((option) => ({
         id: option.id ?? `option-${nextOptionNumber++}`,
         label: option.label,
@@ -1443,12 +1432,12 @@ export class MomentsService {
         data: {
           data: {
             ...(block.data as Prisma.JsonObject),
+            nextOptionNumber,
             options: savedOptions,
           } as Prisma.InputJsonValue,
         },
       });
-      const removedImageIds = poll.options
-        .filter((option) => !options.some((item) => item.id === option.id))
+      const removedImageIds = removedOptions
         .flatMap((option) => option.imageId ? [option.imageId] : []);
       if (removedImageIds.length) await tx.momentMedia.deleteMany({
         where: { momentId, id: { in: removedImageIds } },
@@ -1746,6 +1735,12 @@ export class MomentsService {
         !latestPoll.options.some((option) => option.id === optionId)
       ) {
         throw new BadRequestException('Choose a valid poll option');
+      }
+      // Recheck after live edits so no channel can save a Canteen ballot while waiting for the lock.
+      if (latestPoll.options.some(
+        (option) => option.id === optionId && /canteen/i.test(option.label),
+      )) {
+        throw new BadRequestException('This choice is unavailable for voting');
       }
       currentPoll = latestPoll;
       // Serialize the deadline check with finalization so a late write cannot change final results.

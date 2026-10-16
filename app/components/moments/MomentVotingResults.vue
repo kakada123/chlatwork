@@ -27,7 +27,7 @@ const editingOptions = ref(false);
 const savingOptions = ref(false);
 const optionError = ref("");
 const uploadingOption = ref("");
-const optionDraft = ref<Array<{ key: string; id?: string; label: string; hasVotes: boolean }>>([]);
+const optionDraft = ref<Array<{ key: string; id?: string; label: string }>>([]);
 const originalOptionIds = ref<string[]>([]);
 let nextDraftOptionKey = 0;
 const validOptions = computed(() => {
@@ -48,7 +48,6 @@ function startEditingOptions() {
     key: result.optionId,
     id: result.optionId,
     label: result.label,
-    hasVotes: Boolean(result.hasVotes),
   }));
   optionError.value = "";
   editingOptions.value = true;
@@ -64,13 +63,13 @@ function cancelEditingOptions() {
 async function addOption() {
   if (savingOptions.value || optionDraft.value.length >= 15) return;
   const key = `new-${++nextDraftOptionKey}`;
-  optionDraft.value.push({ key, label: "", hasVotes: false });
+  optionDraft.value.push({ key, label: "" });
   await nextTick();
   document.getElementById(`vote-option-${props.moment.id}-${key}`)?.focus();
 }
 
 function removeOption(key: string) {
-  if (optionDraft.value.length <= 2) return;
+  if (savingOptions.value || optionDraft.value.length <= 2) return;
   optionDraft.value = optionDraft.value.filter((option) => option.key !== key);
 }
 
@@ -209,7 +208,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
             :id="`vote-option-${moment.id}-${option.key}`"
             v-model="option.label"
             maxlength="120"
-            :disabled="option.hasVotes || savingOptions"
+            :disabled="savingOptions"
             class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 disabled:opacity-60 dark:border-white/15 dark:bg-slate-900 dark:text-white"
           />
           <label v-if="option.id" class="cursor-pointer rounded-lg border border-slate-300 p-2 dark:border-white/15" :aria-label="managerCopy.optionImage"><ImagePlus class="h-4 w-4" aria-hidden="true" /><span class="sr-only">{{ managerCopy.optionImage }}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" :disabled="Boolean(uploadingOption)" @change="option.id && uploadOptionImage($event, option.id)" /></label>
@@ -217,7 +216,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
             type="button"
             class="rounded-lg border border-red-200 p-2 text-red-600 disabled:opacity-40 dark:border-red-300/20 dark:text-red-300"
             :aria-label="managerCopy.removePollOption(option.label || managerCopy.pollOptionLabel(index + 1))"
-            :disabled="option.hasVotes || optionDraft.length <= 2 || savingOptions"
+            :disabled="optionDraft.length <= 2 || savingOptions"
             @click="removeOption(option.key)"
           >
             <Trash2 class="h-4 w-4" aria-hidden="true" />

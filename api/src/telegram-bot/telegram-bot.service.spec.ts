@@ -218,7 +218,9 @@ describe('Telegram group vote updates', () => {
       identityMode,
       voteDate: '2026-09-08',
       totalVotes: 1,
-      results: [{ optionId: 'option-1', label: 'Pizza', votes: 1 }],
+      results: [{ optionId: 'option-1', label: 'Pizza', votes: 1 }] as Array<{
+        optionId: string; label: string; votes: number; imageId?: string;
+      }>,
     };
     const moments = {
       respondToTelegramVote: jest.fn().mockResolvedValue(poll),
@@ -230,6 +232,7 @@ describe('Telegram group vote updates', () => {
       editMessage: jest.fn(),
       editInlineMessage: jest.fn(),
       sendMessage: jest.fn().mockResolvedValue({ message_id: 12 }),
+      sendPhoto: jest.fn().mockResolvedValue({ message_id: 13 }),
       deleteMessage: jest.fn().mockResolvedValue(true),
     };
     const service = new TelegramBotService(
@@ -260,6 +263,7 @@ describe('Telegram group vote updates', () => {
       expect.objectContaining({ telegramUserId: '123', displayName: 'Sokha' }),
     );
     expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'Vote saved.');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(bot.sendMessage).not.toHaveBeenCalledWith(
       chat.id,
       expect.stringContaining('Sure you want to vote'),
@@ -267,6 +271,81 @@ describe('Telegram group vote updates', () => {
       undefined,
       10,
     );
+  });
+
+  it.each(['vote', 'cast', 'legacy'])(
+    'rejects Canteen, shows its image and deletes only the reaction after five seconds (%s)', async (action) => {
+      jest.useFakeTimers();
+      try {
+        const { service, bot, callback, poll, moments } = setup();
+        const imageId = '00000000-0000-4000-8000-000000000003';
+        Object.assign(poll.results[0], { label: 'cAnTeEn 😭', imageId });
+        const roundId = '00000000-0000-4000-8000-000000000004';
+        moments.getTelegramVoteRound.mockResolvedValue({
+          id: roundId, momentId: poll.id, telegramChatId: BigInt(chat.id),
+        });
+        const query = action === 'legacy' ? callback : {
+          ...callback,
+          data: `poll:${action}:${action === 'cast' ? roundId : poll.id}:option-1`,
+          message: { message_id: 10, chat },
+        };
+        await service.handleUpdate({ update_id: 1, callback_query: query });
+        expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+        expect(bot.sendMessage).not.toHaveBeenCalled();
+        expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'Hueee, Kom ey nor?');
+        expect(bot.sendPhoto).toHaveBeenCalledWith(
+          chat.id,
+          `https://chlatwork.com/api/moments/${poll.slug}/media/${imageId}?format=jpeg`,
+          'Hueee, Kom ey nor?',
+        );
+        bot.deleteMessage.mockClear();
+        await jest.advanceTimersByTimeAsync(4_999);
+        expect(bot.deleteMessage).not.toHaveBeenCalled();
+        await jest.advanceTimersByTimeAsync(1);
+        expect(bot.deleteMessage).toHaveBeenCalledTimes(1);
+        expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 13);
+      } finally {
+        jest.useRealTimers();
+      }
+    },
+  );
+
+  it('sends the same temporary text when the selected Canteen choice has no image', async () => {
+    jest.useFakeTimers();
+    try {
+      const { service, bot, callback, poll, moments } = setup();
+      poll.results[0]!.label = 'Canteen';
+      bot.sendMessage.mockResolvedValue({ message_id: 14 });
+      await service.handleUpdate({
+        update_id: 1,
+        callback_query: { ...callback, data: `poll:vote:${poll.id}:option-1`, message: { message_id: 10, chat } },
+      });
+      expect(bot.sendPhoto).not.toHaveBeenCalled();
+      expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+      expect(bot.sendMessage).toHaveBeenLastCalledWith(chat.id, 'Hueee, Kom ey nor?');
+      bot.deleteMessage.mockClear();
+      await jest.advanceTimersByTimeAsync(5_000);
+      expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 14);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('still rejects Canteen if its photo cannot be sent', async () => {
+    const { service, bot, callback, poll, prisma, moments } = setup();
+    Object.assign(poll.results[0], {
+      label: 'Canteen', imageId: '00000000-0000-4000-8000-000000000003',
+    });
+    bot.sendPhoto.mockRejectedValue(new Error('Photo unavailable'));
+    await expect(service.handleUpdate({
+      update_id: 1,
+      callback_query: { ...callback, data: `poll:vote:${poll.id}:option-1`, message: { message_id: 10, chat } },
+    })).resolves.toBeUndefined();
+    expect(prisma.telegramBotUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: { processedAt: expect.any(Date) },
+    }));
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
   });
 
   it('records a vote for a later added choice on the first button press', async () => {
@@ -285,6 +364,45 @@ describe('Telegram group vote updates', () => {
       'option-15',
       expect.objectContaining({ telegramUserId: '123' }),
     );
+  });
+
+  it('rejects an inline Canteen vote without messaging the voter privately', async () => {
+    const { service, bot, callback, moments, poll } = setup();
+    Object.assign(poll.results[0], {
+      label: 'Canteen', imageId: '00000000-0000-4000-8000-000000000003',
+    });
+    await service.handleUpdate({
+      update_id: 1,
+      callback_query: {
+        ...callback, data: `poll:vote:${poll.id}:option-1`,
+        message: undefined, inline_message_id: 'inline-1',
+      },
+    });
+    expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+    expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'Hueee, Kom ey nor?');
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
+  it('handles a failed reaction deletion without replaying the webhook', async () => {
+    jest.useFakeTimers();
+    try {
+      const { service, bot, callback, poll, moments, prisma } = setup();
+      Object.assign(poll.results[0], {
+        label: 'Canteen', imageId: '00000000-0000-4000-8000-000000000003',
+      });
+      await service.handleUpdate({
+        update_id: 1,
+        callback_query: { ...callback, data: `poll:vote:${poll.id}:option-1`, message: { message_id: 10, chat } },
+      });
+      bot.deleteMessage.mockRejectedValueOnce(new Error('Message already deleted'));
+      await expect(jest.advanceTimersByTimeAsync(5_000)).resolves.toBeUndefined();
+      expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 13);
+      expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+      expect(prisma.telegramBotUpdate.deleteMany).not.toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('records an active group-round vote on the first button press', async () => {
