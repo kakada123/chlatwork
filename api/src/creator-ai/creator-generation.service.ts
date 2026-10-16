@@ -1,3 +1,4 @@
+import { BotAccessService } from '../bot-admin/bot-access.service';
 import { createHash } from 'node:crypto';
 import { HttpStatus, Injectable, Optional } from '@nestjs/common';
 import { AiFeature } from '@prisma/client';
@@ -36,6 +37,7 @@ export class CreatorGenerationService {
     private readonly credits: CreatorCreditsService,
     private readonly pricing: CreatorPricingService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
+    @Optional() private readonly botAccess?: BotAccessService,
   ) {}
 
   async generate(
@@ -43,6 +45,8 @@ export class CreatorGenerationService {
     input: Omit<CreatorTextGenerationInput, 'idempotencyKey'>,
     idempotencyHeader: string | undefined,
   ) {
+    if (input.sourceBot)
+      await this.botAccess?.assertAllowed(input.sourceBot, userId);
     await this.availability?.assertCreatorEnabled(input.feature);
     const idempotencyKey =
       this.credits.validateIdempotencyKey(idempotencyHeader);
@@ -63,6 +67,7 @@ export class CreatorGenerationService {
       inputSummary: input.inputSummary,
       credits: cost,
       isVideo: false,
+      sourceBot: input.sourceBot,
     });
 
     if (reservation.kind === 'existing') {
@@ -76,6 +81,10 @@ export class CreatorGenerationService {
         prompt.instructions +=
           '\nThe main result replaces one Telegram text message. Keep that result within 4096 UTF-16 code units. Put no command prefix, labels or explanations inside the main result.';
       }
+      // Status delivery and wallet contention may take time; recheck at the
+      // provider boundary and use the existing refund path after revocation.
+      if (input.sourceBot)
+        await this.botAccess?.assertAllowed(input.sourceBot, userId);
       const generated = await this.gateway.generateStructured(
         input.feature,
         reservation.generation.id,
@@ -89,6 +98,7 @@ export class CreatorGenerationService {
         reservation.generation.id,
         generated.data,
         generated.usage,
+        input.sourceBot,
       );
       return {
         generationId: reservation.generation.id,
@@ -109,6 +119,7 @@ export class CreatorGenerationService {
               ? Number((error as { durationMs: unknown }).durationMs) || 0
               : 0,
         },
+        input.sourceBot,
       );
       throw creatorGenerationFailed();
     }

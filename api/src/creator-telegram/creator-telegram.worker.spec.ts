@@ -5,7 +5,10 @@ import {
   splitCreatorTelegramText,
 } from './creator-telegram.worker';
 
-function setup(overrides: Record<string, unknown> = {}) {
+function setup(
+  overrides: Record<string, unknown> = {},
+  access?: { allowed: jest.Mock },
+) {
   const job: any = {
     updateId: 42n,
     userId: 'owner',
@@ -89,11 +92,22 @@ function setup(overrides: Record<string, unknown> = {}) {
     generations as never,
     bot as never,
     { availableKeyboard: async () => ({ inline_keyboard: [] }) } as never,
+    access as never,
   );
   return { worker, job, prisma, generations, bot, config };
 }
 
 describe('Creator Telegram worker', () => {
+  it('finishes a queued request without generation or delivery after bot suspension', async () => {
+    const access = { allowed: jest.fn().mockResolvedValue(false) };
+    const test = setup({}, access);
+    await test.worker.tick();
+    expect(test.generations.generate).not.toHaveBeenCalled();
+    expect(test.bot.sendCopyableMessage).not.toHaveBeenCalled();
+    expect(test.job.processedAt).toBeInstanceOf(Date);
+    expect(test.job.content).toBeNull();
+  });
+
   const businessJob = {
     content: '/rewrite original content',
     chatId: 456n,
@@ -570,6 +584,7 @@ describe('Creator Telegram worker', () => {
           tone: 'NATURAL_KHMER',
         },
         inputSummary: 'Telegram Khmer AI',
+        sourceBot: 'CREATOR',
       },
       'creator-telegram:42',
     );

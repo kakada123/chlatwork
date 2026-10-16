@@ -1,7 +1,12 @@
 import {
+  BotAccessService,
+  botAccessAllowed,
+} from '../bot-admin/bot-access.service';
+import {
   BadRequestException,
   Injectable,
   Logger,
+  Optional,
   type OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -29,6 +34,7 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
     private readonly bot: TelegramBotClient,
     private readonly security: SecurityService,
     private readonly alerts: TelegramBusinessSecurityAlertsService,
+    @Optional() private readonly botAccess?: BotAccessService,
   ) {}
 
   onModuleInit() {
@@ -105,6 +111,15 @@ export class TelegramBusinessSecurityService implements OnModuleInit {
       this.recordSkip('outgoing_message');
       return;
     }
+
+    // Business scans belong to the verified connection owner, never a customer.
+    if (
+      this.botAccess &&
+      !botAccessAllowed(
+        await this.botAccess.lookup('CHLATWORK', connection.user.id),
+      )
+    )
+      return;
 
     const result = await this.security.scan(message);
     if (!this.shouldDelete(result)) {

@@ -127,10 +127,11 @@ export class CreatorCreditAdminService {
     adminUserId: string,
     idempotencyHeader: string | undefined,
     input: AdjustCreatorCreditsDto,
+    transaction?: Prisma.TransactionClient,
   ) {
     const key = this.credits.validateIdempotencyKey(idempotencyHeader);
     const referenceId = `ADMIN:${createHash('sha256').update(`${adminUserId}:${key}`).digest('hex')}`;
-    return this.prisma.$transaction(async (tx) => {
+    const apply = async (tx: Prisma.TransactionClient) => {
       // Serialize retries across targets, then share the wallet lock used by generations.
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${referenceId}))`;
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-user:${input.userId}`}))`;
@@ -198,7 +199,8 @@ export class CreatorCreditAdminService {
         },
       });
       return { transactionId: transaction.id, balance: nextBalance };
-    });
+    };
+    return transaction ? apply(transaction) : this.prisma.$transaction(apply);
   }
 
   async updateUsageLimit(

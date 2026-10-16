@@ -1,5 +1,7 @@
+import { BotAccessService } from '../bot-admin/bot-access.service';
 import {
   Injectable,
+  Optional,
   Logger,
   OnModuleDestroy,
   OnModuleInit,
@@ -82,6 +84,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     private readonly generations: CreatorGenerationService,
     private readonly bot: CreatorTelegramClient,
     private readonly menu: CreatorTelegramService,
+    @Optional() private readonly botAccess?: BotAccessService,
   ) {}
 
   onModuleInit() {
@@ -204,6 +207,8 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     // Recheck ownership at execution time; queued work must not charge or reveal
     // an account that has since been disabled or unlinked from this Telegram user.
     if (
+      (this.botAccess &&
+        !(await this.botAccess.allowed('CREATOR', job.userId))) ||
       !owner?.user.isActive ||
       owner.user.id !== job.userId ||
       Date.now() - job.createdAt.getTime() > DAY_MS
@@ -237,6 +242,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           job.userId,
           {
             feature: job.feature,
+            sourceBot: 'CREATOR',
             payload: {
               content: job.content,
               language: 'KHMER',
@@ -312,7 +318,12 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       },
       select: { user: { select: { id: true, isActive: true } } },
     });
-    if (!recipient?.user.isActive || recipient.user.id !== job.userId) {
+    if (
+      (this.botAccess &&
+        !(await this.botAccess.allowed('CREATOR', job.userId))) ||
+      !recipient?.user.isActive ||
+      recipient.user.id !== job.userId
+    ) {
       await this.finish(job);
       return;
     }
@@ -413,7 +424,13 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       },
       select: { user: { select: { id: true, isActive: true } } },
     });
-    if (!owner?.user.isActive || owner.user.id !== job.userId) return false;
+    if (
+      (this.botAccess &&
+        !(await this.botAccess.allowed('CREATOR', job.userId))) ||
+      !owner?.user.isActive ||
+      owner.user.id !== job.userId
+    )
+      return false;
     const connection = await this.bot.getBusinessConnection(
       job.businessConnectionId,
     );
@@ -511,6 +528,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
             },
             inputSummary: 'Telegram Business command',
             outputMode: 'BUSINESS_EDIT',
+            sourceBot: 'CREATOR',
           },
           `creator-telegram:${job.updateId}`,
         );

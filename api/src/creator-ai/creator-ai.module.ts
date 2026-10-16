@@ -1,3 +1,4 @@
+import { BotAccessModule } from '../bot-admin/bot-access.module';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { CreatorAiController } from './creator-ai.controller';
@@ -18,7 +19,7 @@ import { CreatorCreditAdminController } from './creator-credit-admin.controller'
 import { CreatorCreditAdminService } from './creator-credit-admin.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, BotAccessModule],
   controllers: [
     CreatorAiController,
     CreatorCreditAdminController,
@@ -40,6 +41,7 @@ import { CreatorCreditAdminService } from './creator-credit-admin.service';
     CreatorVideoUploadTicketService,
   ],
   exports: [
+    CreatorCreditAdminService,
     CreatorGenerationService,
     CreatorCreditsService,
     CreatorPlanLimitsService,

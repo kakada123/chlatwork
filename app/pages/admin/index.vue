@@ -132,6 +132,9 @@ function formatChartDate(value: string) {
 </script>
 
 <template>
+  <div class="mx-auto max-w-7xl px-4 pt-5 sm:px-6">
+    <NuxtLink to="/admin/bots" class="inline-flex rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white">Open Bot Admin →</NuxtLink>
+  </div>
   <main class="space-y-6 pb-24 text-slate-950 sm:pb-4 dark:text-white">
     <header class="overflow-hidden rounded-3xl bg-[#082552] px-5 py-6 text-white shadow-xl shadow-sky-950/10 sm:px-8 sm:py-8 dark:border dark:border-white/10 dark:bg-[#0b1729]">
       <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">

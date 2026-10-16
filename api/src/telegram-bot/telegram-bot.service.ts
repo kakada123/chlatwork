@@ -1,3 +1,6 @@
+import { BotPaidAiService } from '../bot-admin/bot-paid-ai.service';
+import { CreatorAiException } from '../creator-ai/creator-ai.errors';
+import { BotGatewayService } from '../bot-admin/bot-gateway.service';
 import {
   BadRequestException,
   ConflictException,
@@ -133,9 +136,15 @@ export class TelegramBotService {
     @Optional() private readonly personalAssistant?: PersonalAssistantService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
     @Optional() private readonly klaKlok?: TelegramKlaKlokService,
-    @Optional() private readonly businessSecurity?: TelegramBusinessSecurityService,
+    @Optional()
+    private readonly businessSecurity?: TelegramBusinessSecurityService,
+    @Optional() private readonly botGateway?: BotGatewayService,
+    @Optional() private readonly paidAi?: BotPaidAiService,
   ) {
-    this.quickSplitConversation = new TelegramQuickSplitConversation(prisma, bot);
+    this.quickSplitConversation = new TelegramQuickSplitConversation(
+      prisma,
+      bot,
+    );
   }
 
   isValidWebhookSecret(candidate?: string) {
@@ -172,8 +181,14 @@ export class TelegramBotService {
         await this.businessSecurity?.handleMessage(businessMessage);
       } else {
         await this.observeGroupMembers(update);
+        const accessHandled = await this.botGateway?.handle(
+          'CHLATWORK',
+          update,
+        );
         const disabled = await this.disabledUpdateFeature(update);
-        if (disabled) {
+        if (accessHandled) {
+          // Access and private account commands were handled by the shared gate.
+        } else if (disabled) {
           // Callback buttons and old Telegram messages remain clickable after an
           // admin switch, so the webhook checks each update before side effects.
           const unavailableMessage =
@@ -251,9 +266,16 @@ export class TelegramBotService {
       if (command === 'klaklok') return 'kla-klok';
       if (command === 'split') return 'bill-split';
       if (
-        ['joinvote', 'dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote']
-          .includes(command ?? '')
-      ) return 'group-voting';
+        [
+          'joinvote',
+          'dailyvote',
+          'votetime',
+          'voteduration',
+          'resettodayvote',
+          'stopdailyvote',
+        ].includes(command ?? '')
+      )
+        return 'group-voting';
       if (
         message.text?.trim().toLowerCase() === 'khqr' ||
         command === '$' ||
@@ -342,14 +364,15 @@ export class TelegramBotService {
       ) {
         await this.sendMemberQrMenu(message.chat.id);
       } else if (command === 'joinvote') {
-        await this.bot.sendMessage(
-          message.chat.id,
-          'Vote reminders enabled.',
-        );
+        await this.bot.sendMessage(message.chat.id, 'Vote reminders enabled.');
       } else if (
-        ['dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote'].includes(
-          command ?? '',
-        )
+        [
+          'dailyvote',
+          'votetime',
+          'voteduration',
+          'resettodayvote',
+          'stopdailyvote',
+        ].includes(command ?? '')
       ) {
         await this.handleGroupVoteCommand(message, command!);
       } else if (command === 'split') {
@@ -454,19 +477,32 @@ export class TelegramBotService {
         if (!(error instanceof TelegramExpenseParseError)) throw error;
       }
       try {
-        if (!this.personalAssistant) {
+        if (
+          !this.personalAssistant ||
+          (this.paidAi &&
+            (!this.ai.isConfigured() ||
+              !message.text.trim() ||
+              message.text.length > 2000))
+        ) {
           await this.prepareExpense(message, linked);
           return;
         }
-        const assistantReply = await this.personalAssistant.handleMessage(
-          message.text,
-          {
+        const assistantOperation = () =>
+          this.personalAssistant!.handleMessage(message.text!, {
             userId: linked.user.id,
             telegramChatId: message.chat.id,
             timeZone:
               linked.user.telegramNotificationTimeZone || DEFAULT_TIME_ZONE,
-          },
-        );
+          });
+        const assistantReply = this.paidAi
+          ? await this.paidAi.run(
+              linked.user.id,
+              message.message_id,
+              'CHLATWORK_ASSISTANT',
+              message.text,
+              assistantOperation,
+            )
+          : await assistantOperation();
         if (assistantReply.consumed) {
           await this.bot.sendMessage(
             message.chat.id,
@@ -475,7 +511,11 @@ export class TelegramBotService {
           return;
         }
       } catch (error) {
-        if (error instanceof BadRequestException) {
+        if (
+          error instanceof CreatorAiException ||
+          error instanceof ConflictException ||
+          error instanceof BadRequestException
+        ) {
           await this.bot.sendMessage(message.chat.id, String(error.message));
           return;
         }
@@ -1156,14 +1196,22 @@ export class TelegramBotService {
       ) {
         throw new BadRequestException('This poll belongs to another group.');
       }
-      const currentPoll = await this.moments.getTelegramVotingMoment(round?.momentId ?? momentId);
-      const choice = currentPoll.results.find((result) => result.optionId === optionId);
+      const currentPoll = await this.moments.getTelegramVotingMoment(
+        round?.momentId ?? momentId,
+      );
+      const choice = currentPoll.results.find(
+        (result) => result.optionId === optionId,
+      );
       // The Canteen button is a joke, never a ballot or a replacement for an existing vote.
       if (choice && /canteen/i.test(choice.label)) {
         await this.bot.answerCallback(callback.id, 'Hueee, Kom ey nor?');
         // Inline callbacks hide the destination; do not send to the voter's private chat instead.
         if (pollMessage && !callback.inline_message_id) {
-          await this.sendCanteenVoteReaction(pollMessage.chat.id, currentPoll, optionId);
+          await this.sendCanteenVoteReaction(
+            pollMessage.chat.id,
+            currentPoll,
+            optionId,
+          );
         }
         return;
       }
@@ -1262,7 +1310,9 @@ export class TelegramBotService {
       const sent = choice.imageId
         ? await this.bot.sendPhoto(
             chatId,
-            this.appUrl(`/api/moments/${poll.slug}/media/${choice.imageId}?format=jpeg`),
+            this.appUrl(
+              `/api/moments/${poll.slug}/media/${choice.imageId}?format=jpeg`,
+            ),
             caption,
           )
         : await this.bot.sendMessage(chatId, caption);
@@ -1512,10 +1562,18 @@ export class TelegramBotService {
           message.chat.id,
           'Reset today’s entire vote? All votes and the current round will be removed. Use /votetime HH:MM afterward to start a new round today.',
           {
-            inline_keyboard: [[
-              { text: 'Yes, reset today', callback_data: `rv:y:${round.id}:${adminId}` },
-              { text: 'Cancel', callback_data: `rv:n:${round.id}:${adminId}` },
-            ]],
+            inline_keyboard: [
+              [
+                {
+                  text: 'Yes, reset today',
+                  callback_data: `rv:y:${round.id}:${adminId}`,
+                },
+                {
+                  text: 'Cancel',
+                  callback_data: `rv:n:${round.id}:${adminId}`,
+                },
+              ],
+            ],
           },
         );
       } catch (error) {
@@ -1674,10 +1732,7 @@ export class TelegramBotService {
     const action = parseKlaKlokCallback(data);
     const message = callback.message;
     if (!action || !message) {
-      await this.bot.answerCallback(
-        callback.id,
-        'ប៊ូតុងនេះប្រើលែងបានហើយ 😅',
-      );
+      await this.bot.answerCallback(callback.id, 'ប៊ូតុងនេះប្រើលែងបានហើយ 😅');
       return;
     }
 
@@ -1714,9 +1769,7 @@ export class TelegramBotService {
       if (action.action === 'bet') {
         if (!this.isGroupCallback(callback, message)) return;
         if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
-          throw new UnauthorizedException(
-            'ប៊ូតុងនេះជារបស់អ្នកផ្សេង។',
-          );
+          throw new UnauthorizedException('ប៊ូតុងនេះជារបស់អ្នកផ្សេង។');
         }
         const game = await this.klaKlok.requireOpenRound(
           action.gameId,
@@ -1750,9 +1803,7 @@ export class TelegramBotService {
       if (action.action === 'cancel') {
         if (!this.isGroupCallback(callback, message)) return;
         if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
-          throw new UnauthorizedException(
-            'ប៊ូតុងនេះជារបស់អ្នកផ្សេង។',
-          );
+          throw new UnauthorizedException('ប៊ូតុងនេះជារបស់អ្នកផ្សេង។');
         }
         const game = await this.klaKlok.getGame(action.gameId);
         if (game.telegramChatId !== message.chat.id) {
@@ -1846,9 +1897,7 @@ export class TelegramBotService {
       }
 
       if (!callbackBelongsToUser(action.userToken, callback.from.id)) {
-        throw new UnauthorizedException(
-          'ប៊ូតុងនេះជារបស់មេល្បែងផ្សេង។',
-        );
+        throw new UnauthorizedException('ប៊ូតុងនេះជារបស់មេល្បែងផ្សេង។');
       }
       if (action.action === 'end-cancel') {
         await this.bot.editMessage(
@@ -1946,7 +1995,10 @@ export class TelegramBotService {
       }
     } catch (error) {
       if (!(error instanceof TelegramSplitParseError)) throw error;
-      await this.bot.sendMessage(message.chat.id, `${error.message}\n\nExample: /split 36000 / 6`);
+      await this.bot.sendMessage(
+        message.chat.id,
+        `${error.message}\n\nExample: /split 36000 / 6`,
+      );
       return;
     }
     const linked = await this.findLinkedUser(String(message.from.id));
@@ -2058,7 +2110,11 @@ export class TelegramBotService {
     });
     // Resolve a requested username through the verified group lookup; never substitute the sender's QR.
     if (split.recipientUsername) {
-      await this.sendMentionedMemberQr(message, { username: split.recipientUsername }, contentForMember);
+      await this.sendMentionedMemberQr(
+        message,
+        { username: split.recipientUsername },
+        contentForMember,
+      );
       return;
     }
     const displayName = this.telegramDisplayName(message.from);
@@ -2370,10 +2426,17 @@ export class TelegramBotService {
         voice.file_id,
         10 * 1024 * 1024,
       );
-      const transcript = await this.ai.transcribeVoice(
-        bytes,
-        voice.mime_type ?? 'audio/ogg',
-      );
+      const voiceOperation = () =>
+        this.ai.transcribeVoice(bytes, voice.mime_type ?? 'audio/ogg');
+      const transcript = this.paidAi
+        ? await this.paidAi.run(
+            linked.user.id,
+            message.message_id,
+            'CHLATWORK_VOICE',
+            bytes,
+            voiceOperation,
+          )
+        : await voiceOperation();
       await this.bot.sendMessage(
         message.chat.id,
         `🎙 I heard: “${transcript}”\nI will still ask before saving.`,
@@ -2408,11 +2471,17 @@ export class TelegramBotService {
       );
       const currency =
         linked.user.expenseProfile?.currency ?? ExpenseCurrency.USD;
-      const extracted = await this.ai.extractReceipt(
-        bytes,
-        'image/jpeg',
-        currency,
-      );
+      const receiptOperation = () =>
+        this.ai.extractReceipt(bytes, 'image/jpeg', currency);
+      const extracted = this.paidAi
+        ? await this.paidAi.run(
+            linked.user.id,
+            message.message_id,
+            'CHLATWORK_RECEIPT',
+            bytes,
+            receiptOperation,
+          )
+        : await receiptOperation();
       await this.bot.sendMessage(
         message.chat.id,
         `🧾 Receipt details extracted (${extracted.confidence}% confidence). ` +
@@ -2433,11 +2502,13 @@ export class TelegramBotService {
     source: string,
   ) {
     const message =
-      error instanceof TelegramAssistantAiUnavailableError
-        ? 'Voice and receipt capture are not configured yet.'
-        : error instanceof TelegramAssistantAiProcessingError
-          ? error.message
-          : `I could not process that ${source}.`;
+      error instanceof CreatorAiException || error instanceof ConflictException
+        ? error.message
+        : error instanceof TelegramAssistantAiUnavailableError
+          ? 'Voice and receipt capture are not configured yet.'
+          : error instanceof TelegramAssistantAiProcessingError
+            ? error.message
+            : `I could not process that ${source}.`;
     await this.bot.sendMessage(
       chatId,
       `${message}\n\nYou can still send text like “Lunch 4.50”.`,
@@ -3384,8 +3455,11 @@ export class TelegramBotService {
       if (/^\/klaklok\b/.test(line)) return 'kla-klok';
       if (/^\/split/.test(line)) return 'bill-split';
       if (
-        /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote)/.test(line)
-      ) return 'group-voting';
+        /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote)/.test(
+          line,
+        )
+      )
+        return 'group-voting';
       if (/^\/(?:today|recent|spend)/.test(line)) return 'spending';
       if (/^\/vote\b/.test(line)) return 'voting';
       if (/^\/(?:alerts|weekly)/.test(line)) return 'notifications';

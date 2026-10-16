@@ -1,3 +1,8 @@
+import { BotGatewayService } from '../bot-admin/bot-gateway.service';
+import {
+  BotAccessService,
+  botAccessAllowed,
+} from '../bot-admin/bot-access.service';
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiFeature, AuthProvider, Prisma } from '@prisma/client';
@@ -65,6 +70,8 @@ export class CreatorTelegramService {
     private readonly plans: CreatorPlanLimitsService,
     private readonly pricing: CreatorPricingService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
+    @Optional() private readonly botGateway?: BotGatewayService,
+    @Optional() private readonly botAccess?: BotAccessService,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -114,6 +121,8 @@ export class CreatorTelegramService {
           message.message_thread_id <= 0))
     )
       return;
+
+    if (await this.botGateway?.handle('CREATOR', update)) return;
 
     const chatId = message.chat.id;
     const context: CreatorReplyContext = {
@@ -454,6 +463,11 @@ export class CreatorTelegramService {
       connection.rights?.can_reply !== true
     )
       return;
+    if (
+      this.botAccess &&
+      !botAccessAllowed(await this.botAccess.lookup('CREATOR', sender.id))
+    )
+      return;
     const linked = await this.prisma.socialAccount.findUnique({
       where: {
         provider_providerUserId: {
@@ -485,7 +499,8 @@ export class CreatorTelegramService {
         // Telegram may echo our placeholder without a bot sender marker, even after AI finishes.
         if (
           duplicate &&
-          (message.text === CREATOR_BUSINESS_PENDING_TEXT || message.text === '…')
+          (message.text === CREATOR_BUSINESS_PENDING_TEXT ||
+            message.text === '…')
         )
           // Accept the previous placeholder too when an update crosses a deployment.
           return;

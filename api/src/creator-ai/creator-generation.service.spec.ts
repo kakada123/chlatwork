@@ -150,7 +150,7 @@ describe('CreatorGenerationService', () => {
     ).toThrow('Grammar corrections do not match the result');
   });
 
-  function setup() {
+  function setup(access?: { assertAllowed: jest.Mock }) {
     const gateway = {
       generateStructured: jest.fn().mockResolvedValue({
         data: result,
@@ -190,9 +190,41 @@ describe('CreatorGenerationService', () => {
       gateway as unknown as CreatorAiGatewayService,
       credits as unknown as CreatorCreditsService,
       pricing as unknown as CreatorPricingService,
+      undefined,
+      access as never,
     );
     return { service, gateway, credits };
   }
+
+  it('refunds and avoids the provider when bot access is revoked during reservation', async () => {
+    const access = {
+      assertAllowed: jest
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('revoked')),
+    };
+    const { service, gateway, credits } = setup(access);
+    await expect(
+      service.generate(
+        'user-id',
+        {
+          feature: AiFeature.KHMER_GRAMMAR,
+          sourceBot: 'CREATOR',
+          payload: { content: 'She go.' },
+          inputSummary: 'Telegram Khmer AI',
+        },
+        'creator-telegram:123',
+      ),
+    ).rejects.toThrow();
+    expect(credits.reserve).toHaveBeenCalled();
+    expect(gateway.generateStructured).not.toHaveBeenCalled();
+    expect(credits.refund).toHaveBeenCalledWith(
+      'generation-id',
+      'AI_GENERATION_FAILED',
+      expect.any(Object),
+      'CREATOR',
+    );
+  });
 
   it('does not call OpenAI when reservation rejects insufficient credits', async () => {
     const { service, gateway, credits } = setup();

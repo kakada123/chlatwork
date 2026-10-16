@@ -236,15 +236,13 @@ describe('Creator structured response handling', () => {
       durationMs: 1,
     };
     const gateway = {
-      transcribe: jest
-        .fn()
-        .mockResolvedValue({
-          data: {
-            text: 'សួស្តី',
-            segments: [{ start: 0, end: 3, text: 'សួស្តី' }],
-          },
-          usage,
-        }),
+      transcribe: jest.fn().mockResolvedValue({
+        data: {
+          text: 'សួស្តី',
+          segments: [{ start: 0, end: 3, text: 'សួស្តី' }],
+        },
+        usage,
+      }),
       generateStructured: jest
         .fn()
         .mockResolvedValueOnce({ data: ['សួស្តី'], usage })
@@ -293,12 +291,10 @@ describe('Creator structured response handling', () => {
     );
     const textCredits = {
       validateIdempotencyKey: () => 'request-key',
-      reserve: jest
-        .fn()
-        .mockResolvedValue({
-          kind: 'created',
-          generation: { id: 'text-generation' },
-        }),
+      reserve: jest.fn().mockResolvedValue({
+        kind: 'created',
+        generation: { id: 'text-generation' },
+      }),
       markProcessing: jest.fn(),
       refund: jest.fn(),
     };
@@ -329,6 +325,7 @@ describe('Creator structured response handling', () => {
       'text-generation',
       'AI_GENERATION_FAILED',
       expect.objectContaining({ outputTokens: 20, durationMs: 3 }),
+      undefined,
     );
   });
 });

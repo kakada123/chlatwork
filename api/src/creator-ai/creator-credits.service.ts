@@ -1,8 +1,10 @@
+import { BotAccessService } from '../bot-admin/bot-access.service';
 import {
   ConflictException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -44,6 +46,7 @@ export class CreatorCreditsService {
     private readonly config: ConfigService,
     private readonly pricing: CreatorPricingService,
     private readonly protection: CreatorProtectionService,
+    @Optional() private readonly botAccess?: BotAccessService,
   ) {}
 
   validateIdempotencyKey(value: string | undefined) {
@@ -66,10 +69,20 @@ export class CreatorCreditsService {
     inputSummary: string;
     credits: number;
     isVideo: boolean;
+    sourceBot?: 'CREATOR' | 'CHLATWORK';
   }): Promise<CreatorReservation> {
     const estimate = this.pricing.estimatedProviderCost(input.credits);
     return this.prisma.$transaction(
       async (tx) => {
+        // Match the admin profile -> wallet lock order. A suspension cannot
+        // commit in the middle of an authorized bot wallet reservation.
+        if (input.sourceBot && this.botAccess) {
+          await this.botAccess.assertAllowedInTransaction(
+            tx,
+            input.sourceBot,
+            input.userId,
+          );
+        }
         // The user lock serializes wallet, idempotency, and per-user limit checks.
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-user:${input.userId}`}))`;
         // The global lock prevents parallel reservations from overshooting the provider budget.
@@ -148,7 +161,10 @@ export class CreatorCreditsService {
             referenceId: generation.id,
             balanceBefore: updated[0].balance + input.credits,
             balanceAfter: updated[0].balance,
-            metadata: { generationId: generation.id },
+            metadata: {
+              generationId: generation.id,
+              ...(input.sourceBot ? { bot: input.sourceBot } : {}),
+            },
           },
         });
         return {
@@ -172,10 +188,11 @@ export class CreatorCreditsService {
     generationId: string,
     result: CreatorGenerationResult,
     usage: CreatorProviderUsage,
+    sourceBot?: 'CREATOR' | 'CHLATWORK',
   ) {
     // Validate before financial finalization so callers use the existing refund
     // path, and no unsupported field becomes a completed, retrievable result.
-    assertCreatorOutputLanguage(result);
+    if (sourceBot !== 'CHLATWORK') assertCreatorOutputLanguage(result);
     return this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-generation:${generationId}`}))`;
       const generation = await tx.aiGeneration.findUnique({
@@ -213,7 +230,10 @@ export class CreatorCreditsService {
           referenceId: generation.id,
           balanceBefore: balance,
           balanceAfter: balance,
-          metadata: { reservedCreditsFinalized: generation.creditCost },
+          metadata: {
+            reservedCreditsFinalized: generation.creditCost,
+            ...(sourceBot ? { bot: sourceBot } : {}),
+          },
         },
       });
       await tx.aiUsageLog.upsert({
@@ -247,6 +267,7 @@ export class CreatorCreditsService {
     generationId: string,
     errorCode: string,
     usage?: Partial<CreatorProviderUsage>,
+    sourceBot?: 'CREATOR' | 'CHLATWORK',
   ) {
     return this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`creator-ai-generation:${generationId}`}))`;
@@ -282,7 +303,7 @@ export class CreatorCreditsService {
           referenceId: generation.id,
           balanceBefore: wallet.balance - generation.creditCost,
           balanceAfter: wallet.balance,
-          metadata: { errorCode },
+          metadata: { errorCode, ...(sourceBot ? { bot: sourceBot } : {}) },
         },
       });
       await tx.aiUsageLog.upsert({

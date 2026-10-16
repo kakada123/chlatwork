@@ -135,6 +135,9 @@ enum InvitationRecipientType {
 }
 
 enum AiFeature {
+  CHLATWORK_ASSISTANT
+  CHLATWORK_VOICE
+  CHLATWORK_RECEIPT
   POST
   SCRIPT
   HOOK
@@ -190,6 +193,10 @@ enum AiVideoJobStatus {
 }
 
 model User {
+  botProfile                                 TelegramBotProfile? @relation("BotProfileOwner")
+  botProfileReviews                          TelegramBotProfile[] @relation("BotProfileReviewer")
+  botAuditEvents                             TelegramBotAudit[] @relation("BotAuditSubject")
+  botAuditActions                            TelegramBotAudit[] @relation("BotAuditActor")
   id                                         String                        @id @default(uuid()) @db.Uuid
   email                                      String?                       @unique
   phone                                      String?
@@ -1074,4 +1081,88 @@ model RefreshToken {
   @@index([userId])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+// Bot restrictions are independent of website User.isActive.
+model TelegramBotProfile {
+  userId         String                    @id @map("user_id") @db.Uuid
+  user           User                      @relation("BotProfileOwner", fields: [userId], references: [id], onDelete: Cascade)
+  telegramUserId BigInt                    @unique @map("telegram_user_id")
+  username       String?                   @db.VarChar(32)
+  status         String                    @default("PENDING") @db.VarChar(16)
+  version        Int                       @default(0)
+  reviewedBy     String?                   @map("reviewed_by") @db.Uuid
+  reviewer       User?                     @relation("BotProfileReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewedAt     DateTime?                 @map("reviewed_at") @db.Timestamptz
+  createdAt      DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime                  @default(now()) @map("updated_at") @db.Timestamptz
+  memberships    TelegramBotMembership[]
+  qrDrafts       TelegramBotQrDraft[]
+  notifications  TelegramBotNotification[]
+
+  @@index([status, createdAt(sort: Desc)], map: "telegram_bot_profiles_status_idx")
+  @@map("telegram_bot_profiles")
+}
+
+model TelegramBotMembership {
+  userId                String             @map("user_id") @db.Uuid
+  profile               TelegramBotProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  bot                   String             @db.VarChar(16)
+  enabled               Boolean            @default(true)
+  firstPrivateStartedAt DateTime?          @map("first_private_started_at") @db.Timestamptz
+  lastActivityAt        DateTime?          @map("last_activity_at") @db.Timestamptz
+
+  @@id([userId, bot])
+  @@map("telegram_bot_memberships")
+}
+
+model TelegramBotAudit {
+  id            BigInt                    @id @default(autoincrement())
+  userId        String                    @map("user_id") @db.Uuid
+  user          User                      @relation("BotAuditSubject", fields: [userId], references: [id], onDelete: Cascade)
+  actorId       String?                   @map("actor_id") @db.Uuid
+  actor         User?                     @relation("BotAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  bot           String?                   @db.VarChar(16)
+  action        String                    @db.VarChar(40)
+  operationKey  String                    @unique @map("operation_key") @db.VarChar(160)
+  details       Json                      @default("{}")
+  createdAt     DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  notifications TelegramBotNotification[]
+
+  @@index([userId, createdAt(sort: Desc)], map: "telegram_bot_audit_user_idx")
+  @@map("telegram_bot_audit")
+}
+
+model TelegramBotQrDraft {
+  userId    String             @map("user_id") @db.Uuid
+  profile   TelegramBotProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  bot       String             @db.VarChar(16)
+  token     String             @db.VarChar(36)
+  content   Bytes?
+  expiresAt DateTime           @map("expires_at") @db.Timestamptz
+
+  @@id([userId, bot])
+  @@map("telegram_bot_qr_drafts")
+}
+
+model TelegramBotNotification {
+  operationKey String             @map("operation_key") @db.VarChar(160)
+  audit        TelegramBotAudit   @relation(fields: [operationKey], references: [operationKey], onDelete: Cascade)
+  userId       String             @map("user_id") @db.Uuid
+  profile      TelegramBotProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  bot          String             @db.VarChar(16)
+  attempts     Int                @default(0)
+  lockedUntil  DateTime?          @map("locked_until") @db.Timestamptz
+  deliveredAt  DateTime?          @map("delivered_at") @db.Timestamptz
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  @@id([operationKey, bot])
+  @@map("telegram_bot_notifications")
+}
+
+model TelegramBotAdminMigration {
+  name      String   @id
+  appliedAt DateTime @default(now()) @map("applied_at") @db.Timestamptz
+
+  @@map("telegram_bot_admin_migrations")
 }

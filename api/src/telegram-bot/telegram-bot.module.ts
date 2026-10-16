@@ -1,3 +1,4 @@
+import { BotAdminModule } from '../bot-admin/bot-admin.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { MomentsModule } from '../moments/moments.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -19,6 +20,7 @@ import { TelegramUrlSecurityService } from './telegram-url-security.service';
 
 @Module({
   imports: [
+    BotAdminModule,
     MomentsModule,
     NotificationsModule,
     forwardRef(() => PersonalAssistantModule),

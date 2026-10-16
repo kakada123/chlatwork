@@ -150,6 +150,12 @@ onBeforeUnmount(() => {
         >
         <NuxtLink
           v-if="signedIn && user?.role === 'ADMIN'"
+          to="/admin/bots"
+          class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-slate-500 dark:text-white/60"
+          >Bot Admin</NuxtLink
+        >
+        <NuxtLink
+          v-if="signedIn && user?.role === 'ADMIN'"
           to="/admin/tools"
           class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-slate-500 dark:text-white/60"
         >Tool availability</NuxtLink>
