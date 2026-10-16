@@ -3,7 +3,7 @@ import type { TelegramInlineKeyboard } from './telegram-bot.types';
 
 const MAX_PARTICIPANTS = 8;
 const AMOUNT_PATTERN =
-  /^(\$\s*)?([1-9]\d{0,11}(?:\.\d{1,2})?)(?:\s*(USD|KHR|៛))?/i;
+  /^(\$\s*)?((?:0|[1-9]\d{0,11})(?:\.\d{1,2})?)(?:\s*(USD|KHR|៛))?/i;
 
 export interface ParsedTelegramSplit {
   total: string;
@@ -33,6 +33,44 @@ export interface TelegramSplitView {
 }
 
 export class TelegramSplitParseError extends Error {}
+
+export interface TelegramQuickSplit {
+  total: string;
+  currency: ExpenseCurrency;
+  amounts: string[];
+}
+
+export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null {
+  const body = text.trim().replace(/^\/split(?:@[A-Za-z0-9_]+)?\s*/i, '');
+  const amount = AMOUNT_PATTERN.exec(body);
+  if (!amount || !body.slice(amount[0].length).trim().startsWith('/')) return null;
+  const countMatch = /^\/\s*([1-9]\d?)$/.exec(body.slice(amount[0].length).trim());
+  if (!countMatch || Number(countMatch[1]) > 50) {
+    throw new TelegramSplitParseError('Use /split 36000 / 6 with 1–50 people.');
+  }
+  if (amount[1] && /KHR|៛/i.test(amount[3] ?? '')) {
+    throw new TelegramSplitParseError('Choose one currency: KHR or USD.');
+  }
+  // Quick calculations default to riel and never read or change personal tracker settings.
+  const currency = amount[1] || /USD/i.test(amount[3] ?? '') ? 'USD' : 'KHR';
+  const totalCents = parseMoneyCents(amount[2]);
+  return {
+    total: centsToDecimal(totalCents),
+    currency,
+    amounts: equalSplitAmounts(totalCents, currency, Number(countMatch[1])),
+  };
+}
+
+export function buildTelegramQuickSplitMessage(split: TelegramQuickSplit) {
+  const groups = new Map<string, number>();
+  for (const amount of split.amounts) groups.set(amount, (groups.get(amount) ?? 0) + 1);
+  return [
+    `🧾 ${formatTelegramMoney(split.total, split.currency)} ÷ ${split.amounts.length}`,
+    ...[...groups].map(([amount, count]) =>
+      `${groups.size === 1 ? 'Each' : `${count} ${count === 1 ? 'person' : 'people'}`}: ${formatTelegramMoney(amount, split.currency)}`,
+    ),
+  ].join('\n');
+}
 
 export function parseTelegramSplit(
   text: string,
@@ -97,17 +135,7 @@ export function parseTelegramSplit(
   }
 
   const totalCents = parseMoneyCents(amountMatch[2]);
-  // Riel shares use whole riel so the displayed shares still add up to the bill.
-  if (accountCurrency === 'KHR' && totalCents % 100n !== 0n) {
-    throw new TelegramSplitParseError('Use a whole-riel bill total.');
-  }
-  const unit = accountCurrency === 'KHR' ? 100n : 1n;
-  const totalUnits = totalCents / unit;
-  if (totalUnits < BigInt(names.length)) {
-    throw new TelegramSplitParseError('The total is too small to split.');
-  }
-  const base = totalUnits / BigInt(names.length);
-  const remainder = totalUnits % BigInt(names.length);
+  const amounts = equalSplitAmounts(totalCents, accountCurrency, names.length);
 
   return {
     total: centsToDecimal(totalCents),
@@ -115,14 +143,29 @@ export function parseTelegramSplit(
     participants: names.map((name, position) => ({
       position,
       name,
-      amount: centsToDecimal(
-        (base + (BigInt(position) < remainder ? 1n : 0n)) * unit,
-      ),
+      amount: amounts[position],
       ...(joinedMembers
         ? { telegramUserId: joinedMembers[position]!.telegramUserId }
         : {}),
     })),
   };
+}
+
+function equalSplitAmounts(totalCents: bigint, currency: ExpenseCurrency, count: number) {
+  // Whole riel (or USD cents) keep every displayed share adding up exactly to the bill.
+  if (currency === 'KHR' && totalCents % 100n !== 0n) {
+    throw new TelegramSplitParseError('Use a whole-riel bill total.');
+  }
+  const unit = currency === 'KHR' ? 100n : 1n;
+  const totalUnits = totalCents / unit;
+  if (totalUnits < BigInt(count)) {
+    throw new TelegramSplitParseError('The total is too small to split.');
+  }
+  const base = totalUnits / BigInt(count);
+  const remainder = totalUnits % BigInt(count);
+  return Array.from({ length: count }, (_, position) => centsToDecimal(
+    (base + (BigInt(position) < remainder ? 1n : 0n)) * unit,
+  ));
 }
 
 export function buildTelegramSplitMessage(split: TelegramSplitView) {

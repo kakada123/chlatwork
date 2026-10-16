@@ -137,7 +137,8 @@ export type TelegramReplyMarkup =
       resize_keyboard?: boolean;
       one_time_keyboard?: boolean;
     }
-  | { remove_keyboard: true };
+  | { remove_keyboard: true }
+  | { force_reply: true; selective?: boolean; input_field_placeholder?: string };
 
 export interface TelegramApiResponse<T = unknown> {
   ok?: boolean;

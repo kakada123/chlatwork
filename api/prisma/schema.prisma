@@ -926,6 +926,19 @@ model TelegramBotConversationState {
   @@map("telegram_bot_conversation_states")
 }
 
+model TelegramQuickSplitSession {
+  telegramChatId  BigInt   @map("telegram_chat_id")
+  telegramUserId  String   @map("telegram_user_id") @db.VarChar(20)
+  amountInput     String?  @map("amount_input") @db.VarChar(32)
+  promptMessageId Int      @map("prompt_message_id")
+  lastMessageId   Int      @map("last_message_id")
+  expiresAt       DateTime @map("expires_at") @db.Timestamptz
+
+  @@id([telegramChatId, telegramUserId])
+  @@index([expiresAt])
+  @@map("telegram_quick_split_sessions")
+}
+
 model TelegramBudgetAlertState {
   userId        String   @id @map("user_id") @db.Uuid
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -119,6 +119,38 @@ describe('Telegram group member QR commands', () => {
     },
   );
 
+  it('calculates a quick split and sends only the command sender KHQR without an account', async () => {
+    const { bot, send, prisma } = setup();
+    await send('/split 36000 / 6');
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR',
+    );
+    expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+    expect(bot.getChatMember).not.toHaveBeenCalled();
+    const qrQuery = prisma.$queryRaw.mock.calls.find(([sql]) => sql.join('').includes('FROM member_khqr_images'));
+    expect(qrQuery).toContain('tg_123');
+    expect(prisma.$executeRaw.mock.calls.some(([sql]) => sql.join('').includes('telegram_member_qr_messages'))).toBe(true);
+  });
+
+  it('still shows the quick calculation when the sender has no saved QR', async () => {
+    const { bot, send, prisma } = setup();
+    prisma.$queryRaw.mockImplementation(async (sql) => sql.join('').includes('FROM member_khqr_images') ? [] : [{ updateId: 1n }]);
+    await send('/split 36000 / 6');
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, 'Member: No KHQR available yet.');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
+  it('rejects an invalid count before looking up or sending a payment image', async () => {
+    const { bot, send, prisma } = setup();
+    await send('/split 36000 / 0');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, expect.stringContaining('/split 36000 / 6'));
+  });
+
   it('lists private commands for an unlinked user without accessing account data', async () => {
     const { bot, send, prisma } = setup();
     await send('/help', 'private');

@@ -62,6 +62,7 @@ import type {
   TelegramChat,
 } from './telegram-bot.types';
 import { buildTelegramTodaySummary } from './telegram-today-summary';
+import { TelegramQuickSplitConversation } from './telegram-quick-split-conversation';
 import {
   buildMemberQrDirectory,
   readMemberQrMention,
@@ -78,8 +79,11 @@ import {
 import {
   buildTelegramSplitKeyboard,
   buildTelegramSplitMessage,
+  buildTelegramQuickSplitMessage,
   parseTelegramSplit,
+  parseTelegramQuickSplit,
   TelegramSplitParseError,
+  type TelegramQuickSplit,
 } from './telegram-group-split';
 import {
   buildRecentExpenses,
@@ -113,6 +117,7 @@ interface LinkedTelegramUser {
 @Injectable()
 export class TelegramBotService {
   private readonly logger = new Logger(TelegramBotService.name);
+  private readonly quickSplitConversation: TelegramQuickSplitConversation;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -124,7 +129,9 @@ export class TelegramBotService {
     @Optional() private readonly availability?: FeatureAvailabilityService,
     @Optional() private readonly klaKlok?: TelegramKlaKlokService,
     @Optional() private readonly businessSecurity?: TelegramBusinessSecurityService,
-  ) {}
+  ) {
+    this.quickSplitConversation = new TelegramQuickSplitConversation(prisma, bot);
+  }
 
   isValidWebhookSecret(candidate?: string) {
     if (!candidate) return false;
@@ -305,6 +312,11 @@ export class TelegramBotService {
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
       if (message.contact) return;
+      if (await this.quickSplitConversation.handle(
+        message, command,
+        async () => !this.availability || this.availability.isEnabled('telegram:bill-split'),
+        async (split) => this.showQuickSplitResult(message, split),
+      )) return;
       if (command === 'phone') {
         await this.bot.sendMessage(
           message.chat.id,
@@ -1911,6 +1923,18 @@ export class TelegramBotService {
   private async handleGroupSplitCommand(
     message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
   ) {
+    try {
+      const quick = parseTelegramQuickSplit(message.text ?? '');
+      if (quick) {
+        await this.showQuickSplitResult(message, quick);
+        await this.quickSplitConversation.clearCompleted(message);
+        return;
+      }
+    } catch (error) {
+      if (!(error instanceof TelegramSplitParseError)) throw error;
+      await this.bot.sendMessage(message.chat.id, `${error.message}\n\nExample: /split 36000 / 6`);
+      return;
+    }
     const linked = await this.findLinkedUser(String(message.from.id));
     if (!linked) {
       await this.bot.sendMessage(
@@ -2007,6 +2031,17 @@ export class TelegramBotService {
         `${guidance}\n\nExample: /split 60 Alice, Bob, Carol`,
       );
     }
+  }
+
+  private async showQuickSplitResult(
+    message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
+    split: TelegramQuickSplit,
+  ) {
+    await this.bot.sendMessage(message.chat.id, buildTelegramQuickSplitMessage(split));
+    // Payment destination is the verified sender, never the group or a display-name lookup.
+    await this.sendMemberQrPhoto(
+      message.chat.id, `tg_${message.from.id}`, this.telegramDisplayName(message.from), true,
+    );
   }
 
   private async handleGroupSplitToggle(
@@ -3280,6 +3315,8 @@ export class TelegramBotService {
           '/tg_<Telegram ID> — Get a known group member’s KHQR',
           '/klaklok — បើកល្បែងខ្លាឃ្លោក ជាមេល្បែង',
           '/joinvote — Register for this group’s voting reminders',
+          '/split — Enter the amount, then the number of people; /cancel to stop',
+          '/split 36000 / 6 — Split riel equally and show your KHQR',
           '/split 60 — Split the final bill after voting closes (poll owner)',
           '/split 60 Alice, Bob — Split a bill with named participants',
           '',
@@ -3672,6 +3709,7 @@ export class TelegramBotService {
       this.prisma.telegramBotConversationState.deleteMany({
         where: { expiresAt: { lt: new Date() } },
       }),
+      this.prisma.$executeRaw`DELETE FROM telegram_quick_split_sessions WHERE expires_at < NOW()`,
     ]);
   }
 }
