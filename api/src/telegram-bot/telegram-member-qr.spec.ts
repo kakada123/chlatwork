@@ -142,6 +142,41 @@ describe('Telegram group member QR commands', () => {
     expect(bot.sendPhoto).not.toHaveBeenCalled();
   });
 
+  it('shows the mentioned member QR with split amounts in a single photo reply', async () => {
+    const { bot, send, prisma } = setup();
+    bot.getChatMember.mockResolvedValue({ status: 'member', user: { id: 2, first_name: 'Rong', username: 'rong' } });
+    await send('/split 36000/6 @rong');
+    expect(bot.getChatMember).toHaveBeenCalledWith(chatId, 2);
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/api/member-khqr/tg_2?'), 'Rong · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
+    );
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+    expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+    const lookup = prisma.$queryRaw.mock.calls.find(([sql]) => sql.join('').includes('lower(username)'));
+    expect(lookup?.slice(1)).toEqual([BigInt(chatId), 'rong']);
+  });
+
+  it('never substitutes the sender QR when a split recipient username changed owners', async () => {
+    const { bot, send } = setup();
+    await send('/split 36000/6 @rong');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, expect.stringContaining('no longer matches an active member'));
+  });
+
+  it('keeps the split result when the mentioned member has no QR', async () => {
+    const { bot, send, prisma } = setup();
+    bot.getChatMember.mockResolvedValue({ status: 'member', user: { id: 2, first_name: 'Rong', username: 'rong' } });
+    const query = prisma.$queryRaw.getMockImplementation()!;
+    prisma.$queryRaw.mockImplementation(async (sql, ...values) =>
+      sql.join('').includes('FROM member_khqr_images') ? [] : query(sql, ...values),
+    );
+    await send('/split 36000/6 @rong');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛\n\nRong: No KHQR available yet.');
+  });
+
   it('rejects an invalid count before looking up or sending a payment image', async () => {
     const { bot, send, prisma } = setup();
     await send('/split 36000 / 0');

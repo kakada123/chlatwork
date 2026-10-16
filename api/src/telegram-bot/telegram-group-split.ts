@@ -38,13 +38,14 @@ export interface TelegramQuickSplit {
   total: string;
   currency: ExpenseCurrency;
   amounts: string[];
+  recipientUsername?: string;
 }
 
 export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null {
   const body = text.trim().replace(/^\/split(?:@[A-Za-z0-9_]+)?\s*/i, '');
   const amount = AMOUNT_PATTERN.exec(body);
   if (!amount || !body.slice(amount[0].length).trim().startsWith('/')) return null;
-  const countMatch = /^\/\s*([1-9]\d?)$/.exec(body.slice(amount[0].length).trim());
+  const countMatch = /^\/\s*([1-9]\d?)(?:\s+@([a-z][a-z0-9_]{0,31}))?$/i.exec(body.slice(amount[0].length).trim());
   if (!countMatch || Number(countMatch[1]) > 50) {
     throw new TelegramSplitParseError('Use /split 36000 / 6 with 1–50 people.');
   }
@@ -58,6 +59,7 @@ export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null
     total: centsToDecimal(totalCents),
     currency,
     amounts: equalSplitAmounts(totalCents, currency, Number(countMatch[1])),
+    ...(countMatch[2] ? { recipientUsername: countMatch[2].toLowerCase() } : {}),
   };
 }
 

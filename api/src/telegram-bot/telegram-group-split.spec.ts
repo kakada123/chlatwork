@@ -36,10 +36,19 @@ describe('Quick count splits', () => {
     });
   });
 
+  it.each(['/split 36000/6 @rong', '/split@ChlatWorkBot 36000 / 6 @RoNg'])(
+    'accepts an optional payment recipient (%s)', (text) => {
+      expect(parseTelegramQuickSplit(text)).toEqual({
+        total: '36000.00', currency: 'KHR', amounts: Array(6).fill('6000.00'), recipientUsername: 'rong',
+      });
+    },
+  );
+
   it.each([
     '/split 36000 / 0', '/split 36000 / -6', '/split 36000 / 6.5',
     '/split 36000 / 51', '/split 36000 / 6 extra', '/split 36000 / 6 / 2',
     '/split 10.50 / 3', '/split 2 / 3', '/split $10KHR / 2',
+    '/split 36000/6 @rong @other', '/split 36000/6 @../rong', '/split 36000/6 @rong extra',
   ])('rejects invalid quick splits (%s)', (text) => {
     expect(() => parseTelegramQuickSplit(text)).toThrow(TelegramSplitParseError);
   });

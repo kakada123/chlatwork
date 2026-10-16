@@ -101,6 +101,11 @@ const UUID_PATTERN =
 const POLL_OPTION_PATTERN = /^option-\d{1,10}$/;
 const MAX_MEMBER_USERNAME_LOOKUPS = 20;
 
+interface MemberQrContent {
+  caption: string;
+  missingMessage: string;
+}
+
 interface LinkedTelegramUser {
   user: {
     id: string;
@@ -561,6 +566,7 @@ export class TelegramBotService {
   private async sendMentionedMemberQr(
     message: TelegramMessage,
     mention: MemberQrMention,
+    contentForMember?: (displayName: string) => MemberQrContent,
   ) {
     let userId: string;
     if ('username' in mention) {
@@ -635,11 +641,13 @@ export class TelegramBotService {
       );
       return;
     }
+    const displayName = this.telegramDisplayName(current.user);
     await this.sendMemberQrPhoto(
       message.chat.id,
       member.key,
-      this.telegramDisplayName(current.user),
+      displayName,
       true,
+      contentForMember?.(displayName),
     );
   }
 
@@ -774,7 +782,7 @@ export class TelegramBotService {
     memberKey: string,
     displayName: string,
     reportMissing = false,
-    content?: { caption: string; missingMessage: string },
+    content?: MemberQrContent,
   ) {
     const unavailable = async () => {
       if (reportMissing) {
@@ -2044,15 +2052,21 @@ export class TelegramBotService {
     split: TelegramQuickSplit,
   ) {
     const result = buildTelegramQuickSplitMessage(split);
+    const contentForMember = (displayName: string): MemberQrContent => ({
+      caption: `${displayName} · KHQR\n\n${result}`,
+      missingMessage: `${result}\n\n${displayName}: No KHQR available yet.`,
+    });
+    // Resolve a requested username through the verified group lookup; never substitute the sender's QR.
+    if (split.recipientUsername) {
+      await this.sendMentionedMemberQr(message, { username: split.recipientUsername }, contentForMember);
+      return;
+    }
     const displayName = this.telegramDisplayName(message.from);
-    // Payment destination is the verified sender, never the group or a display-name lookup.
+    // Without an explicit recipient, the payment destination remains the verified sender.
     // Keep amounts in the photo caption so completion produces one message with the QR first.
     await this.sendMemberQrPhoto(
       message.chat.id, `tg_${message.from.id}`, displayName, true,
-      {
-        caption: `${displayName} · KHQR\n\n${result}`,
-        missingMessage: `${result}\n\n${displayName}: No KHQR available yet.`,
-      },
+      contentForMember(displayName),
     );
   }
 
@@ -3329,6 +3343,7 @@ export class TelegramBotService {
           '/joinvote — Register for this group’s voting reminders',
           '/split — Enter the amount, then the number of people; /cancel to stop',
           '/split 36000 / 6 — Split riel equally and show your KHQR',
+          '/split 36000/6 @username — Split riel and show that member’s KHQR',
           '/split 60 — Split the final bill after voting closes (poll owner)',
           '/split 60 Alice, Bob — Split a bill with named participants',
           '',
