@@ -43,54 +43,57 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <template v-if="state === 'ready'">
-    <section class="flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold">Your groups</h1>
-        <p class="mt-2 text-sm text-slate-500">
-          Each group has its own settings. You must remain a group
-          administrator.
-        </p>
+  <div class="space-y-5">
+    <!-- Keep one stable transition root while Telegram session state changes. -->
+    <template v-if="state === 'ready'">
+      <section class="flex items-start justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold">Your groups</h1>
+          <p class="mt-2 text-sm text-slate-500">
+            Each group has its own settings. You must remain a group
+            administrator.
+          </p>
+        </div>
+        <BotGroupConnect />
+      </section>
+      <p v-if="error" role="alert" class="text-rose-600">
+        {{ error }} <button class="underline" @click="load(page)">Refresh</button>
+      </p>
+      <p v-if="loading" role="status">Loading groups…</p>
+      <div v-else class="grid gap-3 sm:grid-cols-2">
+        <NuxtLink
+          v-for="group in groups"
+          :key="group.workspaceId"
+          :to="{ path: `/bot/groups/${group.workspaceId}`, query: { bot } }"
+          class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          ><h2 class="font-semibold">{{ group.title }}</h2>
+          <p class="mt-2 text-sm text-slate-500">
+            {{
+              group.health === "CONNECTED"
+                ? "Connected"
+                : "Reconnect to restore permissions"
+            }}
+            · {{ group.enabled ? "Enabled" : "Paused" }}
+          </p>
+          <span class="mt-4 inline-block text-sm font-medium text-violet-600"
+            >Manage group →</span
+          ></NuxtLink
+        >
       </div>
-      <BotGroupConnect />
-    </section>
-    <p v-if="error" role="alert" class="text-rose-600">
-      {{ error }} <button class="underline" @click="load(page)">Refresh</button>
-    </p>
-    <p v-if="loading" role="status">Loading groups…</p>
-    <div v-else class="grid gap-3 sm:grid-cols-2">
-      <NuxtLink
-        v-for="group in groups"
-        :key="group.workspaceId"
-        :to="{ path: `/bot/groups/${group.workspaceId}`, query: { bot } }"
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        ><h2 class="font-semibold">{{ group.title }}</h2>
-        <p class="mt-2 text-sm text-slate-500">
-          {{
-            group.health === "CONNECTED"
-              ? "Connected"
-              : "Reconnect to restore permissions"
-          }}
-          · {{ group.enabled ? "Enabled" : "Paused" }}
-        </p>
-        <span class="mt-4 inline-block text-sm font-medium text-violet-600"
-          >Manage group →</span
-        ></NuxtLink
+      <p
+        v-if="!loading && !groups.length && !error"
+        class="rounded-2xl bg-white p-6 text-slate-500 dark:bg-slate-900"
       >
-    </div>
-    <p
-      v-if="!loading && !groups.length && !error"
-      class="rounded-2xl bg-white p-6 text-slate-500 dark:bg-slate-900"
-    >
-      Connect your first group to set up voting, split and KHQR, or Creator
-      tools.
-    </p>
-    <div class="flex justify-between">
-      <button v-if="page > 1" class="underline" @click="load(page - 1)">
-        Previous</button
-      ><button v-if="hasMore" class="underline" @click="load(page + 1)">
-        Next
-      </button>
-    </div>
-  </template>
+        Connect your first group to set up voting, split and KHQR, or Creator
+        tools.
+      </p>
+      <div class="flex justify-between">
+        <button v-if="page > 1" class="underline" @click="load(page - 1)">
+          Previous</button
+        ><button v-if="hasMore" class="underline" @click="load(page + 1)">
+          Next
+        </button>
+      </div>
+    </template>
+  </div>
 </template>

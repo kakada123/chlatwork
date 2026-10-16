@@ -82,37 +82,40 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <template v-if="state === 'ready'"
-    ><BotGroupSwitcher :groups="groups" :selected="group?.workspaceId" />
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-2xl font-bold">{{ group?.title ?? "Group settings" }}</h1>
-      <button
-        :disabled="loading"
-        class="text-sm text-violet-600 disabled:opacity-50"
-        @click="load()"
-      >
-        Refresh
-      </button>
-    </div>
-    <p v-if="loading" role="status">Loading group settings…</p>
-    <p v-if="error" role="alert" class="text-rose-600">{{ error }}</p>
-    <template v-if="group"
-      ><BotGroupOverview :group="group" /><BotGroupFeatureSettings
-        :key="`${group.workspaceId}:${group.workspaceVersion}:features`"
-        :group="group"
-        @changed="load()"
-        @denied="denied" /><BotGroupVoteSettings
-        v-if="bot === 'CHLATWORK'"
-        :key="`${group.workspaceId}:${group.workspaceVersion}:vote`"
-        :group="group"
-        @changed="load()"
-        @denied="denied" /><BotGroupKhqrDirectory
-        v-if="directory && bot === 'CHLATWORK'"
-        :directory="directory" /><BotGroupActivity
-        v-if="activity"
-        :activity="activity"
-        :history="history"
-        @activity-page="load($event, history?.page)"
-        @history-page="load(activity?.page, $event)" /></template
-  ></template>
+  <div class="space-y-5">
+    <!-- Keep one stable transition root while Telegram session state changes. -->
+    <template v-if="state === 'ready'"
+      ><BotGroupSwitcher :groups="groups" :selected="group?.workspaceId" />
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold">{{ group?.title ?? "Group settings" }}</h1>
+        <button
+          :disabled="loading"
+          class="text-sm text-violet-600 disabled:opacity-50"
+          @click="load()"
+        >
+          Refresh
+        </button>
+      </div>
+      <p v-if="loading" role="status">Loading group settings…</p>
+      <p v-if="error" role="alert" class="text-rose-600">{{ error }}</p>
+      <template v-if="group"
+        ><BotGroupOverview :group="group" /><BotGroupFeatureSettings
+          :key="`${group.workspaceId}:${group.workspaceVersion}:features`"
+          :group="group"
+          @changed="load()"
+          @denied="denied" /><BotGroupVoteSettings
+          v-if="bot === 'CHLATWORK'"
+          :key="`${group.workspaceId}:${group.workspaceVersion}:vote`"
+          :group="group"
+          @changed="load()"
+          @denied="denied" /><BotGroupKhqrDirectory
+          v-if="directory && bot === 'CHLATWORK'"
+          :directory="directory" /><BotGroupActivity
+          v-if="activity"
+          :activity="activity"
+          :history="history"
+          @activity-page="load($event, history?.page)"
+          @history-page="load(activity?.page, $event)" /></template
+    ></template>
+  </div>
 </template>
