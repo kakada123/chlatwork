@@ -126,6 +126,7 @@ describe('Telegram group member QR commands', () => {
     expect(bot.sendPhoto).toHaveBeenCalledWith(
       chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR',
     );
+    expect(bot.sendPhoto.mock.invocationCallOrder[0]).toBeLessThan(bot.sendMessage.mock.invocationCallOrder[0]!);
     expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
     expect(bot.getChatMember).not.toHaveBeenCalled();
     const qrQuery = prisma.$queryRaw.mock.calls.find(([sql]) => sql.join('').includes('FROM member_khqr_images'));

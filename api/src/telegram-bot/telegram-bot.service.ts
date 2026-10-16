@@ -2037,11 +2037,11 @@ export class TelegramBotService {
     message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
     split: TelegramQuickSplit,
   ) {
-    await this.bot.sendMessage(message.chat.id, buildTelegramQuickSplitMessage(split));
     // Payment destination is the verified sender, never the group or a display-name lookup.
     await this.sendMemberQrPhoto(
       message.chat.id, `tg_${message.from.id}`, this.telegramDisplayName(message.from), true,
     );
+    await this.bot.sendMessage(message.chat.id, buildTelegramQuickSplitMessage(split));
   }
 
   private async handleGroupSplitToggle(

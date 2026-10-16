@@ -70,7 +70,7 @@ describe('Guided group split', () => {
   });
   afterEach(() => { jest.useRealTimers(); jest.restoreAllMocks(); });
 
-  it('asks amount, then number of people, then sends the result and sender KHQR', async () => {
+  it('asks amount, then number of people, then sends sender KHQR before the result', async () => {
     const { createService, send, bot, prisma, sessions } = setup();
     const service = createService();
     await send(service, '/split');
@@ -87,6 +87,7 @@ describe('Guided group split', () => {
     await send(service, '6', 123, chatId, 102);
     expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
     expect(bot.sendPhoto).toHaveBeenCalledWith(chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR');
+    expect(bot.sendPhoto.mock.invocationCallOrder[0]).toBeLessThan(bot.sendMessage.mock.invocationCallOrder[2]!);
     expect(sessions.size).toBe(0);
   });
 
