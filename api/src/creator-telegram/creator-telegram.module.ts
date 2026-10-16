@@ -1,3 +1,4 @@
+import { GroupWorkspacesModule } from '../group-workspaces/group-workspaces.module';
 import { BotAdminModule } from '../bot-admin/bot-admin.module';
 import { Module } from '@nestjs/common';
 import { CreatorAiModule } from '../creator-ai/creator-ai.module';
@@ -7,7 +8,7 @@ import { CreatorTelegramService } from './creator-telegram.service';
 import { CreatorTelegramWorker } from './creator-telegram.worker';
 
 @Module({
-  imports: [BotAdminModule, CreatorAiModule],
+  imports: [BotAdminModule, CreatorAiModule, GroupWorkspacesModule],
   controllers: [CreatorTelegramController],
   providers: [
     CreatorTelegramClient,

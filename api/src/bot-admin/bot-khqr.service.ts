@@ -1,7 +1,14 @@
 import {
+  GroupAccessService,
+  explicitlyBlocked,
+} from '../group-workspaces/group-access.service';
+import { botAccessAllowed } from './bot-access.service';
+import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Optional,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { loadImage } from '@napi-rs/canvas';
@@ -74,7 +81,25 @@ export class BotKhqrService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: BotAccessService,
+    @Optional() private readonly groups?: GroupAccessService,
   ) {}
+
+  private async authorize(bot: BotKind, userId: string) {
+    if (!this.groups) {
+      await this.access.assertAllowed(bot, userId);
+      return null;
+    }
+    const identity = await this.access.identity(bot, userId);
+    if (botAccessAllowed(identity)) return null;
+    if (!identity || explicitlyBlocked(identity))
+      throw new ForbiddenException('KHQR access unavailable.');
+    const context = await this.groups.personalQr(bot, userId);
+    if (!context || !context.khqr)
+      throw new ForbiddenException(
+        'Join an active connected group to manage your KHQR.',
+      );
+    return context;
+  }
 
   async current(userId: string) {
     const [row] = await this.prisma.$queryRaw<
@@ -91,12 +116,12 @@ export class BotKhqrService {
   }
 
   async begin(bot: BotKind, userId: string) {
-    await this.access.assertAllowed(bot, userId);
+    const context = await this.authorize(bot, userId);
     const token = randomUUID();
     await this.prisma.$executeRaw`
-      INSERT INTO telegram_bot_qr_drafts(user_id, bot, token, expires_at)
-      VALUES (${userId}::uuid, ${bot}, ${token}, NOW() + INTERVAL '10 minutes')
-      ON CONFLICT (user_id, bot) DO UPDATE SET token = EXCLUDED.token, content = NULL, expires_at = EXCLUDED.expires_at
+      INSERT INTO telegram_bot_qr_drafts(user_id, bot, token, expires_at, group_workspace_id, workspace_version)
+      VALUES (${userId}::uuid, ${bot}, ${token}, NOW() + INTERVAL '10 minutes', ${context?.workspaceId ?? null}::uuid, ${context?.workspaceVersion ?? null})
+      ON CONFLICT (user_id, bot) DO UPDATE SET token = EXCLUDED.token, content = NULL, expires_at = EXCLUDED.expires_at, group_workspace_id = EXCLUDED.group_workspace_id, workspace_version = EXCLUDED.workspace_version
     `;
     return token;
   }
@@ -110,7 +135,7 @@ export class BotKhqrService {
   }
 
   async preview(bot: BotKind, userId: string, token: string, bytes: Buffer) {
-    await this.access.assertAllowed(bot, userId);
+    await this.authorize(bot, userId);
     const content = await validateBotQr(bytes);
     const changed = await this.prisma.$executeRaw`
       UPDATE telegram_bot_qr_drafts SET content = ${content}
@@ -122,7 +147,7 @@ export class BotKhqrService {
   }
 
   async confirm(bot: BotKind, userId: string, token: string, remove = false) {
-    await this.access.assertAllowed(bot, userId);
+    await this.authorize(bot, userId);
     return this.prisma.$transaction(async (tx) => {
       // Share the profile lock with admin reviews so revocation cannot race a save.
       const [profile] = await tx.$queryRaw<
@@ -139,18 +164,54 @@ export class BotKhqrService {
       `;
       if (
         !profile?.isActive ||
-        profile.status !== 'APPROVED' ||
+        ['REJECTED', 'SUSPENDED'].includes(profile.status) ||
         !profile.enabled
       )
         throw new ConflictException('Bot access changed.');
-      const [draft] = await tx.$queryRaw<Array<{ content: Uint8Array | null }>>`
+      const [draft] = await tx.$queryRaw<
+        Array<{
+          content: Uint8Array | null;
+          workspaceId?: string | null;
+          workspaceVersion?: number | null;
+        }>
+      >`
         DELETE FROM telegram_bot_qr_drafts WHERE user_id = ${userId}::uuid AND bot = ${bot}
-          AND token = ${token} AND expires_at > NOW() RETURNING content
+          AND token = ${token} AND expires_at > NOW() RETURNING content,group_workspace_id::text AS "workspaceId",workspace_version AS "workspaceVersion"
       `;
       if (!draft || (!remove && !draft.content))
         throw new ConflictException(
           'Upload expired or already confirmed. Use /myqr again.',
         );
+      if (profile.status !== 'APPROVED') {
+        if (!draft.workspaceId || !this.groups)
+          throw new ConflictException('KHQR access changed. Open /myqr again.');
+        const [workspace] = await tx.$queryRaw<
+          Array<{
+            version: number;
+            status: string;
+            chatId: string;
+            enabled: boolean;
+            health: string;
+            khqr: boolean;
+          }>
+        >`
+          SELECT w.version,w.status,w.telegram_chat_id::text AS "chatId",c.enabled,c.health,c.khqr
+          FROM telegram_group_workspaces w JOIN telegram_group_connections c ON c.workspace_id=w.id AND c.bot=${bot}
+          WHERE w.id=${draft.workspaceId}::uuid FOR SHARE OF w,c
+        `;
+        if (
+          !workspace ||
+          workspace.version !== draft.workspaceVersion ||
+          workspace.status !== 'ACTIVE' ||
+          !workspace.enabled ||
+          workspace.health !== 'CONNECTED' ||
+          !workspace.khqr ||
+          !(await this.groups.member(bot, workspace.chatId, profile.telegramId))
+        )
+          throw new ConflictException(
+            'Group access changed. Open /myqr again.',
+          );
+      }
       await this.save(
         tx,
         userId,

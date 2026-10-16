@@ -14,6 +14,9 @@ export interface TelegramChat {
 
 export interface TelegramMessage {
   message_id: number;
+  chat_shared?: { request_id: number; chat_id: number; title?: string };
+  migrate_to_chat_id?: number;
+  migrate_from_chat_id?: number;
   business_connection_id?: string;
   sender_business_bot?: TelegramUser;
   sender_chat?: TelegramChat;
@@ -87,6 +90,11 @@ export interface TelegramInlineQuery {
 
 export interface TelegramUpdate {
   update_id: number;
+  my_chat_member?: {
+    chat: TelegramChat;
+    date: number;
+    new_chat_member: { user: TelegramUser; status: string };
+  };
   message?: TelegramMessage;
   business_message?: TelegramMessage;
   edited_business_message?: TelegramMessage;
@@ -133,12 +141,29 @@ export interface TelegramInlineKeyboard {
 export type TelegramReplyMarkup =
   | TelegramInlineKeyboard
   | {
-      keyboard: Array<Array<{ text: string; request_contact?: boolean }>>;
+      keyboard: Array<
+        Array<{
+          text: string;
+          request_contact?: boolean;
+          request_chat?: {
+            request_id: number;
+            chat_is_channel: boolean;
+            bot_is_member?: boolean;
+            user_administrator_rights?: Record<string, boolean>;
+            bot_administrator_rights?: Record<string, boolean>;
+            request_title?: boolean;
+          };
+        }>
+      >;
       resize_keyboard?: boolean;
       one_time_keyboard?: boolean;
     }
   | { remove_keyboard: true }
-  | { force_reply: true; selective?: boolean; input_field_placeholder?: string };
+  | {
+      force_reply: true;
+      selective?: boolean;
+      input_field_placeholder?: string;
+    };
 
 export interface TelegramApiResponse<T = unknown> {
   ok?: boolean;

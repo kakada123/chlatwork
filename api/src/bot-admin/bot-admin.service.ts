@@ -1,3 +1,5 @@
+import { operationKey, replay } from '../group-workspaces/group-mutations';
+import type { GroupStatusInput } from '../group-workspaces/group-workspaces.dto';
 import {
   ConflictException,
   Injectable,
@@ -42,10 +44,93 @@ export class BotAdminService {
     private readonly credits: CreatorCreditAdminService,
   ) {}
 
+  async groups(page = 1) {
+    const items = await this.prisma.telegramGroupWorkspace.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * 20,
+      take: 20,
+      include: { connections: true, _count: { select: { managers: true } } },
+    });
+    return {
+      items: items.map(({ telegramChatId, ...row }) => ({
+        ...row,
+        chatId: String(telegramChatId),
+      })),
+      page,
+    };
+  }
+
+  async groupDetails(id: string) {
+    const row = await this.prisma.telegramGroupWorkspace.findUnique({
+      where: { id },
+      include: {
+        connections: true,
+        managers: {
+          select: { userId: true, user: { select: { name: true } } },
+        },
+        audit: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          select: { id: true, action: true, createdAt: true, details: true },
+        },
+      },
+    });
+    if (!row) throw new NotFoundException('Group not found.');
+    return {
+      ...row,
+      telegramChatId: String(row.telegramChatId),
+      audit: row.audit.map((entry) => ({ ...entry, id: String(entry.id) })),
+    };
+  }
+
+  async groupStatus(
+    actorId: string,
+    id: string,
+    key: string,
+    input: GroupStatusInput,
+  ) {
+    const operation = operationKey(actorId, key);
+    return this.prisma.$transaction(async (tx) => {
+      const [workspace] = await tx.$queryRaw<
+        Array<{ version: number }>
+      >`SELECT version FROM telegram_group_workspaces WHERE id=${id}::uuid FOR UPDATE`;
+      if (!workspace) throw new NotFoundException('Group not found.');
+      if (await replay(tx, operation, id, 'PLATFORM_STATUS', input))
+        return { updated: true };
+      if (workspace.version !== input.expectedVersion)
+        throw new ConflictException('Refresh the group before reviewing it.');
+      await tx.telegramGroupWorkspace.update({
+        where: { id },
+        data: {
+          status: input.status,
+          version: { increment: 1 },
+          updatedAt: new Date(),
+        },
+      });
+      await tx.telegramGroupAudit.create({
+        data: {
+          workspaceId: id,
+          actorId,
+          action: 'PLATFORM_STATUS',
+          operationKey: operation,
+          details: {
+            status: input.status,
+            reason: input.reason.trim(),
+            fingerprint: createHash('sha256')
+              .update(JSON.stringify(input))
+              .digest('hex'),
+          },
+        },
+      });
+      return { updated: true };
+    });
+  }
+
   async users(query: BotUsersQuery) {
     const needle = `%${query.search.trim().replace(/[\\%_]/g, '\\$&')}%`;
     const filter = Prisma.sql`
-      WHERE (p.telegram_user_id::text ILIKE ${needle} OR p.username ILIKE ${needle} OR u.name ILIKE ${needle})
+      WHERE (p.status <> 'PENDING' OR p.manager_requested_at IS NOT NULL)
+      AND (p.telegram_user_id::text ILIKE ${needle} OR p.username ILIKE ${needle} OR u.name ILIKE ${needle})
       ${query.status ? Prisma.sql`AND p.status = ${query.status}` : Prisma.empty}
       ${query.bot ? Prisma.sql`AND EXISTS (SELECT 1 FROM telegram_bot_memberships m WHERE m.user_id = p.user_id AND m.bot = ${query.bot})` : Prisma.empty}
     `;
@@ -76,7 +161,7 @@ export class BotAdminService {
         Array<{ status: string; count: number }>
       >(Prisma.sql`
         SELECT status, COUNT(*)::integer AS count FROM telegram_bot_profiles p
-        WHERE TRUE ${scope} GROUP BY status
+        WHERE (p.status <> 'PENDING' OR p.manager_requested_at IS NOT NULL) ${scope} GROUP BY status
       `),
       this.prisma.$queryRaw<Array<{ bot: string; active: number }>>`
         SELECT bot, COUNT(*)::integer AS active FROM telegram_bot_memberships

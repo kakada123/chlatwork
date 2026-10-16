@@ -53,6 +53,7 @@ export interface CreatorReservation {
 export interface CreatorTextGenerationInput {
   outputMode?: 'BUSINESS_EDIT';
   sourceBot?: 'CREATOR';
+  sourceGroup?: { workspaceId: string; chatId: string; telegramUserId: string };
   feature: AiFeature;
   payload: Record<string, unknown>;
   idempotencyKey: string;

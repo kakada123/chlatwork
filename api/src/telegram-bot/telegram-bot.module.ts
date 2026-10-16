@@ -1,3 +1,4 @@
+import { GroupWorkspacesModule } from '../group-workspaces/group-workspaces.module';
 import { BotAdminModule } from '../bot-admin/bot-admin.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { MomentsModule } from '../moments/moments.module';
@@ -21,6 +22,7 @@ import { TelegramUrlSecurityService } from './telegram-url-security.service';
 @Module({
   imports: [
     BotAdminModule,
+    GroupWorkspacesModule,
     MomentsModule,
     NotificationsModule,
     forwardRef(() => PersonalAssistantModule),

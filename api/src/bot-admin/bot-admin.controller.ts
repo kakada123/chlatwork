@@ -1,4 +1,8 @@
 import {
+  GroupQuery,
+  GroupStatusInput,
+} from '../group-workspaces/group-workspaces.dto';
+import {
   Body,
   Controller,
   Delete,
@@ -31,6 +35,26 @@ export class BotAdminController {
     private readonly admin: BotAdminService,
     private readonly qr: BotKhqrService,
   ) {}
+
+  @Get('groups')
+  @Header('Cache-Control', 'no-store')
+  groups(@Query() q: GroupQuery) {
+    return this.admin.groups(q.page);
+  }
+  @Get('groups/:id')
+  @Header('Cache-Control', 'no-store')
+  groupDetails(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.admin.groupDetails(id);
+  }
+  @Post('groups/:id/status')
+  groupStatus(
+    @CurrentAuthUser() actor: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Headers('idempotency-key') key: string,
+    @Body() input: GroupStatusInput,
+  ) {
+    return this.admin.groupStatus(actor.id, id, key, input);
+  }
 
   @Get('overview')
   @Header('Cache-Control', 'no-store')

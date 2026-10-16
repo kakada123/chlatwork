@@ -62,6 +62,7 @@ describe('MomentsService vote reset', () => {
         where: {
           id: MOMENT_ID,
           creatorId: USER_ID,
+          groupWorkspaceId: null,
           occasion: MomentOccasion.VOTING,
         },
       }),
@@ -766,4 +767,59 @@ describe('Timed voting boundaries', () => {
       'joined = TRUE',
     );
   });
+});
+
+
+describe('group poll privacy', () => {
+  it('does not expose a group poll through public detail or vote endpoints', async () => {
+    const prisma = {
+      moment: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({
+            groupWorkspaceId: 'workspace',
+            status: 'PUBLISHED',
+            expiresAt: null,
+            occasion: 'VOTING',
+            publishAt: null,
+            blocks: [],
+          }),
+      },
+    };
+    const service = new MomentsService(prisma as never);
+    await expect(service.getPublic('group-slug')).rejects.toThrow(
+      'Moment not found',
+    );
+    await expect(
+      service.respondToVote(
+        'group-slug',
+        { optionId: 'option-1' } as never,
+        null,
+      ),
+    ).rejects.toThrow('Moment not found');
+  });
+  it('does not expose a group image through the legacy public media URL', async () => {
+    const prisma = {
+      momentMedia: {
+        findFirst: jest
+          .fn()
+          .mockResolvedValue({
+            moment: {
+              groupWorkspaceId: 'workspace',
+              status: 'PUBLISHED',
+              expiresAt: null,
+            },
+          }),
+      },
+    };
+    await expect(
+      new MomentsService(prisma as never).getPublicMedia('group-slug', 'image'),
+    ).rejects.toThrow('Moment not found');
+  });
+});
+
+it('retains the group privacy binding in the actual Telegram poll view',async()=>{
+ const {service,prisma}=createService(null);
+ Object.assign(prisma.moment,{findUnique:jest.fn().mockResolvedValue({id:MOMENT_ID,slug:'private',title:'Lunch',groupWorkspaceId:'workspace',status:MomentStatus.PUBLISHED,expiresAt:null,publishAt:null,occasion:MomentOccasion.VOTING,blocks:[{data:{question:'Lunch?',identityMode:'NAME_REQUIRED',options:[{id:'option-1',label:'Rice'},{id:'option-2',label:'Soup'}]}}]})});
+ expect(await service.getTelegramVotingMoment(MOMENT_ID)).toMatchObject({groupWorkspaceId:'workspace'});
 });

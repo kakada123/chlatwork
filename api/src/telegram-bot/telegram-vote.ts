@@ -19,6 +19,7 @@ export interface TelegramPollResult {
 export interface TelegramVotingPoll {
   id: string;
   slug: string;
+  groupWorkspaceId?: string | null;
   title: string;
   question: string;
   identityMode: 'ANONYMOUS' | 'NAME_REQUIRED' | 'LOGIN_REQUIRED';
@@ -97,9 +98,7 @@ export function buildTelegramPollMessage(
     highest === 0
       ? 'No votes this round.'
       : `${winners.length > 1 ? '🤝 Tie' : '🏆 Winner'}: ${winners.map((result) => result.label).join(', ')}`,
-    ...(poll.roundId
-      ? ['Split equally: reply /split 60 (bill total).']
-      : []),
+    ...(poll.roundId ? ['Split equally: reply /split 60 (bill total).'] : []),
   ];
   const message = lines.join('\n');
   if (message.length <= 4_096) return message;
@@ -144,7 +143,7 @@ export function buildTelegramPollKeyboard(
             ],
           ]
         : []),
-      [{ text: 'Details', url: publicUrl }],
+      ...(poll.groupWorkspaceId ? [] : [[{ text: 'Details', url: publicUrl }]]),
     ],
   };
 }

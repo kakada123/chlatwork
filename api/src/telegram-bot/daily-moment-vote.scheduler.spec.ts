@@ -232,3 +232,48 @@ describe('Daily vote timer finalization', () => {
     );
   });
 });
+
+
+describe('workspace delivery revocation', () => {
+  it('does not deliver to a removed or migrated old chat after starting its round', async () => {
+    const prisma = {
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          {
+            momentId: 'moment',
+            telegramChatId: '-1001',
+            scheduleId: 'schedule',
+          },
+        ]),
+    };
+    const bot = { sendMessage: jest.fn() };
+    const moments = {
+      startTelegramVoteRound: jest
+        .fn()
+        .mockResolvedValue({
+          id: 'moment',
+          slug: 'private',
+          groupWorkspaceId: 'A',
+        }),
+    };
+    const policy = {
+      chat: jest
+        .fn()
+        .mockResolvedValueOnce({ workspaceId: 'A' })
+        .mockRejectedValueOnce(new Error('migrated')),
+    };
+    const scheduler = new DailyMomentVoteScheduler(
+      prisma as never,
+      { getOrThrow: () => 'https://example.test' } as never,
+      bot as never,
+      moments as never,
+      undefined,
+      policy as never,
+    );
+    await scheduler.runOnce();
+    expect(moments.startTelegramVoteRound).toHaveBeenCalled();
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+  });
+});

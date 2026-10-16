@@ -1,3 +1,5 @@
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
+import { ForbiddenException } from '@nestjs/common';
 import { BotAccessService } from '../bot-admin/bot-access.service';
 import { createHash } from 'node:crypto';
 import { HttpStatus, Injectable, Optional } from '@nestjs/common';
@@ -38,6 +40,7 @@ export class CreatorGenerationService {
     private readonly pricing: CreatorPricingService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
     @Optional() private readonly botAccess?: BotAccessService,
+    @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
   ) {}
 
   async generate(
@@ -47,6 +50,7 @@ export class CreatorGenerationService {
   ) {
     if (input.sourceBot)
       await this.botAccess?.assertAllowed(input.sourceBot, userId);
+    await this.assertGroup(input);
     await this.availability?.assertCreatorEnabled(input.feature);
     const idempotencyKey =
       this.credits.validateIdempotencyKey(idempotencyHeader);
@@ -85,6 +89,7 @@ export class CreatorGenerationService {
       // provider boundary and use the existing refund path after revocation.
       if (input.sourceBot)
         await this.botAccess?.assertAllowed(input.sourceBot, userId);
+      await this.assertGroup(input);
       const generated = await this.gateway.generateStructured(
         input.feature,
         reservation.generation.id,
@@ -123,6 +128,21 @@ export class CreatorGenerationService {
       );
       throw creatorGenerationFailed();
     }
+  }
+
+  private async assertGroup(
+    input: Omit<CreatorTextGenerationInput, 'idempotencyKey'>,
+  ) {
+    if (!input.sourceGroup) return;
+    if (!this.groupPolicy)
+      throw new ForbiddenException('Group access unavailable.');
+    const context = await this.groupPolicy.paid(
+      'CREATOR',
+      input.sourceGroup.chatId,
+      input.sourceGroup.telegramUserId,
+    );
+    if (context.workspaceId !== input.sourceGroup.workspaceId)
+      throw new ForbiddenException('Group access changed.');
   }
 
   private existingResponse(

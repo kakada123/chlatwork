@@ -1,3 +1,5 @@
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
+import { GroupPollMediaService } from '../group-workspaces/group-poll-media.service';
 import {
   Injectable,
   Logger,
@@ -37,6 +39,8 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     private readonly bot: TelegramBotClient,
     private readonly moments: MomentsService,
     @Optional() private readonly availability?: FeatureAvailabilityService,
+    @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
+    @Optional() private readonly groupMedia?: GroupPollMediaService,
   ) {}
 
   onModuleInit() {
@@ -58,7 +62,11 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
   async runOnce(now = new Date()) {
     await this.refreshRounds(now);
     // Existing rounds still close while new daily sends are paused.
-    if (this.availability && !(await this.availability.isEnabled('telegram:group-voting'))) return;
+    if (
+      this.availability &&
+      !(await this.availability.isEnabled('telegram:group-voting'))
+    )
+      return;
     // The local date is claimed atomically so multiple API replicas cannot send the same daily poll twice.
     const duePolls = await this.prisma.$queryRaw<DueDailyPoll[]>`
       WITH due AS (
@@ -136,6 +144,19 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             FOR UPDATE SKIP LOCKED
           `;
             if (!current) return;
+            if (this.groupPolicy) {
+              try {
+                await this.groupPolicy.chat(
+                  'CHLATWORK',
+                  String(current.telegramChatId),
+                  'voting',
+                );
+              } catch {
+                if (current.closesAt <= now)
+                  await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at=${now} WHERE id=${round.id}::uuid`;
+                return;
+              }
+            }
             const poll = await this.moments.getTelegramVoteRoundResults(
               round.id,
             );
@@ -165,12 +186,18 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             if (poll.closed) {
               await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at = ${now} WHERE id = ${round.id}::uuid`;
               if (poll.results.some((result) => result.votes > 0)) {
-                const highest = Math.max(...poll.results.map((result) => result.votes));
-                const winners = poll.results.filter((result) => result.votes === highest);
+                const highest = Math.max(
+                  ...poll.results.map((result) => result.votes),
+                );
+                const winners = poll.results.filter(
+                  (result) => result.votes === highest,
+                );
                 return {
-                  chatId: Number(current.telegramChatId), messageId,
+                  chatId: Number(current.telegramChatId),
+                  messageId,
                   winner: winners.length === 1 ? winners[0] : null,
                   slug: poll.slug,
+                  workspaceId: poll.groupWorkspaceId,
                 };
               }
             }
@@ -181,25 +208,41 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
           // Send only after finalization commits. This optional effect is not retried:
           // a lost Telegram response must not duplicate it or reopen a finished round.
           try {
+            if (this.groupPolicy)
+              await this.groupPolicy.chat(
+                'CHLATWORK',
+                String(celebration.chatId),
+                'voting',
+              );
             const origin = this.config.getOrThrow<string>('FRONTEND_ORIGIN');
             if (celebration.winner?.imageId) {
               await this.bot.sendPhoto(
                 celebration.chatId,
-                new URL(`/api/moments/${celebration.slug}/media/${celebration.winner.imageId}?format=jpeg`, origin).toString(),
+                celebration.workspaceId && this.groupMedia
+                  ? await this.groupMedia.url(
+                      celebration.workspaceId,
+                      'CHLATWORK',
+                      celebration.winner.imageId,
+                    )
+                  : new URL(
+                      `/api/moments/${celebration.slug}/media/${celebration.winner.imageId}?format=jpeg`,
+                      origin,
+                    ).toString(),
                 `🏆 Winner: ${celebration.winner.label}`,
                 celebration.messageId,
               );
             } else {
               await this.bot.sendAnimation(
                 celebration.chatId,
-                new URL('/images/telegram/vote-celebration.gif', origin).toString(),
+                new URL(
+                  '/images/telegram/vote-celebration.gif',
+                  origin,
+                ).toString(),
                 celebration.messageId,
               );
             }
           } catch {
-            this.logger.warn(
-              'A vote celebration could not be delivered',
-            );
+            this.logger.warn('A vote celebration could not be delivered');
           }
         }
       } catch {
@@ -223,6 +266,8 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
 
   private async sendPoll(due: DueDailyPoll) {
     try {
+      if (this.groupPolicy)
+        await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
       const poll = await this.moments.startTelegramVoteRound(due.momentId);
       const chatId = Number(due.telegramChatId);
       if (!Number.isSafeInteger(chatId) || chatId === 0) {
@@ -232,6 +277,8 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
         `/m/${poll.slug}`,
         this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
       ).toString();
+      if (this.groupPolicy)
+        await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
       const sent = await this.bot.sendMessage(
         chatId,
         buildTelegramPollMessage(poll),

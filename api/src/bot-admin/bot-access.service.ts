@@ -15,6 +15,7 @@ export interface BotAccess {
   status: BotStatus;
   enabled: boolean;
   isActive: boolean;
+  hasMembership?: boolean;
 }
 export function botAccessAllowed(
   access: Pick<BotAccess, 'status' | 'enabled' | 'isActive'> | null,
@@ -35,15 +36,72 @@ export class BotAccessService {
     )
       return null;
     const [row] = await this.prisma.$queryRaw<BotAccess[]>`
+      SELECT u.id AS "userId", s."providerUserId" AS "telegramId", COALESCE(p.status,'PENDING') AS status,
+        COALESCE(m.enabled,FALSE) AS enabled,(m.user_id IS NOT NULL) AS "hasMembership",u."isActive" AS "isActive"
+      FROM social_accounts s JOIN users u ON u.id=s."userId"
+      LEFT JOIN telegram_bot_profiles p ON p.user_id=u.id AND p.telegram_user_id=${BigInt(telegramId)}
+      LEFT JOIN telegram_bot_memberships m ON m.user_id=p.user_id AND m.bot=${bot}
+      WHERE s.provider='TELEGRAM' AND s."providerUserId"=${String(telegramId)}
+    `;
+    return row ?? null;
+  }
+
+  async identity(bot: BotKind, userId: string) {
+    const [row] = await this.prisma.$queryRaw<BotAccess[]>`
       SELECT p.user_id AS "userId", p.telegram_user_id::text AS "telegramId", p.status,
-        COALESCE(m.enabled, FALSE) AS enabled, u."isActive" AS "isActive"
+        COALESCE(m.enabled, FALSE) AS enabled, (m.user_id IS NOT NULL) AS "hasMembership", u."isActive" AS "isActive"
       FROM telegram_bot_profiles p JOIN users u ON u.id = p.user_id
       JOIN social_accounts s ON s."userId" = p.user_id AND s.provider = 'TELEGRAM'
         AND s."providerUserId" = p.telegram_user_id::text
       LEFT JOIN telegram_bot_memberships m ON m.user_id = p.user_id AND m.bot = ${bot}
-      WHERE p.telegram_user_id = ${BigInt(telegramId)}
+      WHERE p.user_id = ${userId}::uuid
     `;
     return row ?? null;
+  }
+
+  async requestManagerAccess(userId: string, bot: BotKind) {
+    const identity = await this.identity(bot, userId);
+    if (
+      !identity ||
+      !identity.isActive ||
+      ['REJECTED', 'SUSPENDED'].includes(identity.status)
+    ) {
+      throw new ForbiddenException('Manager access is unavailable.');
+    }
+    await this.prisma.$executeRaw`
+      UPDATE telegram_bot_profiles SET manager_requested_at = COALESCE(manager_requested_at, NOW())
+      WHERE user_id = ${userId}::uuid
+    `;
+    return { status: identity.status };
+  }
+
+  async ensureProfile(userId: string, bot: BotKind) {
+    const accounts = await this.prisma.socialAccount.findMany({
+      where: { userId, provider: AuthProvider.TELEGRAM },
+      select: { providerUserId: true },
+    });
+    const canonical = accounts.filter(
+      (account) =>
+        /^[1-9][0-9]{0,15}$/.test(account.providerUserId) &&
+        Number.isSafeInteger(Number(account.providerUserId)),
+    );
+    if (canonical.length !== 1)
+      throw new ForbiddenException(
+        'Open this Mini App using your verified Telegram account.',
+      );
+    const telegramId = canonical[0].providerUserId;
+    await this.prisma.$executeRaw`
+      INSERT INTO telegram_bot_profiles(user_id, telegram_user_id)
+      VALUES (${userId}::uuid, ${BigInt(telegramId)}) ON CONFLICT DO NOTHING
+    `;
+    await this.prisma.$executeRaw`
+      INSERT INTO telegram_bot_memberships(user_id, bot)
+      VALUES (${userId}::uuid, ${bot}) ON CONFLICT DO NOTHING
+    `;
+    const identity = await this.identity(bot, userId);
+    if (!identity || identity.telegramId !== telegramId)
+      throw new ConflictException('Telegram identity conflict.');
+    return identity;
   }
 
   async allowed(bot: BotKind, userId: string) {
@@ -95,6 +153,34 @@ export class BotAccessService {
   ) {
     if (!privateStart || !Number.isSafeInteger(sender.id) || sender.id <= 0)
       throw new BadRequestException('Start the bot privately.');
+    return this.registerIdentity(bot, sender, true);
+  }
+
+  // Caller verifies the authenticated sender's current group membership first.
+  async registerMember(
+    bot: BotKind,
+    sender: {
+      id: number;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+    },
+  ) {
+    if (!Number.isSafeInteger(sender.id) || sender.id <= 0)
+      throw new BadRequestException('Invalid Telegram identity.');
+    return this.registerIdentity(bot, sender, false);
+  }
+
+  private async registerIdentity(
+    bot: BotKind,
+    sender: {
+      id: number;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+    },
+    privateStart: boolean,
+  ) {
     return this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`telegram-identity:${sender.id}`}))`;
       let linked = await tx.socialAccount.findUnique({
@@ -143,16 +229,18 @@ export class BotAccessService {
         );
       await tx.$executeRaw`
         INSERT INTO telegram_bot_memberships (user_id, bot, first_private_started_at, last_activity_at)
-        VALUES (${linked.userId}::uuid, ${bot}, NOW(), NOW())
+        VALUES (${linked.userId}::uuid, ${bot}, CASE WHEN ${privateStart} THEN NOW() ELSE NULL END, NOW())
         ON CONFLICT (user_id, bot) DO UPDATE SET
-          first_private_started_at = COALESCE(telegram_bot_memberships.first_private_started_at, NOW()), last_activity_at = NOW()
+          first_private_started_at = COALESCE(telegram_bot_memberships.first_private_started_at, CASE WHEN ${privateStart} THEN NOW() ELSE NULL END), last_activity_at = NOW()
       `;
-      // This marker makes repeated starts idempotent without retaining message text.
-      await tx.$executeRaw`
+      if (privateStart) {
+        // This marker makes repeated starts idempotent without retaining message text.
+        await tx.$executeRaw`
         INSERT INTO telegram_bot_audit (user_id, action, bot, operation_key, details)
         VALUES (${linked.userId}::uuid, 'PRIVATE_START', ${bot}, ${`start:${linked.userId}:${bot}`}, '{}')
         ON CONFLICT (operation_key) DO NOTHING
       `;
+      }
       return linked.userId;
     });
   }

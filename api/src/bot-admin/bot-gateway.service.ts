@@ -1,4 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { GroupConnectionsService } from '../group-workspaces/group-connections.service';
+import { GroupAccessService } from '../group-workspaces/group-access.service';
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
+import { readMemberQrMention } from '../telegram-bot/telegram-member-qr';
+import type { TelegramUser } from '../telegram-bot/telegram-bot.types';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Optional,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
   TelegramUpdate,
@@ -21,6 +31,9 @@ export class BotGatewayService {
     private readonly config: ConfigService,
     private readonly chlatwork: TelegramBotClient,
     private readonly creator: CreatorTelegramClient,
+    @Optional() private readonly groups?: GroupAccessService,
+    @Optional() private readonly connections?: GroupConnectionsService,
+    @Optional() private readonly policy?: GroupFeaturePolicy,
   ) {}
 
   // Return true when this update has been consumed or access was denied.
@@ -57,9 +70,10 @@ export class BotGatewayService {
         (group && message.chat.id >= 0))
     )
       return true;
-    const command = /^\/([a-z][a-z0-9_]*)(?:@([A-Za-z0-9_]+))?(?:\s|$)/i.exec(
-      message?.text ?? '',
-    );
+    const command =
+      /^\/([a-z][a-z0-9_]*|\$)(?:@([A-Za-z0-9_]+))?(?:\s|$)/i.exec(
+        (message?.text ?? '').trim(),
+      );
     if (
       command?.[2] &&
       command[2].toLowerCase() !== (await bot.getMe()).username?.toLowerCase()
@@ -69,8 +83,142 @@ export class BotGatewayService {
     if (privateChat && !callback && command?.[1].toLowerCase() === 'start') {
       await this.access.register(kind, sender, true);
     }
+    if (privateChat && !callback && message && this.connections) {
+      try {
+        if (await this.connections.handlePrivateStart(kind, message))
+          return true;
+        if (await this.connections.handleShared(kind, message)) return true;
+      } catch (error) {
+        if (
+          !(error instanceof BadRequestException) &&
+          !(error instanceof ForbiddenException)
+        )
+          throw error;
+        await bot.sendMessage(sender.id, error.message);
+        return true;
+      }
+    }
     const access = await this.access.lookup(kind, sender.id);
-    const allowed = botAccessAllowed(access);
+    const personallyAllowed = botAccessAllowed(access);
+    const personalCommand = command?.[1].toLowerCase();
+    if (
+      this.groups &&
+      privateChat &&
+      !callback &&
+      ['start', 'menu', 'groups', 'status', 'credits'].includes(
+        personalCommand ?? '',
+      )
+    ) {
+      const base = this.config.getOrThrow<string>('FRONTEND_ORIGIN');
+      if (
+        personalCommand !== 'start' ||
+        !/\s+myqr$/.test(message?.text ?? '')
+      ) {
+        // Account entry works before approval and never initializes a wallet.
+        await bot.sendMessage(
+          sender.id,
+          personallyAllowed
+            ? 'Manage your groups and personal account.'
+            : 'Use My Groups to request manager approval. Group members can use enabled free features.',
+          {
+            inline_keyboard: [
+              [
+                {
+                  text: 'My Groups',
+                  web_app: {
+                    url: new URL('/bot/groups?bot=' + kind, base).toString(),
+                  },
+                },
+              ],
+              [
+                {
+                  text: 'My account',
+                  web_app: {
+                    url: new URL('/bot/account?bot=' + kind, base).toString(),
+                  },
+                },
+              ],
+            ],
+          },
+        );
+        return true;
+      }
+    }
+    let freeGroup = false;
+    if (group && kind === 'CHLATWORK' && this.groups && this.policy) {
+      const data = callback?.data ?? '';
+      const text = message?.text?.trim() ?? '';
+      const feature =
+        data.startsWith('split:') ||
+        personalCommand === 'split' ||
+        personalCommand === 'cancel' ||
+        (!command &&
+          /^\d+(?:[.,]\d+)?$/.test(text) &&
+          message?.reply_to_message)
+          ? 'split'
+          : data.startsWith('poll:') ||
+              data.startsWith('pv:') ||
+              personalCommand === 'joinvote' ||
+              personalCommand === 'vote'
+            ? 'voting'
+            : data.startsWith('khqr:member:') ||
+                personalCommand === '$' ||
+                /^tg_[1-9][0-9]{0,15}$/.test(personalCommand ?? '') ||
+                /^khqr$/i.test(text) ||
+                Boolean(message && readMemberQrMention(message))
+              ? 'khqr'
+              : null;
+      if (
+        [
+          'dailyvote',
+          'votetime',
+          'voteduration',
+          'resettodayvote',
+          'stopdailyvote',
+        ].includes(personalCommand ?? '')
+      ) {
+        await bot.sendMessage(
+          message!.chat.id,
+          'Group administrators can manage voting in My Groups in the bot’s private chat.',
+        );
+        return true;
+      }
+      if (feature) {
+        try {
+          const context = await this.groups.member(
+            kind,
+            String(message!.chat.id),
+            String(sender.id),
+          );
+          if (!context) return true;
+          await this.policy.assertEnabled(context, feature);
+          if (callback && !(await this.policy.callback(context, data))) {
+            await bot.answerCallback(
+              callback.id,
+              'This action is unavailable in this group.',
+            );
+            return true;
+          }
+          freeGroup = true;
+        } catch {
+          if (callback)
+            await bot.answerCallback(callback.id, 'Group feature unavailable.');
+          return true;
+        }
+      }
+    }
+    let qrAllowed = false;
+    const qrAction =
+      privateChat &&
+      (personalCommand === 'myqr' ||
+        callback?.data?.startsWith('myqr:') ||
+        message?.photo?.length ||
+        message?.document ||
+        personalCommand === 'cancel' ||
+        (personalCommand === 'start' && /\s+myqr$/.test(message?.text ?? '')));
+    if (!personallyAllowed && qrAction && access && this.groups)
+      qrAllowed = Boolean(await this.groups.personalQr(kind, access.userId));
+    const allowed = personallyAllowed || freeGroup || qrAllowed;
     if (!allowed) {
       if (update.inline_query) {
         await bot.answerInlineQuery(update.inline_query.id, []);
@@ -98,7 +246,7 @@ export class BotGatewayService {
       }
       return true;
     }
-    await this.access.activity(kind, access!.userId);
+    if (access) await this.access.activity(kind, access.userId);
     if (!privateChat) {
       if (
         command?.[1].toLowerCase() === 'myqr' ||
@@ -127,6 +275,7 @@ export class BotGatewayService {
     }
     if (
       command?.[1].toLowerCase() === 'myqr' ||
+      (personalCommand === 'start' && /\s+myqr$/.test(message?.text ?? '')) ||
       callback?.data === 'myqr:view'
     ) {
       if (callback) await bot.answerCallback(callback.id);
@@ -222,6 +371,10 @@ export class BotGatewayService {
       return true;
     }
     return false;
+  }
+
+  async ensureMemberIdentity(kind: BotKind, sender: TelegramUser) {
+    return this.access.registerMember(kind, sender);
   }
 
   private async showQr(kind: BotKind, userId: string, chatId: number) {

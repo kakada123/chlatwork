@@ -1,3 +1,4 @@
+import { GroupWorkspacesModule } from '../group-workspaces/group-workspaces.module';
 import { BotPaidAiService } from './bot-paid-ai.service';
 import { Module } from '@nestjs/common';
 import { AdminGuard } from '../auth/admin.guard';
@@ -12,7 +13,7 @@ import { BotKhqrService } from './bot-khqr.service';
 import { BotNotificationsService } from './bot-notifications.service';
 
 @Module({
-  imports: [CreatorAiModule, BotAccessModule],
+  imports: [CreatorAiModule, BotAccessModule, GroupWorkspacesModule],
   controllers: [BotAdminController],
   providers: [
     AdminGuard,

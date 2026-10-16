@@ -1,3 +1,4 @@
+import { editPoll, validatePollChoices } from './moment-poll-editor';
 import {
   BadRequestException,
   ConflictException,
@@ -59,6 +60,7 @@ export interface TelegramMomentVoter {
 export interface TelegramMomentPoll {
   id: string;
   slug: string;
+  groupWorkspaceId?: string | null;
   title: string;
   question: string;
   identityMode: MomentPollIdentityMode;
@@ -92,6 +94,7 @@ export class MomentsService {
     const activeCount = await this.prisma.moment.count({
       where: {
         creatorId: userId,
+        groupWorkspaceId: null,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
     });
@@ -242,13 +245,15 @@ export class MomentsService {
       where: { id: momentId },
       select: {
         creatorId: true,
+        groupWorkspaceId: true,
         status: true,
         occasion: true,
         _count: { select: { media: true } },
       },
     });
     if (!moment) throw new NotFoundException('Moment not found');
-    if (moment.creatorId !== userId) throw new ForbiddenException();
+    if (moment.groupWorkspaceId || moment.creatorId !== userId)
+      throw new ForbiddenException();
     if (moment.status !== MomentStatus.DRAFT) {
       throw new ConflictException('Published Moments cannot accept new photos');
     }
@@ -287,7 +292,9 @@ export class MomentsService {
   ) {
     if (!file) throw new BadRequestException('Choose an image to upload');
     if (file.size > MAX_MOMENT_IMAGE_BYTES) {
-      throw new BadRequestException('Each Moment image must be 10MB or smaller');
+      throw new BadRequestException(
+        'Each Moment image must be 10MB or smaller',
+      );
     }
     const mimeType = detectImageMime(file.buffer);
     if (!mimeType || mimeType !== file.mimetype) {
@@ -297,10 +304,11 @@ export class MomentsService {
     }
     const owner = await this.prisma.moment.findUnique({
       where: { id: momentId },
-      select: { creatorId: true, occasion: true },
+      select: { creatorId: true, groupWorkspaceId: true, occasion: true },
     });
     if (
       !owner ||
+      owner.groupWorkspaceId ||
       owner.creatorId !== userId ||
       owner.occasion !== MomentOccasion.VOTING
     ) {
@@ -309,7 +317,9 @@ export class MomentsService {
     try {
       const image = await loadImage(file.buffer);
       if (image.width * image.height > 40_000_000) {
-        throw new BadRequestException('Moment photos cannot exceed 40 megapixels');
+        throw new BadRequestException(
+          'Moment photos cannot exceed 40 megapixels',
+        );
       }
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
@@ -320,11 +330,12 @@ export class MomentsService {
       // Serialize image edits with option edits so an upload cannot revive a removed choice.
       const [owned] = await tx.$queryRaw<Array<{ id: string; slug: string }>>`
         SELECT id::text, slug FROM moments WHERE id = ${momentId}::uuid
-          AND creator_id = ${userId}::uuid AND occasion = 'VOTING' FOR UPDATE
+          AND creator_id = ${userId}::uuid AND occasion = 'VOTING' AND group_workspace_id IS NULL FOR UPDATE
       `;
       if (!owned) throw new NotFoundException('Poll not found');
       const block = await tx.momentBlock.findFirst({
-        where: { momentId, type: MomentBlockType.POLL }, select: { id: true, data: true },
+        where: { momentId, type: MomentBlockType.POLL },
+        select: { id: true, data: true },
       });
       const poll = this.readPollDefinition(block?.data);
       const option = poll?.options.find((item) => item.id === optionId);
@@ -375,14 +386,17 @@ export class MomentsService {
       where: { id: momentId },
       select: {
         creatorId: true,
+        groupWorkspaceId: true,
         status: true,
         slug: true,
         occasion: true,
         _count: { select: { media: true } },
       },
     });
-    if (!moment) throw new NotFoundException('Moment not found');
-    if (moment.creatorId !== userId) throw new ForbiddenException();
+    if (!moment || moment.groupWorkspaceId)
+      throw new NotFoundException('Moment not found');
+    if (moment.groupWorkspaceId || moment.creatorId !== userId)
+      throw new ForbiddenException();
     if (moment.status === MomentStatus.PUBLISHED) return { slug: moment.slug };
     if (moment._count.media < 1) {
       if (moment.occasion === MomentOccasion.VOTING) {
@@ -404,7 +418,7 @@ export class MomentsService {
 
   async listMine(userId: string) {
     const moments = await this.prisma.moment.findMany({
-      where: { creatorId: userId },
+      where: { creatorId: userId, groupWorkspaceId: null },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -539,6 +553,7 @@ export class MomentsService {
     const moments = await this.prisma.moment.findMany({
       where: {
         creatorId: userId,
+        groupWorkspaceId: null,
         occasion: MomentOccasion.VOTING,
         status: MomentStatus.PUBLISHED,
         AND: [
@@ -577,7 +592,7 @@ export class MomentsService {
     momentId: string,
   ): Promise<TelegramMomentPoll> {
     const moment = await this.prisma.moment.findFirst({
-      where: { id: momentId, creatorId: userId },
+      where: { id: momentId, creatorId: userId, groupWorkspaceId: null },
       include: {
         blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
         voteSchedule: { select: { enabled: true, timeZone: true } },
@@ -610,7 +625,9 @@ export class MomentsService {
       where: { id: momentId, voteSchedule: { enabled: true } },
       include: {
         blocks: { where: { type: MomentBlockType.POLL }, take: 1 },
-        voteSchedule: { select: { enabled: true, timeZone: true, telegramChatId: true } },
+        voteSchedule: {
+          select: { enabled: true, timeZone: true, telegramChatId: true },
+        },
       },
     });
     this.assertVotingOpen(moment);
@@ -620,7 +637,9 @@ export class MomentsService {
     if (view.roundId) {
       const round = await this.getTelegramVoteRound(view.roundId);
       if (round.telegramChatId !== moment.voteSchedule?.telegramChatId) {
-        throw new BadRequestException('Today’s voting round belongs to another group.');
+        throw new BadRequestException(
+          'Today’s voting round belongs to another group.',
+        );
       }
     }
     return view;
@@ -667,7 +686,7 @@ export class MomentsService {
     const count = await this.prisma.$executeRaw`
       UPDATE moment_vote_schedules schedule SET duration_minutes = ${minutes}, updated_at = NOW()
       FROM moments moment WHERE schedule.moment_id = moment.id
-        AND moment.creator_id = ${userId}::uuid AND schedule.telegram_chat_id = ${BigInt(chatId)}
+        AND moment.creator_id = ${userId}::uuid AND moment.group_workspace_id IS NULL AND schedule.telegram_chat_id = ${BigInt(chatId)}
     `;
     if (!count) throw new NotFoundException('Daily poll not found');
   }
@@ -712,6 +731,7 @@ export class MomentsService {
     return {
       id: moment.id,
       slug: moment.slug,
+      groupWorkspaceId: moment.groupWorkspaceId,
       title: moment.title,
       question: poll.question,
       ...summary,
@@ -802,7 +822,7 @@ export class MomentsService {
   ) {
     const [moment, user] = await Promise.all([
       this.prisma.moment.findFirst({
-        where: { id: momentId, creatorId: userId },
+        where: { id: momentId, creatorId: userId, groupWorkspaceId: null },
         select: {
           id: true,
           occasion: true,
@@ -823,15 +843,22 @@ export class MomentsService {
 
     const timeZone = user?.telegramNotificationTimeZone || 'Asia/Phnom_Penh';
     await this.prisma.$transaction(async (tx) => {
-      const [existingRound] = await tx.$queryRaw<Array<{ telegramChatId: bigint }>>`
+      const [existingRound] = await tx.$queryRaw<
+        Array<{ telegramChatId: bigint }>
+      >`
         SELECT telegram_chat_id AS "telegramChatId" FROM moment_vote_rounds
         WHERE moment_id = ${momentId}::uuid
           AND vote_date = ${this.formatLocalDate(new Date(), timeZone)}::date
         FOR UPDATE
       `;
       // Moving a schedule must never copy another group's participant roster into this chat.
-      if (existingRound && existingRound.telegramChatId !== BigInt(telegramChatId)) {
-        throw new BadRequestException('Today’s round belongs to another group. Choose another poll or try tomorrow.');
+      if (
+        existingRound &&
+        existingRound.telegramChatId !== BigInt(telegramChatId)
+      ) {
+        throw new BadRequestException(
+          'Today’s round belongs to another group. Choose another poll or try tomorrow.',
+        );
       }
       // A group has one daily decision poll; choosing a new one moves the schedule cleanly.
       await tx.momentVoteSchedule.deleteMany({
@@ -873,16 +900,18 @@ export class MomentsService {
       throw new BadRequestException('Use a valid time such as 10:00');
     }
     return this.prisma.$transaction(async (tx) => {
-      const [schedule] = await tx.$queryRaw<Array<{
+      const [schedule] = await tx.$queryRaw<
+        Array<{
         id: string;
         momentId: string;
         timeZone: string;
-      }>>`
+        }>
+      >`
         SELECT schedule.id::text, schedule.moment_id::text AS "momentId",
           schedule.time_zone AS "timeZone"
         FROM moment_vote_schedules schedule JOIN moments moment ON moment.id = schedule.moment_id
         WHERE schedule.telegram_chat_id = ${BigInt(telegramChatId)}
-          AND moment.creator_id = ${userId}::uuid
+          AND moment.creator_id = ${userId}::uuid AND moment.group_workspace_id IS NULL
         FOR UPDATE OF schedule
       `;
       if (!schedule) throw new NotFoundException('Daily poll not found');
@@ -911,7 +940,7 @@ export class MomentsService {
     const result = await this.prisma.momentVoteSchedule.updateMany({
       where: {
         telegramChatId: BigInt(telegramChatId),
-        moment: { creatorId: userId },
+        moment: { creatorId: userId, groupWorkspaceId: null },
       },
       data: { enabled: false },
     });
@@ -923,7 +952,7 @@ export class MomentsService {
     const schedule = await this.prisma.momentVoteSchedule.findFirst({
       where: {
         telegramChatId: BigInt(telegramChatId),
-        moment: { creatorId: userId },
+        moment: { creatorId: userId, groupWorkspaceId: null },
       },
       select: { momentId: true, timeZone: true },
     });
@@ -947,16 +976,18 @@ export class MomentsService {
     expectedMomentId?: string,
   ) {
     return this.prisma.$transaction(async (tx) => {
-      const [schedule] = await tx.$queryRaw<Array<{
+      const [schedule] = await tx.$queryRaw<
+        Array<{
         id: string;
         momentId: string;
         timeZone: string;
-      }>>`
+        }>
+      >`
         SELECT schedule.id::text, schedule.moment_id::text AS "momentId",
           schedule.time_zone AS "timeZone"
         FROM moment_vote_schedules schedule JOIN moments moment ON moment.id = schedule.moment_id
         WHERE schedule.telegram_chat_id = ${BigInt(telegramChatId)}
-          AND moment.creator_id = ${userId}::uuid
+          AND moment.creator_id = ${userId}::uuid AND moment.group_workspace_id IS NULL
         FOR UPDATE OF schedule
       `;
       if (
@@ -972,7 +1003,9 @@ export class MomentsService {
       await tx.$queryRaw`
         SELECT id FROM moments WHERE id = ${schedule.momentId}::uuid FOR UPDATE
       `;
-      const [round] = await tx.$queryRaw<Array<{ id: string; messageId: number | null }>>`
+      const [round] = await tx.$queryRaw<
+        Array<{ id: string; messageId: number | null }>
+      >`
         SELECT id::text, message_id AS "messageId" FROM moment_vote_rounds
         WHERE moment_id = ${schedule.momentId}::uuid AND vote_date = ${voteDate}::date
           AND telegram_chat_id = ${BigInt(telegramChatId)} FOR UPDATE
@@ -1003,7 +1036,7 @@ export class MomentsService {
     dto: CreateInvitationGuestsDto,
   ) {
     const moment = await this.prisma.moment.findFirst({
-      where: { id: momentId, creatorId: userId },
+      where: { id: momentId, creatorId: userId, groupWorkspaceId: null },
       select: {
         id: true,
         occasion: true,
@@ -1056,6 +1089,7 @@ export class MomentsService {
       where: {
         id: momentId,
         creatorId: userId,
+        groupWorkspaceId: null,
         occasion: MomentOccasion.INVITATION,
       },
       select: { id: true },
@@ -1089,7 +1123,11 @@ export class MomentsService {
     guestId: string,
   ) {
     const result = await this.prisma.momentInvitationGuest.updateMany({
-      where: { id: guestId, momentId, moment: { creatorId: userId } },
+      where: {
+        id: guestId,
+        momentId,
+        moment: { creatorId: userId, groupWorkspaceId: null },
+      },
       data: { sentAt: new Date() },
     });
     if (!result.count)
@@ -1194,15 +1232,20 @@ export class MomentsService {
         voteSchedule: { select: { enabled: true, timeZone: true } },
       },
     });
+    this.assertPublic(moment);
     this.assertVotingOpen(moment);
     const poll = this.readPollDefinition(moment.blocks[0]?.data);
-    const selectedOption = poll?.options.find((option) => option.id === dto.optionId);
+    const selectedOption = poll?.options.find(
+      (option) => option.id === dto.optionId,
+    );
     if (!poll || !selectedOption) {
       throw new BadRequestException('Choose a valid poll option');
     }
     // Enforce the Canteen joke on website votes even if someone bypasses the moving card.
     if (/canteen/i.test(selectedOption.label)) {
-      throw new BadRequestException('This choice is unavailable on the website');
+      throw new BadRequestException(
+        'This choice is unavailable on the website',
+      );
     }
     const identityMode = poll.identityMode;
     if (identityMode === 'LOGIN_REQUIRED' && !user) {
@@ -1290,6 +1333,7 @@ export class MomentsService {
       where: {
         id: momentId,
         creatorId: userId,
+        groupWorkspaceId: null,
         occasion: MomentOccasion.VOTING,
       },
       select: {
@@ -1299,7 +1343,9 @@ export class MomentsService {
           select: { data: true },
           take: 1,
         },
-        voteSchedule: { select: { enabled: true, timeZone: true, telegramChatId: true } },
+        voteSchedule: {
+          select: { enabled: true, timeZone: true, telegramChatId: true },
+        },
       },
     });
     const poll = this.readPollDefinition(moment?.blocks[0]?.data);
@@ -1334,121 +1380,28 @@ export class MomentsService {
     momentId: string,
     dto: UpdateMomentPollOptionsDto,
   ) {
-    const options = dto.options.map((option) => ({
-      id: option.id,
-      label: option.label.trim(),
-    }));
-    const submittedIds = options.flatMap((option) => option.id ? [option.id] : []);
-    const ids = new Set(submittedIds);
-    const labels = new Set(
-      options.map((option) => option.label.toLowerCase()),
-    );
-    if (
-      options.length < 2 ||
-      options.length > 15 ||
-      ids.size !== submittedIds.length ||
-      labels.size !== options.length ||
-      options.some(
-        (option) =>
-          (option.id !== undefined && !/^option-\d+$/.test(option.id)) ||
-          !option.label ||
-          option.label.length > 120,
-      )
-    ) {
-      throw new BadRequestException('Use two to fifteen different poll choices');
-    }
-
+    validatePollChoices(dto.options);
     await this.prisma.$transaction(async (tx) => {
-      // Serialize option changes with new ballots so a removed choice cannot receive a vote.
-      const [ownedMoment] = await tx.$queryRaw<Array<{ id: string }>>`
-        SELECT id::text FROM moments
-        WHERE id = ${momentId}::uuid AND creator_id = ${userId}::uuid
-          AND occasion = 'VOTING'
-        FOR UPDATE
+      const [owned] = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id::text FROM moments WHERE id = ${momentId}::uuid
+          AND creator_id = ${userId}::uuid AND occasion = 'VOTING'
+          AND group_workspace_id IS NULL FOR UPDATE
       `;
-      if (!ownedMoment) throw new NotFoundException('Poll not found');
-
+      if (!owned) throw new NotFoundException('Poll not found');
       const block = await tx.momentBlock.findFirst({
         where: { momentId, type: MomentBlockType.POLL },
         select: { id: true, data: true },
       });
-      const poll = this.readPollDefinition(block?.data);
-      if (!block || !poll) throw new NotFoundException('Poll not found');
-      const oldOptions = new Map(
-        poll.options.map((option) => [option.id, option]),
-      );
-      // The editor's starting IDs prevent a stale save from removing another edit.
-      const expectedIds = dto.expectedOptionIds;
-      if (expectedIds && (
-        expectedIds.length !== oldOptions.size ||
-        new Set(expectedIds).size !== oldOptions.size ||
-        expectedIds.some((id) => !oldOptions.has(id))
-      )) {
-        throw new ConflictException('Refresh the poll before editing its choices');
-      }
-      if (options.some((option) => option.id && !oldOptions.has(option.id))) {
-        throw new ConflictException(
-          'Refresh the poll before editing its choices',
-        );
-      }
-      if (options.some((option) => option.id === undefined) && !expectedIds) {
-        throw new BadRequestException('Current choice IDs are required when adding choices');
-      }
-      const changedIds = poll.options
-        .filter((option) => {
-          const updated = options.find(
-            (candidate) => candidate.id === option.id,
-          );
-          return !updated || updated.label !== option.label;
-        })
-        .map((option) => option.id);
-      const hasNewOptions = options.some((option) => option.id === undefined);
-      if (!changedIds.length && !hasNewOptions) return;
-
-      const removedOptions = poll.options.filter((option) => !ids.has(option.id));
-      // Renames retain ballots. Deletions remove only that choice's ballots across all days.
-      if (removedOptions.length) {
-        await tx.momentVote.deleteMany({
-          where: { momentId, optionId: { in: removedOptions.map((option) => option.id) } },
-        });
-      }
-
-      // Persist the counter so old Telegram buttons never target a replacement choice.
-      const savedNextOptionNumber = (block.data as Prisma.JsonObject).nextOptionNumber;
-      let nextOptionNumber = Math.max(
-        typeof savedNextOptionNumber === 'number' && Number.isSafeInteger(savedNextOptionNumber)
-          ? savedNextOptionNumber : 1,
-        ...poll.options.map((option) => Number(option.id.slice('option-'.length)) + 1),
-      );
-      const savedOptions = options.map((option) => ({
-        id: option.id ?? `option-${nextOptionNumber++}`,
-        label: option.label,
-        ...(option.id && oldOptions.get(option.id)?.imageId
-          ? { imageId: oldOptions.get(option.id)!.imageId }
-          : {}),
-      }));
-      await tx.momentBlock.update({
-        where: { id: block.id },
-        data: {
-          data: {
-            ...(block.data as Prisma.JsonObject),
-            nextOptionNumber,
-            options: savedOptions,
-          } as Prisma.InputJsonValue,
-        },
-      });
-      const removedImageIds = removedOptions
-        .flatMap((option) => option.imageId ? [option.imageId] : []);
-      if (removedImageIds.length) await tx.momentMedia.deleteMany({
-        where: { momentId, id: { in: removedImageIds } },
-      });
+      if (!block || !this.readPollDefinition(block.data))
+        throw new NotFoundException('Poll not found');
+      await editPoll(tx, momentId, block, dto.options, dto.expectedOptionIds);
     });
     return { updated: true };
   }
 
   async remove(userId: string, momentId: string) {
     const result = await this.prisma.moment.deleteMany({
-      where: { id: momentId, creatorId: userId },
+      where: { id: momentId, creatorId: userId, groupWorkspaceId: null },
     });
     if (!result.count) throw new NotFoundException('Moment not found');
     return { deleted: true };
@@ -1490,6 +1443,7 @@ export class MomentsService {
     return {
       status: 'ready' as const,
       slug: moment.slug,
+      groupWorkspaceId: moment.groupWorkspaceId,
       recipientName: moment.recipientName,
       occasion: moment.occasion,
       title: moment.title,
@@ -1737,9 +1691,11 @@ export class MomentsService {
         throw new BadRequestException('Choose a valid poll option');
       }
       // Recheck after live edits so no channel can save a Canteen ballot while waiting for the lock.
-      if (latestPoll.options.some(
+      if (
+        latestPoll.options.some(
         (option) => option.id === optionId && /canteen/i.test(option.label),
-      )) {
+        )
+      ) {
         throw new BadRequestException('This choice is unavailable for voting');
       }
       currentPoll = latestPoll;
@@ -1789,6 +1745,7 @@ export class MomentsService {
       id: string;
       slug: string;
       title: string;
+      groupWorkspaceId?: string | null;
       voteSchedule?: VoteScheduleContext | null;
     },
     poll: MomentPollDefinition,
@@ -1802,6 +1759,7 @@ export class MomentsService {
     return {
       id: moment.id,
       slug: moment.slug,
+      groupWorkspaceId: moment.groupWorkspaceId,
       title: moment.title,
       question: poll.question,
       identityMode: poll.identityMode,
@@ -1825,13 +1783,15 @@ export class MomentsService {
           }
         : {}),
       totalVotes: summary.totalVotes,
-      results: summary.results.map(({ optionId, label, imageId, votes, voters }) => ({
+      results: summary.results.map(
+        ({ optionId, label, imageId, votes, voters }) => ({
         optionId,
         label,
         ...(imageId ? { imageId } : {}),
         votes,
         ...(voters ? { voters } : {}),
-      })),
+        }),
+      ),
     };
   }
 
@@ -1849,10 +1809,16 @@ export class MomentsService {
       const id = typeof candidate.id === 'string' ? candidate.id : '';
       const label =
         typeof candidate.label === 'string' ? candidate.label.trim() : '';
-      const imageId = typeof candidate.imageId === 'string' &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidate.imageId)
-        ? candidate.imageId : undefined;
-      return /^option-\d+$/.test(id) && label ? [{ id, label, ...(imageId ? { imageId } : {}) }] : [];
+      const imageId =
+        typeof candidate.imageId === 'string' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          candidate.imageId,
+        )
+          ? candidate.imageId
+          : undefined;
+      return /^option-\d+$/.test(id) && label
+        ? [{ id, label, ...(imageId ? { imageId } : {}) }]
+        : [];
     });
     const rawIdentityMode = record.identityMode;
     const identityMode: MomentPollIdentityMode =
@@ -1886,7 +1852,11 @@ export class MomentsService {
         where: { momentId: media.momentId, type: MomentBlockType.POLL },
         select: { data: true },
       });
-      if (!this.readPollDefinition(pollBlock?.data)?.options.some((option) => option.imageId === mediaId)) {
+      if (
+        !this.readPollDefinition(pollBlock?.data)?.options.some(
+          (option) => option.imageId === mediaId,
+        )
+      ) {
         throw new NotFoundException('Photo not found');
       }
       // Telegram's photo upload path is most reliable with a bounded JPEG.
@@ -1896,13 +1866,30 @@ export class MomentsService {
         Math.max(1, Math.round(image.width * scale)),
         Math.max(1, Math.round(image.height * scale)),
       );
-      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-      return { content: Buffer.from(await canvas.encode('jpeg', 80)), mimeType: 'image/jpeg' };
+      canvas
+        .getContext('2d')
+        .drawImage(image, 0, 0, canvas.width, canvas.height);
+      return {
+        content: Buffer.from(await canvas.encode('jpeg', 80)),
+        mimeType: 'image/jpeg',
+      };
     }
     return { content: Buffer.from(media.content), mimeType: media.mimeType };
   }
 
   private assertPublic(
+    moment: {
+      status: MomentStatus;
+      expiresAt: Date | null;
+      groupWorkspaceId?: string | null;
+    } | null,
+  ): asserts moment is NonNullable<typeof moment> {
+    this.assertPublished(moment);
+    if (moment.groupWorkspaceId)
+      throw new NotFoundException('Moment not found');
+  }
+
+  private assertPublished(
     moment: { status: MomentStatus; expiresAt: Date | null } | null,
   ): asserts moment is NonNullable<typeof moment> {
     if (!moment || moment.status !== MomentStatus.PUBLISHED) {
@@ -1921,7 +1908,7 @@ export class MomentsService {
       occasion: MomentOccasion;
     } | null,
   ): asserts moment is NonNullable<typeof moment> {
-    this.assertPublic(moment);
+    this.assertPublished(moment);
     if (moment.occasion !== MomentOccasion.VOTING) {
       throw new NotFoundException('Poll not found');
     }
@@ -1962,7 +1949,7 @@ export class MomentsService {
   }
 }
 
-async function normalizeMomentImage(buffer: Buffer, mimeType: string) {
+export async function normalizeMomentImage(buffer: Buffer, mimeType: string) {
   if (mimeType === 'image/webp') return buffer;
 
   try {
@@ -1990,7 +1977,7 @@ async function normalizeMomentImage(buffer: Buffer, mimeType: string) {
   }
 }
 
-function detectImageMime(buffer: Buffer) {
+export function detectImageMime(buffer: Buffer) {
   if (
     buffer.length >= 3 &&
     buffer[0] === 0xff &&

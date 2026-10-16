@@ -193,10 +193,13 @@ enum AiVideoJobStatus {
 }
 
 model User {
-  botProfile                                 TelegramBotProfile? @relation("BotProfileOwner")
-  botProfileReviews                          TelegramBotProfile[] @relation("BotProfileReviewer")
-  botAuditEvents                             TelegramBotAudit[] @relation("BotAuditSubject")
-  botAuditActions                            TelegramBotAudit[] @relation("BotAuditActor")
+  groupManagerCandidates                     TelegramGroupManager[]
+  groupConnectionRequests                    TelegramGroupConnectRequest[]
+  groupAuditActions                          TelegramGroupAudit[]
+  botProfile                                 TelegramBotProfile?           @relation("BotProfileOwner")
+  botProfileReviews                          TelegramBotProfile[]          @relation("BotProfileReviewer")
+  botAuditEvents                             TelegramBotAudit[]            @relation("BotAuditSubject")
+  botAuditActions                            TelegramBotAudit[]            @relation("BotAuditActor")
   id                                         String                        @id @default(uuid()) @db.Uuid
   email                                      String?                       @unique
   phone                                      String?
@@ -246,30 +249,30 @@ model User {
 }
 
 model LinkProfile {
-  id              String        @id @default(uuid()) @db.Uuid
-  userId          String        @unique @map("user_id") @db.Uuid
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  slug            String        @unique @db.VarChar(40)
-  displayName     String        @map("display_name") @db.VarChar(100)
-  headline        String        @default("") @db.VarChar(160)
-  bio             String        @default("") @db.VarChar(320)
-  avatarUrl       String?       @map("avatar_url") @db.VarChar(2048)
-  backgroundUrl   String?       @map("background_url") @db.VarChar(2048)
-  theme           String        @default("minimal") @db.VarChar(20)
-  backgroundMode  String        @default("preset") @map("background_mode") @db.VarChar(20)
-  backgroundColor String        @default("#f8fafc") @map("background_color") @db.VarChar(7)
-  gradientColor   String        @default("#e9d5ff") @map("gradient_color") @db.VarChar(7)
-  colorMode       String        @default("preset") @map("color_mode") @db.VarChar(10)
-  font            String        @default("sans") @db.VarChar(10)
-  radius          String        @default("rounded") @db.VarChar(10)
-  buttonStyle     String        @default("solid") @map("button_style") @db.VarChar(10)
-  showBranding    Boolean       @default(true) @map("show_branding")
-  isPublished     Boolean       @default(false) @map("is_published")
-  seoTitle        String        @default("") @map("seo_title") @db.VarChar(100)
-  seoDescription  String        @default("") @map("seo_description") @db.VarChar(200)
-  viewCount       Int           @default(0) @map("view_count")
-  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @unique @map("user_id") @db.Uuid
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug            String         @unique @db.VarChar(40)
+  displayName     String         @map("display_name") @db.VarChar(100)
+  headline        String         @default("") @db.VarChar(160)
+  bio             String         @default("") @db.VarChar(320)
+  avatarUrl       String?        @map("avatar_url") @db.VarChar(2048)
+  backgroundUrl   String?        @map("background_url") @db.VarChar(2048)
+  theme           String         @default("minimal") @db.VarChar(20)
+  backgroundMode  String         @default("preset") @map("background_mode") @db.VarChar(20)
+  backgroundColor String         @default("#f8fafc") @map("background_color") @db.VarChar(7)
+  gradientColor   String         @default("#e9d5ff") @map("gradient_color") @db.VarChar(7)
+  colorMode       String         @default("preset") @map("color_mode") @db.VarChar(10)
+  font            String         @default("sans") @db.VarChar(10)
+  radius          String         @default("rounded") @db.VarChar(10)
+  buttonStyle     String         @default("solid") @map("button_style") @db.VarChar(10)
+  showBranding    Boolean        @default(true) @map("show_branding")
+  isPublished     Boolean        @default(false) @map("is_published")
+  seoTitle        String         @default("") @map("seo_title") @db.VarChar(100)
+  seoDescription  String         @default("") @map("seo_description") @db.VarChar(200)
+  viewCount       Int            @default(0) @map("view_count")
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz
   links           ProfileLink[]
   images          ProfileImage[]
 
@@ -393,29 +396,29 @@ model CreatorTelegramChat {
 }
 
 model CreatorTelegramRequest {
-  updateId        BigInt    @id @map("update_id")
-  userId          String    @map("user_id") @db.Uuid
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatId          BigInt    @map("chat_id")
-  telegramUserId  BigInt?   @map("telegram_user_id")
-  sourceMessageId Int?      @map("source_message_id")
-  messageThreadId Int?      @map("message_thread_id")
-  businessConnectionId String? @map("business_connection_id") @db.VarChar(256)
-  sourceMessageDate DateTime? @map("source_message_date")
-  feature         AiFeature
-  content         String?   @db.VarChar(4000)
-  replyParts      Json?     @map("reply_parts")
-  sentParts       Int       @default(0) @map("sent_parts")
-  statusMessageId Int?      @map("status_message_id")
-  leaseId         String?   @map("lease_id") @db.Uuid
-  lockedUntil     DateTime? @map("locked_until")
-  nextAttemptAt   DateTime  @default(now()) @map("next_attempt_at")
-  processedAt     DateTime? @map("processed_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
+  updateId             BigInt    @id @map("update_id")
+  userId               String    @map("user_id") @db.Uuid
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId               BigInt    @map("chat_id")
+  telegramUserId       BigInt?   @map("telegram_user_id")
+  sourceMessageId      Int?      @map("source_message_id")
+  messageThreadId      Int?      @map("message_thread_id")
+  businessConnectionId String?   @map("business_connection_id") @db.VarChar(256)
+  sourceMessageDate    DateTime? @map("source_message_date")
+  feature              AiFeature
+  content              String?   @db.VarChar(4000)
+  replyParts           Json?     @map("reply_parts")
+  sentParts            Int       @default(0) @map("sent_parts")
+  statusMessageId      Int?      @map("status_message_id")
+  leaseId              String?   @map("lease_id") @db.Uuid
+  lockedUntil          DateTime? @map("locked_until")
+  nextAttemptAt        DateTime  @default(now()) @map("next_attempt_at")
+  processedAt          DateTime? @map("processed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
 
+  @@unique([businessConnectionId, chatId, sourceMessageId], map: "creator_telegram_requests_business_source_key")
   @@index([processedAt, nextAttemptAt])
   @@index([userId, processedAt])
-  @@unique([businessConnectionId, chatId, sourceMessageId], map: "creator_telegram_requests_business_source_key")
   @@map("creator_telegram_requests")
 }
 
@@ -539,6 +542,8 @@ model AiVideoJob {
 }
 
 model Moment {
+  groupWorkspaceId String?                 @unique @map("group_workspace_id") @db.Uuid
+  groupWorkspace   TelegramGroupWorkspace? @relation(fields: [groupWorkspaceId], references: [id], onDelete: Restrict)
   id               String                  @id @default(uuid()) @db.Uuid
   slug             String                  @unique @db.VarChar(96)
   creatorId        String                  @map("creator_id") @db.Uuid
@@ -996,21 +1001,21 @@ model TelegramGroupSplitParticipant {
 }
 
 model TelegramKlaKlokGame {
-  id                       String                    @id @default(uuid()) @db.Uuid
-  telegramChatId           BigInt                    @map("telegram_chat_id")
-  telegramChatTitle        String                    @map("telegram_chat_title") @db.VarChar(120)
-  dealerTelegramUserId     String                    @map("dealer_telegram_user_id") @db.VarChar(20)
-  dealerDisplayName        String                    @map("dealer_display_name") @db.VarChar(80)
-  status                   String                    @default("OPEN") @db.VarChar(16)
-  currentRound             Int                       @default(1) @map("current_round")
-  groupMessageId           Int?                      @map("group_message_id")
-  dealerMessageId          Int?                      @map("dealer_message_id")
-  summaryMessageId         Int?                      @map("summary_message_id")
-  createdAt                DateTime                  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt                DateTime                  @updatedAt @map("updated_at") @db.Timestamptz
-  endedAt                  DateTime?                 @map("ended_at") @db.Timestamptz
-  rounds                   TelegramKlaKlokRound[]
-  bets                     TelegramKlaKlokBet[]
+  id                   String                 @id @default(uuid()) @db.Uuid
+  telegramChatId       BigInt                 @map("telegram_chat_id")
+  telegramChatTitle    String                 @map("telegram_chat_title") @db.VarChar(120)
+  dealerTelegramUserId String                 @map("dealer_telegram_user_id") @db.VarChar(20)
+  dealerDisplayName    String                 @map("dealer_display_name") @db.VarChar(80)
+  status               String                 @default("OPEN") @db.VarChar(16)
+  currentRound         Int                    @default(1) @map("current_round")
+  groupMessageId       Int?                   @map("group_message_id")
+  dealerMessageId      Int?                   @map("dealer_message_id")
+  summaryMessageId     Int?                   @map("summary_message_id")
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+  endedAt              DateTime?              @map("ended_at") @db.Timestamptz
+  rounds               TelegramKlaKlokRound[]
+  bets                 TelegramKlaKlokBet[]
 
   @@index([telegramChatId, status, createdAt(sort: Desc)])
   @@index([dealerTelegramUserId, createdAt(sort: Desc)])
@@ -1018,35 +1023,35 @@ model TelegramKlaKlokGame {
 }
 
 model TelegramKlaKlokRound {
-  id               String                 @id @default(uuid()) @db.Uuid
-  gameId           String                 @map("game_id") @db.Uuid
-  game             TelegramKlaKlokGame    @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  roundNumber      Int                    @map("round_number")
-  dieOne           String                 @map("die_one") @db.VarChar(16)
-  dieTwo           String                 @map("die_two") @db.VarChar(16)
-  dieThree         String                 @map("die_three") @db.VarChar(16)
-  totalStakeRiel   BigInt                 @map("total_stake_riel")
-  dealerNetRiel    BigInt                 @map("dealer_net_riel")
-  resultMessageId  Int?                   @map("result_message_id")
-  rolledAt         DateTime               @default(now()) @map("rolled_at") @db.Timestamptz
+  id              String              @id @default(uuid()) @db.Uuid
+  gameId          String              @map("game_id") @db.Uuid
+  game            TelegramKlaKlokGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  roundNumber     Int                 @map("round_number")
+  dieOne          String              @map("die_one") @db.VarChar(16)
+  dieTwo          String              @map("die_two") @db.VarChar(16)
+  dieThree        String              @map("die_three") @db.VarChar(16)
+  totalStakeRiel  BigInt              @map("total_stake_riel")
+  dealerNetRiel   BigInt              @map("dealer_net_riel")
+  resultMessageId Int?                @map("result_message_id")
+  rolledAt        DateTime            @default(now()) @map("rolled_at") @db.Timestamptz
 
   @@unique([gameId, roundNumber])
   @@map("telegram_kla_klok_rounds")
 }
 
 model TelegramKlaKlokBet {
-  id               String                 @id @default(uuid()) @db.Uuid
-  gameId           String                 @map("game_id") @db.Uuid
-  game             TelegramKlaKlokGame    @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  roundNumber      Int                    @map("round_number")
-  telegramUserId   String                 @map("telegram_user_id") @db.VarChar(20)
-  displayName      String                 @map("display_name") @db.VarChar(80)
-  symbol           String                 @db.VarChar(16)
-  amountRiel       BigInt                 @map("amount_riel")
-  matchCount       Int?                   @map("match_count")
-  netRiel          BigInt?                @map("net_riel")
-  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+  id             String              @id @default(uuid()) @db.Uuid
+  gameId         String              @map("game_id") @db.Uuid
+  game           TelegramKlaKlokGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  roundNumber    Int                 @map("round_number")
+  telegramUserId String              @map("telegram_user_id") @db.VarChar(20)
+  displayName    String              @map("display_name") @db.VarChar(80)
+  symbol         String              @db.VarChar(16)
+  amountRiel     BigInt              @map("amount_riel")
+  matchCount     Int?                @map("match_count")
+  netRiel        BigInt?             @map("net_riel")
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime            @updatedAt @map("updated_at") @db.Timestamptz
 
   @@unique([gameId, roundNumber, telegramUserId, symbol])
   @@index([gameId, roundNumber, createdAt])
@@ -1085,20 +1090,21 @@ model RefreshToken {
 
 // Bot restrictions are independent of website User.isActive.
 model TelegramBotProfile {
-  userId         String                    @id @map("user_id") @db.Uuid
-  user           User                      @relation("BotProfileOwner", fields: [userId], references: [id], onDelete: Cascade)
-  telegramUserId BigInt                    @unique @map("telegram_user_id")
-  username       String?                   @db.VarChar(32)
-  status         String                    @default("PENDING") @db.VarChar(16)
-  version        Int                       @default(0)
-  reviewedBy     String?                   @map("reviewed_by") @db.Uuid
-  reviewer       User?                     @relation("BotProfileReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
-  reviewedAt     DateTime?                 @map("reviewed_at") @db.Timestamptz
-  createdAt      DateTime                  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime                  @default(now()) @map("updated_at") @db.Timestamptz
-  memberships    TelegramBotMembership[]
-  qrDrafts       TelegramBotQrDraft[]
-  notifications  TelegramBotNotification[]
+  managerRequestedAt DateTime?                 @map("manager_requested_at") @db.Timestamptz
+  userId             String                    @id @map("user_id") @db.Uuid
+  user               User                      @relation("BotProfileOwner", fields: [userId], references: [id], onDelete: Cascade)
+  telegramUserId     BigInt                    @unique @map("telegram_user_id")
+  username           String?                   @db.VarChar(32)
+  status             String                    @default("PENDING") @db.VarChar(16)
+  version            Int                       @default(0)
+  reviewedBy         String?                   @map("reviewed_by") @db.Uuid
+  reviewer           User?                     @relation("BotProfileReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewedAt         DateTime?                 @map("reviewed_at") @db.Timestamptz
+  createdAt          DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime                  @default(now()) @map("updated_at") @db.Timestamptz
+  memberships        TelegramBotMembership[]
+  qrDrafts           TelegramBotQrDraft[]
+  notifications      TelegramBotNotification[]
 
   @@index([status, createdAt(sort: Desc)], map: "telegram_bot_profiles_status_idx")
   @@map("telegram_bot_profiles")
@@ -1134,12 +1140,14 @@ model TelegramBotAudit {
 }
 
 model TelegramBotQrDraft {
-  userId    String             @map("user_id") @db.Uuid
-  profile   TelegramBotProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  bot       String             @db.VarChar(16)
-  token     String             @db.VarChar(36)
-  content   Bytes?
-  expiresAt DateTime           @map("expires_at") @db.Timestamptz
+  groupWorkspaceId String?            @map("group_workspace_id") @db.Uuid
+  workspaceVersion Int?               @map("workspace_version")
+  userId           String             @map("user_id") @db.Uuid
+  profile          TelegramBotProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  bot              String             @db.VarChar(16)
+  token            String             @db.VarChar(36)
+  content          Bytes?
+  expiresAt        DateTime           @map("expires_at") @db.Timestamptz
 
   @@id([userId, bot])
   @@map("telegram_bot_qr_drafts")
@@ -1165,4 +1173,96 @@ model TelegramBotAdminMigration {
   appliedAt DateTime @default(now()) @map("applied_at") @db.Timestamptz
 
   @@map("telegram_bot_admin_migrations")
+}
+
+model TelegramGroupWorkspace {
+  id                 String                        @id @default(uuid()) @db.Uuid
+  telegramChatId     BigInt                        @unique @map("telegram_chat_id")
+  title              String                        @db.VarChar(120)
+  status             String                        @default("ACTIVE") @db.VarChar(16)
+  version            Int                           @default(0)
+  createdAt          DateTime                      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime                      @default(now()) @map("updated_at") @db.Timestamptz
+  connections        TelegramGroupConnection[]
+  managers           TelegramGroupManager[]
+  chatAliases        TelegramGroupChatAlias[]
+  connectionRequests TelegramGroupConnectRequest[]
+  audit              TelegramGroupAudit[]
+  poll               Moment?
+
+  @@map("telegram_group_workspaces")
+}
+
+model TelegramGroupConnection {
+  workspaceId    String                 @map("workspace_id") @db.Uuid
+  workspace      TelegramGroupWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  bot            String                 @db.VarChar(16)
+  enabled        Boolean                @default(true)
+  health         String                 @default("UNVERIFIED") @db.VarChar(24)
+  voting         Boolean                @default(false)
+  split          Boolean                @default(false)
+  khqr           Boolean                @default(false)
+  creator        Boolean                @default(false)
+  version        Int                    @default(0)
+  lastVerifiedAt DateTime?              @map("last_verified_at") @db.Timestamptz
+
+  @@id([workspaceId, bot])
+  @@map("telegram_group_connections")
+}
+
+model TelegramGroupManager {
+  workspaceId String                 @map("workspace_id") @db.Uuid
+  workspace   TelegramGroupWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  userId      String                 @map("user_id") @db.Uuid
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz
+
+  @@id([workspaceId, userId])
+  @@index([userId], map: "telegram_group_managers_user_idx")
+  @@map("telegram_group_managers")
+}
+
+model TelegramGroupChatAlias {
+  telegramChatId BigInt                 @id @map("telegram_chat_id")
+  workspaceId    String                 @map("workspace_id") @db.Uuid
+  workspace      TelegramGroupWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId], map: "telegram_group_chat_aliases_workspace_idx")
+  @@map("telegram_group_chat_aliases")
+}
+
+model TelegramGroupConnectRequest {
+  id              String                  @id @db.Uuid
+  userId          String                  @map("user_id") @db.Uuid
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  telegramUserId  BigInt                  @map("telegram_user_id")
+  bot             String                  @db.VarChar(16)
+  requestId       Int                     @map("request_id")
+  nonceHash       String                  @unique @map("nonce_hash") @db.VarChar(64)
+  expiresAt       DateTime                @map("expires_at") @db.Timestamptz
+  connectedChatId BigInt?                 @map("connected_chat_id")
+  workspaceId     String?                 @map("workspace_id") @db.Uuid
+  workspace       TelegramGroupWorkspace? @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([bot, telegramUserId, requestId])
+  @@index([expiresAt], map: "telegram_group_connect_requests_expiry_idx")
+  @@map("telegram_group_connect_requests")
+}
+
+model TelegramGroupAudit {
+  id             BigInt                 @id @default(autoincrement())
+  workspaceId    String                 @map("workspace_id") @db.Uuid
+  workspace      TelegramGroupWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  actorId        String?                @map("actor_id") @db.Uuid
+  actor          User?                  @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  telegramUserId BigInt?                @map("telegram_user_id")
+  bot            String?                @db.VarChar(16)
+  action         String                 @db.VarChar(40)
+  operationKey   String                 @unique @map("operation_key") @db.VarChar(160)
+  details        Json                   @default("{}")
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([workspaceId, createdAt(sort: Desc)], map: "telegram_group_audit_workspace_idx")
+  @@map("telegram_group_audit")
 }

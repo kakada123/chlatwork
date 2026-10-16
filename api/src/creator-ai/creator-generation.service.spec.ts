@@ -321,3 +321,61 @@ describe('CreatorGenerationService', () => {
     expect(credits.complete).not.toHaveBeenCalled();
   });
 });
+
+describe('group revocation during paid reservation', () => {
+  it('refunds the requesting user and never calls the provider when the group is disabled while reserving', async () => {
+    const gateway = { generateStructured: jest.fn() };
+    const credits = {
+      validateIdempotencyKey: (key: string) => key,
+      reserve: jest
+        .fn()
+        .mockResolvedValue({
+          kind: 'created',
+          generation: { id: 'generation' },
+        }),
+      markProcessing: jest.fn(),
+      refund: jest.fn(),
+    };
+    const policy = {
+      paid: jest
+        .fn()
+        .mockResolvedValueOnce({ workspaceId: 'A' })
+        .mockRejectedValueOnce(new Error('group disabled')),
+    };
+    const service = new CreatorGenerationService(
+      gateway as never,
+      credits as never,
+      { fixed: () => 1 } as never,
+      undefined,
+      { assertAllowed: jest.fn() } as never,
+      policy as never,
+    );
+    await expect(
+      service.generate(
+        'requesting-user',
+        {
+          feature: AiFeature.KHMER_GRAMMAR,
+          sourceBot: 'CREATOR',
+          sourceGroup: {
+            workspaceId: 'A',
+            chatId: '-1001',
+            telegramUserId: '123',
+          },
+          payload: { content: 'hi' },
+          inputSummary: 'Telegram',
+        },
+        'creator-test-1',
+      ),
+    ).rejects.toThrow();
+    expect(credits.reserve).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'requesting-user' }),
+    );
+    expect(gateway.generateStructured).not.toHaveBeenCalled();
+    expect(credits.refund).toHaveBeenCalledWith(
+      'generation',
+      'AI_GENERATION_FAILED',
+      expect.any(Object),
+      'CREATOR',
+    );
+  });
+});

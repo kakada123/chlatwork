@@ -44,7 +44,9 @@ export function useAuth() {
     const request = (async () => {
       try {
         const headers = import.meta.server ? useRequestHeaders(["cookie"]) : {};
-        const response = await $fetch<AuthUserResponse>("/api/auth/me", { headers });
+        const response = await $fetch<AuthUserResponse>("/api/auth/me", {
+          headers,
+        });
         user.value = response.user;
         return response.user;
       } catch {
@@ -72,12 +74,15 @@ export function useAuth() {
     return response.user;
   }
 
-  async function loginWithTelegram(initData: string) {
+  async function loginWithTelegram(
+    initData: string,
+    accept: () => boolean = () => true,
+  ) {
     const response = await $fetch<AuthUserResponse>("/api/auth/telegram", {
       method: "POST",
       body: { initData },
     });
-    user.value = response.user;
+    if (accept()) user.value = response.user;
     isReady.value = true;
     return response.user;
   }

@@ -1,3 +1,4 @@
+import { GroupAccessModule } from '../group-workspaces/group-access.module';
 import { BotAccessModule } from '../bot-admin/bot-access.module';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
@@ -19,7 +20,7 @@ import { CreatorCreditAdminController } from './creator-credit-admin.controller'
 import { CreatorCreditAdminService } from './creator-credit-admin.service';
 
 @Module({
-  imports: [AuthModule, BotAccessModule],
+  imports: [AuthModule, BotAccessModule, GroupAccessModule],
   controllers: [
     CreatorAiController,
     CreatorCreditAdminController,

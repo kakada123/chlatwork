@@ -1,3 +1,5 @@
+import { GroupConnectionsService } from '../group-workspaces/group-connections.service';
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
 import { BotGatewayService } from '../bot-admin/bot-gateway.service';
 import {
   BotAccessService,
@@ -72,6 +74,8 @@ export class CreatorTelegramService {
     @Optional() private readonly availability?: FeatureAvailabilityService,
     @Optional() private readonly botGateway?: BotGatewayService,
     @Optional() private readonly botAccess?: BotAccessService,
+    @Optional() private readonly groupConnections?: GroupConnectionsService,
+    @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
   ) {}
 
   isValidWebhookSecret(candidate?: string) {
@@ -94,6 +98,7 @@ export class CreatorTelegramService {
     const update = value as TelegramUpdate;
     if (!Number.isSafeInteger(update.update_id) || update.update_id < 0)
       throw new BadRequestException('Invalid Creator bot update');
+    if (await this.groupConnections?.handleLifecycle('CREATOR', update)) return;
     if (update.business_message || update.edited_business_message) {
       await this.handleBusinessUpdate(update);
       return;
@@ -123,6 +128,12 @@ export class CreatorTelegramService {
       return;
 
     if (await this.botGateway?.handle('CREATOR', update)) return;
+    if (isGroup && this.groupPolicy)
+      await this.groupPolicy.paid(
+        'CREATOR',
+        String(message.chat.id),
+        String(sender.id),
+      );
 
     const chatId = message.chat.id;
     const context: CreatorReplyContext = {

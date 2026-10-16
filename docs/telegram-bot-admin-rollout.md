@@ -42,3 +42,9 @@ Local unit tests and schema/Vue/TypeScript checks are separate from production p
 6. PNG/JPEG upload, preview, confirmation, cancellation, replacement and removal work privately through both bots; invalid files preserve the saved image. A group QR request uses the selected verified member.
 7. `/split` sends its existing single QR/result message, and Canteen voting behavior is unchanged.
 8. Admin search/filter/pagination and profile tabs work in a real browser at mobile and desktop sizes. Public QR URLs are reachable by Telegram.
+
+## Group manager and member policy
+
+The group-workspace release separates an explicit **manager approval request** from ordinary Telegram participation. New `/start` users and free group members do not enter the manager queue automatically. Existing approved users remain approved; prior pending requests remain visible through the one-time migration backfill.
+
+Use `/admin/bots` for platform approval, personal shared credits and group suspension. Users manage their groups through the Telegram Mini App at `/bot/groups`, without website ADMIN privileges. Active connected-group members can use enabled free voting, split and KHQR; paid AI always requires the requesting person's approved account and personal wallet. See [group workspace rollout](telegram-group-workspaces-rollout.md) for the additive SQL order, private poll visibility changes and live verification checklist.

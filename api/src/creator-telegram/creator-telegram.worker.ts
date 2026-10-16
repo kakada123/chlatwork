@@ -1,3 +1,4 @@
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
 import { BotAccessService } from '../bot-admin/bot-access.service';
 import {
   Injectable,
@@ -85,6 +86,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     private readonly bot: CreatorTelegramClient,
     private readonly menu: CreatorTelegramService,
     @Optional() private readonly botAccess?: BotAccessService,
+    @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
   ) {}
 
   onModuleInit() {
@@ -217,6 +219,26 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    let groupContext:
+      | { workspaceId: string; chatId: string; telegramUserId: string }
+      | undefined;
+    if (isGroup && this.groupPolicy) {
+      try {
+        const context = await this.groupPolicy.paid(
+          'CREATOR',
+          String(job.chatId),
+          String(telegramUserId),
+        );
+        groupContext = {
+          workspaceId: context.workspaceId,
+          chatId: context.chatId,
+          telegramUserId: String(telegramUserId),
+        };
+      } catch {
+        await this.finish(job);
+        return;
+      }
+    }
     let parts = readReplyParts(job.replyParts);
     if (!parts) {
       if (
@@ -243,6 +265,7 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           {
             feature: job.feature,
             sourceBot: 'CREATOR',
+            sourceGroup: groupContext,
             payload: {
               content: job.content,
               language: 'KHMER',
@@ -327,6 +350,18 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       await this.finish(job);
       return;
     }
+    if (isGroup && this.groupPolicy) {
+      try {
+        await this.groupPolicy.paid(
+          'CREATOR',
+          String(job.chatId),
+          String(telegramUserId),
+        );
+      } catch {
+        await this.finish(job);
+        return;
+      }
+    }
     // Stored reply parts can bypass today's generation checks on a later retry.
     if (containsThaiScript(parts)) {
       const notice =
@@ -348,6 +383,18 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
       return;
     }
     for (let index = job.sentParts; index < parts.length; index++) {
+      if (isGroup && this.groupPolicy) {
+        try {
+          await this.groupPolicy.paid(
+            'CREATOR',
+            String(job.chatId),
+            String(telegramUserId),
+          );
+        } catch {
+          await this.finish(job);
+          return;
+        }
+      }
       const held = await this.prisma.creatorTelegramRequest.updateMany({
         where: { updateId: job.updateId, leaseId: job.leaseId },
         data: { lockedUntil: this.leaseDeadline() },

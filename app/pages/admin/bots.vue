@@ -146,6 +146,7 @@ onMounted(() => void load());
   <main
     class="mx-auto max-w-7xl space-y-7 px-4 py-8 text-slate-900 sm:px-6 dark:text-white"
   >
+    <AdminBotGroupWorkspaces />
     <header class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p

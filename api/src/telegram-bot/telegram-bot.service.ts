@@ -1,3 +1,6 @@
+import { GroupPollMediaService } from '../group-workspaces/group-poll-media.service';
+import { GroupConnectionsService } from '../group-workspaces/group-connections.service';
+import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
 import { BotPaidAiService } from '../bot-admin/bot-paid-ai.service';
 import { CreatorAiException } from '../creator-ai/creator-ai.errors';
 import { BotGatewayService } from '../bot-admin/bot-gateway.service';
@@ -140,6 +143,9 @@ export class TelegramBotService {
     private readonly businessSecurity?: TelegramBusinessSecurityService,
     @Optional() private readonly botGateway?: BotGatewayService,
     @Optional() private readonly paidAi?: BotPaidAiService,
+    @Optional() private readonly groupConnections?: GroupConnectionsService,
+    @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
+    @Optional() private readonly groupMedia?: GroupPollMediaService,
   ) {
     this.quickSplitConversation = new TelegramQuickSplitConversation(
       prisma,
@@ -158,23 +164,26 @@ export class TelegramBotService {
   async handleUpdate(value: unknown) {
     const update = this.parseUpdate(value);
     // Log the update type before deduplication; bodies and identities stay out of diagnostics.
-    const updateType = (
-      [
-        'business_message',
-        'edited_business_message',
-        'business_connection',
-        'message',
-        'callback_query',
-        'inline_query',
-        'chat_member',
-      ] as const
-    ).find((key) => update[key]) ?? 'other';
+    const updateType =
+      (
+        [
+          'business_message',
+          'edited_business_message',
+          'business_connection',
+          'message',
+          'callback_query',
+          'inline_query',
+          'chat_member',
+        ] as const
+      ).find((key) => update[key]) ?? 'other';
     this.logger.log(
       JSON.stringify({ event: 'telegram_webhook_update', updateType }),
     );
     if (!(await this.claimUpdate(update.update_id))) return;
 
     try {
+      if (await this.groupConnections?.handleLifecycle('CHLATWORK', update))
+        return;
       const businessMessage =
         update.business_message ?? update.edited_business_message;
       if (businessMessage) {
@@ -235,7 +244,8 @@ export class TelegramBotService {
   private async disabledUpdateFeature(update: TelegramUpdate) {
     if (!this.availability) return null;
     const feature = this.updateFeature(update);
-    return feature && !(await this.availability.isEnabled(`telegram:${feature}`))
+    return feature &&
+      !(await this.availability.isEnabled(`telegram:${feature}`))
       ? feature
       : null;
   }
@@ -251,8 +261,7 @@ export class TelegramBotService {
       if (data.startsWith('poll:daily:')) return 'group-voting';
       if (data.startsWith('poll:')) return 'voting';
       if (data.startsWith('settings:')) return 'notifications';
-      if (data.startsWith('summary:') || data === 'menu:ask')
-        return 'spending';
+      if (data.startsWith('summary:') || data === 'menu:ask') return 'spending';
       if (data === 'menu:recent' || data.startsWith('recent:'))
         return 'spending';
       if (data === 'menu:add' || data.startsWith('expense:')) return 'expenses';
@@ -281,19 +290,20 @@ export class TelegramBotService {
         command === '$' ||
         readMemberQrMention(message) ||
         /^tg_[1-9][0-9]{0,15}$/.test(command ?? '')
-      ) return 'khqr';
+      )
+        return 'khqr';
       return null;
     }
     if (command === 'phone' || command === 'skipphone' || message.contact)
       return 'phone';
     if (command === 'vote') return 'voting';
-    if (command === 'alerts' || command === 'weekly')
-      return 'notifications';
+    if (command === 'alerts' || command === 'weekly') return 'notifications';
     if (
       command === 'today' ||
       command === 'recent' ||
       parseSpendingQuestion(message.text ?? '')
-    ) return 'spending';
+    )
+      return 'spending';
     if (command === 'cancel' || message.voice || message.photo?.length)
       return 'expenses';
     if (!command && message.text) {
@@ -339,11 +349,27 @@ export class TelegramBotService {
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
       if (message.contact) return;
-      if (await this.quickSplitConversation.handle(
-        message, command,
-        async () => !this.availability || this.availability.isEnabled('telegram:bill-split'),
-        async (split) => this.showQuickSplitResult(message, split),
-      )) return;
+      if (
+        await this.quickSplitConversation.handle(
+          message,
+          command,
+          async () => {
+            if (this.groupPolicy)
+              await this.groupPolicy.chat(
+                'CHLATWORK',
+                String(message.chat.id),
+                'split',
+                String(message.from!.id),
+              );
+            return (
+              !this.availability ||
+              this.availability.isEnabled('telegram:bill-split')
+            );
+          },
+          async (split) => this.showQuickSplitResult(message, split),
+        )
+      )
+        return;
       if (command === 'phone') {
         await this.bot.sendMessage(
           message.chat.id,
@@ -688,6 +714,9 @@ export class TelegramBotService {
       displayName,
       true,
       contentForMember?.(displayName),
+      message.from
+        ? { userId: String(message.from.id), event: String(message.message_id) }
+        : undefined,
     );
   }
 
@@ -743,6 +772,10 @@ export class TelegramBotService {
       member.key,
       member.displayName,
       true,
+      undefined,
+      message.from
+        ? { userId: String(message.from.id), event: String(message.message_id) }
+        : undefined,
     );
   }
 
@@ -807,6 +840,8 @@ export class TelegramBotService {
       member.key,
       member.displayName,
       true,
+      undefined,
+      { userId: String(callback.from.id), event: callback.id },
     );
     if (!sent) return;
     try {
@@ -823,6 +858,7 @@ export class TelegramBotService {
     displayName: string,
     reportMissing = false,
     content?: MemberQrContent,
+    actor?: { userId: string; event: string },
   ) {
     const unavailable = async () => {
       if (reportMissing) {
@@ -830,6 +866,13 @@ export class TelegramBotService {
           chatId,
           content?.missingMessage ?? `${displayName}: No KHQR available yet.`,
         );
+        if (content && actor)
+          await this.recordGroupUsage(
+            chatId,
+            actor.userId,
+            'SPLIT_CREATED',
+            actor.event,
+          );
       }
     };
     if (!memberKey || !/^[a-z0-9_]{1,32}$/.test(memberKey)) {
@@ -908,6 +951,13 @@ export class TelegramBotService {
       }
       throw error;
     }
+    if (actor)
+      await this.recordGroupUsage(
+        chatId,
+        actor.userId,
+        content ? 'SPLIT_CREATED' : 'KHQR_SHOWN',
+        actor.event,
+      );
     return true;
   }
 
@@ -1117,6 +1167,12 @@ export class TelegramBotService {
         this.telegramDisplayName(callback.from),
         match[1] === 'join',
       );
+      await this.recordGroupUsage(
+        message.chat.id,
+        String(callback.from.id),
+        'PARTICIPATION_CHANGED',
+        callback.id,
+      );
       await this.bot.answerCallback(
         callback.id,
         match[1] === 'join'
@@ -1152,7 +1208,8 @@ export class TelegramBotService {
     const optionId = legacyConfirmation ? parts[4] : parts[3];
     if (
       (legacyConfirmation
-        ? parts.length !== 6 || parts[5] !== BigInt(callback.from.id).toString(36)
+        ? parts.length !== 6 ||
+          parts[5] !== BigInt(callback.from.id).toString(36)
         : parts[0] !== 'poll' || parts.length !== 4) ||
       !['vote', 'cast'].includes(action) ||
       !UUID_PATTERN.test(momentId ?? '') ||
@@ -1182,7 +1239,7 @@ export class TelegramBotService {
     }
 
     const telegramUserId = String(callback.from.id);
-    const linked = await this.findLinkedUser(telegramUserId);
+    let linked = await this.findLinkedUser(telegramUserId);
     const displayName = this.telegramDisplayName(callback.from);
     try {
       const round =
@@ -1199,6 +1256,19 @@ export class TelegramBotService {
       const currentPoll = await this.moments.getTelegramVotingMoment(
         round?.momentId ?? momentId,
       );
+      if (
+        currentPoll.groupWorkspaceId &&
+        (!pollMessage || !this.isGroupMessage(pollMessage))
+      )
+        throw new NotFoundException('Poll unavailable.');
+      if (
+        currentPoll.groupWorkspaceId &&
+        !linked &&
+        currentPoll.identityMode === 'LOGIN_REQUIRED'
+      ) {
+        await this.botGateway?.ensureMemberIdentity('CHLATWORK', callback.from);
+        linked = await this.findLinkedUser(telegramUserId);
+      }
       const choice = currentPoll.results.find(
         (result) => result.optionId === optionId,
       );
@@ -1225,6 +1295,13 @@ export class TelegramBotService {
         },
         ...(round ? [round.id] : []),
       );
+      if (pollMessage)
+        await this.recordGroupUsage(
+          pollMessage.chat.id,
+          telegramUserId,
+          'VOTE_CAST',
+          callback.id,
+        );
       await this.bot.answerCallback(callback.id, 'Vote saved.');
       const keyboard = buildTelegramPollKeyboard(
         poll,
@@ -1298,6 +1375,28 @@ export class TelegramBotService {
     }
   }
 
+  private async recordGroupUsage(
+    chatId: number,
+    telegramUserId: string,
+    action:
+      'VOTE_CAST' | 'PARTICIPATION_CHANGED' | 'SPLIT_CREATED' | 'KHQR_SHOWN',
+    event: string,
+  ) {
+    if (chatId >= 0 || !this.groupPolicy) return;
+    try {
+      await this.groupPolicy.record(
+        'CHLATWORK',
+        String(chatId),
+        telegramUserId,
+        action,
+        event,
+      );
+    } catch {
+      this.logger.warn('Group activity could not be recorded');
+    }
+    // Audit recovery must never retry an already-delivered Telegram message.
+  }
+
   private async sendCanteenVoteReaction(
     chatId: number,
     poll: TelegramVotingPoll,
@@ -1310,9 +1409,15 @@ export class TelegramBotService {
       const sent = choice.imageId
         ? await this.bot.sendPhoto(
             chatId,
-            this.appUrl(
-              `/api/moments/${poll.slug}/media/${choice.imageId}?format=jpeg`,
-            ),
+            poll.groupWorkspaceId && this.groupMedia
+              ? await this.groupMedia.url(
+                  poll.groupWorkspaceId,
+                  'CHLATWORK',
+                  choice.imageId,
+                )
+              : this.appUrl(
+                  `/api/moments/${poll.slug}/media/${choice.imageId}?format=jpeg`,
+                ),
             caption,
           )
         : await this.bot.sendMessage(chatId, caption);
@@ -2001,7 +2106,11 @@ export class TelegramBotService {
       );
       return;
     }
-    const linked = await this.findLinkedUser(String(message.from.id));
+    let linked = await this.findLinkedUser(String(message.from.id));
+    if (!linked && this.groupPolicy) {
+      await this.botGateway?.ensureMemberIdentity('CHLATWORK', message.from);
+      linked = await this.findLinkedUser(String(message.from.id));
+    }
     if (!linked) {
       await this.bot.sendMessage(
         message.chat.id,
@@ -2016,9 +2125,14 @@ export class TelegramBotService {
       const replyId = message.reply_to_message?.message_id;
       const [round] = replyId
         ? await this.prisma.$queryRaw<
-            Array<{ id: string; closesAt: Date; creatorId: string }>
+            Array<{
+              id: string;
+              closesAt: Date;
+              creatorId: string;
+              workspaceId: string | null;
+            }>
           >`
-        SELECT round.id::text, round.closes_at AS "closesAt", moment.creator_id::text AS "creatorId"
+        SELECT round.id::text, round.closes_at AS "closesAt", moment.creator_id::text AS "creatorId",moment.group_workspace_id::text AS "workspaceId"
         FROM moment_vote_rounds round JOIN moments moment ON moment.id = round.moment_id
         WHERE round.telegram_chat_id = ${BigInt(message.chat.id)} AND round.message_id = ${replyId}
       `
@@ -2029,7 +2143,7 @@ export class TelegramBotService {
         throw new TelegramSplitParseError(
           'Wait until voting closes before splitting the bill.',
         );
-      if (round && round.creatorId !== linked.user.id)
+      if (round && !round.workspaceId && round.creatorId !== linked.user.id)
         throw new TelegramSplitParseError(
           'Only the poll owner can set the final bill total.',
         );
@@ -2087,6 +2201,12 @@ export class TelegramBotService {
         buildTelegramSplitMessage(split),
         buildTelegramSplitKeyboard(split),
       );
+      await this.recordGroupUsage(
+        message.chat.id,
+        String(message.from.id),
+        'SPLIT_CREATED',
+        String(message.message_id),
+      );
     } catch (error) {
       const guidance =
         error instanceof TelegramSplitParseError
@@ -2121,8 +2241,12 @@ export class TelegramBotService {
     // Without an explicit recipient, the payment destination remains the verified sender.
     // Keep amounts in the photo caption so completion produces one message with the QR first.
     await this.sendMemberQrPhoto(
-      message.chat.id, `tg_${message.from.id}`, displayName, true,
+      message.chat.id,
+      `tg_${message.from.id}`,
+      displayName,
+      true,
       contentForMember(displayName),
+      { userId: String(message.from.id), event: String(message.message_id) },
     );
   }
 
@@ -2371,7 +2495,10 @@ export class TelegramBotService {
         `Today’s ${reset.deletedVotes} vote${reset.deletedVotes === 1 ? '' : 's'} reset. Use /votetime HH:MM to start a fresh round today.`,
       );
     } catch (error) {
-      if (error instanceof GoneException || error instanceof NotFoundException) {
+      if (
+        error instanceof GoneException ||
+        error instanceof NotFoundException
+      ) {
         await this.bot.answerCallback(
           callback.id,
           'Today’s voting round has changed or is unavailable.',
@@ -3487,8 +3614,8 @@ export class TelegramBotService {
       linked
         ? expensesEnabled
           ? '👋 ChlatWork Assistant\n\nSend an expense like “Lunch 4.50”, ' +
-              'send a voice note or receipt photo, or ask about your spending. ' +
-              'Expenses are never saved without your confirmation.'
+            'send a voice note or receipt photo, or ask about your spending. ' +
+            'Expenses are never saved without your confirmation.'
           : '👋 ChlatWork Assistant\n\nChoose an available feature below.'
         : '👋 Welcome to ChlatWork. Open the Mini App and sign in with Telegram ' +
             'before using private expense data.',
@@ -3545,7 +3672,8 @@ export class TelegramBotService {
         data === 'summary:today' ||
         data === 'menu:recent' ||
         data === 'menu:ask'
-      ) return 'spending';
+      )
+        return 'spending';
       if (data === 'poll:list') return 'voting';
       if (data === 'settings:notifications') return 'notifications';
       return null;
@@ -3557,7 +3685,8 @@ export class TelegramBotService {
             if (
               button.web_app?.url.endsWith('/tools/expense-tracker') &&
               disabled.has('website:expense-tracker')
-            ) return false;
+            )
+              return false;
             const feature = keyForButton(button.callback_data);
             return !feature || !disabled.has(`telegram:${feature}`);
           }),
@@ -3810,7 +3939,8 @@ export class TelegramBotService {
       this.prisma.telegramBotConversationState.deleteMany({
         where: { expiresAt: { lt: new Date() } },
       }),
-      this.prisma.$executeRaw`DELETE FROM telegram_quick_split_sessions WHERE expires_at < NOW()`,
+      this.prisma
+        .$executeRaw`DELETE FROM telegram_quick_split_sessions WHERE expires_at < NOW()`,
     ]);
   }
 }
