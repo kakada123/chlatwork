@@ -774,12 +774,13 @@ export class TelegramBotService {
     memberKey: string,
     displayName: string,
     reportMissing = false,
+    content?: { caption: string; missingMessage: string },
   ) {
     const unavailable = async () => {
       if (reportMissing) {
         await this.bot.sendMessage(
           chatId,
-          `${displayName}: No KHQR available yet.`,
+          content?.missingMessage ?? `${displayName}: No KHQR available yet.`,
         );
       }
     };
@@ -833,7 +834,7 @@ export class TelegramBotService {
     const sent = await this.bot.sendPhoto(
       chatId,
       photoUrl,
-      `${displayName} · KHQR`,
+      content?.caption ?? `${displayName} · KHQR`,
     );
     const sentAt = new Date(sent.date ? sent.date * 1_000 : Date.now());
     const deleteAfter = new Date(sentAt.getTime() + 24 * 60 * 60_000);
@@ -1927,7 +1928,12 @@ export class TelegramBotService {
       const quick = parseTelegramQuickSplit(message.text ?? '');
       if (quick) {
         await this.showQuickSplitResult(message, quick);
-        await this.quickSplitConversation.clearCompleted(message);
+        try {
+          await this.quickSplitConversation.clearCompleted(message);
+        } catch {
+          // Cleanup must not replay the QR and result that Telegram already received.
+          this.logger.warn('A completed split session could not be cleared');
+        }
         return;
       }
     } catch (error) {
@@ -2037,11 +2043,17 @@ export class TelegramBotService {
     message: TelegramMessage & { from: NonNullable<TelegramMessage['from']> },
     split: TelegramQuickSplit,
   ) {
+    const result = buildTelegramQuickSplitMessage(split);
+    const displayName = this.telegramDisplayName(message.from);
     // Payment destination is the verified sender, never the group or a display-name lookup.
+    // Keep amounts in the photo caption so completion produces one message with the QR first.
     await this.sendMemberQrPhoto(
-      message.chat.id, `tg_${message.from.id}`, this.telegramDisplayName(message.from), true,
+      message.chat.id, `tg_${message.from.id}`, displayName, true,
+      {
+        caption: `${displayName} · KHQR\n\n${result}`,
+        missingMessage: `${result}\n\n${displayName}: No KHQR available yet.`,
+      },
     );
-    await this.bot.sendMessage(message.chat.id, buildTelegramQuickSplitMessage(split));
   }
 
   private async handleGroupSplitToggle(

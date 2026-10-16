@@ -69,9 +69,10 @@ export class TelegramQuickSplitConversation {
           } else {
             const result = parseTelegramQuickSplit(`/split ${amountInput} / ${message.text!.trim()}`);
             if (!result) throw new TelegramSplitParseError('Enter a whole number of people (1–50).');
-            await showResult(result);
+            // Resolve cleanup before delivery; a failed DELETE must not replay an already-sent result.
             await tx.$executeRaw`DELETE FROM telegram_quick_split_sessions
               WHERE telegram_chat_id = ${chatId} AND telegram_user_id = ${senderId}`;
+            await showResult(result);
             return true;
           }
         } catch (error) {

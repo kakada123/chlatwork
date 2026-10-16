@@ -70,7 +70,7 @@ describe('Guided group split', () => {
   });
   afterEach(() => { jest.useRealTimers(); jest.restoreAllMocks(); });
 
-  it('asks amount, then number of people, then sends sender KHQR before the result', async () => {
+  it('asks amount, then people, then sends one QR message with the result beneath it', async () => {
     const { createService, send, bot, prisma, sessions } = setup();
     const service = createService();
     await send(service, '/split');
@@ -85,9 +85,11 @@ describe('Guided group split', () => {
       expect.objectContaining({ force_reply: true, selective: true }), undefined, 2,
     );
     await send(service, '6', 123, chatId, 102);
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
-    expect(bot.sendPhoto).toHaveBeenCalledWith(chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR');
-    expect(bot.sendPhoto.mock.invocationCallOrder[0]).toBeLessThan(bot.sendMessage.mock.invocationCallOrder[2]!);
+    expect(bot.sendMessage).toHaveBeenCalledTimes(2);
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
+    );
     expect(sessions.size).toBe(0);
   });
 
@@ -182,5 +184,39 @@ describe('Guided group split', () => {
     await send(service, '6', 123, chatId, 0);
     expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(sessions.get(`${chatId}:123`)?.amountInput).toBe('36000');
+  });
+
+  it('does not replay a delivered shortcut when old-session cleanup fails', async () => {
+    const { createService, send, bot, prisma } = setup();
+    const execute = prisma.$executeRaw.getMockImplementation()!;
+    prisma.$executeRaw.mockImplementation(async (sql, ...values) => {
+      if (sql.join('').includes('DELETE FROM telegram_quick_split_sessions')) {
+        throw new Error('Session cleanup unavailable');
+      }
+      return execute(sql, ...values);
+    });
+    await expect(send(createService(), '/split 36000 / 6')).resolves.toBeUndefined();
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(prisma.telegramBotUpdate.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('resolves session cleanup failures before delivering a guided result', async () => {
+    const { createService, send, bot, prisma } = setup();
+    const service = createService();
+    await send(service, '/split');
+    await send(service, '36000');
+    const execute = prisma.$executeRaw.getMockImplementation()!;
+    let failCleanup = true;
+    prisma.$executeRaw.mockImplementation(async (sql, ...values) => {
+      if (failCleanup && sql.join('').includes('DELETE FROM telegram_quick_split_sessions')) {
+        failCleanup = false;
+        throw new Error('Session cleanup unavailable');
+      }
+      return execute(sql, ...values);
+    });
+    await expect(send(service, '6')).rejects.toThrow('Session cleanup unavailable');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    await send(service, '6');
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
   });
 });

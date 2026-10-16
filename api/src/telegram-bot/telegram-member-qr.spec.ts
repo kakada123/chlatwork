@@ -122,11 +122,10 @@ describe('Telegram group member QR commands', () => {
   it('calculates a quick split and sends only the command sender KHQR without an account', async () => {
     const { bot, send, prisma } = setup();
     await send('/split 36000 / 6');
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
+    expect(bot.sendMessage).not.toHaveBeenCalled();
     expect(bot.sendPhoto).toHaveBeenCalledWith(
-      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR',
+      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
     );
-    expect(bot.sendPhoto.mock.invocationCallOrder[0]).toBeLessThan(bot.sendMessage.mock.invocationCallOrder[0]!);
     expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
     expect(bot.getChatMember).not.toHaveBeenCalled();
     const qrQuery = prisma.$queryRaw.mock.calls.find(([sql]) => sql.join('').includes('FROM member_khqr_images'));
@@ -138,8 +137,8 @@ describe('Telegram group member QR commands', () => {
     const { bot, send, prisma } = setup();
     prisma.$queryRaw.mockImplementation(async (sql) => sql.join('').includes('FROM member_khqr_images') ? [] : [{ updateId: 1n }]);
     await send('/split 36000 / 6');
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛');
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, 'Member: No KHQR available yet.');
+    expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛\n\nMember: No KHQR available yet.');
     expect(bot.sendPhoto).not.toHaveBeenCalled();
   });
 
