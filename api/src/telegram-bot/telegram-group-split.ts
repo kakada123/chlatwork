@@ -57,11 +57,14 @@ export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null
   if (amount[1] && isRiel) {
     throw new TelegramSplitParseError('Choose one currency: KHR or USD.');
   }
-  // Currency comes only from the command, never from a personal tracker or the attached KHQR.
-  const currency = amount[1] || suffix === 'USD' || suffix === '$'
+  const explicitCurrency = amount[1] || suffix === 'USD' || suffix === '$'
     ? 'USD'
     : isRiel ? 'KHR' : null;
   const totalCents = parseMoneyCents(amount[2]);
+  // Explicit currency wins; infer only outside the ambiguous 100–1000 range, never from an account or KHQR.
+  const currency = explicitCurrency ?? (
+    totalCents < 10_000n ? 'USD' : totalCents > 100_000n ? 'KHR' : null
+  );
   const people = Number(countMatch[1]);
   if (currency === 'KHR' && totalCents % 100n !== 0n) {
     throw new TelegramSplitParseError('Use a whole-riel bill total.');

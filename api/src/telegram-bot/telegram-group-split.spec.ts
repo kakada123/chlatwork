@@ -9,19 +9,38 @@ import {
 
 describe('Quick count splits', () => {
   it.each(['/split 36000 / 6', '/split@ChlatWorkBot 36000/6'])(
-    'splits plain amounts without adding a currency (%s)', (text) => {
+    'infers riel for large plain amounts (%s)', (text) => {
       const split = parseTelegramQuickSplit(text)!;
-      expect(split).toEqual({ total: '36000.00', currency: null, people: 6, amountPerPerson: '6000.00' });
-      expect(buildTelegramQuickSplitMessage(split)).toBe('🧾 36,000 ÷ 6\nEach: 6,000');
+      expect(split).toEqual({ total: '36000.00', currency: 'KHR', people: 6, amountPerPerson: '6000.00' });
+      expect(buildTelegramQuickSplitMessage(split)).toBe('🧾 36,000៛ ÷ 6\nEach: 6,000៛');
     },
   );
 
   it.each([
-    ['/split 10/6', '🧾 10 ÷ 6\nEach: 1.67'],
+    ['/split 10/6', '🧾 $10.00 ÷ 6\nEach: $1.67'],
     ['/split 10$/6', '🧾 $10.00 ÷ 6\nEach: $1.67'],
     ['/split 10000r/6', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
-  ])('only displays the currency supplied in %s', (text, expected) => {
+  ])('displays the inferred or explicit currency in %s', (text, expected) => {
     expect(buildTelegramQuickSplitMessage(parseTelegramQuickSplit(text)!)).toBe(expected);
+  });
+
+  it.each([
+    ['99.99', 'USD'],
+    ['100', null],
+    ['500', null],
+    ['1000', null],
+    ['1001', 'KHR'],
+    ['100r', 'KHR'],
+    ['100$', 'USD'],
+    ['10r', 'KHR'],
+    ['36000$', 'USD'],
+  ])('applies thresholds only when %s has no explicit currency', (amount, currency) => {
+    expect(parseTelegramQuickSplit(`/split ${amount}/2`)?.currency).toBe(currency);
+  });
+
+  it('rounds an inferred riel share to whole riel', () => {
+    expect(buildTelegramQuickSplitMessage(parseTelegramQuickSplit('/split 10000/6')!))
+      .toBe('🧾 10,000៛ ÷ 6\nEach: 1,667៛');
   });
 
   it('rounds riel to one whole-riel amount per person', () => {
@@ -55,7 +74,7 @@ describe('Quick count splits', () => {
   it.each(['/split 36000/6 @rong', '/split@ChlatWorkBot 36000 / 6 @RoNg'])(
     'accepts an optional payment recipient (%s)', (text) => {
       expect(parseTelegramQuickSplit(text)).toEqual({
-        total: '36000.00', currency: null, people: 6, amountPerPerson: '6000.00', recipientUsername: 'rong',
+        total: '36000.00', currency: 'KHR', people: 6, amountPerPerson: '6000.00', recipientUsername: 'rong',
       });
     },
   );
@@ -64,18 +83,18 @@ describe('Quick count splits', () => {
     '/split 36000 / 0', '/split 36000 / -6', '/split 36000 / 6.5',
     '/split 36000 / 51', '/split 36000 / 6 extra', '/split 36000 / 6 / 2',
     '/split 0.01 / 3', '/split 1r / 3', '/split $10KHR / 2',
-    '/split $10r / 2', '/split $10៛ / 2', '/split 10.50r / 3',
+    '/split $10r / 2', '/split $10៛ / 2', '/split 10.50r / 3', '/split 1000.01 / 3',
     '/split 36000/6 @rong @other', '/split 36000/6 @../rong', '/split 36000/6 @rong extra',
   ])('rejects invalid quick splits (%s)', (text) => {
     expect(() => parseTelegramQuickSplit(text)).toThrow(TelegramSplitParseError);
   });
 
   it.each([
-    ['/split 10.50/3', '🧾 10.50 ÷ 3\nEach: 3.50'],
-    ['/split 2/3', '🧾 2 ÷ 3\nEach: 0.67'],
-    ['/split 0.03/2', '🧾 0.03 ÷ 2\nEach: 0.02'],
+    ['/split 10.50/3', '🧾 $10.50 ÷ 3\nEach: $3.50'],
+    ['/split 2/3', '🧾 $2.00 ÷ 3\nEach: $0.67'],
+    ['/split 0.03/2', '🧾 $0.03 ÷ 2\nEach: $0.02'],
     ['/split 3r/2', '🧾 3៛ ÷ 2\nEach: 2៛'],
-    ['/split 999999999999.99/6', '🧾 999,999,999,999.99 ÷ 6\nEach: 166,666,666,666.67'],
+    ['/split 999999999999.99$/6', '🧾 $999,999,999,999.99 ÷ 6\nEach: $166,666,666,666.67'],
   ])('rounds money precisely for %s', (text, expected) => {
     expect(buildTelegramQuickSplitMessage(parseTelegramQuickSplit(text)!)).toBe(expected);
   });

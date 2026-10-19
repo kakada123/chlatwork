@@ -88,16 +88,19 @@ describe('Guided group split', () => {
     expect(bot.sendMessage).toHaveBeenCalledTimes(2);
     expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
     expect(bot.sendPhoto).toHaveBeenCalledWith(
-      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 36,000 ÷ 6\nEach: 6,000',
+      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
     );
     expect(sessions.size).toBe(0);
   });
 
   it.each([
-    ['10', '🧾 10 ÷ 6\nEach: 1.67'],
+    ['10', '🧾 $10.00 ÷ 6\nEach: $1.67'],
+    ['10000', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
+    ['100r', '🧾 100៛ ÷ 6\nEach: 17៛'],
+    ['100$', '🧾 $100.00 ÷ 6\nEach: $16.67'],
     ['10$', '🧾 $10.00 ÷ 6\nEach: $1.67'],
     ['10000r', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
-  ])('preserves the currency choice in a guided split with %s', async (amount, result) => {
+  ])('uses the inferred or explicit currency in a guided split with %s', async (amount, result) => {
     const { createService, send, bot } = setup();
     const service = createService();
     await send(service, '/split');
