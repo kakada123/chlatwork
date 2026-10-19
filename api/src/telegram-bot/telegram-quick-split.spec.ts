@@ -88,9 +88,24 @@ describe('Guided group split', () => {
     expect(bot.sendMessage).toHaveBeenCalledTimes(2);
     expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
     expect(bot.sendPhoto).toHaveBeenCalledWith(
-      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
+      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 36,000 ÷ 6\nEach: 6,000',
     );
     expect(sessions.size).toBe(0);
+  });
+
+  it.each([
+    ['10', '🧾 10 ÷ 6\n4 people: 2\n2 people: 1'],
+    ['10$', '🧾 $10.00 ÷ 6\n4 people: $1.67\n2 people: $1.66'],
+    ['10000r', '🧾 10,000៛ ÷ 6\n4 people: 1,667៛\n2 people: 1,666៛'],
+  ])('preserves the currency choice in a guided split with %s', async (amount, result) => {
+    const { createService, send, bot } = setup();
+    const service = createService();
+    await send(service, '/split');
+    await send(service, amount);
+    await send(service, '6');
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/tg_123?'), `Member 123 · KHQR\n\n${result}`,
+    );
   });
 
   it('isolates senders and groups and continues after a bot restart', async () => {

@@ -124,7 +124,7 @@ describe('Telegram group member QR commands', () => {
     await send('/split 36000 / 6');
     expect(bot.sendMessage).not.toHaveBeenCalled();
     expect(bot.sendPhoto).toHaveBeenCalledWith(
-      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
+      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), 'Member · KHQR\n\n🧾 36,000 ÷ 6\nEach: 6,000',
     );
     expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
     expect(bot.getChatMember).not.toHaveBeenCalled();
@@ -138,8 +138,22 @@ describe('Telegram group member QR commands', () => {
     prisma.$queryRaw.mockImplementation(async (sql) => sql.join('').includes('FROM member_khqr_images') ? [] : [{ updateId: 1n }]);
     await send('/split 36000 / 6');
     expect(bot.sendMessage).toHaveBeenCalledTimes(1);
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛\n\nMember: No KHQR available yet.');
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000 ÷ 6\nEach: 6,000\n\nMember: No KHQR available yet.');
     expect(bot.sendPhoto).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['/split 10/6', '🧾 10 ÷ 6\n4 people: 2\n2 people: 1'],
+    ['/split 10$/6', '🧾 $10.00 ÷ 6\n4 people: $1.67\n2 people: $1.66'],
+    ['/split 10000r/6', '🧾 10,000៛ ÷ 6\n4 people: 1,667៛\n2 people: 1,666៛'],
+  ])('uses only the requested currency in the KHQR caption for %s', async (command, result) => {
+    const { bot, send, prisma } = setup();
+    await send(command);
+    expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/api/member-khqr/tg_123?'), `Member · KHQR\n\n${result}`,
+    );
+    expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
   });
 
   it('shows the mentioned member QR with split amounts in a single photo reply', async () => {
@@ -149,7 +163,7 @@ describe('Telegram group member QR commands', () => {
     expect(bot.getChatMember).toHaveBeenCalledWith(chatId, 2);
     expect(bot.sendPhoto).toHaveBeenCalledTimes(1);
     expect(bot.sendPhoto).toHaveBeenCalledWith(
-      chatId, expect.stringContaining('/api/member-khqr/tg_2?'), 'Rong · KHQR\n\n🧾 36,000៛ ÷ 6\nEach: 6,000៛',
+      chatId, expect.stringContaining('/api/member-khqr/tg_2?'), 'Rong · KHQR\n\n🧾 36,000 ÷ 6\nEach: 6,000',
     );
     expect(bot.sendMessage).not.toHaveBeenCalled();
     expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
@@ -174,7 +188,7 @@ describe('Telegram group member QR commands', () => {
     await send('/split 36000/6 @rong');
     expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(bot.sendMessage).toHaveBeenCalledTimes(1);
-    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000៛ ÷ 6\nEach: 6,000៛\n\nRong: No KHQR available yet.');
+    expect(bot.sendMessage).toHaveBeenCalledWith(chatId, '🧾 36,000 ÷ 6\nEach: 6,000\n\nRong: No KHQR available yet.');
   });
 
   it('rejects an invalid count before looking up or sending a payment image', async () => {

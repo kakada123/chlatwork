@@ -4,6 +4,8 @@ import type { TelegramInlineKeyboard } from './telegram-bot.types';
 const MAX_PARTICIPANTS = 8;
 const AMOUNT_PATTERN =
   /^(\$\s*)?((?:0|[1-9]\d{0,11})(?:\.\d{1,2})?)(?:\s*(USD|KHR|៛))?/i;
+const QUICK_AMOUNT_PATTERN =
+  /^(\$\s*)?((?:0|[1-9]\d{0,11})(?:\.\d{1,2})?)(?:\s*(USD|KHR|៛|\$|r))?/i;
 
 export interface ParsedTelegramSplit {
   total: string;
@@ -36,24 +38,28 @@ export class TelegramSplitParseError extends Error {}
 
 export interface TelegramQuickSplit {
   total: string;
-  currency: ExpenseCurrency;
+  currency: ExpenseCurrency | null;
   amounts: string[];
   recipientUsername?: string;
 }
 
 export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null {
   const body = text.trim().replace(/^\/split(?:@[A-Za-z0-9_]+)?\s*/i, '');
-  const amount = AMOUNT_PATTERN.exec(body);
+  const amount = QUICK_AMOUNT_PATTERN.exec(body);
   if (!amount || !body.slice(amount[0].length).trim().startsWith('/')) return null;
   const countMatch = /^\/\s*([1-9]\d?)(?:\s+@([a-z][a-z0-9_]{0,31}))?$/i.exec(body.slice(amount[0].length).trim());
   if (!countMatch || Number(countMatch[1]) > 50) {
     throw new TelegramSplitParseError('Use /split 36000 / 6 with 1–50 people.');
   }
-  if (amount[1] && /KHR|៛/i.test(amount[3] ?? '')) {
+  const suffix = amount[3]?.toUpperCase();
+  const isRiel = suffix === 'KHR' || suffix === '៛' || suffix === 'R';
+  if (amount[1] && isRiel) {
     throw new TelegramSplitParseError('Choose one currency: KHR or USD.');
   }
-  // Quick calculations default to riel and never read or change personal tracker settings.
-  const currency = amount[1] || /USD/i.test(amount[3] ?? '') ? 'USD' : 'KHR';
+  // Currency comes only from the command, never from a personal tracker or the attached KHQR.
+  const currency = amount[1] || suffix === 'USD' || suffix === '$'
+    ? 'USD'
+    : isRiel ? 'KHR' : null;
   const totalCents = parseMoneyCents(amount[2]);
   return {
     total: centsToDecimal(totalCents),
@@ -66,10 +72,13 @@ export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null
 export function buildTelegramQuickSplitMessage(split: TelegramQuickSplit) {
   const groups = new Map<string, number>();
   for (const amount of split.amounts) groups.set(amount, (groups.get(amount) ?? 0) + 1);
+  const formatAmount = (amount: string) => split.currency
+    ? formatTelegramMoney(amount, split.currency)
+    : amount.replace(/\.00$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return [
-    `🧾 ${formatTelegramMoney(split.total, split.currency)} ÷ ${split.amounts.length}`,
+    `🧾 ${formatAmount(split.total)} ÷ ${split.amounts.length}`,
     ...[...groups].map(([amount, count]) =>
-      `${groups.size === 1 ? 'Each' : `${count} ${count === 1 ? 'person' : 'people'}`}: ${formatTelegramMoney(amount, split.currency)}`,
+      `${groups.size === 1 ? 'Each' : `${count} ${count === 1 ? 'person' : 'people'}`}: ${formatAmount(amount)}`,
     ),
   ].join('\n');
 }
@@ -153,12 +162,14 @@ export function parseTelegramSplit(
   };
 }
 
-function equalSplitAmounts(totalCents: bigint, currency: ExpenseCurrency, count: number) {
-  // Whole riel (or USD cents) keep every displayed share adding up exactly to the bill.
-  if (currency === 'KHR' && totalCents % 100n !== 0n) {
-    throw new TelegramSplitParseError('Use a whole-riel bill total.');
+function equalSplitAmounts(totalCents: bigint, currency: ExpenseCurrency | null, count: number) {
+  // Plain amounts and riel keep whole-unit shares; explicit USD uses cents.
+  if (currency !== 'USD' && totalCents % 100n !== 0n) {
+    throw new TelegramSplitParseError(currency === 'KHR'
+      ? 'Use a whole-riel bill total.'
+      : 'Use a whole-number total.');
   }
-  const unit = currency === 'KHR' ? 100n : 1n;
+  const unit = currency === 'USD' ? 1n : 100n;
   const totalUnits = totalCents / unit;
   if (totalUnits < BigInt(count)) {
     throw new TelegramSplitParseError('The total is too small to split.');
