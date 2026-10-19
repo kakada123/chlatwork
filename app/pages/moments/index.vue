@@ -163,19 +163,25 @@ async function resetVotes() {
       >
         <MomentSummaryCard
           :moment="moment"
-          deletable
+          :deletable="!moment.groupWorkspaceId"
           :deleting="deletingId === moment.id"
           :stacked="['INVITATION', 'VOTING'].includes(moment.occasion)"
           @delete="requestMomentDelete"
         />
         <MomentInvitationGuests
           v-if="
-            moment.occasion === 'INVITATION' && moment.status === 'PUBLISHED'
+            !moment.groupWorkspaceId &&
+            moment.occasion === 'INVITATION' &&
+            moment.status === 'PUBLISHED'
           "
           :moment="moment"
         />
         <MomentVotingResults
-          v-if="moment.occasion === 'VOTING' && moment.status === 'PUBLISHED'"
+          v-if="
+            !moment.groupWorkspaceId &&
+            moment.occasion === 'VOTING' &&
+            moment.status === 'PUBLISHED'
+          "
           :moment="moment"
           :resetting="resettingVoteId === moment.id"
           @reset="requestVoteReset"

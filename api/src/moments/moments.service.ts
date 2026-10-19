@@ -6,6 +6,8 @@ import {
   GoneException,
   Injectable,
   NotFoundException,
+  Optional,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
@@ -21,6 +23,7 @@ import {
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { GroupAccessService } from '../group-workspaces/group-access.service';
 import type { CreateMomentDto } from './dto/create-moment.dto';
 import type { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
@@ -87,7 +90,10 @@ interface VoteScheduleContext {
 
 @Injectable()
 export class MomentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly groups?: GroupAccessService,
+  ) {}
 
   async create(userId: string, dto: CreateMomentDto) {
     const now = new Date();
@@ -418,10 +424,11 @@ export class MomentsService {
 
   async listMine(userId: string) {
     const moments = await this.prisma.moment.findMany({
-      where: { creatorId: userId, groupWorkspaceId: null },
+      where: { creatorId: userId },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
+        groupWorkspaceId: true,
         slug: true,
         recipientName: true,
         occasion: true,
@@ -449,9 +456,29 @@ export class MomentsService {
         _count: { select: { media: true, rsvps: true } },
       },
     });
-    return Promise.all(
+    const summaries = await Promise.all(
       moments.map(async (moment) => {
         const { blocks, voteSchedule, ...summary } = moment;
+        if (moment.groupWorkspaceId) {
+          // Creation ownership remains useful for discovery, but group metadata
+          // and management still require the creator's current Telegram role.
+          if (!this.groups) {
+            throw new ServiceUnavailableException(
+              'Group permissions could not be verified. Try again.',
+            );
+          }
+          try {
+            const group = await this.groups.manager(
+              userId,
+              moment.groupWorkspaceId,
+              'CHLATWORK',
+            );
+            return { ...summary, groupTitle: group.title };
+          } catch (error) {
+            if (error instanceof ForbiddenException) return null;
+            throw error;
+          }
+        }
         if (moment.occasion === MomentOccasion.VOTING) {
           const poll = blocks[0]?.data as
             | {
@@ -544,6 +571,7 @@ export class MomentsService {
         };
       }),
     );
+    return summaries.filter((moment) => moment !== null);
   }
 
   async listTelegramVotingMoments(

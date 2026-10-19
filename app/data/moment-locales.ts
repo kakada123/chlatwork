@@ -225,6 +225,8 @@ const EN = {
     emptyCopy:
       "Choose someone, add your favorite photos, and share a surprise they can keep coming back to.",
     forRecipient: (name: string) => `For ${name}`,
+    groupPollFor: (name: string) => `Group voting · ${name}`,
+    manageGroup: "Manage group",
     photos: (count: number) => `${count} photos`,
     open: "Open",
     notShared: "Not shared",
@@ -564,6 +566,8 @@ const KM = {
     emptyCopy:
       "ជ្រើសរើសមនុស្សម្នាក់ បន្ថែមរូបថតដែលអ្នកពេញចិត្ត ហើយចែករំលែកការភ្ញាក់ផ្អើលដែលពួកគេអាចត្រឡប់មកមើលម្តងទៀត។",
     forRecipient: (name: string) => `សម្រាប់ ${name}`,
+    groupPollFor: (name: string) => `ការបោះឆ្នោតក្រុម · ${name}`,
+    manageGroup: "គ្រប់គ្រងក្រុម",
     photos: (count: number) => `រូបថត ${count} សន្លឹក`,
     open: "បើកមើល",
     notShared: "មិនទាន់បានចែករំលែក",

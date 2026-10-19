@@ -50,6 +50,8 @@ export interface MomentRsvpSummary {
 
 export interface MomentSummary {
   id: string;
+  groupWorkspaceId?: string | null;
+  groupTitle?: string;
   slug: string;
   recipientName: string;
   occasion: MomentOccasion;

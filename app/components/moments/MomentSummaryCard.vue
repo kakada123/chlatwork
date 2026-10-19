@@ -62,7 +62,11 @@ const createdDate = computed(() =>
 
     <h3 class="mt-4 text-xl font-semibold">{{ moment.title }}</h3>
     <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-      {{ managerCopy.forRecipient(moment.recipientName) }}
+      {{
+        moment.groupWorkspaceId
+          ? managerCopy.groupPollFor(moment.groupTitle ?? moment.recipientName)
+          : managerCopy.forRecipient(moment.recipientName)
+      }}
     </p>
 
     <div
@@ -89,7 +93,18 @@ const createdDate = computed(() =>
       class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10"
     >
       <NuxtLink
-        v-if="moment.status === 'PUBLISHED'"
+        v-if="moment.groupWorkspaceId"
+        :to="{
+          path: `/bot/groups/${moment.groupWorkspaceId}`,
+          query: { bot: 'CHLATWORK' },
+        }"
+        class="inline-flex items-center gap-1.5 text-sm font-bold text-rose-600 hover:text-rose-800 dark:text-rose-300 dark:hover:text-rose-200"
+      >
+        <ExternalLink class="h-4 w-4" aria-hidden="true" />
+        {{ managerCopy.manageGroup }}
+      </NuxtLink>
+      <NuxtLink
+        v-else-if="moment.status === 'PUBLISHED'"
         :to="localizeMomentPath(`/m/${moment.slug}`)"
         target="_blank"
         class="inline-flex items-center gap-1.5 text-sm font-bold text-rose-600 hover:text-rose-800 dark:text-rose-300 dark:hover:text-rose-200"
@@ -102,7 +117,7 @@ const createdDate = computed(() =>
       </span>
 
       <button
-        v-if="deletable"
+        v-if="deletable && !moment.groupWorkspaceId"
         type="button"
         class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-400/10"
         :disabled="deleting"
