@@ -101,8 +101,15 @@ export class BotGatewayService {
     const access = await this.access.lookup(kind, sender.id);
     const personallyAllowed = botAccessAllowed(access);
     const personalCommand = command?.[1].toLowerCase();
+    // Approved ChlatWork users still need the expense assistant's feature-filtered
+    // menu. The gateway owns onboarding and group/account entry for other users.
+    const assistantMenu =
+      kind === 'CHLATWORK' &&
+      personallyAllowed &&
+      ['start', 'menu'].includes(personalCommand ?? '');
     if (
       this.groups &&
+      !assistantMenu &&
       privateChat &&
       !callback &&
       ['start', 'menu', 'groups', 'status', 'credits'].includes(

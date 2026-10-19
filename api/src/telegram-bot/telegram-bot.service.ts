@@ -3659,6 +3659,20 @@ export class TelegramBotService {
             web_app: { url: this.appUrl('/account') },
           },
         ],
+        ...(this.botGateway
+          ? [
+              [
+                {
+                  text: 'My Groups',
+                  web_app: { url: this.appUrl('/bot/groups?bot=CHLATWORK') },
+                },
+                {
+                  text: 'My account',
+                  web_app: { url: this.appUrl('/bot/account?bot=CHLATWORK') },
+                },
+              ],
+            ]
+          : []),
       ],
     };
   }

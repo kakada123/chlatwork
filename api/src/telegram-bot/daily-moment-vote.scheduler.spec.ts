@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { MomentsService } from '../moments/moments.service';
 import type { PrismaService } from '../prisma/prisma.service';
@@ -5,6 +6,65 @@ import type { TelegramBotClient } from './telegram-bot.client';
 import { DailyMomentVoteScheduler } from './daily-moment-vote.scheduler';
 
 describe('DailyMomentVoteScheduler', () => {
+  it.each(['group-policy', 'round-start', 'telegram-send'])(
+    'identifies a %s failure without logging provider or group data',
+    async (stage) => {
+      const warning = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
+      const failure = new Error('private provider details for chat -100123');
+      const policy = { chat: jest.fn().mockResolvedValue({}) };
+      const moments = {
+        startTelegramVoteRound: jest.fn().mockResolvedValue({
+          id: 'moment',
+          slug: 'lunch',
+          title: 'Lunch',
+          identityMode: 'ANONYMOUS',
+          results: [],
+        }),
+      };
+      const bot = {
+        sendMessage: jest.fn().mockResolvedValue({ message_id: 1 }),
+      };
+      const prisma = {
+        $queryRaw: jest
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
+            {
+              scheduleId: 'schedule',
+              momentId: 'moment',
+              telegramChatId: '-100123',
+            },
+          ]),
+        momentVoteSchedule: { update: jest.fn() },
+      };
+      if (stage === 'group-policy') policy.chat.mockRejectedValueOnce(failure);
+      if (stage === 'round-start')
+        moments.startTelegramVoteRound.mockRejectedValueOnce(failure);
+      if (stage === 'telegram-send')
+        bot.sendMessage.mockRejectedValueOnce(failure);
+      const scheduler = new DailyMomentVoteScheduler(
+        prisma as never,
+        { getOrThrow: () => 'https://example.test' } as never,
+        bot as never,
+        moments as never,
+        undefined,
+        policy as never,
+      );
+      try {
+        await scheduler.runOnce();
+        expect(warning).toHaveBeenCalledWith(
+          `A daily Moment vote could not be delivered (stage=${stage})`,
+        );
+        expect(JSON.stringify(warning.mock.calls)).not.toMatch(
+          /private provider|-100123/,
+        );
+        expect(prisma.momentVoteSchedule.update).not.toHaveBeenCalled();
+      } finally {
+        warning.mockRestore();
+      }
+    },
+  );
+
   it('sends each claimed poll and records successful delivery', async () => {
     const prisma = {
       $queryRaw: jest

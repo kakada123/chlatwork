@@ -6,8 +6,95 @@ import type { TelegramAssistantAiService } from './telegram-assistant-ai.service
 import { TelegramBotService } from './telegram-bot.service';
 import { createHash } from 'node:crypto';
 import { UnauthorizedException } from '@nestjs/common';
+import { BotGatewayService } from '../bot-admin/bot-gateway.service';
 
 describe('TelegramBotService', () => {
+  it.each(['/start', '/menu'])(
+    'keeps the expense assistant and My Groups together through the shared gateway for %s',
+    async (command) => {
+      const prisma = {
+        $queryRaw: jest.fn().mockResolvedValue([{ updateId: 1n }]),
+        telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
+        socialAccount: {
+          findUnique: jest.fn().mockResolvedValue({
+            user: { id: 'owner', isActive: true },
+          }),
+        },
+      };
+      const config = { getOrThrow: () => 'https://example.test' };
+      const bot = { sendMessage: jest.fn(), setChatMenuButton: jest.fn() };
+      const gateway = new BotGatewayService(
+        {
+          register: jest.fn(),
+          lookup: jest.fn().mockResolvedValue({
+            userId: 'owner',
+            status: 'APPROVED',
+            enabled: true,
+            isActive: true,
+          }),
+          activity: jest.fn(),
+        } as never,
+        { awaiting: jest.fn().mockResolvedValue(null) } as never,
+        config as never,
+        bot as never,
+        {} as never,
+        {} as never,
+      );
+      const service = new TelegramBotService(
+        prisma as never,
+        config as never,
+        bot as never,
+        {} as never,
+        {} as never,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        gateway,
+      );
+      await service.handleUpdate({
+        update_id: 1,
+        message: {
+          message_id: 1,
+          chat: { id: 123, type: 'private' },
+          from: { id: 123, first_name: 'User' },
+          text: command,
+        },
+      });
+      expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        123,
+        expect.stringContaining('ChlatWork Assistant'),
+        expect.objectContaining({
+          inline_keyboard: expect.arrayContaining([
+            [
+              { text: '➕ Add expense', callback_data: 'menu:add' },
+              { text: '📊 Today', callback_data: 'summary:today' },
+            ],
+            [
+              { text: '🕘 Recent', callback_data: 'menu:recent' },
+              { text: '💬 Ask spending', callback_data: 'menu:ask' },
+            ],
+            [
+              {
+                text: 'My Groups',
+                web_app: {
+                  url: 'https://example.test/bot/groups?bot=CHLATWORK',
+                },
+              },
+              {
+                text: 'My account',
+                web_app: {
+                  url: 'https://example.test/bot/account?bot=CHLATWORK',
+                },
+              },
+            ],
+          ]),
+        }),
+      );
+    },
+  );
+
   it('resets today only after the requesting linked admin confirms', async () => {
     const chat = { id: -1001234567890, type: 'supergroup', title: 'Lunch team' };
     const roundId = '00000000-0000-4000-8000-000000000004';

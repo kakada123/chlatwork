@@ -42,6 +42,16 @@ After the two columns are present, open `/myqr` privately and start a fresh uplo
 
 Bot removal or demotion pauses delivery. Reconnection refreshes permission health without resetting feature settings or clearing platform suspension. Verified group-to-supergroup migration preserves the workspace and old chat aliases. Rosters are copied into the new chat without deleting the old observations. Schedules move to the new chat; closed historical rounds keep their original chat IDs; open rounds retain their ID and ballots while moving to the new chat and receiving a replacement message. Old force-reply split prompts expire because their message IDs cannot be used in the new chat.
 
+## Enabled schedule with no daily vote
+
+The overview's **Daily** label reports the saved schedule switch, not delivery success. Group voting also requires both platform switches (`telegram:group-voting` and `telegram:voting`), an active workspace, an enabled/connected ChlatWork connection, and current Telegram administrator permissions for the bot. The API scheduler must remain running. Group voting configuration commands redirect to My Groups even for administrators.
+
+Review and manually run `database/diagnostics/daily-moment-vote-status.sql` against the database used by the API. Its default title is `Lunch time`; change the title when checking another group. The query is read-only and shows database blockers, timezone/send time, the last attempt/send, and today's round/message. No rows means no schedule matched that title. An empty blockers array does not verify the running worker or Telegram permissions.
+
+The daily claim records `last_attempt_date` before permission checks and delivery. An attempt can therefore exist without a round or a successful send; changing the time in My Groups does not clear that claim. Do not clear claims or delete rounds blindly: a worker may still be sending, and an existing message or ballots must not be duplicated or removed. Compare the query with the API log first. Delivery warnings now include a fixed `stage` such as `group-policy`, `round-start`, `group-policy-recheck`, `telegram-send`, or a persistence stage, without logging chat IDs or provider error details.
+
+Approved ChlatWork users retain Add expense, Today, Recent and the other available assistant actions through `/start` and `/menu`, alongside My Groups and My account. Pending or restricted users continue through the gateway's access flow; platform-disabled assistant actions stay filtered out.
+
 ## Required live checks after release
 
 Local mocked tests do not prove Telegram configuration, database backfill or browser rendering. Check these against a staging database and real test groups before production rollout:

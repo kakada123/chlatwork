@@ -265,10 +265,13 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
   }
 
   private async sendPoll(due: DueDailyPoll) {
+    let stage = 'group-policy';
     try {
       if (this.groupPolicy)
         await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
+      stage = 'round-start';
       const poll = await this.moments.startTelegramVoteRound(due.momentId);
+      stage = 'poll-render';
       const chatId = Number(due.telegramChatId);
       if (!Number.isSafeInteger(chatId) || chatId === 0) {
         throw new Error('Invalid Telegram chat ID');
@@ -277,26 +280,33 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
         `/m/${poll.slug}`,
         this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
       ).toString();
+      stage = 'group-policy-recheck';
       if (this.groupPolicy)
         await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
+      stage = 'telegram-send';
       const sent = await this.bot.sendMessage(
         chatId,
         buildTelegramPollMessage(poll),
         buildTelegramPollKeyboard(poll, publicUrl),
       );
       if (poll.roundId) {
+        stage = 'round-message-save';
         await this.prisma.$executeRaw`
           UPDATE moment_vote_rounds SET message_id = ${sent.message_id}
           WHERE id = ${poll.roundId}::uuid
         `;
       }
+      stage = 'schedule-save';
       await this.prisma.momentVoteSchedule.update({
         where: { id: due.scheduleId },
         data: { lastSentAt: new Date() },
       });
     } catch {
-      // Keep chat identifiers and provider details out of operational logs.
-      this.logger.warn('A daily Moment vote could not be delivered');
+      // Fixed stage names locate the failure without exposing chat IDs, tokens,
+      // or provider errors (whose URLs may contain bot credentials).
+      this.logger.warn(
+        `A daily Moment vote could not be delivered (stage=${stage})`,
+      );
     }
   }
 }

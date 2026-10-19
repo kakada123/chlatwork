@@ -1,7 +1,7 @@
 import { BotGatewayService } from './bot-gateway.service';
 import type { TelegramUpdate } from '../telegram-bot/telegram-bot.types';
 
-function setup(status = 'PENDING', enabled = true) {
+function setup(status = 'PENDING', enabled = true, withGroups = false) {
   const access = {
     register: jest.fn(),
     lookup: jest
@@ -23,9 +23,10 @@ function setup(status = 'PENDING', enabled = true) {
   const service = new BotGatewayService(
     access as never,
     qr as never,
-    { get: jest.fn() } as never,
+    { get: jest.fn(), getOrThrow: () => 'https://example.test' } as never,
     client as never,
     client as never,
+    withGroups ? ({} as never) : undefined,
   );
   return { service, access, qr, client };
 }
@@ -41,6 +42,33 @@ const message = (text: string, group = false): TelegramUpdate => ({
 });
 
 describe('bot access gateway', () => {
+  it.each(['/start', '/menu'])(
+    'lets approved ChlatWork users reach the assistant through %s with My Groups enabled',
+    async (command) => {
+      const { service, client, access } = setup('APPROVED', true, true);
+      expect(await service.handle('CHLATWORK', message(command))).toBe(false);
+      expect(client.sendMessage).not.toHaveBeenCalled();
+      expect(access.activity).toHaveBeenCalledWith('CHLATWORK', 'owner');
+    },
+  );
+
+  it.each(['PENDING', 'REJECTED', 'SUSPENDED'])(
+    'keeps %s users in the My Groups access flow',
+    async (status) => {
+      const { service, client } = setup(status, true, true);
+      expect(await service.handle('CHLATWORK', message('/menu'))).toBe(true);
+      expect(client.sendMessage).toHaveBeenCalledWith(
+        123,
+        expect.any(String),
+        expect.objectContaining({
+          inline_keyboard: expect.arrayContaining([
+            [expect.objectContaining({ text: 'My Groups' })],
+          ]),
+        }),
+      );
+    },
+  );
+
   it.each(['CREATOR', 'CHLATWORK'] as const)(
     'registers only a private start for %s and blocks pending tools',
     async (kind) => {
