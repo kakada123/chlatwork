@@ -182,6 +182,8 @@ export class BotGatewayService {
           'voteduration',
           'resettodayvote',
           'stopdailyvote',
+          'startvote',
+          'endvote',
         ].includes(personalCommand ?? '')
       ) {
         await bot.sendMessage(

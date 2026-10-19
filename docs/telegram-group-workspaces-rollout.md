@@ -44,6 +44,8 @@ Bot removal or demotion pauses delivery. Reconnection refreshes permission healt
 
 ## Enabled schedule with no daily vote
 
+Approved group administrators can send `/startvote` or `/endvote` to the ChlatWork bot privately, then select a connected group. Starting requires an enabled configured poll; both pickers require current group permissions. `/startvote` opens today's round immediately or reuses an open round without extending its timer. A completed round cannot be restarted that day. Start buttons expire when the poll's local date changes. `/endvote` closes the specific displayed round and publishes its results, including when its daily schedule has been paused; ballots and the recurring schedule remain intact. Both actions recheck approval, live Telegram roles, workspace status and voting switches. Group messages direct administrators to the private controls. No schema change is required for these commands.
+
 The overview's **Daily** label reports the saved schedule switch, not delivery success. Group voting also requires both platform switches (`telegram:group-voting` and `telegram:voting`), an active workspace, an enabled/connected ChlatWork connection, and current Telegram administrator permissions for the bot. The API scheduler must remain running. Group voting configuration commands redirect to My Groups even for administrators.
 
 Review and manually run `database/diagnostics/daily-moment-vote-status.sql` against the database used by the API. Its default title is `Lunch time`; change the title when checking another group. The query is read-only and shows database blockers, timezone/send time, the last attempt/send, and today's round/message. No rows means no schedule matched that title. An empty blockers array does not verify the running worker or Telegram permissions.
@@ -65,5 +67,6 @@ Local mocked tests do not prove Telegram configuration, database backfill or bro
 7. Remove/demote the bot, restore it, and migrate a test group to a supergroup. Verify no sends to the old chat, preserved history/rosters, expired old split prompts and one durable workspace. Conflicting destination bindings must fail closed.
 8. Fetch a bound poll using its legacy public URLs; expect 404. Verify signed media expires after five minutes and cannot authenticate normal JWT endpoints.
 9. Suspend/restore a workspace from platform Bot Admin with a reason. Confirm settings and history remain, and member website access and balances do not change.
+10. Privately start a poll in A, repeat the action, and check that only one poll is visible with its original timer. End it and confirm ballots/results remain, voting buttons close, and B and tomorrow's schedule are unchanged. Revoke admin permissions and retry an old button; expect denial. Repeat with simultaneous scheduler/manual starts and a transient Telegram failure; the persisted round must remain recoverable.
 
 Temporary connection requests can be removed after expiry by a separately reviewed retention job; they contain hashed nonces rather than usable deep-link tokens. No retention cleanup or database mutation was run during implementation.

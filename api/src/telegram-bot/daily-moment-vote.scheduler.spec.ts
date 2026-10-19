@@ -230,6 +230,19 @@ describe('Daily vote timer finalization', () => {
     expect(tx.$executeRaw).not.toHaveBeenCalled();
     expect(bot.sendAnimation).not.toHaveBeenCalled();
   });
+  it('propagates manual publication failures so the command can retry', async () => {
+    const { tx, scheduler } = setup(true);
+    await expect(scheduler.refreshRound(roundId, deadline)).rejects.toThrow('Unavailable');
+    expect(tx.$executeRaw).not.toHaveBeenCalled();
+  });
+
+  it('reuses the persisted poll message when a manual start follows a scheduler send', async () => {
+    const { bot, scheduler } = setup();
+    await scheduler.refreshRound(roundId, new Date('2026-09-08T03:00:00Z'));
+    await scheduler.refreshRound(roundId, new Date('2026-09-08T03:00:00Z'));
+    expect(bot.editMessage).toHaveBeenCalledTimes(2);
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+  });
   it('skips a round already claimed or completed by another replica', async () => {
     const { tx, bot, scheduler } = setup();
     tx.$queryRaw.mockResolvedValue([]);

@@ -9,6 +9,37 @@ import { UnauthorizedException } from '@nestjs/common';
 import { BotGatewayService } from '../bot-admin/bot-gateway.service';
 
 describe('TelegramBotService', () => {
+  it.each(['/startvote', '/endvote'])(
+    'offers group voting controls privately for %s',
+    async (command) => {
+      const prisma = {
+        $queryRaw: jest.fn().mockResolvedValue([{ updateId: 1n }]),
+        telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
+        socialAccount: { findUnique: jest.fn().mockResolvedValue({
+          user: { id: 'owner', isActive: true },
+        }) },
+      };
+      const bot = { sendMessage: jest.fn() };
+      const controls = { showGroups: jest.fn() };
+      const service = new TelegramBotService(
+        prisma as never, { getOrThrow: () => 'https://example.test' } as never,
+        bot as never, {} as never, {} as never,
+      );
+      Object.assign(service, { groupVotes: controls });
+      await service.handleUpdate({
+        update_id: 1,
+        message: {
+          message_id: 1, chat: { id: 123, type: 'private' },
+          from: { id: 123 }, text: command,
+        },
+      });
+      expect(controls.showGroups).toHaveBeenCalledWith(
+        'owner', 123, command === '/startvote' ? 'start' : 'end',
+      );
+      expect(bot.sendMessage).not.toHaveBeenCalled();
+    },
+  );
+
   it.each(['/start', '/menu'])(
     'keeps the expense assistant and My Groups together through the shared gateway for %s',
     async (command) => {

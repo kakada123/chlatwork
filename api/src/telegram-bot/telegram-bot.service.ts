@@ -1,5 +1,6 @@
 import { GroupPollMediaService } from '../group-workspaces/group-poll-media.service';
 import { GroupConnectionsService } from '../group-workspaces/group-connections.service';
+import { TelegramGroupVoteService } from './telegram-group-vote.service';
 import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
 import { BotPaidAiService } from '../bot-admin/bot-paid-ai.service';
 import { CreatorAiException } from '../creator-ai/creator-ai.errors';
@@ -146,6 +147,7 @@ export class TelegramBotService {
     @Optional() private readonly groupConnections?: GroupConnectionsService,
     @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
     @Optional() private readonly groupMedia?: GroupPollMediaService,
+    @Optional() private readonly groupVotes?: TelegramGroupVoteService,
   ) {
     this.quickSplitConversation = new TelegramQuickSplitConversation(
       prisma,
@@ -254,6 +256,7 @@ export class TelegramBotService {
     const data = update.callback_query?.data ?? '';
     if (update.inline_query) return 'voting';
     if (data) {
+      if (data.startsWith('gv:')) return 'group-voting';
       if (data.startsWith('kk:')) return 'kla-klok';
       if (data.startsWith('khqr:')) return 'khqr';
       if (data.startsWith('split:')) return 'bill-split';
@@ -297,6 +300,7 @@ export class TelegramBotService {
     if (command === 'phone' || command === 'skipphone' || message.contact)
       return 'phone';
     if (command === 'vote') return 'voting';
+    if (command === 'startvote' || command === 'endvote') return 'group-voting';
     if (command === 'alerts' || command === 'weekly') return 'notifications';
     if (
       command === 'today' ||
@@ -454,6 +458,12 @@ export class TelegramBotService {
     }
     if (command === 'vote') {
       await this.sendVotingMoments(message.chat.id, linked.user.id);
+      return;
+    }
+    if (command === 'startvote' || command === 'endvote') {
+      await this.groupVotes?.showGroups(
+        linked.user.id, message.chat.id, command === 'startvote' ? 'start' : 'end',
+      );
       return;
     }
     if (command === 'alerts' || command === 'weekly') {
@@ -1030,6 +1040,10 @@ export class TelegramBotService {
         'Connect your ChlatWork account first.',
       );
       await this.sendConnectAccount(message.chat.id);
+      return;
+    }
+    if (data.startsWith('gv:')) {
+      await this.groupVotes?.handleCallback(linked.user.id, callback);
       return;
     }
     if (data === 'menu:add') {
@@ -3569,6 +3583,8 @@ export class TelegramBotService {
           '/recent — Recent expenses',
           '/spend Coffee week — Ask about spending',
           '/vote — Choose a Voting Moment to share',
+          '/startvote — Choose a connected group and start its poll now (group admin)',
+          '/endvote — Choose a connected group and close its current round (group admin)',
           '/alerts — View notification settings',
           '/alerts on or /alerts off — Toggle budget alerts',
           '/weekly — View weekly digest settings',
@@ -3584,7 +3600,7 @@ export class TelegramBotService {
       if (/^\/klaklok\b/.test(line)) return 'kla-klok';
       if (/^\/split/.test(line)) return 'bill-split';
       if (
-        /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote)/.test(
+        /^\/(?:joinvote|dailyvote|votetime|voteduration|resettodayvote|stopdailyvote|startvote|endvote)/.test(
           line,
         )
       )

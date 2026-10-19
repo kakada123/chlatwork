@@ -6,6 +6,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { TelegramBotClient } from './telegram-bot.client';
 import { TelegramBotController } from './telegram-bot.controller';
 import { TelegramBotService } from './telegram-bot.service';
+import { TelegramGroupVoteService } from './telegram-group-vote.service';
 import { DailyMomentVoteScheduler } from './daily-moment-vote.scheduler';
 import { TelegramAssistantAiService } from './telegram-assistant-ai.service';
 import { TelegramFinanceScheduler } from './telegram-finance.scheduler';
@@ -29,6 +30,7 @@ import { TelegramUrlSecurityService } from './telegram-url-security.service';
   providers: [
     TelegramBotClient,
     TelegramBotService,
+    TelegramGroupVoteService,
     TelegramAssistantAiService,
     DailyMomentVoteScheduler,
     TelegramFinanceScheduler,

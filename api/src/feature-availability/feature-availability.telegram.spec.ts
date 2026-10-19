@@ -2,6 +2,29 @@ import { CreatorTelegramService } from '../creator-telegram/creator-telegram.ser
 import { TelegramBotService } from '../telegram-bot/telegram-bot.service';
 
 describe('Telegram availability enforcement', () => {
+  it.each(['/startvote', '/endvote'])(
+    'blocks disabled group voting before private account lookup for %s', async (command) => {
+      const prisma = {
+        $queryRaw: jest.fn().mockResolvedValue([{ updateId: 1n }]),
+        telegramBotUpdate: { update: jest.fn(), deleteMany: jest.fn() },
+        socialAccount: { findUnique: jest.fn() },
+      };
+      const bot = { sendMessage: jest.fn() };
+      const availability = { isEnabled: jest.fn().mockResolvedValue(false) };
+      const service = new TelegramBotService(
+        prisma as never, {} as never, bot as never, {} as never, {} as never,
+        undefined, availability as never,
+      );
+      await service.handleUpdate({
+        update_id: 1,
+        message: { message_id: 1, from: { id: 123 }, chat: { id: 123, type: 'private' }, text: command },
+      });
+      expect(availability.isEnabled).toHaveBeenCalledWith('telegram:group-voting');
+      expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
+      expect(bot.sendMessage).toHaveBeenCalledWith(123, expect.stringContaining('unavailable'));
+    },
+  );
+
   it('rejects a disabled Creator mode before saving a mode or queuing work', async () => {
     const prisma = {
       creatorTelegramChat: { createMany: jest.fn() },

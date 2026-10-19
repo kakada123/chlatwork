@@ -8,6 +8,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { MomentsService } from '../moments/moments.service';
 import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -121,8 +122,14 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     return duePolls.length;
   }
 
-  private async refreshRounds(now: Date) {
-    const rounds = await this.prisma.$queryRaw<Array<{ id: string }>>`
+  async refreshRound(roundId: string, now = new Date()) {
+    await this.refreshRounds(now, roundId);
+  }
+
+  private async refreshRounds(now: Date, roundId?: string) {
+    const rounds = roundId
+      ? [{ id: roundId }]
+      : await this.prisma.$queryRaw<Array<{ id: string }>>`
       SELECT id::text FROM moment_vote_rounds
       WHERE finalized_at IS NULL
       ORDER BY closes_at LIMIT 100
@@ -141,7 +148,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             >`
             SELECT telegram_chat_id AS "telegramChatId", message_id AS "messageId", closes_at AS "closesAt"
             FROM moment_vote_rounds WHERE id = ${round.id}::uuid AND finalized_at IS NULL
-            FOR UPDATE SKIP LOCKED
+            FOR UPDATE ${roundId ? Prisma.empty : Prisma.sql`SKIP LOCKED`}
           `;
             if (!current) return;
             if (this.groupPolicy) {
@@ -151,7 +158,8 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
                   String(current.telegramChatId),
                   'voting',
                 );
-              } catch {
+              } catch (error) {
+                if (roundId) throw error;
                 if (current.closesAt <= now)
                   await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at=${now} WHERE id=${round.id}::uuid`;
                 return;
@@ -245,8 +253,9 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             this.logger.warn('A vote celebration could not be delivered');
           }
         }
-      } catch {
+      } catch (error) {
         // Leave unfinished rounds retryable on the next tick without logging chat or voter data.
+        if (roundId) throw error;
         this.logger.warn('A Moment vote timer could not be refreshed');
       }
     }
@@ -284,17 +293,15 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
       if (this.groupPolicy)
         await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
       stage = 'telegram-send';
-      const sent = await this.bot.sendMessage(
-        chatId,
-        buildTelegramPollMessage(poll),
-        buildTelegramPollKeyboard(poll, publicUrl),
-      );
       if (poll.roundId) {
-        stage = 'round-message-save';
-        await this.prisma.$executeRaw`
-          UPDATE moment_vote_rounds SET message_id = ${sent.message_id}
-          WHERE id = ${poll.roundId}::uuid
-        `;
+        // Manual starts and scheduler claims serialize delivery on the same round.
+        await this.refreshRound(poll.roundId);
+      } else {
+        await this.bot.sendMessage(
+          chatId,
+          buildTelegramPollMessage(poll),
+          buildTelegramPollKeyboard(poll, publicUrl),
+        );
       }
       stage = 'schedule-save';
       await this.prisma.momentVoteSchedule.update({
