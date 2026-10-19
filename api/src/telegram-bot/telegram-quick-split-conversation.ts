@@ -3,7 +3,7 @@ import type { TelegramBotClient } from './telegram-bot.client';
 import type { TelegramMessage } from './telegram-bot.types';
 import { parseTelegramQuickSplit, TelegramSplitParseError, type TelegramQuickSplit } from './telegram-group-split';
 
-const AMOUNT_PROMPT = 'Please enter the amount. Example: 36000';
+const AMOUNT_PROMPT = 'Please enter the amount. Example: 36000r or 10$';
 const PEOPLE_PROMPT = 'Please enter the number of people. Example: 6';
 const SESSION_LIFETIME_MS = 10 * 60_000;
 

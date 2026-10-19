@@ -75,7 +75,7 @@ describe('Guided group split', () => {
     const service = createService();
     await send(service, '/split');
     expect(bot.sendMessage).toHaveBeenLastCalledWith(
-      chatId, 'Please enter the amount. Example: 36000',
+      chatId, 'Please enter the amount. Example: 36000r or 10$',
       expect.objectContaining({ force_reply: true, selective: true }), undefined, 1,
     );
     expect(prisma.socialAccount.findUnique).not.toHaveBeenCalled();
