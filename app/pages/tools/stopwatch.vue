@@ -61,7 +61,35 @@ function reset() {
   elapsedMs.value = 0;
 }
 
-onBeforeUnmount(stopDisplayUpdates);
+function handleKeydown(event: KeyboardEvent) {
+  if (
+    (event.code !== "Space" && event.key !== " ") ||
+    event.defaultPrevented ||
+    event.isComposing ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    event.shiftKey
+  )
+    return;
+  const target = event.target as HTMLElement | null;
+  // Focused controls keep native Space behavior, avoiding a second toggle from their click.
+  if (
+    target?.isContentEditable ||
+    target?.closest?.(
+      "button, a[href], input, textarea, select, summary, [tabindex]:not([tabindex='-1'])",
+    )
+  )
+    return;
+  event.preventDefault();
+  if (!event.repeat) toggleStopwatch();
+}
+
+onMounted(() => window.addEventListener("keydown", handleKeydown));
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleKeydown);
+  stopDisplayUpdates();
+});
 </script>
 
 <template>
@@ -138,6 +166,9 @@ onBeforeUnmount(stopDisplayUpdates);
           Reset
         </button>
       </div>
+      <p class="mt-4 text-xs text-slate-500 dark:text-white/50">
+        Press <kbd class="font-semibold">Space</kbd> to start, pause, or resume.
+      </p>
     </section>
 
     <section
