@@ -31,7 +31,6 @@ describe('Business security owner alerts and manual deletion', () => {
       riskScore: 100,
       confidence: 100,
       categories: ['suspicious_file'],
-      fileScan: { status: 'infected' },
     };
     const record = {
       id,
@@ -45,7 +44,7 @@ describe('Business security owner alerts and manual deletion', () => {
       source_message_date: new Date(message.date * 1000),
       expires_at: new Date(Date.now() + 3600000),
       decision: 'preserved',
-      threat_kind: 'infected_file',
+      threat_kind: 'suspicious_message',
       notified_threat_kind: null as string | null,
       alert_message_id: null as bigint | null,
       notified_decision: null as string | null,
@@ -388,7 +387,7 @@ describe('Business security owner alerts and manual deletion', () => {
     );
     expect(test.bot.sendMessage).toHaveBeenCalledWith(
       999,
-      expect.stringContaining('Infected file detected'),
+      expect.stringContaining('Security warning'),
       {
         inline_keyboard: [
           [
@@ -405,7 +404,7 @@ describe('Business security owner alerts and manual deletion', () => {
     );
     const text = test.bot.sendMessage.mock.calls[0]![1] as unknown as string;
     expect(text).toContain('Kept');
-    expect(text).toContain('រកឃើញ');
+    expect(text).toContain('ការព្រមានសុវត្ថិភាព');
     expect(text).not.toContain('private-filename');
     expect(text).not.toContain('private-file');
     expect(text).not.toContain('private-connection');
@@ -475,26 +474,26 @@ describe('Business security owner alerts and manual deletion', () => {
     expect(test.bot.sendMessage).not.toHaveBeenCalled();
   });
 
-  it.each(['clean', 'disabled', 'unsupported', 'unavailable', 'busy'])(
-    'does not alert for file verdict %s without a suspicious AI assessment',
-    async (status) => {
-      const test = setup();
-      await test.service.notify(
-        test.message,
-        test.connection,
-        {
-          ...test.result,
-          riskScore: 0,
-          confidence: 0,
-          categories: [],
-          fileScan: { status },
-        } as never,
-        'preserved',
-      );
-      expect(test.bot.sendMessage).not.toHaveBeenCalled();
-      expect(test.prisma.$queryRaw).not.toHaveBeenCalled();
-    },
-  );
+  it('does not alert for a document without a suspicious assessment', async () => {
+    const test = setup();
+    await test.service.notify(
+      test.message, test.connection,
+      { status: 'scanned', riskScore: 0, confidence: 0, categories: [] },
+      'preserved',
+    );
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.prisma.$queryRaw).not.toHaveBeenCalled();
+  });
+
+  it('keeps historical file alerts readable without claiming a current scan', async () => {
+    const test = setup();
+    Object.assign(test.record, { threat_kind: 'infected_file' });
+    await test.service.processPending();
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      999, expect.stringContaining('previously flagged as unsafe'),
+      expect.anything(), undefined, undefined, { disableLinkPreview: true },
+    );
+  });
 
   it.each([
     {
@@ -548,7 +547,6 @@ describe('Business security owner alerts and manual deletion', () => {
           riskScore: 50,
           confidence: 60,
           categories: [category],
-          fileScan: { status: 'clean' },
         } as never,
         'preserved',
       );
@@ -697,35 +695,39 @@ describe('Business security owner alerts and manual deletion', () => {
     }
   });
 
-  it('deletes the stored infected message after checking current owner/rights, independently of auto-delete', async () => {
-    const test = setup({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'false' });
-    test.record.alert_message_id = 88n;
-    const deleted = {
-      ...test.record,
-      decision: 'deleted',
-      deleted_at: new Date(),
-    };
-    test.prisma.$queryRaw
-      .mockResolvedValueOnce([test.record])
-      .mockResolvedValueOnce([test.record])
-      .mockResolvedValueOnce([deleted])
-      .mockResolvedValueOnce([deleted]);
-    await test.service.handleCallback(test.callback);
-    expect(test.bot.getBusinessConnection).toHaveBeenCalledWith(
-      'private-connection',
-    );
-    expect(test.bot.deleteBusinessMessages).toHaveBeenCalledWith(
-      'private-connection',
-      [7],
-    );
-    expect(test.bot.editMessage).toHaveBeenCalledWith(
-      999,
-      88,
-      expect.stringContaining('Deleted'),
-      { inline_keyboard: [] },
-      { disableLinkPreview: true },
-    );
-  });
+  it.each(['suspicious_message', 'infected_file'])(
+    'deletes a stored %s finding after checking current owner/rights, independently of auto-delete',
+    async (kind) => {
+      const test = setup({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: 'false' });
+      test.record.threat_kind = kind;
+      test.record.alert_message_id = 88n;
+      const deleted = {
+        ...test.record,
+        decision: 'deleted',
+        deleted_at: new Date(),
+      };
+      test.prisma.$queryRaw
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([test.record])
+        .mockResolvedValueOnce([deleted])
+        .mockResolvedValueOnce([deleted]);
+      await test.service.handleCallback(test.callback);
+      expect(test.bot.getBusinessConnection).toHaveBeenCalledWith(
+        'private-connection',
+      );
+      expect(test.bot.deleteBusinessMessages).toHaveBeenCalledWith(
+        'private-connection',
+        [7],
+      );
+      expect(test.bot.editMessage).toHaveBeenCalledWith(
+        999,
+        88,
+        expect.stringContaining('Deleted'),
+        { inline_keyboard: [] },
+        { disableLinkPreview: true },
+      );
+    },
+  );
 
   it.each([
     { is_enabled: false },
@@ -870,7 +872,7 @@ describe('Business security owner alerts and manual deletion', () => {
     expect(test.bot.sendBusinessMessage).toHaveBeenCalledWith(
       'private-connection',
       222,
-      expect.stringContaining('Infected file detected'),
+      expect.stringContaining('Security warning'),
     );
     const text = test.bot.sendBusinessMessage.mock.calls[0]![2];
     expect(text).not.toMatch(

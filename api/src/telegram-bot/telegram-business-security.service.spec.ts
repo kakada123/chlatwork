@@ -85,7 +85,6 @@ describe('Telegram Business security', () => {
       JSON.stringify({
         event: 'telegram_business_security_status',
         scanningEnabled: false,
-        fileScanEnabled: false,
         urlScanEnabled: false,
         ownerAlertsEnabled: false,
         chatAlertsEnabled: false,
@@ -115,93 +114,42 @@ describe('Telegram Business security', () => {
   });
 
   it.each([
-    {
-      verdict: 'infected',
-      autoDelete: 'true',
-      permission: true,
-      deleted: true,
-    },
-    {
-      verdict: 'infected',
-      autoDelete: 'false',
-      permission: true,
-      deleted: false,
-    },
-    {
-      verdict: 'infected',
-      autoDelete: 'true',
-      permission: false,
-      deleted: false,
-    },
-    { verdict: 'clean', autoDelete: 'true', permission: true, deleted: false },
-    {
-      verdict: 'unavailable',
-      autoDelete: 'true',
-      permission: true,
-      deleted: false,
-    },
-    {
-      verdict: 'unsupported',
-      autoDelete: 'true',
-      permission: true,
-      deleted: false,
-    },
-    { verdict: 'busy', autoDelete: 'true', permission: true, deleted: false },
+    { autoDelete: 'true', permission: true },
+    { autoDelete: 'false', permission: true },
+    { autoDelete: 'true', permission: false },
   ])(
-    'applies malware verdict $verdict with deletion=$autoDelete and permission=$permission',
-    async ({ verdict, autoDelete, permission, deleted }) => {
-      const test = setup({
-        TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: autoDelete,
-      });
+    'preserves metadata-only document findings with deletion=$autoDelete and permission=$permission',
+    async ({ autoDelete, permission }) => {
+      const test = setup({ TELEGRAM_BUSINESS_SECURITY_AUTO_DELETE: autoDelete });
       test.connection.rights.can_delete_all_messages = permission;
       const ai = {
-        isConfigured: () => false,
-        assessMessageSecurity: jest.fn(),
+        isConfigured: () => true,
+        assessMessageSecurity: jest.fn().mockResolvedValue({
+          riskScore: 99, confidence: 99, categories: ['suspicious_file'],
+        }),
       };
-      const files = { scan: jest.fn().mockResolvedValue({ status: verdict }) };
       const security = new SecurityService(
         ai as never,
-        files as never,
-        { scan: jest.fn().mockResolvedValue({ status: 'disabled' }) } as never,
+        { scan: jest.fn() } as never,
       );
       const service = new TelegramBusinessSecurityService(
-        test.config as never,
-        test.bot as never,
-        security,
-        test.alerts as never,
+        test.config as never, test.bot as never, security, test.alerts as never,
       );
       await service.handleMessage({
         ...test.message,
         text: undefined,
-        document: {
-          file_id: 'private-file',
-          file_name: 'private-document.pdf',
-        },
+        document: { file_id: 'private-file', file_name: 'private-document.pdf' },
       });
-      expect(test.bot.deleteBusinessMessages).toHaveBeenCalledTimes(
-        deleted ? 1 : 0,
-      );
+      expect(test.bot.deleteBusinessMessages).not.toHaveBeenCalled();
       expect(test.alerts.notify).toHaveBeenCalledWith(
         expect.objectContaining({ document: expect.any(Object) }),
         test.connection,
-        expect.objectContaining({ fileScan: { status: verdict } }),
-        deleted
-          ? 'deleted'
-          : verdict === 'infected' && autoDelete === 'true' && !permission
-            ? 'permission_missing'
-            : 'preserved',
+        { status: 'scanned', riskScore: 99, confidence: 85, categories: ['suspicious_file'] },
+        'preserved',
       );
-      const logs = JSON.stringify(
-        (Logger.prototype.log as jest.Mock).mock.calls,
-      );
-      expect(
-        (Logger.prototype.log as jest.Mock).mock.calls.map(([line]) =>
-          JSON.parse(line),
-        ),
-      ).toContainEqual(expect.objectContaining({ fileScanStatus: verdict }));
+      const logs = JSON.stringify((Logger.prototype.log as jest.Mock).mock.calls);
       expect(logs).not.toContain('private-file');
       expect(logs).not.toContain('private-document');
-      expect(ai.assessMessageSecurity).not.toHaveBeenCalled();
     },
   );
 

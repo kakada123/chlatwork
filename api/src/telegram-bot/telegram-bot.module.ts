@@ -15,8 +15,6 @@ import { TelegramKlaKlokService } from './telegram-kla-klok.service';
 import { SecurityService } from './security.service';
 import { TelegramBusinessSecurityService } from './telegram-business-security.service';
 import { TelegramBusinessSecurityAlertsService } from './telegram-business-security-alerts.service';
-import { ClamavService } from './clamav.service';
-import { TelegramFileSecurityService } from './telegram-file-security.service';
 import { TelegramUrlSecurityService } from './telegram-url-security.service';
 
 @Module({
@@ -37,8 +35,6 @@ import { TelegramUrlSecurityService } from './telegram-url-security.service';
     TelegramMemberQrScheduler,
     TelegramKlaKlokService,
     SecurityService,
-    ClamavService,
-    TelegramFileSecurityService,
     TelegramUrlSecurityService,
     TelegramBusinessSecurityService,
     TelegramBusinessSecurityAlertsService,

@@ -36,7 +36,6 @@ describe('private security report details', () => {
     riskScore: 100,
     confidence: 100,
     categories: ['suspicious_file', 'phishing_url'],
-    fileScan: { status: 'infected' },
     urlScan: { status: 'unsafe', threatTypes: ['SOCIAL_ENGINEERING'] },
   };
 
@@ -55,7 +54,6 @@ describe('private security report details', () => {
       '14:01:00',
       'UTC+07',
       '100/100',
-      'infected',
       'SOCIAL_ENGINEERING',
     ])
       expect(text).toContain(value);
@@ -101,18 +99,17 @@ describe('private security report details', () => {
     expect(text).toContain('95 more');
   });
 
-  it('does not treat an unlisted link or an unavailable file scan as safe', () => {
+  it('does not treat an unlisted link as safe', () => {
     const text = buildSecurityOwnerDetails(
       { message_id: 7, chat: { id: 222, type: 'private' }, date: sent },
       {
         ...result,
-        fileScan: { status: 'unavailable', reason: 'scanner_unavailable' },
         urlScan: { status: 'not_listed' },
       },
       scanned,
     );
     expect(text).toContain('Sender unavailable');
-    expect(text).toContain('scanner_unavailable');
+    expect(text).not.toContain('File scan:');
     expect(text).toContain('not proof of safety');
     expect(text).not.toContain('invoice.pdf');
   });

@@ -1,4 +1,3 @@
-import { readClamavConfig } from './clamav';
 import { readWebRiskConfig } from './web-risk';
 import { readSecurityWarningThresholds } from './security-warnings';
 
@@ -165,7 +164,6 @@ export function validateEnvironment(config: Record<string, unknown>) {
     );
   }
 
-  const fileScanner = readClamavConfig((key) => config[key]);
   const urlScanner = readWebRiskConfig((key) => config[key]);
   if (
     urlScanner &&
@@ -173,18 +171,11 @@ export function validateEnvironment(config: Record<string, unknown>) {
   ) {
     throw new Error('Business security must be enabled before URL scanning');
   }
-  if (
-    fileScanner &&
-    String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() !== 'true'
-  ) {
-    throw new Error('Business security must be enabled before file scanning');
-  }
 
   const useGemini = String(config.AI_USE_GEMINI).toLowerCase() === 'true';
   if (
     String(config.TELEGRAM_BUSINESS_SECURITY_ENABLED).toLowerCase() ===
       'true' &&
-    !fileScanner &&
     !urlScanner
   ) {
     const providerKey = useGemini ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY';

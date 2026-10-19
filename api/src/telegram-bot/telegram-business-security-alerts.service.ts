@@ -425,7 +425,7 @@ export class TelegramBusinessSecurityAlertsService
           ? '⚠️ Suspicious link detected / រកឃើញតំណគួរឲ្យសង្ស័យ\nAI assessment suspects phishing. Verify the sender and website before opening.\nសូមពិនិត្យអ្នកផ្ញើ និងគេហទំព័រ មុនបើកតំណ។'
           : row.threat_kind === 'suspicious_message'
             ? '⚠️ Security warning / ការព្រមានសុវត្ថិភាព\nAI assessment found a possible security risk. Review this message before opening links, downloading attachments, or sending money.\nសូមពិនិត្យសារនេះ មុនបើកតំណ ទាញយកឯកសារ ឬផ្ទេរប្រាក់។'
-            : '⚠️ Infected file detected / រកឃើញឯកសារមានមេរោគ\nClamAV detected malware in the incoming file. Do not open or download it.\nកុំបើក ឬទាញយកឯកសារនេះ។';
+            : '⚠️ File security warning / ការព្រមានសុវត្ថិភាពឯកសារ\nThis file was previously flagged as unsafe. Review it before opening or downloading.\nសូមពិនិត្យឯកសារ មុនបើក ឬទាញយក។';
     const summary = `${finding}\n${status}\nMessage #${row.source_message_id} · ${row.source_message_date.toISOString()}`;
     // Never expose the private snapshot in a managed-chat warning, including delete/retry updates.
     return row.audience === 'owner' && row.owner_details

@@ -39,7 +39,8 @@ export class TelegramSplitParseError extends Error {}
 export interface TelegramQuickSplit {
   total: string;
   currency: ExpenseCurrency | null;
-  amounts: string[];
+  people: number;
+  amountPerPerson: string;
   recipientUsername?: string;
 }
 
@@ -61,25 +62,33 @@ export function parseTelegramQuickSplit(text: string): TelegramQuickSplit | null
     ? 'USD'
     : isRiel ? 'KHR' : null;
   const totalCents = parseMoneyCents(amount[2]);
+  const people = Number(countMatch[1]);
+  if (currency === 'KHR' && totalCents % 100n !== 0n) {
+    throw new TelegramSplitParseError('Use a whole-riel bill total.');
+  }
+  const unit = currency === 'KHR' ? 100n : 1n;
+  // Quick calculations show one rounded share; integer arithmetic avoids floating-point money errors.
+  const divisor = BigInt(people);
+  const roundedShare = ((totalCents / unit + divisor / 2n) / divisor) * unit;
+  if (roundedShare === 0n) {
+    throw new TelegramSplitParseError('The total is too small to split.');
+  }
   return {
     total: centsToDecimal(totalCents),
     currency,
-    amounts: equalSplitAmounts(totalCents, currency, Number(countMatch[1])),
+    people,
+    amountPerPerson: centsToDecimal(roundedShare),
     ...(countMatch[2] ? { recipientUsername: countMatch[2].toLowerCase() } : {}),
   };
 }
 
 export function buildTelegramQuickSplitMessage(split: TelegramQuickSplit) {
-  const groups = new Map<string, number>();
-  for (const amount of split.amounts) groups.set(amount, (groups.get(amount) ?? 0) + 1);
   const formatAmount = (amount: string) => split.currency
     ? formatTelegramMoney(amount, split.currency)
     : amount.replace(/\.00$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return [
-    `🧾 ${formatAmount(split.total)} ÷ ${split.amounts.length}`,
-    ...[...groups].map(([amount, count]) =>
-      `${groups.size === 1 ? 'Each' : `${count} ${count === 1 ? 'person' : 'people'}`}: ${formatAmount(amount)}`,
-    ),
+    `🧾 ${formatAmount(split.total)} ÷ ${split.people}`,
+    `Each: ${formatAmount(split.amountPerPerson)}`,
   ].join('\n');
 }
 
@@ -162,14 +171,12 @@ export function parseTelegramSplit(
   };
 }
 
-function equalSplitAmounts(totalCents: bigint, currency: ExpenseCurrency | null, count: number) {
-  // Plain amounts and riel keep whole-unit shares; explicit USD uses cents.
-  if (currency !== 'USD' && totalCents % 100n !== 0n) {
-    throw new TelegramSplitParseError(currency === 'KHR'
-      ? 'Use a whole-riel bill total.'
-      : 'Use a whole-number total.');
+function equalSplitAmounts(totalCents: bigint, currency: ExpenseCurrency, count: number) {
+  // Whole riel (or USD cents) keep every displayed share adding up exactly to the bill.
+  if (currency === 'KHR' && totalCents % 100n !== 0n) {
+    throw new TelegramSplitParseError('Use a whole-riel bill total.');
   }
-  const unit = currency === 'USD' ? 1n : 100n;
+  const unit = currency === 'KHR' ? 100n : 1n;
   const totalUnits = totalCents / unit;
   if (totalUnits < BigInt(count)) {
     throw new TelegramSplitParseError('The total is too small to split.');

@@ -143,9 +143,9 @@ describe('Telegram group member QR commands', () => {
   });
 
   it.each([
-    ['/split 10/6', '🧾 10 ÷ 6\n4 people: 2\n2 people: 1'],
-    ['/split 10$/6', '🧾 $10.00 ÷ 6\n4 people: $1.67\n2 people: $1.66'],
-    ['/split 10000r/6', '🧾 10,000៛ ÷ 6\n4 people: 1,667៛\n2 people: 1,666៛'],
+    ['/split 10/6', '🧾 10 ÷ 6\nEach: 1.67'],
+    ['/split 10$/6', '🧾 $10.00 ÷ 6\nEach: $1.67'],
+    ['/split 10000r/6', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
   ])('uses only the requested currency in the KHQR caption for %s', async (command, result) => {
     const { bot, send, prisma } = setup();
     await send(command);

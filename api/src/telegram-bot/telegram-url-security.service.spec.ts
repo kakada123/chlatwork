@@ -65,7 +65,7 @@ describe('URL reputation scanning', () => {
     'http://0x7f000001/a',
     'http://10.1.2.3/a',
     'http://192.168.1.2/a',
-    'http://clamav.railway.internal/a',
+    'http://scanner.railway.internal/a',
     'http://[::1]/a',
     'file:///tmp/file',
     'https://user:password@example.com/a',

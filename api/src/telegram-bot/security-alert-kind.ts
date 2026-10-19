@@ -4,6 +4,7 @@ import {
 } from '../config/security-warnings';
 import { SECURITY_CATEGORIES, type SecurityScanResult } from './security.types';
 
+// Retain the historical file kind so saved alerts and owner actions remain readable.
 export type SecurityAlertKind =
   'infected_file' | 'unsafe_link' | 'suspicious_link' | 'suspicious_message';
 
@@ -12,7 +13,6 @@ export function securityAlertKind(
   thresholds: Readonly<SecurityWarningThresholds> = DEFAULT_SECURITY_WARNING_THRESHOLDS,
 ): SecurityAlertKind | null {
   if (result.status !== 'scanned') return null;
-  if (result.fileScan?.status === 'infected') return 'infected_file';
   if (result.urlScan?.status === 'unsafe') return 'unsafe_link';
   // A warning asks the owner to review; it must not weaken automatic deletion thresholds.
   if (

@@ -24,7 +24,6 @@ export interface SecurityScanInput {
 
 export interface SecurityScanResult extends SecurityAssessment {
   status: 'scanned' | 'unavailable' | 'unsupported';
-  fileScan?: FileScanResult;
   urlScan?: UrlScanResult;
 }
 
@@ -51,16 +50,4 @@ export interface UrlScanResult {
     | 'rate_limited'
     | 'provider_unavailable'
     | 'invalid_response';
-}
-
-export interface FileScanResult {
-  status:
-    'disabled' | 'clean' | 'infected' | 'unavailable' | 'unsupported' | 'busy';
-  reason?:
-    | 'invalid_config'
-    | 'invalid_or_oversized_file'
-    | 'concurrency_limit'
-    | 'download_failed'
-    | 'scanner_unavailable'
-    | 'scan_incomplete';
 }

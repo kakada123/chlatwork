@@ -113,9 +113,6 @@ export function buildSecurityOwnerDetails(
     );
   }
   lines.push(
-    `File scan: ${result.fileScan?.status ?? 'Not performed'}${result.fileScan?.reason ? ` (${result.fileScan.reason})` : ''}`,
-  );
-  lines.push(
     `Link scan: ${result.urlScan?.status ?? 'Not performed'}${result.urlScan?.reason ? ` (${result.urlScan.reason})` : ''}${result.urlScan?.status === 'not_listed' ? ' (no reputation match; not proof of safety)' : ''}`,
   );
   const threats = result.urlScan?.threatTypes?.filter((type) =>

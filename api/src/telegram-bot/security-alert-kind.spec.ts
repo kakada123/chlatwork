@@ -10,20 +10,13 @@ describe('Security alert eligibility', () => {
   it('warns for the observed 95 risk / 90 confidence phishing finding without lowering deletion thresholds', () => {
     expect(securityAlertKind(base as never)).toBe('suspicious_link');
   });
-  it('uses a verified-link label for reputation matches and gives infected files priority', () => {
+  it('uses a verified-link label for reputation matches', () => {
     expect(
       securityAlertKind({
         ...base,
         urlScan: { status: 'unsafe', threatTypes: ['SOCIAL_ENGINEERING'] },
       } as never),
     ).toBe('unsafe_link');
-    expect(
-      securityAlertKind({
-        ...base,
-        fileScan: { status: 'infected' },
-        urlScan: { status: 'unsafe' },
-      } as never),
-    ).toBe('infected_file');
   });
   it.each([
     { riskScore: 49 },
@@ -77,17 +70,6 @@ describe('Security alert eligibility', () => {
         thresholds,
       ),
     ).toBe('suspicious_link');
-    expect(
-      securityAlertKind(
-        {
-          ...base,
-          riskScore: 0,
-          confidence: 0,
-          fileScan: { status: 'infected' },
-        } as never,
-        thresholds,
-      ),
-    ).toBe('infected_file');
     expect(
       securityAlertKind(
         {

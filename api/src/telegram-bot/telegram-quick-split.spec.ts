@@ -94,9 +94,9 @@ describe('Guided group split', () => {
   });
 
   it.each([
-    ['10', '🧾 10 ÷ 6\n4 people: 2\n2 people: 1'],
-    ['10$', '🧾 $10.00 ÷ 6\n4 people: $1.67\n2 people: $1.66'],
-    ['10000r', '🧾 10,000៛ ÷ 6\n4 people: 1,667៛\n2 people: 1,666៛'],
+    ['10', '🧾 10 ÷ 6\nEach: 1.67'],
+    ['10$', '🧾 $10.00 ÷ 6\nEach: $1.67'],
+    ['10000r', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
   ])('preserves the currency choice in a guided split with %s', async (amount, result) => {
     const { createService, send, bot } = setup();
     const service = createService();
