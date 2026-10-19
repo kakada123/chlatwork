@@ -121,6 +121,15 @@ export const TOOLS: ToolDef[] = [
     description: "Quick calculations with history.",
   },
   {
+    key: "stopwatch",
+    name: "Stopwatch",
+    route: "/tools/stopwatch",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Measure elapsed time with pause, resume, and split and total lap times.",
+  },
+  {
     key: "barcode",
     name: "Barcode Generator",
     route: "/tools/barcode",
@@ -272,6 +281,7 @@ export const ALL_TOOLS_ICON_PATHS = [
 ];
 
 export const TOOL_ICON_PATHS: Record<string, string[]> = {
+  stopwatch: ["M12 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z", "M12 10v4l2 2", "M9 2h6", "M12 2v4", "M19 5l2 2"],
   "youtube-downloader": ["M4 5h16v10H4V5Z", "M10 8l5 2-5 2V8Z", "M12 17v5", "M9 19l3 3 3-3"],
   "chlatwork-link": ["M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1", "M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"],
   calculator: [
@@ -484,6 +494,7 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
 };
 
 export const TOOL_ICON_CLASSES: Record<string, string> = {
+  stopwatch: "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
   "youtube-downloader": "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
   "chlatwork-link": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
   calculator:

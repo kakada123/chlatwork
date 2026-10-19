@@ -49,6 +49,7 @@ const ICON_TONE_BY_KEY: Record<string, keyof typeof ICON_TONES> = {
   "url-encoder": "indigo",
   "regex-tester": "indigo",
   "uuid-generator": "indigo",
+  stopwatch: "cyan",
   "unix-timestamp": "indigo",
   "cron-explainer": "indigo",
   "hash-generator": "indigo",

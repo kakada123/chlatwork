@@ -53,6 +53,7 @@ const CATEGORY_ICON_PATHS: Record<string, string[]> = {
 };
 
 const TOOL_ACCENTS: Record<string, string> = {
+  stopwatch: "from-cyan-300 to-sky-500",
   "youtube-downloader": "from-red-400 to-rose-500",
   calculator: "from-blue-400 to-cyan-300",
   qr: "from-emerald-400 to-lime-300",

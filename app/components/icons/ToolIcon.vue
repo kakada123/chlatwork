@@ -39,6 +39,7 @@ import {
   Wifi,
   Wrench,
   Clock3,
+  Timer,
 } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -47,6 +48,7 @@ const props = defineProps<{
 
 // Centralizing the catalogue keeps every tool on one coherent icon system.
 const ICONS: Record<string, Component> = {
+  stopwatch: Timer,
   "chlatwork-link": Link2,
   "payback-calculator": ArrowLeftRight,
   "image-compress": ImageDown,

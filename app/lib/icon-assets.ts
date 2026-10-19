@@ -3,6 +3,7 @@ const DEFAULT_TOOL_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/tools/tool-date-calculat
 const DEFAULT_CATEGORY_ICON_IMAGE_PATH = `${ICON_BASE_PATH}/categories/category-productivity.png`;
 
 export const TOOL_ICON_IMAGE_PATHS: Record<string, string> = {
+  stopwatch: `${ICON_BASE_PATH}/tools/tool-unix-timestamp-converter.png`,
   qr: `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
   "scan-qr": `${ICON_BASE_PATH}/tools/tool-qr-code-generator.png`,
   "wifi-qr": `${ICON_BASE_PATH}/tools/tool-wifi-qr-generator.png`,

@@ -147,6 +147,55 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
 }
 
 const RAW_GUIDES: Record<string, ToolGuideContent> = {
+  stopwatch: {
+    metaTitle: "Online Stopwatch with Lap Times | ChlatWork",
+    metaDescription: "Measure elapsed time, pause and resume a session, and record split and total lap times with this free online stopwatch.",
+    heroTitle: "Online Stopwatch",
+    heroDescription: "Time a task, practice session, or activity with an easy-to-read stopwatch and lap history.",
+    ctaLabel: "Open Stopwatch",
+    whatIs: [
+      "The stopwatch measures elapsed time in hours, minutes, seconds, and hundredths of a second.",
+      "Pause and resume a session without counting the break. Record laps to compare individual splits and the total time since you started.",
+    ],
+    whyUse: [
+      "Time practice sessions, exercises, or everyday tasks.",
+      "Capture multiple lap times without stopping the clock.",
+      "Read elapsed time on a phone or desktop.",
+    ],
+    steps: [
+      "Press Start to begin measuring elapsed time.",
+      "Press Lap while running to capture a split and total time.",
+      "Press Pause to stop counting during a break, then Resume to continue.",
+      "Review your newest laps at the top of the lap table.",
+      "Press Reset when you want to clear the session and all laps.",
+    ],
+    useCases: [
+      "Time a presentation or speaking practice.",
+      "Compare repetitions during an exercise or practice session.",
+      "Measure how long each step of a task takes.",
+    ],
+    tips: [
+      "Split is the time since the previous lap; Total is the elapsed time since the first start, excluding pauses.",
+      "The clock catches up when you return from another browser tab.",
+      "Keep the page open and copy any times you need before resetting or leaving.",
+    ],
+    commonMistakes: [
+      "Reading a lap total as the duration of a single split.",
+      "Resetting or refreshing the page before noting down important lap times.",
+    ],
+    privacy: [
+      "Your stopwatch session and lap values are kept in this page and are not uploaded by this tool.",
+      "Refreshing or leaving the page clears your session.",
+    ],
+    faqs: [
+      { question: "Can I pause and continue?", answer: "Yes. Pause freezes elapsed time, and Resume continues the same session without including the break." },
+      { question: "Does it continue while I use another tab?", answer: "Yes. While this page remains open, the stopwatch calculates elapsed time when you return, even if the browser pauses screen updates in the background." },
+      { question: "Are my laps saved after a refresh?", answer: "No. The stopwatch and lap history clear when you reset, refresh, or leave this page." },
+      { question: "What does Reset do?", answer: "Reset stops the stopwatch, returns elapsed time to zero, and removes every recorded lap." },
+    ],
+    keywords: ["online stopwatch", "lap timer", "split times", "stopwatch with laps"],
+    applicationCategory: "UtilitiesApplication",
+  },
   "youtube-downloader": {
     metaTitle: "How to Download a YouTube Video as MP4 | ChlatWork",
     metaDescription: "Prepare an MP4 from a public YouTube video you own or have permission to save, with quality selection and expiring downloads.",

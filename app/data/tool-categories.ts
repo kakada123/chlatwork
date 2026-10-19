@@ -81,11 +81,11 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     path: "/tools/date-time",
     title: "Date & Time Tools",
     description:
-      "Calculate date differences, convert Unix timestamps, and explain cron schedules for planning and debugging.",
+      "Measure elapsed time, calculate date differences, convert Unix timestamps, and explain cron schedules.",
     intro:
       "Use these tools when dates, timestamps, deadlines, or scheduled jobs need to be checked quickly.",
     accent: "from-lime-300 via-emerald-300 to-teal-400",
-    toolKeys: ["calculator", "unix-timestamp", "cron-explainer"],
+    toolKeys: ["stopwatch", "calculator", "unix-timestamp", "cron-explainer"],
   },
   {
     key: "calculators",
@@ -113,6 +113,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     accent: "from-fuchsia-300 via-violet-300 to-indigo-400",
     toolKeys: [
       "chlatwork-link",
+      "stopwatch",
       "payback-calculator",
       "expense-tracker",
       "lucky-draw",
