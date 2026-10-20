@@ -9,7 +9,8 @@ import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GroupAccessService } from '../group-workspaces/group-access.service';
 import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
-import { lockGroup } from '../group-workspaces/group-mutations';
+import { lockGroup, operationKey } from '../group-workspaces/group-mutations';
+import { GroupVoteService } from '../group-workspaces/group-vote.service';
 import type { GroupContext } from '../group-workspaces/group-workspaces.types';
 import { ensureTelegramVoteRound } from '../moments/telegram-vote-round';
 import { TelegramBotClient } from './telegram-bot.client';
@@ -30,6 +31,7 @@ export class TelegramGroupVoteService {
     private readonly policy: GroupFeaturePolicy,
     private readonly bot: TelegramBotClient,
     private readonly scheduler: DailyMomentVoteScheduler,
+    private readonly votes: GroupVoteService,
   ) {}
 
   async showGroups(
@@ -128,8 +130,16 @@ export class TelegramGroupVoteService {
     const data = callback.data ?? '';
     const start = new RegExp(`^gv:s:(${UUID}):(\\d{8})$`, 'i').exec(data);
     const end = new RegExp(`^gv:e:(${UUID})$`, 'i').exec(data);
+    const reset = new RegExp(`^gv:r:(${UUID})$`, 'i').exec(data);
     const page = /^gv:p:(start|end):([1-9][0-9]{0,4})$/.exec(data);
-    if (!start && !end && !page) {
+    if (data === 'gv:cancel') {
+      await this.bot.answerCallback(callback.id, 'Reset cancelled.');
+      await this.bot
+        .deleteMessage(message.chat.id, message.message_id)
+        .catch(() => null);
+      return;
+    }
+    if (!start && !end && !page && !reset) {
       await this.bot.answerCallback(
         callback.id,
         'This voting control is invalid.',
@@ -147,8 +157,64 @@ export class TelegramGroupVoteService {
         );
         return;
       }
-      if (start) await this.start(userId, start[1], start[2]);
-      else await this.end(userId, end![1]);
+      if (reset) {
+        // Bind retries to this confirmation message, not Telegram's per-press callback ID.
+        const key = `tg_reset_${reset[1].replaceAll('-', '')}_${message.message_id}`;
+        const round = await this.prisma.momentVoteRound.findUnique({
+          where: { id: reset[1] },
+          include: { moment: { select: { groupWorkspaceId: true } } },
+        });
+        // A successful reset deletes the old round; use its audit on webhook retry.
+        const audit = !round
+          ? await this.prisma.telegramGroupAudit.findUnique({
+              where: { operationKey: operationKey(userId, key) },
+            })
+          : null;
+        const workspaceId =
+          round?.moment.groupWorkspaceId ??
+          (audit?.action === 'VOTE_RESET' ? audit.workspaceId : null);
+        if (!workspaceId)
+          throw new BadRequestException(
+            'This reset confirmation has expired. Send /startvote again.',
+          );
+        const result = await this.votes.reset(
+          userId,
+          workspaceId,
+          reset[1],
+          key,
+        );
+        await this.bot.sendMessage(
+          message.chat.id,
+          result.deliveryPending
+            ? 'Votes reset and voting reopened. Telegram delivery is pending; the bot will retry automatically.'
+            : 'Votes reset and reopened in the selected group.',
+        );
+        await this.bot
+          .deleteMessage(message.chat.id, message.message_id)
+          .catch(() => null);
+        return;
+      }
+      if (start) {
+        const result = await this.start(userId, start[1], start[2]);
+        if (result.requiresReset) {
+          await this.bot.sendMessage(
+            message.chat.id,
+            `Today’s vote in ${result.title} has ended. Clear today’s votes and reopen with a fresh timer? This cannot be undone.`,
+            {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Reset & reopen',
+                    callback_data: `gv:r:${result.roundId}`,
+                  },
+                ],
+                [{ text: 'Cancel', callback_data: 'gv:cancel' }],
+              ],
+            },
+          );
+          return;
+        }
+      } else await this.end(userId, end![1]);
       await this.bot.sendMessage(
         message.chat.id,
         start
@@ -169,7 +235,7 @@ export class TelegramGroupVoteService {
     now = new Date(),
   ) {
     const context = await this.authorize(userId, workspaceId);
-    const roundId = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       await this.lock(tx, userId, context);
       const schedule = await tx.momentVoteSchedule.findFirst({
         where: {
@@ -203,15 +269,13 @@ export class TelegramGroupVoteService {
         momentId_voteDate: { momentId: schedule.momentId, voteDate },
       };
       let round = await tx.momentVoteRound.findUnique({ where });
-      if (
-        round &&
-        (round.closesAt <= now ||
-          round.finalizedAt ||
-          round.telegramChatId !== BigInt(context.chatId))
-      )
+      if (round && round.telegramChatId !== BigInt(context.chatId))
         throw new BadRequestException(
-          'Today’s vote has already ended or belongs to another group.',
+          'This voting round belongs to another group.',
         );
+      // A completed day can be reused only after an explicit, round-bound reset confirmation.
+      if (round && (round.closesAt <= now || round.finalizedAt))
+        return { roundId: round.id, requiresReset: true, title: context.title };
       if (!round) {
         await ensureTelegramVoteRound(tx, schedule.momentId, now);
         round = await tx.momentVoteRound.findUnique({ where });
@@ -223,9 +287,11 @@ export class TelegramGroupVoteService {
         data: { lastAttemptDate: voteDate },
       });
       await this.audit(tx, userId, workspaceId, round.id, 'VOTE_STARTED');
-      return round.id;
+      return { roundId: round.id, requiresReset: false, title: context.title };
     });
-    await this.scheduler.refreshRound(roundId, now);
+    if (!result.requiresReset)
+      await this.scheduler.refreshRound(result.roundId, now);
+    return result;
   }
 
   async end(userId: string, roundId: string, now = new Date()) {

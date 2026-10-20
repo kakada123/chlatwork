@@ -60,7 +60,10 @@ function setup() {
       findFirst: jest.fn().mockResolvedValue(round),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
-    telegramGroupAudit: { upsert: jest.fn() },
+    telegramGroupAudit: {
+      upsert: jest.fn(),
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
   };
   const prisma = {
     ...tx,
@@ -74,14 +77,24 @@ function setup() {
     lockManager: jest.fn(),
   };
   const policy = { assertEnabled: jest.fn().mockResolvedValue(context) };
-  const bot = { sendMessage: jest.fn(), answerCallback: jest.fn() };
+  const bot = {
+    sendMessage: jest.fn(),
+    answerCallback: jest.fn(),
+    deleteMessage: jest.fn().mockResolvedValue(true),
+  };
   const scheduler = { refreshRound: jest.fn() };
+  const votes = {
+    reset: jest
+      .fn()
+      .mockResolvedValue({ updated: true, deliveryPending: false }),
+  };
   const service = new TelegramGroupVoteService(
     prisma as never,
     groups as never,
     policy as never,
     bot as never,
     scheduler as never,
+    votes as never,
   );
   return {
     service,
@@ -93,6 +106,7 @@ function setup() {
     scheduler,
     round,
     schedule,
+    votes,
   };
 }
 
@@ -146,32 +160,161 @@ describe('Private group voting', () => {
     });
   });
 
-  it.each([
-    'closed',
-    'finalized',
-    'other-chat',
-    'old-date',
-    'suspended',
-    'disabled-connection',
-  ])('does not start or publish a %s round', async (reason) => {
-    const { service, round, tx, scheduler } = setup();
-    if (reason === 'closed') round.closesAt = now;
-    if (reason === 'finalized') Object.assign(round, { finalizedAt: now });
-    if (reason === 'other-chat') round.telegramChatId = -999n;
-    if (reason === 'suspended')
-      tx.$queryRaw.mockResolvedValue([{ status: 'SUSPENDED', version: 1 }]);
-    if (reason === 'disabled-connection')
-      tx.telegramGroupConnection.findUnique.mockResolvedValue(null);
-    await expect(
-      service.start(
+  it.each(['other-chat', 'old-date', 'suspended', 'disabled-connection'])(
+    'does not start or publish a %s round',
+    async (reason) => {
+      const { service, round, tx, scheduler } = setup();
+      if (reason === 'other-chat') round.telegramChatId = -999n;
+      if (reason === 'suspended')
+        tx.$queryRaw.mockResolvedValue([{ status: 'SUSPENDED', version: 1 }]);
+      if (reason === 'disabled-connection')
+        tx.telegramGroupConnection.findUnique.mockResolvedValue(null);
+      await expect(
+        service.start(
+          'user',
+          workspaceId,
+          reason === 'old-date' ? '20261018' : '20261019',
+          now,
+        ),
+      ).rejects.toThrow();
+      expect(scheduler.refreshRound).not.toHaveBeenCalled();
+      expect(tx.$executeRaw).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['closed', 'finalized'])(
+    'offers to reset a %s same-group round instead of rejecting /startvote',
+    async (state) => {
+      const { service, round, tx, scheduler } = setup();
+      if (state === 'closed') round.closesAt = now;
+      else Object.assign(round, { finalizedAt: now });
+      await expect(
+        service.start('user', workspaceId, '20261019', now),
+      ).resolves.toEqual({
+        roundId,
+        requiresReset: true,
+        title: 'Lunch team',
+      });
+      expect(scheduler.refreshRound).not.toHaveBeenCalled();
+      expect(tx.$executeRaw).not.toHaveBeenCalled();
+      expect(tx.momentVoteSchedule.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it('asks for confirmation before /startvote clears an ended round', async () => {
+    const { service, round, bot, votes, scheduler } = setup();
+    round.closesAt = now;
+    jest.useFakeTimers().setSystemTime(now);
+    try {
+      await service.handleCallback('user', {
+        id: 'start-callback',
+        from: { id: 123 },
+        message: { message_id: 10, chat: { id: 123, type: 'private' } },
+        data: `gv:s:${workspaceId}:20261019`,
+      });
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        123,
+        expect.stringContaining('Clear today’s votes'),
+        {
+          inline_keyboard: [
+            [{ text: 'Reset & reopen', callback_data: `gv:r:${roundId}` }],
+            [{ text: 'Cancel', callback_data: 'gv:cancel' }],
+          ],
+        },
+      );
+      expect(votes.reset).not.toHaveBeenCalled();
+      expect(scheduler.refreshRound).not.toHaveBeenCalled();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it.each([false, true])(
+    'resets through the shared service after confirmation (delivery pending: %s)',
+    async (deliveryPending) => {
+      const { service, bot, votes } = setup();
+      votes.reset.mockResolvedValue({ updated: true, deliveryPending });
+      const callback = {
+        id: 'confirm-reset',
+        from: { id: 123 },
+        message: {
+          message_id: 11,
+          chat: { id: 123, type: 'private' as const },
+        },
+        data: `gv:r:${roundId}`,
+      };
+      await service.handleCallback('user', callback);
+      await service.handleCallback('user', { ...callback, id: 'second-press' });
+      expect(votes.reset).toHaveBeenCalledWith(
         'user',
         workspaceId,
-        reason === 'old-date' ? '20261018' : '20261019',
-        now,
-      ),
-    ).rejects.toThrow();
-    expect(scheduler.refreshRound).not.toHaveBeenCalled();
-    expect(tx.$executeRaw).not.toHaveBeenCalled();
+        roundId,
+        expect.any(String),
+      );
+      expect(votes.reset.mock.calls[0]![3]).toBe(votes.reset.mock.calls[1]![3]);
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        123,
+        deliveryPending
+          ? expect.stringContaining('delivery is pending')
+          : expect.stringContaining('reset and reopened'),
+      );
+    },
+  );
+
+  it('does not reset the replacement from a stale confirmation', async () => {
+    const { service, tx, votes, bot } = setup();
+    tx.momentVoteRound.findUnique.mockResolvedValue(null);
+    await service.handleCallback('user', {
+      id: 'stale-confirm',
+      from: { id: 123 },
+      message: { message_id: 11, chat: { id: 123, type: 'private' } },
+      data: `gv:r:${roundId}`,
+    });
+    expect(votes.reset).not.toHaveBeenCalled();
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      expect.stringContaining('expired'),
+    );
+  });
+
+  it('recovers an already-committed reset from its audit after the old round was deleted', async () => {
+    const { service, tx, votes, bot } = setup();
+    tx.momentVoteRound.findUnique.mockResolvedValue(null);
+    tx.telegramGroupAudit.findUnique.mockResolvedValue({
+      action: 'VOTE_RESET',
+      workspaceId,
+    } as never);
+    await service.handleCallback('user', {
+      id: 'retry-confirm',
+      from: { id: 123 },
+      message: { message_id: 11, chat: { id: 123, type: 'private' } },
+      data: `gv:r:${roundId}`,
+    });
+    expect(votes.reset).toHaveBeenCalledWith(
+      'user',
+      workspaceId,
+      roundId,
+      `tg_reset_${roundId.replaceAll('-', '')}_11`,
+    );
+    expect(bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      expect.stringContaining('reset and reopened'),
+    );
+  });
+
+  it('cancels the reset without clearing ballots', async () => {
+    const { service, votes, bot } = setup();
+    await service.handleCallback('user', {
+      id: 'cancel-reset',
+      from: { id: 123 },
+      message: { message_id: 11, chat: { id: 123, type: 'private' } },
+      data: 'gv:cancel',
+    });
+    expect(votes.reset).not.toHaveBeenCalled();
+    expect(bot.answerCallback).toHaveBeenCalledWith(
+      'cancel-reset',
+      'Reset cancelled.',
+    );
   });
 
   it('ends only the selected round and publishes results without changing the schedule', async () => {

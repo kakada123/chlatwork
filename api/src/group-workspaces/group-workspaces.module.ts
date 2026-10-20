@@ -28,6 +28,7 @@ import { TelegramBotClient } from '../telegram-bot/telegram-bot.client';
     GroupPollMediaService,
     GroupAccessModule,
     DailyMomentVoteScheduler,
+    GroupVoteService,
   ],
 })
 export class GroupWorkspacesModule {}
