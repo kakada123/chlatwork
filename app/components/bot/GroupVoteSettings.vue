@@ -124,7 +124,21 @@ async function upload(event: Event, optionId?: string) {
     busy.value = false;
   }
 }
+function resetUnavailableReason() {
+  const round = props.group.poll?.currentRound;
+  if (!round)
+    return "No voting round is open. Start one with /startvote in the bot’s private chat.";
+  if (!(Date.parse(round.closesAt) > Date.now()))
+    return "This round has closed. Only an open round’s votes can be reset.";
+  return "";
+}
 async function reset() {
+  if (state.value !== "ready") return;
+  const reason = resetUnavailableReason();
+  if (reason) {
+    error.value = reason;
+    return;
+  }
   const round = props.group.poll?.currentRound;
   if (
     !round ||
@@ -272,17 +286,24 @@ async function reset() {
       >
         {{ busy ? "Saving…" : "Save voting" }}</button
       ><button
-        v-if="
-          group.poll?.currentRound &&
-          Date.parse(group.poll.currentRound.closesAt) > Date.now()
-        "
         type="button"
-        :disabled="busy || stale"
+        :disabled="busy || stale || Boolean(resetUnavailableReason())"
+        :aria-describedby="
+          resetUnavailableReason() ? 'vote-reset-unavailable' : undefined
+        "
         class="text-sm text-rose-600 disabled:opacity-50"
         @click="reset"
       >
         Reset today’s votes
       </button>
     </div>
+    <!-- Keep reset discoverable when the server would reject a closed or missing round. -->
+    <p
+      v-if="resetUnavailableReason()"
+      id="vote-reset-unavailable"
+      class="text-sm text-slate-500 dark:text-slate-400"
+    >
+      {{ resetUnavailableReason() }}
+    </p>
   </form>
 </template>

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import * as vue from "vue";
+import { renderToString } from "@vue/server-renderer";
 import { parse, compileScript, compileTemplate } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 
@@ -283,3 +284,62 @@ test("an upload keeps its original workspace and cannot emit into a replacement 
   assert.equal(calls[0][0].workspaceVersion, 3);
   assert.deepEqual(emitted, []);
 });
+
+for (const roundState of ["open", "closed", "missing"] as const) {
+  test(`vote reset stays visible with an explanation when the round is ${roundState}`, async () => {
+    const filename = "app/components/bot/GroupVoteSettings.vue";
+    const { descriptor } = parse(source(filename), { filename });
+    const script = compileScript(descriptor, {
+      id: filename,
+      inlineTemplate: true,
+    });
+    const component = runModule(
+      script.content,
+      { vue, "~/services/group-workspaces.service": { groupApi: {} } },
+      {
+        ...vue,
+        useBotSession: () => ({ state: vue.ref("ready"), epoch: vue.ref(1) }),
+      },
+    ).default;
+    const group = {
+      workspaceId: "A",
+      workspaceVersion: 1,
+      bot: "CHLATWORK",
+      title: "Lunch",
+      poll: {
+        question: "Lunch?",
+        options: [{ id: "option-1", label: "Rice" }],
+        schedule: null,
+        currentRound:
+          roundState === "missing"
+            ? null
+            : {
+                id: "round-1",
+                closesAt: new Date(
+                  Date.now() + (roundState === "open" ? 60_000 : -60_000),
+                ).toISOString(),
+              },
+      },
+    };
+
+    const html = await renderToString(vue.createSSRApp(component, { group }));
+    const resetButton = html.match(
+      /<button\b[^>]*>\s*Reset today’s votes\s*<\/button>/,
+    )?.[0];
+    assert.ok(
+      resetButton,
+      "Reset must remain discoverable even without an open round",
+    );
+    if (roundState === "open") {
+      assert.doesNotMatch(resetButton, /\sdisabled(?:[=\s>])/);
+    } else {
+      assert.match(resetButton, /\sdisabled(?:[=\s>])/);
+      assert.match(
+        html,
+        roundState === "closed"
+          ? /This round has closed/
+          : /No voting round is open/,
+      );
+    }
+  });
+}
