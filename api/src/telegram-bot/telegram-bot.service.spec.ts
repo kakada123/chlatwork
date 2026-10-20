@@ -550,6 +550,78 @@ describe('Telegram group vote updates', () => {
     );
   });
 
+  it.each(['vote', 'cast', 'legacy'])(
+    'accepts a member voting on a bot-authored workspace poll (%s)',
+    async (action) => {
+      const { service, bot, callback, poll, moments } = setup();
+      const roundId = '00000000-0000-4000-8000-000000000004';
+      Object.assign(poll, { groupWorkspaceId: 'workspace', roundId });
+      moments.getTelegramVoteRound.mockResolvedValue({
+        id: roundId, momentId: poll.id, telegramChatId: BigInt(chat.id),
+      });
+      const message = {
+        message_id: 10, chat,
+        from: { id: 999, is_bot: true, first_name: 'ChlatWork' },
+      };
+
+      await service.handleUpdate({
+        update_id: 1,
+        callback_query: action === 'legacy'
+          ? { ...callback, message: { ...message, message_id: 11, reply_to_message: message } }
+          : {
+            ...callback,
+            data: `poll:${action}:${action === 'cast' ? roundId : poll.id}:option-1`,
+            message,
+          },
+      });
+
+      expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'Vote saved.');
+      expect(moments.respondToTelegramVote).toHaveBeenCalledWith(
+        poll.id, 'option-1',
+        expect.objectContaining({ telegramUserId: '123', displayName: 'Sokha' }),
+        ...(action === 'cast' ? [roundId] : []),
+      );
+      expect(bot.sendMessage).toHaveBeenCalledWith(
+        chat.id, expect.any(String), expect.anything(), expect.anything(),
+      );
+      expect(bot.deleteMessage).toHaveBeenCalledWith(chat.id, 10);
+    },
+  );
+
+  it.each(['private', 'inline', 'another-group'])(
+    'rejects a workspace poll callback from %s',
+    async (source) => {
+      const { service, bot, callback, poll, moments } = setup();
+      const roundId = '00000000-0000-4000-8000-000000000004';
+      Object.assign(poll, { groupWorkspaceId: 'workspace', roundId });
+      moments.getTelegramVoteRound.mockResolvedValue({
+        id: roundId, momentId: poll.id, telegramChatId: BigInt(chat.id),
+      });
+
+      await service.handleUpdate({
+        update_id: 1,
+        callback_query: {
+          ...callback,
+          data: source === 'another-group'
+            ? `poll:cast:${roundId}:option-1`
+            : `poll:vote:${poll.id}:option-1`,
+          message: source === 'inline' ? undefined : {
+            message_id: 10,
+            chat: source === 'private'
+              ? { id: 123, type: 'private' }
+              : { ...chat, id: chat.id - 1 },
+            from: { id: 999, is_bot: true, first_name: 'ChlatWork' },
+          },
+          ...(source === 'inline' ? { inline_message_id: 'inline-1' } : {}),
+        },
+      });
+
+      expect(bot.answerCallback).toHaveBeenCalledWith(callback.id, 'This poll is unavailable.');
+      expect(moments.respondToTelegramVote).not.toHaveBeenCalled();
+      expect(bot.sendMessage).not.toHaveBeenCalled();
+    },
+  );
+
   it('does not accept another group member pressing a confirmation button', async () => {
     const { service, bot, callback, moments } = setup();
     await service.handleUpdate({

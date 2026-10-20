@@ -1270,9 +1270,10 @@ export class TelegramBotService {
       const currentPoll = await this.moments.getTelegramVotingMoment(
         round?.momentId ?? momentId,
       );
+      // Polls are posted by the bot; validate the person pressing the button.
       if (
         currentPoll.groupWorkspaceId &&
-        (!pollMessage || !this.isGroupMessage(pollMessage))
+        (!pollMessage || !this.isGroupCallback(callback, pollMessage))
       )
         throw new NotFoundException('Poll unavailable.');
       if (
