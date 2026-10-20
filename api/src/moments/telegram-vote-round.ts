@@ -1,10 +1,11 @@
 import type { Prisma } from '@prisma/client';
 
-// One date and one roster are shared by manual starts and daily scheduling.
+// One date and one roster are shared by manual starts, resets and daily scheduling.
 export async function ensureTelegramVoteRound(
   tx: Prisma.TransactionClient,
   momentId: string,
   now: Date,
+  manual = false,
 ) {
   // Share the poll lock with option edits so a new round uses one settled choice list.
   await tx.$queryRaw`
@@ -20,7 +21,7 @@ export async function ensureTelegramVoteRound(
           AT TIME ZONE schedule.time_zone), moment.expires_at)
     FROM moment_vote_schedules schedule
     JOIN moments moment ON moment.id = schedule.moment_id
-    WHERE schedule.moment_id = ${momentId}::uuid AND schedule.enabled = TRUE
+    WHERE schedule.moment_id = ${momentId}::uuid AND (schedule.enabled = TRUE OR ${manual})
     ON CONFLICT (moment_id, vote_date) DO NOTHING
     RETURNING id, telegram_chat_id
     )

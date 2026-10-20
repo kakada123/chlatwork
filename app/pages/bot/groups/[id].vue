@@ -20,6 +20,7 @@ const directory = shallowRef<Awaited<ReturnType<typeof groupApi.khqr>> | null>(
 );
 const loading = ref(false);
 const error = ref("");
+const voteNotice = ref("");
 let request = 0;
 const current = (version: number, session: number, id: string) =>
   version === request &&
@@ -73,9 +74,20 @@ function denied() {
   erase();
   error.value = "Group access changed. Refresh to verify your permissions.";
 }
-watch([() => route.params.id, state, bot, epoch], () => load(), {
-  immediate: true,
-});
+function voteChanged(notice?: string) {
+  voteNotice.value = notice ?? "";
+  void load();
+}
+watch(
+  [() => route.params.id, state, bot, epoch],
+  () => {
+    voteNotice.value = "";
+    void load();
+  },
+  {
+    immediate: true,
+  },
+);
 onBeforeUnmount(() => {
   request++;
   erase();
@@ -98,6 +110,13 @@ onBeforeUnmount(() => {
       </div>
       <p v-if="loading" role="status">Loading group settings…</p>
       <p v-if="error" role="alert" class="text-rose-600">{{ error }}</p>
+      <p
+        v-if="voteNotice"
+        role="status"
+        class="text-sm text-violet-600 dark:text-violet-300"
+      >
+        {{ voteNotice }}
+      </p>
       <template v-if="group"
         ><BotGroupOverview :group="group" /><BotGroupFeatureSettings
           :key="`${group.workspaceId}:${group.workspaceVersion}:features`"
@@ -107,7 +126,7 @@ onBeforeUnmount(() => {
           v-if="bot === 'CHLATWORK'"
           :key="`${group.workspaceId}:${group.workspaceVersion}:vote`"
           :group="group"
-          @changed="load()"
+          @changed="voteChanged"
           @denied="denied" /><BotGroupKhqrDirectory
           v-if="directory && bot === 'CHLATWORK'"
           :directory="directory" /><BotGroupActivity

@@ -9,7 +9,7 @@ let active = true;
 onBeforeUnmount(() => {
   active = false;
 });
-const emit = defineEmits<{ changed: []; denied: [] }>();
+const emit = defineEmits<{ changed: [notice?: string]; denied: [] }>();
 const { epoch, state } = useBotSession();
 const form = reactive<VoteInput>({
   expectedVersion: props.group.workspaceVersion,
@@ -128,8 +128,14 @@ function resetUnavailableReason() {
   const round = props.group.poll?.currentRound;
   if (!round)
     return "No voting round is open. Start one with /startvote in the bot’s private chat.";
-  if (!(Date.parse(round.closesAt) > Date.now()))
-    return "This round has closed. Only an open round’s votes can be reset.";
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: props.group.poll?.schedule?.timeZone ?? "Asia/Phnom_Penh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  if (round.voteDate?.slice(0, 10) !== today)
+    return "This is an earlier day’s vote. Start today’s vote with /startvote in the bot’s private chat.";
   return "";
 }
 async function reset() {
@@ -145,21 +151,27 @@ async function reset() {
     busy.value ||
     stale.value ||
     !window.confirm(
-      `Reset today’s votes in ${props.group.title}? This clears today’s ballots only.`,
+      `Clear today’s votes and reopen voting in ${props.group.title} with a fresh timer? This cannot be undone.`,
     )
   )
     return;
   const session = epoch.value;
   const group = { ...props.group };
   busy.value = true;
+  error.value = "";
   try {
-    await groupApi.reset(group, round.id, crypto.randomUUID());
+    const result = await groupApi.reset(group, round.id, crypto.randomUUID());
     if (
       active &&
       session === epoch.value &&
       props.group.workspaceId === group.workspaceId
     )
-      emit("changed");
+      emit(
+        "changed",
+        result.deliveryPending
+          ? "Votes reset and voting reopened. Telegram delivery is pending; the bot will retry automatically."
+          : "Votes reset and voting reopened with a fresh timer.",
+      );
   } catch (cause) {
     if (active && session === epoch.value) failed(cause);
   } finally {
@@ -294,10 +306,17 @@ async function reset() {
         class="text-sm text-rose-600 disabled:opacity-50"
         @click="reset"
       >
-        Reset today’s votes
+        Reset &amp; reopen voting
       </button>
     </div>
-    <!-- Keep reset discoverable when the server would reject a closed or missing round. -->
+    <p
+      v-if="!resetUnavailableReason()"
+      class="text-sm text-slate-500 dark:text-slate-400"
+    >
+      Clears today’s votes and starts a fresh timer. You can reset and reopen
+      multiple times a day.
+    </p>
+    <!-- Only today's round can be reset; earlier days remain in history. -->
     <p
       v-if="resetUnavailableReason()"
       id="vote-reset-unavailable"

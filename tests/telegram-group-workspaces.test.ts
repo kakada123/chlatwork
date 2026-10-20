@@ -285,8 +285,13 @@ test("an upload keeps its original workspace and cannot emit into a replacement 
   assert.deepEqual(emitted, []);
 });
 
-for (const roundState of ["open", "closed", "missing"] as const) {
-  test(`vote reset stays visible with an explanation when the round is ${roundState}`, async () => {
+for (const roundState of [
+  "open",
+  "closed",
+  "missing",
+  "earlier-day",
+] as const) {
+  test(`reset and reopen is available only for today's round (${roundState})`, async () => {
     const filename = "app/components/bot/GroupVoteSettings.vue";
     const { descriptor } = parse(source(filename), { filename });
     const script = compileScript(descriptor, {
@@ -309,12 +314,21 @@ for (const roundState of ["open", "closed", "missing"] as const) {
       poll: {
         question: "Lunch?",
         options: [{ id: "option-1", label: "Rice" }],
-        schedule: null,
+        schedule: { timeZone: "Asia/Phnom_Penh", durationMinutes: 30 },
         currentRound:
           roundState === "missing"
             ? null
             : {
                 id: "round-1",
+                voteDate:
+                  roundState === "earlier-day"
+                    ? "2020-01-01"
+                    : new Intl.DateTimeFormat("en-CA", {
+                        timeZone: "Asia/Phnom_Penh",
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      }).format(new Date()),
                 closesAt: new Date(
                   Date.now() + (roundState === "open" ? 60_000 : -60_000),
                 ).toISOString(),
@@ -324,22 +338,88 @@ for (const roundState of ["open", "closed", "missing"] as const) {
 
     const html = await renderToString(vue.createSSRApp(component, { group }));
     const resetButton = html.match(
-      /<button\b[^>]*>\s*Reset today’s votes\s*<\/button>/,
+      /<button\b[^>]*>\s*Reset &amp; reopen voting\s*<\/button>/,
     )?.[0];
     assert.ok(
       resetButton,
       "Reset must remain discoverable even without an open round",
     );
-    if (roundState === "open") {
+    if (roundState === "open" || roundState === "closed") {
       assert.doesNotMatch(resetButton, /\sdisabled(?:[=\s>])/);
     } else {
       assert.match(resetButton, /\sdisabled(?:[=\s>])/);
       assert.match(
         html,
-        roundState === "closed"
-          ? /This round has closed/
+        roundState === "earlier-day"
+          ? /earlier day/
           : /No voting round is open/,
       );
     }
   });
 }
+
+test("reopening a closed vote requires confirmation and refreshes the group after success", async () => {
+  const filename = "app/components/bot/GroupVoteSettings.vue";
+  const { descriptor } = parse(source(filename), { filename });
+  const script = compileScript(descriptor, { id: filename });
+  const calls: any[] = [];
+  const emitted: any[] = [];
+  let confirmed = false;
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Phnom_Penh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const props = {
+    group: {
+      workspaceId: "A",
+      workspaceVersion: 1,
+      bot: "CHLATWORK",
+      title: "Lunch",
+      poll: {
+        question: "Lunch?",
+        options: [],
+        schedule: { timeZone: "Asia/Phnom_Penh" },
+        currentRound: {
+          id: "closed-round",
+          voteDate: today,
+          closesAt: "2020-01-01T00:00:00Z",
+        },
+      },
+    },
+  };
+  const state = runModule(
+    script.content,
+    {
+      vue,
+      "~/services/group-workspaces.service": {
+        groupApi: {
+          reset: async (...args: any[]) => {
+            calls.push(args);
+            return { updated: true, deliveryPending: true };
+          },
+        },
+      },
+    },
+    {
+      ...vue,
+      useBotSession: () => ({ state: vue.ref("ready"), epoch: vue.ref(1) }),
+      onBeforeUnmount() {},
+      window: { confirm: () => confirmed },
+    },
+  ).default.setup(props, {
+    expose() {},
+    emit: (...args: any[]) => emitted.push(args),
+  });
+
+  await state.reset();
+  assert.deepEqual(calls, []);
+  confirmed = true;
+  await state.reset();
+  assert.equal(calls[0][0].workspaceId, "A");
+  assert.equal(calls[0][1], "closed-round");
+  assert.match(calls[0][2], /^[0-9a-f-]{36}$/);
+  assert.equal(emitted[0][0], "changed");
+  assert.match(emitted[0][1], /delivery is pending/);
+});

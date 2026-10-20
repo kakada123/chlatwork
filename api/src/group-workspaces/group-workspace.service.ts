@@ -98,7 +98,7 @@ export class GroupWorkspaceService {
                 where: { telegramChatId: BigInt(context.chatId) },
                 orderBy: { voteDate: 'desc' },
                 take: 1,
-                select: { id: true, closesAt: true },
+                select: { id: true, closesAt: true, voteDate: true },
               },
             },
           })

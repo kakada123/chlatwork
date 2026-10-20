@@ -34,6 +34,7 @@ export async function auditMutation(
   action: string,
   key: string,
   input: unknown,
+  result?: Prisma.InputJsonObject,
 ) {
   await tx.telegramGroupWorkspace.update({
     where: { id: workspaceId },
@@ -50,6 +51,7 @@ export async function auditMutation(
         fingerprint: createHash('sha256')
           .update(JSON.stringify(input))
           .digest('hex'),
+        ...(result ? { result } : {}),
       },
     },
   });

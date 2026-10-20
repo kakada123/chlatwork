@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { MomentBlockType, Prisma } from '@prisma/client';
@@ -12,6 +14,9 @@ import {
   type PollChoice,
 } from '../moments/moment-poll-editor';
 import { GroupAccessService } from './group-access.service';
+import { GroupFeaturePolicy } from './group-feature-policy';
+import { DailyMomentVoteScheduler } from '../telegram-bot/daily-moment-vote.scheduler';
+import { ensureTelegramVoteRound } from '../moments/telegram-vote-round';
 import type { GroupVoteInput } from './group-workspaces.dto';
 import {
   auditMutation,
@@ -22,9 +27,13 @@ import {
 
 @Injectable()
 export class GroupVoteService {
+  private readonly logger = new Logger(GroupVoteService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly groups: GroupAccessService,
+    private readonly scheduler: DailyMomentVoteScheduler,
+    private readonly policy: GroupFeaturePolicy,
   ) {}
 
   async save(
@@ -151,26 +160,100 @@ export class GroupVoteService {
     key: string,
   ) {
     const context = await this.groups.manager(userId, workspaceId, 'CHLATWORK');
+    await this.policy.assertEnabled(context, 'voting');
     const operation = operationKey(userId, key);
-    return this.prisma.$transaction(async (tx) => {
+    const now = new Date();
+    const replacement = await this.prisma.$transaction(async (tx) => {
       await this.groups.lockManager(tx, userId, 'CHLATWORK');
       await tx.$queryRaw`SELECT id FROM telegram_group_workspaces WHERE id=${workspaceId}::uuid FOR UPDATE`;
-      if (await replay(tx, operation, workspaceId, 'VOTE_RESET', { roundId }))
-        return { updated: true };
+      if (await replay(tx, operation, workspaceId, 'VOTE_RESET', { roundId })) {
+        const audit = await tx.telegramGroupAudit.findUniqueOrThrow({
+          where: { operationKey: operation },
+        });
+        // A delivery retry must reuse the replacement, never clear its new ballots.
+        return (
+          (
+            audit.details as {
+              result?: {
+                roundId: string;
+                oldMessageId: number | null;
+                oldChatId: string;
+              };
+            }
+          ).result ?? null
+        );
+      }
       await lockGroup(tx, workspaceId, context.workspaceVersion);
+      // Bot removal updates connection health independently of the workspace version.
+      await tx.$queryRaw`SELECT workspace_id FROM telegram_group_connections WHERE workspace_id=${workspaceId}::uuid AND bot='CHLATWORK' FOR UPDATE`;
+      const connection = await tx.telegramGroupConnection.findUnique({
+        where: { workspaceId_bot: { workspaceId, bot: 'CHLATWORK' } },
+      });
+      if (
+        !connection?.enabled ||
+        connection.health !== 'CONNECTED' ||
+        !connection.voting ||
+        connection.version !== context.connectionVersion
+      )
+        throw new ForbiddenException('Group voting is unavailable.');
+      const moment = await tx.moment.findUnique({
+        where: { groupWorkspaceId: workspaceId },
+        include: { voteSchedule: true },
+      });
+      const schedule = moment?.voteSchedule;
+      if (
+        !moment ||
+        !schedule ||
+        moment.status !== 'PUBLISHED' ||
+        moment.occasion !== 'VOTING' ||
+        (moment.expiresAt && moment.expiresAt <= now) ||
+        (moment.publishAt && moment.publishAt > now) ||
+        schedule.telegramChatId !== BigInt(context.chatId)
+      )
+        throw new BadRequestException(
+          'Configure an available group poll first.',
+        );
+      const today = new Intl.DateTimeFormat('en-CA', {
+        timeZone: schedule.timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(now);
+      // Vote writes and resets share the poll lock; the old round ID is invalidated atomically.
+      await tx.$queryRaw`SELECT id FROM moments WHERE id=${moment.id}::uuid FOR UPDATE`;
+      await tx.$queryRaw`SELECT id FROM moment_vote_rounds WHERE id=${roundId}::uuid FOR UPDATE`;
       const round = await tx.momentVoteRound.findFirst({
         where: {
           id: roundId,
-          moment: { groupWorkspaceId: workspaceId },
+          momentId: moment.id,
           telegramChatId: { in: await this.aliases(tx, workspaceId) },
         },
       });
-      if (!round || round.closesAt <= new Date())
-        throw new NotFoundException('Current group round not found.');
-      await tx.$queryRaw`SELECT id FROM moments WHERE id=${round.momentId}::uuid FOR UPDATE`;
+      if (!round || round.voteDate.toISOString().slice(0, 10) !== today)
+        throw new NotFoundException(
+          'Today’s group round changed. Refresh before resetting.',
+        );
       await tx.momentVote.deleteMany({
         where: { momentId: round.momentId, voteDate: round.voteDate },
       });
+      // Existing bill splits retain their amounts and participants via ON DELETE SET NULL.
+      await tx.momentVoteRound.delete({ where: { id: round.id } });
+      // Manual reset works even when daily sending is paused, without enabling the schedule.
+      await ensureTelegramVoteRound(tx, moment.id, now, true);
+      const reopened = await tx.momentVoteRound.findUniqueOrThrow({
+        where: {
+          momentId_voteDate: { momentId: moment.id, voteDate: round.voteDate },
+        },
+      });
+      await tx.momentVoteSchedule.update({
+        where: { id: schedule.id },
+        data: { lastAttemptDate: round.voteDate, lastSentAt: null },
+      });
+      const result = {
+        roundId: reopened.id,
+        oldMessageId: round.messageId,
+        oldChatId: String(round.telegramChatId),
+      };
       await auditMutation(
         tx,
         workspaceId,
@@ -179,9 +262,30 @@ export class GroupVoteService {
         'VOTE_RESET',
         operation,
         { roundId },
+        result,
       );
-      return { updated: true };
+      return result;
     });
+    if (!replacement) return { updated: true, deliveryPending: false };
+    try {
+      await this.scheduler.refreshRound(replacement.roundId, now);
+    } catch {
+      // The persisted round has no message ID, so the minute worker can recover delivery.
+      this.logger.warn(
+        'Reset voting round is open; Telegram delivery will be retried',
+      );
+      return { updated: true, deliveryPending: true };
+    }
+    if (replacement.oldMessageId !== null) {
+      await this.groups
+        .client('CHLATWORK')
+        .deleteMessage(Number(replacement.oldChatId), replacement.oldMessageId)
+        .catch(() => {
+          // An old message cannot accept ballots; deletion failure must not repeat the reset.
+          this.logger.warn('A replaced voting message could not be removed');
+        });
+    }
+    return { updated: true, deliveryPending: false };
   }
 
   async aliases(tx: Prisma.TransactionClient, workspaceId: string) {

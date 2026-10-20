@@ -51,7 +51,7 @@ export interface GroupDetails extends GroupSummary {
       VoteInput,
       "expectedVersion" | "question" | "options"
     > | null;
-    currentRound: { id: string; closesAt: string } | null;
+    currentRound: { id: string; closesAt: string; voteDate: string } | null;
   };
 }
 const headers = { "X-Group-Workspace": "1" };
@@ -109,11 +109,15 @@ export const groupApi = {
     );
   },
   reset: (group: GroupSummary, expectedRoundId: string, key: string) =>
-    groupRequest(`${group.workspaceId}/vote/reset`, group.bot, {
-      method: "POST",
-      body: { expectedRoundId },
-      headers: { "Idempotency-Key": key },
-    }),
+    groupRequest<{ updated: boolean; deliveryPending: boolean }>(
+      `${group.workspaceId}/vote/reset`,
+      group.bot,
+      {
+        method: "POST",
+        body: { expectedRoundId },
+        headers: { "Idempotency-Key": key },
+      },
+    ),
   activity: (id: string, bot: BotKind, page = 1) =>
     groupRequest<{
       items: {
