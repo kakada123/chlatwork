@@ -106,6 +106,18 @@
     </div>
 
     <div class="grid min-w-0 grid-cols-1 items-start gap-4">
+      <ExpenseEntryHistory
+        v-model:date="entryDate"
+        :rows="rows"
+        :currency="currency"
+        :searched-date="searchedDate"
+        :loading="loadingEntries || !ready"
+        :busy="entryBusy"
+        :error="entrySearchError"
+        @search="searchEntries()"
+        @edit="openEditor"
+      />
+
       <section
         class="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#101214] sm:p-5"
         aria-label="Expense summary dashboard"
@@ -139,17 +151,6 @@
       </section>
 
       <div class="min-w-0 space-y-3">
-        <ExpenseEntryHistory
-          v-model:date="entryDate"
-          :rows="rows"
-          :currency="currency"
-          :searched-date="searchedDate"
-          :loading="loadingEntries"
-          :busy="entryBusy"
-          :error="entrySearchError"
-          @search="searchEntries()"
-          @edit="openEditor"
-        />
         <AuthResultAuthGate
           v-if="!signedIn && isAuthReady"
           @login="storeGuestDraft"

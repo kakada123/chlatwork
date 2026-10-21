@@ -356,7 +356,11 @@ export function useExpenseDashboard(signedIn: Ref<boolean>) {
     savedProfile = JSON.stringify(profileBody());
     await nextTick();
     ready.value = true;
-    if (!example) await refreshSummary();
+    // Show the selected day's read-only entries immediately; opening the page must not hide saved records behind Search.
+    await Promise.all([
+      searchEntries(),
+      !example ? refreshSummary() : Promise.resolve(),
+    ]);
   }
 
   async function appendRows(entries: ExpenseRow[]) {

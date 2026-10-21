@@ -84,20 +84,20 @@ test("day search results render read-only text with Edit buttons", async () => {
   assert.doesNotMatch(html, /Hidden note|<input|<textarea|<select/);
 });
 
-test("entry history stays empty until a day search is submitted", async () => {
+test("saved entries show a loading state while the selected day is loading", async () => {
   const app = createSSRApp(History, {
     currency: "USD",
     rows: [savedEntry],
     date: "2026-10-01",
     searchedDate: null,
-    loading: false,
+    loading: true,
     busy: false,
     error: "",
   });
   app.component("ModernDateInput", () => h("span", "Date picker"));
   app.component("MoneyAmount", () => h("span"));
   const html = await renderToString(app);
-  assert.match(html, /Search a day to see its entries/);
+  assert.match(html, /Loading entries…/);
   assert.doesNotMatch(html, /Lunch|Edit Food entry/);
 });
 

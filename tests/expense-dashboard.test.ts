@@ -48,10 +48,15 @@ function mountDashboard(
   return { dashboard, unmount: () => app.unmount() };
 }
 
-test("opening the dashboard loads totals but no entry history or writes", async () => {
+test("opening the dashboard displays the selected day without fetching full history or writing", async () => {
   const calls: string[] = [];
-  const { dashboard, unmount } = mountDashboard(async (path) => {
+  const { dashboard, unmount } = mountDashboard(async (path, options) => {
     calls.push(path);
+    assert.equal(options?.method, undefined);
+    if (path.endsWith("entries")) {
+      assert.deepEqual(options.query, { from: "2026-10-01", to: "2026-10-01" });
+      return [{ ...entry }];
+    }
     if (path.endsWith("profile"))
       return {
         currency: "USD",
@@ -62,10 +67,16 @@ test("opening the dashboard loads totals but no entry history or writes", async 
     throw new Error("Unexpected history request or write");
   });
   try {
+    dashboard.entryDate.value = "2026-10-01";
     await dashboard.initialize();
-    assert.deepEqual(calls, ["/api/expenses/profile", "/api/expenses/summary"]);
+    assert.deepEqual(calls, [
+      "/api/expenses/profile",
+      "/api/expenses/summary",
+      "/api/expenses/entries",
+    ]);
     assert.equal(dashboard.hasAppliedFilter.value, false);
-    assert.deepEqual(dashboard.rows.value, []);
+    assert.equal(dashboard.rows.value[0].id, entry.id);
+    assert.equal(dashboard.searchedDate.value, "2026-10-01");
     assert.equal(dashboard.summary.value?.totalSpent, 5);
   } finally {
     unmount();
@@ -86,11 +97,12 @@ test("dashboard range filters update totals without loading entry history", asyn
   });
   try {
     await dashboard.initialize();
+    ranges.length = 0;
     dashboard.dateFrom.value = "2026-10-01";
     dashboard.dateTo.value = "2026-10-21";
     await dashboard.applyFilter();
     assert.equal(dashboard.hasAppliedFilter.value, true);
-    assert.deepEqual(dashboard.rows.value, []);
+    assert.equal(dashboard.rows.value[0].id, entry.id);
     assert.deepEqual(ranges, []);
     dashboard.dateTo.value = "2026-10-31";
     await dashboard.applyFilter();
@@ -107,6 +119,7 @@ test("new expense saves only itself without revealing history", async () => {
       writes.push({ path, ...options });
       return { rows: [entry] };
     }
+    if (path.endsWith("entries")) return [];
     if (path.endsWith("summary")) return totals;
     return { currency: "USD", rows: [] };
   });
@@ -206,6 +219,7 @@ test("searching a specific day requests only that day and keeps the dashboard ra
   try {
     await dashboard.initialize();
     const range = { ...dashboard.activeRange.value };
+    reads.length = 0;
     await dashboard.searchEntries("2026-10-01");
     assert.deepEqual(reads, [{ from: "2026-10-01", to: "2026-10-01" }]);
     assert.equal(dashboard.searchedDate.value, "2026-10-01");

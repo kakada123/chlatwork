@@ -30,15 +30,16 @@ function amountValue(row: ExpenseRow) {
 
 <template>
   <section
+    id="expense-entries"
     class="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#101214] sm:p-6"
     aria-label="Search expense entries by day"
     :aria-busy="loading"
   >
     <h2 class="text-lg font-black text-slate-950 dark:text-white">
-      Find entries by day
+      Saved entries
     </h2>
     <p class="mt-1 text-sm text-slate-500 dark:text-white/55">
-      Choose a specific day to view your entries.
+      Entries for the selected day. Use Edit to make changes.
     </p>
     <form class="mt-4" @submit.prevent="emit('search')">
       <fieldset
@@ -65,12 +66,13 @@ function amountValue(row: ExpenseRow) {
       {{ error }}
     </p>
     <p
-      v-if="!searchedDate"
-      class="mt-4 rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500 dark:border-white/15 dark:text-white/55"
+      v-if="loading"
+      role="status"
+      class="mt-4 text-sm text-slate-500 dark:text-white/55"
     >
-      Search a day to see its entries.
+      Loading entries…
     </p>
-    <div v-else class="mt-5 space-y-3">
+    <div v-else-if="searchedDate" class="mt-5 space-y-3">
       <p
         role="status"
         class="text-sm font-bold text-slate-600 dark:text-white/65"
