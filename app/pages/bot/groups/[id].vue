@@ -42,9 +42,14 @@ async function load(activityPage = 1, historyPage = 1) {
   error.value = "";
   if (state.value !== "ready") return;
   loading.value = true;
+  let failed = false;
   try {
     const [details, list, events, qr, rounds] = await Promise.all([
-      groupApi.details(id, bot.value),
+      groupApi.details(id, bot.value).then((details) => {
+        // The verified group can render before the switcher and activity finish.
+        if (!failed && current(version, session, id)) group.value = details;
+        return details;
+      }),
       groupApi.list(bot.value),
       groupApi.activity(id, bot.value, activityPage),
       groupApi.khqr(id, bot.value),
@@ -59,6 +64,8 @@ async function load(activityPage = 1, historyPage = 1) {
     directory.value = qr;
     history.value = rounds;
   } catch (cause: any) {
+    // A late details response must not restore a group after another check failed.
+    failed = true;
     if (current(version, session, id)) {
       erase();
       error.value =

@@ -13,9 +13,11 @@ useSeoMeta({
   robots: "noindex, nofollow",
 });
 
-const { data, pending, error } = await useFetch<FeatureRow[]>(
+const { data, status, error } = await useFetch<FeatureRow[]>(
   "/api/feature-availability/admin",
+  { lazy: true },
 );
+const pending = computed(() => ["idle", "pending"].includes(status.value));
 const { refresh: refreshPublic } = useFeatureAvailability();
 const draft = reactive<Record<string, boolean>>({});
 const saving = ref<string | null>(null);
@@ -64,7 +66,7 @@ async function save(row: FeatureRow) {
         ? { ...item, enabled: saved.enabled, updatedAt: saved.updatedAt }
         : item,
     );
-    await refreshPublic().catch(() => undefined);
+    await refreshPublic({ force: true }).catch(() => undefined);
     message.value = `${row.label} availability saved.`;
   } catch {
     // Roll back the optimistic switch so the UI still reflects persisted state.

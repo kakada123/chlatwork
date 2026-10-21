@@ -11,11 +11,14 @@ type Member = {
 
 type Group = { chatId: string; title: string; memberCount: number };
 type GroupRoster = { chatId: string; members: Member[] };
-const { data: groups, error: groupsError, refresh: refreshGroups } = await useFetch<Group[]>("/api/admin/member-khqr/groups");
+// Keep this secondary panel out of the dashboard's server-rendering waterfall.
+const { data: groups, status: groupsStatus, error: groupsError, refresh: refreshGroups } = await useFetch<Group[]>("/api/admin/member-khqr/groups", { server: false, lazy: true });
 const selectedChatId = ref(groups.value?.[0]?.chatId ?? "");
 const { data: roster, status, error, refresh } = await useFetch<GroupRoster>("/api/admin/member-khqr", {
   query: computed(() => ({ chatId: selectedChatId.value })),
-  immediate: Boolean(selectedChatId.value),
+  server: false,
+  lazy: true,
+  immediate: false,
   watch: false,
 });
 // Never show an earlier group's response while a new selection is loading.
@@ -101,15 +104,22 @@ watch(selectedChatId, (chatId) => {
   feedback.value = "";
   uploadError.value = "";
   if (chatId) void refresh();
+}, { immediate: true });
+
+watch(groups, (available) => {
+  if (!available?.some((group) => group.chatId === selectedChatId.value)) {
+    selectedChatId.value = available?.[0]?.chatId ?? "";
+  }
 });
 
 async function reload() {
   // A temporary image request failure must not hide the preview after refresh.
   failedImages.value = {};
+  const previousChatId = selectedChatId.value;
   await refreshGroups();
-  if (!groups.value?.some((group) => group.chatId === selectedChatId.value)) {
-    selectedChatId.value = groups.value?.[0]?.chatId ?? "";
-  } else if (selectedChatId.value) {
+  // A changed selection already triggers its own roster request through the watcher.
+  await nextTick();
+  if (selectedChatId.value && selectedChatId.value === previousChatId) {
     await refresh();
   }
 }
@@ -138,6 +148,7 @@ onBeforeUnmount(clearSelection);
       </select>
     </label>
     <p v-if="selectedGroup" class="mt-2 text-xs text-slate-500 dark:text-white/50">Group {{ selectedGroup.chatId }}. Only active members observed in this group appear. Missing members can send /joinvote in that group.</p>
+    <p v-else-if="groupsStatus === 'idle' || groupsStatus === 'pending'" role="status" class="mt-3 text-sm text-slate-500 dark:text-white/50">Loading groups…</p>
     <p v-else-if="!groupsError" class="mt-3 text-sm text-slate-500 dark:text-white/50">No groups with known active members yet.</p>
     <p v-if="groupsError" role="alert" class="mt-4 text-sm text-red-600 dark:text-red-300">Telegram groups could not be loaded. Try refreshing.</p>
     <input ref="fileInput" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" class="hidden" aria-label="Member KHQR image" @change="selectFile" />

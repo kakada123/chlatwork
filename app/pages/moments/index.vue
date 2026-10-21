@@ -18,7 +18,7 @@ useSeoMeta({
   robots: "noindex, nofollow",
 });
 const { data, status, error, refresh } =
-  await useFetch<MomentSummary[]>("/api/moments/mine");
+  await useFetch<MomentSummary[]>("/api/moments/mine", { lazy: true });
 const moments = computed(() => data.value ?? []);
 const deletingId = ref("");
 const deleteError = ref("");
@@ -116,7 +116,7 @@ async function resetVotes() {
       {{ deleteError || voteResetError }}
     </p>
 
-    <div v-if="status === 'pending'" class="mt-8 grid gap-4 sm:grid-cols-2">
+    <div v-if="status === 'idle' || status === 'pending'" class="mt-8 grid gap-4 sm:grid-cols-2">
       <div
         v-for="item in 2"
         :key="item"

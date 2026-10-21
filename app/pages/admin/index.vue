@@ -70,10 +70,11 @@ const ranges: Array<{ value: AnalyticsRange; label: string }> = [
 ];
 const { data, status, error, refresh } = await useFetch<AdminAnalytics>("/api/admin/analytics", {
   key: "admin-analytics",
+  lazy: true,
   query: computed(() => ({ range: selectedRange.value })),
 });
 
-const isLoading = computed(() => status.value === "pending");
+const isLoading = computed(() => ["idle", "pending"].includes(status.value));
 const maxDailyOpens = computed(() => Math.max(
   1,
   ...(data.value?.dailyActivity.map((item) => item.opens) ?? []),

@@ -187,15 +187,18 @@ const telegramNotificationSaving = ref(false);
 const telegramNotificationError = ref("");
 const telegramNotificationStatus = ref("");
 let googleLinkRefreshTimer: ReturnType<typeof setInterval> | undefined;
+// Saved Moments load independently so the account profile can render first.
 const {
   data: momentData,
   status: momentsStatus,
   error: momentsError,
 } = await useFetch<MomentSummary[]>("/api/moments/mine", {
   key: "profile-moments",
+  server: false,
+  lazy: true,
 });
 const moments = computed(() => momentData.value ?? []);
-const momentsInitialLoading = computed(() => momentsStatus.value === "pending" && !momentData.value);
+const momentsInitialLoading = computed(() => ["idle", "pending"].includes(momentsStatus.value) && !momentData.value);
 const momentsUnavailable = computed(() => Boolean(momentsError.value) && !momentData.value);
 const savedExpenseCount = computed(() =>
   (expenseState.value?.rows ?? []).filter((row) => (row.type ?? "expense") === "expense").length,

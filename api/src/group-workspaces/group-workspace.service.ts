@@ -59,15 +59,20 @@ export class GroupWorkspaceService {
       take: 20,
       select: { workspaceId: true },
     });
-    const items = [];
-    for (const candidate of candidates) {
-      try {
-        items.push(
-          await this.groups.manager(userId, candidate.workspaceId, bot),
-        );
-      } catch (error) {
-        if (!(error instanceof ForbiddenException)) throw error;
-      }
+    const items: Awaited<ReturnType<GroupAccessService['manager']>>[] = [];
+    // Keep every live permission check, but bound concurrency to avoid Telegram bursts.
+    for (let offset = 0; offset < candidates.length; offset += 4) {
+      const batch = await Promise.all(
+        candidates.slice(offset, offset + 4).map(async (candidate) => {
+          try {
+            return await this.groups.manager(userId, candidate.workspaceId, bot);
+          } catch (error) {
+            if (!(error instanceof ForbiddenException)) throw error;
+            return null;
+          }
+        }),
+      );
+      for (const group of batch) if (group) items.push(group);
     }
     return { items, page, hasMore: candidates.length === 20 };
   }

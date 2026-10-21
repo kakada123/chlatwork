@@ -203,7 +203,7 @@ test("profile does not mutate account data during app resume", () => {
 
   assert.match(account, /Promise\.allSettled\(\[/);
   assert.match(account, /loadExpenseState\(true\)/);
-  assert.match(account, /momentsStatus\.value === "pending" && !momentData\.value/);
+  assert.match(account, /\["idle", "pending"\]\.includes\(momentsStatus\.value\) && !momentData\.value/);
   assert.match(account, /Boolean\(momentsError\.value\) && !momentData\.value/);
   assert.doesNotMatch(account, /addEventListener\("focus"/);
   assert.doesNotMatch(account, /visibilitychange/);
