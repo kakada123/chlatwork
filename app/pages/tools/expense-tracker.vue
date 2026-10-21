@@ -282,6 +282,8 @@
       <ExpenseTrackerSummaryCard
         v-if="ready && (!signedIn || summary)"
         v-model:budget="budget"
+        v-model:income-visible="incomeVisible"
+        v-model:net-balance-visible="netBalanceVisible"
         :currency="currency"
         :range-label="rangeLabel"
         :range-from="activeRange.from"
@@ -304,12 +306,14 @@
             v-model:date="entryDate"
             :rows="rows"
             :currency="currency"
+            :income-visible="incomeVisible"
             :searched-date="searchedDate"
             :loading="loadingEntries || !ready"
             :busy="entryBusy"
             :error="entrySearchError"
             @search="searchEntries()"
             @edit="openEditor"
+            @toggle-income="incomeVisible = !incomeVisible"
           />
         </template>
       </ExpenseTrackerSummaryCard>
@@ -330,12 +334,14 @@
         v-model:date="entryDate"
         :rows="rows"
         :currency="currency"
+        :income-visible="incomeVisible"
         :searched-date="searchedDate"
         :loading="loadingEntries"
         :busy="entryBusy"
         :error="entrySearchError"
         @search="searchEntries()"
         @edit="openEditor"
+        @toggle-income="incomeVisible = !incomeVisible"
       />
     </section>
     <AuthResultAuthGate
@@ -460,6 +466,16 @@ const {
   acceptSavedEntry,
 } = useExpenseDashboard(signedIn);
 const editingEntry = ref<ExpenseRow | null>(null);
+const incomeVisible = ref(false);
+const netBalanceVisible = ref(false);
+// Revealing one period must not automatically reveal another period or currency.
+watch(
+  [() => activeRange.value.from, () => activeRange.value.to, currency],
+  () => {
+    incomeVisible.value = false;
+    netBalanceVisible.value = false;
+  },
+);
 const entryBusy = computed(
   () =>
     !ready.value ||

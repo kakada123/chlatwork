@@ -49,12 +49,14 @@ const { default: SummaryCard } = await import(
 
 async function renderChart(
   categories: { category: string; total: number; percent: number }[],
+  incomeVisible = false,
 ) {
   const app = createSSRApp(SummaryCard, {
     currency: "USD",
     rangeLabel: "2026-10-01 – 2026-10-21",
     itemsCount: categories.length,
     totalIncome: 0,
+    incomeVisible,
     totalSpent: 100,
     netBalance: -100,
     dailyAvg: 5,
@@ -116,7 +118,7 @@ test("empty categories show an empty state without an invalid pie chart", async 
 });
 
 test("the dashboard renders real trend values and zero-filled days with accessible labels", async () => {
-  const html = await renderChart([]);
+  const html = await renderChart([], true);
   assert.match(html, /daily spending trend from 2026-10-01 to 2026-10-03/);
   assert.match(html, /<caption>\s*Spending trend values\s*<\/caption>/);
   assert.match(html, /2026-10-01<\/th><td>\$25.00<\/td><td>\$100.00/);
@@ -287,7 +289,10 @@ test("mobile category expansion reveals every category and collapses without cha
   try {
     app.mount(root);
     const toggle = walk(root).find(
-      (node) => node.tag === "button" && node.props["aria-controls"],
+      (node) =>
+        node.tag === "button" &&
+        node.props["aria-controls"] ===
+          walk(root).find((node) => node.tag === "ul")?.props.id,
     );
     assert.ok(toggle);
     const last = walk(root)

@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import { CalendarDays, ReceiptText } from "lucide-vue-next";
+import { CalendarDays, Eye, EyeOff, ReceiptText } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import { resolveExpenseCategory } from "~/lib/expense-tracker";
 
-const props = defineProps<{
-  currency: ExpenseCurrency;
-  rows: ExpenseRow[];
-  searchedDate: string | null;
-  loading: boolean;
-  busy: boolean;
-  error: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    currency: ExpenseCurrency;
+    rows: ExpenseRow[];
+    searchedDate: string | null;
+    loading: boolean;
+    busy: boolean;
+    error: string;
+    incomeVisible?: boolean;
+  }>(),
+  { incomeVisible: false },
+);
 const date = defineModel<string>("date", { required: true });
-const emit = defineEmits<{ search: []; edit: [row: ExpenseRow] }>();
+const emit = defineEmits<{
+  search: [];
+  edit: [row: ExpenseRow];
+  toggleIncome: [];
+}>();
 const entries = computed(() =>
   props.searchedDate
     ? props.rows
@@ -36,15 +44,33 @@ function amountValue(row: ExpenseRow) {
     aria-label="Search expense entries by day"
     :aria-busy="loading"
   >
-    <h2
-      class="flex items-center gap-2 text-base font-bold text-slate-950 dark:text-white"
-    >
-      <CalendarDays
-        class="h-5 w-5 text-sky-600 dark:text-cyan-200"
-        aria-hidden="true"
-      />
-      Saved entries
-    </h2>
+    <div class="flex items-center justify-between gap-2">
+      <h2
+        class="flex items-center gap-2 text-base font-bold text-slate-950 dark:text-white"
+      >
+        <CalendarDays
+          class="h-5 w-5 text-sky-600 dark:text-cyan-200"
+          aria-hidden="true"
+        />
+        Saved entries
+      </h2>
+      <button
+        v-if="entries.some((row) => row.type === 'income')"
+        type="button"
+        :aria-label="
+          incomeVisible ? 'Hide income amounts' : 'Show income amounts'
+        "
+        :aria-pressed="incomeVisible"
+        class="grid size-9 shrink-0 place-items-center rounded-lg text-sky-700 hover:bg-sky-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:text-cyan-200 dark:hover:bg-white/5 dark:focus-visible:outline-cyan-200"
+        @click="emit('toggleIncome')"
+      >
+        <component
+          :is="incomeVisible ? EyeOff : Eye"
+          class="size-4"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
     <p class="mt-1 text-xs text-slate-500 dark:text-white/55">
       Find entries by day, then tap Edit to make changes.
     </p>
@@ -123,10 +149,18 @@ function amountValue(row: ExpenseRow) {
             "
           >
             <MoneyAmount
-              v-if="amountValue(row) !== null"
+              v-if="
+                (row.type !== 'income' || incomeVisible) &&
+                amountValue(row) !== null
+              "
               :value="amountValue(row) ?? 0"
               :currency="currency"
             />
+            <span
+              v-else-if="row.type === 'income' && !incomeVisible"
+              aria-label="Income amount hidden"
+              >••••</span
+            >
             <span v-else>—</span>
           </div>
           <button

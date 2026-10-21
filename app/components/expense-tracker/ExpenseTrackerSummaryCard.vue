@@ -8,6 +8,8 @@ import {
   ChevronRight,
   ChartNoAxesCombined,
   Database,
+  Eye,
+  EyeOff,
   Lightbulb,
   List,
   ShoppingCart,
@@ -45,6 +47,23 @@ const props = withDefaults(
   { rangeFrom: "", rangeTo: "", trendData: () => [] },
 );
 const budget = defineModel<Budget>("budget", { required: true });
+const incomeVisible = defineModel<boolean>("incomeVisible", { default: false });
+const netBalanceVisible = defineModel<boolean>("netBalanceVisible", {
+  default: false,
+});
+const metricValueId = useId();
+
+function isMetricVisible(key: string) {
+  return key === "income"
+    ? incomeVisible.value
+    : key === "net"
+      ? netBalanceVisible.value
+      : true;
+}
+function toggleMetric(key: string) {
+  if (key === "income") incomeVisible.value = !incomeVisible.value;
+  if (key === "net") netBalanceVisible.value = !netBalanceVisible.value;
+}
 const budgetAmountId = useId();
 const chartTitleId = useId();
 const categorySort = ref("highest");
@@ -158,7 +177,23 @@ const metrics = computed(() => [
         :class="metric.key === 'items' ? 'hidden sm:flex' : 'flex'"
         :aria-label="metric.label"
       >
+        <button
+          v-if="metric.key === 'income' || metric.key === 'net'"
+          type="button"
+          :aria-label="`${isMetricVisible(metric.key) ? 'Hide' : 'Show'} ${metric.label.toLowerCase()}`"
+          :aria-pressed="isMetricVisible(metric.key)"
+          :aria-controls="`${metricValueId}-${metric.key}`"
+          class="absolute left-2 top-1.5 flex size-8 shrink-0 items-center justify-center rounded-xl text-sky-600 transition hover:bg-sky-500/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:text-cyan-200 dark:hover:bg-cyan-200/10 dark:focus-visible:outline-cyan-200 sm:static sm:size-11 sm:bg-sky-500/10 dark:sm:bg-cyan-200/10"
+          @click="toggleMetric(metric.key)"
+        >
+          <component
+            :is="isMetricVisible(metric.key) ? EyeOff : Eye"
+            class="size-4 sm:size-5"
+            aria-hidden="true"
+          />
+        </button>
         <span
+          v-else
           class="absolute left-3 top-3 flex size-4 shrink-0 items-center justify-center rounded-xl sm:static sm:size-11"
           :class="[metric.surface, metric.tone]"
           ><component
@@ -180,10 +215,23 @@ const metrics = computed(() => [
             ><span class="hidden sm:inline">{{ metric.label }}</span>
           </p>
           <p
+            :id="`${metricValueId}-${metric.key}`"
+            aria-live="polite"
             class="mt-2 min-w-0 max-w-full truncate text-[clamp(0.875rem,4.2vw,1.25rem)] font-black tracking-tight tabular-nums sm:mt-1 sm:text-[clamp(1.35rem,4.8vw,1.85rem)]"
-            :class="metric.key === 'net' ? metric.tone : ''"
+            :class="
+              !isMetricVisible(metric.key)
+                ? 'text-slate-400 dark:text-white/50'
+                : metric.key === 'net'
+                  ? metric.tone
+                  : ''
+            "
           >
-            <span v-if="metric.key === 'items'">{{ metric.value }}</span>
+            <span
+              v-if="!isMetricVisible(metric.key)"
+              :aria-label="`${metric.label} hidden`"
+              >••••</span
+            >
+            <span v-else-if="metric.key === 'items'">{{ metric.value }}</span>
             <MoneyAmount v-else :value="metric.value" :currency="currency" />
           </p>
           <p
@@ -325,6 +373,7 @@ const metrics = computed(() => [
       </fieldset>
       <ExpenseSpendingTrend
         class="hidden sm:block"
+        :income-visible="incomeVisible"
         :data="trendData"
         :from="rangeFrom"
         :to="rangeTo"
@@ -596,6 +645,7 @@ const metrics = computed(() => [
       </summary>
       <ExpenseSpendingTrend
         class="mt-3 !p-0 !ring-0"
+        :income-visible="incomeVisible"
         :data="trendData"
         :from="rangeFrom"
         :to="rangeTo"

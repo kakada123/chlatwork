@@ -9,12 +9,16 @@ import {
   type ExpenseTrendPoint,
 } from "~/lib/expense-dashboard-view";
 
-const props = defineProps<{
-  data: ExpenseTrendPoint[];
-  from: string;
-  to: string;
-  currency: ExpenseCurrency;
-}>();
+const props = withDefaults(
+  defineProps<{
+    data: ExpenseTrendPoint[];
+    from: string;
+    to: string;
+    currency: ExpenseCurrency;
+    incomeVisible?: boolean;
+  }>(),
+  { incomeVisible: false },
+);
 const mode = ref<ExpenseTrendMode>("daily");
 const modes: ExpenseTrendMode[] = ["daily", "weekly", "monthly"];
 const titleId = useId();
@@ -32,7 +36,10 @@ const series = computed(() =>
 const maxValue = computed(() => {
   const maximum = Math.max(
     1,
-    ...series.value.points.flatMap((point) => [point.spent, point.income]),
+    // Income must not affect chart scaling while hidden, which would still reveal its size.
+    ...series.value.points.flatMap((point) =>
+      props.incomeVisible ? [point.spent, point.income] : [point.spent],
+    ),
   );
   const magnitude = 10 ** Math.floor(Math.log10(maximum / 4));
   return Math.ceil(maximum / 4 / magnitude) * magnitude * 4;
@@ -44,12 +51,14 @@ const barWidth = computed(() =>
   Math.min(14, (620 / Math.max(1, series.value.points.length)) * 0.5),
 );
 const incomePath = computed(() =>
-  series.value.points
-    .map(
-      (point, index) =>
-        `${index === 0 ? "M" : "L"} ${x(index)} ${y(point.income)}`,
-    )
-    .join(" "),
+  props.incomeVisible
+    ? series.value.points
+        .map(
+          (point, index) =>
+            `${index === 0 ? "M" : "L"} ${x(index)} ${y(point.income)}`,
+        )
+        .join(" ")
+    : "",
 );
 const ticks = computed(() =>
   [0, 1, 2, 3, 4].map((step) => ({
@@ -103,12 +112,13 @@ const moneyLabel = (value: number) =>
             aria-hidden="true"
           />Spent</span
         >
-        <span class="inline-flex items-center gap-1.5"
+        <span v-if="incomeVisible" class="inline-flex items-center gap-1.5"
           ><span
             class="h-2 w-2 rounded-full bg-green-400"
             aria-hidden="true"
           />Income</span
         >
+        <span v-else>Income hidden</span>
       </div>
       <div
         class="inline-flex rounded-lg bg-slate-100 p-0.5 dark:bg-white/5"
@@ -148,7 +158,8 @@ const moneyLabel = (value: number) =>
       >
         <title :id="titleId">
           {{ mode }} spending trend from {{ from }} to {{ to }}. Bars show
-          expenses; the line shows income.
+          expenses.
+          {{ incomeVisible ? "The line shows income." : "Income is hidden." }}
         </title>
         <g v-for="tick in ticks" :key="tick.value">
           <line
@@ -180,12 +191,14 @@ const moneyLabel = (value: number) =>
             opacity="0.85"
           >
             <title>
-              {{ dateLabel(point.date) }}: spent {{ moneyLabel(point.spent) }},
-              income {{ moneyLabel(point.income) }}
+              {{ dateLabel(point.date) }}: spent
+              {{ moneyLabel(point.spent) }}<template v-if="incomeVisible">,
+              income {{ moneyLabel(point.income) }}</template>
             </title>
           </rect>
         </g>
         <path
+          v-if="incomeVisible"
           :d="incomePath"
           fill="none"
           stroke="var(--app-color-success-bar)"
@@ -193,7 +206,7 @@ const moneyLabel = (value: number) =>
           stroke-linejoin="round"
           vector-effect="non-scaling-stroke"
         />
-        <template v-if="series.points.length <= 62">
+        <template v-if="incomeVisible && series.points.length <= 62">
           <circle
             v-for="(point, index) in series.points"
             :key="`income-${point.date}`"
@@ -223,14 +236,14 @@ const moneyLabel = (value: number) =>
           <tr>
             <th>Date</th>
             <th>Spent</th>
-            <th>Income</th>
+            <th v-if="incomeVisible">Income</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="point in series.points" :key="point.date">
             <th>{{ point.date }}</th>
             <td>{{ moneyLabel(point.spent) }}</td>
-            <td>{{ moneyLabel(point.income) }}</td>
+            <td v-if="incomeVisible">{{ moneyLabel(point.income) }}</td>
           </tr>
         </tbody>
       </table>
