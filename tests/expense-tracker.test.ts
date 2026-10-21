@@ -231,7 +231,7 @@ test("summary markup has mobile overflow guards for extreme values", () => {
   assert.doesNotMatch(source, /Top expenses/);
 });
 
-test("expense entry is quick-first while saved rows and summaries stay collapsed", () => {
+test("expense dashboard keeps quick entry and responsive financial controls", () => {
   const header = readFileSync(
     new URL("../app/components/expense-tracker/ExpenseTrackerHeader.vue", import.meta.url),
     "utf8",
@@ -255,33 +255,13 @@ test("expense entry is quick-first while saved rows and summaries stay collapsed
 
   assert.match(input, /<QuickExpenseForm/);
   assert.match(input, /Review and manage saved entries/);
-  assert.match(input, /type="month"/);
-  assert.match(input, /v-model="selectedMonth"/);
-  assert.match(input, /row\.date\.startsWith\(`\$\{activeSelectedMonth\.value\}-`\)/);
-  assert.match(input, /Viewing month/);
   assert.match(input, /v-if="displayRows\.length === 0"/);
   assert.doesNotMatch(input, /<option value="all">All entries<\/option>/);
-  assert.match(input, /<details class="group mt-5 hidden/);
   assert.match(account, /Quick Expense button/);
   assert.match(account, /aria-label="Show Quick Expense button"/);
   assert.doesNotMatch(page, /Enable quick expense button/);
-  assert.match(page, /View expense details/);
-  assert.match(page, /View spending summary and budget/);
-  assert.match(page, /<details v-if="signedIn" class="group rounded-2xl/);
   assert.match(page, /Expense saved to your account/);
   assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
-  assert.match(page, /@quick-add="saveQuickExpenseImmediately"/);
-  assert.match(page, /v-model:selected-month="selectedMonth"/);
-  assert.match(page, /collectExpenseItemsForMonth\(rows\.value, selectedMonth\.value\)/);
-  assert.match(page, /canPersistFullState/);
-  assert.match(page, /finishInitialStateLoad\(receivedCompleteState\)/);
-  assert.match(page, /expectedRowCount: persistedRowCount\.value/);
-  assert.match(page, /rows\.value = \[\.\.\.accountRows, \.\.\.savedDraft\.rows\]/);
-  assert.match(page, /quick-entry endpoint already appended this row/);
-  assert.match(page, /persistedRowCount\.value = rows\.value\.length;[\s\S]*void saveImmediately\(\)/);
-  assert.match(page, /Keep the draft recoverable/);
-  assert.match(page, /v-if="signedIn"/);
-  assert.match(page, /v-else-if="isAuthReady"/);
   assert.match(header, /<header class="mb-6 hidden sm:block">/);
   assert.match(input, /mb-5 hidden items-start justify-between gap-3 sm:flex/);
   assert.match(form, /fieldset class="min-w-0 max-w-full overflow-hidden"/);

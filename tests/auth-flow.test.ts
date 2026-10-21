@@ -35,8 +35,8 @@ test("auth-dependent expense UI waits for client session readiness before render
   assert.match(layout, /const visibleAuthUser = computed\(\(\) => isAuthReady\.value/);
   assert.match(layout, /<QuickExpenseFab\s+v-if="visibleAuthUser && websiteEnabled\('expense-tracker'\)"/);
   assert.match(layout, /mobile-navigation-action/);
-  assert.match(expensePage, /const signedIn = computed\(\(\) => isAuthReady\.value/);
-  assert.match(expensePage, /<AuthResultAuthGate v-else-if="isAuthReady"/);
+  assert.match(expensePage, /const signedIn = computed\([\s\S]*?isAuthReady\.value/);
+  assert.match(expensePage, /<AuthResultAuthGate\s+v-if="!signedIn && isAuthReady"/);
   assert.match(auth, /new WeakMap<object, Promise<AuthUser \| null>>\(\)/);
   assert.match(auth, /fetchMeRequests\.get\(nuxtApp\)/);
   assert.match(auth, /share one request per Nuxt app/);
@@ -181,7 +181,9 @@ test("expense data is user-owned PostgreSQL data, not an Upstash share payload",
   assert.doesNotMatch(page, /definePageMeta\(\{ middleware: "auth"/);
   assert.match(page, /AuthResultAuthGate/);
   assert.match(page, /chlatwork-expense-login-draft/);
-  assert.match(page, /\/api\/expenses\/state/);
+  const dashboard = readFileSync("app/composables/useExpenseDashboard.ts", "utf8");
+  assert.match(dashboard, /\/api\/expenses\/profile/);
+  assert.match(dashboard, /\/api\/expenses\/entries/);
   assert.doesNotMatch(envExample, /UPSTASH|KV_REST/);
 });
 

@@ -140,7 +140,7 @@ async function saveQuickExpense(row: ExpenseRow) {
       },
     });
 
-    // The open tracker mirrors this append so its later full-state save cannot discard it.
+    // The dashboard mirrors this saved entry without issuing another write.
     window.dispatchEvent(new CustomEvent("chlatwork:quick-expense-saved", {
       detail: result.row,
     }));

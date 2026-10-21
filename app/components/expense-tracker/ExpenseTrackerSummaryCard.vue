@@ -8,6 +8,7 @@ import type {
 } from "~/lib/expense-tracker";
 
 const props = defineProps<{
+  busy?: boolean;
   currency: ExpenseCurrency;
   rangeLabel: string;
   itemsCount: number;
@@ -25,6 +26,44 @@ const props = defineProps<{
 
 const budget = defineModel<Budget>("budget", { required: true });
 const budgetAmountId = useId();
+const chartTitleId = useId();
+const chartColors = [
+  "#0284c7",
+  "#7c3aed",
+  "#059669",
+  "#ea580c",
+  "#db2777",
+  "#0891b2",
+  "#ca8a04",
+  "#4f46e5",
+  "#65a30d",
+  "#e11d48",
+  "#0d9488",
+  "#9333ea",
+];
+const categorySlices = computed(() => {
+  const total = props.categoryBreakdown.reduce(
+    (sum, category) => sum + category.total,
+    0,
+  );
+  let start = -Math.PI / 2;
+  return props.categoryBreakdown.map((category, index) => {
+    const angle = total > 0 ? (category.total / total) * Math.PI * 2 : 0;
+    const end = start + angle;
+    const path = `M 100 100 L ${100 + 90 * Math.cos(start)} ${100 + 90 * Math.sin(start)} A 90 90 0 ${angle > Math.PI ? 1 : 0} 1 ${100 + 90 * Math.cos(end)} ${100 + 90 * Math.sin(end)} Z`;
+    start = end;
+    return {
+      category: category.category,
+      color: chartColors[index % chartColors.length],
+      path,
+    };
+  });
+});
+const chartDescription = computed(() =>
+  props.categoryBreakdown
+    .map((category) => `${category.category}: ${category.percent.toFixed(1)}%`)
+    .join(", "),
+);
 
 function balanceClass(value: number) {
   if (value > 0) {
@@ -40,11 +79,24 @@ function balanceClass(value: number) {
 </script>
 
 <template>
-  <div class="expense-summary-surface min-w-0 border-0 p-0 sm:rounded-xl sm:border sm:p-4">
-    <div class="mb-3 flex items-start justify-between gap-3 sm:mb-2 sm:items-center">
+  <fieldset
+    :disabled="props.busy"
+    class="expense-summary-surface min-w-0 border-0 p-0 sm:rounded-xl sm:border sm:p-4"
+  >
+    <div
+      class="mb-3 flex items-start justify-between gap-3 sm:mb-2 sm:items-center"
+    >
       <div class="min-w-0">
-        <p class="expense-summary-muted text-xs font-bold uppercase tracking-[0.14em] sm:hidden">{{ props.rangeLabel }}</p>
-        <h2 class="mt-0.5 text-lg font-black sm:mt-0 sm:text-base sm:font-semibold">Spending overview</h2>
+        <p
+          class="expense-summary-muted text-xs font-bold uppercase tracking-[0.14em] sm:hidden"
+        >
+          {{ props.rangeLabel }}
+        </p>
+        <h2
+          class="mt-0.5 text-lg font-black sm:mt-0 sm:text-base sm:font-semibold"
+        >
+          Spending overview
+        </h2>
       </div>
 
       <span
@@ -83,43 +135,76 @@ function balanceClass(value: number) {
     </div>
 
     <div class="space-y-3 sm:hidden">
-      <div class="min-w-0 rounded-2xl border border-sky-200 bg-sky-50 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.07]">
-        <div class="text-xs font-bold uppercase tracking-[0.12em] text-sky-700 dark:text-cyan-200">Total spent</div>
-        <div class="mt-1 block max-w-full truncate text-[clamp(1.8rem,9vw,2.5rem)] font-black leading-tight text-slate-950 dark:text-white">
+      <div
+        class="min-w-0 rounded-2xl border border-sky-200 bg-sky-50 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.07]"
+      >
+        <div
+          class="text-xs font-bold uppercase tracking-[0.12em] text-sky-700 dark:text-cyan-200"
+        >
+          Total spent
+        </div>
+        <div
+          class="mt-1 block max-w-full truncate text-[clamp(1.8rem,9vw,2.5rem)] font-black leading-tight text-slate-950 dark:text-white"
+        >
           <MoneyAmount :value="props.totalSpent" :currency="props.currency" />
         </div>
-        <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 dark:text-white/55">
-          <span>{{ props.itemsCount }} {{ props.itemsCount === 1 ? "expense" : "expenses" }}</span>
+        <div
+          class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 dark:text-white/55"
+        >
+          <span
+            >{{ props.itemsCount }}
+            {{ props.itemsCount === 1 ? "expense" : "expenses" }}</span
+          >
           <span aria-hidden="true">•</span>
-          <span>Daily average <MoneyAmount :value="props.dailyAvg" :currency="props.currency" /></span>
+          <span
+            >Daily average
+            <MoneyAmount :value="props.dailyAvg" :currency="props.currency"
+          /></span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-2">
-        <div class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5">
+        <div
+          class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5"
+        >
           <div class="expense-summary-muted text-xs">Net balance</div>
-          <div class="mt-1 min-w-0 truncate text-xl font-black leading-tight" :class="balanceClass(props.netBalance)">
+          <div
+            class="mt-1 min-w-0 truncate text-xl font-black leading-tight"
+            :class="balanceClass(props.netBalance)"
+          >
             <MoneyAmount :value="props.netBalance" :currency="props.currency" />
           </div>
         </div>
-        <div class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5">
+        <div
+          class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5"
+        >
           <div class="expense-summary-muted text-xs">Income</div>
           <div class="mt-1 min-w-0 truncate text-xl font-black leading-tight">
-            <MoneyAmount :value="props.totalIncome" :currency="props.currency" />
+            <MoneyAmount
+              :value="props.totalIncome"
+              :currency="props.currency"
+            />
           </div>
         </div>
       </div>
 
-      <div class="expense-summary-muted flex min-w-0 items-center justify-between gap-3 rounded-xl px-1 text-xs">
+      <div
+        class="expense-summary-muted flex min-w-0 items-center justify-between gap-3 rounded-xl px-1 text-xs"
+      >
         <span>Top category</span>
-        <span class="min-w-0 truncate font-bold text-slate-800 dark:text-white">{{ props.categoryBreakdown[0]?.category ?? "No expenses yet" }}</span>
+        <span
+          class="min-w-0 truncate font-bold text-slate-800 dark:text-white"
+          >{{ props.categoryBreakdown[0]?.category ?? "No expenses yet" }}</span
+        >
       </div>
     </div>
 
     <div class="hidden grid-cols-4 gap-3 sm:grid">
       <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="expense-summary-muted text-xs">Items</div>
-        <div class="min-w-0 truncate text-lg font-bold">{{ props.itemsCount }}</div>
+        <div class="min-w-0 truncate text-lg font-bold">
+          {{ props.itemsCount }}
+        </div>
       </div>
 
       <div class="expense-summary-card-muted min-w-0 rounded-xl border p-3">
@@ -154,10 +239,7 @@ function balanceClass(value: number) {
           >
             <span class="min-w-0 truncate">
               Daily avg (spent):
-              <MoneyAmount
-                :value="props.dailyAvg"
-                :currency="props.currency"
-              />
+              <MoneyAmount :value="props.dailyAvg" :currency="props.currency" />
             </span>
           </span>
         </div>
@@ -165,11 +247,15 @@ function balanceClass(value: number) {
     </div>
 
     <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <div class="expense-summary-card min-w-0 rounded-2xl border p-4 sm:rounded-xl sm:p-3">
+      <div
+        class="expense-summary-card min-w-0 rounded-2xl border p-4 sm:rounded-xl sm:p-3"
+      >
         <div class="flex items-center justify-between gap-2">
           <div>
             <h3 class="font-black sm:font-semibold">Budget</h3>
-            <p class="expense-summary-muted mt-0.5 text-xs sm:hidden">Plan for {{ props.rangeLabel.toLowerCase() }}</p>
+            <p class="expense-summary-muted mt-0.5 text-xs sm:hidden">
+              Plan for {{ props.rangeLabel.toLowerCase() }}
+            </p>
           </div>
 
           <select
@@ -182,9 +268,15 @@ function balanceClass(value: number) {
           </select>
         </div>
 
-        <div class="mt-4 grid grid-cols-1 gap-3 sm:mt-2 sm:grid-cols-2 sm:gap-2">
+        <div
+          class="mt-4 grid grid-cols-1 gap-3 sm:mt-2 sm:grid-cols-2 sm:gap-2"
+        >
           <div class="min-w-0">
-            <label :for="budgetAmountId" class="expense-summary-muted mb-1.5 block text-xs font-semibold sm:mb-1 sm:font-normal">Budget amount</label>
+            <label
+              :for="budgetAmountId"
+              class="expense-summary-muted mb-1.5 block text-xs font-semibold sm:mb-1 sm:font-normal"
+              >Budget amount</label
+            >
             <input
               :id="budgetAmountId"
               v-model.trim="budget.amount"
@@ -195,18 +287,27 @@ function balanceClass(value: number) {
           </div>
 
           <div class="min-w-0">
-            <div class="expense-summary-muted mb-1.5 text-xs font-semibold sm:mb-1 sm:font-normal">Remaining</div>
+            <div
+              class="expense-summary-muted mb-1.5 text-xs font-semibold sm:mb-1 sm:font-normal"
+            >
+              Remaining
+            </div>
             <div
               class="expense-summary-remaining flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-xl border px-4 py-2 font-semibold sm:h-11 sm:min-h-0 sm:justify-start sm:rounded-lg sm:py-0"
               :class="props.budgetStatus.bg"
             >
-              <span class="min-w-0 truncate text-lg font-black sm:text-base sm:font-semibold">
+              <span
+                class="min-w-0 truncate text-lg font-black sm:text-base sm:font-semibold"
+              >
                 <MoneyAmount
                   :value="props.budgetRemaining"
                   :currency="props.currency"
                 />
               </span>
-              <span class="shrink-0 text-xs font-bold sm:font-medium" :class="props.budgetStatus.text">
+              <span
+                class="shrink-0 text-xs font-bold sm:font-medium"
+                :class="props.budgetStatus.text"
+              >
                 {{ props.budgetStatus.label }}
               </span>
             </div>
@@ -214,27 +315,36 @@ function balanceClass(value: number) {
         </div>
 
         <div class="mt-4 sm:mt-3">
-          <div class="expense-summary-muted mb-1.5 flex justify-between text-xs font-semibold sm:mb-1 sm:font-normal">
+          <div
+            class="expense-summary-muted mb-1.5 flex justify-between text-xs font-semibold sm:mb-1 sm:font-normal"
+          >
             <span>Budget used</span>
             <span class="tabular-nums">{{ props.budgetPercent }}%</span>
           </div>
 
-          <div class="expense-summary-progress-track h-2 overflow-hidden rounded-full border">
+          <div
+            class="expense-summary-progress-track h-2 overflow-hidden rounded-full border"
+          >
             <div
               class="h-2 rounded-full"
               :class="props.budgetStatus.bar"
-              :style="{ width: `${Math.min(100, Math.max(0, props.budgetPercent))}%` }"
+              :style="{
+                width: `${Math.min(100, Math.max(0, props.budgetPercent))}%`,
+              }"
             />
           </div>
 
           <p class="expense-summary-muted mt-2 hidden text-xs sm:block">
             Budget uses the selected range:
-            <span class="font-mono">{{ props.rangeLabel }}</span>.
+            <span class="font-mono">{{ props.rangeLabel }}</span
+            >.
           </p>
         </div>
       </div>
 
-      <div class="expense-summary-card-muted min-w-0 rounded-2xl border p-4 sm:rounded-xl sm:p-3">
+      <div
+        class="expense-summary-card-muted min-w-0 rounded-2xl border p-4 sm:rounded-xl sm:p-3"
+      >
         <h3 class="mb-1 font-black sm:font-semibold">Insights</h3>
         <ul class="expense-summary-body list-disc space-y-1 pl-5 text-sm">
           <li
@@ -260,23 +370,110 @@ function balanceClass(value: number) {
         </span>
       </div>
 
-      <ul v-if="props.categoryBreakdown.length" class="space-y-2">
+      <div
+        v-if="props.categoryBreakdown.length"
+        class="mb-4 flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-white/[0.025] sm:flex-row sm:gap-6"
+      >
+        <svg
+          viewBox="0 0 200 200"
+          role="img"
+          :aria-labelledby="chartTitleId"
+          class="h-48 w-48 shrink-0 sm:h-56 sm:w-56"
+        >
+          <title :id="chartTitleId">
+            Spending by category pie chart. {{ chartDescription }}
+          </title>
+          <circle
+            v-if="categorySlices.length === 1"
+            cx="100"
+            cy="100"
+            r="90"
+            :fill="categorySlices[0]?.color"
+          />
+          <template v-else>
+            <path
+              v-for="slice in categorySlices"
+              :key="slice.category"
+              :d="slice.path"
+              :fill="slice.color"
+              stroke="currentColor"
+              stroke-width="1"
+              class="text-white dark:text-[#101214]"
+            />
+          </template>
+        </svg>
+        <div class="min-w-0 text-center sm:text-left">
+          <p
+            class="expense-summary-muted text-xs font-bold uppercase tracking-wider"
+          >
+            Largest category
+          </p>
+          <p class="mt-1 break-words text-xl font-black">
+            {{ props.categoryBreakdown[0]?.category }}
+          </p>
+          <p class="mt-1 text-lg font-bold">
+            <MoneyAmount
+              :value="props.categoryBreakdown[0]?.total ?? 0"
+              :currency="props.currency"
+            />
+          </p>
+          <p class="expense-summary-muted mt-1 text-sm">
+            {{ props.categoryBreakdown[0]?.percent.toFixed(0) }}% of spending in
+            this period
+          </p>
+        </div>
+      </div>
+
+      <ul
+        v-if="props.categoryBreakdown.length"
+        class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
+      >
         <li
           v-for="category in props.categoryBreakdown"
           :key="category.category"
           class="expense-summary-card-muted min-w-0 rounded-2xl border p-3.5 sm:rounded-xl sm:p-3"
         >
           <div class="flex min-w-0 items-center justify-between gap-3">
-            <div class="min-w-0 truncate text-sm font-bold">{{ category.category }}</div>
-            <div class="min-w-0 max-w-[55%] shrink-0 truncate text-right font-black">
+            <div class="flex min-w-0 items-center gap-2 text-sm font-bold">
+              <span
+                aria-hidden="true"
+                class="h-2.5 w-2.5 shrink-0 rounded-full"
+                :style="{
+                  backgroundColor:
+                    chartColors[
+                      props.categoryBreakdown.indexOf(category) %
+                        chartColors.length
+                    ],
+                }"
+              />
+              <span class="truncate">{{ category.category }}</span>
+            </div>
+            <div
+              class="min-w-0 max-w-[55%] shrink-0 truncate text-right font-black"
+            >
               <MoneyAmount :value="category.total" :currency="props.currency" />
             </div>
           </div>
           <div class="mt-2 flex items-center gap-3">
-            <div class="expense-summary-progress-track h-1.5 min-w-0 flex-1 overflow-hidden rounded-full">
-              <div class="h-full rounded-full bg-sky-500 dark:bg-cyan-200" :style="{ width: `${category.percent}%` }" />
+            <div
+              class="expense-summary-progress-track h-1.5 min-w-0 flex-1 overflow-hidden rounded-full"
+            >
+              <div
+                class="h-full rounded-full"
+                :style="{
+                  width: `${category.percent}%`,
+                  backgroundColor:
+                    chartColors[
+                      props.categoryBreakdown.indexOf(category) %
+                        chartColors.length
+                    ],
+                }"
+              />
             </div>
-            <span class="expense-summary-muted w-10 shrink-0 text-right text-xs tabular-nums">{{ category.percent.toFixed(0) }}%</span>
+            <span
+              class="expense-summary-muted w-10 shrink-0 text-right text-xs tabular-nums"
+              >{{ category.percent.toFixed(0) }}%</span
+            >
           </div>
         </li>
       </ul>
@@ -290,5 +487,5 @@ function balanceClass(value: number) {
       Tip: keep categories consistent (Food vs food). Your future self will
       thank you 😄
     </p>
-  </div>
+  </fieldset>
 </template>

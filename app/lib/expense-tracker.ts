@@ -26,6 +26,8 @@ export const EXPENSE_SAVE_MOTIVATION =
   "Nice work—every entry makes your spending clearer.";
 
 export type ExpenseRow = {
+  id?: string;
+  updatedAt?: string;
   type?: MoneyType;
   date: string;
   category: string;
@@ -68,6 +70,8 @@ function normalizeStoredExpenseRow(value: unknown): ExpenseRow | null {
 
   const row = value as Partial<ExpenseRow>;
   return {
+    ...(typeof row.id === "string" ? { id: row.id } : {}),
+    ...(typeof row.updatedAt === "string" ? { updatedAt: row.updatedAt } : {}),
     type: row.type === "income" ? "income" : "expense",
     date: typeof row.date === "string" ? row.date : "",
     category: typeof row.category === "string" ? row.category : "",
@@ -677,6 +681,7 @@ export function getTopExpenseItems(
 export function buildExpenseInsights(input: {
   currency: ExpenseCurrency;
   items: ExpenseItem[];
+  itemsCount?: number;
   totalIncome: number;
   totalSpent: number;
   netBalance: number;
@@ -686,7 +691,7 @@ export function buildExpenseInsights(input: {
   budgetRemaining: number;
   dailyAvg: number;
 }): ExpenseInsight[] {
-  if (!input.items.length) {
+  if (!(input.itemsCount ?? input.items.length)) {
     return [];
   }
 

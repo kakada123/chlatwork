@@ -1,54 +1,158 @@
 <template>
   <div class="mx-auto min-w-0 w-full max-w-[1440px] overflow-x-clip">
-    <ExpenseTrackerHeader />
+    <header class="mb-5 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p
+          class="text-xs font-black uppercase tracking-[0.16em] text-sky-600 dark:text-cyan-200"
+        >
+          Your money at a glance
+        </p>
+        <h1
+          class="mt-1 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl"
+        >
+          Expense dashboard
+        </h1>
+        <p class="mt-1 text-sm text-slate-500 dark:text-white/55">
+          See where your money goes and stay on budget.
+        </p>
+      </div>
+      <select
+        v-model="currency"
+        aria-label="Expense currency"
+        :disabled="!ready || loading"
+        class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold dark:border-white/10 dark:bg-[#101214]"
+      >
+        <option value="USD">USD</option>
+        <option value="KHR">KHR</option>
+      </select>
+    </header>
 
-    <div class="grid grid-cols-1 gap-4">
-      <ExpenseTrackerInputCard
-        v-model:currency="currency"
-        v-model:selected-month="selectedMonth"
-        v-model:rows="rows"
-        v-model:raw="raw"
-        :copied="copied"
-        :can-copy="filteredExpenses.length > 0"
-        :error="error"
-        :signed-in="signedIn"
-        @apply-raw="applyRaw"
-        @copy-summary="copySummary"
-        @load-example="loadExample"
-        @quick-add="saveQuickExpenseImmediately"
-      />
-
-      <details v-if="signedIn" class="group rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#101214]">
-        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between px-4 text-sm font-black text-slate-700 dark:text-white/75">
-          <span class="sm:hidden">View expense details</span>
-          <span class="hidden sm:inline">View spending summary and budget</span>
-          <svg class="h-4 w-4 transition group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-        </summary>
-        <div class="border-t border-slate-200 p-3 dark:border-white/10 sm:p-4">
-          <ExpenseTrackerSummaryCard
-            v-model:budget="budget"
-            :currency="currency"
-            :range-label="rangeLabel"
-            :items-count="filteredExpenses.length"
-            :total-income="totalIncome"
-            :total-spent="totalSpent"
-            :net-balance="netBalance"
-            :daily-avg="dailyAvg"
-            :budget-value="budgetValue"
-            :budget-remaining="budgetRemaining"
-            :budget-percent="budgetPercent"
-            :budget-status="budgetStatus"
-            :insights="insights"
-            :category-breakdown="categoryBreakdown"
-          />
+    <form
+      class="mb-4 rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#101214] sm:p-4"
+      @submit.prevent="applyFilter"
+    >
+      <fieldset
+        :disabled="!ready || loading || saving"
+        class="grid min-w-0 grid-cols-2 items-end gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+      >
+        <div class="min-w-0">
+          <p class="mb-1 text-xs font-bold text-slate-500 dark:text-white/55">
+            From date
+          </p>
+          <ModernDateInput v-model="dateFrom" aria-label="Expense start date" />
         </div>
-      </details>
-      <AuthResultAuthGate v-else-if="isAuthReady" @login="storeGuestDraft" />
+        <div class="min-w-0">
+          <p class="mb-1 text-xs font-bold text-slate-500 dark:text-white/55">
+            To date
+          </p>
+          <ModernDateInput v-model="dateTo" aria-label="Expense end date" />
+        </div>
+        <button
+          type="submit"
+          class="col-span-2 h-11 rounded-xl bg-sky-600 px-5 text-sm font-black text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950 sm:col-span-1"
+        >
+          {{ loading ? "Loading…" : "Apply date filter" }}
+        </button>
+      </fieldset>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button
+          v-for="preset in datePresets"
+          :key="preset.label"
+          type="button"
+          :disabled="!ready || loading || saving"
+          class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 disabled:opacity-50 dark:border-white/10 dark:text-white/70"
+          @click="applyPreset(preset.days)"
+        >
+          {{ preset.label }}
+        </button>
+      </div>
+    </form>
+
+    <p
+      v-if="error"
+      role="alert"
+      class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
+    >
+      {{ error }}
+    </p>
+    <div
+      v-if="saveError"
+      role="alert"
+      class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
+    >
+      <p>{{ saveError }}</p>
+      <button
+        type="button"
+        :disabled="saving"
+        class="rounded-lg border border-current px-3 py-2 font-bold disabled:opacity-50"
+        @click="retrySave"
+      >
+        Retry save
+      </button>
     </div>
 
-    <p class="mt-3 hidden text-right text-xs text-gray-500 dark:text-white/50 sm:block" role="status">
-      {{ persistenceMessage }}
-    </p>
+    <div class="grid min-w-0 grid-cols-1 items-start gap-4">
+      <section
+        class="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#101214] sm:p-5"
+        aria-label="Expense summary dashboard"
+        :aria-busy="loadingSummary || !ready"
+      >
+        <p
+          v-if="!ready || loadingSummary"
+          role="status"
+          class="mb-3 text-sm text-slate-500 dark:text-white/55"
+        >
+          Loading your spending summary…
+        </p>
+        <ExpenseTrackerSummaryCard
+          v-if="ready && (!signedIn || summary)"
+          v-model:budget="budget"
+          :currency="currency"
+          :range-label="rangeLabel"
+          :items-count="itemsCount"
+          :busy="loading"
+          :total-income="totalIncome"
+          :total-spent="totalSpent"
+          :net-balance="netBalance"
+          :daily-avg="dailyAvg"
+          :budget-value="budgetValue"
+          :budget-remaining="budgetRemaining"
+          :budget-percent="budgetPercent"
+          :budget-status="budgetStatus"
+          :insights="insights"
+          :category-breakdown="categoryBreakdown"
+        />
+      </section>
+
+      <div class="min-w-0 space-y-3">
+        <ExpenseTrackerInputCard
+          ref="inputCard"
+          v-model:rows="rows"
+          v-model:raw="raw"
+          :currency="currency"
+          :date-from="activeRange.from"
+          :date-to="activeRange.to"
+          :has-applied-filter="hasAppliedFilter"
+          :busy="!ready || loading"
+          :saving="saving"
+          :copied="copied"
+          :can-copy="itemsCount > 0"
+          :error="rawError"
+          :signed-in="signedIn"
+          @apply-raw="applyRaw"
+          @copy-summary="copySummary"
+          @load-example="loadExample"
+          @quick-add="saveQuickExpense"
+        />
+        <AuthResultAuthGate
+          v-if="!signedIn && isAuthReady"
+          @login="storeGuestDraft"
+        />
+        <p role="status" class="px-1 text-xs text-slate-500 dark:text-white/50">
+          {{ persistenceMessage }}
+        </p>
+      </div>
+    </div>
 
     <Transition
       enter-active-class="transition duration-200 ease-out"
@@ -59,17 +163,12 @@
       <div
         v-if="quickSaveNotice"
         role="status"
-        class="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-[115] inline-flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-2xl sm:right-6 sm:max-w-sm"
+        class="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-[115] max-w-[calc(100vw-2rem)] rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-2xl sm:bottom-6 sm:max-w-sm"
       >
-        <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m5 12 4 4L19 6" />
-        </svg>
-        <span>
-          <span class="block">Expense saved to your account</span>
-          <span class="mt-1 block text-xs font-medium leading-5 text-white/80">
-            {{ EXPENSE_SAVE_MOTIVATION }}
-          </span>
-        </span>
+        <span class="block">Expense saved to your account</span>
+        <span class="mt-1 block text-xs font-medium text-white/80">{{
+          EXPENSE_SAVE_MOTIVATION
+        }}</span>
       </div>
     </Transition>
 
@@ -114,127 +213,124 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  ExpenseCurrency,
-  ExpenseRangeMode,
-  ExpenseRow,
-} from "~/lib/expense-tracker";
+import type { ExpenseRow } from "~/lib/expense-tracker";
 import {
   EXPENSE_SAVE_MOTIVATION,
   buildExpenseBreakdown,
-  buildExpenseSummaryLines,
   buildExpenseInsights,
-  collectExpenseItemsForMonth,
-  createDefaultBudget,
-  formatExpenseMonthLabel,
+  buildExpenseSummaryLines,
+  collectExpenseItems,
   getBudgetPercent,
   getBudgetRemaining,
   getBudgetStatus,
   getBudgetValue,
-  getExpenseDailyAverage,
-  getExpenseDateSpanDays,
   getExpenseExampleState,
   getExpenseMonthISO,
-  hasCompleteExpenseStoredRows,
   getNetBalance,
-  getTopExpenseItems,
   getTotalIncome,
   getTotalSpent,
+  hasCompleteExpenseStoredRows,
   normalizeExpenseStoredState,
   parseExpenseRaw,
+  todayISO,
 } from "~/lib/expense-tracker";
 
 const route = useRoute();
-
 const { user, isReady: isAuthReady, fetchMe } = useAuth();
-// Auth-dependent branches stay empty until the client resolves the session, keeping SSR hydration deterministic.
-const signedIn = computed(() => isAuthReady.value && Boolean(user.value));
+const signedIn = computed(
+  () => isAuthReady.value && Boolean(user.value) && route.query.example !== "1",
+);
+const {
+  currency,
+  budget,
+  quickExpenseEnabled,
+  rows,
+  summary,
+  dateFrom,
+  dateTo,
+  activeRange,
+  hasAppliedFilter,
+  loading,
+  loadingSummary,
+  ready,
+  saving,
+  error,
+  saveError,
+  persist,
+  applyFilter,
+  initialize,
+  appendRows,
+  acceptSavedEntry,
+} = useExpenseDashboard(signedIn);
+const inputCard = ref<{ resetQuickForm: () => void } | null>(null);
+const raw = ref("");
+const rawError = ref("");
+const copied = ref(false);
+const quickSaveNotice = ref(false);
+let copiedTimer: ReturnType<typeof setTimeout> | null = null;
+let noticeTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingQuickId: string | null = null;
+const datePresets = [
+  { label: "Today", days: 1 },
+  { label: "Last 7 days", days: 7 },
+  { label: "This month", days: 0 },
+];
+const { syncSettings, enabled: floatingQuickExpenseEnabled } =
+  useQuickExpense();
 
 useSeoMeta({
-  title: "Expense Tracker | ChlatWork",
+  title: "Expense Dashboard | ChlatWork",
   description:
-    "Track expenses with account-based PostgreSQL storage, budgets, and insights.",
-  ogTitle: "Expense Tracker | ChlatWork",
-  ogDescription:
-    "Track expenses with account-based PostgreSQL storage, budgets, and insights.",
-  ogType: "website",
-  twitterCard: "summary_large_image",
-  twitterTitle: "Expense Tracker | ChlatWork",
-  twitterDescription: "Track your expenses with budget and insights.",
+    "Track expenses by date, review spending by category, and manage your budget.",
 });
-
 useHead({
   link: [
     { rel: "canonical", href: "https://chlatwork.com/tools/expense-tracker" },
   ],
 });
 
-const copied = ref(false);
-const persistenceState = ref<"loading" | "saved" | "saving" | "failed" | "guest">("loading");
-const isHydrated = ref(false);
-const canPersistFullState = ref(false);
-const persistedRowCount = ref<number | null>(null);
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
-
-const persistenceMessage = computed(() => {
-  if (persistenceState.value === "loading") return "Loading your saved expenses...";
-  if (persistenceState.value === "saving") return "Saving...";
-  if (persistenceState.value === "failed") return "Could not save changes.";
-  if (persistenceState.value === "guest") return "Sign in to save this data to your account.";
-  return "Saved securely to your account.";
-});
-
-let copiedTimer: ReturnType<typeof setTimeout> | null = null;
-let quickSaveNoticeTimer: ReturnType<typeof setTimeout> | null = null;
-
-const currency = ref<ExpenseCurrency>("USD");
-const rangeMode = ref<ExpenseRangeMode>("month");
-const selectedMonth = ref(getExpenseMonthISO());
-const budget = ref(createDefaultBudget());
-const rows = ref<ExpenseRow[]>([]);
-const raw = ref("");
-const rawError = ref("");
-const quickExpenseEnabled = ref(false);
-const quickSaveNotice = ref(false);
-const {
-  enabled: floatingQuickExpenseEnabled,
-  syncSettings: syncQuickExpenseSettings,
-} = useQuickExpense();
-
-function flashCopied(ms = 1500) {
-  copied.value = true;
-  if (copiedTimer) {
-    clearTimeout(copiedTimer);
-  }
-
-  copiedTimer = setTimeout(() => {
-    copied.value = false;
-    copiedTimer = null;
-  }, ms);
-}
-
-const parsedRowsState = computed(() =>
-  collectExpenseItemsForMonth(rows.value, selectedMonth.value),
+const localItems = computed(
+  () =>
+    collectExpenseItems(
+      rows.value.filter(
+        (row) =>
+          row.date >= activeRange.value.from &&
+          row.date <= activeRange.value.to,
+      ),
+      "all",
+    ).items,
 );
-
-const filteredExpenses = computed(() => parsedRowsState.value.items);
-const error = computed(() => rawError.value || parsedRowsState.value.error);
-const rangeLabel = computed(() => formatExpenseMonthLabel(selectedMonth.value));
-const totalSpent = computed(() => getTotalSpent(filteredExpenses.value));
-const totalIncome = computed(() => getTotalIncome(filteredExpenses.value));
+const totalSpent = computed(() =>
+  signedIn.value
+    ? (summary.value?.totalSpent ?? 0)
+    : getTotalSpent(localItems.value),
+);
+const totalIncome = computed(() =>
+  signedIn.value
+    ? (summary.value?.totalIncome ?? 0)
+    : getTotalIncome(localItems.value),
+);
+const itemsCount = computed(() =>
+  signedIn.value ? (summary.value?.itemsCount ?? 0) : localItems.value.length,
+);
+const categoryBreakdown = computed(() =>
+  signedIn.value
+    ? (summary.value?.categoryBreakdown ?? [])
+    : buildExpenseBreakdown(localItems.value, totalSpent.value),
+);
 const netBalance = computed(() =>
   getNetBalance(totalIncome.value, totalSpent.value),
 );
-const dateSpanDays = computed(() =>
-  getExpenseDateSpanDays(filteredExpenses.value),
+const rangeLabel = computed(
+  () => `${activeRange.value.from} – ${activeRange.value.to}`,
 );
-const dailyAvg = computed(() =>
-  getExpenseDailyAverage(
-    filteredExpenses.value,
-    totalSpent.value,
-    dateSpanDays.value,
-  ),
-);
+const dailyAvg = computed(() => {
+  const days =
+    (Date.parse(activeRange.value.to) - Date.parse(activeRange.value.from)) /
+      86400000 +
+    1;
+  return days > 0 ? totalSpent.value / days : 0;
+});
 const budgetValue = computed(() => getBudgetValue(budget.value));
 const budgetRemaining = computed(() =>
   getBudgetRemaining(budgetValue.value, totalSpent.value),
@@ -245,190 +341,112 @@ const budgetPercent = computed(() =>
 const budgetStatus = computed(() =>
   getBudgetStatus(budgetValue.value, totalSpent.value),
 );
-const categoryBreakdown = computed(() =>
-  buildExpenseBreakdown(filteredExpenses.value, totalSpent.value),
-);
-const topExpenses = computed(() => getTopExpenseItems(filteredExpenses.value));
 const insights = computed(() =>
   buildExpenseInsights({
     currency: currency.value,
-    items: filteredExpenses.value,
+    items: [],
+    itemsCount: itemsCount.value,
     totalIncome: totalIncome.value,
     totalSpent: totalSpent.value,
     netBalance: netBalance.value,
     categoryBreakdown: categoryBreakdown.value,
-    topExpenses: topExpenses.value,
+    topExpenses: [],
     budgetValue: budgetValue.value,
     budgetRemaining: budgetRemaining.value,
     dailyAvg: dailyAvg.value,
   }),
 );
+const persistenceMessage = computed(() => {
+  if (!signedIn.value) return "Sign in to save expenses to your account.";
+  if (!ready.value) return "Loading your dashboard…";
+  if (saveError.value) return "Changes need your attention.";
+  return saving.value ? "Saving changes…" : "Saved securely to your account.";
+});
 
-watch(
-  rows,
-  () => {
-    if (rawError.value) {
-      rawError.value = "";
-    }
-  },
-  { deep: true },
-);
-
-watch(
-  [currency, rangeMode, budget, rows, raw, quickExpenseEnabled],
-  () => {
-    if (!isHydrated.value || !canPersistFullState.value || !user.value) return;
-    if (saveTimer) clearTimeout(saveTimer);
-    persistenceState.value = "saving";
-    saveTimer = setTimeout(() => void saveExpenseState(), 700);
-  },
-  { deep: true },
-);
-
-async function saveExpenseState() {
-  if (!canPersistFullState.value || !user.value) {
-    persistenceState.value = "failed";
-    return false;
+function applyPreset(days: number) {
+  const today = new Date();
+  if (days === 0) {
+    dateFrom.value = `${getExpenseMonthISO(today)}-01`;
+    dateTo.value = todayISO(
+      new Date(today.getFullYear(), today.getMonth() + 1, 0),
+    );
+  } else {
+    dateTo.value = todayISO(today);
+    today.setDate(today.getDate() - days + 1);
+    dateFrom.value = todayISO(today);
   }
-
-  try {
-    await $fetch("/api/expenses/state", {
-      method: "PUT",
-      body: {
-        currency: currency.value,
-        rangeMode: rangeMode.value,
-        budgetPeriod: budget.value.period,
-        budgetAmount: budget.value.amount,
-        raw: raw.value,
-        expectedRowCount: persistedRowCount.value ?? undefined,
-        rows: rows.value.map((row) => ({
-          type: row.type ?? "expense",
-          date: row.date ?? "",
-          category: row.category ?? "",
-          customCategory: row.customCategory,
-          note: row.note ?? "",
-          showNote: row.showNote ?? false,
-          amount: row.amount ?? "",
-        })),
-        quickExpenseEnabled: quickExpenseEnabled.value,
-      },
-    });
-    persistedRowCount.value = rows.value.length;
-    persistenceState.value = "saved";
-    return true;
-  } catch {
-    persistenceState.value = "failed";
-    return false;
-  }
+  void applyFilter();
 }
 
-async function saveImmediately() {
-  await nextTick();
-  if (!isHydrated.value || !canPersistFullState.value || !user.value) return false;
-  if (saveTimer) {
-    clearTimeout(saveTimer);
-    saveTimer = null;
-  }
-  persistenceState.value = "saving";
-  return await saveExpenseState();
-}
-
-async function saveQuickExpenseImmediately() {
-  if (!(await saveImmediately())) return;
-
+function showSavedNotice() {
   quickSaveNotice.value = true;
-  if (quickSaveNoticeTimer) clearTimeout(quickSaveNoticeTimer);
-  quickSaveNoticeTimer = setTimeout(() => {
+  if (noticeTimer) clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => {
     quickSaveNotice.value = false;
-    quickSaveNoticeTimer = null;
   }, 2200);
 }
 
+async function saveQuickExpense(row: ExpenseRow) {
+  if (saving.value || loading.value || !ready.value) return;
+  let success: boolean;
+  if (pendingQuickId && rows.value.some((item) => item.id === pendingQuickId)) {
+    const pending = rows.value.find((item) => item.id === pendingQuickId)!;
+    Object.assign(pending, row);
+    success = await persist();
+  } else {
+    pendingQuickId = crypto.randomUUID();
+    success = await appendRows([{ ...row, id: pendingQuickId }]);
+  }
+  if (!success) return;
+  pendingQuickId = null;
+  inputCard.value?.resetQuickForm();
+  if (signedIn.value) showSavedNotice();
+}
+
+async function retrySave() {
+  if (!(await persist())) return;
+  if (pendingQuickId) {
+    pendingQuickId = null;
+    inputCard.value?.resetQuickForm();
+    showSavedNotice();
+  }
+}
+
 function storeGuestDraft() {
-  sessionStorage.setItem("chlatwork-expense-login-draft", JSON.stringify({
-    currency: currency.value,
-    rangeMode: rangeMode.value,
-    budget: budget.value,
-    raw: raw.value,
-    rows: rows.value,
-    quickExpenseEnabled: quickExpenseEnabled.value,
-  }));
+  sessionStorage.setItem(
+    "chlatwork-expense-login-draft",
+    JSON.stringify({
+      currency: currency.value,
+      budget: budget.value,
+      rows: rows.value,
+      raw: raw.value,
+    }),
+  );
 }
 
-function applyRaw() {
+async function applyRaw() {
   rawError.value = "";
-  if (!raw.value.trim()) {
-    return;
-  }
-
   try {
-    const nextRows = parseExpenseRaw(raw.value);
-    rows.value = nextRows;
-  } catch (error: any) {
-    rawError.value = error?.message || "Invalid paste input";
+    const pasted = parseExpenseRaw(raw.value);
+    if (await appendRows(pasted)) raw.value = "";
+  } catch (caught) {
+    rawError.value =
+      caught instanceof Error ? caught.message : "Invalid paste input";
   }
 }
 
-function applyExpenseExample(exampleCurrency = currency.value) {
+function loadExample() {
+  if (signedIn.value) return;
   const example = getExpenseExampleState();
-  currency.value = exampleCurrency;
-  rows.value = example.rows;
+  rows.value = example.rows.map((row) => ({ ...row, id: crypto.randomUUID() }));
   budget.value = example.budget;
-  rangeMode.value = example.rangeMode;
-  raw.value = example.raw;
-  rawError.value = "";
-}
-
-function copyTextWithSelection(value: string) {
-  const textarea = document.createElement("textarea");
-  textarea.value = value;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.top = "-9999px";
-  textarea.style.opacity = "0";
-
-  document.body.appendChild(textarea);
-
-  try {
-    textarea.focus({ preventScroll: true });
-  } catch {
-    textarea.focus();
-  }
-
-  textarea.select();
-  textarea.setSelectionRange(0, value.length);
-
-  try {
-    return document.execCommand("copy");
-  } catch {
-    return false;
-  } finally {
-    textarea.remove();
-  }
-}
-
-async function copyTextToClipboard(value: string) {
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(value);
-      return true;
-    } catch {
-      // Some mobile browsers reject async clipboard writes despite a user action.
-    }
-  }
-
-  return copyTextWithSelection(value);
 }
 
 async function copySummary() {
-  if (!filteredExpenses.value.length) {
-    return;
-  }
-
   const lines = buildExpenseSummaryLines({
     currency: currency.value,
     rangeLabel: rangeLabel.value,
-    itemsCount: filteredExpenses.value.length,
+    itemsCount: itemsCount.value,
     totalIncome: totalIncome.value,
     totalSpent: totalSpent.value,
     netBalance: netBalance.value,
@@ -439,137 +457,110 @@ async function copySummary() {
     budgetPercent: budgetPercent.value,
     categoryBreakdown: categoryBreakdown.value,
   });
-
-  if (await copyTextToClipboard(lines.join("\n"))) {
-    flashCopied();
+  let didCopy = false;
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      didCopy = true;
+    } catch {
+      /* Use selection fallback in browsers that reject clipboard access. */
+    }
   }
-}
-
-function loadExample() {
-  applyExpenseExample();
-}
-
-function applyQuickExpenseSettings(enabled: boolean) {
-  quickExpenseEnabled.value = enabled;
-  syncQuickExpenseSettings({ enabled, currency: currency.value });
-}
-
-async function finishInitialStateLoad(allowFullStateSave: boolean) {
-  // Initial assignments trigger the deep watcher; let it flush while autosave is still disabled.
-  await nextTick();
-  canPersistFullState.value = allowFullStateSave;
-  isHydrated.value = true;
+  if (!didCopy) {
+    const textarea = document.createElement("textarea");
+    textarea.value = lines.join("\n");
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    document.body.appendChild(textarea);
+    try {
+      textarea.focus({ preventScroll: true });
+      textarea.select();
+      didCopy = document.execCommand("copy");
+    } catch {
+      didCopy = false;
+    } finally {
+      textarea.remove();
+    }
+  }
+  if (didCopy) {
+    copied.value = true;
+    if (copiedTimer) clearTimeout(copiedTimer);
+    copiedTimer = setTimeout(() => {
+      copied.value = false;
+    }, 1500);
+  } else rawError.value = "Could not copy the summary. Try again.";
 }
 
 function handleFloatingQuickExpense(event: Event) {
   const row = (event as CustomEvent<ExpenseRow>).detail;
-  if (!row || row.type !== "expense" || !row.amount) return;
-  rows.value = [...rows.value, row];
-  // The quick-entry endpoint already appended this row, so advance the concurrency token before syncing local edits.
-  persistedRowCount.value = rows.value.length;
-  void saveImmediately();
+  if (row?.id && row.type === "expense") acceptSavedEntry(row);
 }
 
+watch(currency, (value) => {
+  if (ready.value && signedIn.value)
+    syncSettings({
+      enabled: floatingQuickExpenseEnabled.value,
+      currency: value,
+    });
+});
+
 onMounted(async () => {
-  window.addEventListener("chlatwork:quick-expense-saved", handleFloatingQuickExpense);
+  window.addEventListener(
+    "chlatwork:quick-expense-saved",
+    handleFloatingQuickExpense,
+  );
   if (!isAuthReady.value) await fetchMe();
-
-  if (user.value && !route.query.example) {
-    const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
-    if (draft) {
-      try {
-        const parsedDraft: unknown = JSON.parse(draft);
-        if (!hasCompleteExpenseStoredRows(parsedDraft)) {
-          throw new Error("Saved expense draft is missing rows");
-        }
-        const savedDraft = normalizeExpenseStoredState(parsedDraft);
-        if (!savedDraft) throw new Error("Invalid saved expense draft");
-
-        const accountResponse = await $fetch<unknown>("/api/expenses/state");
-        if (!hasCompleteExpenseStoredRows(accountResponse)) {
-          throw new Error("Expense state response is missing saved rows");
-        }
-        const accountState = normalizeExpenseStoredState(accountResponse);
-        const accountRows = accountState?.rows ?? [];
-
-        currency.value = savedDraft.currency;
-        rangeMode.value = savedDraft.rangeMode;
-        budget.value = savedDraft.budget;
-        raw.value = savedDraft.raw;
-        rows.value = [...accountRows, ...savedDraft.rows];
-        persistedRowCount.value = accountRows.length;
-        applyQuickExpenseSettings(savedDraft.quickExpenseEnabled ?? false);
-        persistenceState.value = "saving";
-        await finishInitialStateLoad(true);
-        if (await saveExpenseState()) {
-          sessionStorage.removeItem("chlatwork-expense-login-draft");
-        }
-        return;
-      } catch {
-        // Keep the draft recoverable when account state cannot be loaded safely.
-      }
-    }
-  }
-
-  if (route.query.example === "1") {
-    applyExpenseExample(route.query.c === "KHR" ? "KHR" : "USD");
-    persistenceState.value = user.value ? "saved" : "guest";
-    await finishInitialStateLoad(false);
-    return;
-  }
-
-  if (!user.value) {
-    persistenceState.value = "guest";
-    await finishInitialStateLoad(false);
-    return;
-  }
-
-  let receivedCompleteState = false;
-  try {
-    const response = await $fetch<unknown>("/api/expenses/state");
-    if (!hasCompleteExpenseStoredRows(response)) {
-      throw new Error("Expense state response is missing saved rows");
-    }
-    receivedCompleteState = true;
-    const saved = normalizeExpenseStoredState(response);
-    if (saved) {
-      currency.value = saved.currency;
-      rangeMode.value = saved.rangeMode;
-      budget.value = saved.budget;
-      raw.value = saved.raw;
-      rows.value = saved.rows;
-      persistedRowCount.value = saved.rows.length;
-      applyQuickExpenseSettings(saved.quickExpenseEnabled ?? false);
-    } else {
-      persistedRowCount.value = 0;
-    }
-    persistenceState.value = "saved";
-  } catch {
-    persistenceState.value = "failed";
-  } finally {
-    await finishInitialStateLoad(receivedCompleteState);
-  }
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("chlatwork:quick-expense-saved", handleFloatingQuickExpense);
-  if (copiedTimer) {
-    clearTimeout(copiedTimer);
-  }
-
-  if (quickSaveNoticeTimer) clearTimeout(quickSaveNoticeTimer);
-  if (saveTimer) clearTimeout(saveTimer);
-});
-
-watch(quickExpenseEnabled, (enabled) => {
-  floatingQuickExpenseEnabled.value = enabled;
-});
-
-watch(currency, (nextCurrency) => {
-  if (!user.value) return;
-  syncQuickExpenseSettings({
+  const example = route.query.example === "1" ? getExpenseExampleState() : null;
+  await initialize(
+    example
+      ? normalizeExpenseStoredState({
+          ...example,
+          currency: route.query.c === "KHR" ? "KHR" : "USD",
+        })
+      : null,
+  );
+  if (!signedIn.value || !ready.value) return;
+  syncSettings({
     enabled: quickExpenseEnabled.value,
-    currency: nextCurrency,
+    currency: currency.value,
   });
+  const draft = sessionStorage.getItem("chlatwork-expense-login-draft");
+  if (draft) {
+    try {
+      const parsed: unknown = JSON.parse(draft);
+      if (!hasCompleteExpenseStoredRows(parsed))
+        throw new Error("Incomplete draft");
+      const saved = normalizeExpenseStoredState(parsed);
+      if (!saved) throw new Error("Invalid draft");
+      currency.value = saved.currency;
+      budget.value = saved.budget;
+      // Retain client IDs in the recoverable draft so a retry cannot duplicate saved entries.
+      saved.rows = saved.rows.map((row) => ({
+        ...row,
+        id: row.id ?? crypto.randomUUID(),
+        updatedAt: undefined,
+      }));
+      sessionStorage.setItem(
+        "chlatwork-expense-login-draft",
+        JSON.stringify(saved),
+      );
+      if (await appendRows(saved.rows))
+        sessionStorage.removeItem("chlatwork-expense-login-draft");
+    } catch {
+      error.value =
+        "Your expense draft is kept on this device. Reload to try importing it again.";
+    }
+  }
+});
+
+onBeforeRouteLeave(async () => !signedIn.value || (await persist()));
+onBeforeUnmount(() => {
+  window.removeEventListener(
+    "chlatwork:quick-expense-saved",
+    handleFloatingQuickExpense,
+  );
+  if (copiedTimer) clearTimeout(copiedTimer);
+  if (noticeTimer) clearTimeout(noticeTimer);
 });
 </script>
