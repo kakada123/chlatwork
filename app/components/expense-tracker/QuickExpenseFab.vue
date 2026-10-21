@@ -65,6 +65,7 @@ let previousBodyStyles: {
   width: string;
 } | null = null;
 let noticeTimer: ReturnType<typeof setTimeout> | null = null;
+let previouslyFocused: HTMLElement | null = null;
 
 function syncVisualViewport() {
   const viewport = window.visualViewport;
@@ -99,6 +100,8 @@ function unlockPageScroll() {
 }
 
 function openDialog() {
+  if (isOpen.value) return;
+  previouslyFocused = document.activeElement as HTMLElement | null;
   error.value = "";
   isOpen.value = true;
 }
@@ -183,7 +186,9 @@ watch(isOpen, async (open) => {
   }
   unlockPageScroll();
   await nextTick();
-  trigger.value?.focus();
+  // Manual page buttons can open the dialog even when its floating trigger is disabled.
+  if (previouslyFocused?.isConnected) previouslyFocused.focus();
+  else trigger.value?.focus();
 });
 
 onMounted(() => {

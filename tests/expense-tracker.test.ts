@@ -236,10 +236,6 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
     new URL("../app/components/expense-tracker/ExpenseTrackerHeader.vue", import.meta.url),
     "utf8",
   );
-  const input = readFileSync(
-    new URL("../app/components/expense-tracker/ExpenseTrackerInputCard.vue", import.meta.url),
-    "utf8",
-  );
   const page = readFileSync(
     new URL("../app/pages/tools/expense-tracker.vue", import.meta.url),
     "utf8",
@@ -253,17 +249,14 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
     "utf8",
   );
 
-  assert.match(input, /<QuickExpenseForm/);
-  assert.match(input, /Review and manage saved entries/);
-  assert.match(input, /v-if="displayRows\.length === 0"/);
-  assert.doesNotMatch(input, /<option value="all">All entries<\/option>/);
+  assert.match(page, /@click="openQuickExpense"/);
+  assert.doesNotMatch(page, /<ExpenseTrackerInputCard|<QuickExpenseForm/);
   assert.match(account, /Quick Expense button/);
   assert.match(account, /aria-label="Show Quick Expense button"/);
   assert.doesNotMatch(page, /Enable quick expense button/);
   assert.match(page, /Expense saved to your account/);
   assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(header, /<header class="mb-6 hidden sm:block">/);
-  assert.match(input, /mb-5 hidden items-start justify-between gap-3 sm:flex/);
   assert.match(form, /fieldset class="min-w-0 max-w-full overflow-hidden"/);
   assert.match(form, /sm:grid-cols-\[minmax\(12rem,1fr\)_minmax\(10rem,14rem\)\]/);
   assert.match(form, /h-14 min-w-0 w-full/);
@@ -281,7 +274,6 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
   assert.match(form, /desktop-note/);
   assert.match(form, /mobile-note/);
   assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
-  assert.match(input, /min-w-0 overflow-hidden rounded-3xl/);
   assert.match(page, /min-w-0 w-full[^\"]*overflow-x-clip/);
   assert.match(form, /relative mt-2 hidden sm:block/);
   assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);

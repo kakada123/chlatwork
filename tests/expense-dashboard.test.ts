@@ -72,14 +72,14 @@ test("opening the dashboard loads totals but no entry history or writes", async 
   }
 });
 
-test("applying dates fetches matching entries and switching dates never saves unchanged rows", async () => {
+test("dashboard range filters update totals without loading entry history", async () => {
   const writes: unknown[] = [];
   const ranges: unknown[] = [];
   const { dashboard, unmount } = mountDashboard(async (path, options) => {
     if (options?.method) writes.push(options);
     if (path.endsWith("entries")) {
       ranges.push(options.query);
-      return [entry];
+      return [{ ...entry }];
     }
     if (path.endsWith("summary")) return totals;
     return { currency: "USD", rows: [] };
@@ -90,8 +90,8 @@ test("applying dates fetches matching entries and switching dates never saves un
     dashboard.dateTo.value = "2026-10-21";
     await dashboard.applyFilter();
     assert.equal(dashboard.hasAppliedFilter.value, true);
-    assert.equal(dashboard.rows.value[0].id, entry.id);
-    assert.deepEqual(ranges, [{ from: "2026-10-01", to: "2026-10-21" }]);
+    assert.deepEqual(dashboard.rows.value, []);
+    assert.deepEqual(ranges, []);
     dashboard.dateTo.value = "2026-10-31";
     await dashboard.applyFilter();
     assert.deepEqual(writes, []);
@@ -148,13 +148,13 @@ test("edits made during a save use the returned version and are not lost", async
         ],
       };
     }
-    if (path.endsWith("entries")) return [entry];
+    if (path.endsWith("entries")) return [{ ...entry }];
     if (path.endsWith("summary")) return totals;
     return { currency: "USD", rows: [] };
   });
   try {
     await dashboard.initialize();
-    await dashboard.applyFilter();
+    await dashboard.searchEntries("2026-10-01");
     dashboard.rows.value[0].amount = "6";
     const saving = dashboard.persist();
     dashboard.rows.value[0].amount = "7";
@@ -174,13 +174,13 @@ test("edits made during a save use the returned version and are not lost", async
 test("a failed save keeps edits and blocks changing the active filter", async () => {
   const { dashboard, unmount } = mountDashboard(async (path, options) => {
     if (options?.method) throw { statusCode: 409 };
-    if (path.endsWith("entries")) return [entry];
+    if (path.endsWith("entries")) return [{ ...entry }];
     if (path.endsWith("summary")) return totals;
     return { currency: "USD", rows: [] };
   });
   try {
     await dashboard.initialize();
-    await dashboard.applyFilter();
+    await dashboard.searchEntries("2026-10-01");
     const previous = { ...dashboard.activeRange.value };
     dashboard.rows.value[0].amount = "6";
     dashboard.dateFrom.value = "2026-09-01";
@@ -188,6 +188,83 @@ test("a failed save keeps edits and blocks changing the active filter", async ()
     assert.deepEqual(dashboard.activeRange.value, previous);
     assert.equal(dashboard.rows.value[0].amount, "6");
     assert.match(dashboard.saveError.value, /changed elsewhere/);
+  } finally {
+    unmount();
+  }
+});
+
+test("searching a specific day requests only that day and keeps the dashboard range", async () => {
+  const reads: unknown[] = [];
+  const { dashboard, unmount } = mountDashboard(async (path, options) => {
+    if (path.endsWith("entries")) {
+      reads.push(options.query);
+      return [{ ...entry }];
+    }
+    if (path.endsWith("summary")) return totals;
+    return { currency: "USD", rows: [] };
+  });
+  try {
+    await dashboard.initialize();
+    const range = { ...dashboard.activeRange.value };
+    await dashboard.searchEntries("2026-10-01");
+    assert.deepEqual(reads, [{ from: "2026-10-01", to: "2026-10-01" }]);
+    assert.equal(dashboard.searchedDate.value, "2026-10-01");
+    assert.deepEqual(dashboard.activeRange.value, range);
+    assert.equal(dashboard.rows.value[0].id, entry.id);
+  } finally {
+    unmount();
+  }
+});
+
+test("editing a detached modal draft does not save or change the read-only list before Save", async () => {
+  const writes: any[] = [];
+  const { dashboard, unmount } = mountDashboard(async (path, options) => {
+    if (options?.method) {
+      writes.push(options.body);
+      return {
+        rows: [
+          { ...entry, amount: "9", updatedAt: "2026-10-21T00:00:00.000Z" },
+        ],
+      };
+    }
+    if (path.endsWith("entries")) return [{ ...entry }];
+    if (path.endsWith("summary")) return totals;
+    return { currency: "USD", rows: [] };
+  });
+  try {
+    await dashboard.initialize();
+    await dashboard.searchEntries("2026-10-01");
+    const draft = { ...dashboard.rows.value[0], amount: "9" };
+    await nextTick();
+    assert.equal(dashboard.rows.value[0].amount, "5");
+    assert.equal(writes.length, 0);
+    assert.equal(await dashboard.updateEntry(draft), true);
+    assert.equal(writes.length, 1);
+    assert.equal(writes[0].upserts[0].id, entry.id);
+    assert.equal(writes[0].upserts[0].updatedAt, entry.updatedAt);
+    assert.equal(writes[0].upserts[0].amount, "9");
+    assert.equal(dashboard.rows.value[0].amount, "9");
+  } finally {
+    unmount();
+  }
+});
+
+test("a failed modal save leaves the read-only entry unchanged", async () => {
+  const { dashboard, unmount } = mountDashboard(async (path, options) => {
+    if (options?.method) throw { statusCode: 409 };
+    if (path.endsWith("entries")) return [{ ...entry }];
+    if (path.endsWith("summary")) return totals;
+    return { currency: "USD", rows: [] };
+  });
+  try {
+    await dashboard.initialize();
+    await dashboard.searchEntries("2026-10-01");
+    assert.equal(
+      await dashboard.updateEntry({ ...dashboard.rows.value[0], amount: "9" }),
+      false,
+    );
+    assert.equal(dashboard.rows.value[0].amount, "5");
+    assert.match(dashboard.editError.value, /changed elsewhere/);
   } finally {
     unmount();
   }

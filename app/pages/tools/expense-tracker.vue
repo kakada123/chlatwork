@@ -16,15 +16,29 @@
           See where your money goes and stay on budget.
         </p>
       </div>
-      <select
-        v-model="currency"
-        aria-label="Expense currency"
-        :disabled="!ready || loading"
-        class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold dark:border-white/10 dark:bg-[#101214]"
-      >
-        <option value="USD">USD</option>
-        <option value="KHR">KHR</option>
-      </select>
+      <div class="flex w-full items-center gap-2 sm:w-auto">
+        <!-- Manual entry stays available when the floating quick-expense shortcut is disabled. -->
+        <button
+          v-if="signedIn"
+          type="button"
+          :disabled="entryBusy"
+          aria-haspopup="dialog"
+          class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-black text-white transition hover:bg-sky-700 disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100 sm:flex-none"
+          @click="openQuickExpense"
+        >
+          <span aria-hidden="true" class="text-lg leading-none">＋</span>
+          Add expense
+        </button>
+        <select
+          v-model="currency"
+          aria-label="Expense currency"
+          :disabled="entryBusy"
+          class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold dark:border-white/10 dark:bg-[#101214]"
+        >
+          <option value="USD">USD</option>
+          <option value="KHR">KHR</option>
+        </select>
+      </div>
     </header>
 
     <form
@@ -32,7 +46,7 @@
       @submit.prevent="applyFilter"
     >
       <fieldset
-        :disabled="!ready || loading || saving"
+        :disabled="entryBusy"
         class="grid min-w-0 grid-cols-2 items-end gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
       >
         <div class="min-w-0">
@@ -59,7 +73,7 @@
           v-for="preset in datePresets"
           :key="preset.label"
           type="button"
-          :disabled="!ready || loading || saving"
+          :disabled="entryBusy"
           class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 disabled:opacity-50 dark:border-white/10 dark:text-white/70"
           @click="applyPreset(preset.days)"
         >
@@ -110,7 +124,7 @@
           :currency="currency"
           :range-label="rangeLabel"
           :items-count="itemsCount"
-          :busy="loading"
+          :busy="loading || loadingEntries || editingSaving"
           :total-income="totalIncome"
           :total-spent="totalSpent"
           :net-balance="netBalance"
@@ -125,24 +139,16 @@
       </section>
 
       <div class="min-w-0 space-y-3">
-        <ExpenseTrackerInputCard
-          ref="inputCard"
-          v-model:rows="rows"
-          v-model:raw="raw"
+        <ExpenseEntryHistory
+          v-model:date="entryDate"
+          :rows="rows"
           :currency="currency"
-          :date-from="activeRange.from"
-          :date-to="activeRange.to"
-          :has-applied-filter="hasAppliedFilter"
-          :busy="!ready || loading"
-          :saving="saving"
-          :copied="copied"
-          :can-copy="itemsCount > 0"
-          :error="rawError"
-          :signed-in="signedIn"
-          @apply-raw="applyRaw"
-          @copy-summary="copySummary"
-          @load-example="loadExample"
-          @quick-add="saveQuickExpense"
+          :searched-date="searchedDate"
+          :loading="loadingEntries"
+          :busy="entryBusy"
+          :error="entrySearchError"
+          @search="searchEntries()"
+          @edit="openEditor"
         />
         <AuthResultAuthGate
           v-if="!signedIn && isAuthReady"
@@ -153,6 +159,16 @@
         </p>
       </div>
     </div>
+
+    <ExpenseEntryEditDialog
+      v-if="editingEntry"
+      :row="editingEntry"
+      :currency="currency"
+      :busy="editingSaving"
+      :error="editError"
+      @close="closeEditor"
+      @save="saveEditedEntry"
+    />
 
     <Transition
       enter-active-class="transition duration-200 ease-out"
@@ -214,11 +230,11 @@
 
 <script setup lang="ts">
 import type { ExpenseRow } from "~/lib/expense-tracker";
+import { openQuickExpense } from "~/composables/useQuickExpense";
 import {
   EXPENSE_SAVE_MOTIVATION,
   buildExpenseBreakdown,
   buildExpenseInsights,
-  buildExpenseSummaryLines,
   collectExpenseItems,
   getBudgetPercent,
   getBudgetRemaining,
@@ -231,7 +247,6 @@ import {
   getTotalSpent,
   hasCompleteExpenseStoredRows,
   normalizeExpenseStoredState,
-  parseExpenseRaw,
   todayISO,
 } from "~/lib/expense-tracker";
 
@@ -249,7 +264,12 @@ const {
   dateFrom,
   dateTo,
   activeRange,
-  hasAppliedFilter,
+  entryDate,
+  searchedDate,
+  loadingEntries,
+  entrySearchError,
+  editingSaving,
+  editError,
   loading,
   loadingSummary,
   ready,
@@ -258,18 +278,23 @@ const {
   saveError,
   persist,
   applyFilter,
+  searchEntries,
+  updateEntry,
   initialize,
   appendRows,
   acceptSavedEntry,
 } = useExpenseDashboard(signedIn);
-const inputCard = ref<{ resetQuickForm: () => void } | null>(null);
-const raw = ref("");
-const rawError = ref("");
-const copied = ref(false);
+const editingEntry = ref<ExpenseRow | null>(null);
+const entryBusy = computed(
+  () =>
+    !ready.value ||
+    loading.value ||
+    saving.value ||
+    editingSaving.value ||
+    loadingEntries.value,
+);
 const quickSaveNotice = ref(false);
-let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 let noticeTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingQuickId: string | null = null;
 const datePresets = [
   { label: "Today", days: 1 },
   { label: "Last 7 days", days: 7 },
@@ -386,30 +411,8 @@ function showSavedNotice() {
   }, 2200);
 }
 
-async function saveQuickExpense(row: ExpenseRow) {
-  if (saving.value || loading.value || !ready.value) return;
-  let success: boolean;
-  if (pendingQuickId && rows.value.some((item) => item.id === pendingQuickId)) {
-    const pending = rows.value.find((item) => item.id === pendingQuickId)!;
-    Object.assign(pending, row);
-    success = await persist();
-  } else {
-    pendingQuickId = crypto.randomUUID();
-    success = await appendRows([{ ...row, id: pendingQuickId }]);
-  }
-  if (!success) return;
-  pendingQuickId = null;
-  inputCard.value?.resetQuickForm();
-  if (signedIn.value) showSavedNotice();
-}
-
 async function retrySave() {
-  if (!(await persist())) return;
-  if (pendingQuickId) {
-    pendingQuickId = null;
-    inputCard.value?.resetQuickForm();
-    showSavedNotice();
-  }
+  await persist();
 }
 
 function storeGuestDraft() {
@@ -419,77 +422,27 @@ function storeGuestDraft() {
       currency: currency.value,
       budget: budget.value,
       rows: rows.value,
-      raw: raw.value,
     }),
   );
 }
 
-async function applyRaw() {
-  rawError.value = "";
-  try {
-    const pasted = parseExpenseRaw(raw.value);
-    if (await appendRows(pasted)) raw.value = "";
-  } catch (caught) {
-    rawError.value =
-      caught instanceof Error ? caught.message : "Invalid paste input";
-  }
+function openEditor(row: ExpenseRow) {
+  if (entryBusy.value) return;
+  // A detached snapshot keeps modal typing and Cancel separate from saved list data.
+  editingEntry.value = { ...row };
+  editError.value = "";
 }
 
-function loadExample() {
-  if (signedIn.value) return;
-  const example = getExpenseExampleState();
-  rows.value = example.rows.map((row) => ({ ...row, id: crypto.randomUUID() }));
-  budget.value = example.budget;
+function closeEditor() {
+  if (editingSaving.value) return;
+  editingEntry.value = null;
+  editError.value = "";
 }
 
-async function copySummary() {
-  const lines = buildExpenseSummaryLines({
-    currency: currency.value,
-    rangeLabel: rangeLabel.value,
-    itemsCount: itemsCount.value,
-    totalIncome: totalIncome.value,
-    totalSpent: totalSpent.value,
-    netBalance: netBalance.value,
-    dailyAvg: dailyAvg.value,
-    budget: budget.value,
-    budgetValue: budgetValue.value,
-    budgetRemaining: budgetRemaining.value,
-    budgetPercent: budgetPercent.value,
-    categoryBreakdown: categoryBreakdown.value,
-  });
-  let didCopy = false;
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(lines.join("\n"));
-      didCopy = true;
-    } catch {
-      /* Use selection fallback in browsers that reject clipboard access. */
-    }
-  }
-  if (!didCopy) {
-    const textarea = document.createElement("textarea");
-    textarea.value = lines.join("\n");
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "-9999px";
-    document.body.appendChild(textarea);
-    try {
-      textarea.focus({ preventScroll: true });
-      textarea.select();
-      didCopy = document.execCommand("copy");
-    } catch {
-      didCopy = false;
-    } finally {
-      textarea.remove();
-    }
-  }
-  if (didCopy) {
-    copied.value = true;
-    if (copiedTimer) clearTimeout(copiedTimer);
-    copiedTimer = setTimeout(() => {
-      copied.value = false;
-    }, 1500);
-  } else rawError.value = "Could not copy the summary. Try again.";
+async function saveEditedEntry(row: ExpenseRow) {
+  if (!(await updateEntry(row))) return;
+  editingEntry.value = null;
+  if (signedIn.value) showSavedNotice();
 }
 
 function handleFloatingQuickExpense(event: Event) {
@@ -560,7 +513,6 @@ onBeforeUnmount(() => {
     "chlatwork:quick-expense-saved",
     handleFloatingQuickExpense,
   );
-  if (copiedTimer) clearTimeout(copiedTimer);
   if (noticeTimer) clearTimeout(noticeTimer);
 });
 </script>

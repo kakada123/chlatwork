@@ -3,7 +3,7 @@ import { Check, ChevronDown, MessageSquarePlus, ReceiptText, X } from "lucide-vu
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import {
   createExpenseRow,
-  expenseCategories,
+  getPresetCategoriesForExpenseRow,
   parseExpenseAmountToCents,
   todayISO,
 } from "~/lib/expense-tracker";
@@ -14,6 +14,7 @@ const props = withDefaults(
     busy?: boolean;
     submitLabel?: string;
     autofocus?: boolean;
+    initialRow?: ExpenseRow;
   }>(),
   {
     busy: false,
@@ -26,13 +27,18 @@ const emit = defineEmits<{
   submit: [row: ExpenseRow];
 }>();
 
-const featuredCategories = ["Food", "Coffee", "Transport", "Bills", "Shopping", "Other"];
-const amount = ref("");
-const category = ref("Food");
-const customCategory = ref("");
-const date = ref(todayISO());
-const note = ref("");
-const showOptionalNote = ref(false);
+const availableCategories = computed(() => getPresetCategoriesForExpenseRow(props.initialRow ?? createExpenseRow()));
+const featuredCategories = computed(() => props.initialRow?.type === "income"
+  ? availableCategories.value.slice(0, 6)
+  : ["Food", "Coffee", "Transport", "Bills", "Shopping", "Other"]);
+const initialCategory = props.initialRow?.category ?? "Food";
+const isPresetCategory = availableCategories.value.includes(initialCategory);
+const amount = ref(props.initialRow?.amount ?? "");
+const category = ref(isPresetCategory ? initialCategory : "__custom__");
+const customCategory = ref(props.initialRow?.customCategory ?? (isPresetCategory || initialCategory === "__custom__" ? "" : initialCategory));
+const date = ref(props.initialRow?.date ?? todayISO());
+const note = ref(props.initialRow?.note ?? "");
+const showOptionalNote = ref(Boolean(props.initialRow?.note));
 const error = ref("");
 const amountInput = ref<HTMLInputElement | null>(null);
 const categoryPicker = ref<HTMLDetailsElement | null>(null);
@@ -88,7 +94,14 @@ async function selectMobileCategory(value: string) {
 }
 
 function submit() {
+  if (props.busy) return;
   error.value = "";
+
+  const entryDate = new Date(`${date.value}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date.value) || !Number.isFinite(entryDate.getTime()) || entryDate.toISOString().slice(0, 10) !== date.value) {
+    error.value = "Choose a valid date for this entry.";
+    return;
+  }
 
   try {
     parseExpenseAmountToCents(amount.value);
@@ -103,7 +116,7 @@ function submit() {
     return;
   }
 
-  const row = createExpenseRow(category.value, date.value);
+  const row: ExpenseRow = { ...props.initialRow, ...createExpenseRow(category.value, date.value), type: props.initialRow?.type ?? "expense", customCategory: undefined };
   if (category.value === "__custom__") {
     row.customCategory = customCategory.value.trim();
   }
@@ -175,7 +188,7 @@ defineExpose({ focusAmount, resetForm });
         </summary>
         <div class="grid grid-cols-2 gap-2 border-t border-slate-200 p-2 dark:border-white/10">
           <button
-            v-for="item in expenseCategories"
+            v-for="item in availableCategories"
             :key="`mobile-${item}`"
             type="button"
             class="inline-flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
@@ -224,9 +237,9 @@ defineExpose({ focusAmount, resetForm });
           v-model="category"
           class="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 pr-10 text-sm font-medium text-slate-700 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:focus:ring-cyan-300/10"
           :disabled="props.busy"
-          aria-label="All expense categories"
+          aria-label="All entry categories"
         >
-          <option v-for="item in expenseCategories" :key="item" :value="item">{{ item }}</option>
+          <option v-for="item in availableCategories" :key="item" :value="item">{{ item }}</option>
           <option value="__custom__">Custom category…</option>
         </select>
         <ChevronDown class="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-slate-400" aria-hidden="true" />
@@ -245,6 +258,11 @@ defineExpose({ focusAmount, resetForm });
         />
       </div>
     </fieldset>
+
+    <div v-if="props.initialRow" class="sm:hidden">
+      <p class="mb-1.5 text-xs font-bold text-slate-500 dark:text-white/50">Date</p>
+      <ModernDateInput v-model="date" aria-label="Entry date" />
+    </div>
 
     <div class="sm:hidden">
       <button
@@ -274,7 +292,7 @@ defineExpose({ focusAmount, resetForm });
       </div>
     </div>
 
-    <details class="group hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
+    <details :open="Boolean(props.initialRow)" class="group hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
       <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font-bold text-slate-600 dark:text-white/65">
         Date and note
         <ChevronDown class="h-4 w-4 transition group-open:rotate-180" aria-hidden="true" />
