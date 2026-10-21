@@ -55,6 +55,23 @@ const savedEntry = {
   showNote: true,
 };
 
+test("the expense page resolves the saved-entry list and editor as real components", () => {
+  const filename = "app/pages/tools/expense-tracker.vue";
+  const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
+  const compiled = compileScript(descriptor, {
+    id: "expense-page-entry-components",
+    inlineTemplate: true,
+  });
+  // Nuxt's folder-prefixed names differ from these tags; unresolved tags render no entry UI.
+  for (const name of ["ExpenseEntryHistory", "ExpenseEntryEditDialog"]) {
+    assert.ok(compiled.bindings[name], `${name} must be imported by the page`);
+    assert.doesNotMatch(
+      compiled.content,
+      new RegExp(`_resolveComponent\\("${name}"\\)`),
+    );
+  }
+});
+
 test("day search results render read-only text with Edit buttons", async () => {
   const app = createSSRApp(History, {
     currency: "USD",

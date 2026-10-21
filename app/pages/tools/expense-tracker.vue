@@ -308,6 +308,8 @@
 </template>
 
 <script setup lang="ts">
+import ExpenseEntryHistory from "~/components/expense-tracker/ExpenseEntryHistory.vue";
+import ExpenseEntryEditDialog from "~/components/expense-tracker/ExpenseEntryEditDialog.vue";
 import {
   ArrowRight,
   BarChart3,
