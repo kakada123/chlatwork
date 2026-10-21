@@ -14,19 +14,17 @@ export const PUBLIC_TRUST_PAGE_PATHS = [
   "/about",
   "/editorial-policy",
   "/contact",
+  "/buy-me-coffee",
 ];
 
-export const NAVIGATION_ONLY_PAGE_PATHS = [
-  "/link",
-  "/moments/create",
-  "/moments",
+export const PUBLIC_PRODUCT_PAGE_PATHS = ["/link", ...CREATOR_ROUTE_PATHS];
+
+export const PUBLIC_DIRECTORY_PAGE_PATHS = [
   "/developer-commands",
   "/developer-guides",
-  ...DEVELOPER_GUIDE_PATHS,
   "/tools",
   "/guides",
   "/posts",
-  ...CREATOR_ROUTE_PATHS,
   "/tools/pdf",
   "/tools/image",
   "/tools/qr-barcode",
@@ -34,6 +32,9 @@ export const NAVIGATION_ONLY_PAGE_PATHS = [
   "/tools/calculators",
   "/tools/productivity",
 ];
+
+// These are account workspaces, not public product or editorial landing pages.
+export const NAVIGATION_ONLY_PAGE_PATHS = ["/moments/create", "/moments"];
 
 export const COMMERCIAL_PAGE_PATHS = [
   "/portfolio",
@@ -84,44 +85,30 @@ export const ALL_TOOL_PAGE_PATHS = [
   "/tools/password-generator",
 ];
 
-// Initial publisher allowlist: stable tools with differentiated instructions and
-// validated core behavior. Add routes only after first-hand content review.
-export const INDEXABLE_TOOL_PAGE_PATHS = [
-  "/tools/payback-calculator",
-  "/tools/expense-tracker",
-  "/tools/image-compress",
-  "/tools/image-to-pdf",
-  "/tools/merge-pdf",
-  "/tools/split-pdf",
-  "/tools/qr",
-  "/tools/barcode",
-  "/tools/wifi-qr",
-  "/tools/calculator",
+export const INDEXABLE_TOOL_PAGE_PATHS = [...ALL_TOOL_PAGE_PATHS];
+
+export const INDEXABLE_EDITORIAL_GUIDE_PATHS = [
+  ...STARTER_GUIDE_PATHS,
+  ...DEVELOPER_GUIDE_PATHS,
 ];
 
-export const WEAK_TOOL_PAGE_PATHS = ALL_TOOL_PAGE_PATHS.filter(
-  (path) =>
-    !INDEXABLE_TOOL_PAGE_PATHS.includes(path) &&
-    !BETA_TOOL_PAGE_PATHS.includes(path),
-);
-
-export const INDEXABLE_EDITORIAL_GUIDE_PATHS = [...STARTER_GUIDE_PATHS];
-
+// Enumerate canonical public pages so restoring discovery never exposes private
+// workspaces, generated links, or catch-all parameters through automatic routing.
 export const INDEXABLE_PAGE_PATHS = [
-  "/",
-  ...PUBLIC_TRUST_PAGE_PATHS,
-  ...INDEXABLE_TOOL_PAGE_PATHS,
-  ...INDEXABLE_EDITORIAL_GUIDE_PATHS,
+  ...new Set([
+    "/",
+    ...PUBLIC_TRUST_PAGE_PATHS,
+    ...PUBLIC_PRODUCT_PAGE_PATHS,
+    ...PUBLIC_DIRECTORY_PAGE_PATHS,
+    ...COMMERCIAL_PAGE_PATHS,
+    ...LEGAL_PAGE_PATHS,
+    ...INDEXABLE_TOOL_PAGE_PATHS,
+    ...INDEXABLE_EDITORIAL_GUIDE_PATHS,
+    ...POST_PATHS,
+  ]),
 ];
 
-export const NOINDEX_PAGE_PATHS = [
-  ...BETA_TOOL_PAGE_PATHS,
-  ...WEAK_TOOL_PAGE_PATHS,
-  ...NAVIGATION_ONLY_PAGE_PATHS,
-  ...COMMERCIAL_PAGE_PATHS,
-  ...LEGAL_PAGE_PATHS,
-  ...POST_PATHS,
-];
+export const NOINDEX_PAGE_PATHS = [...NAVIGATION_ONLY_PAGE_PATHS];
 
 // The sitemap is generated from the same index allowlist used by robots metadata.
 export const PUBLIC_SITEMAP_PATHS = INDEXABLE_PAGE_PATHS;

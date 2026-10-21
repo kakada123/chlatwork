@@ -39,7 +39,6 @@ useSeoMeta({
   ogTitle: "ChlatWork Creator",
   ogDescription:
     "A focused AI content toolkit designed for Cambodian creators.",
-  robots: "noindex, follow",
 });
 
 onMounted(() => {

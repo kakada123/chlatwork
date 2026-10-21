@@ -28,11 +28,11 @@ test("the July 31 daily briefing is the first published post", () => {
   assert.equal(findPostByPath(`${post.path}/`), post);
 });
 
-test("unsourced briefing is published but excluded from search", () => {
+test("published posts are restored to search and the public sitemap", () => {
   const path = POSTS[0].path;
 
-  assert.equal(getPublisherRobots(path), "noindex, follow");
-  assert.equal(PUBLIC_SITEMAP_PATHS.includes(path), false);
+  assert.equal(getPublisherRobots(path), "index, follow");
+  assert.equal(PUBLIC_SITEMAP_PATHS.includes(path), true);
 });
 
 test("post page provides canonical, article metadata, authorship, and disclosure", () => {

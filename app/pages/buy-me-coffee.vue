@@ -6,7 +6,6 @@ const description =
 useSeoMeta({
   title,
   description,
-  robots: "noindex, follow",
   ogTitle: title,
   ogDescription: description,
   ogType: "website",

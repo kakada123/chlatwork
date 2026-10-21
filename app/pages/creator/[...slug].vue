@@ -54,7 +54,6 @@ useSeoMeta({
   description: tool.description,
   ogTitle: `${tool.title} | ChlatWork Creator`,
   ogDescription: tool.description,
-  robots: "noindex, follow",
 });
 
 function showUploadError(message: string) {

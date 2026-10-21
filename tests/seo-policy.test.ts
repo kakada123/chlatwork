@@ -3,7 +3,12 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { TOOL_GUIDE_ROUTES } from "../app/data/tool-guide-routes.ts";
+import { CREATOR_ROUTE_PATHS } from "../app/data/creator-tools.ts";
+import { DEVELOPER_GUIDE_PATHS } from "../app/data/developer-guides.ts";
+import { STARTER_GUIDE_PATHS } from "../app/data/guides.ts";
+import { POST_PATHS } from "../app/data/posts.ts";
 import {
+  ALL_TOOL_PAGE_PATHS,
   BETA_TOOL_PAGE_PATHS,
   COMMERCIAL_PAGE_PATHS,
   INDEXABLE_PAGE_PATHS,
@@ -30,31 +35,126 @@ test("legacy generated guides permanently consolidate into unique tool canonical
 
   for (const route of TOOL_GUIDE_ROUTES) {
     assert.match(route.path, /^\/how-to-/);
-    assert.equal(route.toolPath, route.toolKey === "chlatwork-link" ? "/link" : `/tools/${route.toolKey}`);
+    assert.equal(
+      route.toolPath,
+      route.toolKey === "chlatwork-link" ? "/link" : `/tools/${route.toolKey}`,
+    );
     assert.notEqual(route.path, route.toolPath);
   }
 });
 
-test("publisher discovery uses an explicit index allowlist", () => {
+test("sitemap and robots metadata restore public tools and content pages", () => {
   const nuxtConfig = readProjectFile("nuxt.config.ts");
   const appShell = readProjectFile("app/app.vue");
 
   assert.deepEqual(PUBLIC_SITEMAP_PATHS, INDEXABLE_PAGE_PATHS);
-  assert.equal(INDEXABLE_TOOL_PAGE_PATHS.length, 10);
+  assert.deepEqual(INDEXABLE_TOOL_PAGE_PATHS, ALL_TOOL_PAGE_PATHS);
+  assert.equal(new Set(PUBLIC_SITEMAP_PATHS).size, PUBLIC_SITEMAP_PATHS.length);
 
   for (const path of [
+    "/",
+    "/about",
+    "/editorial-policy",
+    "/contact",
+    "/buy-me-coffee",
+    "/link",
+    "/tools",
+    "/guides",
+    "/posts",
+    "/developer-commands",
+    "/developer-guides",
+    "/tools/pdf",
+    "/tools/image",
+    "/tools/qr-barcode",
+    "/tools/date-time",
+    "/tools/calculators",
+    "/tools/productivity",
+    ...ALL_TOOL_PAGE_PATHS,
     ...BETA_TOOL_PAGE_PATHS,
     ...COMMERCIAL_PAGE_PATHS,
     ...LEGAL_PAGE_PATHS,
-    ...NAVIGATION_ONLY_PAGE_PATHS,
+    ...CREATOR_ROUTE_PATHS,
+    ...DEVELOPER_GUIDE_PATHS,
+    ...STARTER_GUIDE_PATHS,
+    ...POST_PATHS,
   ]) {
-    assert.equal(PUBLIC_SITEMAP_PATHS.includes(path), false);
-    assert.equal(getPublisherRobots(path), "noindex, follow");
+    assert.equal(
+      PUBLIC_SITEMAP_PATHS.includes(path),
+      true,
+      `${path} must be in the sitemap`,
+    );
+    assert.equal(
+      getPublisherRobots(path),
+      "index, follow",
+      `${path} must permit indexing`,
+    );
+    if (path !== "/")
+      assert.equal(getPublisherRobots(`${path}/`), "index, follow");
   }
 
   assert.match(nuxtConfig, /\.\.\.legacyToolGuideRedirectRules/);
   assert.match(nuxtConfig, /statusCode: 301/);
   assert.match(appShell, /getPublisherRobots\(normalizedPath\.value\)/);
+});
+
+test("private, unknown, and redirect-only URLs stay outside the public sitemap", () => {
+  for (const path of [
+    ...NAVIGATION_ONLY_PAGE_PATHS,
+    "/account",
+    "/account/link",
+    "/account-link",
+    "/login",
+    "/admin",
+    "/admin/tools",
+    "/admin/bots",
+    "/creator/credits",
+    "/creator/admin/credits",
+    "/creator/history/private-result",
+    "/api/expenses/entries",
+    "/api/bot/groups",
+    "/m/private-moment",
+    "/moment/private-moment",
+    "/i/private-invitation",
+    "/u/private-profile",
+    "/creator/unknown-tool",
+    "/tools/unknown-tool",
+    "/privacy",
+    "/km",
+    "/km/tools/qr",
+    "/tools/jpg-to-pdf",
+    "/how-to-convert-jpg-to-pdf",
+    ...TOOL_GUIDE_ROUTES.map((route) => route.path),
+  ]) {
+    assert.equal(
+      PUBLIC_SITEMAP_PATHS.includes(path),
+      false,
+      `${path} must stay excluded`,
+    );
+    assert.equal(getPublisherRobots(path), "noindex, follow");
+  }
+  for (const path of PUBLIC_SITEMAP_PATHS) {
+    assert.doesNotMatch(path, /[?#\[\]]/);
+    assert.equal(getPublisherRobots(path), "index, follow");
+  }
+});
+
+test("public pages inherit the central policy instead of retaining local noindex overrides", () => {
+  for (const path of [
+    "app/pages/creator/index.vue",
+    "app/pages/creator/[...slug].vue",
+    "app/pages/buy-me-coffee.vue",
+  ]) {
+    assert.doesNotMatch(readProjectFile(path), /robots:\s*"noindex/);
+  }
+  for (const path of [
+    "app/pages/creator/credits.vue",
+    "app/pages/creator/history/[id].vue",
+    "app/pages/creator/admin/credits.vue",
+    "app/pages/m/[slug].vue",
+    "app/pages/i/[token].vue",
+  ]) {
+    assert.match(readProjectFile(path), /robots:\s*"noindex/);
+  }
 });
 
 test("navigation does not recreate legacy guide URLs or unconsented trackers", () => {
@@ -77,7 +177,7 @@ test("navigation does not recreate legacy guide URLs or unconsented trackers", (
   assert.match(nuxtConfig, /ad_storage: "denied"/);
 });
 
-test("Khmer and beta routes are permanently excluded from publishing", () => {
+test("Khmer aliases remain redirects and beta tools retain their status notices", () => {
   const nuxtConfig = readProjectFile("nuxt.config.ts");
   const khmerMiddleware = readProjectFile(
     "app/middleware/disabled-khmer.global.ts",
@@ -88,12 +188,11 @@ test("Khmer and beta routes are permanently excluded from publishing", () => {
 
   assert.match(nuxtConfig, /"\/km"[\s\S]*?statusCode: 301/);
   assert.match(khmerMiddleware, /redirectCode: 301/);
-  assert.equal(getDisabledKhmerRedirect("/km/tools/merge-pdf"), "/tools/merge-pdf");
+  assert.equal(
+    getDisabledKhmerRedirect("/km/tools/merge-pdf"),
+    "/tools/merge-pdf",
+  );
   assert.equal(getDisabledKhmerRedirect("/km/not-a-real-page"), "/");
-
-  for (const path of BETA_TOOL_PAGE_PATHS) {
-    assert.equal(getPublisherRobots(path), "noindex, follow");
-  }
 
   assert.match(pdfLayout, /tool\.status === 'beta'/);
   assert.match(pdfLayout, /tool\.betaNotice/);
@@ -113,7 +212,10 @@ test("indexed PDF guides contain workflow-specific content", () => {
     "printed page number displayed inside a report or book",
     "document boundaries",
   ]) {
-    assert.match(source, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(
+      source,
+      new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    );
   }
 });
 
