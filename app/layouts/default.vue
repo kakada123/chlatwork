@@ -491,7 +491,8 @@ const shouldShowToolPageDetails = computed(
   () => currentToolGuide.value?.tool.category !== "PDF Tools",
 );
 const routesWithEmbeddedMobileChrome = new Set(["/", "/km", "/account", "/tools"]);
-const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path));
+// Expense Tracker supplies its own compact header while retaining the shell's bottom-navigation spacing.
+const showSharedMobileHeader = computed(() => !routesWithEmbeddedMobileChrome.has(route.path) && route.path !== "/tools/expense-tracker");
 const mobileHeaderReturnsToAccount = computed(() => route.query.from === "account");
 const mobilePageTitle = computed(() => {
   if (route.path.startsWith("/account/link")) return "ChlatWork Link";

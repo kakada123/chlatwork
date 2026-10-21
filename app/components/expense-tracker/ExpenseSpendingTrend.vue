@@ -120,12 +120,7 @@ const moneyLabel = (value: number) =>
           :key="interval"
           type="button"
           :aria-pressed="mode === interval"
-          class="min-h-8 rounded-md px-3 text-xs font-semibold capitalize transition"
-          :class="
-            mode === interval
-              ? 'bg-white text-sky-700 shadow-sm dark:bg-cyan-200 dark:text-slate-950'
-              : 'text-slate-500 hover:text-slate-900 dark:text-white/50 dark:hover:text-white'
-          "
+          class="expense-trend-interval min-h-9 rounded-md px-3 text-xs font-semibold capitalize transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:focus-visible:outline-cyan-200"
           @click="mode = interval"
         >
           {{ interval }}
@@ -244,6 +239,21 @@ const moneyLabel = (value: number) =>
 </template>
 
 <style scoped>
+/* Own the selected colors so global dark-mode surface overrides cannot erase the active tab. */
+.expense-trend-interval {
+  color: var(--app-color-muted-text);
+}
+.expense-trend-interval:hover {
+  color: var(--app-color-text);
+}
+.expense-trend-interval[aria-pressed="true"] {
+  background-color: var(--app-color-control-bg);
+  color: #0369a1;
+}
+:global(html.dark .expense-trend-interval[aria-pressed="true"]) {
+  background-color: #a5f3fc;
+  color: #020617;
+}
 .trend-axis {
   font-size: 12px;
 }

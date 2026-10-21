@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarDays } from "lucide-vue-next";
+import { CalendarDays, ReceiptText } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import { resolveExpenseCategory } from "~/lib/expense-tracker";
 
@@ -46,7 +46,7 @@ function amountValue(row: ExpenseRow) {
       Saved entries
     </h2>
     <p class="mt-1 text-xs text-slate-500 dark:text-white/55">
-      Choose a day to find entries. Use Edit to make changes.
+      Find entries by day, then tap Edit to make changes.
     </p>
     <form class="mt-4" @submit.prevent="emit('search')">
       <fieldset
@@ -96,6 +96,11 @@ function amountValue(row: ExpenseRow) {
           :key="row.id"
           class="flex min-w-0 items-center gap-3 py-3"
         >
+          <span
+            class="grid size-8 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-600 dark:bg-cyan-200/10 dark:text-cyan-200 sm:hidden"
+            aria-hidden="true"
+            ><ReceiptText class="size-4"
+          /></span>
           <div class="min-w-0 flex-1">
             <p
               class="whitespace-pre-wrap break-words text-sm font-semibold text-slate-950 dark:text-white"
@@ -105,8 +110,8 @@ function amountValue(row: ExpenseRow) {
             <p
               class="mt-1 break-words text-xs text-slate-500 dark:text-white/50"
             >
-              {{ resolveExpenseCategory(row) }} ·
-              {{ row.type === "income" ? "Income" : "Expense" }}
+              {{ resolveExpenseCategory(row) }} · {{ row.date
+              }}<span v-if="row.type === 'income'"> · Income</span>
             </p>
           </div>
           <div

@@ -2,7 +2,63 @@
   <div
     class="mx-auto w-full min-w-0 max-w-[1280px] space-y-5 pb-4 text-slate-950 dark:text-white"
   >
-    <header class="flex flex-wrap items-center justify-between gap-4">
+    <header
+      class="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 sm:hidden"
+      aria-label="Expense tracker controls"
+    >
+      <NuxtLink
+        :to="route.query.from === 'account' ? '/account' : '/tools'"
+        :aria-label="
+          route.query.from === 'account' ? 'Back to Account' : 'Back to tools'
+        "
+        class="grid size-8 place-items-center rounded-full ring-1 ring-slate-200 dark:ring-white/15"
+        ><ChevronLeft class="size-5" aria-hidden="true"
+      /></NuxtLink>
+      <div class="min-w-0">
+        <h1
+          class="truncate text-[clamp(0.875rem,4.4vw,1.125rem)] font-black tracking-tight"
+        >
+          Expense Tracker
+        </h1>
+        <p
+          class="mt-0.5 truncate text-[10px] text-slate-500 dark:text-white/50"
+        >
+          Track spending. Stay on budget.
+        </p>
+      </div>
+      <button
+        type="button"
+        :aria-expanded="mobileFiltersOpen"
+        aria-controls="expense-period-controls"
+        :aria-label="'Change summary period: ' + rangeLabel"
+        class="flex min-h-10 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-semibold ring-1 ring-slate-200 dark:ring-white/15"
+        @click="mobileFiltersOpen = !mobileFiltersOpen"
+      >
+        <CalendarDays class="size-3.5" aria-hidden="true" />{{
+          mobilePeriodLabel
+        }}<ChevronDown class="size-3" aria-hidden="true" />
+      </button>
+      <button
+        v-if="signedIn"
+        type="button"
+        :disabled="entryBusy"
+        aria-label="Add expense"
+        aria-haspopup="dialog"
+        class="grid size-10 place-items-center rounded-full bg-sky-600 text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950"
+        @click="openQuickExpense"
+      >
+        <Plus class="size-5" aria-hidden="true" />
+      </button>
+      <NuxtLink
+        v-else
+        to="/login"
+        @click="storeGuestDraft"
+        aria-label="Sign in to add expenses"
+        class="grid size-10 place-items-center rounded-full bg-sky-600 text-white dark:bg-cyan-200 dark:text-slate-950"
+        ><Plus class="size-5" aria-hidden="true"
+      /></NuxtLink>
+    </header>
+    <header class="hidden flex-wrap items-center justify-between gap-4 sm:flex">
       <div class="flex min-w-0 items-center gap-3">
         <span
           class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600 dark:bg-cyan-200/10 dark:text-cyan-200 sm:flex"
@@ -68,7 +124,9 @@
     </header>
 
     <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08]"
+      id="expense-period-controls"
+      class="flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08]"
+      :class="mobileFiltersOpen ? 'flex' : 'hidden sm:flex'"
       aria-label="Summary date range"
     >
       <details ref="rangePicker" class="relative w-full lg:w-auto">
@@ -98,7 +156,7 @@
           />
         </summary>
         <form
-          class="absolute left-0 top-full z-40 mt-2 grid w-full gap-3 rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-200 dark:bg-[#181b1e] dark:ring-white/10 lg:w-80"
+          class="mt-2 grid w-full gap-3 rounded-xl bg-white p-2 dark:bg-[#181b1e] sm:absolute sm:left-0 sm:top-full sm:z-40 sm:rounded-2xl sm:p-4 sm:shadow-xl sm:ring-1 sm:ring-slate-200 dark:sm:ring-white/10 lg:w-80"
           @submit.prevent="applyCustomRange"
         >
           <fieldset
@@ -159,6 +217,31 @@
           Custom
         </button>
       </div>
+      <label
+        class="flex items-center gap-2 text-xs text-slate-500 dark:text-white/55 sm:hidden"
+        >Currency<select
+          v-model="currency"
+          :disabled="entryBusy"
+          class="h-9 rounded-lg bg-slate-100 px-2 font-semibold text-slate-950 dark:bg-white/5 dark:text-white"
+        >
+          <option value="USD">USD</option>
+          <option value="KHR">KHR</option>
+        </select></label
+      >
+      <button
+        v-if="signedIn"
+        type="button"
+        :disabled="!favoritesReady || isFavoriteSaving('expense-tracker')"
+        :aria-pressed="isFavorite('expense-tracker')"
+        class="flex min-h-9 items-center gap-2 rounded-lg px-2 text-xs font-semibold text-sky-700 disabled:opacity-50 dark:text-cyan-200 sm:hidden"
+        @click="toggleFavorite('expense-tracker')"
+      >
+        <Heart
+          class="size-4"
+          :fill="isFavorite('expense-tracker') ? 'currentColor' : 'none'"
+          aria-hidden="true"
+        />{{ isFavorite("expense-tracker") ? "Favorited" : "Favorite" }}
+      </button>
     </div>
 
     <p
@@ -315,6 +398,7 @@ import {
   BarChart3,
   CalendarDays,
   ChevronDown,
+  ChevronLeft,
   Heart,
   Plus,
 } from "lucide-vue-next";
@@ -387,6 +471,29 @@ const entryBusy = computed(
 const quickSaveNotice = ref(false);
 let noticeTimer: ReturnType<typeof setTimeout> | null = null;
 const rangePicker = ref<HTMLDetailsElement | null>(null);
+const mobileFiltersOpen = ref(false);
+const mobilePeriodLabel = computed(() => {
+  const { from, to } = activeRange.value;
+  const start = new Date(from + "T00:00:00Z");
+  const last = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0),
+  )
+    .toISOString()
+    .slice(0, 10);
+  if (from.endsWith("-01") && to === last)
+    return new Intl.DateTimeFormat("en", {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(start);
+  if (from === to)
+    return new Intl.DateTimeFormat("en", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(start);
+  return "Date range";
+});
 const datePresets: { label: string; key: ExpensePeriodPreset }[] = [
   { label: "Today", key: "today" },
   { label: "Last 7 days", key: "week" },
@@ -494,7 +601,13 @@ async function applyPreset(preset: ExpensePeriodPreset) {
   dateFrom.value = range.from;
   dateTo.value = range.to;
   await applyFilter();
-  if (rangePicker.value) rangePicker.value.open = false;
+  if (
+    range.from === activeRange.value.from &&
+    range.to === activeRange.value.to
+  ) {
+    if (rangePicker.value) rangePicker.value.open = false;
+    mobileFiltersOpen.value = false;
+  }
 }
 function showCustomRange() {
   if (rangePicker.value) rangePicker.value.open = !rangePicker.value.open;
@@ -505,8 +618,10 @@ async function applyCustomRange() {
     rangePicker.value &&
     dateFrom.value === activeRange.value.from &&
     dateTo.value === activeRange.value.to
-  )
+  ) {
     rangePicker.value.open = false;
+    mobileFiltersOpen.value = false;
+  }
 }
 
 function showSavedNotice() {

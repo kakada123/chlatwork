@@ -4,6 +4,9 @@ import {
   ArrowUpRight,
   CalendarDays,
   ChartPie,
+  ChevronDown,
+  ChevronRight,
+  ChartNoAxesCombined,
   Database,
   Lightbulb,
   List,
@@ -45,6 +48,9 @@ const budget = defineModel<Budget>("budget", { required: true });
 const budgetAmountId = useId();
 const chartTitleId = useId();
 const categorySort = ref("highest");
+const showAllCategories = ref(false);
+const showAllInsights = ref(false);
+const categoryLegendId = useId();
 const chartColors = [
   "#0284c7",
   "#7c3aed",
@@ -142,35 +148,46 @@ const metrics = computed(() => [
 <template>
   <div class="min-w-0 space-y-4 text-slate-950 dark:text-white">
     <div
-      class="grid grid-cols-2 gap-3 lg:grid-cols-4"
+      class="grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4"
       aria-label="Expense overview totals"
     >
       <section
         v-for="metric in metrics"
         :key="metric.key"
-        class="flex min-w-0 items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
+        class="relative min-w-0 items-start gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
+        :class="metric.key === 'items' ? 'hidden sm:flex' : 'flex'"
         :aria-label="metric.label"
       >
         <span
-          class="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:flex"
+          class="absolute left-3 top-3 flex size-4 shrink-0 items-center justify-center rounded-xl sm:static sm:size-11"
           :class="[metric.surface, metric.tone]"
-          ><component :is="metric.icon" class="h-5 w-5" aria-hidden="true"
+          ><component
+            :is="metric.icon"
+            class="size-3.5 sm:size-5"
+            aria-hidden="true"
         /></span>
         <div class="min-w-0 flex-1">
           <p
-            class="text-xs font-medium text-slate-500 dark:text-white/55 sm:text-sm"
+            class="pl-6 text-[11px] font-medium text-slate-500 dark:text-white/55 sm:pl-0 sm:text-sm"
           >
-            {{ metric.label }}
+            <span class="sm:hidden">{{
+              metric.key === "spent"
+                ? "Spent"
+                : metric.key === "net"
+                  ? "Net"
+                  : metric.label
+            }}</span
+            ><span class="hidden sm:inline">{{ metric.label }}</span>
           </p>
           <p
-            class="mt-1 min-w-0 max-w-full truncate text-[clamp(1.35rem,4.8vw,1.85rem)] font-black tracking-tight tabular-nums"
+            class="mt-2 min-w-0 max-w-full truncate text-[clamp(0.875rem,4.2vw,1.25rem)] font-black tracking-tight tabular-nums sm:mt-1 sm:text-[clamp(1.35rem,4.8vw,1.85rem)]"
             :class="metric.key === 'net' ? metric.tone : ''"
           >
             <span v-if="metric.key === 'items'">{{ metric.value }}</span>
             <MoneyAmount v-else :value="metric.value" :currency="currency" />
           </p>
           <p
-            class="mt-2 truncate text-[11px] text-slate-400 dark:text-white/40 sm:text-xs"
+            class="mt-2 hidden truncate text-xs text-slate-400 dark:text-white/40 sm:block"
           >
             {{ metric.note
             }}<template v-if="metric.key === 'spent'">
@@ -205,19 +222,46 @@ const metrics = computed(() => [
             <option value="weekly">Weekly</option>
           </select>
         </div>
-        <label
-          :for="budgetAmountId"
-          class="mb-1.5 mt-4 block text-xs text-slate-500 dark:text-white/55"
-          >Budget amount</label
-        >
-        <input
-          :id="budgetAmountId"
-          v-model.trim="budget.amount"
-          inputmode="decimal"
-          class="h-11 w-full rounded-xl border border-slate-200 bg-transparent px-3 text-lg font-bold outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 dark:border-white/10 dark:focus:border-cyan-200 dark:focus:ring-cyan-200/10"
-          placeholder="Enter your budget"
-        />
-        <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="mt-4 grid min-w-0 grid-cols-2 gap-4 sm:block">
+          <div class="min-w-0">
+            <label
+              :for="budgetAmountId"
+              class="mb-1.5 block text-xs text-slate-500 dark:text-white/55"
+              >Budget amount</label
+            >
+            <input
+              :id="budgetAmountId"
+              v-model.trim="budget.amount"
+              inputmode="decimal"
+              class="h-9 w-full min-w-0 rounded-lg border border-transparent bg-transparent text-xl font-bold outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 dark:focus:border-cyan-200 dark:focus:ring-cyan-200/10 sm:h-11 sm:rounded-xl sm:border-slate-200 sm:px-3 sm:text-lg dark:sm:border-white/10"
+              placeholder="Enter your budget"
+            />
+          </div>
+          <div
+            class="min-w-0 border-l border-slate-100 pl-4 dark:border-white/10 sm:hidden"
+          >
+            <p class="text-xs text-slate-500 dark:text-white/55">
+              {{
+                budgetRemaining < 0 && budgetValue ? "Over budget" : "Remaining"
+              }}
+            </p>
+            <p
+              class="mt-2 truncate text-xl font-bold"
+              :class="
+                budgetRemaining < 0
+                  ? 'text-red-600 dark:text-red-300'
+                  : 'text-emerald-600 dark:text-emerald-300'
+              "
+            >
+              <MoneyAmount
+                v-if="budgetValue"
+                :value="Math.abs(budgetRemaining)"
+                :currency="currency"
+              /><span v-else>—</span>
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 hidden grid-cols-2 gap-4 sm:grid">
           <div class="min-w-0">
             <p class="text-xs text-slate-500 dark:text-white/55">Spent</p>
             <p class="mt-1 truncate text-xl font-bold">
@@ -256,7 +300,7 @@ const metrics = computed(() => [
             :aria-valuetext="
               budgetValue ? budgetPercent + '% of budget used' : 'No budget set'
             "
-            class="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"
+            class="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full sm:h-2 bg-slate-100 dark:bg-white/10"
           >
             <div
               class="h-full rounded-full transition-all"
@@ -280,6 +324,7 @@ const metrics = computed(() => [
         </div>
       </fieldset>
       <ExpenseSpendingTrend
+        class="hidden sm:block"
         :data="trendData"
         :from="rangeFrom"
         :to="rangeTo"
@@ -310,9 +355,11 @@ const metrics = computed(() => [
       </div>
       <div
         v-if="categoryBreakdown.length"
-        class="mt-4 grid items-center gap-5 md:grid-cols-[13rem_minmax(0,1fr)]"
+        class="mt-4 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] items-center gap-3 sm:gap-5 md:grid-cols-[13rem_minmax(0,1fr)]"
       >
-        <div class="relative mx-auto h-48 w-48 sm:h-52 sm:w-52">
+        <div
+          class="relative mx-auto aspect-square w-full max-w-48 sm:size-52 sm:max-w-none"
+        >
           <svg
             viewBox="0 0 200 200"
             role="img"
@@ -347,40 +394,68 @@ const metrics = computed(() => [
           </svg>
           <div
             aria-hidden="true"
-            class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-10 text-center"
+            class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center sm:px-10"
           >
-            <span class="max-w-full truncate text-xl font-black"
+            <span class="max-w-full truncate text-sm font-black sm:text-xl"
               ><MoneyAmount :value="totalSpent" :currency="currency" /></span
-            ><span class="mt-1 text-[11px] text-slate-500 dark:text-white/50"
+            ><span
+              class="mt-1 text-[9px] text-slate-500 dark:text-white/50 sm:text-[11px]"
               >Total spent</span
             >
           </div>
         </div>
-        <ul class="grid min-w-0 gap-x-6 sm:grid-cols-2">
-          <li
-            v-for="category in sortedCategories"
-            :key="category.category"
-            class="flex min-w-0 items-center gap-2.5 border-b border-slate-100 py-3 dark:border-white/[0.06]"
+        <div class="min-w-0">
+          <ul
+            :id="categoryLegendId"
+            class="grid min-w-0 gap-x-6 lg:grid-cols-2"
           >
-            <span
+            <li
+              v-for="(category, index) in sortedCategories"
+              :key="category.category"
+              class="min-w-0 items-center gap-1.5 border-b border-slate-100 py-2 dark:border-white/[0.06] sm:gap-2.5 sm:py-3"
+              :class="
+                index >= 5 && !showAllCategories ? 'hidden sm:flex' : 'flex'
+              "
+            >
+              <span
+                aria-hidden="true"
+                class="h-2.5 w-2.5 shrink-0 rounded-full"
+                :style="{ backgroundColor: categoryColor(category) }"
+              />
+              <span
+                :title="category.category"
+                class="min-w-0 truncate flex-1 text-[11px] font-medium sm:text-sm"
+                >{{ category.category }}</span
+              >
+              <span
+                class="shrink-0 text-[11px] font-semibold tabular-nums sm:text-sm"
+                ><MoneyAmount :value="category.total" :currency="currency"
+              /></span>
+              <span
+                class="w-6 shrink-0 text-right text-[10px] text-slate-400 dark:text-white/45 sm:w-10 sm:text-xs"
+                >{{ category.percent.toFixed(0) }}%</span
+              >
+            </li>
+          </ul>
+          <button
+            v-if="categoryBreakdown.length > 5"
+            type="button"
+            :aria-expanded="showAllCategories"
+            :aria-controls="categoryLegendId"
+            class="mt-2 flex min-h-9 w-full items-center justify-between gap-2 rounded-lg bg-slate-50 px-2 text-[11px] font-semibold text-sky-700 dark:bg-white/5 dark:text-cyan-200 sm:hidden"
+            @click="showAllCategories = !showAllCategories"
+          >
+            {{
+              showAllCategories
+                ? "Show fewer categories"
+                : "View all categories"
+            }}<ChevronRight
+              class="size-3.5"
+              :class="showAllCategories ? '-rotate-90' : 'rotate-90'"
               aria-hidden="true"
-              class="h-2.5 w-2.5 shrink-0 rounded-full"
-              :style="{ backgroundColor: categoryColor(category) }"
             />
-            <span
-              :title="category.category"
-              class="min-w-0 truncate flex-1 text-sm font-medium"
-              >{{ category.category }}</span
-            >
-            <span class="shrink-0 text-sm font-semibold tabular-nums"
-              ><MoneyAmount :value="category.total" :currency="currency"
-            /></span>
-            <span
-              class="w-10 shrink-0 text-right text-xs text-slate-400 dark:text-white/45"
-              >{{ category.percent.toFixed(0) }}%</span
-            >
-          </li>
-        </ul>
+          </button>
+        </div>
       </div>
       <p v-else class="py-6 text-sm text-slate-500 dark:text-white/50">
         Add expenses to see spending by category.
@@ -398,12 +473,27 @@ const metrics = computed(() => [
         class="rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
         aria-label="Expense insights"
       >
-        <h3 class="flex items-center gap-2 text-base font-bold">
-          <Lightbulb
-            class="h-5 w-5 text-sky-600 dark:text-cyan-200"
-            aria-hidden="true"
-          />Insights &amp; tips
-        </h3>
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="flex items-center gap-2 text-base font-bold">
+            <Lightbulb
+              class="h-5 w-5 text-sky-600 dark:text-cyan-200"
+              aria-hidden="true"
+            />Insights &amp; tips
+          </h3>
+          <button
+            type="button"
+            :aria-expanded="showAllInsights"
+            class="flex min-h-9 items-center gap-1 text-xs font-semibold text-sky-700 dark:text-cyan-200 sm:hidden"
+            @click="showAllInsights = !showAllInsights"
+          >
+            {{ showAllInsights ? "Less" : "More"
+            }}<ChevronDown
+              class="size-3.5"
+              :class="showAllInsights ? 'rotate-180' : ''"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
         <div class="mt-4 space-y-3">
           <div
             v-if="categoryBreakdown.length"
@@ -430,7 +520,12 @@ const metrics = computed(() => [
             </div>
           </div>
           <div
-            class="flex gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]"
+            class="gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]"
+            :class="
+              showAllInsights || !categoryBreakdown.length
+                ? 'flex'
+                : 'hidden sm:flex'
+            "
           >
             <span
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
@@ -460,7 +555,8 @@ const metrics = computed(() => [
             </div>
           </div>
           <div
-            class="flex gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]"
+            class="gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]"
+            :class="showAllInsights ? 'flex' : 'hidden sm:flex'"
           >
             <span
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/10 text-sky-600 dark:bg-cyan-200/10 dark:text-cyan-200"
@@ -475,10 +571,36 @@ const metrics = computed(() => [
             </div>
           </div>
         </div>
-        <p class="mt-4 text-xs leading-5 text-slate-400 dark:text-white/40">
+        <p
+          class="mt-4 text-xs leading-5 text-slate-400 dark:text-white/40"
+          :class="showAllInsights ? 'block' : 'hidden sm:block'"
+        >
           Keep categories consistent to make your spending easier to compare.
         </p>
       </section>
     </div>
+    <!-- Keep the mobile overview compact while retaining access to the full trend chart. -->
+    <details
+      class="rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:hidden"
+    >
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold"
+      >
+        <ChartNoAxesCombined
+          class="size-4 text-sky-600 dark:text-cyan-200"
+          aria-hidden="true"
+        />Spending trend<ChevronDown
+          class="ml-auto size-4"
+          aria-hidden="true"
+        />
+      </summary>
+      <ExpenseSpendingTrend
+        class="mt-3 !p-0 !ring-0"
+        :data="trendData"
+        :from="rangeFrom"
+        :to="rangeTo"
+        :currency="currency"
+      />
+    </details>
   </div>
 </template>
