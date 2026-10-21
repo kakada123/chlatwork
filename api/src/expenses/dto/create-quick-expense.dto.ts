@@ -1,4 +1,11 @@
-import { IsIn, IsString, Matches, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsIn,
+  IsString,
+  Matches,
+  MaxLength,
+  ValidateIf,
+} from 'class-validator';
 
 const quickExpenseCategories = [
   'Food',
@@ -18,6 +25,7 @@ const quickExpenseCategories = [
   'Loan',
   'Braces',
   'Other',
+  '__custom__',
 ] as const;
 
 export class CreateQuickExpenseDto {
@@ -28,6 +36,16 @@ export class CreateQuickExpenseDto {
 
   @IsIn(quickExpenseCategories)
   category!: (typeof quickExpenseCategories)[number];
+
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @ValidateIf(
+    (dto: CreateQuickExpenseDto) =>
+      dto.category === '__custom__' || dto.customCategory !== undefined,
+  )
+  @IsString()
+  @MaxLength(120)
+  @Matches(/\S/, { message: 'A custom category name is required' })
+  customCategory?: string;
 
   @IsString()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)

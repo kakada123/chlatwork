@@ -2,6 +2,7 @@
 import { CheckCircle2, Plus, ReceiptText, X } from "lucide-vue-next";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
 import { useAuth } from "~/composables/useAuth";
+import { buildQuickExpenseRequest } from "~/lib/expense-entry-changes";
 import {
   QUICK_EXPENSE_OPEN_EVENT,
   useQuickExpense,
@@ -135,12 +136,7 @@ async function saveQuickExpense(row: ExpenseRow) {
   try {
     const result = await $fetch<QuickExpenseResponse>("/api/expenses/quick-entry", {
       method: "POST",
-      body: {
-        amount: row.amount,
-        category: row.category,
-        date: row.date,
-        note: row.note,
-      },
+      body: buildQuickExpenseRequest(row),
     });
 
     // The dashboard mirrors this saved entry without issuing another write.

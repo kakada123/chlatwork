@@ -196,3 +196,22 @@ test("editing income preserves its type and category", () => {
     app.unmount();
   }
 });
+
+test("the Quick Expense form submits the entered custom category name", () => {
+  const emitted: any[] = [];
+  const customEntry = {
+    ...savedEntry,
+    category: "__custom__",
+    customCategory: "  សត្វចិញ្ចឹម  ",
+  };
+  const { app, nodes } = mountForm(customEntry, (row) => emitted.push(row));
+  try {
+    nodes()
+      .find((node) => node.tag === "form")!
+      .props.onSubmit({ preventDefault() {} });
+    assert.equal(emitted[0].category, "__custom__");
+    assert.equal(emitted[0].customCategory, "សត្វចិញ្ចឹម");
+  } finally {
+    app.unmount();
+  }
+});

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildExpenseEntryChanges } from "../app/lib/expense-entry-changes.ts";
+import {
+  buildExpenseEntryChanges,
+  buildQuickExpenseRequest,
+} from "../app/lib/expense-entry-changes.ts";
 
 const saved = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -12,6 +15,31 @@ const saved = {
   amount: "5",
   showNote: true,
 };
+
+test("quick expense requests include the custom category name", () => {
+  assert.deepEqual(
+    buildQuickExpenseRequest({
+      ...saved,
+      category: "__custom__",
+      customCategory: "  Pet care  ",
+    }),
+    {
+      amount: "5",
+      category: "__custom__",
+      customCategory: "Pet care",
+      date: "2026-10-01",
+      note: "Lunch",
+    },
+  );
+});
+
+test("preset quick expense requests omit stale custom category names", () => {
+  assert.equal(
+    buildQuickExpenseRequest({ ...saved, customCategory: "Old name" })
+      .customCategory,
+    undefined,
+  );
+});
 
 test("unchanged loaded entries produce no writes", () => {
   assert.deepEqual(buildExpenseEntryChanges([{ ...saved }], [saved]), {

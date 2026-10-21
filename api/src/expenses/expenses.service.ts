@@ -336,6 +336,16 @@ export class ExpensesService {
   }
 
   async createQuickExpense(userId: string, dto: CreateQuickExpenseDto) {
+    const customCategory =
+      dto.category === '__custom__' ? dto.customCategory?.trim() : null;
+    if (
+      dto.category === '__custom__' &&
+      (!customCategory || customCategory.length > 120)
+    ) {
+      throw new BadRequestException(
+        'Enter a custom category name of up to 120 characters',
+      );
+    }
     return await this.prisma.$transaction(async (tx) => {
       await this.lockExpenseState(tx, userId);
       const profile = await tx.expenseProfile.upsert({
@@ -362,7 +372,7 @@ export class ExpensesService {
           type: ExpenseEntryType.EXPENSE,
           entryDate: this.parseEntryDate(dto.date),
           category: dto.category,
-          customCategory: null,
+          customCategory: customCategory ?? null,
           note: dto.note.trim(),
           showNote: Boolean(dto.note.trim()),
           amount,

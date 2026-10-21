@@ -41,6 +41,62 @@ describe('filtered expense entries', () => {
     service = new ExpensesService(prisma as unknown as PrismaService);
   });
 
+  it('persists and returns the custom category from a quick expense', async () => {
+    tx.expenseProfile.upsert.mockResolvedValue({ currency: 'USD' });
+    tx.expenseEntry.create.mockImplementation(async ({ data }) => ({
+      ...entry,
+      ...data,
+    }));
+    const result = await service.createQuickExpense('owner', {
+      amount: '5',
+      category: '__custom__',
+      customCategory: '  Pet care  ',
+      date: '2026-10-21',
+      note: 'Checkup',
+    });
+    expect(tx.expenseEntry.create.mock.calls[0][0].data).toMatchObject({
+      userId: 'owner',
+      category: '__custom__',
+      customCategory: 'Pet care',
+    });
+    expect(result.row).toMatchObject({
+      category: '__custom__',
+      customCategory: 'Pet care',
+      note: 'Checkup',
+    });
+  });
+
+  it('rejects a blank custom category before starting a database transaction', async () => {
+    await expect(
+      service.createQuickExpense('owner', {
+        amount: '5',
+        category: '__custom__',
+        customCategory: '   ',
+        date: '2026-10-21',
+        note: '',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('does not attach a stale custom name to a preset quick expense', async () => {
+    tx.expenseProfile.upsert.mockResolvedValue({ currency: 'USD' });
+    tx.expenseEntry.create.mockImplementation(async ({ data }) => ({
+      ...entry,
+      ...data,
+    }));
+    await service.createQuickExpense('owner', {
+      amount: '5',
+      category: 'Food',
+      customCategory: 'Old name',
+      date: '2026-10-21',
+      note: '',
+    });
+    expect(tx.expenseEntry.create.mock.calls[0][0].data.customCategory).toBe(
+      null,
+    );
+  });
+
   it('queries only the authenticated account and selected calendar month', async () => {
     const rows = await service.getEntries('owner', '2026-10-01', '2026-10-31');
     expect(prisma.expenseEntry.findMany).toHaveBeenCalledWith({

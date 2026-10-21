@@ -1,5 +1,16 @@
 import type { ExpenseRow } from "./expense-tracker.ts";
 
+export function buildQuickExpenseRequest(row: ExpenseRow) {
+  return {
+    amount: row.amount,
+    category: row.category,
+    customCategory:
+      row.category === "__custom__" ? row.customCategory?.trim() : undefined,
+    date: row.date,
+    note: row.note,
+  };
+}
+
 export function expenseEntryData(row: ExpenseRow) {
   return {
     type: row.type ?? "expense",
