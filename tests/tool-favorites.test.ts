@@ -90,11 +90,14 @@ test("favorite control is present across tool card renderers", () => {
   }
 });
 
-test("every registered tool detail route receives the shared favorite action", () => {
+test("tool details keep account favorites with the expense action in its dashboard header", () => {
   const layout = readFileSync(new URL("../app/layouts/default.vue", import.meta.url), "utf8");
   const button = readFileSync(new URL("../app/components/tools/ToolFavoriteButton.vue", import.meta.url), "utf8");
+  const expense = readFileSync(new URL("../app/pages/tools/expense-tracker.vue", import.meta.url), "utf8");
 
-  assert.match(layout, /v-if="currentToolGuide\?\.tool"/);
+  assert.match(layout, /v-if="currentToolGuide\?\.tool && route\.path !== '\/tools\/expense-tracker'"/);
+  assert.match(expense, /useToolFavorites\(\)/);
+  assert.match(expense, /@click="toggleFavorite\('expense-tracker'\)"/);
   assert.match(layout, /<ToolFavoriteButton/);
   assert.match(layout, /:tool-key="currentToolGuide\.tool\.key"/);
   assert.match(layout, /show-label/);

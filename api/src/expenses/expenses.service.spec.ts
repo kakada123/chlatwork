@@ -183,6 +183,7 @@ describe('filtered expense entries', () => {
       {
         type: 'EXPENSE',
         category: 'Food',
+        entryDate: new Date('2026-10-01T00:00:00Z'),
         customCategory: null,
         _sum: { amount: new Prisma.Decimal('0.10') },
         _count: { _all: 1 },
@@ -190,6 +191,7 @@ describe('filtered expense entries', () => {
       {
         type: 'EXPENSE',
         category: '__custom__',
+        entryDate: new Date('2026-10-02T00:00:00Z'),
         customCategory: 'Food',
         _sum: { amount: new Prisma.Decimal('0.20') },
         _count: { _all: 1 },
@@ -197,6 +199,7 @@ describe('filtered expense entries', () => {
       {
         type: 'INCOME',
         category: 'Salary',
+        entryDate: new Date('2026-10-02T00:00:00Z'),
         customCategory: null,
         _sum: { amount: new Prisma.Decimal('100') },
         _count: { _all: 1 },
@@ -209,6 +212,10 @@ describe('filtered expense entries', () => {
       totalSpent: 0.3,
       totalIncome: 100,
       categoryBreakdown: [{ category: 'Food', total: 0.3, percent: 100 }],
+      dailyTrend: [
+        { date: '2026-10-01', spent: 0.1, income: 0 },
+        { date: '2026-10-02', spent: 0.2, income: 100 },
+      ],
     });
     expect(tx.expenseEntry.findMany).not.toHaveBeenCalled();
     expect(tx.expenseEntry.groupBy.mock.calls[0][0].where).toMatchObject({

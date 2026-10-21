@@ -1,5 +1,6 @@
 import { nextTick, onBeforeUnmount, ref, watch, type Ref } from "vue";
 import type { ExpenseRow, ExpenseStoredState } from "../lib/expense-tracker.ts";
+import type { ExpenseTrendPoint } from "../lib/expense-dashboard-view.ts";
 import {
   createDefaultBudget,
   getExpenseMonthISO,
@@ -16,6 +17,7 @@ export type ExpenseDashboardSummary = {
   totalIncome: number;
   totalSpent: number;
   categoryBreakdown: { category: string; total: number; percent: number }[];
+  dailyTrend?: ExpenseTrendPoint[];
 };
 
 export function useExpenseDashboard(signedIn: Ref<boolean>) {

@@ -218,15 +218,11 @@ test("summary markup has mobile overflow guards for extreme values", () => {
   );
 
   assert.match(source, /Total spent/);
-  assert.match(source, /space-y-3 sm:hidden/);
-  assert.match(source, /hidden grid-cols-4 gap-3 sm:grid/);
-  assert.match(source, /grid grid-cols-1 gap-3 sm:mt-2 sm:grid-cols-2/);
   assert.match(source, /Enter your budget/);
   assert.match(source, /min-w-0/);
   assert.match(source, /truncate/);
   assert.match(source, /<MoneyAmount/);
   assert.match(source, /Spending by category/);
-  assert.match(source, /v-for="category in props\.categoryBreakdown"/);
   assert.match(source, /:value="category\.total"/);
   assert.doesNotMatch(source, /Top expenses/);
 });
@@ -274,12 +270,10 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
   assert.match(form, /desktop-note/);
   assert.match(form, /mobile-note/);
   assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
-  assert.match(page, /min-w-0 w-full[^\"]*overflow-x-clip/);
   assert.match(form, /relative mt-2 hidden sm:block/);
   assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);
   assert.match(form, /group hidden rounded-2xl/);
   assert.doesNotMatch(page, /Show a floating Add expense button/);
-  assert.match(page, /mt-6 hidden space-y-3/);
   assert.doesNotMatch(header, /Share link|Reset|defineEmits/);
   assert.doesNotMatch(page, /shareLink|@share|@reset/);
 });

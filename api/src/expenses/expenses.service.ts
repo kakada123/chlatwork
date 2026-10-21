@@ -81,7 +81,7 @@ export class ExpensesService {
   async getSummary(userId: string, from: string, to: string) {
     // Aggregate in PostgreSQL so opening the dashboard never downloads the entry history.
     const groups = await this.prisma.expenseEntry.groupBy({
-      by: ['type', 'category', 'customCategory'],
+      by: ['type', 'category', 'customCategory', 'entryDate'],
       where: { userId, entryDate: this.dateRange(from, to), amount: { gt: 0 } },
       _sum: { amount: true },
       _count: { _all: true },
@@ -90,9 +90,24 @@ export class ExpensesService {
     let income = new Prisma.Decimal(0);
     let itemsCount = 0;
     const categories = new Map<string, Prisma.Decimal>();
+    const days = new Map<
+      string,
+      { spent: Prisma.Decimal; income: Prisma.Decimal }
+    >();
     for (const group of groups) {
       const amount = group._sum.amount ?? new Prisma.Decimal(0);
       itemsCount += group._count._all;
+      const date = group.entryDate?.toISOString().slice(0, 10);
+      if (date) {
+        const day = days.get(date) ?? {
+          spent: new Prisma.Decimal(0),
+          income: new Prisma.Decimal(0),
+        };
+        if (group.type === ExpenseEntryType.INCOME)
+          day.income = day.income.add(amount);
+        else day.spent = day.spent.add(amount);
+        days.set(date, day);
+      }
       if (group.type === ExpenseEntryType.INCOME) income = income.add(amount);
       else {
         spent = spent.add(amount);
@@ -110,6 +125,13 @@ export class ExpensesService {
       itemsCount,
       totalSpent: spent.toNumber(),
       totalIncome: income.toNumber(),
+      dailyTrend: [...days]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, day]) => ({
+          date,
+          spent: day.spent.toNumber(),
+          income: day.income.toNumber(),
+        })),
       categoryBreakdown: [...categories]
         .map(([category, total]) => ({
           category,

@@ -983,10 +983,8 @@ watch(
         <!-- Page content stays focused; discovery remains in search and the tools directory. -->
         <main class="site-content min-w-0">
           <div
-            v-if="currentToolGuide?.tool"
-            :class="route.path === '/tools/expense-tracker'
-              ? 'mb-3 hidden justify-end sm:flex'
-              : 'mb-3 flex justify-end'"
+            v-if="currentToolGuide?.tool && route.path !== '/tools/expense-tracker'"
+            class="mb-3 flex justify-end"
             aria-label="Tool actions"
           >
             <ToolFavoriteButton
