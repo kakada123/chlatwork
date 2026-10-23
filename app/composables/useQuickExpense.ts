@@ -7,10 +7,16 @@ type QuickExpenseSettings = {
 };
 
 export const QUICK_EXPENSE_OPEN_EVENT = "chlatwork:open-quick-expense";
+export const QUICK_INCOME_OPEN_EVENT = "chlatwork:open-quick-income";
 
 export function openQuickExpense() {
   if (!import.meta.client) return;
   window.dispatchEvent(new Event(QUICK_EXPENSE_OPEN_EVENT));
+}
+
+export function openQuickIncome() {
+  if (!import.meta.client) return;
+  window.dispatchEvent(new Event(QUICK_INCOME_OPEN_EVENT));
 }
 
 export function useQuickExpense() {

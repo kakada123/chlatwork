@@ -58,6 +58,17 @@
         ><Plus class="size-5" aria-hidden="true"
       /></NuxtLink>
     </header>
+    <div v-if="signedIn" class="flex justify-end sm:hidden">
+      <button
+        type="button"
+        :disabled="entryBusy"
+        aria-haspopup="dialog"
+        class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 disabled:opacity-50 dark:bg-emerald-400/10 dark:text-emerald-300"
+        @click="openQuickIncome"
+      >
+        <Plus class="size-4" aria-hidden="true" />Add income
+      </button>
+    </div>
     <header class="hidden flex-wrap items-center justify-between gap-4 sm:flex">
       <div class="flex min-w-0 items-center gap-3">
         <span
@@ -101,6 +112,16 @@
           }}</span>
         </button>
         <!-- Manual entry remains available when the optional floating shortcut is off. -->
+        <button
+          v-if="signedIn"
+          type="button"
+          :disabled="entryBusy"
+          aria-haspopup="dialog"
+          class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 disabled:opacity-50 dark:bg-emerald-400/10 dark:text-emerald-300"
+          @click="openQuickIncome"
+        >
+          <Plus class="h-4 w-4" aria-hidden="true" />Add income
+        </button>
         <button
           v-if="signedIn"
           type="button"
@@ -414,7 +435,7 @@ import {
   type ExpensePeriodPreset,
 } from "~/lib/expense-dashboard-view";
 import type { ExpenseRow } from "~/lib/expense-tracker";
-import { openQuickExpense } from "~/composables/useQuickExpense";
+import { openQuickExpense, openQuickIncome } from "~/composables/useQuickExpense";
 import {
   EXPENSE_SAVE_MOTIVATION,
   buildExpenseBreakdown,
@@ -684,7 +705,8 @@ async function saveEditedEntry(row: ExpenseRow) {
 
 function handleFloatingQuickExpense(event: Event) {
   const row = (event as CustomEvent<ExpenseRow>).detail;
-  if (row?.id && row.type === "expense") acceptSavedEntry(row);
+  if (row?.id && (row.type === "expense" || row.type === "income"))
+    acceptSavedEntry(row);
 }
 
 watch(currency, (value) => {

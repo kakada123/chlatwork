@@ -2,14 +2,20 @@
 import { CheckCircle2, Plus, ReceiptText, X } from "lucide-vue-next";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
 import { useAuth } from "~/composables/useAuth";
-import { buildQuickExpenseRequest } from "~/lib/expense-entry-changes";
+import {
+  buildExpenseEntryChanges,
+  buildQuickExpenseRequest,
+} from "~/lib/expense-entry-changes";
 import {
   QUICK_EXPENSE_OPEN_EVENT,
+  QUICK_INCOME_OPEN_EVENT,
   useQuickExpense,
 } from "~/composables/useQuickExpense";
 import {
   EXPENSE_SAVE_MOTIVATION,
+  createIncomeRow,
   type ExpenseRow,
+  type MoneyType,
 } from "~/lib/expense-tracker";
 
 type QuickExpenseFormHandle = {
@@ -41,6 +47,9 @@ const isOpen = ref(false);
 const isSaving = ref(false);
 const error = ref("");
 const savedNotice = ref(false);
+const initialRow = ref<ExpenseRow>();
+const entryType = ref<MoneyType>("expense");
+const savedType = ref<MoneyType>("expense");
 const dialog = ref<HTMLDivElement | null>(null);
 const trigger = ref<HTMLButtonElement | null>(null);
 const form = ref<QuickExpenseFormHandle | null>(null);
@@ -100,11 +109,24 @@ function unlockPageScroll() {
   window.scrollTo({ top: lockedScrollY, behavior: "instant" });
 }
 
-function openDialog() {
-  if (isOpen.value) return;
+function openEntryDialog(type: MoneyType) {
+  if (!user.value || isOpen.value) return;
+  entryType.value = type;
+  // Keep one client ID per income draft so retrying a lost response cannot duplicate it.
+  initialRow.value = type === "income"
+    ? { ...createIncomeRow(), id: crypto.randomUUID() }
+    : undefined;
   previouslyFocused = document.activeElement as HTMLElement | null;
   error.value = "";
   isOpen.value = true;
+}
+
+function openDialog() {
+  openEntryDialog("expense");
+}
+
+function openIncomeDialog() {
+  openEntryDialog("income");
 }
 
 function closeDialog() {
@@ -130,19 +152,34 @@ function keepFocusInside(event: KeyboardEvent) {
 }
 
 async function saveQuickExpense(row: ExpenseRow) {
+  if (isSaving.value) return;
   isSaving.value = true;
   error.value = "";
 
   try {
-    const result = await $fetch<QuickExpenseResponse>("/api/expenses/quick-entry", {
-      method: "POST",
-      body: buildQuickExpenseRequest(row),
-    });
+    let savedRow: ExpenseRow;
+    if (row.type === "income") {
+      // Income already uses the account-owned entry API; the quick-expense API is expense-only.
+      const result = await $fetch<{ rows: ExpenseRow[] }>("/api/expenses/entries", {
+        method: "PATCH",
+        body: buildExpenseEntryChanges([row], []),
+      });
+      const created = result.rows.find((entry) => entry.id === row.id);
+      if (!created) throw new Error("Missing saved income entry");
+      savedRow = created;
+    } else {
+      const result = await $fetch<QuickExpenseResponse>("/api/expenses/quick-entry", {
+        method: "POST",
+        body: buildQuickExpenseRequest(row),
+      });
+      savedRow = result.row;
+    }
 
     // The dashboard mirrors this saved entry without issuing another write.
     window.dispatchEvent(new CustomEvent("chlatwork:quick-expense-saved", {
-      detail: result.row,
+      detail: savedRow,
     }));
+    savedType.value = entryType.value;
     form.value?.resetForm();
     isOpen.value = false;
     savedNotice.value = true;
@@ -153,7 +190,7 @@ async function saveQuickExpense(row: ExpenseRow) {
     }, 2200);
   } catch (caught) {
     const statusMessage = (caught as { data?: { statusMessage?: string } })?.data?.statusMessage;
-    error.value = statusMessage || "Could not save this expense. Please try again.";
+    error.value = statusMessage || `Could not save this ${entryType.value}. Please try again.`;
   } finally {
     isSaving.value = false;
   }
@@ -190,6 +227,7 @@ watch(isOpen, async (open) => {
 onMounted(() => {
   // Account summaries can open the same dialog without duplicating its save workflow.
   window.addEventListener(QUICK_EXPENSE_OPEN_EVENT, openDialog);
+  window.addEventListener(QUICK_INCOME_OPEN_EVENT, openIncomeDialog);
   window.visualViewport?.addEventListener("resize", syncVisualViewport);
   window.visualViewport?.addEventListener("scroll", syncVisualViewport);
 });
@@ -198,6 +236,7 @@ onBeforeUnmount(() => {
   if (noticeTimer) clearTimeout(noticeTimer);
   if (import.meta.client) {
     window.removeEventListener(QUICK_EXPENSE_OPEN_EVENT, openDialog);
+    window.removeEventListener(QUICK_INCOME_OPEN_EVENT, openIncomeDialog);
     window.visualViewport?.removeEventListener("resize", syncVisualViewport);
     window.visualViewport?.removeEventListener("scroll", syncVisualViewport);
     unlockPageScroll();
@@ -214,7 +253,7 @@ onBeforeUnmount(() => {
     >
       <CheckCircle2 class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
       <span>
-        <span class="block">Expense saved</span>
+        <span class="block">{{ savedType === "income" ? "Income saved" : "Expense saved" }}</span>
         <span class="mt-1 block text-xs font-medium leading-5 text-white/70 dark:text-slate-600">
           {{ EXPENSE_SAVE_MOTIVATION }}
         </span>
@@ -269,13 +308,13 @@ onBeforeUnmount(() => {
           <div class="mb-5 flex items-start justify-between gap-4">
             <div>
               <p class="text-xs font-black uppercase tracking-[0.18em] text-sky-600 dark:text-cyan-200">Stay on track</p>
-              <h2 id="quick-expense-dialog-title" class="mt-1 text-2xl font-black text-slate-950 dark:text-white">Add an expense</h2>
+              <h2 id="quick-expense-dialog-title" class="mt-1 text-2xl font-black text-slate-950 dark:text-white">{{ entryType === "income" ? "Add income" : "Add an expense" }}</h2>
               <p class="mt-1 text-sm text-slate-500 dark:text-white/50">A quick entry now keeps your money clear later.</p>
             </div>
             <button
               type="button"
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-50 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
-              aria-label="Close quick expense"
+              :aria-label="entryType === 'income' ? 'Close income entry' : 'Close quick expense'"
               :disabled="isSaving"
               @click="closeDialog"
             >
@@ -285,9 +324,10 @@ onBeforeUnmount(() => {
 
           <QuickExpenseForm
             ref="form"
+            :initial-row="initialRow"
             :currency="currency"
             :busy="isSaving"
-            submit-label="Save expense"
+            :submit-label="entryType === 'income' ? 'Save income' : 'Save expense'"
             @submit="saveQuickExpense"
           />
 
