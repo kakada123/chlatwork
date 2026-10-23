@@ -21,12 +21,19 @@ import {
   AuthProvider,
   ExpenseCurrency,
   ExpenseEntryType,
+  PersonalReminderStatus,
   Prisma,
   TelegramBotPendingExpenseStatus,
 } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PersonalAssistantService } from '../personal-assistant/personal-assistant.service';
+import { PersonalReminderService } from '../personal-assistant/reminder.service';
+import {
+  buildReminderList,
+  formatReminderTime,
+  parseReminderInput,
+} from './telegram-reminders';
 import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import { MomentsService } from '../moments/moments.service';
 import {
@@ -148,6 +155,7 @@ export class TelegramBotService {
     @Optional() private readonly groupPolicy?: GroupFeaturePolicy,
     @Optional() private readonly groupMedia?: GroupPollMediaService,
     @Optional() private readonly groupVotes?: TelegramGroupVoteService,
+    @Optional() private readonly reminders?: PersonalReminderService,
   ) {
     this.quickSplitConversation = new TelegramQuickSplitConversation(
       prisma,
@@ -302,6 +310,7 @@ export class TelegramBotService {
     if (command === 'vote') return 'voting';
     if (command === 'startvote' || command === 'endvote') return 'group-voting';
     if (command === 'alerts' || command === 'weekly') return 'notifications';
+    if (this.isReminderCommand(command, message.text ?? '')) return 'assistant';
     if (
       command === 'today' ||
       command === 'recent' ||
@@ -352,6 +361,13 @@ export class TelegramBotService {
     const command =
       typeof message.text === 'string' ? this.readCommand(message.text) : null;
     if (this.isGroupMessage(message)) {
+      if (this.isReminderCommand(command, message.text ?? '')) {
+        await this.bot.sendMessage(
+          message.chat.id,
+          'For personal reminders, send this command in a private chat with me.',
+        );
+        return;
+      }
       if (message.contact) return;
       if (
         await this.quickSplitConversation.handle(
@@ -470,6 +486,10 @@ export class TelegramBotService {
       await this.handleNotificationCommand(message, linked, command);
       return;
     }
+    if (this.isReminderCommand(command, message.text ?? '')) {
+      await this.handleReminderCommand(message, linked.user.id, command!);
+      return;
+    }
     if (command === 'cancel') {
       await this.cancelLatestPending(
         message.chat.id,
@@ -486,7 +506,7 @@ export class TelegramBotService {
     if (command) {
       await this.bot.sendMessage(
         message.chat.id,
-        'Unknown command. Use /today, /recent, /spend, /vote, or send an ' +
+        'Unknown command. Use /help, /today, /recent, /spend, /vote, /remind, or send an ' +
           'expense such as “Lunch 4.50”.',
         await this.availableMainMenuKeyboard(),
       );
@@ -3542,6 +3562,80 @@ export class TelegramBotService {
     );
   }
 
+  private isReminderCommand(command: string | null, text: string) {
+    return (
+      command === 'remind' ||
+      command === 'reminders' ||
+      (command === 'cancel' && /\s+\S/.test(text.trim()))
+    );
+  }
+
+  private async handleReminderCommand(
+    message: TelegramMessage,
+    userId: string,
+    command: string,
+  ) {
+    if (!this.reminders) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        'Reminders are temporarily unavailable.',
+      );
+      return;
+    }
+    const argument = (message.text ?? '').trim().replace(/^\S+\s*/, '');
+    try {
+      if (command === 'remind') {
+        const reminder = await this.reminders.createFromTelegram(
+          userId,
+          () => parseReminderInput(argument),
+          { chatId: message.chat.id, messageId: message.message_id },
+        );
+        await this.bot.sendMessage(
+          message.chat.id,
+          [
+            '✅ Reminder created!',
+            '',
+            `📝 ${reminder.message}`,
+            `📅 ${formatReminderTime(reminder.remindAt)}`,
+            `🆔 ${reminder.id}`,
+            '',
+            `Cancel: /cancel ${reminder.id}`,
+          ].join('\n'),
+        );
+      } else if (command === 'reminders') {
+        if (argument)
+          throw new BadRequestException('Use /reminders to show pending reminders.');
+        const reminders = await this.reminders.list(
+          userId,
+          PersonalReminderStatus.PENDING,
+        );
+        for (const text of buildReminderList(reminders)) {
+          await this.bot.sendMessage(message.chat.id, text);
+        }
+      } else {
+        if (!UUID_PATTERN.test(argument)) {
+          throw new BadRequestException(
+            'Use /cancel <reminder-id>. Copy the full ID from /reminders.',
+          );
+        }
+        await this.reminders.cancel(userId, argument);
+        await this.bot.sendMessage(
+          message.chat.id,
+          `✅ Reminder cancelled.\n🆔 ${argument}`,
+        );
+      }
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        await this.bot.sendMessage(message.chat.id, error.message);
+        return;
+      }
+      throw error;
+    }
+  }
+
   private async sendHelp(chatId: number, group: boolean) {
     const commands = group
       ? [
@@ -3591,6 +3685,11 @@ export class TelegramBotService {
           '/weekly — View weekly digest settings',
           '/weekly on 20 or /weekly off — Set the digest hour or disable it',
           '/cancel — Cancel your latest pending expense',
+          '/remind 5m | Drink water — Set a personal reminder',
+          '/remind tomorrow 09:00 | Team meeting — Cambodia time (UTC+7)',
+          '/remind 2026-10-25 09:00 | Pay rent — Exact Cambodia date/time',
+          '/reminders — Show pending reminders and their IDs',
+          '/cancel <reminder-id> — Cancel one of your pending reminders',
           '',
           'Send an expense like “Lunch 4.50”, a voice note, or a receipt photo. Confirm before saving.',
           'For KHQR, group voting, and bill splits, send /help in your group.',
@@ -3610,6 +3709,8 @@ export class TelegramBotService {
       if (/^\/vote\b/.test(line)) return 'voting';
       if (/^\/(?:alerts|weekly)/.test(line)) return 'notifications';
       if (/^\/(?:phone|skipphone)/.test(line)) return 'phone';
+      if (/^\/remind/.test(line) || line.startsWith('/cancel <reminder-id>'))
+        return 'assistant';
       if (/^\/cancel/.test(line) || line.startsWith('Send an expense'))
         return 'expenses';
       return null;

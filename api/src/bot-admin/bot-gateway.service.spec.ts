@@ -13,6 +13,7 @@ function setup(status = 'PENDING', enabled = true, withGroups = false) {
     awaiting: jest.fn().mockResolvedValue(null),
     current: jest.fn(),
     begin: jest.fn(),
+    cancel: jest.fn(),
   };
   const client = {
     sendMessage: jest.fn(),
@@ -42,6 +43,29 @@ const message = (text: string, group = false): TelegramUpdate => ({
 });
 
 describe('bot access gateway', () => {
+  it('routes reminder cancellation past an active KHQR upload', async () => {
+    const { service, qr, client } = setup('APPROVED');
+    qr.awaiting.mockResolvedValue('pending-upload' as never);
+    expect(
+      await service.handle(
+        'CHLATWORK',
+        message('/cancel 00000000-0000-4000-8000-000000000123'),
+      ),
+    ).toBe(false);
+    expect(qr.cancel).not.toHaveBeenCalled();
+    expect(client.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it.each(['CHLATWORK', 'CREATOR'] as const)(
+    'keeps bare /cancel working for %s KHQR uploads',
+    async (kind) => {
+      const { service, qr } = setup('APPROVED');
+      qr.awaiting.mockResolvedValue('pending-upload' as never);
+      expect(await service.handle(kind, message('/cancel'))).toBe(true);
+      expect(qr.cancel).toHaveBeenCalledWith(kind, 'owner');
+    },
+  );
+
   it.each(['/start', '/menu'])(
     'lets approved ChlatWork users reach the assistant through %s with My Groups enabled',
     async (command) => {

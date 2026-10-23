@@ -101,6 +101,11 @@ export class BotGatewayService {
     const access = await this.access.lookup(kind, sender.id);
     const personallyAllowed = botAccessAllowed(access);
     const personalCommand = command?.[1].toLowerCase();
+    // Reminder cancellation must pass through to ChlatWork without consuming a KHQR upload.
+    const cancelQr =
+      personalCommand === 'cancel' &&
+      (kind !== 'CHLATWORK' ||
+        /^\/cancel(?:@[A-Za-z0-9_]+)?$/i.test((message?.text ?? '').trim()));
     // Approved ChlatWork users still need the expense assistant's feature-filtered
     // menu. The gateway owns onboarding and group/account entry for other users.
     const assistantMenu =
@@ -223,7 +228,7 @@ export class BotGatewayService {
         callback?.data?.startsWith('myqr:') ||
         message?.photo?.length ||
         message?.document ||
-        personalCommand === 'cancel' ||
+        cancelQr ||
         (personalCommand === 'start' && /\s+myqr$/.test(message?.text ?? '')));
     if (!personallyAllowed && qrAction && access && this.groups)
       qrAllowed = Boolean(await this.groups.personalQr(kind, access.userId));
@@ -341,9 +346,9 @@ export class BotGatewayService {
     const token = await this.qr.awaiting(
       kind,
       access!.userId,
-      command?.[1].toLowerCase() === 'cancel',
+      cancelQr,
     );
-    if (token && command?.[1].toLowerCase() === 'cancel') {
+    if (token && cancelQr) {
       await this.qr.cancel(kind, access!.userId);
       await bot.sendMessage(sender.id, 'KHQR upload cancelled.');
       return true;

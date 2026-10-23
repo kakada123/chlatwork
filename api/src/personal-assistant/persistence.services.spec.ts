@@ -5,6 +5,65 @@ import { PersonalReminderService } from './reminder.service';
 import { PersonalTaskService } from './task.service';
 
 describe('Personal assistant persistence services', () => {
+  it('uses one stable reminder ID for retries of a Telegram message', async () => {
+    const stored = new Map<string, unknown>();
+    const prisma = {
+      personalReminder: {
+        findUnique: jest
+          .fn()
+          .mockImplementation(({ where }) => stored.get(where.id)),
+        upsert: jest.fn().mockImplementation(({ where, create }) => {
+          if (!stored.has(where.id)) stored.set(where.id, create);
+          return stored.get(where.id);
+        }),
+      },
+    };
+    const service = new PersonalReminderService(prisma as never);
+    const now = new Date('2026-10-23T10:00:00Z');
+    const first = await service.createFromTelegram(
+      'owner',
+      () => ({
+        message: 'Water',
+        remindAt: new Date('2026-10-23T10:05:00Z'),
+      }),
+      { chatId: 123, messageId: 42 },
+      now,
+    );
+    const retried = await service.createFromTelegram(
+      'owner',
+      () => ({
+        message: 'Water',
+        remindAt: new Date('2026-10-23T10:06:00Z'),
+      }),
+      { chatId: 123, messageId: 42 },
+      new Date('2026-10-23T10:07:00Z'),
+    );
+    expect(retried).toEqual(first);
+    expect(stored.size).toBe(1);
+    expect(first.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+    await service.createFromTelegram(
+      'owner',
+      () => ({
+        message: 'Another',
+        remindAt: new Date('2026-10-23T10:05:00Z'),
+      }),
+      { chatId: 123, messageId: 43 },
+      now,
+    );
+    await service.createFromTelegram(
+      'other-owner',
+      () => ({
+        message: 'Other owner',
+        remindAt: new Date('2026-10-23T10:05:00Z'),
+      }),
+      { chatId: 123, messageId: 42 },
+      now,
+    );
+    expect(stored.size).toBe(3);
+  });
+
   it('creates and searches memories with mandatory user ownership and subject filtering', async () => {
     const prisma = {
       personalMemory: {

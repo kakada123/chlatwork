@@ -17,6 +17,6 @@ import { PersonalTaskService } from './task.service';
     PersonalReminderService,
     PersonalReminderScheduler,
   ],
-  exports: [PersonalAssistantService],
+  exports: [PersonalAssistantService, PersonalReminderService],
 })
 export class PersonalAssistantModule {}
