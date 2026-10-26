@@ -22,4 +22,17 @@ describe('frontend origin policy', () => {
       expect(() => frontendOrigins(value)).toThrow();
     }
   });
+  it('accepts exact callbacks for every product only when explicitly allowlisted', () => {
+    const products = ['creator', 'link', 'moment', 'expense', 'draw', 'games'];
+    const additional = products.map((product) => `https://${product}.chlatwork.com`).join(',');
+    const all = frontendOrigins('https://chlatwork.com', additional);
+    const mainOnly = frontendOrigins('https://chlatwork.com');
+    for (const product of products) {
+      for (const path of ['/api/auth/google/callback', '/api/auth/telegram/callback']) {
+        const callback = `https://${product}.chlatwork.com${path}`;
+        expect(isAllowedCallback(callback, path, all)).toBe(true);
+        expect(isAllowedCallback(callback, path, mainOnly)).toBe(false);
+      }
+    }
+  });
 });

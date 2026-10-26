@@ -111,6 +111,29 @@ try {
   assert.equal(enabledLink.status, 200);
   assert.match(await enabledLink.text(), /ChlatWork Link/);
   assertions += 13;
+  process.env.NUXT_PUBLIC_TELEGRAM_CLIENT_ID = "123456789";
+  process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID = "dummy-web-client.apps.googleusercontent.com";
+  for (const host of ["chlatwork.com", ...allProducts.split(",").map((product) => `${product}.chlatwork.com`)]) {
+    for (const [path, provider, callbackPath, cookiePath] of [
+      ["/api/auth/telegram/start?redirect=%2Faccount", "https://oauth.telegram.org", "/api/auth/telegram/callback", "/"],
+      ["/api/auth/google/link/authorize?ticket=dummy-link-ticket", "https://accounts.google.com", "/api/auth/google/callback", "/api/auth/google"],
+    ]) {
+      const start = await request(host, path);
+      assert.equal(start.status, 302);
+      const authorization = new URL(start.headers.get("location"));
+      assert.equal(authorization.origin, provider);
+      assert.equal(authorization.searchParams.get("redirect_uri"), `https://${host}${callbackPath}`);
+      assert.equal(authorization.searchParams.get("code_challenge_method"), "S256");
+      assert.ok(authorization.searchParams.get("state"));
+      const cookies = start.headers.get("set-cookie") || "";
+      const cookiePaths = [...cookies.matchAll(/(?:^|;)\s*Path=([^;,]+)/g)].map((match) => match[1]);
+      assert.deepEqual([...new Set(cookiePaths)], [cookiePath]);
+      assert.match(cookies, /HttpOnly/);
+      assert.match(cookies, /Secure/);
+      assert.doesNotMatch(cookies, /Domain=/i);
+      assertions += 9;
+    }
+  }
   console.log(`Passed ${assertions} built-server configuration recovery checks (fixture API, no real provider/database requests).`);
 } finally {
   globalThis.fetch = originalFetch;
