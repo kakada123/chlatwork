@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
   if (selectedVoice.provider === "narakeet" && lang !== "km") {
     throw createError({
       statusCode: 400,
-      statusMessage: "Narakeet voices are currently available for Khmer text only.",
+      statusMessage: "This voice is currently available for Khmer text only.",
     });
   }
 
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
     if (estimatedAudioSeconds > MAX_AUDIO_SECONDS) {
       throw createError({
         statusCode: 413,
-        statusMessage: `Text is estimated at ${estimatedAudioSeconds}s. Limit is ${MAX_AUDIO_SECONDS}s for Narakeet voices.`,
+        statusMessage: `Text is estimated at ${estimatedAudioSeconds}s. Limit is ${MAX_AUDIO_SECONDS}s for this voice.`,
       });
     }
   } else if (countGraphemes(text, lang) > GOOGLE_TTS_TEXT_LIMIT) {
@@ -165,17 +165,25 @@ async function synthesizeWithNarakeet(
     String(getNodeEnvValue("NARAKEET_API_KEY") || "").trim();
 
   if (!apiKey) {
+    console.error(
+      "[text-to-voice] Narakeet API key is not configured. Set NARAKEET_API_KEY in server environment to enable extended Khmer voices.",
+    );
     throw createError({
       statusCode: 503,
       statusMessage:
-        "Narakeet API key is not configured. Set NARAKEET_API_KEY to use this Khmer voice.",
+        "This voice is temporarily unavailable. Please choose another voice or use Auto.",
     });
   }
 
   if (!voiceConfig.upstreamVoice) {
+    console.error(
+      "[text-to-voice] Voice is missing upstreamVoice configuration:",
+      voiceConfig,
+    );
     throw createError({
       statusCode: 500,
-      statusMessage: "Narakeet voice is not configured.",
+      statusMessage:
+        "This voice is temporarily unavailable. Please choose another voice or use Auto.",
     });
   }
 
@@ -227,9 +235,15 @@ async function normalizeAudioResponse(upstreamResponse: Response) {
 
   if (!upstreamResponse.ok || !upstreamResponse.body || !isAudioResponse) {
     const errorDetail = await readUpstreamError(upstreamResponse);
+    console.error(
+      "[text-to-voice] Upstream audio generation failed:",
+      upstreamResponse.status,
+      errorDetail,
+    );
     throw createError({
-      statusCode: 502,
-      statusMessage: errorDetail || "Unable to generate audio.",
+      statusCode: upstreamResponse.status >= 500 ? 502 : 503,
+      statusMessage:
+        "This voice is temporarily unavailable. Please choose another voice or use Auto.",
     });
   }
 

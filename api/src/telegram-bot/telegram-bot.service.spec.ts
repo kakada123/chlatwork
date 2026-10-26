@@ -40,7 +40,7 @@ describe('TelegramBotService', () => {
     },
   );
 
-  it.each(['/start', '/menu'])(
+  it.each(['/start', '/menu', '☰ Menu'])(
     'keeps the expense assistant and My Groups together through the shared gateway for %s',
     async (command) => {
       const prisma = {
@@ -92,7 +92,7 @@ describe('TelegramBotService', () => {
           text: command,
         },
       });
-      expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+      expect(bot.sendMessage).toHaveBeenCalledTimes(2);
       expect(bot.sendMessage).toHaveBeenCalledWith(
         123,
         expect.stringContaining('ChlatWork Assistant'),

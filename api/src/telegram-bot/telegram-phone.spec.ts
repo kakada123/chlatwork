@@ -31,8 +31,9 @@ describe('optional Telegram phone sharing', () => {
   it('does not ask for a phone on normal start', async () => {
     const { service, bot, message } = setup();
     await service.handleUpdate({ update_id: 1, message: { ...message, contact: undefined, text: '/start' } });
-    expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(bot.sendMessage).toHaveBeenCalledTimes(2);
     expect(bot.sendMessage.mock.calls[0][2]).toHaveProperty('inline_keyboard');
+    expect(bot.sendMessage.mock.calls[1][2]).toMatchObject({ is_persistent: true });
   });
 
   it('requests contact only when explicitly asked', async () => {
@@ -40,6 +41,15 @@ describe('optional Telegram phone sharing', () => {
     await service.handleUpdate({ update_id: 1, message: { ...message, contact: undefined, text: '/phone' } });
     expect(bot.sendMessage).toHaveBeenCalledWith(123, expect.any(String), expect.objectContaining({
       keyboard: [[{ text: '📱 Share Phone Number', request_contact: true }], [{ text: '/skipphone' }]],
+    }));
+  });
+
+  it('restores fixed shortcuts after skipping phone sharing', async () => {
+    const { service, bot, message } = setup();
+    await service.handleUpdate({ update_id: 1, message: { ...message, contact: undefined, text: '/skipphone' } });
+    expect(bot.sendMessage).toHaveBeenCalledWith(123, expect.stringContaining('skipped'), expect.objectContaining({
+      is_persistent: true,
+      keyboard: expect.arrayContaining([[{ text: '➕ Add expense' }, { text: '📊 Today' }]]),
     }));
   });
 
@@ -54,7 +64,10 @@ describe('optional Telegram phone sharing', () => {
       },
       data: { phone: '+85512345678' },
     });
-    expect(bot.sendMessage).toHaveBeenCalledWith(123, expect.stringContaining('has been saved'), { remove_keyboard: true });
+    expect(bot.sendMessage).toHaveBeenCalledWith(123, expect.stringContaining('has been saved'), expect.objectContaining({
+      is_persistent: true,
+      keyboard: expect.arrayContaining([[{ text: '➕ Add expense' }, { text: '📊 Today' }]]),
+    }));
     expect(JSON.stringify(bot.sendMessage.mock.calls)).not.toContain('85512345678');
   });
 

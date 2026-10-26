@@ -142,6 +142,142 @@ function setup() {
 }
 
 describe('Creator Telegram bot', () => {
+  it.each([
+    ['✍️ Grammar', AiFeature.KHMER_GRAMMAR],
+    ['🔄 Rewrite', AiFeature.KHMER_REWRITE],
+    ['Latin → Khmer', AiFeature.LATIN_TO_KHMER],
+    ['Khmer → Latin', AiFeature.KHMER_TO_LATIN],
+    ['Khmer → English', AiFeature.KHMER_TO_ENGLISH],
+    ['Latin → English', AiFeature.LATIN_TO_ENGLISH],
+    ['English → Latin', AiFeature.ENGLISH_TO_LATIN],
+    ['✨ Humanize', AiFeature.HUMANIZE],
+  ])(
+    'selects the %s shortcut without queuing paid work',
+    async (text, feature) => {
+      const test = setup();
+      await test.service.handleUpdate(test.message(text));
+      expect(test.prisma.creatorTelegramChat.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({ data: { feature, lastUpdateId: 1n } }),
+      );
+      expect(test.requests).toHaveLength(0);
+      expect(test.bot.sendMessage).toHaveBeenLastCalledWith(
+        123,
+        'ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.',
+        expect.objectContaining({
+          keyboard: expect.arrayContaining([
+            [{ text: '💳 Credits' }, { text: '⚙️ Settings' }],
+            [{ text: '☰ Menu' }],
+          ]),
+          is_persistent: true,
+          resize_keyboard: true,
+          one_time_keyboard: false,
+        }),
+      );
+    },
+  );
+
+  it('opens the Creator menu from its fixed shortcut without charging', async () => {
+    const test = setup();
+    await test.service.handleUpdate(test.message('☰ Menu'));
+    expect(test.bot.setChatMenuButton).toHaveBeenCalled();
+    expect(test.requests).toHaveLength(0);
+    expect(test.bot.sendMessage).toHaveBeenLastCalledWith(
+      123,
+      expect.any(String),
+      expect.objectContaining({ is_persistent: true }),
+    );
+  });
+
+  it.each(['💳 Credits', '⚙️ Settings'])(
+    'opens the private %s shortcut without queuing work',
+    async (text) => {
+      const test = setup();
+      await test.service.handleUpdate(test.message(text));
+      expect(test.bot.sendMessage).toHaveBeenCalled();
+      expect(test.requests).toHaveLength(0);
+      expect(test.prisma.creatorTelegramChat.updateMany).not.toHaveBeenCalled();
+      if (text === '💳 Credits')
+        expect(test.credits.getBalance).toHaveBeenCalledWith('owner');
+      else
+        expect(test.bot.sendMessage).toHaveBeenCalledWith(
+          123,
+          expect.any(String),
+          expect.objectContaining({
+            inline_keyboard: expect.arrayContaining([
+              [
+                expect.objectContaining({
+                  callback_data: 'settings:corrections:0',
+                }),
+              ],
+            ]),
+          }),
+        );
+    },
+  );
+
+  it('hides a disabled Creator shortcut and rejects stale taps without charging', async () => {
+    const test = setup();
+    Object.assign(test.service, {
+      availability: {
+        isEnabled: jest.fn(
+          async (key: string) => key !== 'creator:KHMER_GRAMMAR',
+        ),
+        disabledKeys: jest.fn().mockResolvedValue(['creator:KHMER_GRAMMAR']),
+      },
+    });
+    await test.service.handleUpdate(test.message('/menu'));
+    const keyboard = test.bot.sendMessage.mock.calls.at(-1)![2];
+    expect(keyboard.keyboard.flat()).not.toContainEqual({ text: '✍️ Grammar' });
+    expect(keyboard.keyboard.flat()).toContainEqual({ text: '🔄 Rewrite' });
+    await test.service.handleUpdate(test.message('✍️ Grammar', 2));
+    expect(test.bot.sendMessage).toHaveBeenLastCalledWith(
+      123,
+      expect.stringContaining('unavailable'),
+      expect.any(Object),
+    );
+    expect(test.prisma.creatorTelegramChat.updateMany).not.toHaveBeenCalled();
+    expect(test.requests).toHaveLength(0);
+  });
+
+  it('keeps private navigation shortcuts available when all Creator modes are disabled', async () => {
+    const test = setup();
+    Object.assign(test.service, {
+      availability: {
+        isEnabled: jest.fn().mockResolvedValue(false),
+        disabledKeys: jest
+          .fn()
+          .mockResolvedValue(
+            Object.values(AiFeature).map((feature) => `creator:${feature}`),
+          ),
+      },
+    });
+    await test.service.handleUpdate(test.message('/menu'));
+    expect(test.bot.sendMessage).toHaveBeenLastCalledWith(
+      123,
+      expect.any(String),
+      {
+        keyboard: [
+          [{ text: '💳 Credits' }, { text: '⚙️ Settings' }],
+          [{ text: '☰ Menu' }],
+        ],
+        is_persistent: true,
+        resize_keyboard: true,
+        one_time_keyboard: false,
+      },
+    );
+    expect(test.requests).toHaveLength(0);
+  });
+
+  it('does not treat ambient group text as a private shortcut', async () => {
+    const test = setup();
+    const update = test.message('✍️ Grammar');
+    update.message.chat = { id: -100, type: 'supergroup' };
+    await test.service.handleUpdate(update);
+    expect(test.bot.sendMessage).not.toHaveBeenCalled();
+    expect(test.prisma.creatorTelegramChat.updateMany).not.toHaveBeenCalled();
+    expect(test.requests).toHaveLength(0);
+  });
+
   const businessUpdate = (text: string, updateId = 1) => ({
     update_id: updateId,
     business_message: {
@@ -775,7 +911,9 @@ describe('Creator Telegram bot', () => {
     expect(test.bot.sendMessage.mock.calls[0][2]).toHaveProperty(
       'inline_keyboard',
     );
-    expect(test.bot.sendMessage.mock.calls[1][2]).toBeUndefined();
+    expect(test.bot.sendMessage.mock.calls[1][2]).toMatchObject({
+      is_persistent: true,
+    });
   });
 
   it.each([
@@ -805,7 +943,7 @@ describe('Creator Telegram bot', () => {
     expect(menu[1]).not.toContain('ផ្ញើអត្ថបទនៅទីនេះ');
     expect(prompt[0]).toBe(123);
     expect(prompt[1]).toBe('ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.');
-    expect(prompt[2]).toBeUndefined();
+    expect(prompt[2]).toMatchObject({ is_persistent: true });
     expect(test.requests).toHaveLength(0);
     expect(test.credits.getBalance).not.toHaveBeenCalled();
   });
@@ -832,7 +970,9 @@ describe('Creator Telegram bot', () => {
     complete();
     await response;
     expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
-    expect(test.bot.sendMessage.mock.calls[1][2]).toBeUndefined();
+    expect(test.bot.sendMessage.mock.calls[1][2]).toMatchObject({
+      is_persistent: true,
+    });
   });
 
   it.each([

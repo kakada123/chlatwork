@@ -157,6 +157,7 @@ export type TelegramReplyMarkup =
       >;
       resize_keyboard?: boolean;
       one_time_keyboard?: boolean;
+      is_persistent?: boolean;
     }
   | { remove_keyboard: true }
   | {

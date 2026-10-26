@@ -16,8 +16,14 @@ import { CreatorPricingService } from '../creator-ai/creator-pricing.service';
 import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
 import type {
   TelegramInlineKeyboard,
+  TelegramReplyMarkup,
   TelegramUpdate,
 } from '../telegram-bot/telegram-bot.types';
+import {
+  CREATOR_SHORTCUTS,
+  telegramShortcutCommand,
+  telegramShortcutKeyboard,
+} from '../telegram-bot/telegram-shortcuts';
 import { CreatorTelegramClient } from './creator-telegram.client';
 import {
   CREATOR_BUSINESS_PENDING_TEXT,
@@ -190,7 +196,13 @@ export class CreatorTelegramService {
       return;
     }
 
-    const text = typeof message.text === 'string' ? message.text.trim() : '';
+    const messageText =
+      typeof message.text === 'string' ? message.text.trim() : '';
+    // Private shortcut taps select tools; the button label must never become paid input.
+    const shortcut = !isGroup
+      ? telegramShortcutCommand(messageText, CREATOR_SHORTCUTS)
+      : undefined;
+    const text = shortcut ? `/${shortcut}` : messageText;
     const commandMatch =
       /^\/([a-z][a-z0-9_]{0,31})(?:@([A-Za-z0-9_]+))?(?:\s+([\s\S]*))?$/i.exec(
         text,
@@ -808,15 +820,22 @@ export class CreatorTelegramService {
       chatId < 0
         ? 'ឆ្លើយតបជាមួយអត្ថបទ។ / Reply with your text.'
         : 'ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.',
-      undefined,
+      chatId < 0 ? undefined : await this.availableShortcutKeyboard(),
       context,
+    );
+  }
+
+  private async availableShortcutKeyboard() {
+    return telegramShortcutKeyboard(
+      CREATOR_SHORTCUTS,
+      (await this.availability?.disabledKeys()) ?? [],
     );
   }
 
   private sendReply(
     chatId: number,
     text: string,
-    keyboard?: TelegramInlineKeyboard,
+    keyboard?: TelegramReplyMarkup,
     context?: CreatorReplyContext,
   ) {
     if (chatId < 0)
@@ -899,6 +918,13 @@ export class CreatorTelegramService {
         await this.availableKeyboard(chatId),
         context,
       );
+      if (chatId > 0)
+        await this.sendReply(
+          chatId,
+          'Choose a shortcut below.',
+          await this.availableShortcutKeyboard(),
+          context,
+        );
     }
     if (chatId < 0) return;
     try {

@@ -48,6 +48,12 @@ import {
   TelegramAssistantAiUnavailableError,
 } from './telegram-assistant-ai.service';
 import { TelegramBotClient } from './telegram-bot.client';
+import {
+  CHLATWORK_SHORTCUTS,
+  MENU_SHORTCUT,
+  telegramShortcutCommand,
+  telegramShortcutKeyboard,
+} from './telegram-shortcuts';
 import { TelegramBusinessSecurityService } from './telegram-business-security.service';
 import {
   TelegramKlaKlokService,
@@ -280,8 +286,7 @@ export class TelegramBotService {
     }
     const message = update.message;
     if (!message) return null;
-    const command =
-      typeof message.text === 'string' ? this.readCommand(message.text) : null;
+    const command = this.readCommand(message);
     if (this.isGroupMessage(message)) {
       if (command === 'klaklok') return 'kla-klok';
       if (command === 'split') return 'bill-split';
@@ -307,6 +312,7 @@ export class TelegramBotService {
     }
     if (command === 'phone' || command === 'skipphone' || message.contact)
       return 'phone';
+    if (command === 'add') return 'expenses';
     if (command === 'vote') return 'voting';
     if (command === 'startvote' || command === 'endvote') return 'group-voting';
     if (command === 'alerts' || command === 'weekly') return 'notifications';
@@ -314,6 +320,7 @@ export class TelegramBotService {
     if (
       command === 'today' ||
       command === 'recent' ||
+      command === 'ask' ||
       parseSpendingQuestion(message.text ?? '')
     )
       return 'spending';
@@ -358,8 +365,7 @@ export class TelegramBotService {
   }
 
   private async handleMessage(message: TelegramMessage) {
-    const command =
-      typeof message.text === 'string' ? this.readCommand(message.text) : null;
+    const command = this.readCommand(message);
     if (this.isGroupMessage(message)) {
       if (this.isReminderCommand(command, message.text ?? '')) {
         await this.bot.sendMessage(
@@ -432,10 +438,11 @@ export class TelegramBotService {
     }
     if (!this.isPrivateMessage(message)) return;
     if (command === 'skipphone') {
+      const linked = await this.findLinkedUser(String(message.from.id));
       await this.bot.sendMessage(
         message.chat.id,
         'Phone sharing skipped. You can share it later with /phone.',
-        { remove_keyboard: true },
+        await this.availableShortcutKeyboard(Boolean(linked)),
       );
       return;
     }
@@ -462,6 +469,14 @@ export class TelegramBotService {
     }
     if (command === 'phone') {
       await this.requestPhone(message.chat.id);
+      return;
+    }
+    if (command === 'add') {
+      await this.sendExpensePrompt(message.chat.id);
+      return;
+    }
+    if (command === 'ask') {
+      await this.sendSpendingPrompt(message.chat.id);
       return;
     }
     if (command === 'today') {
@@ -655,7 +670,7 @@ export class TelegramBotService {
     await this.bot.sendMessage(
       message.chat.id,
       'Your phone number has been saved to your ChlatWork profile.',
-      { remove_keyboard: true },
+      await this.availableShortcutKeyboard(),
     );
   }
 
@@ -1068,11 +1083,7 @@ export class TelegramBotService {
     }
     if (data === 'menu:add') {
       await this.bot.answerCallback(callback.id);
-      await this.bot.sendMessage(
-        message.chat.id,
-        'Send one expense like:\n• Lunch 4.50\n• Coffee $2\n• បាយ 15000៛' +
-          '\n\nI will show a confirmation before saving.',
-      );
+      await this.sendExpensePrompt(message.chat.id);
       return;
     }
     if (data === 'menu:recent' || data === 'recent:list') {
@@ -1082,11 +1093,7 @@ export class TelegramBotService {
     }
     if (data === 'menu:ask') {
       await this.bot.answerCallback(callback.id);
-      await this.bot.sendMessage(
-        message.chat.id,
-        'Ask a spending question, for example:\n• How much did I spend this week?\n' +
-          '• How much did I spend on Food this month?\n• /spend Coffee week',
-      );
+      await this.sendSpendingPrompt(message.chat.id);
       return;
     }
     if (data === 'summary:today') {
@@ -3741,6 +3748,36 @@ export class TelegramBotService {
             'before using private expense data.',
       linked ? await this.availableMainMenuKeyboard() : this.connectKeyboard(),
     );
+    // Telegram accepts one markup per message, so keep inline actions and install
+    // the persistent input shortcuts on a separate message.
+    await this.bot.sendMessage(
+      chatId,
+      'Choose a shortcut below, or send a message.',
+      await this.availableShortcutKeyboard(linked),
+    );
+  }
+
+  private async availableShortcutKeyboard(linked = true) {
+    return telegramShortcutKeyboard(
+      linked ? CHLATWORK_SHORTCUTS : [[MENU_SHORTCUT]],
+      (await this.availability?.disabledKeys()) ?? [],
+    );
+  }
+
+  private sendExpensePrompt(chatId: number) {
+    return this.bot.sendMessage(
+      chatId,
+      'Send one expense like:\n• Lunch 4.50\n• Coffee $2\n• បាយ 15000៛' +
+        '\n\nI will show a confirmation before saving.',
+    );
+  }
+
+  private sendSpendingPrompt(chatId: number) {
+    return this.bot.sendMessage(
+      chatId,
+      'Ask a spending question, for example:\n• How much did I spend this week?\n' +
+        '• How much did I spend on Food this month?\n• /spend Coffee week',
+    );
   }
 
   private async sendConnectAccount(chatId: number) {
@@ -3883,8 +3920,14 @@ export class TelegramBotService {
     ].join('\n');
   }
 
-  private readCommand(text: string) {
-    const trimmed = text.trim();
+  private readCommand(message: TelegramMessage) {
+    const trimmed = typeof message.text === 'string' ? message.text.trim() : '';
+    // Resolve shortcuts before feature checks as well as dispatch, so old
+    // keyboards cannot bypass a disabled feature or enter expense/AI parsing.
+    if (this.isPrivateMessage(message)) {
+      const shortcut = telegramShortcutCommand(trimmed, CHLATWORK_SHORTCUTS);
+      if (shortcut) return shortcut;
+    }
     if (!trimmed.startsWith('/')) return null;
     return trimmed.slice(1).split(/[@\s]/, 1)[0]?.toLowerCase() || null;
   }

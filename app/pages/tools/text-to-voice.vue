@@ -142,7 +142,7 @@
               </option>
             </select>
             <p class="text-xs text-gray-500">
-              Auto voice supports Khmer and English. Narakeet voices are Khmer-only.
+              Auto voice supports Khmer and English. Extended Khmer voices are Khmer-only.
             </p>
           </div>
 
@@ -345,7 +345,7 @@ const isOverDurationLimit = computed(
 );
 const narakeetDurationLimitMessage = computed(
   () =>
-    `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for Narakeet voices.`,
+    `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for this voice.`,
 );
 const hasOnlineAudioSupport = computed(() => process.client);
 const hasSpeechSupport = computed(
@@ -487,7 +487,11 @@ watch(engine, () => {
 });
 
 watch([text, onlineVoice], () => {
-  if (!isOverDurationLimit.value && error.value.includes("for Narakeet voices")) {
+  if (
+    !isOverDurationLimit.value &&
+    (error.value.includes("for Narakeet voices") ||
+      error.value.includes("for this voice"))
+  ) {
     error.value = "";
   }
 });
@@ -932,7 +936,15 @@ function getGraphemes(value: string) {
 async function readApiError(response: Response) {
   try {
     const data = await response.json();
-    return data?.statusMessage || data?.message || "Unable to generate audio.";
+    const rawMessage = data?.statusMessage || data?.message || "";
+    if (!rawMessage) {
+      return "Unable to generate audio.";
+    }
+    // Sanitize any internal configuration or technical error messages
+    if (/api\s*key|narakeet|configured|upstream|internal/i.test(rawMessage)) {
+      return "This voice is temporarily unavailable. Please choose another voice or use Auto.";
+    }
+    return rawMessage;
   } catch {
     return "Unable to generate audio.";
   }
