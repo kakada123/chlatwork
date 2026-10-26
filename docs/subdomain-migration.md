@@ -61,6 +61,10 @@ All product gates default to an empty list. Merge/deploy with the gates empty fi
 
 Origin overrides require HTTPS except localhost development, prohibit paths, credentials, queries, and duplicate hosts. `canonical` requires `enabled`; `redirect` requires both. Flags are deployment/runtime configuration, not a user-controlled query parameter. Supply non-sensitive domain settings in Vercel and redeploy for deterministic client/server agreement. Never change flags independently on only the server or only cached frontend assets.
 
+Product-list values are comma-separated names, for example `creator,link,moment,expense,draw,games`, without URLs, assignment prefixes, or wrapping quotes in Vercel's value field. Leave disabled variables **unset** in Vercel. Nitro-deserialized string arrays are also accepted. Unknown names or invalid list types disable the entire affected stage; canonical/redirect prerequisites still apply. The server logs only the offending variable name once per process, never its value. A product-list typo must not turn main-site, authenticated API, or Telegram webhook requests into HTTP 500 responses.
+
+If an older deployment reports `Unknown product in domain configuration`, remove `NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS`, `NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS`, and `NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS` from Vercel Production and redeploy to restore legacy-only operation. After deploying the recovery fix, re-enable only the intended stages with valid names. Do not activate permanent redirects during recovery.
+
 Example **domain-only** values for a local process (not an env file):
 
 ```text
@@ -142,3 +146,9 @@ Existing Creator Telegram service/worker/spec changes and `docs/telegram-shortcu
 - **Lint unavailable**: no frontend lint script exists; the API's existing ESLint 9 command fails because the repository has no `eslint.config.js/mjs/cjs`. No unrelated lint configuration or broad reformat was introduced.
 - **Independent code review completed**. A crawler-access regression was found and fixed: production robots retains `Allow: /`, so existing shared Moment OG pages and public Link media remain crawlable, with privacy/indexing controlled by their existing access checks and noindex metadata. Its regression test was observed failing before the fix and passing afterward.
 - **`git diff --check` passed** after whitespace cleanup. No production deployment, Cloudflare/Vercel/Railway mutation, database change, real env file or secret inspection was performed.
+
+### Product-list outage regression
+
+The reported production stack trace identified `products()` throwing inside global domain middleware before `/api/creator-telegram/webhook` could reach its authentication handler. `tests/product-domain-config.test.ts` covers invalid enabled/canonical/redirect values, stage prerequisites, Nitro arrays, defaults and field-name-only diagnostics. `scripts/validate-domain-config-runtime.mjs` reproduces invalid lists against the packaged Vercel handler, checks main-page availability, both Telegram webhook authentication boundaries, account authentication, unknown-host rejection, product gating, staging noindex and sibling-origin CSRF protection. Run it after `scripts/validate-subdomain-build.mjs`; it uses a fixture API and never calls live services or reads env files.
+
+Recovery validation: the old packaged server reproduced HTTP 500 with `statusMessage: undefined`. After the fix, the production build, policy TypeScript check, all four new unit tests and all **24 packaged-server recovery assertions** passed, including once-per-process diagnostics without setting values. The full frontend suite is **338 passed / 340 total** with the same two unrelated Moments assertions listed above. Production configuration/deployment was not changed automatically.

@@ -1,8 +1,17 @@
 import { createError, getRequestHost, type H3Event } from "h3";
-import { createDomainConfig, resolveHost } from "../../app/lib/product-domains";
+import { createDomainConfig, resolveHost, type ProductListSetting } from "../../app/lib/product-domains";
+
+const reportedInvalidSettings = new Set<ProductListSetting>();
+
+function reportInvalidProductList(setting: ProductListSetting) {
+  if (reportedInvalidSettings.has(setting)) return;
+  reportedInvalidSettings.add(setting);
+  // Report only the setting name, once per process; never log runtime values or flood webhook retries.
+  console.warn(`[chlatwork:domains] Invalid ${setting}; this migration stage is disabled. Use comma-separated product names: creator,link,moment,expense,draw,games.`);
+}
 
 export function requestDomain(event: H3Event) {
-  const config = createDomainConfig(useRuntimeConfig(event).public.domains);
+  const config = createDomainConfig(useRuntimeConfig(event).public.domains, reportInvalidProductList);
   const host = getRequestHost(event, { xForwardedHost: false });
   const context = resolveHost(host, config);
   return { config, context, host };

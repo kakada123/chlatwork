@@ -9,12 +9,17 @@ export const PRODUCTS = {
 } as const;
 
 export type Product = keyof typeof PRODUCTS;
+export type ProductListSetting =
+  | "NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS"
+  | "NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS"
+  | "NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS";
+type ProductListValue = string | readonly string[];
 export interface DomainOptions {
   mainOrigin?: string;
   productOrigins?: string | Record<string, string>;
-  enabledProducts?: string;
-  canonicalProducts?: string;
-  redirectProducts?: string;
+  enabledProducts?: ProductListValue;
+  canonicalProducts?: ProductListValue;
+  redirectProducts?: ProductListValue;
   previewOrigins?: string;
 }
 export interface DomainConfig {
@@ -36,13 +41,23 @@ function origin(value: string) {
   return url.origin;
 }
 
-function products(value = ""): Product[] {
-  const names = value.split(",").map((item) => item.trim()).filter(Boolean);
-  if (names.some((name) => !Object.hasOwn(PRODUCTS, name))) throw new Error("Unknown product in domain configuration");
+function products(value: unknown, setting: ProductListSetting, reportInvalid?: (setting: ProductListSetting) => void): Product[] {
+  if (value === undefined || value === "") return [];
+  const entries: unknown[] | undefined = typeof value === "string" ? value.split(",") : Array.isArray(value) ? value : undefined;
+  if (!entries || entries.some((entry) => typeof entry !== "string")) {
+    reportInvalid?.(setting);
+    return [];
+  }
+  const names = (entries as string[]).map((item) => item.trim()).filter(Boolean);
+  if (names.some((name) => !Object.hasOwn(PRODUCTS, name))) {
+    // Reject the entire stage: a typo must neither partially activate migration nor break API/webhook requests.
+    reportInvalid?.(setting);
+    return [];
+  }
   return [...new Set(names)] as Product[];
 }
 
-export function createDomainConfig(options: DomainOptions = {}): DomainConfig {
+export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: (setting: ProductListSetting) => void): DomainConfig {
   const mainOrigin = origin(options.mainOrigin || "https://chlatwork.com");
   // Nitro may deserialize JSON environment overrides before passing runtimeConfig to the app.
   const overrides = (typeof options.productOrigins === "string" ? JSON.parse(options.productOrigins || "{}") : options.productOrigins || {}) as Record<string, unknown>;
@@ -56,11 +71,11 @@ export function createDomainConfig(options: DomainOptions = {}): DomainConfig {
   // A host identifies exactly one app; ambiguous destinations must fail closed.
   const hosts = [mainOrigin, ...Object.values(origins)].map((value) => new URL(value).host);
   if (new Set(hosts).size !== hosts.length) throw new Error("Product origins must have distinct hosts");
-  const enabled = products(options.enabledProducts);
-  const canonical = products(options.canonicalProducts).filter((product) => enabled.includes(product));
+  const enabled = products(options.enabledProducts, "NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS", reportInvalid);
+  const canonical = products(options.canonicalProducts, "NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS", reportInvalid).filter((product) => enabled.includes(product));
   return {
     mainOrigin, origins, enabled, canonical,
-    redirects: products(options.redirectProducts).filter((product) => canonical.includes(product) && product !== "draw"),
+    redirects: products(options.redirectProducts, "NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS", reportInvalid).filter((product) => canonical.includes(product) && product !== "draw"),
     previews: (options.previewOrigins || "").split(",").map((item) => item.trim()).filter(Boolean).map(origin),
   };
 }
