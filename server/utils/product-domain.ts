@@ -1,17 +1,20 @@
 import { createError, getRequestHost, type H3Event } from "h3";
-import { createDomainConfig, resolveHost, type ProductListSetting } from "../../app/lib/product-domains";
+import { createDomainConfig, resolveHost, type DomainConfigSetting } from "../../app/lib/product-domains";
 
-const reportedInvalidSettings = new Set<ProductListSetting>();
+const reportedInvalidSettings = new Set<DomainConfigSetting>();
 
-function reportInvalidProductList(setting: ProductListSetting) {
+function reportInvalidDomainSetting(setting: DomainConfigSetting) {
   if (reportedInvalidSettings.has(setting)) return;
   reportedInvalidSettings.add(setting);
   // Report only the setting name, once per process; never log runtime values or flood webhook retries.
-  console.warn(`[chlatwork:domains] Invalid ${setting}; this migration stage is disabled. Use comma-separated product names: creator,link,moment,expense,draw,games.`);
+  const guidance = setting === "NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS"
+    ? "additional preview hosts are disabled. Use comma-separated exact HTTPS origins, or leave the variable unset."
+    : "this migration stage is disabled. Use comma-separated product names: creator,link,moment,expense,draw,games.";
+  console.warn(`[chlatwork:domains] Invalid ${setting}; ${guidance}`);
 }
 
 export function requestDomain(event: H3Event) {
-  const config = createDomainConfig(useRuntimeConfig(event).public.domains, reportInvalidProductList);
+  const config = createDomainConfig(useRuntimeConfig(event).public.domains, reportInvalidDomainSetting);
   const host = getRequestHost(event, { xForwardedHost: false });
   const context = resolveHost(host, config);
   return { config, context, host };

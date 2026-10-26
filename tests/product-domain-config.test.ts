@@ -58,3 +58,29 @@ test("unset and blank migration lists stay disabled without configuration warnin
   }
   assert.deepEqual(issues, []);
 });
+
+test("invalid preview origins cannot crash production routing or enable additional hosts", () => {
+  for (const value of ["disabled", "false", "creator,link", "https://valid.example.test,disabled", "https://user:password@example.test", "https://example.test/path", "https://*.example.test", false, {}, ["https://valid.example.test", false]]) {
+    const issues: string[] = [];
+    const config = createDomainConfig({ enabledProducts: allProducts, previewOrigins: value as never }, (setting) => issues.push(setting));
+    assert.deepEqual(config.previews, []);
+    assert.equal(config.enabled.length, 6);
+    assert.equal(resolveHost("chlatwork.com", config).kind, "main");
+    assert.equal(resolveHost("link.chlatwork.com", config).product, "link");
+    assert.equal(resolveHost("valid.example.test", config).kind, "unsupported");
+    assert.deepEqual(issues, ["NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS"]);
+  }
+});
+
+test("preview origin lists accept exact origins and Nitro arrays, and omitted lists stay empty", () => {
+  const issues: string[] = [];
+  for (const value of [undefined, "", "  ", []]) {
+    assert.deepEqual(createDomainConfig({ previewOrigins: value as never }, (setting) => issues.push(setting)).previews, []);
+  }
+  for (const value of ["https://review.example.test, https://review.example.test/", ["https://review.example.test", "https://review.example.test/"]]) {
+    const config = createDomainConfig({ previewOrigins: value as never }, (setting) => issues.push(setting));
+    assert.deepEqual(config.previews, ["https://review.example.test"]);
+    assert.equal(resolveHost("review.example.test", config).kind, "preview");
+  }
+  assert.deepEqual(issues, []);
+});

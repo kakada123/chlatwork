@@ -66,6 +66,29 @@ try {
     assert.equal(warnings.filter((warning) => warning.includes(`NUXT_PUBLIC_DOMAINS_${setting}`)).length, 1);
   }
   assertions += 5;
+  process.env.NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS = allProducts;
+  process.env.NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS = "";
+  process.env.NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS = "";
+  for (const previewValue of ["disabled", "https://review.example.test,disabled", "false"]) {
+    process.env.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS = previewValue;
+    assert.equal((await request("chlatwork.com", "/")).status, 200, "Invalid preview aliases must not crash the main site");
+    assert.equal((await request("link.chlatwork.com", "/")).status, 200, "Invalid preview aliases must not crash product hosts");
+    assert.equal((await request("chlatwork.com", "/api/creator-telegram/webhook", { method: "POST" })).status, 401);
+    assert.equal((await request("link.chlatwork.com", "/api/auth/me")).status, 401);
+    assert.equal((await request("link.chlatwork.com", "/not-a-real-product-route")).status, 404, "Error rendering must survive invalid preview configuration");
+    assert.equal((await request("review.example.test", "/")).status, 404, "A partially invalid preview list must not grant host access");
+    assertions += 6;
+  }
+  for (const previewValue of ["https://review.example.test", '["https://review.example.test"]']) {
+    process.env.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS = previewValue;
+    const preview = await request("review.example.test", "/");
+    assert.equal(preview.status, 200);
+    assert.match(preview.headers.get("x-robots-tag"), /noindex/);
+    assertions += 2;
+  }
+  assert.equal(warnings.length, 4);
+  assert.equal(warnings.filter((warning) => warning.includes("NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS")).length, 1);
+  assertions += 2;
   console.log(`Passed ${assertions} built-server configuration recovery checks (fixture API, no real provider/database requests).`);
 } finally {
   globalThis.fetch = originalFetch;

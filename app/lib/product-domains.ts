@@ -13,6 +13,7 @@ export type ProductListSetting =
   | "NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS"
   | "NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS"
   | "NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS";
+export type DomainConfigSetting = ProductListSetting | "NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS";
 type ProductListValue = string | readonly string[];
 export interface DomainOptions {
   mainOrigin?: string;
@@ -20,7 +21,7 @@ export interface DomainOptions {
   enabledProducts?: ProductListValue;
   canonicalProducts?: ProductListValue;
   redirectProducts?: ProductListValue;
-  previewOrigins?: string;
+  previewOrigins?: string | readonly string[];
 }
 export interface DomainConfig {
   mainOrigin: string;
@@ -34,7 +35,7 @@ export interface DomainConfig {
 function origin(value: string) {
   const url = new URL(value);
   if (
-    !["https:", "http:"].includes(url.protocol) || url.username || url.password ||
+    !["https:", "http:"].includes(url.protocol) || url.username || url.password || url.hostname.includes("*") ||
     url.pathname !== "/" || url.search || url.hash ||
     (url.protocol !== "https:" && !/^(localhost|[a-z0-9-]+\.localhost|127\.0\.0\.1)$/.test(url.hostname))
   ) throw new Error("Domain destinations must be HTTPS origins (HTTP is allowed only on localhost)");
@@ -57,7 +58,21 @@ function products(value: unknown, setting: ProductListSetting, reportInvalid?: (
   return [...new Set(names)] as Product[];
 }
 
-export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: (setting: ProductListSetting) => void): DomainConfig {
+function previewOrigins(value: unknown, reportInvalid?: (setting: DomainConfigSetting) => void): string[] {
+  if (value === undefined || value === "") return [];
+  const entries: unknown[] | undefined = typeof value === "string" ? value.split(",") : Array.isArray(value) ? value : undefined;
+  if (entries && entries.every((entry) => typeof entry === "string")) {
+    try {
+      return [...new Set((entries as string[]).map((entry) => entry.trim()).filter(Boolean).map(origin))];
+    } catch {
+      // Optional preview aliases must fail closed without breaking production requests or error rendering.
+    }
+  }
+  reportInvalid?.("NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS");
+  return [];
+}
+
+export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: (setting: DomainConfigSetting) => void): DomainConfig {
   const mainOrigin = origin(options.mainOrigin || "https://chlatwork.com");
   // Nitro may deserialize JSON environment overrides before passing runtimeConfig to the app.
   const overrides = (typeof options.productOrigins === "string" ? JSON.parse(options.productOrigins || "{}") : options.productOrigins || {}) as Record<string, unknown>;
@@ -76,7 +91,7 @@ export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: 
   return {
     mainOrigin, origins, enabled, canonical,
     redirects: products(options.redirectProducts, "NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS", reportInvalid).filter((product) => canonical.includes(product) && product !== "draw"),
-    previews: (options.previewOrigins || "").split(",").map((item) => item.trim()).filter(Boolean).map(origin),
+    previews: previewOrigins(options.previewOrigins, reportInvalid),
   };
 }
 
