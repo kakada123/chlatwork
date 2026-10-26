@@ -6,6 +6,7 @@ export const PRODUCTS = {
   expense: { name: "Expense Tracker", entry: "/tools/expense-tracker", home: "/", host: "expense" },
   draw: { name: "Lucky Draw", entry: "/tools/lucky-draw", home: "/", host: "draw" },
   games: { name: "ChlatWork Games", entry: "/tools/kla-klok", home: "/kla-klok", host: "games" },
+  jekluy: { name: "ចែកលុយ", entry: "/jekluy", home: "/", host: "jekluy" },
 } as const;
 
 export type Product = keyof typeof PRODUCTS;

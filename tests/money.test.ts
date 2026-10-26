@@ -177,6 +177,15 @@ test("payback KHR remainder and huge totals stay deterministic", () => {
   assert.equal(formatMoneyAmountDisplay(getPaybackTotal(hugePeople), "USD").value, "$3.33B");
 });
 
+test("PayBack floors KHR shares before assigning the remainder for large groups", () => {
+  const entries = parsePaybackRows(Array.from({ length: 201 }, (_, index) => ({ name: `Person ${index}`, amount: index === 0 ? "20099" : "0" })));
+  const meta = buildPaybackKhrRemainderMeta(entries, "ASSIGN_TO_PERSON", "Person 0");
+  assert.equal(meta.baseShareCents, 0n);
+  assert.equal(meta.leftoverCents, 2_009_900n);
+  const people = buildPaybackPeople(entries, "KHR", "ASSIGN_TO_PERSON", "Person 0");
+  assert.equal(people.reduce((sum, person) => sum + person.balanceCents!, 0n), 0n);
+});
+
 test("payback share payload round-trips compact shared links", () => {
   const payload = buildPaybackSharePayload({
     c: "KHR",

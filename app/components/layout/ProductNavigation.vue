@@ -3,6 +3,7 @@ import {
   Dices,
   Gamepad2,
   Heart,
+  HandCoins,
   Link2,
   Moon,
   MoreHorizontal,
@@ -22,7 +23,7 @@ const { user, isReady } = useAuth();
 const { enabled: quickExpenseEnabled } = useQuickExpense();
 const { websiteEnabled } = useFeatureAvailability();
 const canQuickExpense = computed(() =>
-  product !== "creator" && product !== "expense" && isReady.value &&
+  product !== "creator" && product !== "expense" && product !== "jekluy" && isReady.value &&
   Boolean(user.value) && quickExpenseEnabled.value === true &&
   websiteEnabled("expense-tracker"),
 );
@@ -34,6 +35,7 @@ const creditBalance =
     : undefined;
 const mobileCreditBalance = computed(() => creditBalance?.value ?? null);
 const icons = {
+  jekluy: HandCoins,
   creator: Sparkles,
   link: Link2,
   moment: Heart,

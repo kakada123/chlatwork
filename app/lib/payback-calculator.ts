@@ -279,7 +279,8 @@ export function buildPaybackKhrRemainderMeta(
   }
 
   const baseShareCents = roundKhrDownCents(
-    divideMoneyCents(totalPaidCents, peopleCount),
+    // Floor before applying the 100-riel rule; rounding first can overallocate large groups.
+    totalPaidCents / BigInt(peopleCount),
   );
   const leftoverCents = totalPaidCents - baseShareCents * BigInt(peopleCount);
 

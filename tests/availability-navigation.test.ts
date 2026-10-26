@@ -157,6 +157,12 @@ test("workspace navigation does not wait for public availability", async () => {
   }
 });
 
+test("local-only JekLuy navigation neither requests nor waits for backend availability", async () => {
+  const run = middleware({ refresh: () => { throw new Error("Local-only pages must not request the API"); } });
+  assert.equal(await run({ path: "/jekluy", meta: { localOnly: true } }), undefined);
+  assert.equal(await run({ path: "/", meta: { localOnly: true, productLegacyPath: "/jekluy" } }), undefined);
+});
+
 test("gated tools still wait for fresh availability and fail closed", async () => {
   for (const path of [
     "/expense",

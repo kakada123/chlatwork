@@ -1,5 +1,5 @@
 import { createError, getRequestHost, type H3Event } from "h3";
-import { createDomainConfig, resolveHost, type DomainConfigSetting } from "../../app/lib/product-domains";
+import { createDomainConfig, PRODUCTS, resolveHost, type DomainConfigSetting } from "../../app/lib/product-domains";
 
 const reportedInvalidSettings = new Set<DomainConfigSetting>();
 
@@ -9,7 +9,7 @@ function reportInvalidDomainSetting(setting: DomainConfigSetting) {
   // Report only the setting name, once per process; never log runtime values or flood webhook retries.
   const guidance = setting === "NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS"
     ? "additional preview hosts are disabled. Use comma-separated exact HTTPS origins, or leave the variable unset."
-    : "this migration stage is disabled. Use comma-separated product names: creator,link,moment,expense,draw,games.";
+    : `this migration stage is disabled. Use comma-separated product names: ${Object.keys(PRODUCTS).join(",")}.`;
   console.warn(`[chlatwork:domains] Invalid ${setting}; ${guidance}`);
 }
 

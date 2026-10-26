@@ -14,7 +14,7 @@ export function useAdVisibility() {
   );
 
   onMounted(() => {
-    if (!isReady.value) void fetchMe();
+    if (route.meta.localOnly !== true && !isReady.value) void fetchMe();
   });
 
   return { canShowAds: readonly(canShowAds) };

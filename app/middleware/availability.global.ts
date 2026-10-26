@@ -3,6 +3,8 @@ import { getCreatorToolByRoute } from "~/data/creator-tools";
 import { useFeatureAvailability } from "~/composables/useFeatureAvailability";
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  // JekLuy is fully local; backend availability must not delay or disable its calculation.
+  if (to.meta?.localOnly === true) return;
   // Product entry aliases must pass the same availability checks as their legacy tool pages.
   const path = typeof to.meta?.productLegacyPath === "string" ? to.meta.productLegacyPath : to.path;
   const websiteTool = TOOLS.find(

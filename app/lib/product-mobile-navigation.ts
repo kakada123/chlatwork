@@ -27,6 +27,8 @@ const account: ProductMobileItem = {
   to: "/account",
 };
 const navigation: Record<Product, ProductMobileItem[]> = {
+  // JekLuy has a dedicated single-screen shell without account navigation.
+  jekluy: [],
   creator: [
     { key: "home", label: "Create", labelKm: "បង្កើត", icon: "home", to: "/" },
     {

@@ -17,7 +17,7 @@ export const PUBLIC_TRUST_PAGE_PATHS = [
   "/buy-me-coffee",
 ];
 
-export const PUBLIC_PRODUCT_PAGE_PATHS = ["/link", ...CREATOR_ROUTE_PATHS];
+export const PUBLIC_PRODUCT_PAGE_PATHS = ["/link", "/jekluy", ...CREATOR_ROUTE_PATHS];
 
 export const PUBLIC_DIRECTORY_PAGE_PATHS = [
   "/developer-commands",
