@@ -170,3 +170,34 @@ test("native sharing sends the current exact Khmer summary without a private URL
     assert.match(app.state.shareMessage.value, /ចែករំលែក/);
   } finally { app.close(); }
 });
+
+test("KHR uses PayBack's separate leftover, persists explicit assignment and invalidates paid marks", async () => {
+  const app = session();
+  let saved = "";
+  try {
+    app.mount(); fill(app.state);
+    const id = app.state.addParticipant();
+    app.state.draft.value.participants.find((person: any) => person.id === id).name = "វិសាល";
+    assert.equal(app.state.result.value.remainderMode, "LEFTOVER_ONLY");
+    assert.equal(app.state.result.value.remainderPersonId, null);
+    assert.deepEqual(app.state.result.value.transfers.map((transfer: any) => transfer.amountCents), [330_000n, 330_000n]);
+    app.state.toggleCompleted(app.state.result.value.transfers[0].id);
+    app.state.draft.value.remainderMode = "ASSIGN_TO_PERSON";
+    assert.deepEqual(app.state.completedIds.value, []);
+    app.state.draft.value.remainderPayer = "person-2";
+    assert.equal(app.state.result.value.remainderPersonId, "person-2");
+    assert.equal(app.state.result.value.people.reduce((sum: bigint, person: any) => sum + person.balanceCents, 0n), 0n);
+    app.state.toggleCompleted(app.state.result.value.transfers[0].id);
+    await vue.nextTick();
+    saved = app.saved()!;
+  } finally { app.close(); }
+  const restored = session({ saved });
+  try {
+    restored.mount();
+    assert.equal(restored.state.draft.value.remainderMode, "ASSIGN_TO_PERSON");
+    assert.equal(restored.state.result.value.remainderPersonId, "person-2");
+    assert.equal(restored.state.completedIds.value.length, 1);
+    restored.state.draft.value.remainderMode = "LEFTOVER_ONLY";
+    assert.deepEqual(restored.state.completedIds.value, []);
+  } finally { restored.close(); }
+});

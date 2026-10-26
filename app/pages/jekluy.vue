@@ -27,6 +27,7 @@ const money = (amount: bigint) => formatJekLuyMoney(amount, draft.value.currency
 const visibleError = computed(() => error.value && (attempted.value || error.value.field === "amount") ? error.value : null);
 const shareRange = computed(() => {
   if (!result.value) return "";
+  if (draft.value.currency === "KHR") return money(result.value.baseShareCents);
   const shares = result.value.people.map((person) => person.shareCents);
   const lowest = shares.reduce((a, b) => a < b ? a : b);
   const highest = shares.reduce((a, b) => a > b ? a : b);
@@ -130,8 +131,23 @@ async function selectSummary() {
             <p class="text-xs text-blue-100">ចំណែកម្នាក់ៗ</p>
             <p class="jekluy-money mt-1 text-lg font-semibold tabular-nums">{{ shareRange }}</p>
           </div>
-          <p v-if="result.remainderCents > 0n" class="mt-3 text-xs leading-6 text-blue-100">បង្គត់ចំណែកត្រឹម ១០០៛។ សំណល់ {{ money(result.remainderCents) }} គិតលើ {{ remainderName }}។</p>
+          <p v-if="result.remainderCents > 0n" class="mt-3 text-xs leading-6 text-blue-100">បង្គត់ចំណែកត្រឹម ១០០៛។ សំណល់ {{ money(result.remainderCents) }} {{ remainderName ? `គិតលើ ${remainderName}` : 'ទុកដាច់ដោយឡែក' }}។</p>
         </div>
+
+        <fieldset v-if="result.remainderCents > 0n" class="mt-4 space-y-2">
+          <legend class="mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400">ចាត់ចែងសំណល់</legend>
+          <label for="jekluy-remainder-mode" class="sr-only">វិធីចាត់ចែងសំណល់</label>
+          <select id="jekluy-remainder-mode" v-model="draft.remainderMode" class="jekluy-input w-full text-sm">
+            <option value="LEFTOVER_ONLY">ទុកសំណល់ដាច់ដោយឡែក</option>
+            <option value="ASSIGN_TO_PERSON">ឱ្យម្នាក់ទទួលបន្ទុកសំណល់</option>
+          </select>
+          <template v-if="draft.remainderMode === 'ASSIGN_TO_PERSON'">
+            <label for="jekluy-remainder-payer" class="block text-xs text-slate-500 dark:text-slate-400">អ្នកទទួលបន្ទុកសំណល់</label>
+            <select id="jekluy-remainder-payer" :value="result.remainderPersonId" class="jekluy-input w-full text-sm" @change="draft.remainderPayer = ($event.target as HTMLSelectElement).value">
+              <option v-for="person in draft.participants" :key="person.id" :value="person.id">{{ person.name }}</option>
+            </select>
+          </template>
+        </fieldset>
 
         <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700/70 dark:bg-[#101e30] sm:p-5">
           <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -151,7 +167,7 @@ async function selectSummary() {
           </ul>
           <div v-else class="flex items-start gap-3 py-5 text-sm leading-7 text-slate-500 dark:text-slate-400">
             <Check class="mt-1 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-            <p>{{ result.totalCents === 0n ? 'មិនទាន់មានអ្នកចេញលុយទេ។ អ្នកដែលមិនបានចេញលុយ អាចទុកជា ០ បាន។' : 'គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។' }}</p>
+            <p>{{ result.totalCents === 0n ? 'មិនទាន់មានអ្នកចេញលុយទេ។ អ្នកដែលមិនបានចេញលុយ អាចទុកជា ០ បាន។' : result.remainderCents > 0n && !result.remainderPersonId ? 'មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។' : 'គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។' }}</p>
           </div>
           <div class="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-4 dark:border-slate-700/70">
             <button type="button" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-2 text-sm font-semibold dark:border-slate-700" @click="copyResult"><Copy class="size-4" aria-hidden="true" />ចម្លង</button>

@@ -4,6 +4,7 @@ import {
   computePaybackSettlements,
   parsePaybackRows,
   type PaybackCurrency,
+  type PaybackKhrRemainderMode,
 } from "./payback-calculator.ts";
 import { formatMoneyAmount, MAX_MONEY_AMOUNT_CENTS } from "./money.ts";
 
@@ -14,6 +15,8 @@ export type JekLuyDraft = {
   version: 1;
   currency: JekLuyCurrency;
   participants: JekLuyParticipant[];
+  remainderMode: PaybackKhrRemainderMode;
+  remainderPayer: string;
   completed: JekLuyCompletion;
 };
 export type JekLuyResult = ReturnType<typeof calculateJekLuy>;
@@ -38,6 +41,8 @@ export function createJekLuyDraft(): JekLuyDraft {
     version: 1,
     currency: "KHR",
     participants: [1, 2].map((index) => ({ id: `person-${index}`, name: "", amount: "" })),
+    remainderMode: "LEFTOVER_ONLY",
+    remainderPayer: "",
     completed: { basis: "", ids: [] },
   };
 }
@@ -69,8 +74,13 @@ function normalizeAmount(amount: string, currency: JekLuyCurrency) {
   return input.replaceAll(",", "");
 }
 
-export function calculateJekLuy(participants: JekLuyParticipant[], currency: JekLuyCurrency) {
-  if (!isCurrency(currency) || !hasValidParticipants(participants))
+export function calculateJekLuy(
+  participants: JekLuyParticipant[],
+  currency: JekLuyCurrency,
+  remainderMode: PaybackKhrRemainderMode = "LEFTOVER_ONLY",
+  remainderPayer = "",
+) {
+  if (!isCurrency(currency) || !hasValidParticipants(participants) || !["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"].includes(remainderMode))
     throw new JekLuyInputError("សូមបញ្ចូលអ្នកចូលរួមយ៉ាងតិច ២ នាក់ ហើយកុំឱ្យទិន្នន័យស្ទួន។");
 
   const entries = participants.map((person, index) => {
@@ -89,11 +99,14 @@ export function calculateJekLuy(participants: JekLuyParticipant[], currency: Jek
     throw new JekLuyInputError("លុយសរុបច្រើនពេក។ សូមពិនិត្យចំនួនលុយម្តងទៀត។");
 
   const firstId = participants[0]!.id;
-  // Keep PayBack's established KHR rule and assign its remainder so no balance is left outstanding.
-  const people = buildPaybackPeople(entries, currency, "ASSIGN_TO_PERSON", firstId);
-  const remainder = currency === "KHR" ? buildPaybackKhrRemainderMeta(entries, "ASSIGN_TO_PERSON", firstId) : null;
+  // Match PayBack: leave the rounded-off KHR amount separate unless someone explicitly covers it.
+  const people = buildPaybackPeople(entries, currency, remainderMode, remainderPayer || firstId);
+  const remainder = currency === "KHR" ? buildPaybackKhrRemainderMeta(entries, remainderMode, remainderPayer || firstId) : null;
   const names = new Map(participants.map((person) => [person.id, person.name.trim()]));
-  const basis = JSON.stringify([currency, entries.map((entry) => [entry.name, entry.paidCents!.toString()])]);
+  const basisValues: unknown[] = [currency, entries.map((entry) => [entry.name, entry.paidCents!.toString()])];
+  // Old paid marks stay valid only when the remainder policy cannot change any repayment.
+  if (remainder && remainder.leftoverCents! > 0n) basisValues.push([remainderMode, remainder.assignedTo]);
+  const basis = JSON.stringify(basisValues);
   return {
     currency,
     totalCents,
@@ -115,6 +128,8 @@ export function calculateJekLuy(participants: JekLuyParticipant[], currency: Jek
     })),
     remainderCents: remainder?.leftoverCents ?? 0n,
     remainderPersonId: remainder?.assignedTo ?? null,
+    remainderMode,
+    baseShareCents: remainder?.baseShareCents ?? 0n,
   };
 }
 
@@ -134,9 +149,15 @@ export function jekluySummary(result: JekLuyResult, completedIds: string[] = [])
   return [
     "ចែកលុយ 💸",
     `សរុប៖ ${money(result.totalCents)} · ${result.people.length} នាក់`,
+    ...(result.currency === "KHR" ? [`ចំណែកម្នាក់ៗ៖ ${money(result.baseShareCents)}`] : []),
     ...result.people.map((person) => `${person.name}៖ បានចេញ ${money(person.paidCents)} · ចំណែក ${money(person.shareCents)}`),
+    ...(result.remainderCents > 0n ? [result.remainderPersonId
+      ? `សំណល់៖ ${money(result.remainderCents)} · គិតលើ ${result.people.find((person) => person.id === result.remainderPersonId)!.name}`
+      : `សំណល់ដាច់ដោយឡែក៖ ${money(result.remainderCents)} (មិនទាន់បែងចែក)`] : []),
     "",
-    ...(result.transfers.length ? result.transfers.map((transfer) => `${completedIds.includes(transfer.id) ? "✓ សងរួច៖ " : ""}${transfer.fromName} ត្រូវសង ${transfer.toName} ${money(transfer.amountCents)}`) : ["គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។"]),
+    ...(result.transfers.length ? result.transfers.map((transfer) => `${completedIds.includes(transfer.id) ? "✓ សងរួច៖ " : ""}${transfer.fromName} ត្រូវសង ${transfer.toName} ${money(transfer.amountCents)}`) : [result.remainderCents > 0n && !result.remainderPersonId
+      ? "មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។"
+      : "គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។"]),
   ].join("\n");
 }
 
@@ -144,6 +165,8 @@ export function parseJekLuyDraft(raw: string): JekLuyDraft {
   if (raw.length > MAX_DRAFT_LENGTH) throw new Error("Draft too large");
   const value = JSON.parse(raw);
   if (!value || value.version !== 1 || !isCurrency(value.currency) || !hasValidParticipants(value.participants) ||
+    (value.remainderMode !== undefined && !["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"].includes(value.remainderMode)) ||
+    (value.remainderPayer !== undefined && (typeof value.remainderPayer !== "string" || !/^[a-zA-Z0-9_-]{0,80}$/.test(value.remainderPayer))) ||
     !value.completed || typeof value.completed.basis !== "string" || value.completed.basis.length > MAX_DRAFT_LENGTH ||
     !Array.isArray(value.completed.ids) || value.completed.ids.length > JEKLUY_MAX_PARTICIPANTS ||
     value.completed.ids.some((id: unknown) => typeof id !== "string" || id.length > 200)) throw new Error("Invalid draft");
@@ -152,6 +175,8 @@ export function parseJekLuyDraft(raw: string): JekLuyDraft {
     version: 1,
     currency: value.currency,
     participants: value.participants.map((person: JekLuyParticipant) => ({ id: person.id, name: person.name, amount: person.amount })),
+    remainderMode: value.remainderMode ?? "LEFTOVER_ONLY",
+    remainderPayer: value.remainderPayer ?? "",
     completed: { basis: value.completed.basis, ids: [...new Set<string>(value.completed.ids)] },
   };
 }

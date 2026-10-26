@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { buildPaybackKhrRemainderMeta, buildPaybackPeople, computePaybackSettlements, parsePaybackRows } from "../app/lib/payback-calculator.ts";
 import {
   calculateJekLuy,
   createJekLuyDraft,
@@ -37,7 +38,7 @@ test("equal and all-zero contributions need no repayments", () => {
 });
 
 test("KHR preserves existing 100-riel rounding and deterministic first-person remainder assignment", () => {
-  const result = calculateJekLuy(rows(["10001", "0", "0"]), "KHR");
+  const result = calculateJekLuy(rows(["10001", "0", "0"]), "KHR", "ASSIGN_TO_PERSON", "p0");
   assert.deepEqual(result.people.map((person) => person.shareCents), [340_100n, 330_000n, 330_000n]);
   assert.equal(result.remainderCents, 10_100n);
   assert.equal(result.remainderPersonId, "p0");
@@ -45,7 +46,7 @@ test("KHR preserves existing 100-riel rounding and deterministic first-person re
 });
 
 test("large KHR groups never round a share above the available group total", () => {
-  const result = calculateJekLuy(rows(["20099", ...Array(200).fill("0")]), "KHR");
+  const result = calculateJekLuy(rows(["20099", ...Array(200).fill("0")]), "KHR", "ASSIGN_TO_PERSON", "p0");
   assert.equal(result.totalCents, 2_009_900n);
   assert.equal(result.people.reduce((sum, person) => sum + person.shareCents, 0n), 2_009_900n);
   assert.equal(result.people.reduce((sum, person) => sum + person.balanceCents, 0n), 0n);
@@ -88,7 +89,7 @@ test("duplicate display names stay separate participants", () => {
 test("repayments conserve every balance without zero, duplicate or self transfers", () => {
   for (const currency of ["KHR", "USD"] as const) {
     for (let count = 2; count <= 35; count++) {
-      const result = calculateJekLuy(rows(Array.from({ length: count }, (_, i) => currency === "KHR" ? String((i * 7919 + count) % 20000) : `${i % 4}.${String((i * 17 + count) % 100).padStart(2, "0")}`)), currency);
+      const result = calculateJekLuy(rows(Array.from({ length: count }, (_, i) => currency === "KHR" ? String((i * 7919 + count) % 20000) : `${i % 4}.${String((i * 17 + count) % 100).padStart(2, "0")}`)), currency, "ASSIGN_TO_PERSON", "p0");
       const residual = new Map(result.people.map((person) => [person.id, person.balanceCents]));
       const pairs = new Set();
       let outgoing = 0n;
@@ -149,4 +150,50 @@ test("copy summaries are Khmer, include exact contributions and completed instru
   assert.match(text, /សងរួច/);
   assert.match(text, /សរុប៖ 10,000៛/);
   assert.equal(formatJekLuyMoney(125n, "USD"), "$1.25");
+});
+
+test("KHR defaults to PayBack's rounded share with the leftover kept separate", () => {
+  const participants = rows(["10000", "0", "0"]);
+  const result = calculateJekLuy(participants, "KHR");
+  assert.deepEqual(result.people.map((person) => person.shareCents), [330_000n, 330_000n, 330_000n]);
+  assert.equal(result.baseShareCents, 330_000n);
+  assert.equal(result.remainderCents, 10_000n);
+  assert.equal(result.remainderPersonId, null);
+  assert.equal(result.remainderMode, "LEFTOVER_ONLY");
+  assert.deepEqual(result.transfers.map((transfer) => transfer.amountCents), [330_000n, 330_000n]);
+  assert.equal(result.people.reduce((sum, person) => sum + person.shareCents, result.remainderCents), result.totalCents);
+  assert.match(jekluySummary(result), /ចំណែកម្នាក់ៗ៖ 3,300៛/);
+  assert.match(jekluySummary(result), /សំណល់ដាច់ដោយឡែក៖ 100៛/);
+});
+
+test("both KHR choices delegate balances and transfers to the existing PayBack engine", () => {
+  const participants = rows(["10001", "7012", "0"]);
+  const entries = parsePaybackRows(participants.map((person) => ({ name: person.id, amount: person.amount })));
+  for (const mode of ["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"] as const) {
+    const expected = buildPaybackPeople(entries, "KHR", mode, "p1");
+    const meta = buildPaybackKhrRemainderMeta(entries, mode, "p1");
+    const result = calculateJekLuy(participants, "KHR", mode, "p1");
+    assert.deepEqual(result.people.map((person) => person.balanceCents), expected.map((person) => person.balanceCents));
+    assert.deepEqual(result.transfers.map((transfer) => [transfer.fromId, transfer.toId, transfer.amountCents]), computePaybackSettlements(expected).map((transfer) => [transfer.from, transfer.to, transfer.amountCents]));
+    assert.equal(result.remainderPersonId, meta.assignedTo);
+  }
+});
+
+test("KHR paid marks cannot cross remainder modes or the selected payer", () => {
+  const participants = rows(["10000", "0", "0"]);
+  const separate = calculateJekLuy(participants, "KHR");
+  const completed = { basis: separate.basis, ids: [separate.transfers[0]!.id] };
+  assert.deepEqual(getJekLuyCompleted(calculateJekLuy(participants, "KHR", "ASSIGN_TO_PERSON", "p1"), completed), []);
+  const assigned = calculateJekLuy(participants, "KHR", "ASSIGN_TO_PERSON", "p1");
+  assert.deepEqual(getJekLuyCompleted(calculateJekLuy(participants, "KHR", "ASSIGN_TO_PERSON", "p2"), { basis: assigned.basis, ids: assigned.transfers.map((transfer) => transfer.id) }), []);
+});
+
+test("existing drafts retain names and amounts and adopt PayBack's separate-leftover default", () => {
+  const participants = rows(["10000", "0", "0"]);
+  const oldBasis = JSON.stringify(["KHR", participants.map((person) => [person.id, (BigInt(person.amount) * 100n).toString()])]);
+  const draft = parseJekLuyDraft(JSON.stringify({ version: 1, currency: "KHR", participants, completed: { basis: oldBasis, ids: ['["p1","p0","330000"]'] } }));
+  assert.deepEqual(draft.participants, participants);
+  assert.equal(draft.remainderMode, "LEFTOVER_ONLY");
+  assert.equal(draft.remainderPayer, "");
+  assert.deepEqual(getJekLuyCompleted(calculateJekLuy(participants, "KHR"), draft.completed), []);
 });

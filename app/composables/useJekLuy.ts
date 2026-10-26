@@ -24,7 +24,7 @@ export function useJekLuy() {
   const sharing = ref(false);
   const validation = computed(() => {
     try {
-      return { result: calculateJekLuy(draft.value.participants, draft.value.currency), error: null };
+      return { result: calculateJekLuy(draft.value.participants, draft.value.currency, draft.value.remainderMode, draft.value.remainderPayer), error: null };
     } catch (error) {
       return { result: null, error: error instanceof JekLuyInputError ? error : new JekLuyInputError("សូមពិនិត្យទិន្នន័យម្តងទៀត។") };
     }
@@ -81,6 +81,8 @@ export function useJekLuy() {
     if (draft.value.participants.some((person) => person.amount.trim())) pending.value = { kind: "currency", currency };
     else {
       draft.value.currency = currency;
+      draft.value.remainderMode = "LEFTOVER_ONLY";
+      draft.value.remainderPayer = "";
       draft.value.completed = { basis: "", ids: [] };
     }
   }
@@ -98,6 +100,8 @@ export function useJekLuy() {
       ...draft.value,
       currency: action.currency,
       participants: draft.value.participants.map((person) => ({ ...person, amount: "" })),
+      remainderMode: "LEFTOVER_ONLY",
+      remainderPayer: "",
       completed: { basis: "", ids: [] },
     };
     pending.value = null;
