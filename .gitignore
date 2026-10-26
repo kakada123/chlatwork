@@ -6,11 +6,17 @@
 .nitro
 .output-*
 .cache
+.cache-*
 .jest-cache
+.jest-cache-*
+.tmp/
+.tmp-git/
+tmp/
 .tmp-codex
 .codex-tmp
 .codex-validate
 .codex-schema
+.codex-prisma-*
 .codex-test-tmp
 .codex-build-*
 .codex-build-*.tsbuildinfo

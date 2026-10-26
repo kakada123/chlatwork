@@ -15,6 +15,7 @@ const preview = {
 };
 const url = 'https://youtu.be/BaW_jenozKc';
 const tick = () => new Promise((resolve) => setTimeout(resolve, 5));
+const tempDirectory = join(__dirname, '../../../.tmp/api/youtube');
 
 describe('temporary YouTube jobs', () => {
   let service: YoutubeDownloaderService;
@@ -33,7 +34,7 @@ describe('temporary YouTube jobs', () => {
       }),
     };
     service = new YoutubeDownloaderService(
-      new ConfigService({ YOUTUBE_DOWNLOADER_TEMP_DIR: join(__dirname, '../../.cache') }),
+      new ConfigService({ YOUTUBE_DOWNLOADER_TEMP_DIR: tempDirectory }),
       runner as unknown as YoutubeDownloaderRunner,
     );
   });

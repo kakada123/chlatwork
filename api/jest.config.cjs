@@ -1,6 +1,7 @@
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',
+  cacheDirectory: '<rootDir>/../../.tmp/api/jest',
   testEnvironment: 'node',
   testRegex: '.*\\.spec\\.ts$',
   transform: {

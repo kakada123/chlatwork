@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { runYoutubeProcess } from './youtube-downloader.process';
@@ -7,6 +7,8 @@ import { allowRestrictedFixtureCleanup } from '../../test/youtube-fixtures';
 import * as processes from 'node:child_process';
 import { Logger } from '@nestjs/common';
 import { YoutubeDownloaderError } from './youtube-downloader.errors';
+
+const tempDirectory = join(__dirname, '../../../.tmp/api/youtube');
 
 const mediaMetadata = (width = 1280, height = 720) =>
   JSON.stringify({
@@ -28,7 +30,8 @@ const mediaMetadata = (width = 1280, height = 720) =>
 
 describe('bounded YouTube subprocesses', () => {
   const directories: string[] = [];
-  beforeEach(() => {
+  beforeEach(async () => {
+    await mkdir(tempDirectory, { recursive: true });
     allowRestrictedFixtureCleanup();
   });
   afterEach(async () => {
@@ -122,7 +125,7 @@ describe('bounded YouTube subprocesses', () => {
     await expect(work).rejects.toMatchObject({ code: 'CANCELLED' });
   });
   it('stops directory growth when metadata has no size', async () => {
-    const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-test-'));
+    const directory = await mkdtemp(join(tempDirectory, 'youtube-test-'));
     directories.push(directory);
     await writeFile(join(directory, 'part'), Buffer.alloc(20));
     await expect(
@@ -136,7 +139,7 @@ describe('bounded YouTube subprocesses', () => {
   it.each(['ffmpeg', '/usr/bin/ffmpeg'])(
     'uses fixed YouTube arguments and verifies final video and audio with %s',
     async (ffmpegPath) => {
-      const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-test-'));
+      const directory = await mkdtemp(join(tempDirectory, 'youtube-test-'));
       directories.push(directory);
       await writeFile(join(directory, 'video.mp4'), 'test-file');
       const runner = new YoutubeDownloaderRunner(new ConfigService({ FFMPEG_PATH: ffmpegPath }));
@@ -204,7 +207,7 @@ describe('bounded YouTube subprocesses', () => {
     },
   );
   it('accepts portrait video while limiting its short dimension', async () => {
-    const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-portrait-'));
+    const directory = await mkdtemp(join(tempDirectory, 'youtube-portrait-'));
     directories.push(directory);
     await writeFile(join(directory, 'video.mp4'), 'fixture');
     const runner = new YoutubeDownloaderRunner(new ConfigService({}));

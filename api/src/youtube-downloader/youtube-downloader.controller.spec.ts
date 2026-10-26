@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { mkdtemp, writeFile, unlink } from 'node:fs/promises';
+import { mkdir, mkdtemp, writeFile, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { YoutubeDownloaderController } from './youtube-downloader.controller';
@@ -12,6 +12,8 @@ import { FeatureAvailabilityService } from '../feature-availability/feature-avai
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { Response } from 'express';
 import { injectHttp } from '../../test/http-inject';
+
+const tempDirectory = join(__dirname, '../../../.tmp/api/youtube');
 
 describe('YouTube API boundaries', () => {
   const settings = new ConfigService({
@@ -65,6 +67,7 @@ describe('YouTube API boundaries', () => {
     return instance;
   }
   beforeAll(async () => {
+    await mkdir(tempDirectory, { recursive: true });
     app = await createApp();
   });
   afterAll(async () => {
@@ -131,7 +134,7 @@ describe('YouTube API boundaries', () => {
     });
   });
   it('streams a ticket attachment and releases the lease on finish', async () => {
-    const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-stream-'));
+    const directory = await mkdtemp(join(tempDirectory, 'youtube-stream-'));
     const path = join(directory, 'video.mp4');
     await writeFile(path, 'video');
     const release = jest.fn().mockResolvedValue(undefined);
@@ -144,7 +147,7 @@ describe('YouTube API boundaries', () => {
     await unlink(path);
   });
   it('releases the lease when a client disconnects', async () => {
-    const directory = await mkdtemp(join(__dirname, '../../.cache/youtube-disconnect-'));
+    const directory = await mkdtemp(join(tempDirectory, 'youtube-disconnect-'));
     const path = join(directory, 'video.mp4');
     await writeFile(path, 'video');
     const release = jest.fn().mockResolvedValue(undefined);
@@ -178,7 +181,7 @@ describe('YouTube API boundaries', () => {
   it('returns an intact JSON error if the ready file cannot be opened', async () => {
     const release = jest.fn().mockResolvedValue(undefined);
     service.leaseDownload.mockReturnValue({
-      path: join(__dirname, '../../.cache/missing-video.mp4'),
+      path: join(tempDirectory, 'missing-video.mp4'),
       fileName: 'video.mp4',
       sizeBytes: 200,
       release,

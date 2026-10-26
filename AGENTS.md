@@ -17,6 +17,12 @@ Before changing code:
 - Prefer minimal, targeted changes instead of rewriting everything.
 - Do not refactor unrelated code.
 
+Temporary files and tests:
+
+- Keep temporary builds, validation output, test logs, and caches under the repository-root `.tmp/` directory. Do not create new temporary folders at the root or inside `api/`.
+- Keep source tests in `tests/`, API specs beside their source, and shared API test helpers in `api/test/` so existing test commands and imports continue to work.
+- Use `npm run tidy:temp -- --dry-run` to review older generated artifacts, then `npm run tidy:temp` to group them under `.tmp/archive/` without deleting them, or pass `--clean` to remove them.
+
 Coding style:
 
 - Write clean, readable, production-ready code.

@@ -12,6 +12,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "tidy:temp": "node scripts/tidy-temp.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
