@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-[1440px] text-slate-950 dark:text-white">
+  <div class="mx-auto w-full max-w-[1440px] text-slate-950 dark:text-white" :class="{ 'draw-product-mobile': product === 'draw' }">
     <div>
       <div
         ref="wheelStageRef"
@@ -59,7 +59,7 @@
           <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
               <h1 class="text-2xl font-black">Lucky Draw</h1>
-              <p class="mt-1 text-sm text-slate-600 dark:text-white/60">Try a spin, or add your names.</p>
+              <p class="draw-intro mt-1 text-sm text-slate-600 dark:text-white/60">Try a spin, or add your names.</p>
 
               <div class="mt-1 text-sm text-slate-500 dark:text-white/50">
                 {{ spinStatus }}
@@ -134,8 +134,10 @@
             </div>
           </div>
 
+          <button v-if="product === 'draw'" type="button" class="mb-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 px-3 text-sm font-semibold dark:border-white/15 sm:hidden" :aria-expanded="mobileSettingsOpen" aria-controls="draw-options" @click="mobileSettingsOpen = !mobileSettingsOpen">Options <span aria-hidden="true">{{ mobileSettingsOpen ? '−' : '+' }}</span></button>
           <div
-            :class="isFullscreen ? 'mb-3 w-fit max-w-full' : 'mb-4 w-full'"
+            id="draw-options"
+            :class="[isFullscreen ? 'mb-3 w-fit max-w-full' : 'mb-4 w-full', product === 'draw' && !mobileSettingsOpen ? 'hidden sm:flex' : undefined]"
             class="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[0.03]"
           >
             <label class="flex items-center gap-2 font-semibold">
@@ -269,7 +271,7 @@
                 :class="isFullscreen ? 'mt-2' : 'mt-4'"
                 class="wheel-note text-center text-xs leading-5 text-slate-500 dark:text-white/45"
               >
-                Secure browser randomness · Names stay on this device.
+                <span :class="product === 'draw' ? 'hidden sm:inline' : undefined">Secure browser randomness · </span>Names stay on this device.
               </p>
             </div>
 
@@ -547,7 +549,8 @@ useSeoMeta({
     "Paste names, spin the wheel, and pick no-repeat winners privately in your browser.",
 });
 
-const { canonical } = useProductDomain();
+const { canonical, product } = useProductDomain();
+const mobileSettingsOpen = ref(false);
 useHead(() => ({
   link: [
     {
@@ -1593,6 +1596,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@media (max-width: 639px) {
+  .draw-product-mobile .draw-intro { display: none; }
+  .draw-product-mobile .wheel-stage { padding: .75rem; }
+  .draw-product-mobile .wheel-stage-content > div:first-child { margin-bottom: .75rem; }
+  .draw-product-mobile #draw-options { font-size: .8rem; }
+  .draw-product-mobile #draw-options label { min-height: 2.75rem; }
+  .draw-product-mobile #draw-options select,
+  .draw-product-mobile #draw-options input[type="text"] { min-height: 2.75rem; }
+}
 .wheel-box {
   max-width: 720px;
 }

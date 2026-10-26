@@ -11,6 +11,7 @@ definePageMeta({ middleware: "auth" });
 
 const { copy, isKhmer, localizeMomentPath } = useMomentLanguage();
 const managerCopy = computed(() => copy.value.manager);
+const { product } = useProductDomain();
 
 useSeoMeta({
   title: () => `${managerCopy.value.title} | ChlatWork`,
@@ -81,7 +82,7 @@ async function resetVotes() {
 <template>
   <div
     class="moments-manager mx-auto max-w-5xl"
-    :class="{ 'is-khmer': isKhmer }"
+    :class="{ 'is-khmer': isKhmer, 'moment-product-mobile': product === 'moment' }"
     :lang="isKhmer ? 'km' : 'en'"
   >
     <header
@@ -224,6 +225,13 @@ async function resetVotes() {
 </template>
 
 <style scoped>
+@media (max-width: 639px) {
+  .moment-product-mobile > header { gap: .75rem; }
+  .moment-product-mobile > header > div:first-child > p { display: none; }
+  .moment-product-mobile > header h1 { margin-top: 0; font-size: 1.5rem; }
+  .moment-product-mobile > header > div:last-child { justify-content: space-between; }
+  .moment-product-mobile > header > div:last-child > a { min-height: 2.75rem; }
+}
 .moments-manager.is-khmer {
   font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   line-height: 1.75;

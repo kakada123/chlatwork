@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Check,
   GripVertical,
+  Eye,
   Link2,
   Plus,
   Trash2,
@@ -43,6 +44,11 @@ useSeoMeta({
 });
 const route = useRoute();
 const { destination } = useProductDomain();
+const { product } = useProductDomain();
+// Share only the view selection with navigation; keep the unsaved draft in this editor.
+const mobilePreviewOpen = useState<boolean>("link:mobile-preview", () => false);
+watch(() => route.fullPath, () => { mobilePreviewOpen.value = false; });
+onBeforeUnmount(() => { mobilePreviewOpen.value = false; });
 const { user } = useAuth();
 const tabs = [
   { id: "profile", label: "Profile" },
@@ -277,7 +283,7 @@ async function refreshAnalytics() {
 </script>
 
 <template>
-  <main class="link-editor mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+  <main class="link-editor mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12" :class="{ 'link-editor-mobile': product === 'link' }">
     <NuxtLink
       to="/account"
       class="mb-6 hidden items-center gap-2 text-sm text-slate-500 dark:text-white/60 sm:inline-flex"
@@ -291,7 +297,7 @@ async function refreshAnalytics() {
           <Link2 :size="18" /> ChlatWork Link
         </p>
         <h1 class="text-3xl font-bold tracking-tight">
-          Your corner of the internet.
+          <span v-if="product === 'link'" class="sm:hidden">Your page</span><span :class="product === 'link' ? 'hidden sm:inline' : undefined">Your corner of the internet.</span>
         </h1>
         <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
           Choose your style. Add your links. Share anywhere.
@@ -307,6 +313,10 @@ async function refreshAnalytics() {
         >{{ saved?.isPublished ? "Published" : "Draft" }}</span
       >
     </header>
+    <div v-if="product === 'link'" class="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-white/5 sm:hidden" role="group" aria-label="Editor view">
+      <button type="button" class="min-h-11 rounded-xl text-sm font-semibold" :class="!mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="!mobilePreviewOpen" aria-controls="link-editor-form" @click="mobilePreviewOpen = false">Edit page</button>
+      <button type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold" :class="mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="mobilePreviewOpen" aria-controls="link-editor-preview" @click="mobilePreviewOpen = true"><Eye :size="16" aria-hidden="true" />Preview</button>
+    </div>
     <div
       v-if="failure"
       class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
@@ -331,7 +341,9 @@ async function refreshAnalytics() {
     </p>
     <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section
+        id="link-editor-form"
         class="editor-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.03] sm:p-7"
+        :class="{ 'mobile-editor-hidden': product === 'link' && mobilePreviewOpen }"
       >
         <nav
           class="mb-7 flex gap-1 overflow-x-auto border-b border-slate-100 pb-3 dark:border-white/10"
@@ -722,7 +734,7 @@ async function refreshAnalytics() {
           >
         </fieldset>
         <div
-          class="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 dark:border-white/10"
+          class="editor-save-actions mt-8 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 dark:border-white/10"
         >
           <button
             type="button"
@@ -759,7 +771,9 @@ async function refreshAnalytics() {
         </div>
       </section>
       <aside
+        id="link-editor-preview"
         class="mx-auto w-full max-w-[360px] lg:sticky lg:top-6"
+        :class="{ 'mobile-editor-hidden': product === 'link' && !mobilePreviewOpen }"
         aria-label="Live mobile preview"
       >
         <p
@@ -782,12 +796,32 @@ async function refreshAnalytics() {
           Drag preview links or use Alt + ↑/↓ to reorder. Save to update your
           shared page.
         </p>
+        <button v-if="product === 'link'" type="button" class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold dark:border-white/15 sm:hidden" @click="mobilePreviewOpen = false">Continue editing</button>
       </aside>
     </div>
   </main>
 </template>
 
 <style scoped>
+@media (max-width: 639px) {
+  .link-editor-mobile { padding: .5rem 0 1rem; }
+  .link-editor-mobile > header { margin-bottom: 1rem; gap: .75rem; }
+  .link-editor-mobile > header > div > p { display: none; }
+  .link-editor-mobile > header h1 { font-size: 1.4rem; }
+  .link-editor-mobile .mobile-editor-hidden { display: none; }
+  .link-editor-mobile .editor-panel { padding: 1rem; border-radius: 1.25rem; }
+  .link-editor-mobile .editor-panel > nav { margin: 0 -1rem 1.25rem; padding: 0 .75rem .75rem; }
+  .link-editor-mobile .editor-panel > nav a { min-height: 2.75rem; display: flex; align-items: center; padding-left: .65rem; padding-right: .65rem; }
+  .link-editor-mobile .editor-save-actions { position: sticky; bottom: calc(4.5rem + env(safe-area-inset-bottom)); z-index: 20; margin: 1.25rem -1rem -1rem; padding: .75rem; background: var(--app-color-page-bg); border-radius: 0 0 1.25rem 1.25rem; gap: .5rem; }
+  .link-editor-mobile .editor-save-actions > button { min-height: 2.75rem; }
+  .link-editor-mobile .editor-save-actions > .primary-button { flex: 1; }
+  .link-editor-mobile :deep(.share-actions) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .link-editor-mobile :deep(.share-actions > a) { grid-column: 1 / -1; }
+  .link-editor-mobile :deep(.share-actions > button),
+  .link-editor-mobile :deep(.share-actions > a),
+  .link-editor-mobile :deep(.share-download) { min-height: 2.75rem; }
+  .link-editor-mobile :deep(.share-download) { justify-self: stretch; }
+}
 .editor-panel label:not(.enabled-label):not(.upload-button) {
   display: grid;
   gap: 8px;

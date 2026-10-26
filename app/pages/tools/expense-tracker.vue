@@ -3,10 +3,12 @@
     class="mx-auto w-full min-w-0 max-w-[1280px] space-y-5 pb-4 text-slate-950 dark:text-white"
   >
     <header
-      class="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 sm:hidden"
+      class="grid items-center gap-2 sm:hidden"
+      :class="isExpenseProduct ? 'grid-cols-[minmax(0,1fr)_auto_auto]' : 'grid-cols-[auto_minmax(0,1fr)_auto_auto]'"
       aria-label="Expense tracker controls"
     >
       <NuxtLink
+        v-if="!isExpenseProduct"
         :to="route.query.from === 'account' ? '/account' : '/tools'"
         :aria-label="
           route.query.from === 'account' ? 'Back to Account' : 'Back to tools'
@@ -18,9 +20,10 @@
         <h1
           class="truncate text-[clamp(0.875rem,4.4vw,1.125rem)] font-black tracking-tight"
         >
-          Expense Tracker
+          {{ isExpenseProduct ? 'Overview' : 'Expense Tracker' }}
         </h1>
         <p
+          v-if="!isExpenseProduct"
           class="mt-0.5 truncate text-[10px] text-slate-500 dark:text-white/50"
         >
           Track spending. Stay on budget.
@@ -58,12 +61,14 @@
         ><Plus class="size-5" aria-hidden="true"
       /></NuxtLink>
     </header>
-    <div v-if="signedIn" class="flex justify-end sm:hidden">
+    <div v-if="signedIn" class="flex gap-2 sm:hidden" :class="isExpenseProduct ? 'justify-stretch' : 'justify-end'">
+      <button v-if="isExpenseProduct" type="button" :disabled="entryBusy" aria-haspopup="dialog" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 text-sm font-bold text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950" @click="openQuickExpense"><Plus class="size-4" aria-hidden="true" />Add expense</button>
       <button
         type="button"
         :disabled="entryBusy"
         aria-haspopup="dialog"
         class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 disabled:opacity-50 dark:bg-emerald-400/10 dark:text-emerald-300"
+        :class="isExpenseProduct ? 'min-h-11 flex-1' : undefined"
         @click="openQuickIncome"
       >
         <Plus class="size-4" aria-hidden="true" />Add income
@@ -453,6 +458,8 @@ import {
 } from "~/lib/expense-tracker";
 
 const route = useRoute();
+const { product } = useProductDomain();
+const isExpenseProduct = product === "expense";
 const { user, isReady: isAuthReady, fetchMe } = useAuth();
 const signedIn = computed(
   () => isAuthReady.value && Boolean(user.value) && route.query.example !== "1",

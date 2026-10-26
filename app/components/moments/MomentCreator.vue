@@ -53,7 +53,7 @@ const uploadProgress = ref(0);
 const showLogin = ref(false);
 const publishedSlug = ref("");
 const shareUrl = ref("");
-const { destination: productDestination } = useProductDomain();
+const { destination: productDestination, product } = useProductDomain();
 const qrDataUrl = ref("");
 const copied = ref(false);
 const selectedCategory = ref<MomentCategory>("CELEBRATIONS");
@@ -471,7 +471,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="moments-creator"
-    :class="{ 'is-khmer': isKhmer }"
+    :class="{ 'is-khmer': isKhmer, 'moment-product-mobile': product === 'moment' }"
     :lang="isKhmer ? 'km' : 'en'"
   >
     <div class="language-toolbar">
@@ -895,6 +895,18 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@media (max-width: 639px) {
+  .moment-product-mobile .creator-header { text-align: left; }
+  .moment-product-mobile .creator-header .creator-eyebrow,
+  .moment-product-mobile .creator-header > p:last-child { display: none; }
+  .moment-product-mobile .creator-header h1 { margin-top: .5rem; font-family: inherit; font-size: 1.75rem !important; line-height: 1.4; letter-spacing: -.02em; font-weight: 700 !important; }
+  .moment-product-mobile .stepper { margin-top: 1.25rem; }
+  .moment-product-mobile .creator-card { padding: 1rem; border-radius: 1.25rem; box-shadow: none; }
+  .moment-product-mobile .creator-card h2 { font-size: 1.35rem; line-height: 1.5; }
+  .moment-product-mobile .choice-card { min-height: 3.25rem; padding: .65rem; font-size: .78rem; }
+  .moment-product-mobile .field-input { min-height: 2.75rem; }
+  .moment-product-mobile .form-actions { gap: .5rem; }
+}
 .moments-creator {
   margin: 0 auto;
   max-width: 1040px;

@@ -1,5 +1,21 @@
 <script setup lang="ts">
-const { canonical } = useProductDomain();
+const { canonical, product } = useProductDomain();
+const route = useRoute();
+const mobileRulesOpen = ref(false);
+async function revealRules() {
+  if (route.hash !== "#kla-klok-rules") return;
+  mobileRulesOpen.value = true;
+  await nextTick();
+  if (import.meta.client) document.getElementById("kla-klok-rules")?.scrollIntoView({ block: "start" });
+}
+watch(() => route.hash, revealRules);
+onMounted(revealRules);
+async function toggleMobileRules() {
+  mobileRulesOpen.value = !mobileRulesOpen.value;
+  // Clear the anchor when collapsing so the Rules tab can navigate to it again.
+  if (!mobileRulesOpen.value && route.hash === "#kla-klok-rules")
+    await navigateTo({ path: route.path, query: route.query }, { replace: true });
+}
 const benefits = [
   { icon: "◆", titleKm: "រចនាបែបខ្មែរ", titleEn: "Khmer-inspired design" },
   { icon: "⚡", titleKm: "លឿន និងងាយស្រួល", titleEn: "Fast and simple" },
@@ -21,16 +37,17 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="kla-klok-page -mx-4 -my-6 overflow-hidden bg-[#071426] text-white sm:mx-0 sm:my-0 sm:rounded-3xl sm:border sm:border-white/10">
-    <KlaKlokHero />
+  <main class="kla-klok-page -mx-4 -my-6 overflow-hidden bg-[#071426] text-white sm:mx-0 sm:my-0 sm:rounded-3xl sm:border sm:border-white/10" :class="{ 'games-product-mobile': product === 'games' }">
+    <KlaKlokHero class="games-product-hero" :compact-mobile="product === 'games'" />
 
-    <div class="mx-5 h-px bg-white/10 sm:mx-10 lg:mx-16" />
-    <KlaKlokHowToPlay />
+    <div class="games-product-divider mx-5 h-px bg-white/10 sm:mx-10 lg:mx-16" />
+    <KlaKlokHowToPlay class="games-product-help" :class="product === 'games' && !mobileRulesOpen ? 'hidden sm:block' : undefined" />
 
-    <div class="mx-3 h-px bg-white/10 sm:mx-10 lg:mx-16" />
-    <KlaKlokBoard />
+    <div class="games-product-divider mx-3 h-px bg-white/10 sm:mx-10 lg:mx-16" />
+    <KlaKlokBoard class="games-product-board" />
+    <button v-if="product === 'games'" type="button" class="games-product-help-toggle mx-4 my-4 flex min-h-12 items-center justify-between rounded-xl border border-white/15 px-4 text-sm font-semibold text-amber-200 sm:hidden" :aria-expanded="mobileRulesOpen" aria-controls="kla-klok-rules" @click="toggleMobileRules">How to play & rules <span aria-hidden="true">{{ mobileRulesOpen ? '−' : '+' }}</span></button>
 
-    <section class="px-5 py-14 sm:px-10 lg:px-16">
+    <section class="games-product-benefits px-5 py-14 sm:px-10 lg:px-16">
       <div class="mx-auto max-w-6xl">
         <div class="max-w-2xl">
           <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Why play</p>
@@ -52,10 +69,10 @@ useSeoMeta({
       </div>
     </section>
 
-    <div class="mx-5 h-px bg-white/10 sm:mx-10 lg:mx-16" />
-    <KlaKlokRules />
+    <div class="games-product-divider mx-5 h-px bg-white/10 sm:mx-10 lg:mx-16" />
+    <KlaKlokRules class="games-product-rules" :class="product === 'games' && !mobileRulesOpen ? 'hidden sm:block' : undefined" />
 
-    <section class="px-5 pb-16 pt-6 sm:px-10 sm:pb-20 lg:px-16">
+    <section class="games-product-cta px-5 pb-16 pt-6 sm:px-10 sm:pb-20 lg:px-16">
       <div class="mx-auto max-w-6xl rounded-3xl border border-amber-300/25 bg-[#0e2138] px-5 py-10 text-center sm:px-10 sm:py-12">
         <p class="text-sm font-bold uppercase tracking-[0.16em] text-amber-300">Ready?</p>
         <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">ត្រៀមលេងខ្លាឃ្លោកហើយឬនៅ?</h2>
@@ -72,3 +89,17 @@ useSeoMeta({
     </section>
   </main>
 </template>
+
+<style scoped>
+@media (max-width: 639px) {
+  .games-product-mobile { display: flex; flex-direction: column; margin-top: 0; margin-bottom: 0; }
+  .games-product-mobile .games-product-hero { order: 1; }
+  .games-product-mobile .games-product-board { order: 2; }
+  .games-product-mobile .games-product-help-toggle { order: 3; }
+  .games-product-mobile .games-product-help { order: 4; padding-top: 1rem; padding-bottom: 1rem; }
+  .games-product-mobile .games-product-rules { order: 5; padding-top: 1rem; padding-bottom: 1.5rem; scroll-margin-top: 5rem; }
+  .games-product-mobile .games-product-divider,
+  .games-product-mobile .games-product-benefits,
+  .games-product-mobile .games-product-cta { display: none; }
+}
+</style>

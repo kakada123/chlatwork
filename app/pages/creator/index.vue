@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { ArrowRight, Clapperboard, Languages, Sparkles } from "lucide-vue-next";
-import { CREATOR_TOOLS, getCreatorToolsByCategory } from "~/data/creator-tools";
+import { ArrowRight, Clapperboard, Languages, Search, Sparkles, X } from "lucide-vue-next";
+import { CREATOR_CATEGORIES, CREATOR_TOOLS, getCreatorToolsByCategory } from "~/data/creator-tools";
 
 definePageMeta({ layout: "creator" });
 
 const { items: recentItems, refresh: refreshHistory } = useCreatorHistory();
 const { user } = useAuth();
+const { product } = useProductDomain();
+const mobileQuery = ref("");
+const mobileCategory = ref("all");
+const mobileTools = computed(() => {
+  const query = mobileQuery.value.trim().toLocaleLowerCase();
+  return CREATOR_TOOLS.filter((tool) => creatorEnabled(tool.id) &&
+    (mobileCategory.value === "all" || tool.category === mobileCategory.value) &&
+    (!query || `${tool.title} ${tool.shortTitle} ${tool.description}`.toLocaleLowerCase().includes(query)));
+});
 const creditBalance = useState<number | null>(
   "creator:credit-balance",
   () => null,
@@ -54,13 +63,14 @@ onMounted(() => {
 <template>
   <main
     class="creator-khmer-content mx-auto w-full max-w-[1180px] space-y-7 text-slate-950 dark:text-white"
+    :class="{ 'creator-product-mobile': product === 'creator' }"
   >
     <header
       class="border-b border-slate-200 pb-5 dark:border-white/10 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:pb-6"
     >
       <div>
         <p
-          class="text-xs font-semibold uppercase tracking-[0.14em] text-sky-600 dark:text-cyan-300"
+          class="creator-eyebrow text-xs font-semibold uppercase tracking-[0.14em] text-sky-600 dark:text-cyan-300"
         >
           ChlatWork Creator
         </p>
@@ -68,7 +78,7 @@ onMounted(() => {
           What do you want to create?
         </h1>
         <p
-          class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60"
+          class="creator-intro mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60"
         >
           Create platform-ready content and natural Khmer copy without learning
           complicated AI tools.
@@ -85,7 +95,26 @@ onMounted(() => {
       </NuxtLink>
     </header>
 
-    <section v-if="createTools.length" aria-labelledby="creator-create-title">
+    <section v-if="product === 'creator'" class="space-y-4 sm:hidden" aria-label="Creator tools">
+      <div class="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 dark:border-white/15 dark:bg-white/5">
+        <Search class="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+        <input v-model="mobileQuery" type="search" placeholder="Find a tool" aria-label="Search Creator tools" class="min-h-12 min-w-0 flex-1 bg-transparent text-sm outline-none" />
+        <button v-if="mobileQuery" type="button" class="grid size-11 shrink-0 place-items-center rounded-xl" aria-label="Clear tool search" @click="mobileQuery = ''"><X class="size-4" aria-hidden="true" /></button>
+      </div>
+      <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Tool category">
+        <button type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === 'all' ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === 'all'" @click="mobileCategory = 'all'">All</button>
+        <button v-for="category in CREATOR_CATEGORIES" :key="category.id" type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === category.id ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === category.id" @click="mobileCategory = category.id">{{ category.title }}</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <NuxtLink v-for="tool in mobileTools" :key="tool.id" :to="tool.route" class="mobile-pressable flex min-h-28 min-w-0 flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:border-white/10 dark:bg-white/5">
+          <span class="tool-icon-tone tool-icon-tone-blue grid size-9 place-items-center rounded-xl"><CreatorIcon :name="tool.icon" class="size-5" aria-hidden="true" /></span>
+          <span class="text-sm font-semibold leading-5">{{ tool.shortTitle }}</span>
+        </NuxtLink>
+      </div>
+      <p v-if="!mobileTools.length" role="status" class="rounded-2xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500 dark:border-white/15">No matching tools.</p>
+    </section>
+
+    <section v-if="createTools.length" class="creator-desktop-section" aria-labelledby="creator-create-title">
       <div class="flex items-center gap-2">
         <Sparkles
           class="size-5 text-sky-600 dark:text-cyan-300"
@@ -124,7 +153,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section v-if="videoTools.length" aria-labelledby="creator-video-title">
+    <section v-if="videoTools.length" class="creator-desktop-section" aria-labelledby="creator-video-title">
       <div class="flex items-end justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
@@ -208,7 +237,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="creator-desktop-section grid gap-6 lg:grid-cols-2">
       <section v-if="khmerTools.length" aria-labelledby="creator-khmer-title">
         <div class="flex items-center gap-2">
           <Languages
@@ -355,3 +384,15 @@ onMounted(() => {
     </section>
   </main>
 </template>
+
+<style scoped>
+@media (max-width: 639px) {
+  .creator-product-mobile > header { padding-bottom: 1rem; }
+  .creator-product-mobile > header h1 { margin-top: 0; font-size: 1.5rem; line-height: 1.35; }
+  .creator-product-mobile .creator-eyebrow,
+  .creator-product-mobile .creator-intro,
+  .creator-product-mobile .creator-desktop-section { display: none; }
+  .creator-product-mobile > header > a { margin-top: .25rem; }
+  .creator-product-mobile #creator-recent-title { scroll-margin-top: 6rem; }
+}
+</style>

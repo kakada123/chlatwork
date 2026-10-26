@@ -7,7 +7,7 @@ import {
 } from "~/data/creator-tools";
 
 const route = useRoute();
-const { linkTo } = useProductDomain();
+const { linkTo, product: domainProduct } = useProductDomain();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { user, isReady, fetchMe } = useAuth();
 const showLogin = ref(false);
@@ -68,7 +68,9 @@ onBeforeUnmount(() => {
       >Skip to Creator content</a
     >
 
+    <LayoutProductNavigation v-if="domainProduct" class="sm:hidden" />
     <header
+      :class="domainProduct ? 'hidden sm:block' : undefined"
       class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-black/95"
     >
       <div
@@ -182,11 +184,13 @@ onBeforeUnmount(() => {
       id="creator-content"
       tabindex="-1"
       class="site-content mx-auto w-full max-w-[1244px] min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 sm:py-8 lg:px-8"
+      :class="domainProduct ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-8' : undefined"
     >
       <slot />
     </div>
 
     <footer
+      :class="domainProduct ? 'hidden sm:block' : undefined"
       class="border-t border-slate-200 px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-xs text-slate-500 dark:border-white/10 dark:text-white/45"
     >
       <div
@@ -206,5 +210,6 @@ onBeforeUnmount(() => {
       </div>
     </footer>
     <AuthLoginDialog :open="showLogin" @close="showLogin = false" />
+    <LayoutProductMobileNav v-if="domainProduct" />
   </div>
 </template>

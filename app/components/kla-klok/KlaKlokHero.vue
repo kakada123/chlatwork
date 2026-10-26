@@ -1,5 +1,9 @@
+<script setup lang="ts">
+defineProps<{ compactMobile?: boolean }>();
+</script>
+
 <template>
-  <section class="relative overflow-hidden px-5 pb-16 pt-12 sm:px-10 sm:pb-20 sm:pt-16 lg:px-16">
+  <section class="relative overflow-hidden px-5 pb-16 pt-12 sm:px-10 sm:pb-20 sm:pt-16 lg:px-16" :class="{ 'compact-mobile': compactMobile }">
     <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
       <div class="text-center lg:text-left">
         <p class="text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
@@ -8,6 +12,7 @@
         <h1 class="mt-4 text-4xl font-black leading-tight text-white sm:text-5xl">
           ខ្លាឃ្លោក — Kla Klok
         </h1>
+        <p v-if="compactMobile" class="game-mobile-notice sm:hidden">ពិន្ទុសិប្បនិម្មិត · Virtual points</p>
         <p class="mx-auto mt-5 max-w-xl text-lg leading-8 text-white/70 lg:mx-0">
           លេងសប្បាយៗ ជាមួយហ្គេមប្រពៃណីខ្មែរ
         </p>
@@ -53,3 +58,15 @@
     </div>
   </section>
 </template>
+
+<style scoped>
+@media (max-width: 639px) {
+  .compact-mobile { padding-top: 1.25rem; padding-bottom: .5rem; }
+  .compact-mobile > div:first-child { display: block; }
+  .compact-mobile > div:first-child > div:last-child,
+  .compact-mobile > div:last-child { display: none; }
+  .compact-mobile h1 { margin-top: 0; font-size: 1.6rem; }
+  .compact-mobile p { display: none; }
+  .compact-mobile .game-mobile-notice { display: block; margin-top: .5rem; color: #fcd34d; font-size: .75rem; font-weight: 500; }
+}
+</style>

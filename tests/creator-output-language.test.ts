@@ -6,6 +6,7 @@ import { renderToString } from "vue/server-renderer";
 import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as guard from "../app/lib/creator-output-language.ts";
+import * as creatorCatalog from "../app/data/creator-tools.ts";
 import { containsThaiScript as serverContainsThai } from "../api/src/creator-ai/creator-output-language.ts";
 
 const mark = "\u0E01";
@@ -284,6 +285,7 @@ test("the Creator dashboard refreshes recent results when the session finishes l
       useSeoMeta() {},
       onMounted: (fn: () => void) => mounted.push(fn),
       useAuth: () => ({ user: session }),
+      useProductDomain: () => ({ product: undefined }),
       useState: () => vue.ref(null),
       useCreatorHistory: () => ({
         items: vue.ref([]),
@@ -310,6 +312,36 @@ test("the Creator dashboard refreshes recent results when the session finishes l
     session.value = { id: "restored-account" };
     await vue.nextTick();
     assert.equal(refreshes, 1);
+  } finally {
+    scope.stop();
+  }
+});
+
+test("mobile Creator search and categories preserve tool availability", () => {
+  const component = compileComponent("app/pages/creator/index.vue", false, {
+    definePageMeta() {},
+    useSeoMeta() {},
+    onMounted() {},
+    useAuth: () => ({ user: vue.ref(null) }),
+    useProductDomain: () => ({ product: "creator" }),
+    useState: () => vue.ref(null),
+    useCreatorHistory: () => ({ items: vue.ref([]), refresh: async () => {} }),
+    useFeatureAvailability: () => ({ creatorEnabled: (id: string) => id !== "hook-generator" }),
+  }, { "~/data/creator-tools": creatorCatalog });
+  const scope = vue.effectScope();
+  try {
+    const page = scope.run(() => component.setup({}, { expose() {} }));
+    assert.equal(page.mobileTools.value.length, creatorCatalog.CREATOR_TOOLS.length - 1);
+    page.mobileCategory.value = "khmer";
+    assert.ok(page.mobileTools.value.length > 0);
+    assert.ok(page.mobileTools.value.every((item: any) => item.category === "khmer"));
+    page.mobileCategory.value = "all";
+    page.mobileQuery.value = "  Hook  ";
+    assert.equal(page.mobileTools.value.some((item: any) => item.id === "hook-generator"), false);
+    page.mobileQuery.value = "no-matching-creator-tool-xyz";
+    assert.deepEqual(page.mobileTools.value, []);
+    page.mobileQuery.value = "";
+    assert.equal(page.mobileTools.value.length, creatorCatalog.CREATOR_TOOLS.length - 1);
   } finally {
     scope.stop();
   }

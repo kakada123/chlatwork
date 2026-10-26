@@ -980,7 +980,9 @@ watch(
       <!-- Layout body -->
       <div
         class="site-container grid gap-6 pt-4 sm:py-5"
-        :class="routesWithEmbeddedMobileChrome.has(route.path)
+        :class="domainProduct
+          ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-5'
+          : routesWithEmbeddedMobileChrome.has(route.path)
           ? 'pb-0'
           : 'pb-[calc(6.5rem+env(safe-area-inset-bottom))]'"
       >
@@ -1016,10 +1018,12 @@ watch(
     <QuickExpenseFab
       v-if="visibleAuthUser && websiteEnabled('expense-tracker')"
       mobile-navigation-action
+      :product-navigation="Boolean(domainProduct)"
       :overlay-active="isHeaderSearchOpen"
       :hide-trigger="mobileKeyboardActive"
     />
 
+    <LayoutProductMobileNav v-if="domainProduct && !isHeaderSearchOpen && !mobileKeyboardActive" />
     <MobileBottomNav
       v-if="!domainProduct && !isHeaderSearchOpen && !mobileKeyboardActive"
       :route-path="route.path"
