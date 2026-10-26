@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
-const languageQuery = route.query.lang === "km" ? "?lang=km" : "";
-await navigateTo(`/m/${String(route.params.slug || "")}${languageQuery}`, {
+await navigateTo({ path: `/m/${encodeURIComponent(String(route.params.slug || ""))}`, query: route.query, hash: route.hash }, {
   redirectCode: 301,
 });
 </script>

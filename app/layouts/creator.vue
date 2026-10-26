@@ -7,6 +7,7 @@ import {
 } from "~/data/creator-tools";
 
 const route = useRoute();
+const { linkTo } = useProductDomain();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { user, isReady, fetchMe } = useAuth();
 const showLogin = ref(false);
@@ -74,7 +75,7 @@ onBeforeUnmount(() => {
         class="mx-auto flex min-h-16 max-w-[1244px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8"
       >
         <NuxtLink
-          to="/creator"
+          :to="linkTo('/creator')"
           class="mobile-pressable flex min-h-11 min-w-0 items-center gap-2.5 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
           aria-label="ChlatWork Creator home"
         >
@@ -162,7 +163,7 @@ onBeforeUnmount(() => {
         <NuxtLink
           v-for="category in CREATOR_CATEGORIES"
           :key="category.id"
-          :to="`/creator#creator-${category.id}-title`"
+          :to="linkTo(`/creator#creator-${category.id}-title`)"
           class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
           :class="
             activeCategory === category.id

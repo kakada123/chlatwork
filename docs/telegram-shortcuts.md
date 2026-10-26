@@ -9,7 +9,10 @@ Open ChlatWork / Open Creator website buttons remain available.
   Latin → English, English → Latin, Humanize, Credits, Settings, and Menu.
 
 Creator tool shortcuts select a mode and ask for text. Selecting a mode does not
-queue a generation or use credits. ChlatWork's Add expense and Ask spending
+queue a generation or use credits. In private Creator chats, tool selections send
+one short prompt. Results, credit footers, and routine feedback do not resend the
+full inline menu; use Menu, `/menu`, or `/start` to open it when needed.
+ChlatWork's Add expense and Ask spending
 shortcuts display the same instructions as their inline actions; `/add` and
 `/ask` also open these prompts.
 

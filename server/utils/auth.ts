@@ -5,6 +5,7 @@ import {
   getHeader,
   readBody,
   setCookie,
+  getRequestURL,
   type H3Event,
 } from "h3";
 
@@ -40,7 +41,7 @@ function cookieOptions(event: H3Event, maxAge: number) {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: forwardedProto === "https",
+    secure: forwardedProto === "https" || getRequestURL(event).protocol === "https:",
     path: "/",
     maxAge,
   };

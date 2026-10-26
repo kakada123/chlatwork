@@ -10,6 +10,7 @@ import type { GoogleLinkCodeDto } from './dto/google-link-code.dto';
 import type { AccessTokenPayload, GoogleLinkTicketPayload } from './types';
 import { TelegramMiniAppDataError, verifyTelegramMiniAppDataWithTokens } from './telegram-mini-app';
 import { getTelegramOidcIdentity } from './telegram-identity';
+import { frontendOrigins, isAllowedCallback } from './frontend-origins';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const TELEGRAM_JWKS = createRemoteJWKSet(new URL('https://oauth.telegram.org/.well-known/jwks.json'));
@@ -54,8 +55,7 @@ export class AuthService {
   }
 
   async googleLinkCode(dto: GoogleLinkCodeDto) {
-    const expectedRedirect = `${this.config.getOrThrow<string>('FRONTEND_ORIGIN').replace(/\/$/, '')}/api/auth/google/callback`;
-    if (dto.redirectUri !== expectedRedirect) {
+    if (!isAllowedCallback(dto.redirectUri, '/api/auth/google/callback', this.allowedFrontendOrigins())) {
       throw new UnauthorizedException('Invalid Google redirect URI');
     }
 
@@ -94,8 +94,7 @@ export class AuthService {
   }
 
   async telegramCode(dto: TelegramCodeAuthDto) {
-    const expectedRedirect = `${this.config.getOrThrow<string>('FRONTEND_ORIGIN').replace(/\/$/, '')}/api/auth/telegram/callback`;
-    if (dto.redirectUri !== expectedRedirect) {
+    if (!isAllowedCallback(dto.redirectUri, '/api/auth/telegram/callback', this.allowedFrontendOrigins())) {
       throw new UnauthorizedException('Invalid Telegram redirect URI');
     }
 
@@ -121,6 +120,13 @@ export class AuthService {
     const tokens = (await response.json()) as { id_token?: string };
     if (!tokens.id_token) throw new UnauthorizedException('Telegram did not return an ID token');
     return this.authenticateTelegramToken(tokens.id_token);
+  }
+
+  private allowedFrontendOrigins() {
+    return frontendOrigins(
+      this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+      this.config.get<string>('FRONTEND_ADDITIONAL_ORIGINS', ''),
+    );
   }
 
   async refresh(refreshToken: string) {

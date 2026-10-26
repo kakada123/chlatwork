@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { frontendOrigins } from './auth/frontend-origins';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,7 +11,7 @@ async function bootstrap() {
   const frontendOrigin = config.getOrThrow<string>('FRONTEND_ORIGIN');
 
   app.enableCors({
-    origin: frontendOrigin,
+    origin: frontendOrigins(frontendOrigin, config.get<string>('FRONTEND_ADDITIONAL_ORIGINS', '')),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
     credentials: false,

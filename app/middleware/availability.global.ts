@@ -3,19 +3,21 @@ import { getCreatorToolByRoute } from "~/data/creator-tools";
 import { useFeatureAvailability } from "~/composables/useFeatureAvailability";
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Product entry aliases must pass the same availability checks as their legacy tool pages.
+  const path = typeof to.meta?.productLegacyPath === "string" ? to.meta.productLegacyPath : to.path;
   const websiteTool = TOOLS.find(
-    (tool) => tool.route === to.path && tool.enabled,
+    (tool) => tool.route === path && tool.enabled,
   );
-  const commandHub = to.path === "/developer-commands";
-  const linkEditor = /^\/account\/link(?:\/|$)/.test(to.path);
-  const creatorTool = getCreatorToolByRoute(to.path);
+  const commandHub = path === "/developer-commands";
+  const linkEditor = /^\/account\/link(?:\/|$)/.test(path);
+  const creatorTool = getCreatorToolByRoute(path);
   const availability = useFeatureAvailability();
   const gated = websiteTool || creatorTool || commandHub || linkEditor;
   const hydratedSnapshot =
     useNuxtApp().isHydrating && availability.loaded.value;
   const workspace =
-    ["/account", "/moments", "/creator"].includes(to.path) ||
-    /^\/(?:admin|bot)(?:\/|$)/.test(to.path);
+    ["/account", "/moments", "/creator"].includes(path) ||
+    /^\/(?:admin|bot)(?:\/|$)/.test(path);
   if (workspace && !gated) {
     // Workspace access is governed by auth/role guards, not the public tool switch.
     if (!import.meta.server && !hydratedSnapshot) {

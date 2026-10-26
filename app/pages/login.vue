@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { safeReturnPath } from "~/lib/product-domains";
 definePageMeta({ middleware: "guest" });
 useSeoMeta({ title: "Login | ChlatWork", robots: "noindex, nofollow" });
 
@@ -7,9 +8,7 @@ const errorMessage = ref("");
 
 function redirectTarget() {
   const value = route.query.redirect;
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/account";
+  return safeReturnPath(value);
 }
 
 </script>

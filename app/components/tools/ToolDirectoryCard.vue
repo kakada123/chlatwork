@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { linkTo } = useProductDomain();
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
@@ -13,7 +14,7 @@ defineProps<{
 <template>
   <div class="group relative h-full">
     <NuxtLink
-      :to="route"
+      :to="linkTo(route)"
       class="flex h-full min-h-[96px] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-12 shadow-sm transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]"
     >
       <span

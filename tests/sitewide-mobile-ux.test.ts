@@ -19,7 +19,8 @@ test("the default layout provides one mobile app shell to every standard page", 
 
   assert.match(layout, /import MobileAppHeader from/);
   assert.match(layout, /import MobileBottomNav from/);
-  assert.match(layout, /<MobileAppHeader\s+v-if="showSharedMobileHeader"/);
+  assert.match(layout, /<MobileAppHeader\s+v-if="!domainProduct && showSharedMobileHeader"/);
+  assert.match(layout, /<LayoutProductNavigation v-if="domainProduct"/);
   assert.match(layout, /<MobileBottomNav/);
   assert.match(layout, /class="site-header[^"]*hidden[^"]*sm:block"/);
   assert.match(layout, /pb-\[calc\(6\.5rem\+env\(safe-area-inset-bottom\)\)\]/);
@@ -113,13 +114,13 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(layout, /<ChevronRight/);
   assert.match(layout, /:show-quick-expense-slot="showQuickExpenseNavigationSlot && websiteEnabled\('expense-tracker'\)"\s+search-active/);
   assert.match(layout, /@search="focusMobileHeaderSearch"/);
-  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen && !mobileKeyboardActive"/);
+  assert.match(layout, /<MobileBottomNav\s+v-if="!domainProduct && !isHeaderSearchOpen && !mobileKeyboardActive"/);
   assert.match(layout, /!isHeaderSearchOpen && !mobileKeyboardActive/);
   assert.match(layout, /:hide-trigger="mobileKeyboardActive"/);
   assert.match(layout, /document\.addEventListener\("focusin", scheduleMobileKeyboardSync\)/);
   assert.match(layout, /window\.visualViewport\?\.addEventListener\("resize", scheduleMobileKeyboardSync\)/);
   assert.match(layout, /viewportHeight < keyboardViewportBaseline - 40/);
-  assert.match(layout, /<MobileBottomNav\s+v-if="!isHeaderSearchOpen && !mobileKeyboardActive"[\s\S]*?@search="toggleHeaderSearch"/);
+  assert.match(layout, /<MobileBottomNav\s+v-if="!domainProduct && !isHeaderSearchOpen && !mobileKeyboardActive"[\s\S]*?@search="toggleHeaderSearch"/);
   assert.match(layout, /:overlay-active="isHeaderSearchOpen"/);
 });
 

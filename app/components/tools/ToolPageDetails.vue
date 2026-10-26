@@ -14,7 +14,8 @@ const props = withDefaults(
 );
 
 const siteUrl = "https://chlatwork.com";
-const canonicalUrl = computed(() => `${siteUrl}${props.guide.tool.route}`);
+const { destination } = useProductDomain();
+const canonicalUrl = computed(() => destination(props.guide.tool.route));
 const faqs = computed(() => props.guide.faqs.slice(0, 6));
 const reviewDate = "2026-07-31";
 const editorialAuthor = {

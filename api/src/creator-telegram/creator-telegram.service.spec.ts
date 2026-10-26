@@ -160,9 +160,10 @@ describe('Creator Telegram bot', () => {
         expect.objectContaining({ data: { feature, lastUpdateId: 1n } }),
       );
       expect(test.requests).toHaveLength(0);
+      expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
       expect(test.bot.sendMessage).toHaveBeenLastCalledWith(
         123,
-        'ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.',
+        expect.stringContaining('ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.'),
         expect.objectContaining({
           keyboard: expect.arrayContaining([
             [{ text: '💳 Credits' }, { text: '⚙️ Settings' }],
@@ -908,10 +909,11 @@ describe('Creator Telegram bot', () => {
     });
     expect(test.requests).toHaveLength(0);
     expect(test.bot.sendMessage.mock.calls[0][1]).toContain('1 credit(s)');
-    expect(test.bot.sendMessage.mock.calls[0][2]).toHaveProperty(
-      'inline_keyboard',
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage.mock.calls[0][1]).toContain(
+      'Send your text here.',
     );
-    expect(test.bot.sendMessage.mock.calls[1][2]).toMatchObject({
+    expect(test.bot.sendMessage.mock.calls[0][2]).toMatchObject({
       is_persistent: true,
     });
   });
@@ -925,27 +927,49 @@ describe('Creator Telegram bot', () => {
     'khmer_to_english',
     'latin_to_english',
     'english_to_latin',
-    'start',
-    'help',
-    'menu',
-    'creator',
-    'khmer',
-    'unknown',
-  ])('puts the menu above the input prompt for /%s', async (command) => {
+  ])('sends one short private mode prompt for /%s', async (command) => {
     const test = setup();
     await test.service.handleUpdate(test.message(`/${command}`));
-    expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
-    const [menu, prompt] = test.bot.sendMessage.mock.calls;
-    expect(menu[0]).toBe(123);
-    expect(menu[2].inline_keyboard.flat()).toContainEqual(
-      expect.objectContaining({ callback_data: 'mode:latin' }),
-    );
-    expect(menu[1]).not.toContain('ផ្ញើអត្ថបទនៅទីនេះ');
-    expect(prompt[0]).toBe(123);
-    expect(prompt[1]).toBe('ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.');
-    expect(prompt[2]).toMatchObject({ is_persistent: true });
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    const [chatId, prompt, keyboard] = test.bot.sendMessage.mock.calls[0];
+    expect(chatId).toBe(123);
+    expect(prompt).toContain('Send your text here.');
+    expect(prompt).toContain('1 credit(s)');
+    expect(keyboard).toMatchObject({ is_persistent: true });
+    expect(keyboard).not.toHaveProperty('inline_keyboard');
     expect(test.requests).toHaveLength(0);
-    expect(test.credits.getBalance).not.toHaveBeenCalled();
+  });
+
+  it.each(['start', 'help', 'menu', 'creator', 'khmer'])(
+    'opens the full menu explicitly for /%s',
+    async (command) => {
+      const test = setup();
+      await test.service.handleUpdate(test.message(`/${command}`));
+      expect(test.bot.sendMessage).toHaveBeenCalledTimes(2);
+      const [menu, prompt] = test.bot.sendMessage.mock.calls;
+      expect(menu[0]).toBe(123);
+      expect(menu[2].inline_keyboard.flat()).toContainEqual(
+        expect.objectContaining({ callback_data: 'mode:latin' }),
+      );
+      expect(menu[1]).not.toContain('ផ្ញើអត្ថបទនៅទីនេះ');
+      expect(prompt[0]).toBe(123);
+      expect(prompt[1]).toBe('ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.');
+      expect(prompt[2]).toMatchObject({ is_persistent: true });
+      expect(test.requests).toHaveLength(0);
+      expect(test.credits.getBalance).not.toHaveBeenCalled();
+    },
+  );
+
+  it('handles unknown private commands without resending the full menu', async () => {
+    const test = setup();
+    await test.service.handleUpdate(test.message('/unknown'));
+    expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(test.bot.sendMessage).toHaveBeenCalledWith(
+      123,
+      expect.stringContaining('/menu'),
+      expect.objectContaining({ is_persistent: true }),
+    );
+    expect(test.requests).toHaveLength(0);
   });
 
   it('waits for the menu to finish sending before sending the input prompt', async () => {
@@ -961,7 +985,7 @@ describe('Creator Telegram bot', () => {
         complete = resolve;
       });
     });
-    const response = test.service.handleUpdate(test.message('/latin'));
+    const response = test.service.handleUpdate(test.message('/menu'));
     await sending;
     expect(test.bot.sendMessage).toHaveBeenCalledTimes(1);
     expect(test.bot.sendMessage.mock.calls[0][2]).toHaveProperty(
@@ -1065,6 +1089,12 @@ describe('Creator Telegram bot', () => {
       'Daily usage: 10 / 30',
     );
     expect(test.credits.getBalance).toHaveBeenCalledWith('owner');
+    expect(test.bot.sendMessage.mock.calls[0][2]).toMatchObject({
+      is_persistent: true,
+    });
+    expect(test.bot.sendMessage.mock.calls[0][2]).not.toHaveProperty(
+      'inline_keyboard',
+    );
   });
 
   it('opens personal settings with both sections on by default without queuing work', async () => {

@@ -34,6 +34,7 @@ import { canShowAdsForUser } from "~/lib/ad-visibility";
 const { copy, isKhmer } = useLanguage();
 useColorMode();
 const route = useRoute();
+const { config: domainConfig, canonical: productCanonical, sourcePath, context: domainContext } = useProductDomain();
 const { canShowAds } = useAdVisibility();
 const { user, isReady } = useAuth();
 
@@ -44,20 +45,16 @@ onMounted(() => {
   });
 });
 
-const siteUrl = "https://chlatwork.com";
+const siteUrl = domainConfig.mainOrigin;
 const ogImage = `${siteUrl}/og-home.png`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
 const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
 const normalizedPath = computed(() =>
-  route.path === "/" ? "/" : route.path.replace(/\/$/, ""),
+  sourcePath.value,
 );
-const robotsContent = computed(() => getPublisherRobots(normalizedPath.value));
-const canonicalUrl = computed(() => {
-  const path = route.path === "/" ? "" : route.path.replace(/\/$/, "");
-
-  return `${siteUrl}${path}`;
-});
+const robotsContent = computed(() => domainContext.kind === "preview" || (domainContext.product && !domainConfig.canonical.includes(domainContext.product)) ? "noindex, nofollow" : getPublisherRobots(normalizedPath.value));
+const canonicalUrl = productCanonical;
 
 useSeoMeta({
   title: localizedTitle,

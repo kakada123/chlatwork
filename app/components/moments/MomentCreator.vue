@@ -53,6 +53,7 @@ const uploadProgress = ref(0);
 const showLogin = ref(false);
 const publishedSlug = ref("");
 const shareUrl = ref("");
+const { destination: productDestination } = useProductDomain();
 const qrDataUrl = ref("");
 const copied = ref(false);
 const selectedCategory = ref<MomentCategory>("CELEBRATIONS");
@@ -397,7 +398,7 @@ async function publishMoment() {
 }
 
 async function updateShareArtifacts(slug: string) {
-  shareUrl.value = `${window.location.origin}${localizeMomentPath(`/m/${slug}`)}`;
+  shareUrl.value = productDestination(localizeMomentPath(`/m/${slug}`));
   const QR = await import("qrcode");
   qrDataUrl.value = await QR.toDataURL(shareUrl.value, {
     width: 320,

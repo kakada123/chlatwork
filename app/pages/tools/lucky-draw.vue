@@ -547,14 +547,15 @@ useSeoMeta({
     "Paste names, spin the wheel, and pick no-repeat winners privately in your browser.",
 });
 
-useHead({
+const { canonical } = useProductDomain();
+useHead(() => ({
   link: [
     {
       rel: "canonical",
-      href: "https://chlatwork.com/tools/lucky-draw",
+      href: canonical.value,
     },
   ],
-});
+}));
 
 const INITIAL_ROWS = (): InputRow[] => [
   { name: "" },

@@ -42,6 +42,7 @@ useSeoMeta({
   robots: "noindex, nofollow",
 });
 const route = useRoute();
+const { destination } = useProductDomain();
 const { user } = useAuth();
 const tabs = [
   { id: "profile", label: "Profile" },
@@ -102,7 +103,7 @@ const avatarChanged = ref(false);
 const backgroundChanged = ref(false);
 const preview = computed(() => ({ ...draft.value, links: editorLinks.value }));
 const savedUrl = computed(() =>
-  saved.value?.slug ? `https://chlatwork.com/u/${saved.value.slug}` : "",
+  saved.value?.slug ? destination(`/u/${saved.value.slug}`) : "",
 );
 const totalClicks = computed(
   () =>
@@ -360,7 +361,7 @@ async function refreshAnalytics() {
                 autocapitalize="none"
                 spellcheck="false"
               /><small
-                >chlatwork.com/u/{{ draft.slug || "your-name" }} · 3–40 letters,
+                >{{ destination(`/u/${draft.slug || 'your-name'}`).replace(/^https?:\/\//, '') }} · 3–40 letters,
                 numbers, - or _</small
               ></label
             >

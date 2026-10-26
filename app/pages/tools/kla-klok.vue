@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { canonical } = useProductDomain();
 const benefits = [
   { icon: "◆", titleKm: "រចនាបែបខ្មែរ", titleEn: "Khmer-inspired design" },
   { icon: "⚡", titleKm: "លឿន និងងាយស្រួល", titleEn: "Fast and simple" },
@@ -14,7 +15,7 @@ useSeoMeta({
   ogDescription:
     "Choose classic symbols, roll three dice, and play with virtual points.",
   ogType: "website",
-  ogUrl: "https://chlatwork.com/tools/kla-klok",
+  ogUrl: canonical,
   twitterCard: "summary",
 });
 </script>

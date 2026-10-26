@@ -553,11 +553,12 @@ useSeoMeta({
   description:
     "Track expenses by date, review spending by category, and manage your budget.",
 });
-useHead({
+const { canonical } = useProductDomain();
+useHead(() => ({
   link: [
-    { rel: "canonical", href: "https://chlatwork.com/tools/expense-tracker" },
+    { rel: "canonical", href: canonical.value },
   ],
-});
+}));
 
 const localItems = computed(
   () =>

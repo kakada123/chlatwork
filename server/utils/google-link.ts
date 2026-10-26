@@ -1,17 +1,13 @@
-import { createError, getHeader, setCookie, type H3Event } from "h3";
+import { createError, setCookie, type H3Event } from "h3";
+import { trustedRequestOrigin } from "./product-domain";
 
 export const GOOGLE_LINK_STATE_COOKIE = "chlatwork_google_link_state";
 export const GOOGLE_LINK_VERIFIER_COOKIE = "chlatwork_google_link_verifier";
 export const GOOGLE_LINK_TICKET_COOKIE = "chlatwork_google_link_ticket";
 
 export function appOrigin(event: H3Event) {
-  const configured = useRuntimeConfig(event).appOrigin;
-  if (configured) return configured.replace(/\/$/, "");
-
-  const host = (getHeader(event, "x-forwarded-host") ?? getHeader(event, "host"))?.split(",")[0]?.trim();
-  const proto = getHeader(event, "x-forwarded-proto")?.split(",")[0]?.trim() || "http";
-  if (!host) throw createError({ statusCode: 400, statusMessage: "Missing host header" });
-  return `${proto}://${host}`;
+  // Keep PKCE/state cookies and the callback on the same explicitly configured host.
+  return trustedRequestOrigin(event);
 }
 
 export function setGoogleLinkCookie(event: H3Event, name: string, value: string) {

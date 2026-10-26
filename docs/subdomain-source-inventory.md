@@ -1,0 +1,550 @@
+# Subdomain source inventory
+
+Source audit for the migration. Secret/env files, dependencies and generated output are excluded. Read page filenames with the explicit route overrides described in [subdomain-migration.md](subdomain-migration.md).
+
+## app/pages (86 source files)
+
+- `app/pages/about.vue`
+- `app/pages/account-link.vue`
+- `app/pages/account.vue`
+- `app/pages/admin/bots.vue`
+- `app/pages/admin/index.vue`
+- `app/pages/admin/tools.vue`
+- `app/pages/bot/account.vue`
+- `app/pages/bot/groups/[id].vue`
+- `app/pages/bot/groups/index.vue`
+- `app/pages/buy-me-coffee.vue`
+- `app/pages/cockroach.vue`
+- `app/pages/contact.vue`
+- `app/pages/cookies.vue`
+- `app/pages/creator/[...slug].vue`
+- `app/pages/creator/admin/credits.vue`
+- `app/pages/creator/credits.vue`
+- `app/pages/creator/history/[id].vue`
+- `app/pages/creator/index.vue`
+- `app/pages/developer-commands.vue`
+- `app/pages/developer-guides/[guideSlug].vue`
+- `app/pages/developer-guides/index.vue`
+- `app/pages/disclaimer.vue`
+- `app/pages/dont-get-mad.vue`
+- `app/pages/editorial-policy.vue`
+- `app/pages/guides/[guideSlug].vue`
+- `app/pages/guides/index.vue`
+- `app/pages/how-to-[guideSlug].vue`
+- `app/pages/i/[token].vue`
+- `app/pages/index.vue`
+- `app/pages/km/index.vue`
+- `app/pages/link-alias.vue`
+- `app/pages/link.vue`
+- `app/pages/login.vue`
+- `app/pages/love-probation.vue`
+- `app/pages/m/[slug].vue`
+- `app/pages/moment/[slug].vue`
+- `app/pages/moments/create.vue`
+- `app/pages/moments/index.vue`
+- `app/pages/most-annoying.vue`
+- `app/pages/personal.vue`
+- `app/pages/portfolio.vue`
+- `app/pages/posts/[postSlug].vue`
+- `app/pages/posts/index.vue`
+- `app/pages/pricing.vue`
+- `app/pages/privacy-policy.vue`
+- `app/pages/services/invoice-generator.vue`
+- `app/pages/terms.vue`
+- `app/pages/tools/[categorySlug].vue`
+- `app/pages/tools/barcode.vue`
+- `app/pages/tools/base64.vue`
+- `app/pages/tools/calculator.vue`
+- `app/pages/tools/compress-pdf.vue`
+- `app/pages/tools/cron-explainer.vue`
+- `app/pages/tools/expense-tracker.vue`
+- `app/pages/tools/hash-generator.vue`
+- `app/pages/tools/html-to-pdf.vue`
+- `app/pages/tools/image-compress.vue`
+- `app/pages/tools/image-to-pdf.vue`
+- `app/pages/tools/index.vue`
+- `app/pages/tools/invoice-to-pdf.vue`
+- `app/pages/tools/json-formatter.vue`
+- `app/pages/tools/jwt-decoder.vue`
+- `app/pages/tools/khmer-unicode-fixer.vue`
+- `app/pages/tools/kla-klok.vue`
+- `app/pages/tools/lucky-draw.vue`
+- `app/pages/tools/merge-pdf.vue`
+- `app/pages/tools/password-generator.vue`
+- `app/pages/tools/payback-calculator.vue`
+- `app/pages/tools/pdf-to-jpg.vue`
+- `app/pages/tools/pdf.vue`
+- `app/pages/tools/qr.vue`
+- `app/pages/tools/regex-tester.vue`
+- `app/pages/tools/remove-pdf-pages.vue`
+- `app/pages/tools/reorder-pdf-pages.vue`
+- `app/pages/tools/scan-barcode.vue`
+- `app/pages/tools/scan-qr.vue`
+- `app/pages/tools/split-pdf.vue`
+- `app/pages/tools/stopwatch.vue`
+- `app/pages/tools/text-to-pdf.vue`
+- `app/pages/tools/text-to-voice.vue`
+- `app/pages/tools/unix-timestamp.vue`
+- `app/pages/tools/url-encoder.vue`
+- `app/pages/tools/uuid-generator.vue`
+- `app/pages/tools/wifi-qr.vue`
+- `app/pages/tools/youtube-downloader.vue`
+- `app/pages/u/[slug].vue`
+
+## app/components (132 source files)
+
+- `app/components/CookieConsent.vue`
+- `app/components/ImageCompressor.vue`
+- `app/components/ModernDateInput.vue`
+- `app/components/MoneyAmount.vue`
+- `app/components/ResultBox.vue`
+- `app/components/account/TelegramPhoneSetting.vue`
+- `app/components/admin/BotGroupWorkspaces.vue`
+- `app/components/admin/BotUserAccess.vue`
+- `app/components/admin/BotUserCredits.vue`
+- `app/components/admin/BotUserKhqr.vue`
+- `app/components/admin/MemberKhqrManager.vue`
+- `app/components/ads/BannerAd.vue`
+- `app/components/ads/DesktopAd.client.vue`
+- `app/components/ads/NativeAd.client.vue`
+- `app/components/ads/SmartLinkAd.vue`
+- `app/components/auth/AuthLoginDialog.vue`
+- `app/components/auth/ResultAuthGate.vue`
+- `app/components/auth/SocialAuthButtons.vue`
+- `app/components/barcode/BarcodeGeneratorInputCard.vue`
+- `app/components/barcode/BarcodeGeneratorPreviewCard.vue`
+- `app/components/bot/GroupActivity.vue`
+- `app/components/bot/GroupConnect.vue`
+- `app/components/bot/GroupFeatureSettings.vue`
+- `app/components/bot/GroupKhqrDirectory.vue`
+- `app/components/bot/GroupOverview.vue`
+- `app/components/bot/GroupSwitcher.vue`
+- `app/components/bot/GroupVoteSettings.vue`
+- `app/components/business/BusinessCta.vue`
+- `app/components/business/ServiceDetailPage.vue`
+- `app/components/creator/CreatorCreditActivity.vue`
+- `app/components/creator/CreatorCreditCost.vue`
+- `app/components/creator/CreatorIcon.vue`
+- `app/components/creator/CreatorInsufficientCredits.vue`
+- `app/components/creator/CreatorOptionSelector.vue`
+- `app/components/creator/CreatorResult.vue`
+- `app/components/creator/CreatorToolForm.vue`
+- `app/components/creator/CreatorToolHeader.vue`
+- `app/components/creator/CreatorToolLayout.vue`
+- `app/components/creator/CreatorVideoUpload.vue`
+- `app/components/developer-commands/CommandCard.vue`
+- `app/components/developer-commands/CommandCategoryFilter.vue`
+- `app/components/developer-commands/CommandCategoryIcon.vue`
+- `app/components/developer-commands/CommandCopyButton.vue`
+- `app/components/developer-commands/CommandCustomizer.vue`
+- `app/components/developer-commands/CommandQuickCard.vue`
+- `app/components/developer-commands/CommandSearch.vue`
+- `app/components/developer-commands/DeveloperCommandsPage.vue`
+- `app/components/developer-commands/PlatformFilter.vue`
+- `app/components/developer-guides/GuideCommand.vue`
+- `app/components/developer-tools/CopyButton.vue`
+- `app/components/expense-tracker/ExpenseEntryEditDialog.vue`
+- `app/components/expense-tracker/ExpenseEntryHistory.vue`
+- `app/components/expense-tracker/ExpenseSpendingTrend.vue`
+- `app/components/expense-tracker/ExpenseTrackerHeader.vue`
+- `app/components/expense-tracker/ExpenseTrackerInputCard.vue`
+- `app/components/expense-tracker/ExpenseTrackerSummaryCard.vue`
+- `app/components/expense-tracker/QuickExpenseFab.vue`
+- `app/components/expense-tracker/QuickExpenseForm.vue`
+- `app/components/icons/ToolIcon.vue`
+- `app/components/image-to-pdf/ImageToPdfPreview.vue`
+- `app/components/image-to-pdf/ImageToPdfSettingsPanel.vue`
+- `app/components/image-to-pdf/ImageToPdfUploadCard.vue`
+- `app/components/kla-klok/KlaKlokBoard.vue`
+- `app/components/kla-klok/KlaKlokBowl.vue`
+- `app/components/kla-klok/KlaKlokDice.vue`
+- `app/components/kla-klok/KlaKlokHero.vue`
+- `app/components/kla-klok/KlaKlokHowToPlay.vue`
+- `app/components/kla-klok/KlaKlokRules.vue`
+- `app/components/kla-klok/KlaKlokSymbolCard.vue`
+- `app/components/landing/HeroSection.vue`
+- `app/components/landing/HomeGlobalSearch.vue`
+- `app/components/landing/HomeToolCard.vue`
+- `app/components/landing/LandingCTA.vue`
+- `app/components/landing/LandingDeveloperSection.vue`
+- `app/components/landing/LandingFaq.vue`
+- `app/components/landing/LandingMomentsSection.vue`
+- `app/components/landing/LandingPage.vue`
+- `app/components/landing/LandingToolCard.vue`
+- `app/components/landing/LandingWhyUse.vue`
+- `app/components/landing/MobileHomeToolCard.vue`
+- `app/components/landing/MobileLandingPage.vue`
+- `app/components/landing/ProductDirectory.vue`
+- `app/components/landing/ToolCategorySection.vue`
+- `app/components/layout/FooterMenuGroup.vue`
+- `app/components/layout/MobileAppHeader.vue`
+- `app/components/layout/MobileBottomNav.vue`
+- `app/components/layout/MobileRouteSkeleton.vue`
+- `app/components/layout/ProductNavigation.vue`
+- `app/components/link/LinkPlatformIcon.vue`
+- `app/components/link/LinkProfileCard.vue`
+- `app/components/link/LinkShare.vue`
+- `app/components/love/MomentPhoto.vue`
+- `app/components/moments/MomentCreator.vue`
+- `app/components/moments/MomentExperience.vue`
+- `app/components/moments/MomentInvitationGuests.vue`
+- `app/components/moments/MomentLanguageToggle.vue`
+- `app/components/moments/MomentSummaryCard.vue`
+- `app/components/moments/MomentVotingResults.vue`
+- `app/components/payback-calculator/PaybackCalculatorHeader.vue`
+- `app/components/payback-calculator/PaybackCalculatorHistory.vue`
+- `app/components/payback-calculator/PaybackCalculatorInputCard.vue`
+- `app/components/payback-calculator/PaybackCalculatorSummaryCard.vue`
+- `app/components/pdf-tools/PageRangeInput.vue`
+- `app/components/pdf-tools/PdfFileDropzone.vue`
+- `app/components/pdf-tools/PdfFileList.vue`
+- `app/components/pdf-tools/PdfRelatedTools.vue`
+- `app/components/pdf-tools/PdfResultDownload.vue`
+- `app/components/pdf-tools/PdfToolPage.vue`
+- `app/components/pdf-tools/PdfToolPageLayout.vue`
+- `app/components/pdf-tools/PrivacyNotice.vue`
+- `app/components/pdf-tools/SeoFaq.vue`
+- `app/components/portfolio/PortfolioAbout.vue`
+- `app/components/portfolio/PortfolioContact.vue`
+- `app/components/portfolio/PortfolioHero.vue`
+- `app/components/portfolio/PortfolioIcon.vue`
+- `app/components/portfolio/PortfolioProjects.vue`
+- `app/components/portfolio/PortfolioSkills.vue`
+- `app/components/portfolio/PortfolioWorkingStyle.vue`
+- `app/components/qr/QrGeneratorInputCard.vue`
+- `app/components/qr/QrGeneratorPreviewCard.vue`
+- `app/components/scanner/ImageCodeScanner.vue`
+- `app/components/tools/LuckyDrawWinnerResult.vue`
+- `app/components/tools/MobileToolDirectoryCard.vue`
+- `app/components/tools/MobileToolsDirectory.vue`
+- `app/components/tools/ToolContentLayout.vue`
+- `app/components/tools/ToolDirectoryCard.vue`
+- `app/components/tools/ToolFavoriteButton.vue`
+- `app/components/tools/ToolPageDetails.vue`
+- `app/components/ui/ConfirmDialog.vue`
+- `app/components/wifi-qr/WifiQrForm.vue`
+- `app/components/wifi-qr/WifiQrPoster.vue`
+- `app/components/wifi-qr/WifiQrPreview.vue`
+
+## app/composables (24 source files)
+
+- `app/composables/useAccountFavorites.ts`
+- `app/composables/useAdVisibility.ts`
+- `app/composables/useAuth.ts`
+- `app/composables/useBotSession.ts`
+- `app/composables/useColorMode.ts`
+- `app/composables/useCommandFavorites.ts`
+- `app/composables/useCookieNotice.ts`
+- `app/composables/useCreatorHistory.ts`
+- `app/composables/useCreatorTool.ts`
+- `app/composables/useExpenseDashboard.ts`
+- `app/composables/useFeatureAvailability.ts`
+- `app/composables/useImageToPdfTool.ts`
+- `app/composables/useLandingReveal.ts`
+- `app/composables/useLanguage.ts`
+- `app/composables/useMomentLanguage.ts`
+- `app/composables/useProductDomain.ts`
+- `app/composables/useProductRoute.ts`
+- `app/composables/useQuickExpense.ts`
+- `app/composables/useTelegramMiniApp.ts`
+- `app/composables/useTelegramNotifications.ts`
+- `app/composables/useTelegramPhone.ts`
+- `app/composables/useToolFavorites.ts`
+- `app/composables/useToolUsage.ts`
+- `app/composables/useYoutubeDownloader.ts`
+
+## app/services (3 source files)
+
+- `app/services/bot-admin.service.ts`
+- `app/services/creator-ai.service.ts`
+- `app/services/group-workspaces.service.ts`
+
+## app/data (16 source files)
+
+- `app/data/creator-tools.ts`
+- `app/data/developer-commands.ts`
+- `app/data/developer-guides.ts`
+- `app/data/editorial-identity.ts`
+- `app/data/guides.ts`
+- `app/data/moment-locales.ts`
+- `app/data/moments.ts`
+- `app/data/pdf-tools.ts`
+- `app/data/portfolio.ts`
+- `app/data/posts.ts`
+- `app/data/services.ts`
+- `app/data/site-routes.ts`
+- `app/data/tool-categories.ts`
+- `app/data/tool-guide-routes.ts`
+- `app/data/tool-guides.ts`
+- `app/data/tools.ts`
+
+## app/lib (40 source files)
+
+- `app/lib/ad-visibility.ts`
+- `app/lib/barcode-generator.ts`
+- `app/lib/browser-zip.ts`
+- `app/lib/cockroach-sound.ts`
+- `app/lib/cookie-notice.ts`
+- `app/lib/creator-audio-extract.ts`
+- `app/lib/creator-audio.ts`
+- `app/lib/creator-credit-display.ts`
+- `app/lib/creator-output-language.ts`
+- `app/lib/date.utils.ts`
+- `app/lib/developer-tools.ts`
+- `app/lib/expense-dashboard-view.ts`
+- `app/lib/expense-entry-changes.ts`
+- `app/lib/expense-tracker.ts`
+- `app/lib/file-validation.ts`
+- `app/lib/google-consent.ts`
+- `app/lib/icon-assets.ts`
+- `app/lib/image-code-scanner.ts`
+- `app/lib/khmer-unicode-fixer.ts`
+- `app/lib/kla-klok-sound.ts`
+- `app/lib/kla-klok.ts`
+- `app/lib/link-profile.ts`
+- `app/lib/lucky-draw.ts`
+- `app/lib/moment-image.ts`
+- `app/lib/moments.ts`
+- `app/lib/money.ts`
+- `app/lib/payback-calculator.ts`
+- `app/lib/pdf-tools.ts`
+- `app/lib/privacy-copy.ts`
+- `app/lib/product-domains.ts`
+- `app/lib/product-seo.ts`
+- `app/lib/qr-generator.ts`
+- `app/lib/sanitize-html.ts`
+- `app/lib/secure-random.ts`
+- `app/lib/stopwatch.ts`
+- `app/lib/tool-icon-tones.ts`
+- `app/lib/tool-registry.ts`
+- `app/lib/tool-search.ts`
+- `app/lib/wifi-qr.ts`
+- `app/lib/youtube-downloader.ts`
+
+## server (85 source files)
+
+- `server/api/admin/analytics.get.ts`
+- `server/api/admin/bots/[...path].ts`
+- `server/api/admin/member-khqr/[key].post.ts`
+- `server/api/admin/member-khqr/groups.get.ts`
+- `server/api/admin/member-khqr/index.get.ts`
+- `server/api/auth/google.post.ts`
+- `server/api/auth/google/callback.get.ts`
+- `server/api/auth/google/link/authorize.get.ts`
+- `server/api/auth/google/link/start.post.ts`
+- `server/api/auth/logout.post.ts`
+- `server/api/auth/me.get.ts`
+- `server/api/auth/phone.delete.ts`
+- `server/api/auth/refresh.post.ts`
+- `server/api/auth/telegram.post.ts`
+- `server/api/auth/telegram/callback.get.ts`
+- `server/api/auth/telegram/start.get.ts`
+- `server/api/bot/group-media/[id].get.ts`
+- `server/api/bot/groups/[...path].ts`
+- `server/api/bot/groups/index.get.ts`
+- `server/api/creator-ai/[...path].ts`
+- `server/api/creator-telegram/webhook.post.ts`
+- `server/api/expenses/entries.get.ts`
+- `server/api/expenses/entries.patch.ts`
+- `server/api/expenses/profile.get.ts`
+- `server/api/expenses/profile.put.ts`
+- `server/api/expenses/quick-entry.post.ts`
+- `server/api/expenses/quick-entry/settings.get.ts`
+- `server/api/expenses/quick-entry/settings.put.ts`
+- `server/api/expenses/state.get.ts`
+- `server/api/expenses/state.put.ts`
+- `server/api/expenses/summary.get.ts`
+- `server/api/favorites/index.get.ts`
+- `server/api/favorites/index.put.ts`
+- `server/api/feature-availability/admin/[key].put.ts`
+- `server/api/feature-availability/admin/index.get.ts`
+- `server/api/feature-availability/index.get.ts`
+- `server/api/invitations/[token].get.ts`
+- `server/api/member-khqr/[key].ts`
+- `server/api/moments/[id]/guests/[guestId]/sent.post.ts`
+- `server/api/moments/[id]/guests/index.get.ts`
+- `server/api/moments/[id]/guests/index.post.ts`
+- `server/api/moments/[id]/index.delete.ts`
+- `server/api/moments/[id]/index.get.ts`
+- `server/api/moments/[id]/media.post.ts`
+- `server/api/moments/[id]/media/[mediaId].get.ts`
+- `server/api/moments/[id]/poll-options.patch.ts`
+- `server/api/moments/[id]/poll-options/[optionId]/image.put.ts`
+- `server/api/moments/[id]/publish.post.ts`
+- `server/api/moments/[id]/rsvp.post.ts`
+- `server/api/moments/[id]/vote.post.ts`
+- `server/api/moments/[id]/votes.delete.ts`
+- `server/api/moments/index.post.ts`
+- `server/api/moments/mine.get.ts`
+- `server/api/notifications/telegram/settings.get.ts`
+- `server/api/notifications/telegram/settings.put.ts`
+- `server/api/payback/history.get.ts`
+- `server/api/payback/history.post.ts`
+- `server/api/payback/history/[id].delete.ts`
+- `server/api/payback/history/count.get.ts`
+- `server/api/payback/state.get.ts`
+- `server/api/payback/state.put.ts`
+- `server/api/personal/memories.get.ts`
+- `server/api/personal/reminders.get.ts`
+- `server/api/personal/reminders/[id]/cancel.patch.ts`
+- `server/api/personal/tasks.get.ts`
+- `server/api/personal/tasks/[id]/complete.patch.ts`
+- `server/api/profiles/[...path].ts`
+- `server/api/public/profiles/[...path].ts`
+- `server/api/telegram/webhook.post.ts`
+- `server/api/text-to-voice.get.ts`
+- `server/api/tool-usage/index.delete.ts`
+- `server/api/tool-usage/index.post.ts`
+- `server/api/tool-usage/popular.get.ts`
+- `server/api/tool-usage/summary.get.ts`
+- `server/api/youtube-downloader/jobs/[id].delete.ts`
+- `server/api/youtube-downloader/jobs/[id].get.ts`
+- `server/api/youtube-downloader/jobs/[id]/ticket.post.ts`
+- `server/api/youtube-downloader/jobs/index.post.ts`
+- `server/api/youtube-downloader/preview.post.ts`
+- `server/middleware/product-domain.ts`
+- `server/routes/robots.txt.get.ts`
+- `server/utils/auth.ts`
+- `server/utils/google-link.ts`
+- `server/utils/product-domain.ts`
+- `server/utils/profile-proxy.ts`
+
+## api/src (283 source files)
+
+- `api/src/admin/admin.controller.ts`
+- `api/src/auth/auth.controller.ts`
+- `api/src/bot-admin/bot-admin.controller.ts`
+- `api/src/creator-ai/creator-ai.controller.ts`
+- `api/src/creator-ai/creator-credit-admin.controller.ts`
+- `api/src/creator-ai/creator-video-direct-upload.controller.ts`
+- `api/src/creator-ai/creator-video.controller.ts`
+- `api/src/creator-telegram/creator-telegram.controller.ts`
+- `api/src/expenses/expenses.controller.ts`
+- `api/src/favorites/favorites.controller.ts`
+- `api/src/feature-availability/feature-availability.controller.ts`
+- `api/src/group-workspaces/group-poll-media.controller.ts`
+- `api/src/group-workspaces/group-workspaces.controller.ts`
+- `api/src/member-khqr/member-khqr.controller.ts`
+- `api/src/moments/moments.controller.ts`
+- `api/src/notifications/notifications.controller.ts`
+- `api/src/payback/payback.controller.ts`
+- `api/src/personal-assistant/personal-assistant.controller.ts`
+- `api/src/profiles/profiles.controller.ts`
+- `api/src/telegram-bot/telegram-bot.controller.ts`
+- `api/src/tool-usage/tool-usage.controller.ts`
+- `api/src/youtube-downloader/youtube-downloader.controller.ts`
+
+## Hardcoded chlatwork.com references
+
+These are source locations, not a blind replacement list. Affected share/canonical/navigation URLs use the central policy; existing utility, branding, editorial, support and bot legacy links remain compatible.
+
+- `app/pages/about.vue:16`: `https://chlatwork.com/about`
+- `app/pages/about.vue:23`: `https://chlatwork.com/about`
+- `app/pages/about.vue:33`: `https://chlatwork.com`
+- `app/pages/buy-me-coffee.vue:12`: `https://chlatwork.com/buy-me-coffee`
+- `app/pages/buy-me-coffee.vue:13`: `https://chlatwork.com/images/khqr.png`
+- `app/pages/buy-me-coffee.vue:17`: `https://chlatwork.com/images/khqr.png`
+- `app/pages/buy-me-coffee.vue:21`: `https://chlatwork.com/buy-me-coffee`
+- `app/pages/cockroach.vue:16`: `https://chlatwork.com/cockroach.webp`
+- `app/pages/contact.vue:13`: `https://chlatwork.com/contact`
+- `app/pages/contact.vue:20`: `https://chlatwork.com/contact`
+- `app/pages/contact.vue:28`: `https://chlatwork.com/contact`
+- `app/pages/contact.vue:34`: `https://chlatwork.com`
+- `app/pages/contact.vue:41`: `chlatwork.com`
+- `app/pages/cookies.vue:14`: `https://chlatwork.com/cookies`
+- `app/pages/cookies.vue:21`: `https://chlatwork.com/cookies`
+- `app/pages/developer-commands.vue:6`: `https://chlatwork.com/developer-commands`
+- `app/pages/developer-guides/[guideSlug].vue:7`: `https://chlatwork.com${guide.value?.path`
+- `app/pages/developer-guides/index.vue:7`: `https://chlatwork.com/developer-guides`
+- `app/pages/disclaimer.vue:12`: `https://chlatwork.com/disclaimer`
+- `app/pages/disclaimer.vue:19`: `https://chlatwork.com/disclaimer`
+- `app/pages/editorial-policy.vue:13`: `https://chlatwork.com/editorial-policy`
+- `app/pages/editorial-policy.vue:20`: `https://chlatwork.com/editorial-policy`
+- `app/pages/editorial-policy.vue:28`: `https://chlatwork.com/editorial-policy`
+- `app/pages/editorial-policy.vue:34`: `https://chlatwork.com`
+- `app/pages/guides/[guideSlug].vue:5`: `https://chlatwork.com`
+- `app/pages/guides/index.vue:15`: `https://chlatwork.com/guides`
+- `app/pages/guides/index.vue:22`: `https://chlatwork.com/guides`
+- `app/pages/how-to-[guideSlug].vue:6`: `https://chlatwork.com`
+- `app/pages/index.vue:10`: `https://chlatwork.com`
+- `app/pages/link.vue:15`: `https://chlatwork.com`
+- `app/pages/love-probation.vue:11`: `https://chlatwork.com/images/love/love-probation-share.png?v=4`
+- `app/pages/portfolio.vue:14`: `https://chlatwork.com`
+- `app/pages/posts/[postSlug].vue:6`: `https://chlatwork.com`
+- `app/pages/posts/index.vue:14`: `https://chlatwork.com/posts`
+- `app/pages/posts/index.vue:21`: `https://chlatwork.com/posts`
+- `app/pages/pricing.vue:14`: `https://chlatwork.com/pricing`
+- `app/pages/pricing.vue:21`: `https://chlatwork.com/pricing`
+- `app/pages/privacy-policy.vue:16`: `https://chlatwork.com/privacy-policy`
+- `app/pages/privacy-policy.vue:23`: `https://chlatwork.com/privacy-policy`
+- `app/pages/privacy-policy.vue:31`: `https://chlatwork.com/privacy-policy`
+- `app/pages/privacy-policy.vue:37`: `https://chlatwork.com`
+- `app/pages/services/invoice-generator.vue:13`: `https://chlatwork.com${service.route`
+- `app/pages/services/invoice-generator.vue:20`: `https://chlatwork.com${service.route`
+- `app/pages/terms.vue:13`: `https://chlatwork.com/terms`
+- `app/pages/terms.vue:20`: `https://chlatwork.com/terms`
+- `app/pages/terms.vue:28`: `https://chlatwork.com/terms`
+- `app/pages/terms.vue:34`: `https://chlatwork.com`
+- `app/pages/tools/[categorySlug].vue:10`: `https://chlatwork.com`
+- `app/pages/tools/barcode.vue:87`: `https://chlatwork.com/tools/barcode`
+- `app/pages/tools/calculator.vue:271`: `https://chlatwork.com/tools/calculator`
+- `app/pages/tools/image-to-pdf.vue:123`: `https://chlatwork.com/tools/image-to-pdf`
+- `app/pages/tools/image-to-pdf.vue:134`: `https://chlatwork.com/tools/image-to-pdf`
+- `app/pages/tools/index.vue:35`: `https://chlatwork.com/tools`
+- `app/pages/tools/khmer-unicode-fixer.vue:27`: `https://chlatwork.com/tools/khmer-unicode-fixer`
+- `app/pages/tools/khmer-unicode-fixer.vue:38`: `https://chlatwork.com/tools/khmer-unicode-fixer`
+- `app/pages/tools/payback-calculator.vue:161`: `https://chlatwork.com/tools/payback-calculator`
+- `app/pages/tools/pdf.vue:27`: `https://chlatwork.com/tools/pdf`
+- `app/pages/tools/pdf.vue:35`: `https://chlatwork.com/tools/pdf`
+- `app/pages/tools/qr.vue:92`: `https://chlatwork.com/tools/qr`
+- `app/pages/tools/regex-tester.vue:123`: `chlatwork.com`
+- `app/pages/tools/scan-barcode.vue:15`: `https://chlatwork.com/tools/scan-barcode`
+- `app/pages/tools/scan-qr.vue:14`: `https://chlatwork.com/tools/scan-qr`
+- `app/pages/tools/wifi-qr.vue:48`: `https://chlatwork.com/tools/wifi-qr`
+- `app/pages/tools/wifi-qr.vue:49`: `https://chlatwork.com/og/wifi-qr.png`
+- `app/pages/tools/wifi-qr.vue:55`: `https://chlatwork.com/og/wifi-qr.png`
+- `app/pages/tools/wifi-qr.vue:59`: `https://chlatwork.com/tools/wifi-qr`
+- `app/components/landing/LandingFaq.vue:4`: `https://chlatwork.com`
+- `app/components/pdf-tools/PdfToolPage.vue:130`: `https://chlatwork.com${tool.value.route`
+- `app/components/pdf-tools/PdfToolPage.vue:140`: `https://chlatwork.com${tool.value.route`
+- `app/components/qr/QrGeneratorInputCard.vue:75`: `https://chlatwork.com`
+- `app/components/tools/ToolPageDetails.vue:16`: `https://chlatwork.com`
+- `app/components/wifi-qr/WifiQrPoster.vue:130`: `chlatwork.com`
+- `app/lib/product-domains.ts:46`: `https://chlatwork.com`
+- `app/lib/product-domains.ts:53`: `.chlatwork.com`
+- `app/lib/product-domains.ts:70`: `https://chlatwork.com`, `www.chlatwork.com`
+- `api/src/auth/frontend-origins.spec.ts:4`: `https://chlatwork.com`, `https://creator.chlatwork.com`, `https://link.chlatwork.com`
+- `api/src/auth/frontend-origins.spec.ts:6`: `https://chlatwork.com`, `https://creator.chlatwork.com`, `https://link.chlatwork.com`
+- `api/src/auth/frontend-origins.spec.ts:7`: `https://link.chlatwork.com/api/auth/telegram/callback`
+- `api/src/auth/frontend-origins.spec.ts:8`: `https://creator.chlatwork.com/api/auth/google/callback`
+- `api/src/auth/frontend-origins.spec.ts:12`: `https://creator.chlatwork.com.evil.test/api/auth/google/callback`
+- `api/src/auth/frontend-origins.spec.ts:13`: `https://creator.chlatwork.com/api/auth/google/callback?next=evil`
+- `api/src/auth/frontend-origins.spec.ts:14`: `creator.chlatwork.com/api/auth/google/callback`
+- `api/src/auth/frontend-origins.spec.ts:15`: `https://creator.chlatwork.com/api/auth/google/callback/`
+- `api/src/auth/frontend-origins.spec.ts:16`: `https://unconfigured.chlatwork.com/api/auth/google/callback`
+- `api/src/auth/frontend-origins.spec.ts:21`: `.chlatwork.com`, `https://chlatwork.com/path`, `http://chlatwork.com`, `chlatwork.com`
+- `api/src/bot-admin/bot-gateway.service.ts:250`: `chlatwork.com`
+- `api/src/bot-admin/bot-gateway.service.ts:253`: `chlatwork.com`
+- `api/src/bot-admin/bot-gateway.service.ts:286`: `chlatwork.com`
+- `api/src/bot-admin/bot-notifications.service.ts:78`: `chlatwork.com`
+- `api/src/profiles/profiles.service.ts:396`: `chlatwork.com/u/${profile.slug`
+- `api/src/telegram-bot/daily-moment-vote.scheduler.spec.ts:85`: `https://chlatwork.com`
+- `api/src/telegram-bot/telegram-bot.service.spec.ts:234`: `https://chlatwork.com`
+- `api/src/telegram-bot/telegram-bot.service.spec.ts:358`: `https://chlatwork.com`
+- `api/src/telegram-bot/telegram-bot.service.spec.ts:416`: `https://chlatwork.com/api/moments/${poll.slug`
+- `api/src/telegram-bot/telegram-vote.spec.ts:109`: `https://chlatwork.com/m/lunch-vote-abc123`
+- `nuxt.config.ts:105`: `https://chlatwork.com`
+- `nuxt.config.ts:119`: `https://chlatwork.com`
+
+Total: 97 domain-reference source lines.
+
+## Integration ownership
+
+- Website tools: `app/data/tools.ts`, `app/lib/tool-registry.ts`, `app/data/tool-categories.ts`, `app/data/pdf-tools.ts`.
+- Creator routes/costs: `app/data/creator-tools.ts`; requests: `app/services/creator-ai.service.ts`, `server/api/creator-ai/[...path].ts`.
+- SEO allowlist: `app/data/site-routes.ts`; guide redirects: `app/data/tool-guide-routes.ts`.
+- Profiles/editor/media: `api/src/profiles/`, `server/api/public/profiles/`, `server/api/profiles/`.
+- Expenses: `app/composables/useExpenseDashboard.ts`, `app/lib/expense-entry-changes.ts`, `server/api/expenses/`, `api/src/expenses/`.
+- Moments: `app/components/moments/`, `server/api/moments/`, `server/api/invitations/`, `api/src/moments/`.
+- Auth: `app/composables/useAuth.ts`, `app/components/auth/`, `server/utils/auth.ts`, `server/api/auth/`, `api/src/auth/`.
+- Browser persistence: Lucky Draw localStorage, expense sessionStorage login drafts, PayBack state/history, game preferences, locale/theme/cookie notice. Storage keys remain unchanged.

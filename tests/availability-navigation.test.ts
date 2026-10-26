@@ -225,3 +225,12 @@ test("SSR skips irrelevant availability reads but keeps public directory snapsho
   await run({ path: "/tools" });
   assert.equal(calls, 1);
 });
+
+test("product entry aliases retain fail-closed availability checks", async () => {
+  const run = middleware({
+    loaded: ref(false),
+    refresh: async () => {},
+    websiteEnabled: () => false,
+  });
+  assert.equal((await run({ path: "/", meta: { productLegacyPath: "/expense" } })).statusCode, 503);
+});

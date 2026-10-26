@@ -108,7 +108,7 @@ test("Creator UI is discoverable through existing navigation without changing mo
   const mobileTools = read("app/components/tools/MobileToolsDirectory.vue");
   const bottomNav = read("app/components/layout/MobileBottomNav.vue");
 
-  assert.match(layout, /to="\/creator"/);
+  assert.match(layout, /:to="linkTo\('\/creator'\)"/);
   assert.match(layout, /CREATOR_TOOLS/);
   assert.match(mobileTools, /ChlatWork Creator/);
   assert.doesNotMatch(bottomNav, /Creator/);

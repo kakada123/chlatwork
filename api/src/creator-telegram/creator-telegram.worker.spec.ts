@@ -565,7 +565,7 @@ describe('Creator Telegram worker', () => {
     expect(test.bot.sendMessage).toHaveBeenCalledWith(
       123,
       expect.stringContaining('unsupported script'),
-      { inline_keyboard: [] },
+      undefined,
     );
     expect(test.job.replyParts).toBeNull();
     expect(test.job.processedAt).toBeInstanceOf(Date);
@@ -597,7 +597,7 @@ describe('Creator Telegram worker', () => {
     expect(test.bot.sendMessage).toHaveBeenCalledWith(
       123,
       'Credits used: 1 · Balance: 19',
-      { inline_keyboard: [] },
+      undefined,
     );
     expect(test.job).toMatchObject({
       content: null,
@@ -731,7 +731,7 @@ describe('Creator Telegram worker', () => {
     expect(test.bot.sendMessage).toHaveBeenCalledWith(
       123,
       'Legacy result with credits',
-      { inline_keyboard: [] },
+      undefined,
     );
     expect(test.job.processedAt).toBeInstanceOf(Date);
   });

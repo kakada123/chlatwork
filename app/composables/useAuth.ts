@@ -1,3 +1,5 @@
+import { safeReturnPath } from "~/lib/product-domains";
+
 export interface AuthUser {
   id: string;
   email: string | null;
@@ -88,7 +90,9 @@ export function useAuth() {
   }
 
   async function startTelegramCodeLogin() {
-    await navigateTo("/api/auth/telegram/start", { external: true });
+    const route = useRoute();
+    const redirect = safeReturnPath(route.query.redirect, safeReturnPath(route.fullPath));
+    await navigateTo(`/api/auth/telegram/start?redirect=${encodeURIComponent(redirect)}`, { external: true });
   }
 
   async function logout() {

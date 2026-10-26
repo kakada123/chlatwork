@@ -186,7 +186,7 @@ export class CreatorTelegramService {
         await this.sendReply(
           chatId,
           'This Creator tool is temporarily unavailable.',
-          await this.availableKeyboard(chatId),
+          await this.availableReplyKeyboard(chatId),
           context,
         );
         return;
@@ -263,7 +263,7 @@ export class CreatorTelegramService {
         await this.sendReply(
           chatId,
           'This Creator tool is temporarily unavailable.',
-          await this.availableKeyboard(chatId),
+          await this.availableReplyKeyboard(chatId),
           context,
         );
         return;
@@ -274,14 +274,19 @@ export class CreatorTelegramService {
         return;
       }
     } else if (command && command !== 'credits') {
-      await this.showMenu(chatId, context);
+      await this.sendReply(
+        chatId,
+        'Unknown command. Choose a shortcut below or use /menu.',
+        await this.availableReplyKeyboard(chatId),
+        context,
+      );
       return;
     }
     if (!text) {
       await this.sendReply(
         chatId,
         'Send text for Khmer AI. Use the Creator buttons for images and video tools.',
-        await this.availableKeyboard(chatId),
+        await this.availableReplyKeyboard(chatId),
         context,
       );
       return;
@@ -300,7 +305,18 @@ export class CreatorTelegramService {
       await this.sendReply(
         chatId,
         'Open Creator once to sign in with Telegram, then return here to use Khmer AI. Your linked account shares its existing credits and daily limit.',
-        await this.availableKeyboard(chatId),
+        chatId < 0
+          ? await this.availableKeyboard(chatId)
+          : {
+              inline_keyboard: [
+                [
+                  {
+                    text: '✨ Open Creator / Sign in',
+                    web_app: { url: this.appUrl('/creator') },
+                  },
+                ],
+              ],
+            },
         context,
       );
       return;
@@ -313,7 +329,7 @@ export class CreatorTelegramService {
       await this.sendReply(
         chatId,
         `Credits: ${wallet.balance}\nDaily usage: ${usage.used} / ${usage.limit} credits\nRemaining today: ${usage.remaining}\nResets at 07:00 Cambodia (00:00 UTC).`,
-        await this.availableKeyboard(chatId),
+        await this.availableReplyKeyboard(chatId),
         context,
       );
       return;
@@ -324,7 +340,7 @@ export class CreatorTelegramService {
       await this.sendReply(
         chatId,
         'Please send 1–4,000 characters of text, or use /help for commands.',
-        await this.availableKeyboard(chatId),
+        await this.availableReplyKeyboard(chatId),
         context,
       );
       return;
@@ -338,7 +354,7 @@ export class CreatorTelegramService {
       await this.sendReply(
         chatId,
         'This Creator tool is temporarily unavailable. Choose an available mode.',
-        await this.availableKeyboard(chatId),
+        await this.availableReplyKeyboard(chatId),
         context,
       );
       return;
@@ -808,6 +824,17 @@ export class CreatorTelegramService {
     welcome = false,
     context?: CreatorReplyContext,
   ) {
+    if (chatId > 0 && !welcome) {
+      // Fixed shortcuts already provide navigation; mode changes need one prompt.
+      await this.sendReply(
+        chatId,
+        `${mode.label} · ${this.pricing.fixed(mode.feature)} credit(s)\n\n` +
+          'ផ្ញើអត្ថបទនៅទីនេះ។ / Send your text here.',
+        await this.availableShortcutKeyboard(),
+        context,
+      );
+      return;
+    }
     // Inline buttons always render below their message, so send the prompt separately.
     await this.sendReply(
       chatId,
@@ -830,6 +857,12 @@ export class CreatorTelegramService {
       CREATOR_SHORTCUTS,
       (await this.availability?.disabledKeys()) ?? [],
     );
+  }
+
+  private availableReplyKeyboard(chatId: number) {
+    return chatId < 0
+      ? this.availableKeyboard(chatId)
+      : this.availableShortcutKeyboard();
   }
 
   private sendReply(

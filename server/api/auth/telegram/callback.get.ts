@@ -1,18 +1,15 @@
-import { deleteCookie, getCookie, getHeader, getQuery, sendRedirect, type H3Event } from "h3";
+import { deleteCookie, getCookie, getQuery, sendRedirect, type H3Event } from "h3";
+import { trustedRequestOrigin } from "../../../utils/product-domain";
+import { safeReturnPath } from "../../../../app/lib/product-domains";
 import { clearAuthCookies, requestAuthApi, setAuthCookies, type AuthTokenResponse } from "../../../utils/auth";
 
 const STATE_COOKIE = "chlatwork_telegram_oidc_state";
 const VERIFIER_COOKIE = "chlatwork_telegram_oidc_verifier";
 
-function origin(event: H3Event) {
-  const host = (getHeader(event, "x-forwarded-host") ?? getHeader(event, "host"))?.split(",")[0]?.trim();
-  const proto = getHeader(event, "x-forwarded-proto")?.split(",")[0]?.trim() || "http";
-  return host ? `${proto}://${host}` : "";
-}
-
 function clearFlow(event: H3Event) {
   deleteCookie(event, STATE_COOKIE, { path: "/" });
   deleteCookie(event, VERIFIER_COOKIE, { path: "/" });
+  deleteCookie(event, "chlatwork_telegram_return", { path: "/" });
 }
 
 export default defineEventHandler(async (event) => {
@@ -21,6 +18,7 @@ export default defineEventHandler(async (event) => {
   const state = typeof query.state === "string" ? query.state : "";
   const expectedState = getCookie(event, STATE_COOKIE);
   const codeVerifier = getCookie(event, VERIFIER_COOKIE);
+  const returnPath = safeReturnPath(getCookie(event, "chlatwork_telegram_return"));
 
   if (!code || !state || state !== expectedState || !codeVerifier) {
     clearFlow(event);
@@ -31,11 +29,11 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requestAuthApi<AuthTokenResponse>(event, "/auth/telegram/code", {
       method: "POST",
-      body: { code, codeVerifier, redirectUri: `${origin(event)}/api/auth/telegram/callback` },
+      body: { code, codeVerifier, redirectUri: `${trustedRequestOrigin(event)}/api/auth/telegram/callback` },
     });
     setAuthCookies(event, auth);
     clearFlow(event);
-    return await sendRedirect(event, "/account", 302);
+    return await sendRedirect(event, returnPath, 302);
   } catch {
     clearFlow(event);
     clearAuthCookies(event);

@@ -366,7 +366,9 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
     if (containsThaiScript(parts)) {
       const notice =
         'The AI result contained unsupported script and was not sent. Please contact support if credits were used.';
-      const keyboard = await this.menu.availableKeyboard(Number(job.chatId));
+      const keyboard = isGroup
+        ? await this.menu.availableKeyboard(Number(job.chatId))
+        : undefined;
       if (isGroup) {
         await this.bot.sendMessage(
           Number(job.chatId),
@@ -413,8 +415,9 @@ export class CreatorTelegramWorker implements OnModuleInit, OnModuleDestroy {
           await this.bot.sendCopyableMessage(Number(job.chatId), part.text);
         }
       } else {
+        // Private chats retain their fixed shortcuts without another inline menu.
         const keyboard =
-          index === parts.length - 1
+          isGroup && index === parts.length - 1
             ? await this.menu.availableKeyboard(Number(job.chatId))
             : undefined;
         if (isGroup) {

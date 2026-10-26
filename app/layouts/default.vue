@@ -335,7 +335,8 @@ const headerSearchResults = computed(() => {
   ].slice(0, 12);
 });
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
-const route = useRoute();
+const route = useProductRoute();
+const { product: domainProduct, linkTo } = useProductDomain();
 const { user: authUser, isReady: isAuthReady, fetchMe: fetchAuthUser } = useAuth();
 // Do not branch on a session until the client has resolved it; server and hydration markup must match.
 const visibleAuthUser = computed(() => isAuthReady.value ? authUser.value : null);
@@ -630,8 +631,9 @@ watch(
   <div
     class="flex min-h-[100dvh] flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
   >
+    <LayoutProductNavigation v-if="domainProduct" />
     <MobileAppHeader
-      v-if="showSharedMobileHeader"
+      v-if="!domainProduct && showSharedMobileHeader"
       :title="mobilePageTitle"
       :back-to="mobileBackPath"
       :back-aria-label="mobileHeaderReturnsToAccount ? 'Back to Account' : 'Go back'"
@@ -642,6 +644,7 @@ watch(
 
     <!-- Top Task Bar -->
     <header
+      v-if="!domainProduct"
       class="site-header sticky top-0 z-50 hidden border-b backdrop-blur sm:block"
     >
       <div
@@ -658,7 +661,7 @@ watch(
 
           <!-- Desktop Navigation -->
           <nav class="hidden items-center gap-1 text-sm sm:flex">
-            <NuxtLink v-if="websiteEnabled('chlatwork-link')" to="/link" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">Link</NuxtLink>
+            <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">Link</NuxtLink>
             <NuxtLink
               to="/tools"
               class="rounded-lg px-3 py-2 font-medium transition"
@@ -667,7 +670,7 @@ watch(
               {{ copy.nav.tools }}
             </NuxtLink>
             <NuxtLink
-              to="/creator"
+              :to="linkTo('/creator')"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/creator') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
@@ -681,7 +684,7 @@ watch(
               Guides
             </NuxtLink>
             <NuxtLink
-              to="/moments/create"
+              :to="linkTo('/moments/create')"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/moments') ? 'bg-rose-50 text-rose-700 dark:bg-rose-300/10 dark:text-rose-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
@@ -1018,7 +1021,7 @@ watch(
     />
 
     <MobileBottomNav
-      v-if="!isHeaderSearchOpen && !mobileKeyboardActive"
+      v-if="!domainProduct && !isHeaderSearchOpen && !mobileKeyboardActive"
       :route-path="route.path"
       :account-to="visibleAuthUser ? '/account' : '/login'"
       :show-quick-expense-slot="showQuickExpenseNavigationSlot && websiteEnabled('expense-tracker')"

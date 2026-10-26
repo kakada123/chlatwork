@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { linkTo } = useProductDomain();
 import type { LandingTool } from "~/data/tools";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
@@ -29,7 +30,7 @@ const props = withDefaults(
     "
   >
     <NuxtLink
-      :to="props.tool.route"
+      :to="linkTo(props.tool.route)"
       class="flex min-h-[96px] transform-gpu items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 pr-12 text-left shadow-sm transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]"
     >
       <span

@@ -6,6 +6,7 @@ import type { LinkProfile, ProfileLink } from "~/types/link-profile";
 
 definePageMeta({ layout: false, key: (route) => route.fullPath });
 const route = useRoute();
+const { destination, config: domainConfig } = useProductDomain();
 const slug = String(route.params.slug || "");
 const { data: profile, error } = await useFetch<LinkProfile>(
   `/api/public/profiles/${encodeURIComponent(slug)}`,
@@ -20,7 +21,7 @@ if (error.value || !profile.value)
   });
 const shareOpen = ref(false);
 const publicUrl = computed(
-  () => `https://chlatwork.com/u/${profile.value!.slug}`,
+  () => destination(`/u/${profile.value!.slug}`),
 );
 const title = computed(
   () =>
@@ -35,7 +36,7 @@ const description = computed(
 );
 const ogImage = computed(
   () =>
-    `https://chlatwork.com/api/public/profiles/${profile.value!.slug}/og-image`,
+    `${domainConfig.mainOrigin}/api/public/profiles/${profile.value!.slug}/og-image`,
 );
 useSeoMeta({
   title,

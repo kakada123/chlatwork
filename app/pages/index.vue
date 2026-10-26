@@ -16,5 +16,8 @@ useSeoMeta({
 </script>
 
 <template>
-  <LandingPage />
+  <div>
+    <LandingProductDirectory />
+    <LandingPage />
+  </div>
 </template>

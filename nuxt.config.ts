@@ -101,6 +101,14 @@ export default defineNuxtConfig({
     telegramMiniAppShortName: nodeEnv.NUXT_TELEGRAM_MINI_APP_SHORT_NAME || "",
     narakeetApiKey: nodeEnv.NARAKEET_API_KEY || "",
     public: {
+      domains: {
+        mainOrigin: nodeEnv.NUXT_PUBLIC_DOMAINS_MAIN_ORIGIN || "https://chlatwork.com",
+        productOrigins: nodeEnv.NUXT_PUBLIC_DOMAINS_PRODUCT_ORIGINS || "{}",
+        enabledProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS || "",
+        canonicalProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS || "",
+        redirectProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS || "",
+        previewOrigins: nodeEnv.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS || (nodeEnv.VERCEL_URL ? `https://${nodeEnv.VERCEL_URL}` : ""),
+      },
       googleClientId: nodeEnv.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       googleMeasurementId,
       telegramClientId: nodeEnv.NUXT_PUBLIC_TELEGRAM_CLIENT_ID || "",

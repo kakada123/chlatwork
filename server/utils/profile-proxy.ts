@@ -2,15 +2,14 @@ import {
   createError,
   getHeader,
   getMethod,
-  getRequestURL,
   type H3Event,
 } from "h3";
+import { trustedRequestOrigin } from "./product-domain";
 
 export function assertProfileRequestOrigin(event: H3Event) {
   if (getMethod(event) === "GET") return;
   const origin = getHeader(event, "origin");
-  const configuredOrigin = useRuntimeConfig(event).appOrigin;
-  const expectedOrigin = configuredOrigin || getRequestURL(event).origin;
+  const expectedOrigin = trustedRequestOrigin(event);
   if (
     getHeader(event, "sec-fetch-site") === "cross-site" ||
     (origin && origin !== expectedOrigin)

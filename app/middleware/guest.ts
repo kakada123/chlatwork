@@ -1,8 +1,4 @@
-function safeRedirect(value: unknown) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/account";
-}
+import { safeReturnPath } from "~/lib/product-domains";
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const { user, isReady, fetchMe } = useAuth();
@@ -12,6 +8,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (user.value) {
-    return navigateTo(safeRedirect(to.query.redirect));
+    return navigateTo(safeReturnPath(to.query.redirect));
   }
 });

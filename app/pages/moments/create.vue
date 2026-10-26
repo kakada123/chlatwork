@@ -2,6 +2,7 @@
 import MomentCreator from "~/components/moments/MomentCreator.vue";
 
 const { isKhmer, copy } = useMomentLanguage();
+const { canonical } = useProductDomain();
 
 useSeoMeta({
   title: () =>
@@ -15,9 +16,7 @@ useSeoMeta({
   ogDescription: () => copy.value.creator.title,
 });
 
-useHead({
-  link: [{ rel: "canonical", href: "https://chlatwork.com/moments/create" }],
-});
+useHead(() => ({ link: [{ rel: "canonical", href: canonical.value }] }));
 </script>
 
 <template><MomentCreator /></template>
