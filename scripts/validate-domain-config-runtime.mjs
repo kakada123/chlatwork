@@ -89,6 +89,28 @@ try {
   assert.equal(warnings.length, 4);
   assert.equal(warnings.filter((warning) => warning.includes("NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS")).length, 1);
   assertions += 2;
+  const unknownHost = await request("unknown.chlatwork.com", "/");
+  const unknownHtml = await unknownHost.text();
+  assert.equal(unknownHost.status, 404);
+  assert.match(unknownHtml.match(/<title>([^<]*)<\/title>/)?.[1] || "", /^404(?:\s|\s*-)/);
+  assert.doesNotMatch(unknownHtml, /<h1[^>]*>500<\/h1>/);
+  assert.match(unknownHost.headers.get("x-robots-tag"), /noindex/);
+  assert.equal(unknownHost.headers.get("cache-control"), "no-store");
+  const unknownApi = await request("unknown.chlatwork.com", "/api/auth/me");
+  assert.equal(unknownApi.status, 404);
+  assert.match(unknownApi.headers.get("content-type"), /application\/json/);
+  assert.equal((await unknownApi.json()).statusCode, 404);
+  const forgedError = await request("unknown.chlatwork.com", "/__nuxt_error?statusCode=200", { headers: { "x-nuxt-error": "true" } });
+  assert.equal(forgedError.status, 404, "Untrusted error-rendering headers must not bypass host rejection");
+  process.env.NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS = "";
+  const disabledLink = await request("link.chlatwork.com", "/");
+  assert.equal(disabledLink.status, 404);
+  assert.match((await disabledLink.text()).match(/<title>([^<]*)<\/title>/)?.[1] || "", /^404(?:\s|\s*-)/);
+  process.env.NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS = allProducts;
+  const enabledLink = await request("link.chlatwork.com", "/");
+  assert.equal(enabledLink.status, 200);
+  assert.match(await enabledLink.text(), /ChlatWork Link/);
+  assertions += 13;
   console.log(`Passed ${assertions} built-server configuration recovery checks (fixture API, no real provider/database requests).`);
 } finally {
   globalThis.fetch = originalFetch;
