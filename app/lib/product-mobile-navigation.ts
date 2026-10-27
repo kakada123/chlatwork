@@ -29,6 +29,8 @@ const account: ProductMobileItem = {
 const navigation: Record<Product, ProductMobileItem[]> = {
   // JekLuy has a dedicated single-screen shell without account navigation.
   jekluy: [],
+  // Food has a dedicated discovery shell with search, map, and recipes.
+  food: [],
   creator: [
     { key: "home", label: "Create", labelKm: "បង្កើត", icon: "home", to: "/" },
     {

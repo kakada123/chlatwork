@@ -7,6 +7,7 @@ export const PRODUCTS = {
   draw: { name: "Lucky Draw", entry: "/tools/lucky-draw", home: "/", host: "draw" },
   games: { name: "ChlatWork Games", entry: "/tools/kla-klok", home: "/kla-klok", host: "games" },
   jekluy: { name: "ចែកលុយ", entry: "/jekluy", home: "/", host: "jekluy" },
+  food: { name: "ChlatWork Food", entry: "/food", home: "/", host: "food" },
 } as const;
 
 export type Product = keyof typeof PRODUCTS;
@@ -115,6 +116,7 @@ export function productForPath(path: string): Product | null {
   if (/^\/creator(?:\/|$)/.test(value)) return "creator";
   if (/^\/(?:link(?:\/|$)|u\/|account\/link(?:\/|$))/.test(value)) return "link";
   if (/^\/(?:moments(?:\/|$)|moment\/|m\/|i\/)/.test(value)) return "moment";
+  if (/^\/food(?:\/|$)/.test(value)) return "food";
   return (Object.keys(PRODUCTS) as Product[]).find((product) => PRODUCTS[product].entry === value) || null;
 }
 

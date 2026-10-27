@@ -20,6 +20,7 @@ import { PersonalAssistantModule } from './personal-assistant/personal-assistant
 import { FeatureAvailabilityModule } from './feature-availability/feature-availability.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader.module';
+import { FoodModule } from './food/food.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader
     CreatorTelegramModule,
     MemberKhqrModule,
     PersonalAssistantModule,
+    FoodModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

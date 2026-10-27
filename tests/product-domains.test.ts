@@ -56,6 +56,8 @@ test("product routes preserve established public and nested paths with no bare-s
   assert.equal(productForPath("/m/private-share"), "moment");
   assert.equal(productForPath("/moment/old-share"), "moment");
   assert.equal(productForPath("/i/invitation"), "moment");
+  assert.equal(productForPath("/food"), "food");
+  assert.equal(productPath("food", "/food"), "/");
   assert.equal(productPath("games", "/tools/kla-klok"), "/kla-klok");
   assert.equal(legacyPath("expense", "/"), "/tools/expense-tracker");
   assert.equal(legacyPath("games", "/kla-klok"), "/tools/kla-klok");
