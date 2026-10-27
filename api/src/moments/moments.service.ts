@@ -1248,12 +1248,6 @@ export class MomentsService {
     if (!poll || !selectedOption) {
       throw new BadRequestException('Choose a valid poll option');
     }
-    // Enforce the Canteen joke on website votes even if someone bypasses the moving card.
-    if (/canteen/i.test(selectedOption.label)) {
-      throw new BadRequestException(
-        'This choice is unavailable on the website',
-      );
-    }
     const identityMode = poll.identityMode;
     if (identityMode === 'LOGIN_REQUIRED' && !user) {
       throw new UnauthorizedException('Log in to vote in this poll');
@@ -1696,14 +1690,6 @@ export class MomentsService {
         !latestPoll.options.some((option) => option.id === optionId)
       ) {
         throw new BadRequestException('Choose a valid poll option');
-      }
-      // Recheck after live edits so no channel can save a Canteen ballot while waiting for the lock.
-      if (
-        latestPoll.options.some(
-        (option) => option.id === optionId && /canteen/i.test(option.label),
-        )
-      ) {
-        throw new BadRequestException('This choice is unavailable for voting');
       }
       currentPoll = latestPoll;
       // Serialize the deadline check with finalization so a late write cannot change final results.

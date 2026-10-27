@@ -220,9 +220,6 @@ async function reset() {
             Delete
           </button>
         </div>
-        <p v-if="/canteen/i.test(option.label)" class="text-xs text-slate-500">
-          Canteen shows its image and joke; it never counts as a vote.
-        </p>
         <img
           v-if="option.imageUrl"
           :src="option.imageUrl"

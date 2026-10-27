@@ -1311,22 +1311,6 @@ export class TelegramBotService {
         await this.botGateway?.ensureMemberIdentity('CHLATWORK', callback.from);
         linked = await this.findLinkedUser(telegramUserId);
       }
-      const choice = currentPoll.results.find(
-        (result) => result.optionId === optionId,
-      );
-      // The Canteen button is a joke, never a ballot or a replacement for an existing vote.
-      if (choice && /canteen/i.test(choice.label)) {
-        await this.bot.answerCallback(callback.id, 'Hueee, Kom ey nor?');
-        // Inline callbacks hide the destination; do not send to the voter's private chat instead.
-        if (pollMessage && !callback.inline_message_id) {
-          await this.sendCanteenVoteReaction(
-            pollMessage.chat.id,
-            currentPoll,
-            optionId,
-          );
-        }
-        return;
-      }
       const poll = await this.moments.respondToTelegramVote(
         round?.momentId ?? momentId,
         optionId,
@@ -1437,42 +1421,6 @@ export class TelegramBotService {
       this.logger.warn('Group activity could not be recorded');
     }
     // Audit recovery must never retry an already-delivered Telegram message.
-  }
-
-  private async sendCanteenVoteReaction(
-    chatId: number,
-    poll: TelegramVotingPoll,
-    optionId: string,
-  ) {
-    const choice = poll.results.find((result) => result.optionId === optionId);
-    if (!choice || !/canteen/i.test(choice.label)) return;
-    try {
-      const caption = 'Hueee, Kom ey nor?';
-      const sent = choice.imageId
-        ? await this.bot.sendPhoto(
-            chatId,
-            poll.groupWorkspaceId && this.groupMedia
-              ? await this.groupMedia.url(
-                  poll.groupWorkspaceId,
-                  'CHLATWORK',
-                  choice.imageId,
-                )
-              : this.appUrl(
-                  `/api/moments/${poll.slug}/media/${choice.imageId}?format=jpeg`,
-                ),
-            caption,
-          )
-        : await this.bot.sendMessage(chatId, caption);
-      // Delete only the reaction without holding the webhook open for five seconds.
-      setTimeout(() => {
-        void this.bot.deleteMessage(chatId, sent.message_id).catch(() => {
-          this.logger.warn('A Canteen vote reaction could not be removed');
-        });
-      }, 5_000).unref();
-    } catch {
-      // A failed joke response must not retry the webhook or turn this button into a ballot.
-      this.logger.warn('A Canteen vote reaction could not be delivered');
-    }
   }
 
   private async observeGroupMembers(update: TelegramUpdate) {

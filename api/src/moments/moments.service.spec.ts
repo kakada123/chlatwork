@@ -182,25 +182,40 @@ describe('MomentsService daily vote time', () => {
 });
 
 describe('MomentsService website voting', () => {
-  it('rejects a Canteen choice before saving a website vote', async () => {
+  it('counts a Canteen choice as a website vote', async () => {
+    const poll = {
+      question: 'Lunch?', identityMode: 'ANONYMOUS',
+      options: [{ id: 'option-1', label: 'Canteen 😭' }, { id: 'option-2', label: 'Pizza' }],
+    };
     const prisma = {
       moment: { findUnique: jest.fn().mockResolvedValue({
+        id: MOMENT_ID,
         status: MomentStatus.PUBLISHED,
         occasion: MomentOccasion.VOTING,
         publishAt: null,
         expiresAt: null,
-        blocks: [{ data: {
-          question: 'Lunch?', identityMode: 'ANONYMOUS',
-          options: [{ id: 'option-1', label: 'Canteen 😭' }, { id: 'option-2', label: 'Pizza' }],
-        } }],
+        blocks: [{ data: poll }],
         voteSchedule: null,
       }) },
       $transaction: jest.fn(),
+      $queryRaw: jest.fn().mockResolvedValue([]),
+      momentBlock: { findFirst: jest.fn().mockResolvedValue({ data: poll }) },
+      momentVote: {
+        upsert: jest.fn(),
+        groupBy: jest.fn().mockResolvedValue([{ optionId: 'option-1', _count: { _all: 1 } }]),
+      },
     };
+    prisma.$transaction.mockImplementation((work) => work(prisma));
     const service = new MomentsService(prisma as never);
     await expect(service.respondToVote('lunch', { optionId: 'option-1', responseToken: 'test-token' }, null))
-      .rejects.toBeInstanceOf(BadRequestException);
-    expect(prisma.$transaction).not.toHaveBeenCalled();
+      .resolves.toMatchObject({ totalVotes: 1, results: [
+        { optionId: 'option-1', label: 'Canteen 😭', votes: 1 },
+        { optionId: 'option-2', label: 'Pizza', votes: 0 },
+      ] });
+    expect(prisma.momentVote.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      create: expect.objectContaining({ momentId: MOMENT_ID, optionId: 'option-1' }),
+      update: expect.objectContaining({ optionId: 'option-1' }),
+    }));
   });
 });
 
@@ -710,7 +725,7 @@ describe('Timed voting boundaries', () => {
     expect(prisma.momentVote.upsert).not.toHaveBeenCalled();
   });
 
-  it.each([undefined, null, roundId])('blocks a Canteen rename before saving on every channel (%s)', async (source) => {
+  it.each([undefined, roundId])('accepts a Canteen rename before saving web and Telegram votes (%s)', async (source) => {
     jest.useFakeTimers().setSystemTime(new Date(deadline.getTime() - 1));
     const { prisma, service } = setup();
     prisma.momentBlock.findFirst.mockResolvedValue({
@@ -718,8 +733,11 @@ describe('Timed voting boundaries', () => {
     });
     await expect(service['savePollVote'](
       MOMENT_ID, poll, 'option-1', 'voter', '', voteDate, source,
-    )).rejects.toBeInstanceOf(BadRequestException);
-    expect(prisma.momentVote.upsert).not.toHaveBeenCalled();
+    )).resolves.toMatchObject({ results: [
+      { optionId: 'option-1', label: 'Canteen' },
+      { optionId: 'option-2', label: 'Rice' },
+    ] });
+    expect(prisma.momentVote.upsert).toHaveBeenCalledTimes(1);
   });
 
   it('allows opting out until the deadline and scopes the lock to the group', async () => {
