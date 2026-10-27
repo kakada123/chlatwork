@@ -90,7 +90,7 @@ test("repayments conserve every balance without zero, duplicate or self transfer
   for (const currency of ["KHR", "USD"] as const) {
     for (let count = 2; count <= 35; count++) {
       const result = calculateJekLuy(rows(Array.from({ length: count }, (_, i) => currency === "KHR" ? String((i * 7919 + count) % 20000) : `${i % 4}.${String((i * 17 + count) % 100).padStart(2, "0")}`)), currency, "ASSIGN_TO_PERSON", "p0");
-      const residual = new Map(result.people.map((person) => [person.id, person.balanceCents]));
+      const residual = new Map(result.people.map((person) => [person.id, person.settlementBalanceCents]));
       const pairs = new Set();
       let outgoing = 0n;
       for (const transfer of result.transfers) {
@@ -104,7 +104,7 @@ test("repayments conserve every balance without zero, duplicate or self transfer
         residual.set(transfer.toId, residual.get(transfer.toId)! - transfer.amountCents);
       }
       assert.equal([...residual.values()].every((balance) => balance === 0n), true);
-      assert.equal(outgoing, result.people.reduce((sum, person) => sum + (person.balanceCents < 0n ? -person.balanceCents : 0n), 0n));
+      assert.equal(outgoing, result.people.reduce((sum, person) => sum + (person.settlementBalanceCents < 0n ? -person.settlementBalanceCents : 0n), 0n));
       assert.equal(result.people.reduce((sum, person) => sum + person.shareCents, 0n), result.totalCents);
       assert.ok(result.transfers.length < count);
     }
@@ -166,7 +166,7 @@ test("KHR defaults to PayBack's rounded share with the leftover kept separate", 
   assert.match(jekluySummary(result), /សំណល់ដាច់ដោយឡែក៖ 100៛/);
 });
 
-test("both KHR choices delegate balances and transfers to the existing PayBack engine", () => {
+test("both KHR choices retain exact PayBack balances before applying cash rounding", () => {
   const participants = rows(["10001", "7012", "0"]);
   const entries = parsePaybackRows(participants.map((person) => ({ name: person.id, amount: person.amount })));
   for (const mode of ["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"] as const) {
@@ -174,8 +174,99 @@ test("both KHR choices delegate balances and transfers to the existing PayBack e
     const meta = buildPaybackKhrRemainderMeta(entries, mode, "p1");
     const result = calculateJekLuy(participants, "KHR", mode, "p1");
     assert.deepEqual(result.people.map((person) => person.balanceCents), expected.map((person) => person.balanceCents));
-    assert.deepEqual(result.transfers.map((transfer) => [transfer.fromId, transfer.toId, transfer.amountCents]), computePaybackSettlements(expected).map((transfer) => [transfer.from, transfer.to, transfer.amountCents]));
+    assert.deepEqual(result.exactTransfers.map((transfer) => [transfer.fromId, transfer.toId, transfer.amountCents]), computePaybackSettlements(expected).map((transfer) => [transfer.from, transfer.to, transfer.amountCents]));
     assert.equal(result.remainderPersonId, meta.assignedTo);
+  }
+});
+
+test("the screenshot's 14,967-riel repayment becomes a real 15,000-riel cash payment", () => {
+  const participants = rows(["3333", "33333"]);
+  const result = calculateJekLuy(participants, "KHR");
+  assert.equal(result.totalCents, 3_666_600n);
+  assert.equal(result.baseShareCents, 1_830_000n);
+  assert.equal(result.remainderCents, 6_600n);
+  assert.deepEqual(result.transfers.map((transfer) => transfer.amountCents), [1_500_000n]);
+  assert.deepEqual(result.roundingAdjustments.map((change) => [change.exactAmountCents, change.amountCents]), [[1_496_700n, 1_500_000n]]);
+  assert.equal(result.people.find((person) => person.id === "p0")?.settlementBalanceCents, -1_500_000n);
+  assert.equal(result.people.find((person) => person.id === "p1")?.settlementBalanceCents, 1_500_000n);
+  assert.equal(participants[0]?.amount, "3333");
+  assert.match(jekluySummary(result), /ត្រូវសង កក្កដា 15,000៛|កក្កដា ត្រូវសង ដាណែត 15,000៛/);
+});
+
+test("all KHR repayments use 100-riel cash units in both modes without inventing zero transfers", () => {
+  for (const mode of ["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"] as const) {
+    for (const amounts of [["3333", "33333"], ["10101", "7012", "0"], ["1", "0"], ["199", "0"], ["10000", "0", "0"]]) {
+      const result = calculateJekLuy(rows(amounts), "KHR", mode, "p1");
+      for (const transfer of result.transfers) {
+        assert.ok(transfer.amountCents > 0n);
+        assert.equal(transfer.amountCents % 10_000n, 0n);
+      }
+      assert.equal(result.people.reduce((sum, person) => sum + person.settlementBalanceCents, 0n), 0n);
+      assert.equal(result.people.reduce((sum, person) => sum + person.actualShareCents, 0n), result.totalCents);
+    }
+  }
+  const tiny = calculateJekLuy(rows(["1", "0"]), "KHR", "ASSIGN_TO_PERSON", "p1");
+  assert.deepEqual(tiny.transfers, []);
+  assert.equal(tiny.roundingAdjustments.length, 1);
+  assert.match(jekluySummary(tiny), /បន្ទាប់ពីបង្គត់/);
+  assert.equal(calculateJekLuy(rows(["3367", "33333"]), "KHR").transfers[0]?.amountCents, 1_490_000n);
+  assert.equal(calculateJekLuy(rows(["3350", "33350"]), "KHR").transfers[0]?.amountCents, 1_500_000n, "50-riel ties round upward deterministically");
+});
+
+test("USD repayments remain cent-exact and old KHR paid marks do not cross the new cash policy", () => {
+  const usd = calculateJekLuy(rows(["33.33", "333.33"]), "USD");
+  assert.deepEqual(usd.transfers.map((transfer) => transfer.amountCents), [15_000n]);
+  assert.deepEqual(usd.roundingAdjustments, []);
+  const participants = rows(["3333", "33333"]);
+  const oldBasis = JSON.stringify(["KHR", [["p0", "333300"], ["p1", "3333300"]], ["LEFTOVER_ONLY", null]]);
+  const result = calculateJekLuy(participants, "KHR");
+  assert.deepEqual(getJekLuyCompleted(result, { basis: oldBasis, ids: ['["p0","p1","1496700"]'] }), []);
+});
+
+test("group cash rounding never refunds more than someone paid or compounds many tiny debts", () => {
+  const five = calculateJekLuy(rows(["300", "50", "50", "50", "50"]), "KHR");
+  assert.equal(five.people.find((person) => person.id === "p0")?.actualShareCents, 10_000n);
+  assert.deepEqual(five.transfers.map((transfer) => transfer.amountCents), [10_000n, 10_000n]);
+  for (const amounts of [
+    ["300", "50", "50", "50", "50"],
+    ["10300", ...Array(200).fill("49")],
+    ["0", ...Array(20).fill("1050")],
+    ["0", ...Array(210).fill("49")],
+  ]) {
+    const result = calculateJekLuy(rows(amounts), "KHR", "ASSIGN_TO_PERSON", "p0");
+    assert.equal(result.people.every((person) => person.actualShareCents >= 0n), true);
+    assert.equal(result.people.reduce((sum, person) => sum + person.actualShareCents, 0n), result.totalCents);
+  }
+  const oneDebtor = calculateJekLuy(rows(["0", ...Array(20).fill("1050")]), "KHR");
+  assert.equal(oneDebtor.people.find((person) => person.id === "p0")?.actualShareCents, 100_000n);
+});
+
+test("varied KHR groups preserve exact spending and bound each normal cash-rounding adjustment", () => {
+  let seed = 1637;
+  for (let fixture = 0; fixture < 120; fixture++) {
+    const count = 2 + fixture % 39;
+    const amounts = Array.from({ length: count }, () => {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return String(seed % (fixture % 3 === 0 ? 100 : 50000));
+    });
+    for (const mode of ["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"] as const) {
+      const result = calculateJekLuy(rows(amounts), "KHR", mode, "p0");
+      assert.equal(result.people.every((person) => person.actualShareCents >= 0n), true);
+      assert.equal(result.people.reduce((sum, person) => sum + person.actualShareCents, 0n), result.totalCents);
+      assert.equal(result.people.reduce((sum, person) => sum + person.settlementBalanceCents, 0n), 0n);
+      assert.equal(result.transfers.every((transfer) => transfer.amountCents > 0n && transfer.amountCents % 10_000n === 0n), true);
+      if (result.baseShareCents >= 10_000n) {
+        const exactNet = new Map<string, bigint>();
+        for (const transfer of result.exactTransfers) {
+          exactNet.set(transfer.fromId, (exactNet.get(transfer.fromId) || 0n) - transfer.amountCents);
+          exactNet.set(transfer.toId, (exactNet.get(transfer.toId) || 0n) + transfer.amountCents);
+        }
+        for (const person of result.people) {
+          const adjustment = person.settlementBalanceCents - (exactNet.get(person.id) || 0n);
+          assert.ok(adjustment > -10_000n && adjustment < 10_000n);
+        }
+      }
+    }
   }
 });
 

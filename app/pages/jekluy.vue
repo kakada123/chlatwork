@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowRight, Check, Copy, Plus, RotateCcw, Share2, Trash2, Users } from "lucide-vue-next";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
-import { formatJekLuyMoney, JEKLUY_MAX_PARTICIPANTS } from "~/lib/jekluy";
+import { formatJekLuyMoney, jekluyEmptySettlementMessage, JEKLUY_MAX_PARTICIPANTS } from "~/lib/jekluy";
 
 definePageMeta({ layout: "jekluy", localOnly: true, blankCanvas: true });
 useSeoMeta({
@@ -154,6 +154,7 @@ async function selectSummary() {
             <h3 class="text-base font-bold">អ្នកណាត្រូវសងអ្នកណា</h3>
             <span v-if="result.transfers.length" class="text-xs text-slate-500 dark:text-slate-400">សងរួច {{ completedIds.length }}/{{ result.transfers.length }}</span>
           </div>
+          <p v-if="result.roundingAdjustments.length" class="mb-2 text-xs leading-6 text-slate-500 dark:text-slate-400">លុយសងបង្គត់ជាឯកតា ១០០៛។</p>
           <ul v-if="result.transfers.length" class="divide-y divide-slate-100 dark:divide-slate-700/70">
             <li v-for="transfer in result.transfers" :key="transfer.id" class="py-4" :class="{ 'opacity-60': completedIds.includes(transfer.id) }">
               <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
@@ -167,7 +168,7 @@ async function selectSummary() {
           </ul>
           <div v-else class="flex items-start gap-3 py-5 text-sm leading-7 text-slate-500 dark:text-slate-400">
             <Check class="mt-1 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-            <p>{{ result.totalCents === 0n ? 'មិនទាន់មានអ្នកចេញលុយទេ។ អ្នកដែលមិនបានចេញលុយ អាចទុកជា ០ បាន។' : result.remainderCents > 0n && !result.remainderPersonId ? 'មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។' : 'គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។' }}</p>
+            <p>{{ jekluyEmptySettlementMessage(result) }}</p>
           </div>
           <div class="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-4 dark:border-slate-700/70">
             <button type="button" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-2 text-sm font-semibold dark:border-slate-700" @click="copyResult"><Copy class="size-4" aria-hidden="true" />ចម្លង</button>
@@ -187,10 +188,17 @@ async function selectSummary() {
             <li v-for="person in result.people" :key="person.id" class="py-3 text-xs leading-7">
               <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <strong class="min-w-0 break-words text-sm">{{ person.name }}</strong>
-                <span class="jekluy-money font-semibold" :class="person.balanceCents > 0n ? 'text-emerald-700 dark:text-emerald-300' : person.balanceCents < 0n ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'">{{ person.balanceCents > 0n ? 'ត្រូវទទួល' : person.balanceCents < 0n ? 'ត្រូវសង' : 'ស្មើហើយ' }} {{ person.balanceCents === 0n ? '' : money(person.balanceCents < 0n ? -person.balanceCents : person.balanceCents) }}</span>
+                <span class="jekluy-money font-semibold" :class="person.settlementBalanceCents > 0n ? 'text-emerald-700 dark:text-emerald-300' : person.settlementBalanceCents < 0n ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'">{{ person.settlementBalanceCents > 0n ? 'ត្រូវទទួល' : person.settlementBalanceCents < 0n ? 'ត្រូវសង' : 'មិនត្រូវសង' }} {{ person.settlementBalanceCents === 0n ? '' : money(person.settlementBalanceCents < 0n ? -person.settlementBalanceCents : person.settlementBalanceCents) }}</span>
               </div>
               <p class="break-words text-slate-500 dark:text-slate-400">បានចេញ {{ money(person.paidCents) }} · ចំណែក {{ money(person.shareCents) }}</p>
+              <p v-if="result.roundingAdjustments.length" class="break-words text-slate-500 dark:text-slate-400">ចំណាយពិតក្រោយសង {{ money(person.actualShareCents) }}</p>
             </li>
+          </ul>
+        </details>
+        <details v-if="result.roundingAdjustments.length" class="mt-1 rounded-xl px-1">
+          <summary class="flex min-h-12 cursor-pointer items-center text-xs font-semibold text-slate-500 dark:text-slate-400">មើលការបង្គត់លុយសង</summary>
+          <ul class="space-y-2 pb-3 text-xs leading-7 text-slate-500 dark:text-slate-400">
+            <li v-for="change in result.roundingAdjustments" :key="`${change.fromId}-${change.toId}`" class="break-words">{{ change.fromName }} → {{ change.toName }}៖ {{ money(change.exactAmountCents) }} → {{ money(change.amountCents) }}</li>
           </ul>
         </details>
       </template>

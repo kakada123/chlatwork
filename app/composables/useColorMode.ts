@@ -25,7 +25,8 @@ function getStoredColorMode(): ColorMode | null {
 }
 
 function getSystemColorMode(): ColorMode {
-  return "light";
+  if (!import.meta.client || typeof window.matchMedia !== "function") return "light";
+  return window.matchMedia(DARK_MODE_QUERY).matches ? "dark" : "light";
 }
 
 function applyColorMode(mode: ColorMode, animate = false) {

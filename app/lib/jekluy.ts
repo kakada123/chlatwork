@@ -5,8 +5,10 @@ import {
   parsePaybackRows,
   type PaybackCurrency,
   type PaybackKhrRemainderMode,
+  type PaybackPerson,
+  type PaybackSettlement,
 } from "./payback-calculator.ts";
-import { formatMoneyAmount, MAX_MONEY_AMOUNT_CENTS } from "./money.ts";
+import { formatMoneyAmount, MAX_MONEY_AMOUNT_CENTS, moneyCentsToNumber, roundKhrDownCents } from "./money.ts";
 
 export type JekLuyCurrency = PaybackCurrency;
 export type JekLuyParticipant = { id: string; name: string; amount: string };
@@ -74,6 +76,53 @@ function normalizeAmount(amount: string, currency: JekLuyCurrency) {
   return input.replaceAll(",", "");
 }
 
+function cashSettlements(people: PaybackPerson[], exact: PaybackSettlement[]): PaybackSettlement[] {
+  const unit = 10_000n; // 100៛ in the shared engine's integer scale.
+  const net = new Map<string, bigint>();
+  for (const transfer of exact) {
+    net.set(transfer.from, (net.get(transfer.from) || 0n) - transfer.amountCents!);
+    net.set(transfer.to, (net.get(transfer.to) || 0n) + transfer.amountCents!);
+  }
+  const side = (creditor: boolean) => people.flatMap((person) => {
+    const signed = net.get(person.name) || 0n;
+    if (creditor ? signed <= 0n : signed >= 0n) return [];
+    const cents = creditor ? signed : -signed;
+    const ceiling = (cents + unit - 1n) / unit;
+    const refundCap = person.paidCents! / unit;
+    return [{ name: person.name, cents, units: cents / unit, fraction: cents % unit,
+      maxUnits: creditor && refundCap < ceiling ? refundCap : ceiling }];
+  });
+  const debtors = side(false);
+  const creditors = side(true);
+  const sum = (items: typeof debtors, key: "units" | "maxUnits" | "cents") => items.reduce((total, item) => total + item[key], 0n);
+  const lower = sum(debtors, "units") > sum(creditors, "units") ? sum(debtors, "units") : sum(creditors, "units");
+  const upper = sum(debtors, "maxUnits") < sum(creditors, "maxUnits") ? sum(debtors, "maxUnits") : sum(creditors, "maxUnits");
+  if (lower > upper) {
+    // Sub-100៛ contributions may make balanced nearest rounding impossible without a refund exceeding spending.
+    // In that case waive each sub-unit portion; retain every difference in the exact audit below.
+    return exact.flatMap((transfer) => {
+      const cents = roundKhrDownCents(transfer.amountCents!);
+      return cents > 0n ? [{ ...transfer, amountCents: cents, amount: moneyCentsToNumber(cents) }] : [];
+    });
+  }
+  const nearest = roundKhrDownCents(sum(debtors, "cents") + unit / 2n) / unit;
+  const target = nearest < lower ? lower : nearest > upper ? upper : nearest;
+  const cashBalances = new Map<string, bigint>();
+  for (const [items, sign] of [[debtors, -1n], [creditors, 1n]] as const) {
+    let extra = target - sum(items, "units");
+    // Share the extra cash units by largest fractional remainder, with stable input-order ties.
+    // Rounding net balances together prevents many small transfers from compounding into an excessive refund.
+    for (const item of [...items].sort((a, b) => a.fraction === b.fraction ? 0 : a.fraction > b.fraction ? -1 : 1)) {
+      if (extra > 0n && item.units < item.maxUnits) { item.units++; extra--; }
+      cashBalances.set(item.name, item.units * unit * sign);
+    }
+  }
+  return computePaybackSettlements(people.map((person) => {
+    const balanceCents = cashBalances.get(person.name) || 0n;
+    return { ...person, balanceCents, balance: moneyCentsToNumber(balanceCents) };
+  }));
+}
+
 export function calculateJekLuy(
   participants: JekLuyParticipant[],
   currency: JekLuyCurrency,
@@ -103,9 +152,41 @@ export function calculateJekLuy(
   const people = buildPaybackPeople(entries, currency, remainderMode, remainderPayer || firstId);
   const remainder = currency === "KHR" ? buildPaybackKhrRemainderMeta(entries, remainderMode, remainderPayer || firstId) : null;
   const names = new Map(participants.map((person) => [person.id, person.name.trim()]));
+  const exact = computePaybackSettlements(people);
+  const exactTransfers = exact.map((transfer) => ({
+    id: JSON.stringify([transfer.from, transfer.to, transfer.amountCents!.toString()]),
+    fromId: transfer.from,
+    toId: transfer.to,
+    fromName: names.get(transfer.from)!,
+    toName: names.get(transfer.to)!,
+    amountCents: transfer.amountCents!,
+  }));
+  const pairKey = (from: string, to: string) => JSON.stringify([from, to]);
+  const exactByPair = new Map(exactTransfers.map((transfer) => [pairKey(transfer.fromId, transfer.toId), transfer.amountCents]));
+  const transfers = (currency === "KHR" ? cashSettlements(people, exact) : exact).map((transfer) => ({
+    id: JSON.stringify([transfer.from, transfer.to, transfer.amountCents!.toString()]),
+    fromId: transfer.from, toId: transfer.to,
+    fromName: names.get(transfer.from)!, toName: names.get(transfer.to)!,
+    amountCents: transfer.amountCents!,
+    exactAmountCents: exactByPair.get(pairKey(transfer.from, transfer.to)) || 0n,
+  }));
+  const cashByPair = new Map(transfers.map((transfer) => [pairKey(transfer.fromId, transfer.toId), transfer.amountCents]));
+  const roundingAdjustments = [
+    ...exactTransfers.flatMap((transfer) => {
+      const amountCents = cashByPair.get(pairKey(transfer.fromId, transfer.toId)) || 0n;
+      return amountCents === transfer.amountCents ? [] : [{ ...transfer, exactAmountCents: transfer.amountCents, amountCents }];
+    }),
+    ...transfers.filter((transfer) => !exactByPair.has(pairKey(transfer.fromId, transfer.toId))),
+  ];
+  const settlementBalances = new Map<string, bigint>();
+  for (const transfer of transfers) {
+    settlementBalances.set(transfer.fromId, (settlementBalances.get(transfer.fromId) || 0n) - transfer.amountCents);
+    settlementBalances.set(transfer.toId, (settlementBalances.get(transfer.toId) || 0n) + transfer.amountCents);
+  }
   const basisValues: unknown[] = [currency, entries.map((entry) => [entry.name, entry.paidCents!.toString()])];
   // Old paid marks stay valid only when the remainder policy cannot change any repayment.
   if (remainder && remainder.leftoverCents! > 0n) basisValues.push([remainderMode, remainder.assignedTo]);
+  if (roundingAdjustments.length) basisValues.push("khr-cash-balanced-100:v1");
   const basis = JSON.stringify(basisValues);
   return {
     currency,
@@ -116,16 +197,13 @@ export function calculateJekLuy(
       name: names.get(person.name)!,
       paidCents: person.paidCents!,
       balanceCents: person.balanceCents!,
+      settlementBalanceCents: settlementBalances.get(person.name) || 0n,
+      actualShareCents: person.paidCents! - (settlementBalances.get(person.name) || 0n),
       shareCents: person.paidCents! - person.balanceCents!,
     })),
-    transfers: computePaybackSettlements(people).map((transfer) => ({
-      id: JSON.stringify([transfer.from, transfer.to, transfer.amountCents!.toString()]),
-      fromId: transfer.from,
-      toId: transfer.to,
-      fromName: names.get(transfer.from)!,
-      toName: names.get(transfer.to)!,
-      amountCents: transfer.amountCents!,
-    })),
+    exactTransfers,
+    transfers,
+    roundingAdjustments,
     remainderCents: remainder?.leftoverCents ?? 0n,
     remainderPersonId: remainder?.assignedTo ?? null,
     remainderMode,
@@ -144,6 +222,14 @@ export function formatJekLuyMoney(cents: bigint, currency: JekLuyCurrency): stri
   return currency === "KHR" ? `${formatted.replace(/[៛\s]/g, "")}៛` : formatted;
 }
 
+export function jekluyEmptySettlementMessage(result: JekLuyResult): string {
+  if (result.totalCents === 0n) return "មិនទាន់មានអ្នកចេញលុយទេ។ អ្នកដែលមិនបានចេញលុយ អាចទុកជា ០ បាន។";
+  if (result.roundingAdjustments.length) return "មិនបាច់ផ្ទេរលុយទេ បន្ទាប់ពីបង្គត់ត្រឹម ១០០៛។";
+  if (result.remainderCents > 0n && !result.remainderPersonId)
+    return "មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។";
+  return "គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។";
+}
+
 export function jekluySummary(result: JekLuyResult, completedIds: string[] = []): string {
   const money = (amount: bigint) => formatJekLuyMoney(amount, result.currency);
   return [
@@ -155,9 +241,9 @@ export function jekluySummary(result: JekLuyResult, completedIds: string[] = [])
       ? `សំណល់៖ ${money(result.remainderCents)} · គិតលើ ${result.people.find((person) => person.id === result.remainderPersonId)!.name}`
       : `សំណល់ដាច់ដោយឡែក៖ ${money(result.remainderCents)} (មិនទាន់បែងចែក)`] : []),
     "",
-    ...(result.transfers.length ? result.transfers.map((transfer) => `${completedIds.includes(transfer.id) ? "✓ សងរួច៖ " : ""}${transfer.fromName} ត្រូវសង ${transfer.toName} ${money(transfer.amountCents)}`) : [result.remainderCents > 0n && !result.remainderPersonId
-      ? "មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។"
-      : "គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។"]),
+    ...(result.transfers.length ? result.transfers.map((transfer) => `${completedIds.includes(transfer.id) ? "✓ សងរួច៖ " : ""}${transfer.fromName} ត្រូវសង ${transfer.toName} ${money(transfer.amountCents)}`) : [jekluyEmptySettlementMessage(result)]),
+    ...(result.roundingAdjustments.length ? ["", "ការបង្គត់លុយសងជាឯកតា ១០០៛៖",
+      ...result.roundingAdjustments.map((transfer) => `${transfer.fromName} → ${transfer.toName}៖ ${money(transfer.exactAmountCents)} → ${money(transfer.amountCents)}`)] : []),
   ].join("\n");
 }
 

@@ -34,11 +34,18 @@ const colorModeScript = `
 
   try {
     const root = document.documentElement;
-    const storedMode = window.localStorage.getItem(storageKey);
+    let storedMode = null;
+    try {
+      storedMode = window.localStorage.getItem(storageKey);
+    } catch (_) {
+      // Blocked storage must not prevent the system theme from applying before first paint.
+    }
     const mode =
       storedMode === "light" || storedMode === "dark"
         ? storedMode
-        : "light";
+        : typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
     const isDark = mode === "dark";
 
     root.classList.toggle("dark", isDark);
