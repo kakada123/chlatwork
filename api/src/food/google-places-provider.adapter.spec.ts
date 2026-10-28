@@ -1,4 +1,4 @@
-import { ServiceUnavailableException } from "@nestjs/common";
+import { Logger, ServiceUnavailableException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { GooglePlacesProviderAdapter } from "./google-places-provider.adapter";
 
@@ -187,4 +187,45 @@ describe("GooglePlacesProviderAdapter", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
     },
   );
+
+  it.each([
+    "API_KEY_HTTP_REFERRER_BLOCKED",
+    "API_KEY_IP_ADDRESS_BLOCKED",
+    "API_KEY_SERVICE_BLOCKED",
+    "API_KEY_INVALID",
+    "SERVICE_DISABLED",
+    "BILLING_DISABLED",
+  ])("logs only a recognized Google rejection code (%s)", async (reason) => {
+    const warning = jest.spyOn(Logger.prototype, "warn").mockImplementation();
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ error: {
+      code: 403, status: "PERMISSION_DENIED", message: "private provider text test_places_key",
+      details: [{ "@type": "type.googleapis.com/google.rpc.ErrorInfo", domain: "googleapis.com", reason,
+        metadata: { key: "private_api_key", location: "private_location" } }],
+    } }), { status: 403 }));
+    try {
+      await expect(adapter.searchNearby(11.5516, 104.9247)).rejects.toBeInstanceOf(ServiceUnavailableException);
+      expect(warning).toHaveBeenCalledWith({
+        message: "Google Places search failed", providerStatus: 403, providerReason: reason,
+      });
+      expect(JSON.stringify(warning.mock.calls)).not.toMatch(/private_|test_places_key|11\.5516|104\.9247/);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    } finally { warning.mockRestore(); }
+  });
+
+  it.each([
+    { "@type": "type.googleapis.com/google.rpc.ErrorInfo", domain: "googleapis.com", reason: "private_unknown_reason" },
+    { "@type": "type.googleapis.com/google.rpc.ErrorInfo", domain: "untrusted.example", reason: "SERVICE_DISABLED" },
+    { "@type": "untrusted.error", domain: "googleapis.com", reason: "SERVICE_DISABLED" },
+  ])("does not log arbitrary provider fields as an error code", async (detail) => {
+    const warning = jest.spyOn(Logger.prototype, "warn").mockImplementation();
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ error: {
+      message: "private provider message", details: [detail],
+    } }), { status: 403 }));
+    try {
+      await expect(adapter.searchNearby(11.5516, 104.9247)).rejects.toBeInstanceOf(ServiceUnavailableException);
+      expect(warning).toHaveBeenCalledWith({
+        message: "Google Places search failed", providerStatus: 403, providerReason: "UNKNOWN",
+      });
+    } finally { warning.mockRestore(); }
+  });
 });

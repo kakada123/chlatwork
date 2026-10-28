@@ -8,6 +8,16 @@ import type { Place } from "./food.types";
 import { calculateDistanceKm } from "./data/districts";
 
 const FOOD_TYPES = ["restaurant", "cafe", "fast_food_restaurant", "food_court"];
+const SAFE_GOOGLE_ERROR_REASONS = new Set([
+  "API_KEY_HTTP_REFERRER_BLOCKED",
+  "API_KEY_IP_ADDRESS_BLOCKED",
+  "API_KEY_SERVICE_BLOCKED",
+  "API_KEY_INVALID",
+  "API_KEY_EXPIRED",
+  "SERVICE_DISABLED",
+  "BILLING_DISABLED",
+  "CONSUMER_INVALID",
+]);
 const FIELD_MASK = [
   "id",
   "displayName",
@@ -32,6 +42,23 @@ function text(value: unknown, maxLength = 300): string | undefined {
   return typeof value === "string" && value.trim()
     ? value.trim().slice(0, maxLength)
     : undefined;
+}
+
+function googleErrorReason(body: unknown): string {
+  const details = record(record(body).error).details;
+  if (!Array.isArray(details)) return "UNKNOWN";
+  for (const value of details) {
+    const detail = record(value);
+    // Provider text and metadata may contain keys, locations or project identifiers.
+    // Only known Google ErrorInfo codes are safe to include in operational logs.
+    if (
+      detail["@type"] === "type.googleapis.com/google.rpc.ErrorInfo" &&
+      detail.domain === "googleapis.com" &&
+      typeof detail.reason === "string" &&
+      SAFE_GOOGLE_ERROR_REASONS.has(detail.reason)
+    ) return detail.reason;
+  }
+  return "UNKNOWN";
 }
 
 function safeUrl(value: unknown, mapsOnly = false): string | undefined {
@@ -86,6 +113,7 @@ export class GooglePlacesProviderAdapter {
     const query = cuisine?.trim();
     const useTextSearch = Boolean(query && query.toLowerCase() !== "all");
     let providerStatus: number | undefined;
+    let providerReason = "UNKNOWN";
     try {
       // Fetch fresh Google data without caching or substituting unverified curated locations.
       const response = await fetch(
@@ -118,7 +146,10 @@ export class GooglePlacesProviderAdapter {
         },
       );
       providerStatus = response.status;
-      if (!response.ok) throw new Error("Provider HTTP failure");
+      if (!response.ok) {
+        providerReason = googleErrorReason(await response.json().catch(() => null));
+        throw new Error("Provider HTTP failure");
+      }
       const body = record(await response.json());
       if (body.places !== undefined && !Array.isArray(body.places))
         throw new Error("Invalid provider result");
@@ -138,10 +169,11 @@ export class GooglePlacesProviderAdapter {
       }
       return { places, dataSource: "google" };
     } catch {
-      // Provider errors can contain API keys and request coordinates; log only the HTTP status.
+      // Never log raw provider messages, headers or metadata; ErrorInfo reasons are allowlisted above.
       this.logger.warn({
         message: "Google Places search failed",
         providerStatus: providerStatus ?? null,
+        providerReason,
       });
       throw new ServiceUnavailableException(
         "Google place search is unavailable. Please try again later.",

@@ -54,6 +54,24 @@ Redeploy the API after configuring its settings and redeploy the frontend after 
 
 References: [Places setup](https://developers.google.com/maps/documentation/places/web-service/get-api-key), [Places attribution](https://developers.google.com/maps/documentation/places/web-service/policies), [Maps Embed](https://developers.google.com/maps/documentation/embed/get-started).
 
+### Google Places 403 troubleshooting
+
+The backend uses `GOOGLE_PLACES_API_KEY`; the browser Embed key does not grant restaurant-search access. In the key's Google Cloud project, enable **Places API (New)**, confirm billing is active, and allow Places API (New) in the key's API restrictions. Website/referrer restrictions are unsuitable for this server-to-server Places call. Use the API server's stable outbound IP for an IP restriction when available. If the hosting has no stable outbound IP, an application-unrestricted server-only key must still be API-restricted to Places API (New); do not copy it into public frontend settings.
+
+The adapter logs `providerStatus` plus an allowlisted `providerReason` from Google's structured ErrorInfo:
+
+| Reason | Check |
+| --- | --- |
+| `SERVICE_DISABLED` | Enable Places API (New) in the key's project. |
+| `API_KEY_SERVICE_BLOCKED` | Allow Places API (New) in the key's API restrictions. |
+| `API_KEY_HTTP_REFERRER_BLOCKED` | The backend key is restricted to websites; configure a separate server key. |
+| `API_KEY_IP_ADDRESS_BLOCKED` | The allowed IP must match the server's actual outbound IP. |
+| `BILLING_DISABLED` | Enable or restore billing for that project. |
+| `API_KEY_INVALID` / `API_KEY_EXPIRED` | Check the server deployment's key configuration privately. |
+| `UNKNOWN` | Google supplied no recognized structured reason; the status alone cannot identify the cause. |
+
+Raw errors, keys, coordinates and project metadata are never logged. This diagnostic improvement does not itself change Google Cloud permissions or resolve a rejected key. Redeploy the API for new logs; if a server environment value changes, redeploy/restart that API service so it uses the updated configuration.
+
 ## API endpoints
 
 All paths below use the Nuxt proxy; the API server exposes the same paths without `/api`.
