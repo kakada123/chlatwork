@@ -134,7 +134,13 @@ export function useFoodDiscovery() {
   const copyNotification = ref<string | null>(null);
 
   const budgetPerPerson = computed(() => {
+    if (filters.value.budgetType === "flexible-no-fixed-budget") return null;
+    const range = String(filters.value.budgetRange || "");
+    if (range.startsWith("fine-dining")) return null;
+    const rangeCap = range.startsWith("ultra-budget") ? 1.99 : range.startsWith("student-budget") ? 5 : range.startsWith("affordable") ? 10 : range.startsWith("moderate") ? 20 : range.startsWith("comfortable") ? 35 : range.startsWith("premium") ? 50 : range.startsWith("luxury") ? 100 : undefined;
+    if (rangeCap !== undefined) return rangeCap;
     if (!totalBudget.value || peopleCount.value <= 0) return 0;
+    if (filters.value.budgetType === "per-person") return totalBudget.value;
     return Number((totalBudget.value / peopleCount.value).toFixed(2));
   });
 
@@ -165,6 +171,10 @@ export function useFoodDiscovery() {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        // GPS is the new anchor; an earlier city/address must not override the user's location.
+        const { city, area, ...remaining } = filters.value;
+        filters.value = remaining;
+        locationQuery.value = "";
         userCoords.value = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -178,7 +188,7 @@ export function useFoodDiscovery() {
       (err) => {
         isLocating.value = false;
         if (err.code === err.PERMISSION_DENIED) {
-          errorMessage.value = "ការអនុញ្ញាតទីតាំងត្រូវបានបដិសេធ។ ប្រព័ន្ធបានប្ដូរមកប្រើប្រាស់ខណ្ឌដែលបានជ្រើសរើស។";
+          errorMessage.value = "ការអនុញ្ញាតទីតាំងត្រូវបានបដិសេធ។ សូមអនុញ្ញាត GPS ឬជ្រើសតម្រងទីតាំងផ្សេង។";
         } else {
           errorMessage.value = "មិនអាចកំណត់ទីតាំង GPS បានទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
         }

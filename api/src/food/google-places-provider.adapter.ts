@@ -162,6 +162,7 @@ export class GooglePlacesProviderAdapter {
     if (alongRoute && (!options.routeOrigin?.trim() || !options.routeDestination?.trim())) throw new BadRequestException("Enter a route origin and destination.");
     if ((options.searchLat === undefined) !== (options.searchLng === undefined)) throw new BadRequestException("Supply both search-center coordinates.");
     const routesKey = this.config.get<string>("GOOGLE_ROUTES_API_KEY")?.trim();
+    if (alongRoute && options.pageToken && !options.routePolyline) throw new BadRequestException("Supply the route polyline when loading another route page.");
     if (alongRoute && !options.pageToken && (!routesKey || /^(dummy_|replace_)/i.test(routesKey))) throw new ServiceUnavailableException("Route search is not configured.");
     try {
       let center = { lat, lng };

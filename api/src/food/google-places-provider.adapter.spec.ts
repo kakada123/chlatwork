@@ -34,6 +34,13 @@ describe("GooglePlacesProviderAdapter", () => {
     global.fetch = originalFetch;
   });
 
+  it("rejects malformed route continuation without calling paid providers", async () => {
+    await expect(adapter.searchNearby(11.55, 104.92, 2000, undefined, {
+      filters: { locationDiscovery: "along-my-route" }, routeOrigin: "BKK", routeDestination: "Airport", pageToken: "page-2",
+    })).rejects.toThrow("route polyline");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("returns real Google identifiers, coordinates and attribution without fabricating prices or cuisine", async () => {
     const result = await adapter.searchNearby(11.5516, 104.9247, 2000);
     expect(result.dataSource).toBe("google");

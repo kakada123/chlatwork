@@ -21,9 +21,6 @@ import {
 } from "lucide-vue-next";
 import {
   useFoodDiscovery,
-  type DiscoveryMode,
-  type MealTime,
-  type Occasion,
 } from "~/composables/useFoodDiscovery";
 import FoodDiscoveryMap from "~/components/food/FoodDiscoveryMap.vue";
 import FoodDiscoveryFilters from "~/components/food/FoodDiscoveryFilters.vue";
@@ -37,8 +34,6 @@ const {
   filters, filterDefinitions, filtersError, fetchFilters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
   isLoadingMore, hasMorePlaces, canAutoLoadMore, paginationError, loadMorePlaces, hasSuggestionHistory, clearSuggestionHistory,
   mode,
-  mealTime,
-  occasion,
   peopleCount,
   totalBudget,
   selectedDistrictId,
@@ -74,6 +69,17 @@ const {
 } = useFoodDiscovery();
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
+const budgetRangeLabel = computed(() => filterDefinitions.value.find((field) => field.key === "budgetRange")?.groups.flatMap((group) => group.options).find((option) => option.value === filters.value.budgetRange)?.label);
+const flexibleBudget = computed(() => filters.value.budgetType === "flexible-no-fixed-budget");
+watch(() => filters.value.city, (city) => {
+  if (city && city !== "phnom-penh" && filters.value.area) {
+    const { area, ...remaining } = filters.value;
+    filters.value = remaining;
+  }
+});
+watch(() => filters.value.locationDiscovery, (discovery) => {
+  if (discovery === "near-me" && !userCoords.value && !isLocating.value) requestGeolocation();
+});
 
 const loadMoreSentinel = ref<HTMLElement | null>(null);
 const isMobile = ref(false);
@@ -184,20 +190,22 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
               <div class="relative">
                 <DollarSign class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-stone-400" />
                 <input
+                  v-if="!filters.budgetRange && !flexibleBudget"
                   v-model.number="totalBudget"
                   type="number"
                   min="0"
-                  max="1000"
+                  max="10000"
                   step="1"
                   class="w-full rounded-xl border border-stone-200 bg-stone-50 py-2 pl-8 pr-2 text-xs font-bold text-stone-800 dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
                   placeholder="10"
                 />
+                <div v-else class="min-h-10 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm dark:border-stone-800 dark:bg-stone-800/40">{{ flexibleBudget ? 'No fixed budget' : budgetRangeLabel }}</div>
               </div>
-              <span class="mt-0.5 block text-[10px] text-stone-400">ថវិកាសរុប ($)</span>
+              <span class="mt-0.5 block text-[10px] text-stone-400">{{ filters.budgetType === 'per-person' || filters.budgetRange ? 'ថវិកាក្នុងម្នាក់ ($)' : 'ថវិកាសរុប ($)' }}</span>
             </div>
           </div>
-          <div v-if="budgetPerPerson > 0" class="text-[11px] font-medium text-orange-600 dark:text-orange-400">
-            ≈ ${{ budgetPerPerson }}/នាក់
+          <div v-if="budgetPerPerson !== null && budgetPerPerson > 0" class="text-[11px] font-medium text-orange-600 dark:text-orange-400">
+            {{ filters.budgetRange ? '≤' : '≈' }} ${{ budgetPerPerson }}/នាក់
           </div>
         </div>
 

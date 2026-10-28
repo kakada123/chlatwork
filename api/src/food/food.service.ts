@@ -65,6 +65,7 @@ export class FoodService {
       query.lat,
       query.lng,
       query.district,
+      query.filters?.locationDiscovery === "near-me",
     );
     const radius = discoveryRadius(query, query.radius || 2500);
 
@@ -91,7 +92,7 @@ export class FoodService {
     const mode = dto.mode || "dine-out";
     const { mealTime, occasion, peopleCount, totalBudget } = resolvedFoodCriteria(dto);
     const budgetPerPerson = totalBudget ? totalBudget / peopleCount : undefined;
-    const coords = this.resolveCoordinates(dto.lat, dto.lng, dto.district);
+    const coords = this.resolveCoordinates(dto.lat, dto.lng, dto.district, mode === "dine-out" && dto.filters?.locationDiscovery === "near-me");
 
     const querySummary = {
       mealTime,
@@ -203,6 +204,7 @@ export class FoodService {
       recommendation = await this.recommend({ ...dto, limit: 20, pageToken: token, searchLat: recommendation.searchCenter?.lat, searchLng: recommendation.searchCenter?.lng, routePolyline: recommendation.routePolyline });
     }
     const criteria: FoodRecommendationDto = {
+      ...dto,
       ...recommendation.querySummary,
       mode: recommendation.mode,
       cuisine: dto.cuisine,
@@ -220,8 +222,8 @@ export class FoodService {
           nameEn: recipe.nameEn,
           descriptionKm: recipe.descriptionKm,
           mealTime:
-            dto.mealTime && dto.mealTime !== "any"
-              ? dto.mealTime
+            criteria.mealTime && criteria.mealTime !== "any"
+              ? criteria.mealTime
               : recipe.mealTimes[0],
           suggestedCuisine: "Khmer",
           recipeId: recipe.id,
@@ -269,7 +271,9 @@ export class FoodService {
     lat?: number,
     lng?: number,
     districtId?: string,
+    requireGps = false,
   ): { lat: number; lng: number } {
+    if (requireGps && (lat === undefined || lng === undefined)) throw new BadRequestException("Allow GPS location to use Near Me.");
     if ((lat === undefined) !== (lng === undefined))
       throw new BadRequestException(
         "Latitude and longitude must be supplied together.",

@@ -14,7 +14,7 @@ import { generatedFoodRecipe } from "../../test/food-fixtures";
 
 describe("FoodService", () => {
   let service: FoodService;
-  let placesProvider: { searchNearby: jest.Mock };
+  let placesProvider: { searchNearby: jest.Mock; routeSearchAvailable: jest.Mock };
   let aiPicker: { choose: jest.Mock; assertAvailable: jest.Mock; generateRecipes: jest.Mock };
   let engine: FoodRecommendationEngine;
   const fixture: Place = {
@@ -36,6 +36,7 @@ describe("FoodService", () => {
 
   beforeEach(() => {
     placesProvider = {
+      routeSearchAvailable: jest.fn().mockReturnValue(false),
       searchNearby: jest
         .fn()
         .mockResolvedValue({ places: [fixture], dataSource: "google" }),
@@ -58,6 +59,13 @@ describe("FoodService", () => {
     );
   });
 
+  it("disables only the route filter without its optional key and enables it when configured", () => {
+    const route = () => service.getFilters().find((field) => field.key === "locationDiscovery")!.groups.flatMap((group) => group.options).find((option) => option.value === "along-my-route");
+    expect(route()?.disabled).toBe(true);
+    placesProvider.routeSearchAvailable.mockReturnValue(true);
+    expect(route()?.disabled).toBe(false);
+  });
+
   describe("searchPlaces", () => {
     it("returns Google places with correct source attribution", async () => {
       const result = await service.searchPlaces({
@@ -75,6 +83,10 @@ describe("FoodService", () => {
   });
 
   describe("recommend", () => {
+    it("requires actual coordinates for Near Me instead of silently searching the default district", async () => {
+      await expect(service.recommend({ mode: "dine-out", district: "bkk", filters: { locationDiscovery: "near-me" } })).rejects.toBeInstanceOf(BadRequestException);
+      expect(placesProvider.searchNearby).not.toHaveBeenCalled();
+    });
     it("handles dine-out recommendation mode with budget explanation", async () => {
       const response = await service.recommend({
         mode: "dine-out",
@@ -157,6 +169,14 @@ describe("FoodService", () => {
   });
 
   describe("pick", () => {
+    it("uses the resolved meal window in generated dish metadata", async () => {
+      const pick = await service.pick({ mode: "cook-at-home", mealTime: "lunch", filters: { mealWindow: "breakfast-7-10-am" } });
+      expect(pick.dish?.mealTime).toBe("breakfast");
+    });
+    it("preserves detailed preferences and allergy details for the Gemini picker", async () => {
+      await service.pick({ mode: "dine-out", filters: { who: "family", dietary: ["allergies"] }, allergies: "peanuts" });
+      expect(aiPicker.choose).toHaveBeenCalledWith(expect.any(Array), expect.objectContaining({ filters: { who: "family", dietary: ["allergies"] }, allergies: "peanuts" }));
+    });
     it("does not charge Google when AI is disabled or unconfigured", async () => {
       aiPicker.assertAvailable.mockImplementation(() => {
         throw new ServiceUnavailableException("AI unavailable");
