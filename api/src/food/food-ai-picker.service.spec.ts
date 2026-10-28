@@ -178,23 +178,134 @@ describe("FoodAiPickerService", () => {
     });
 
     it("classifies Google's nested inference deadline error without logging internal infrastructure", async () => {
-      generateContent.mockRejectedValue({
-        status: 500,
-        message:
-          "[original: beyond::dependency::DEADLINE_EXCEEDED] Failed while fetching private stream from private internal model",
+      jest.useFakeTimers();
+      const random = jest.spyOn(Math, "random").mockReturnValue(0);
+      try {
+        generateContent.mockRejectedValue({
+          status: 500,
+          message:
+            "[original: beyond::dependency::DEADLINE_EXCEEDED] Failed while fetching private stream from private internal model",
+        });
+        const failure = expect(picker.generateRecipes({})).rejects.toThrow(
+          "AI recipe generation timed out. Please try again later.",
+        );
+        await jest.advanceTimersByTimeAsync(1000);
+        await failure;
+        expect(warning).toHaveBeenCalledWith(
+          expect.objectContaining({
+            stage: "provider",
+            reason: "TIMEOUT",
+            providerStatus: 500,
+          }),
+        );
+        expect(JSON.stringify(warning.mock.calls)).not.toContain("private");
+        expect(generateContent).toHaveBeenCalledTimes(2);
+      } finally {
+        random.mockRestore();
+        jest.useRealTimers();
+      }
+    });
+
+    describe("bounded upstream deadline recovery", () => {
+      beforeEach(() => {
+        jest.useFakeTimers({ now: 0 });
+        jest.spyOn(Math, "random").mockReturnValue(0);
       });
-      await expect(picker.generateRecipes({})).rejects.toThrow(
-        "AI recipe generation timed out. Please try again later.",
-      );
-      expect(warning).toHaveBeenCalledWith(
-        expect.objectContaining({
-          stage: "provider",
-          reason: "TIMEOUT",
-          providerStatus: 500,
-        }),
-      );
-      expect(JSON.stringify(warning.mock.calls)).not.toContain("private");
-      expect(generateContent).toHaveBeenCalledTimes(1);
+      afterEach(() => {
+        jest.restoreAllMocks();
+        jest.useRealTimers();
+      });
+
+      it("recovers once after backoff with the identical criteria and recent exclusions", async () => {
+        reply([generatedFoodRecipe()]);
+        generateContent.mockRejectedValueOnce({
+          status: 500,
+          message: "private DEADLINE_EXCEEDED upstream",
+        });
+        const pending = picker.generateRecipes({
+          peopleCount: 4,
+          limit: 1,
+          recentRecipeNames: ["Beef Lok Lak"],
+        });
+        await jest.advanceTimersByTimeAsync(999);
+        expect(generateContent).toHaveBeenCalledTimes(1);
+        await jest.advanceTimersByTimeAsync(1);
+        expect((await pending)[0].nameEn).toBe("Ginger Mushroom Rice");
+        expect(generateContent).toHaveBeenCalledTimes(2);
+        expect(generateContent.mock.calls[1][0]).toEqual(
+          generateContent.mock.calls[0][0],
+        );
+        expect(warning).toHaveBeenCalledWith(
+          expect.objectContaining({
+            reason: "TIMEOUT",
+            attempt: 1,
+            retrying: true,
+          }),
+        );
+        expect(JSON.stringify(warning.mock.calls)).not.toContain("private");
+      });
+
+      it("gives the second attempt only the time left in the total 30-second budget", async () => {
+        reply([generatedFoodRecipe()]);
+        picker = new FoodAiPickerService(
+          new ConfigService({ ...config, AI_PROVIDER_TIMEOUT_MS: 30000 }),
+        );
+        generateContent.mockImplementationOnce(async () => {
+          jest.setSystemTime(22000);
+          throw { status: 504 };
+        });
+        const pending = picker.generateRecipes({ peopleCount: 4, limit: 1 });
+        await jest.advanceTimersByTimeAsync(1000);
+        await pending;
+        expect(
+          (GoogleGenAI as unknown as jest.Mock).mock.calls.at(-1)[0]
+            .httpOptions,
+        ).toMatchObject({ timeout: 7000, retryOptions: { attempts: 1 } });
+      });
+
+      it("does not pay for another attempt when too little total time remains", async () => {
+        generateContent.mockImplementationOnce(async () => {
+          jest.setSystemTime(25000);
+          throw { status: 504 };
+        });
+        await expect(picker.generateRecipes({})).rejects.toBeInstanceOf(
+          ServiceUnavailableException,
+        );
+        expect(generateContent).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not retry a local abort, authorization error or malformed recovery output", async () => {
+        generateContent.mockRejectedValueOnce(
+          Object.assign(new Error("private"), { name: "AbortError" }),
+        );
+        await expect(picker.generateRecipes({})).rejects.toBeInstanceOf(
+          ServiceUnavailableException,
+        );
+        expect(generateContent).toHaveBeenCalledTimes(1);
+        generateContent.mockRejectedValueOnce({
+          status: 403,
+          message: "private DEADLINE_EXCEEDED",
+        });
+        await expect(picker.generateRecipes({})).rejects.toBeInstanceOf(
+          ServiceUnavailableException,
+        );
+        expect(generateContent).toHaveBeenCalledTimes(2);
+        generateContent
+          .mockRejectedValueOnce({ status: 504 })
+          .mockResolvedValueOnce({
+            text: "private invalid JSON",
+            candidates: [{ finishReason: "STOP" }],
+          });
+        const failure = expect(
+          picker.generateRecipes({}),
+        ).rejects.toBeInstanceOf(ServiceUnavailableException);
+        await jest.advanceTimersByTimeAsync(1000);
+        await failure;
+        expect(generateContent).toHaveBeenCalledTimes(4);
+        expect(warning).toHaveBeenLastCalledWith(
+          expect.objectContaining({ reason: "INVALID_JSON", attempt: 2 }),
+        );
+      });
     });
 
     it.each([

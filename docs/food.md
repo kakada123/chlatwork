@@ -26,6 +26,28 @@ Google returns up to 20 places per page. Desktop uses **Load more**; mobile uses
 
 This option computes a driving route with Google Routes API, then sends the encoded polyline to Places Search Along Route. Enter both origin and destination. It is disabled when `GOOGLE_ROUTES_API_KEY` is absent or a dummy placeholder; other discovery features remain available. Route results do not claim straight-line distances or detour/travel times. Pagination reuses the computed polyline instead of paying to recompute the route.
 
+## Quick filters
+
+Fourteen curated shortcuts fill the existing controls: after-work drinks, after-work date, budget drinks, street food/chill, solo lunch, student budget, office lunch, quick breakfast, café/work, family dinner, romantic dinner, rainy-day hotpot, vegetarian lunch and affordable cooking. The first six appear as compact Khmer/English cards; **More** reveals the rest. Active selection follows the editable criteria. Select a card, adjust group/budget as needed, then press Suggest or Pick for me.
+
+Presets preserve location, dietary/allergy, food-exclusion and accessibility choices. They replace other stale discovery choices and reset a hidden minimum-rating threshold. Presets contain filter values only; actual restaurants and recipes continue to come from Google/Gemini.
+
+## Saved AI recipes
+
+Every validated Gemini recipe is persisted before the API returns success. Storage is checked before generation so a missing table does not incur a paid AI request. The `FoodAiRecipe` model stores an opaque saved ID, stable recipe ID, recipe JSON, timestamp and optional account owner using the existing PostgreSQL connection. Parameterized SQL supports the manually deployed table without depending on generated-client rollout timing.
+
+Only allowlisted, revalidated recipe output is stored; raw prompts, search criteria, coordinates, route inputs and recent-name lists are excluded. Signed-in users can browse **My recipes** and reopen full details without another generation call. Each history/detail query requires authentication and includes the authenticated owner predicate. Anonymous recipes are stored without an owner and have no public browse endpoint; sign in before generating to retain private account history.
+
+Optional Food authentication permits guests, rejects an invalid supplied session and lets the Nuxt authenticated proxy refresh it before paid work. The frontend resolves initial auth before discovery, clears current recipes/modals/private inputs on an account switch, rejects old in-flight results and scopes browser recent-name history to the account or guest session.
+
+### Manual database rollout
+
+1. Review and manually execute [`database/updates/2026-10-28-add-food-ai-recipes.sql`](../database/updates/2026-10-28-add-food-ai-recipes.sql) against the intended database. It creates the new table/index without modifying existing rows.
+2. Deploy the API, then the frontend. No additional environment variable is required beyond the existing database and Gemini configuration.
+3. Generate a recipe while signed in, then open My recipes and verify it remains after reloading. Database/provider integration must be checked in that deployment; local mocks/schema validation do not prove live persistence.
+
+No database change is automatically executed by this feature. If storage is unavailable, recipe generation fails safely rather than claiming an unsaved success. Restaurant discovery continues separately.
+
 ## Google Maps display
 
 The map panel uses Google's official Maps Embed API. Selecting a restaurant card loads that Google place ID in the frame. Before results are selected, the frame shows the selected district or GPS center. The map shows the selected restaurant rather than a custom overlay of every result.
@@ -42,9 +64,9 @@ The picker submits the current mode, meal, occasion, group size, total budget, c
 - For dining, Gemini receives bounded candidate facts and selects one existing ID with a short Khmer explanation. Candidate IDs are constrained in the JSON schema and checked again on the server.
 - Generated recipes include ingredients/quantities, cooking steps, servings, prep/cook times and estimated total ingredient costs. Structured output is validated for bounded fields, valid metadata, exact servings, selected meal/occasion, budget ceiling and recent-name duplication. Invalid/incomplete or repeated-only output returns an error without a catalog fallback.
 - Gemini cannot invent restaurant records or overwrite restaurant prices/locations. Prompts prohibit unsupported pricing and dietary guarantees. Recipes and explanations are generated suggestions; costs and dietary suitability require confirmation.
-- Requests use one provider attempt, frontend retries are disabled, and a second click cannot start a concurrent picker request. Failures never become a hardcoded recipe success.
+- Frontend retries and SDK retries are disabled, and a second click cannot start a concurrent picker request. Recipe generation alone can recover once from a confirmed upstream deadline as described below. Failures never become a hardcoded recipe success.
 
-The browser remembers the last 40 restaurant IDs and 40 recipe names in session storage, shared across searches and reloads in that tab. Only IDs/names are stored, not locations, routes, allergies or full provider content. Recent restaurants are excluded before ranking/selection; generated names are normalized before duplicate checks. Current visible place IDs are also excluded when loading/picking. **Reset recent choices** explicitly allows previous choices again. This bounds recent repetition, not semantic duplicates forever or across devices.
+The browser remembers the last 40 restaurant IDs and 40 recipe names in account-scoped session storage, shared across searches and reloads in that tab. Only IDs/names are stored, not locations, routes, allergies or full provider content. Recent restaurants are excluded before ranking/selection; generated names are normalized before duplicate checks. Current visible place IDs are also excluded when loading/picking. **Reset recent choices** explicitly allows previous choices again; it does not delete saved database recipes. This bounds recent repetition, not semantic duplicates forever or across devices.
 
 ### Recipe generation failures
 
@@ -63,7 +85,9 @@ Recipe warnings log a fixed `stage` and `reason`, numeric `providerStatus` when 
 | `INVALID_*` / `*_MISMATCH` / `OVER_BUDGET` | Output failed local validation; `validationField` identifies the rejected field without its value. |
 | `REPEATED_ONLY` | All valid generated choices repeated recent names. |
 
-Upstream deadlines are external provider failures; requesting one recipe reduces the work but does not guarantee provider availability. There is no automatic paid retry, hidden model switch or constant-recipe fallback. See Google's [API error reference](https://ai.google.dev/gemini-api/docs/api-errors) and [troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting).
+Upstream deadlines are external provider failures; requesting one recipe reduces the work but does not guarantee provider availability. After the observed pattern of successful requests followed by an upstream deadline, recipe generation now permits **one recovery attempt** for Google's explicit `DEADLINE_EXCEEDED` or HTTP 504. It waits 1–1.25 seconds with jitter and reuses the same model, complete criteria and recent exclusions. Both attempts and the wait share a 30-second budget; each attempt also honors the configured provider timeout. Recovery starts only if at least five seconds remain after the wait. Logs mark the attempt and whether recovery is scheduled.
+
+This can issue one extra billable Gemini request. Local SDK aborts/timeouts, authentication/quota errors, generic provider errors, blocked/truncated output, invalid JSON, invalid recipes and repeated-only results are not retried. A second provider failure stops safely. There is no hidden model switch or constant-recipe fallback. See Google's [API error reference](https://ai.google.dev/gemini-api/docs/api-errors) and [bounded backoff guidance](https://ai.google.dev/gemini-api/docs/troubleshooting).
 
 ## Configuration
 
@@ -87,7 +111,7 @@ To create the browser key in Google Cloud Console:
 4. Set **API restrictions → Restrict key → Maps Embed API**, then save.
 5. Save the key as `NUXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY` in Vercel Production and redeploy. Create a separate Places key for the API server; website restrictions are unsuitable for server-to-server Places requests.
 
-Enable billing and the required Google APIs in the associated project. Places and Gemini requests may incur provider charges; Maps Embed requests are documented as free. Full provider content is not cached or persisted; bounded session history stores only place IDs and generated recipe names. The existing application-wide throttler remains at 60 requests per minute per tracker. Behind the frontend proxy its IP tracker can be shared by visitors; this is not a per-user quota. No new tight shared cap is introduced. Paid responses are `no-store`.
+Enable billing and the required Google APIs in the associated project. Places and Gemini requests may incur provider charges; Maps Embed requests are documented as free. Google place content is not persisted. Validated Gemini recipe output is saved as described above; bounded browser history stores only IDs/names. The existing application-wide throttler remains at 60 requests per minute per tracker. Behind the frontend proxy its IP tracker can be shared by visitors; this is not a per-user quota. No new tight shared cap is introduced. Paid and private-history responses are `no-store`.
 
 For the route key: enable **Routes API** in Google Cloud, create an API key under **APIs & Services → Credentials**, and restrict its API access to **Routes API**. Apply a compatible server application restriction (stable outbound IP when available), not website referrers. Set the real key only in the API hosting environment and restart/redeploy the API. `dummy_google_routes_key` is an example placeholder, not a usable key. Routes requests may also incur Google charges.
 
@@ -128,6 +152,8 @@ All paths below use the Nuxt proxy; the API server exposes the same paths withou
 | `GET /api/food/recipes/:id` | Legacy catalog details; generated recipe details arrive in recommendation/pick responses. |
 | `GET /api/food/districts` | Existing Phnom Penh district centers. |
 | `GET /api/food/filters` | Valid grouped filter options and route availability. |
+| `GET /api/food/saved-recipes` | Authenticated account history, 20 per page with an opaque cursor. |
+| `GET /api/food/saved-recipes/:id` | Authenticated owner-only saved recipe lookup by UUID. |
 
 ```bash
 curl -X POST http://localhost:3001/api/food/pick \

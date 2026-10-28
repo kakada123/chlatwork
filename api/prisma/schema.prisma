@@ -244,6 +244,7 @@ model User {
   personalMemories                           PersonalMemory[]
   personalTasks                              PersonalTask[]
   personalReminders                          PersonalReminder[]
+  foodAiRecipes                              FoodAiRecipe[]
 
   @@map("users")
 }
@@ -1265,4 +1266,16 @@ model TelegramGroupAudit {
 
   @@index([workspaceId, createdAt(sort: Desc)], map: "telegram_group_audit_workspace_idx")
   @@map("telegram_group_audit")
+}
+
+model FoodAiRecipe {
+  id        String   @id @default(uuid()) @db.Uuid
+  ownerId   String?  @map("owner_id") @db.Uuid
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  recipeId  String   @map("recipe_id") @db.VarChar(64)
+  recipe    Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([ownerId, createdAt(sort: Desc), id(sort: Desc)], map: "food_ai_recipes_owner_created_idx")
+  @@map("food_ai_recipes")
 }

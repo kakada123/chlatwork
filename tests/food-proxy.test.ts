@@ -41,6 +41,13 @@ for (const route of [
           options: Record<string, unknown>,
         ) => fixtureFetch(`https://fixture.invalid${path}`, options),
       },
+      "../../utils/food": {
+        requestFoodApi: (
+          _event: unknown,
+          path: string,
+          options: Record<string, unknown>,
+        ) => fixtureFetch(`https://fixture.invalid${path}`, options),
+      },
     };
     new Function("require", "module", "exports", "defineEventHandler", code)(
       (name: string) => {
@@ -56,3 +63,45 @@ for (const route of [
     assert.equal(attempts, 1);
   });
 }
+
+test("Food forwards a present session for verification/refresh and keeps anonymous discovery available", async () => {
+  const source = readFileSync(
+    new URL("../server/utils/food.ts", import.meta.url),
+    "utf8",
+  );
+  const code = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText;
+  const module = { exports: {} as any };
+  const calls: string[] = [];
+  const dependencies: Record<string, unknown> = {
+    h3: {
+      getCookie: (event: Record<string, string>, key: string) => event[key],
+    },
+    "./auth": {
+      requestAuthenticatedApi: async () => {
+        calls.push("account");
+      },
+      requestAuthApi: async () => {
+        calls.push("guest");
+      },
+    },
+  };
+  new Function("require", "module", "exports", code)(
+    (name: string) => dependencies[name],
+    module,
+    module.exports,
+  );
+  await module.exports.requestFoodApi({}, "/food/recommend", { retry: 0 });
+  await module.exports.requestFoodApi(
+    { chlatwork_access_token: "dummy-access" },
+    "/food/recommend",
+    { retry: 0 },
+  );
+  await module.exports.requestFoodApi(
+    { chlatwork_refresh_token: "dummy-refresh" },
+    "/food/pick",
+    { retry: 0 },
+  );
+  assert.deepEqual(calls, ["guest", "account", "account"]);
+});

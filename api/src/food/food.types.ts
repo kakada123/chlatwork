@@ -85,6 +85,9 @@ export interface KhmerRecipe {
   steps: RecipeStep[];
   tips?: string;
   source?: "gemini";
+  savedRecipeId?: string;
+  savedAt?: string;
+  savedToAccount?: boolean;
   recommendationKm?: string;
 }
 

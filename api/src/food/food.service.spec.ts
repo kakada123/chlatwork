@@ -11,12 +11,14 @@ import type { Place } from "./food.types";
 import { plainToInstance } from "class-transformer";
 import { FoodController } from "./food.controller";
 import { generatedFoodRecipe } from "../../test/food-fixtures";
+import { FoodRecipeStore } from "./food-recipe-store.service";
 
 describe("FoodService", () => {
   let service: FoodService;
   let placesProvider: { searchNearby: jest.Mock; routeSearchAvailable: jest.Mock };
   let aiPicker: { choose: jest.Mock; assertAvailable: jest.Mock; generateRecipes: jest.Mock };
   let engine: FoodRecommendationEngine;
+  let recipeStore: { assertAvailable: jest.Mock; saveGenerated: jest.Mock; list: jest.Mock; get: jest.Mock };
   const fixture: Place = {
     id: "google:fixture",
     googlePlaceId: "fixture",
@@ -52,10 +54,12 @@ describe("FoodService", () => {
       generateRecipes: jest.fn().mockResolvedValue([aiRecipe]),
     };
     engine = new FoodRecommendationEngine();
+    recipeStore = { assertAvailable: jest.fn(), saveGenerated: jest.fn(async (recipes) => recipes.map((recipe: object) => ({ ...recipe, savedRecipeId: "saved-fixture" }))), list: jest.fn(), get: jest.fn() };
     service = new FoodService(
       placesProvider as unknown as GooglePlacesProviderAdapter,
       engine,
       aiPicker as unknown as FoodAiPickerService,
+      recipeStore as unknown as FoodRecipeStore,
     );
   });
 
@@ -83,6 +87,20 @@ describe("FoodService", () => {
   });
 
   describe("recommend", () => {
+    it("saves generated recipes to the verified account before returning them", async () => {
+      const result = await service.recommend({ mode: "cook-at-home", peopleCount: 4 }, "11111111-1111-4111-8111-111111111111");
+      expect(recipeStore.saveGenerated).toHaveBeenCalledWith([aiRecipe], "11111111-1111-4111-8111-111111111111");
+      expect(result.recipes?.[0].savedRecipeId).toBe("saved-fixture");
+    });
+    it("does not pay Gemini when recipe storage is unavailable", async () => {
+      recipeStore.assertAvailable.mockRejectedValue(new ServiceUnavailableException());
+      await expect(service.recommend({ mode: "cook-at-home" })).rejects.toBeInstanceOf(ServiceUnavailableException);
+      expect(aiPicker.generateRecipes).not.toHaveBeenCalled();
+    });
+    it("does not claim unsaved output succeeded when persistence fails", async () => {
+      recipeStore.saveGenerated.mockRejectedValue(new ServiceUnavailableException());
+      await expect(service.pick({ mode: "cook-at-home" })).rejects.toBeInstanceOf(ServiceUnavailableException);
+    });
     it("requires actual coordinates for Near Me instead of silently searching the default district", async () => {
       await expect(service.recommend({ mode: "dine-out", district: "bkk", filters: { locationDiscovery: "near-me" } })).rejects.toBeInstanceOf(BadRequestException);
       expect(placesProvider.searchNearby).not.toHaveBeenCalled();
@@ -232,7 +250,7 @@ describe("FoodService", () => {
       });
       expect(result.type).toBe("dish");
       expect(result.dish?.recipeId).toBeDefined();
-      expect(result.recipe).toEqual(aiRecipe);
+      expect(result.recipe).toEqual({ ...aiRecipe, savedRecipeId: "saved-fixture" });
       expect(result.messageKm).toBe(aiRecipe.recommendationKm);
       expect(aiPicker.generateRecipes).toHaveBeenCalledWith(expect.objectContaining({ limit: 1, cuisine: "mushroom" }));
       expect(aiPicker.choose).not.toHaveBeenCalled();

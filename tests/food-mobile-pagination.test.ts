@@ -60,6 +60,7 @@ test("Food mobile observer loads only intersecting available pages, follows view
     requestGeolocation() {
       gpsRequests++;
     },
+    setDiscoveryAccount() {},
   };
   const framework = {
     ...vue,
@@ -80,6 +81,14 @@ test("Food mobile observer loads only intersecting available pages, follows view
       if (name === "vue") return framework;
       if (name === "~/composables/useFoodDiscovery")
         return { useFoodDiscovery: () => state };
+      if (name === "~/composables/useAuth")
+        return {
+          useAuth: () => ({
+            user: vue.ref(null),
+            isReady: vue.ref(true),
+            fetchMe: async () => {},
+          }),
+        };
       if (name === "lucide-vue-next") return new Proxy({}, { get: () => ({}) });
       if (name.endsWith(".vue")) return { default: {} };
       throw new Error(`Unexpected dependency: ${name}`);

@@ -25,12 +25,16 @@ import {
 import FoodDiscoveryMap from "~/components/food/FoodDiscoveryMap.vue";
 import FoodDiscoveryFilters from "~/components/food/FoodDiscoveryFilters.vue";
 import FoodPlaceAttribution from "~/components/food/FoodPlaceAttribution.vue";
+import FoodQuickFilters from "~/components/food/FoodQuickFilters.vue";
+import FoodSavedRecipes from "~/components/food/FoodSavedRecipes.vue";
+import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({
   layout: "food",
 });
 
 const {
+  activeQuickPreset, selectQuickPreset, savedRecipesVersion, setDiscoveryAccount,
   filters, filterDefinitions, filtersError, fetchFilters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
   isLoadingMore, hasMorePlaces, canAutoLoadMore, paginationError, loadMorePlaces, hasSuggestionHistory, clearSuggestionHistory,
   mode,
@@ -66,7 +70,9 @@ const {
   openPickedRecipe,
   closeRecipeDetail,
   closeRandomModal,
-} = useFoodDiscovery();
+} = useFoodDiscovery({ waitForAccount: true });
+const { user: foodUser, isReady: foodAuthReady, fetchMe: resolveFoodAuth } = useAuth();
+watch(() => foodUser.value?.id || null, (owner) => setDiscoveryAccount(owner), { flush: "sync" });
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
 const budgetRangeLabel = computed(() => filterDefinitions.value.find((field) => field.key === "budgetRange")?.groups.flatMap((group) => group.options).find((option) => option.value === filters.value.budgetRange)?.label);
@@ -100,7 +106,8 @@ onMounted(async () => {
   if (supportsInfiniteScroll.value) observer = new IntersectionObserver((entries) => {
     if (entries.some((entry) => entry.isIntersecting) && canAutoLoadMore.value) void loadMorePlaces();
   }, { rootMargin: "240px 0px" });
-  await Promise.all([fetchDistricts(), fetchFilters()]);
+  await Promise.all([fetchDistricts(), fetchFilters(), foodAuthReady.value ? Promise.resolve() : resolveFoodAuth()]);
+  setDiscoveryAccount(foodUser.value?.id || null);
   void getRecommendations();
 });
 onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("change", updateViewport); });
@@ -165,6 +172,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
 
     <!-- Filter & Discovery Criteria Form -->
     <div class="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/70 sm:p-7">
+      <FoodQuickFilters :active="activeQuickPreset" :disabled="!foodAuthReady || isLoading || isLoadingMore || isRandomLoading" class="mb-6 border-b border-stone-100 pb-6 dark:border-stone-800" @select="selectQuickPreset" />
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- People & Budget Controls -->
         <div class="space-y-1.5">
@@ -508,6 +516,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
       </div>
 
       <!-- Recipes Grid -->
+      <FoodSavedRecipes :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="recipe in recipes"
@@ -530,6 +539,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
             <p class="text-xs text-stone-400">
               {{ recipe.nameEn }}
             </p>
+            <p v-if="recipe.savedRecipeId" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">✓ {{ recipe.savedToAccount ? 'បានរក្សាទុកក្នុងគណនីរបស់អ្នក' : 'បានរក្សាទុកក្នុងប្រព័ន្ធ' }}</p>
             <p class="text-xs leading-relaxed text-stone-600 dark:text-stone-300">
               {{ recipe.descriptionKm }}
             </p>

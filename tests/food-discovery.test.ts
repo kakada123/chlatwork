@@ -5,10 +5,12 @@ import * as vue from "vue";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as maps from "../app/lib/food-maps.ts";
 import * as history from "../app/lib/food-history.ts";
+import * as presets from "../app/lib/food-quick-presets.ts";
 
 function discovery(
   fetcher: (...args: any[]) => Promise<unknown>,
   browser?: unknown,
+  waitForAccount = false,
 ) {
   function load(path: string): any {
     const source = readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -19,11 +21,20 @@ function discovery(
       },
     }).outputText;
     const module = { exports: {} as any };
-    new Function("require", "module", "exports", "$fetch", "window", code)(
+    new Function(
+      "require",
+      "module",
+      "exports",
+      "$fetch",
+      "window",
+      "navigator",
+      code,
+    )(
       (name: string) => {
         if (name === "vue") return vue;
         if (name === "~/lib/food-maps") return maps;
         if (name === "~/lib/food-history") return history;
+        if (name === "~/lib/food-quick-presets") return presets;
         if (name === "~/composables/useFoodResults")
           return load("app/composables/useFoodResults.ts");
         throw new Error(`Unexpected Food dependency: ${name}`);
@@ -32,11 +43,32 @@ function discovery(
       module.exports,
       fetcher,
       browser,
+      (browser as { navigator?: unknown } | undefined)?.navigator || {},
     );
     return module.exports;
   }
-  return load("app/composables/useFoodDiscovery.ts").useFoodDiscovery();
+  return load("app/composables/useFoodDiscovery.ts").useFoodDiscovery({
+    waitForAccount,
+  });
 }
+
+test("the page can wait for initial account resolution before starting paid generation", async () => {
+  let calls = 0;
+  const state = discovery(
+    async () => {
+      calls++;
+      return { mode: "dine-out", places: [], dataSource: "google" };
+    },
+    undefined,
+    true,
+  );
+  await state.getRecommendations();
+  await state.fetchRandomPick();
+  assert.equal(calls, 0);
+  state.setDiscoveryAccount(null);
+  await state.getRecommendations();
+  assert.equal(calls, 1);
+});
 
 test("Food AI picker posts all current criteria and GPS coordinates instead of the old meal-only random request", async () => {
   const calls: any[][] = [];
@@ -115,6 +147,129 @@ test("Cook at Home requests one complete recipe at a time to reduce inference la
   await state.getRecommendations();
   assert.equal(calls[0][1].body.limit, 1);
   assert.equal(calls[0][1].retry, 0);
+});
+
+test("quick presets fill editable criteria without triggering hidden paid requests", () => {
+  let calls = 0;
+  const state = discovery(async () => {
+    calls++;
+    return {};
+  });
+  state.filters.value = { dietary: ["allergies"], city: "siem-reap" };
+  state.minimumRating.value = 4.5;
+  state.allergies.value = "peanuts";
+  state.selectQuickPreset("solo-lunch");
+  assert.equal(state.peopleCount.value, 1);
+  assert.equal(state.activeQuickPreset.value, "solo-lunch");
+  assert.equal(state.filters.value.city, "siem-reap");
+  assert.equal(state.allergies.value, "peanuts");
+  assert.equal(calls, 0);
+  assert.equal(state.minimumRating.value, 0);
+  state.peopleCount.value = 2;
+  assert.equal(state.activeQuickPreset.value, null);
+});
+
+test("an account switch clears private recipe/modals and rejects a late generation from the old account", async () => {
+  let finish!: (value: unknown) => void;
+  const state = discovery(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  state.setDiscoveryAccount("account-a");
+  state.mode.value = "cook-at-home";
+  const pending = state.getRecommendations();
+  state.selectedRecipe.value = { id: "private-open" };
+  state.allergies.value = "private allergy";
+  state.setDiscoveryAccount("account-b");
+  assert.equal(state.selectedRecipe.value, null);
+  assert.equal(state.allergies.value, "");
+  finish({
+    mode: "cook-at-home",
+    places: [],
+    recipes: [
+      {
+        id: "private-a",
+        nameKm: "សម្ល",
+        nameEn: "Private A",
+        savedRecipeId: "saved-a",
+      },
+    ],
+    dataSource: "gemini",
+  });
+  await pending;
+  assert.equal(state.recipes.value.length, 0);
+  assert.equal(state.randomSuggestion.value, null);
+});
+
+test("an old account's GPS callback cannot restore private coordinates or trigger discovery for the next account", () => {
+  const requests: Array<{
+    success: (value: unknown) => void;
+    failure: (value: unknown) => void;
+  }> = [];
+  let calls = 0;
+  const state = discovery(
+    async () => {
+      calls++;
+      return { mode: "dine-out", places: [], dataSource: "google" };
+    },
+    {
+      navigator: {
+        geolocation: {
+          getCurrentPosition: (
+            success: (value: unknown) => void,
+            failure: (value: unknown) => void,
+          ) => requests.push({ success, failure }),
+        },
+      },
+    },
+  );
+  state.setDiscoveryAccount("account-a");
+  state.requestGeolocation();
+  state.setDiscoveryAccount("account-b");
+  assert.equal(state.isLocating.value, false);
+  state.requestGeolocation();
+  requests[0].success({ coords: { latitude: 11.55, longitude: 104.92 } });
+  requests[0].failure({ code: 1, PERMISSION_DENIED: 1 });
+  assert.equal(state.userCoords.value, null);
+  assert.equal(state.errorMessage.value, null);
+  assert.equal(state.isLocating.value, true);
+  assert.equal(calls, 0);
+  requests[1].success({ coords: { latitude: 13.36, longitude: 103.86 } });
+  assert.equal(state.userCoords.value.lat, 13.36);
+  assert.equal(calls, 1);
+});
+
+test("recent recipe names are scoped to an account and survive reloads for that same account", async () => {
+  const saved = new Map<string, string>();
+  const browser = {
+    sessionStorage: {
+      getItem: (key: string) => saved.get(key) || null,
+      setItem: (key: string, value: string) => saved.set(key, value),
+    },
+  };
+  const calls: any[][] = [];
+  const fetcher = async (...args: any[]) => {
+    calls.push(args);
+    return {
+      mode: "cook-at-home",
+      places: [],
+      recipes: [{ id: "recipe-a", nameKm: "សម្ល", nameEn: "Soup" }],
+      dataSource: "gemini",
+    };
+  };
+  const state = discovery(fetcher, browser);
+  state.setDiscoveryAccount("account-a");
+  state.mode.value = "cook-at-home";
+  await state.getRecommendations();
+  state.setDiscoveryAccount("account-b");
+  await state.getRecommendations();
+  assert.equal(calls[1][1].body.recentRecipeNames, undefined);
+  const reload = discovery(fetcher, browser);
+  reload.setDiscoveryAccount("account-a");
+  await reload.getRecommendations();
+  assert.deepEqual(calls[2][1].body.recentRecipeNames, ["សម្ល", "Soup"]);
 });
 
 test("shown places and generated recipes are excluded on later suggestions and across session reloads", async () => {

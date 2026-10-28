@@ -51,6 +51,29 @@ function record(value: unknown): Record<string, unknown> {
     : {};
 }
 
+export function isGeminiUpstreamDeadline(error: unknown): boolean {
+  const raw = record(error);
+  const status =
+    typeof raw.status === "number"
+      ? raw.status
+      : typeof raw.code === "number"
+        ? raw.code
+        : undefined;
+  // A local abort may leave inference running; only retry a confirmed upstream failure, never a 4xx rejection.
+  if (
+    raw.name === "AbortError" ||
+    raw.name === "TimeoutError" ||
+    (status !== undefined && status < 500)
+  )
+    return false;
+  return (
+    status === 504 ||
+    [raw.code, raw.status].includes("DEADLINE_EXCEEDED") ||
+    (typeof raw.message === "string" &&
+      /\bDEADLINE_EXCEEDED\b/.test(raw.message))
+  );
+}
+
 export function recipeFailureDetails(
   error: unknown,
   stage: RecipeFailureStage,

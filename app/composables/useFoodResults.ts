@@ -35,6 +35,7 @@ interface FoodResult {
 export function useFoodResults(
   criteria: () => Record<string, unknown>,
   mode: { value: string },
+  waitForAccount = false,
 ) {
   const places = ref<RankedPlace[]>([]),
     recipes = ref<KhmerRecipe[]>([]);
@@ -50,6 +51,10 @@ export function useFoodResults(
   const recent = ref({ placeIds: [] as string[], recipeNames: [] as string[] });
   const filterDefinitions = ref<FoodFilterDefinition[]>([]),
     filtersError = ref(false);
+  const savedRecipesVersion = ref(0);
+  let accountScope = "guest",
+    accountRevision = 0,
+    accountReady = !waitForAccount;
   let loadedHistory = false,
     pendingRefresh = false,
     inFlightSignature = "";
@@ -85,7 +90,7 @@ export function useFoodResults(
   }
   function loadHistory() {
     if (!loadedHistory) {
-      recent.value = readFoodHistory(storage());
+      recent.value = readFoodHistory(storage(), accountScope);
       loadedHistory = true;
     }
   }
@@ -124,12 +129,38 @@ export function useFoodResults(
         newRecipes.flatMap((recipe) => [recipe.nameKm, recipe.nameEn]),
       ),
     };
-    saveFoodHistory(recent.value, storage());
+    saveFoodHistory(recent.value, storage(), accountScope);
   }
   function clearSuggestionHistory() {
     recent.value = { placeIds: [], recipeNames: [] };
     loadedHistory = true;
-    saveFoodHistory(recent.value, storage());
+    saveFoodHistory(recent.value, storage(), accountScope);
+  }
+  function setAccountScope(ownerId: string | null): boolean {
+    accountReady = true;
+    const next = ownerId || "guest";
+    if (next === accountScope) return false;
+    accountScope = next;
+    accountRevision++;
+    places.value = [];
+    recipes.value = [];
+    selectedPlace.value = null;
+    randomSuggestion.value = null;
+    recent.value = { placeIds: [], recipeNames: [] };
+    loadedHistory = false;
+    nextPage = undefined;
+    cursor.value = undefined;
+    activeSignature.value = "";
+    activeCriteria = {};
+    searchCenter = undefined;
+    routePolyline = undefined;
+    seenTokens.clear();
+    errorMessage.value = null;
+    hasSearched.value = false;
+    paginationError.value = false;
+    pendingRefresh = false;
+    inFlightSignature = "";
+    return true;
   }
   function freshRecipes(values: KhmerRecipe[]) {
     const names = new Set(recent.value.recipeNames.map(recipeNameKey));
@@ -157,6 +188,8 @@ export function useFoodResults(
   }
 
   async function getRecommendations() {
+    if (!accountReady) return;
+    const ownerRevision = accountRevision;
     const key = signature();
     if (busy()) {
       if (key !== inFlightSignature) pendingRefresh = true;
@@ -175,7 +208,7 @@ export function useFoodResults(
         body: payload(base, mode.value === "cook-at-home" ? 1 : 20),
         retry: 0,
       });
-      if (signature() !== key) return;
+      if (ownerRevision !== accountRevision || signature() !== key) return;
       const known = new Set(recent.value.placeIds);
       places.value = (result.places || []).filter((place) => {
         if (known.has(place.id)) return false;
@@ -193,6 +226,8 @@ export function useFoodResults(
       searchCenter = result.searchCenter;
       routePolyline = result.routePolyline;
       remember(places.value, recipes.value);
+      if (recipes.value.some((recipe) => recipe.savedRecipeId))
+        savedRecipesVersion.value++;
       if (
         !places.value.length &&
         !recipes.value.length &&
@@ -202,7 +237,7 @@ export function useFoodResults(
         errorMessage.value =
           "មិនមានជម្រើសថ្មីដែលត្រូវគ្នាទេ។ សាកប្តូរតម្រង ឬអនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ។";
     } catch {
-      if (signature() === key) {
+      if (ownerRevision === accountRevision && signature() === key) {
         errorMessage.value =
           "មិនអាចទាញយកការណែនាំបានទេ។ សូមពិនិត្យតម្រង ទីតាំង និងព្យាយាមម្តងទៀត។";
         cursor.value = undefined;
@@ -214,6 +249,7 @@ export function useFoodResults(
   }
 
   async function loadMorePlaces() {
+    const ownerRevision = accountRevision;
     if (busy() || !hasMorePlaces.value || !nextPage) return;
     const key = activeSignature.value,
       token = nextPage;
@@ -233,7 +269,12 @@ export function useFoodResults(
           ...(routePolyline ? { routePolyline } : {}),
         },
       });
-      if (signature() !== key || activeSignature.value !== key) return;
+      if (
+        ownerRevision !== accountRevision ||
+        signature() !== key ||
+        activeSignature.value !== key
+      )
+        return;
       const known = new Set([
         ...recent.value.placeIds,
         ...places.value.map((place) => place.id),
@@ -253,6 +294,7 @@ export function useFoodResults(
       cursor.value = nextPage;
       if (!selectedPlace.value) selectedPlace.value = places.value[0] || null;
     } catch {
+      if (ownerRevision !== accountRevision) return;
       paginationError.value = true;
       errorMessage.value = "មិនអាចផ្ទុកហាងបន្ថែមបានទេ។ ចុចដើម្បីសាកម្ដងទៀត។";
     } finally {
@@ -262,7 +304,8 @@ export function useFoodResults(
   }
 
   async function fetchRandomPick() {
-    if (busy()) return;
+    if (!accountReady || busy()) return;
+    const ownerRevision = accountRevision;
     const key = signature();
     inFlightSignature = key;
     isRandomLoading.value = true;
@@ -274,7 +317,7 @@ export function useFoodResults(
         body: payload(JSON.parse(key), 20, true),
         retry: 0,
       });
-      if (signature() !== key) return;
+      if (ownerRevision !== accountRevision || signature() !== key) return;
       if (
         result.place &&
         (recent.value.placeIds.includes(result.place.id) ||
@@ -288,8 +331,9 @@ export function useFoodResults(
         result.place ? [result.place] : [],
         result.recipe ? [result.recipe] : [],
       );
+      if (result.recipe?.savedRecipeId) savedRecipesVersion.value++;
     } catch {
-      if (signature() === key)
+      if (ownerRevision === accountRevision && signature() === key)
         errorMessage.value =
           "មិនអាចរើសជម្រើសថ្មីជាមួយ AI បានទេ។ សាកប្តូរតម្រង ឬព្យាយាមម្ដងទៀត។";
     } finally {
@@ -310,6 +354,8 @@ export function useFoodResults(
     dataSource,
     hasSearched,
     filterDefinitions,
+    savedRecipesVersion,
+    setAccountScope,
     filtersError,
     hasSuggestionHistory,
     hasMorePlaces,

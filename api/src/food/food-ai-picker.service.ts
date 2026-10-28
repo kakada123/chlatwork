@@ -4,7 +4,11 @@ import {
   ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { GoogleGenAI } from "@google/genai";
+import {
+  GoogleGenAI,
+  type GenerateContentParameters,
+  type GenerateContentResponse,
+} from "@google/genai";
 import { configuredAiKey } from "../config/ai-provider";
 import type { FoodRecommendationDto } from "./dto/food-recommendation.dto";
 import type { KhmerRecipe } from "./food.types";
@@ -12,6 +16,7 @@ import { parseGeneratedRecipes, recipeResponseSchema } from "./food-ai-recipes";
 import { describeFoodFilters } from "./food-filters";
 import {
   recipeFailureDetails,
+  isGeminiUpstreamDeadline,
   safeBlockReason,
   safeFinishReason,
   type RecipeFailureStage,
@@ -48,8 +53,9 @@ export class FoodAiPickerService {
     let stage: RecipeFailureStage = "provider";
     let finishReason: string | null = null;
     let blockReason: string | null = null;
+    let attempt = 1;
     try {
-      const response = await this.client().models.generateContent({
+      const request: GenerateContentParameters = {
         model:
           this.config.get<string>("GEMINI_TEXT_MODEL")?.trim() ||
           "gemini-3.5-flash-lite",
@@ -67,7 +73,34 @@ export class FoodAiPickerService {
           responseMimeType: "application/json",
           responseJsonSchema: recipeResponseSchema(count),
         },
-      });
+      };
+      const remainingBudget = () =>
+        Math.max(0, 30000 - (Date.now() - startedAt));
+      let response: GenerateContentResponse;
+      try {
+        response =
+          await this.client(remainingBudget()).models.generateContent(request);
+      } catch (error) {
+        const backoffMs = 1000 + Math.floor(Math.random() * 250);
+        // One retry can recover Google's intermittent inference deadline. Keep a useful minimum time for it.
+        if (
+          !isGeminiUpstreamDeadline(error) ||
+          remainingBudget() < backoffMs + 5000
+        )
+          throw error;
+        this.logger.warn({
+          message: "Retrying Gemini recipe generation after upstream deadline",
+          ...recipeFailureDetails(error, "provider", null, null),
+          attempt,
+          retrying: true,
+          backoffMs,
+        });
+        await new Promise<void>((resolve) => setTimeout(resolve, backoffMs));
+        if (remainingBudget() < 5000) throw error;
+        attempt = 2;
+        response =
+          await this.client(remainingBudget()).models.generateContent(request);
+      }
       stage = "response";
       finishReason = safeFinishReason(response.candidates?.[0]?.finishReason);
       blockReason = safeBlockReason(response.promptFeedback?.blockReason);
@@ -91,6 +124,7 @@ export class FoodAiPickerService {
         message: "Gemini recipe generation failed",
         ...diagnostic,
         requestedRecipes: count,
+        attempt,
         elapsedMs: Math.max(0, Date.now() - startedAt),
       });
       throw new ServiceUnavailableException(
@@ -101,15 +135,20 @@ export class FoodAiPickerService {
     }
   }
 
-  private client() {
+  private client(remainingBudgetMs = 30000) {
     const timeout = Number(this.config.get("AI_PROVIDER_TIMEOUT_MS"));
     return new GoogleGenAI({
       apiKey: configuredAiKey(this.config, "GEMINI_API_KEY")!,
       httpOptions: {
-        timeout:
-          Number.isFinite(timeout) && timeout > 0
-            ? Math.min(timeout, 30000)
-            : 15000,
+        timeout: Math.max(
+          1,
+          Math.min(
+            remainingBudgetMs,
+            Number.isFinite(timeout) && timeout > 0
+              ? Math.min(timeout, 30000)
+              : 15000,
+          ),
+        ),
         retryOptions: { attempts: 1 },
       },
     });

@@ -29,6 +29,8 @@ import {
 import { KHMER_RECIPES } from "./data/khmer-recipes";
 import { FOOD_FILTERS } from "./food-filters";
 import { discoveryRadius, resolvedFoodCriteria } from "./food-search-preferences";
+import { FoodRecipeStore } from "./food-recipe-store.service";
+import type { FoodSavedRecipesDto } from "./dto/food-saved-recipes.dto";
 
 const GOOGLE_ATTRIBUTION: FoodAttribution = {
   provider: "Google Maps",
@@ -45,6 +47,7 @@ export class FoodService {
     private readonly placesProvider: GooglePlacesProviderAdapter,
     private readonly recommendationEngine: FoodRecommendationEngine,
     private readonly aiPicker: FoodAiPickerService,
+    private readonly recipeStore: FoodRecipeStore,
   ) {}
 
   getFilters() {
@@ -88,7 +91,7 @@ export class FoodService {
   /**
    * Preserve normal ranking while keeping restaurant price claims unverified.
    */
-  async recommend(dto: FoodRecommendationDto): Promise<RecommendationResponse> {
+  async recommend(dto: FoodRecommendationDto, ownerId: string | null = null): Promise<RecommendationResponse> {
     const mode = dto.mode || "dine-out";
     const { mealTime, occasion, peopleCount, totalBudget } = resolvedFoodCriteria(dto);
     const budgetPerPerson = totalBudget ? totalBudget / peopleCount : undefined;
@@ -106,7 +109,10 @@ export class FoodService {
     };
 
     if (mode === "cook-at-home") {
-      const recipes = await this.aiPicker.generateRecipes({ ...dto, mode, mealTime, occasion, peopleCount, totalBudget });
+      this.aiPicker.assertAvailable();
+      await this.recipeStore.assertAvailable();
+      const generated = await this.aiPicker.generateRecipes({ ...dto, mode, mealTime, occasion, peopleCount, totalBudget });
+      const recipes = await this.recipeStore.saveGenerated(generated, ownerId);
       return {
         mode: "cook-at-home",
         querySummary,
@@ -186,15 +192,15 @@ export class FoodService {
   /**
    * Keep legacy GET clients working without an implicit paid restaurant lookup.
    */
-  getRandomFood(dto: FoodRecommendationDto): Promise<RandomFoodSuggestion> {
-    return this.pick({ ...dto, mode: dto.mode || "cook-at-home" });
+  getRandomFood(dto: FoodRecommendationDto, ownerId: string | null = null): Promise<RandomFoodSuggestion> {
+    return this.pick({ ...dto, mode: dto.mode || "cook-at-home" }, ownerId);
   }
 
-  async pick(dto: FoodRecommendationDto): Promise<RandomFoodSuggestion> {
+  async pick(dto: FoodRecommendationDto, ownerId: string | null = null): Promise<RandomFoodSuggestion> {
     // Avoid a paid Places lookup when the requested AI selection cannot run.
     this.aiPicker.assertAvailable();
     // Always build the candidate set on the server; callers cannot inject their own restaurant facts.
-    let recommendation = await this.recommend({ ...dto, limit: dto.mode === "cook-at-home" ? 1 : 20 });
+    let recommendation = await this.recommend({ ...dto, limit: dto.mode === "cook-at-home" ? 1 : 20 }, ownerId);
     const seenTokens = new Set<string>();
     // A pick may advance through real Google pages to find unseen choices; this never retries a failed request.
     for (let page = 1; recommendation.mode === "dine-out" && !recommendation.places.length && recommendation.nextPageToken && page < 3; page++) {
@@ -266,6 +272,9 @@ export class FoodService {
   getDistricts(): FoodDistrict[] {
     return PHNOM_PENH_DISTRICTS;
   }
+
+  getSavedRecipes(ownerId: string, query: FoodSavedRecipesDto) { return this.recipeStore.list(ownerId, query); }
+  getSavedRecipe(ownerId: string, id: string) { return this.recipeStore.get(ownerId, id); }
 
   private resolveCoordinates(
     lat?: number,
