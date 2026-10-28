@@ -196,7 +196,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
             </div>
             <div>
               <div class="relative">
-                <DollarSign class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-stone-400" />
+                <DollarSign v-if="!filters.budgetRange && !flexibleBudget" class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-stone-400" aria-hidden="true" />
                 <input
                   v-if="!filters.budgetRange && !flexibleBudget"
                   v-model.number="totalBudget"
