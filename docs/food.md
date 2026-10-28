@@ -37,7 +37,7 @@ If the browser Embed key is absent, a direct Google Maps link remains available.
 The picker submits the current mode, meal, occasion, group size, total budget, cuisine/dish keyword and district/GPS location to `POST /api/food/pick`.
 
 - Dine-out candidates come from the server's current Google search and ranking.
-- Cook at Home generates up to three new full Khmer/English recipes using Gemini. A cook-at-home pick generates one recipe directly. Neither path chooses from the constant recipe catalog.
+- Cook at Home requests one new full Khmer/English recipe at a time to reduce inference latency. The API still supports explicitly requested batches of up to three. A cook-at-home pick generates one recipe directly. Neither path chooses from the constant recipe catalog.
 - `FoodAiPickerService` reuses `AI_ENABLED`, `GEMINI_API_KEY`, `GEMINI_TEXT_MODEL` and `AI_PROVIDER_TIMEOUT_MS`. Food deliberately uses Gemini as requested, independently of the Creator/Telegram `AI_USE_GEMINI` provider switch.
 - For dining, Gemini receives bounded candidate facts and selects one existing ID with a short Khmer explanation. Candidate IDs are constrained in the JSON schema and checked again on the server.
 - Generated recipes include ingredients/quantities, cooking steps, servings, prep/cook times and estimated total ingredient costs. Structured output is validated for bounded fields, valid metadata, exact servings, selected meal/occasion, budget ceiling and recent-name duplication. Invalid/incomplete or repeated-only output returns an error without a catalog fallback.
@@ -45,6 +45,25 @@ The picker submits the current mode, meal, occasion, group size, total budget, c
 - Requests use one provider attempt, frontend retries are disabled, and a second click cannot start a concurrent picker request. Failures never become a hardcoded recipe success.
 
 The browser remembers the last 40 restaurant IDs and 40 recipe names in session storage, shared across searches and reloads in that tab. Only IDs/names are stored, not locations, routes, allergies or full provider content. Recent restaurants are excluded before ranking/selection; generated names are normalized before duplicate checks. Current visible place IDs are also excluded when loading/picking. **Reset recent choices** explicitly allows previous choices again. This bounds recent repetition, not semantic duplicates forever or across devices.
+
+### Recipe generation failures
+
+Recipe warnings log a fixed `stage` and `reason`, numeric `providerStatus` when supplied, allowlisted `finishReason`/`blockReason`, and a fixed `validationField` when validation rejects output. Request size and elapsed milliseconds aid latency diagnosis. Logs never include prompts, generated text, recent names, provider messages, keys or internal Google infrastructure identifiers.
+
+| Reason | Meaning / next check |
+| --- | --- |
+| `TIMEOUT` | Client/network timeout or Google's upstream `DEADLINE_EXCEEDED`, including a deadline wrapped in HTTP 500. The public response says generation timed out. A larger local timeout cannot fix Google's own inference deadline. |
+| `RATE_LIMITED` | HTTP 429; check the Gemini project's rate/quota limits. |
+| `AUTHENTICATION_FAILED` / `PERMISSION_DENIED` | HTTP 401/403; check the API server's Gemini key/project access privately. |
+| `MODEL_OR_RESOURCE_NOT_FOUND` | HTTP 404; verify the configured model is available to that key. |
+| `INVALID_REQUEST` | HTTP 400; inspect model/request compatibility. |
+| `PROVIDER_UNAVAILABLE` / `NETWORK_ERROR` / `PROVIDER_ERROR` | Provider/network failure; an unknown error remains unknown rather than exposing raw details. |
+| `OUTPUT_LIMIT` / `BLOCKED` / `EMPTY_RESPONSE` / `INCOMPLETE_RESPONSE` | Generation ended without a usable complete response; see the safe finish/block category. |
+| `INVALID_JSON` | Completed output was not parseable JSON. |
+| `INVALID_*` / `*_MISMATCH` / `OVER_BUDGET` | Output failed local validation; `validationField` identifies the rejected field without its value. |
+| `REPEATED_ONLY` | All valid generated choices repeated recent names. |
+
+Upstream deadlines are external provider failures; requesting one recipe reduces the work but does not guarantee provider availability. There is no automatic paid retry, hidden model switch or constant-recipe fallback. See Google's [API error reference](https://ai.google.dev/gemini-api/docs/api-errors) and [troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting).
 
 ## Configuration
 

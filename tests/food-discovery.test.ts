@@ -100,6 +100,23 @@ test("Food AI failure clears the previous pick and shows an error without fabric
   assert.equal(state.isRandomLoading.value, false);
 });
 
+test("Cook at Home requests one complete recipe at a time to reduce inference latency", async () => {
+  const calls: any[][] = [];
+  const state = discovery(async (...args) => {
+    calls.push(args);
+    return {
+      mode: "cook-at-home",
+      places: [],
+      recipes: [],
+      dataSource: "gemini",
+    };
+  });
+  state.mode.value = "cook-at-home";
+  await state.getRecommendations();
+  assert.equal(calls[0][1].body.limit, 1);
+  assert.equal(calls[0][1].retry, 0);
+});
+
 test("shown places and generated recipes are excluded on later suggestions and across session reloads", async () => {
   const saved = new Map<string, string>();
   const browser = {

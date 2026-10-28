@@ -171,7 +171,8 @@ export function useFoodResults(
     try {
       const result = await $fetch<FoodResult>("/api/food/recommend", {
         method: "POST",
-        body: payload(base, mode.value === "cook-at-home" ? 3 : 20),
+        // One full bilingual recipe per request reduces model latency without extra paid calls.
+        body: payload(base, mode.value === "cook-at-home" ? 1 : 20),
         retry: 0,
       });
       if (signature() !== key) return;
