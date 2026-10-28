@@ -1,22 +1,22 @@
-import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
-import { GroupPollMediaService } from '../group-workspaces/group-poll-media.service';
+import { GroupFeaturePolicy } from "../group-workspaces/group-feature-policy";
+import { GroupPollMediaService } from "../group-workspaces/group-poll-media.service";
 import {
   Injectable,
   Logger,
   OnModuleDestroy,
   OnModuleInit,
   Optional,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client';
-import { MomentsService } from '../moments/moments.service';
-import { FeatureAvailabilityService } from '../feature-availability/feature-availability.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { TelegramBotClient } from './telegram-bot.client';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Prisma } from "@prisma/client";
+import { MomentsService } from "../moments/moments.service";
+import { FeatureAvailabilityService } from "../feature-availability/feature-availability.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { TelegramBotClient } from "./telegram-bot.client";
 import {
   buildTelegramPollKeyboard,
   buildTelegramPollMessage,
-} from './telegram-vote';
+} from "./telegram-vote";
 
 const ONE_MINUTE_MS = 60_000;
 const DELIVERY_BATCH_SIZE = 5;
@@ -25,6 +25,13 @@ interface DueDailyPoll {
   scheduleId: string;
   momentId: string;
   telegramChatId: string;
+}
+
+interface PublishedVoteMessage {
+  momentId: string;
+  telegramChatId: bigint;
+  messageId: number;
+  voteDate: Date;
 }
 
 @Injectable()
@@ -65,7 +72,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     // Existing rounds still close while new daily sends are paused.
     if (
       this.availability &&
-      !(await this.availability.isEnabled('telegram:group-voting'))
+      !(await this.availability.isEnabled("telegram:group-voting"))
     )
       return;
     // The local date is claimed atomically so multiple API replicas cannot send the same daily poll twice.
@@ -136,6 +143,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     `;
     for (const round of rounds) {
       try {
+        let published: PublishedVoteMessage | undefined;
         const celebration = await this.prisma.$transaction(
           async (tx) => {
             // Edits are retryable and the row lock keeps replicas from publishing competing results.
@@ -154,9 +162,9 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             if (this.groupPolicy) {
               try {
                 await this.groupPolicy.chat(
-                  'CHLATWORK',
+                  "CHLATWORK",
                   String(current.telegramChatId),
-                  'voting',
+                  "voting",
                 );
               } catch (error) {
                 if (roundId) throw error;
@@ -171,7 +179,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
             poll.closed = current.closesAt <= now;
             const publicUrl = new URL(
               `/m/${poll.slug}`,
-              this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+              this.config.getOrThrow<string>("FRONTEND_ORIGIN"),
             ).toString();
             let messageId = current.messageId;
             if (messageId !== null) {
@@ -190,6 +198,14 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
               );
               await tx.$executeRaw`UPDATE moment_vote_rounds SET message_id = ${sent.message_id} WHERE id = ${round.id}::uuid`;
               messageId = sent.message_id;
+              if (poll.voteDate) {
+                published = {
+                  momentId: poll.id,
+                  telegramChatId: current.telegramChatId,
+                  messageId,
+                  voteDate: new Date(`${poll.voteDate}T00:00:00Z`),
+                };
+              }
             }
             if (poll.closed) {
               await tx.$executeRaw`UPDATE moment_vote_rounds SET finalized_at = ${now} WHERE id = ${round.id}::uuid`;
@@ -212,24 +228,27 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
           },
           { timeout: 15_000 },
         );
+        // Delete only after the new Telegram message and its database reference have committed.
+        // This shared publication path covers scheduled sends, manual starts and delivery recovery.
+        if (published) await this.removePreviousPollMessage(published);
         if (celebration) {
           // Send only after finalization commits. This optional effect is not retried:
           // a lost Telegram response must not duplicate it or reopen a finished round.
           try {
             if (this.groupPolicy)
               await this.groupPolicy.chat(
-                'CHLATWORK',
+                "CHLATWORK",
                 String(celebration.chatId),
-                'voting',
+                "voting",
               );
-            const origin = this.config.getOrThrow<string>('FRONTEND_ORIGIN');
+            const origin = this.config.getOrThrow<string>("FRONTEND_ORIGIN");
             if (celebration.winner?.imageId) {
               await this.bot.sendPhoto(
                 celebration.chatId,
                 celebration.workspaceId && this.groupMedia
                   ? await this.groupMedia.url(
                       celebration.workspaceId,
-                      'CHLATWORK',
+                      "CHLATWORK",
                       celebration.winner.imageId,
                     )
                   : new URL(
@@ -243,21 +262,62 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
               await this.bot.sendAnimation(
                 celebration.chatId,
                 new URL(
-                  '/images/telegram/vote-celebration.gif',
+                  "/images/telegram/vote-celebration.gif",
                   origin,
                 ).toString(),
                 celebration.messageId,
               );
             }
           } catch {
-            this.logger.warn('A vote celebration could not be delivered');
+            this.logger.warn("A vote celebration could not be delivered");
           }
         }
       } catch (error) {
         // Leave unfinished rounds retryable on the next tick without logging chat or voter data.
         if (roundId) throw error;
-        this.logger.warn('A Moment vote timer could not be refreshed');
+        this.logger.warn("A Moment vote timer could not be refreshed");
       }
+    }
+  }
+
+  private async removePreviousPollMessage(current: PublishedVoteMessage) {
+    try {
+      if (this.groupPolicy)
+        await this.groupPolicy.chat(
+          "CHLATWORK",
+          String(current.telegramChatId),
+          "voting",
+        );
+      // Earlier completed rounds of this exact poll/chat are eligible; never touch another poll or active round.
+      const previous = await this.prisma.momentVoteRound.findFirst({
+        where: {
+          momentId: current.momentId,
+          telegramChatId: current.telegramChatId,
+          voteDate: { lt: current.voteDate },
+          finalizedAt: { not: null },
+          messageId: { not: null },
+        },
+        orderBy: { voteDate: "desc" },
+        select: { id: true, messageId: true },
+      });
+      if (!previous?.messageId || previous.messageId === current.messageId)
+        return;
+      await this.bot.deleteMessage(
+        Number(current.telegramChatId),
+        previous.messageId,
+      );
+      // Clear only the delivered-message pointer. Ballots, round history, members and bill splits remain intact.
+      await this.prisma.momentVoteRound.updateMany({
+        where: {
+          id: previous.id,
+          telegramChatId: current.telegramChatId,
+          messageId: previous.messageId,
+        },
+        data: { messageId: null },
+      });
+    } catch {
+      // Telegram can reject old/already-removed messages. Cleanup must not retry a successful new publication.
+      this.logger.warn("A previous voting message could not be removed");
     }
   }
 
@@ -267,32 +327,32 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
     try {
       await this.runOnce();
     } catch {
-      this.logger.warn('Daily Moment vote run failed');
+      this.logger.warn("Daily Moment vote run failed");
     } finally {
       this.running = false;
     }
   }
 
   private async sendPoll(due: DueDailyPoll) {
-    let stage = 'group-policy';
+    let stage = "group-policy";
     try {
       if (this.groupPolicy)
-        await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
-      stage = 'round-start';
+        await this.groupPolicy.chat("CHLATWORK", due.telegramChatId, "voting");
+      stage = "round-start";
       const poll = await this.moments.startTelegramVoteRound(due.momentId);
-      stage = 'poll-render';
+      stage = "poll-render";
       const chatId = Number(due.telegramChatId);
       if (!Number.isSafeInteger(chatId) || chatId === 0) {
-        throw new Error('Invalid Telegram chat ID');
+        throw new Error("Invalid Telegram chat ID");
       }
       const publicUrl = new URL(
         `/m/${poll.slug}`,
-        this.config.getOrThrow<string>('FRONTEND_ORIGIN'),
+        this.config.getOrThrow<string>("FRONTEND_ORIGIN"),
       ).toString();
-      stage = 'group-policy-recheck';
+      stage = "group-policy-recheck";
       if (this.groupPolicy)
-        await this.groupPolicy.chat('CHLATWORK', due.telegramChatId, 'voting');
-      stage = 'telegram-send';
+        await this.groupPolicy.chat("CHLATWORK", due.telegramChatId, "voting");
+      stage = "telegram-send";
       if (poll.roundId) {
         // Manual starts and scheduler claims serialize delivery on the same round.
         await this.refreshRound(poll.roundId);
@@ -303,7 +363,7 @@ export class DailyMomentVoteScheduler implements OnModuleInit, OnModuleDestroy {
           buildTelegramPollKeyboard(poll, publicUrl),
         );
       }
-      stage = 'schedule-save';
+      stage = "schedule-save";
       await this.prisma.momentVoteSchedule.update({
         where: { id: due.scheduleId },
         data: { lastSentAt: new Date() },
