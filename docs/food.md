@@ -58,7 +58,7 @@ References: [Places setup](https://developers.google.com/maps/documentation/plac
 
 The backend uses `GOOGLE_PLACES_API_KEY`; the browser Embed key does not grant restaurant-search access. In the key's Google Cloud project, enable **Places API (New)**, confirm billing is active, and allow Places API (New) in the key's API restrictions. Website/referrer restrictions are unsuitable for this server-to-server Places call. Use the API server's stable outbound IP for an IP restriction when available. If the hosting has no stable outbound IP, an application-unrestricted server-only key must still be API-restricted to Places API (New); do not copy it into public frontend settings.
 
-The adapter logs `providerStatus` plus an allowlisted `providerReason` from Google's structured ErrorInfo:
+The adapter logs `providerStatus` plus an allowlisted `providerReason` from Google's structured ErrorInfo. Some Google responses contain only `error.message`; known message wording is mapped to the fixed categories below without logging that text. Structured reasons take priority over message classification. These categories aid diagnosis and do not verify the project's live settings:
 
 | Reason | Check |
 | --- | --- |
@@ -68,6 +68,7 @@ The adapter logs `providerStatus` plus an allowlisted `providerReason` from Goog
 | `API_KEY_IP_ADDRESS_BLOCKED` | The allowed IP must match the server's actual outbound IP. |
 | `BILLING_DISABLED` | Enable or restore billing for that project. |
 | `API_KEY_INVALID` / `API_KEY_EXPIRED` | Check the server deployment's key configuration privately. |
+| `API_PROJECT_NOT_AUTHORIZED` | Google supplied a generic project-authorization rejection; check API restrictions, project access and billing. This wording alone does not distinguish those causes. |
 | `UNKNOWN` | Google supplied no recognized structured reason; the status alone cannot identify the cause. |
 
 Raw errors, keys, coordinates and project metadata are never logged. This diagnostic improvement does not itself change Google Cloud permissions or resolve a rejected key. Redeploy the API for new logs; if a server environment value changes, redeploy/restart that API service so it uses the updated configuration.

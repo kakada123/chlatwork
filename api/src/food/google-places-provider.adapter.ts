@@ -45,8 +45,8 @@ function text(value: unknown, maxLength = 300): string | undefined {
 }
 
 function googleErrorReason(body: unknown): string {
-  const details = record(record(body).error).details;
-  if (!Array.isArray(details)) return "UNKNOWN";
+  const error = record(record(body).error);
+  const details = Array.isArray(error.details) ? error.details : [];
   for (const value of details) {
     const detail = record(value);
     // Provider text and metadata may contain keys, locations or project identifiers.
@@ -56,8 +56,40 @@ function googleErrorReason(body: unknown): string {
       detail.domain === "googleapis.com" &&
       typeof detail.reason === "string" &&
       SAFE_GOOGLE_ERROR_REASONS.has(detail.reason)
-    ) return detail.reason;
+    )
+      return detail.reason;
   }
+  // Some Maps rejections contain only error.message, without Google RPC ErrorInfo.
+  // Match known wording to fixed categories; never return or log the provider's text.
+  const message =
+    typeof error.message === "string"
+      ? error.message.slice(0, 4000).toLowerCase()
+      : "";
+  if (
+    /api keys? (?:with|cannot have) (?:http )?referr?er restrictions/.test(
+      message,
+    ) ||
+    /requests? from referr?er .{0,1000}blocked/.test(message)
+  )
+    return "API_KEY_HTTP_REFERRER_BLOCKED";
+  if (/requests? from (?:this )?ip address .{0,1000}blocked/.test(message))
+    return "API_KEY_IP_ADDRESS_BLOCKED";
+  if (
+    /enable billing|billing (?:has not been enabled|is disabled|is not enabled)/.test(
+      message,
+    )
+  )
+    return "BILLING_DISABLED";
+  if (/api (?:has not been used|is not enabled|is disabled)/.test(message))
+    return "SERVICE_DISABLED";
+  if (
+    /api key (?:not valid|is not valid|is invalid)|invalid api key/.test(
+      message,
+    )
+  )
+    return "API_KEY_INVALID";
+  if (message.includes("api project is not authorized to use this api"))
+    return "API_PROJECT_NOT_AUTHORIZED";
   return "UNKNOWN";
 }
 
@@ -147,7 +179,9 @@ export class GooglePlacesProviderAdapter {
       );
       providerStatus = response.status;
       if (!response.ok) {
-        providerReason = googleErrorReason(await response.json().catch(() => null));
+        providerReason = googleErrorReason(
+          await response.json().catch(() => null),
+        );
         throw new Error("Provider HTTP failure");
       }
       const body = record(await response.json());
