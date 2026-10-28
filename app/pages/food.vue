@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, onBeforeUnmount, computed, ref, watch } from "vue";
 import {
   Utensils,
   ChefHat,
@@ -26,6 +26,7 @@ import {
   type Occasion,
 } from "~/composables/useFoodDiscovery";
 import FoodDiscoveryMap from "~/components/food/FoodDiscoveryMap.vue";
+import FoodDiscoveryFilters from "~/components/food/FoodDiscoveryFilters.vue";
 import FoodPlaceAttribution from "~/components/food/FoodPlaceAttribution.vue";
 
 definePageMeta({
@@ -33,6 +34,8 @@ definePageMeta({
 });
 
 const {
+  filters, filterDefinitions, filtersError, fetchFilters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
+  isLoadingMore, hasMorePlaces, canAutoLoadMore, paginationError, loadMorePlaces, hasSuggestionHistory, clearSuggestionHistory,
   mode,
   mealTime,
   occasion,
@@ -65,33 +68,36 @@ const {
   getDirectionsUrl,
   selectPlaceForMap,
   openRecipeDetail,
+  openPickedRecipe,
   closeRecipeDetail,
   closeRandomModal,
 } = useFoodDiscovery();
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
 
-const mealTimeOptions: Array<{ value: MealTime; labelKm: string; icon: string }> = [
-  { value: "breakfast", labelKm: "ពេលព្រឹក", icon: "🍳" },
-  { value: "lunch", labelKm: "ថ្ងៃត្រង់", icon: "🍲" },
-  { value: "snack", labelKm: "អាហារសម្រន់", icon: "☕" },
-  { value: "dinner", labelKm: "ពេលល្ងាច", icon: "🥘" },
-];
-
-const occasionOptions: Array<{ value: Occasion; labelKm: string; icon: string }> = [
-  { value: "solo", labelKm: "ម្នាក់ឯង", icon: "🚶" },
-  { value: "friends", labelKm: "មិត្តភក្តិ / ការិយាល័យ", icon: "👥" },
-  { value: "first-date", labelKm: "ណាត់ជួបដំបូង", icon: "💐" },
-  { value: "couple", labelKm: "គូស្នេហ៍", icon: "💑" },
-  { value: "family", labelKm: "ក្រុមគ្រួសារ", icon: "👨‍👩‍👧‍👦" },
-  { value: "elderly", labelKm: "មនុស្សចាស់", icon: "👴" },
-];
-
+const loadMoreSentinel = ref<HTMLElement | null>(null);
+const isMobile = ref(false);
+const supportsInfiniteScroll = ref(false);
+let observer: IntersectionObserver | undefined;
+let viewport: MediaQueryList | undefined;
+function updateViewport() { isMobile.value = viewport?.matches || false; }
+function observeMore() {
+  observer?.disconnect();
+  if (isMobile.value && supportsInfiniteScroll.value && canAutoLoadMore.value && loadMoreSentinel.value) observer?.observe(loadMoreSentinel.value);
+}
+watch([loadMoreSentinel, canAutoLoadMore, isMobile], observeMore);
 onMounted(async () => {
-  await fetchDistricts();
-  // Automatically load initial suggestions for the default scenario (Lunch with 3 friends, $10 budget in Phnom Penh)
-  getRecommendations();
+  viewport = window.matchMedia("(max-width: 767px)");
+  updateViewport();
+  viewport.addEventListener("change", updateViewport);
+  supportsInfiniteScroll.value = typeof window.IntersectionObserver === "function";
+  if (supportsInfiniteScroll.value) observer = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting) && canAutoLoadMore.value) void loadMorePlaces();
+  }, { rootMargin: "240px 0px" });
+  await Promise.all([fetchDistricts(), fetchFilters()]);
+  void getRecommendations();
 });
+onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("change", updateViewport); });
 </script>
 
 <template>
@@ -116,7 +122,7 @@ onMounted(async () => {
         <button
           type="button"
           class="flex shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition-transform hover:scale-[1.02] active:scale-[0.98]"
-          :disabled="isRandomLoading"
+          :disabled="isRandomLoading || isLoading || isLoadingMore"
           @click="fetchRandomPick"
         >
           <Dices class="size-5" :class="{ 'animate-spin': isRandomLoading }" />
@@ -153,51 +159,7 @@ onMounted(async () => {
 
     <!-- Filter & Discovery Criteria Form -->
     <div class="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/70 sm:p-7">
-      <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-        <!-- Meal Time Selection -->
-        <div class="space-y-1.5">
-          <label class="text-xs font-semibold text-stone-500 dark:text-stone-400">
-            ពេលវេលាទទួលទាន
-          </label>
-          <div class="grid grid-cols-2 gap-1.5">
-            <button
-              v-for="time in mealTimeOptions"
-              :key="time.value"
-              type="button"
-              class="flex items-center gap-1.5 rounded-xl border px-2.5 py-2 text-xs font-semibold transition"
-              :class="mealTime === time.value
-                ? 'border-orange-500 bg-orange-50 text-orange-700 dark:border-orange-500 dark:bg-orange-950/40 dark:text-orange-300'
-                : 'border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-300'"
-              @click="mealTime = time.value"
-            >
-              <span>{{ time.icon }}</span>
-              <span>{{ time.labelKm }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Occasion Selection -->
-        <div class="space-y-1.5">
-          <label class="text-xs font-semibold text-stone-500 dark:text-stone-400">
-            ឱកាសជួបជុំ
-          </label>
-          <select
-            v-model="occasion"
-            class="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-xs font-semibold text-stone-800 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
-          >
-            <option
-              v-for="occ in occasionOptions"
-              :key="occ.value"
-              :value="occ.value"
-            >
-              {{ occ.icon }} {{ occ.labelKm }}
-            </option>
-          </select>
-          <p class="text-[11px] text-stone-400">
-            {{ occasion === 'friends' ? 'ស័ក្តិសមជួបជុំគ្នា កន្លែងទូលាយ' : occasion === 'first-date' ? 'បរិយាកាសរ៉ូមែនទិក ស្ងប់ស្ងាត់' : 'ជម្រើសផាសុកភាព' }}
-          </p>
-        </div>
-
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- People & Budget Controls -->
         <div class="space-y-1.5">
           <label class="text-xs font-semibold text-stone-500 dark:text-stone-400">
@@ -278,6 +240,24 @@ onMounted(async () => {
         </div>
       </div>
 
+      <details class="mt-5 min-w-0 rounded-2xl border border-stone-200 p-4 dark:border-stone-700">
+        <summary class="cursor-pointer text-sm font-bold text-stone-800 dark:text-stone-100">តម្រងអាហារ និងទីកន្លែង / Food & place filters</summary>
+        <div class="mt-4 space-y-4">
+          <FoodDiscoveryFilters v-if="filterDefinitions.length" v-model="filters" :definitions="filterDefinitions" />
+          <p v-else class="text-sm text-stone-500">{{ filtersError ? 'មិនអាចផ្ទុកតម្រងបានទេ។' : 'កំពុងផ្ទុកតម្រង…' }} <button v-if="filtersError" type="button" class="font-semibold text-orange-600 underline" @click="fetchFilters">សាកម្ដងទៀត</button></p>
+          <label v-if="['near-home', 'near-workplace', 'near-university'].includes(String(filters.locationDiscovery)) || filters.city === 'other-cambodian-provinces'" class="block space-y-1 text-sm">
+            <span>អាសយដ្ឋាន ឈ្មោះទីតាំង ឬខេត្ត / Address, landmark or province</span>
+            <input v-model="locationQuery" maxlength="300" type="text" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" />
+          </label>
+          <div v-if="filters.locationDiscovery === 'along-my-route'" class="grid gap-3 sm:grid-cols-2">
+            <label class="space-y-1 text-sm"><span>ចេញពី / Route origin</span><input v-model="routeOrigin" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+            <label class="space-y-1 text-sm"><span>ទៅកាន់ / Destination</span><input v-model="routeDestination" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+          </div>
+          <label v-if="Array.isArray(filters.dietary) && filters.dietary.includes('allergies')" class="block space-y-1 text-sm"><span>អាលែកហ្ស៊ីដែលត្រូវជៀសវាង / Allergies to avoid</span><input v-model="allergies" maxlength="120" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+          <label v-if="filters.reviews === 'rating'" class="block space-y-1 text-sm"><span>ការវាយតម្លៃអប្បបរមា / Minimum rating</span><select v-model.number="minimumRating" class="rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700"><option :value="0">Any</option><option v-for="rating in [3, 3.5, 4, 4.5]" :key="rating" :value="rating">{{ rating }}+</option></select></label>
+        </div>
+      </details>
+
       <!-- Keyword search & Action Button -->
       <div class="mt-5 flex flex-col items-center gap-3 border-t border-stone-100 pt-5 dark:border-stone-800 sm:flex-row">
         <div class="relative w-full flex-1">
@@ -294,7 +274,7 @@ onMounted(async () => {
         <button
           type="button"
           class="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 active:scale-[0.99] sm:w-auto"
-          :disabled="isLoading"
+          :disabled="isLoading || isLoadingMore || isRandomLoading"
           @click="getRecommendations"
         >
           <RefreshCw v-if="isLoading" class="size-4 animate-spin" />
@@ -302,6 +282,8 @@ onMounted(async () => {
           <span>ស្នើឱ្យខ្ញុំ! (Suggest for Me)</span>
         </button>
       </div>
+
+      <button v-if="hasSuggestionHistory" type="button" class="mt-4 text-xs font-semibold text-orange-600 underline underline-offset-4 disabled:opacity-50" :disabled="isLoading || isLoadingMore || isRandomLoading" @click="clearSuggestionHistory(); getRecommendations()">អនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ / Reset recent choices</button>
 
       <!-- Geolocation / Error Alert -->
       <div v-if="errorMessage" class="mt-4 flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
@@ -321,7 +303,7 @@ onMounted(async () => {
 
     <!-- Dine-Out Results Section -->
     <section v-if="mode === 'dine-out'" class="space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
             ភោជនីយដ្ឋាន និងហាងដែលត្រូវជាមួយអ្នក
@@ -334,7 +316,7 @@ onMounted(async () => {
         <button
           type="button"
           class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400"
-          :disabled="isLoading"
+          :disabled="isLoading || isLoadingMore || isRandomLoading"
           @click="getRecommendations"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
@@ -364,14 +346,14 @@ onMounted(async () => {
           <article
             v-for="(place, index) in places"
             :key="place.id"
-            class="group relative cursor-pointer rounded-2xl border p-4.5 transition-all hover:shadow-md"
+            class="group relative cursor-pointer rounded-2xl border p-4 sm:p-5 transition-all hover:shadow-md"
             :class="selectedPlace?.id === place.id
               ? 'border-orange-500 bg-orange-50/40 ring-1 ring-orange-500 dark:border-orange-500 dark:bg-orange-950/20'
               : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900/80 dark:hover:border-stone-700'"
             @click="selectPlaceForMap(place)"
           >
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3">
+            <div class="flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:justify-between">
+              <div class="flex min-w-0 flex-1 items-start gap-3">
                 <!-- Rank Index Badge -->
                 <div
                   class="grid size-8 shrink-0 place-items-center rounded-xl text-xs font-black shadow-sm"
@@ -382,8 +364,8 @@ onMounted(async () => {
                   #{{ index + 1 }}
                 </div>
 
-                <div>
-                  <h4 class="font-bold text-stone-900 dark:text-stone-100 sm:text-base">
+                <div class="min-w-0 flex-1">
+                  <h4 class="break-words font-bold text-stone-900 dark:text-stone-100 sm:text-base">
                     {{ place.name }}
                   </h4>
                   <p v-if="place.nameEn && place.nameEn !== place.name" class="text-xs text-stone-400">
@@ -394,14 +376,15 @@ onMounted(async () => {
                       <MapPin class="size-3" />
                       {{ (place.distanceMeters / 1000).toFixed(1) }} គ.ម
                     </span>
-                    <span v-if="place.street">· {{ place.street }}</span>
-                    <span v-else-if="place.district">· {{ place.district }}</span>
+                    <span v-if="place.street" class="min-w-0 break-words">· {{ place.street }}</span>
+                    <span v-else-if="place.district" class="min-w-0 break-words">· {{ place.district }}</span>
                   </div>
+                  <p v-if="place.rating !== undefined" class="mt-1 text-xs text-stone-500">⭐ {{ place.rating }} <span v-if="place.userRatingCount">({{ place.userRatingCount }})</span></p>
                 </div>
               </div>
 
               <!-- Price Verification Badge -->
-              <div class="shrink-0 text-right">
+              <div class="max-w-full text-left sm:shrink-0 sm:text-right">
                 <span
                   class="inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold"
                   :class="place.isPriceVerified
@@ -443,7 +426,7 @@ onMounted(async () => {
             </div>
 
             <!-- Actions (Directions, Share) -->
-            <div class="mt-3.5 flex items-center justify-between border-t border-stone-100 pt-2.5 text-xs dark:border-stone-800/80">
+            <div class="mt-3.5 flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 pt-2.5 text-xs dark:border-stone-800/80">
               <a
                 :href="getDirectionsUrl(place)"
                 target="_blank"
@@ -468,6 +451,11 @@ onMounted(async () => {
             </div>
             <FoodPlaceAttribution :place="place" class="mt-3" />
           </article>
+          <div v-if="hasMorePlaces" class="flex justify-center py-3" aria-live="polite">
+            <button v-if="!isMobile || !supportsInfiniteScroll || paginationError" type="button" :disabled="isLoadingMore" class="rounded-xl border border-orange-300 px-5 py-2.5 text-sm font-semibold text-orange-700 disabled:opacity-50 dark:text-orange-300" @click="loadMorePlaces">{{ isLoadingMore ? 'កំពុងផ្ទុក…' : paginationError ? 'សាកផ្ទុកម្ដងទៀត / Retry' : 'ផ្ទុកហាងបន្ថែម / Load more' }}</button>
+            <span v-else-if="isLoadingMore" class="text-sm text-stone-500">កំពុងផ្ទុកហាងបន្ថែម…</span>
+          </div>
+          <div ref="loadMoreSentinel" class="h-px" aria-hidden="true" />
         </div>
 
         <!-- Selected restaurant on Google Maps -->
@@ -490,20 +478,20 @@ onMounted(async () => {
 
     <!-- Cook-at-Home (Khmer Recipes) Results Section -->
     <section v-if="mode === 'cook-at-home'" class="space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
             រូបមន្តម្ហូបខ្មែរបែបប្រពៃណី សន្សំសំចៃ និងឆ្ងាញ់ពិសា
           </h3>
           <p class="text-xs text-stone-500 dark:text-stone-400">
-            មុខម្ហូបខ្មែរពិតៗ ងាយស្រួលធ្វើនៅផ្ទះ ផ្សំតាមចំនួនមនុស្ស និងថវិការបស់អ្នក
+            រូបមន្តថ្មីដោយ AI តាមចំនួនមនុស្ស និងថវិការបស់អ្នក · តម្លៃគ្រឿងផ្សំគ្រាន់តែជាការប៉ាន់ស្មាន
           </p>
         </div>
 
         <button
           type="button"
           class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400"
-          :disabled="isLoading"
+          :disabled="isLoading || isLoadingMore || isRandomLoading"
           @click="getRecommendations"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
@@ -695,7 +683,7 @@ onMounted(async () => {
 
         <!-- If suggestion is a Dish -->
         <div v-if="randomSuggestion.type === 'dish' && randomSuggestion.dish" class="mt-4 space-y-2 text-left rounded-2xl border border-stone-200 p-4 dark:border-stone-800">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h4 class="text-base font-bold text-stone-900 dark:text-stone-100">
               {{ randomSuggestion.dish.nameKm }}
             </h4>
@@ -706,11 +694,12 @@ onMounted(async () => {
           <p class="text-xs text-stone-500 dark:text-stone-400">
             {{ randomSuggestion.dish.descriptionKm }}
           </p>
+          <button v-if="randomSuggestion.recipe" type="button" class="text-xs font-bold text-orange-600 underline" @click="openPickedRecipe">មើលគ្រឿងផ្សំ និងរបៀបធ្វើ →</button>
         </div>
 
         <!-- If suggestion is a Place -->
         <div v-else-if="randomSuggestion.type === 'place' && randomSuggestion.place" class="mt-4 space-y-2 text-left rounded-2xl border border-stone-200 p-4 dark:border-stone-800">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h4 class="text-base font-bold text-stone-900 dark:text-stone-100">
               {{ randomSuggestion.place.name }}
             </h4>
@@ -745,7 +734,7 @@ onMounted(async () => {
           <button
             type="button"
             class="flex-1 rounded-2xl bg-orange-600 py-3 text-xs font-bold text-white shadow-md shadow-orange-600/20 hover:bg-orange-700"
-            :disabled="isRandomLoading"
+            :disabled="isRandomLoading || isLoading || isLoadingMore"
             @click="fetchRandomPick"
           >
             រើសម្ដងទៀត

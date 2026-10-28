@@ -16,6 +16,10 @@ import { FoodRandomQueryDto } from "./dto/food-random-query.dto";
 export class FoodController {
   constructor(private readonly foodService: FoodService) {}
 
+  @Get('filters')
+  @Header('Cache-Control', 'public, max-age=3600')
+  getFilters() { return this.foodService.getFilters(); }
+
   @Get("search")
   @Header("Cache-Control", "no-store")
   search(@Query() query: FoodSearchQueryDto) {

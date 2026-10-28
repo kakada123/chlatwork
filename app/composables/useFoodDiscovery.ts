@@ -1,5 +1,6 @@
 import { ref, computed } from "vue";
 import { foodDirectionsUrl } from "~/lib/food-maps";
+import { useFoodResults } from "~/composables/useFoodResults";
 
 export type DiscoveryMode = "dine-out" | "cook-at-home";
 export type MealTime = "breakfast" | "lunch" | "snack" | "dinner" | "any";
@@ -20,6 +21,8 @@ export interface RankedPlace {
   id: string;
   googlePlaceId?: string;
   googleMapsUri?: string;
+  rating?: number;
+  userRatingCount?: number;
   attributions?: Array<{ provider: string; providerUri?: string }>;
   name: string;
   nameKm?: string;
@@ -76,6 +79,8 @@ export interface KhmerRecipe {
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
   tips?: string;
+  source?: "gemini";
+  recommendationKm?: string;
 }
 
 export interface FoodDistrict {
@@ -99,6 +104,7 @@ export interface RandomFoodSuggestion {
     recipeId?: string;
   };
   place?: RankedPlace;
+  recipe?: KhmerRecipe;
   messageKm: string;
 }
 
@@ -116,17 +122,15 @@ export function useFoodDiscovery() {
   const locationLabel = ref<string>("បឹងកេងកង (Boeng Keng Kang)");
 
   const districts = ref<FoodDistrict[]>([]);
-  const places = ref<RankedPlace[]>([]);
-  const recipes = ref<KhmerRecipe[]>([]);
-  const selectedPlace = ref<RankedPlace | null>(null);
   const selectedRecipe = ref<KhmerRecipe | null>(null);
-  const randomSuggestion = ref<RandomFoodSuggestion | null>(null);
-
-  const isLoading = ref<boolean>(false);
-  const isRandomLoading = ref<boolean>(false);
-  const errorMessage = ref<string | null>(null);
-  const dataSource = ref<"google" | "curated">("google");
-  const hasSearched = ref<boolean>(false);
+  const filters = ref<Record<string, string | string[]>>({});
+  const locationQuery = ref("");
+  const routeOrigin = ref("");
+  const routeDestination = ref("");
+  const allergies = ref("");
+  const minimumRating = ref(0);
+  const results = useFoodResults(currentCriteria, mode);
+  const { places, recipes, selectedPlace, randomSuggestion, isLoading, isRandomLoading, errorMessage, getRecommendations } = results;
   const copyNotification = ref<string | null>(null);
 
   const budgetPerPerson = computed(() => {
@@ -192,65 +196,19 @@ export function useFoodDiscovery() {
     }
   }
 
-  function currentCriteria(limit: number): Record<string, unknown> {
+  function currentCriteria(): Record<string, unknown> {
     return {
       mode: mode.value, mealTime: mealTime.value, occasion: occasion.value,
       peopleCount: peopleCount.value, totalBudget: totalBudget.value,
-      cuisine: searchKeyword.value.trim() || undefined, limit,
+      cuisine: searchKeyword.value.trim() || undefined,
+      ...(Object.keys(filters.value).length ? { filters: JSON.parse(JSON.stringify(filters.value)) } : {}),
+      ...(locationQuery.value.trim() ? { locationQuery: locationQuery.value.trim() } : {}),
+      ...(routeOrigin.value.trim() ? { routeOrigin: routeOrigin.value.trim() } : {}),
+      ...(routeDestination.value.trim() ? { routeDestination: routeDestination.value.trim() } : {}),
+      ...(allergies.value.trim() ? { allergies: allergies.value.trim() } : {}),
+      ...(minimumRating.value ? { minimumRating: minimumRating.value } : {}),
       ...(userCoords.value ? userCoords.value : selectedDistrictId.value ? { district: selectedDistrictId.value } : {}),
     };
-  }
-
-  async function getRecommendations() {
-    isLoading.value = true;
-    errorMessage.value = null;
-    hasSearched.value = true;
-
-    try {
-      const res = await $fetch<{
-        mode: DiscoveryMode;
-        places: RankedPlace[];
-        recipes?: KhmerRecipe[];
-        dataSource: "google" | "curated";
-      }>("/api/food/recommend", {
-        method: "POST",
-        body: currentCriteria(5),
-      });
-
-      places.value = res.places || [];
-      recipes.value = res.recipes || [];
-      dataSource.value = res.dataSource;
-
-      if (places.value.length > 0) {
-        selectedPlace.value = places.value[0];
-      } else {
-        selectedPlace.value = null;
-      }
-    } catch (err: any) {
-      errorMessage.value = "មិនអាចទាញយកទិន្នន័យបាននៅពេលនេះទេ។ សូមព្យាយាមម្តងទៀត។";
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  async function fetchRandomPick() {
-    if (isRandomLoading.value) return;
-    isRandomLoading.value = true;
-    errorMessage.value = null;
-    randomSuggestion.value = null;
-    try {
-      const res = await $fetch<RandomFoodSuggestion>("/api/food/pick", {
-        method: "POST",
-        body: currentCriteria(20),
-        // A network retry can produce another paid AI selection.
-        retry: 0,
-      });
-      randomSuggestion.value = res;
-    } catch {
-      errorMessage.value = "មិនអាចរើសម្ហូបជាមួយ AI បាននៅពេលនេះទេ។ សូមពិនិត្យលក្ខខណ្ឌស្វែងរក ឬព្យាយាមម្ដងទៀត។";
-    } finally {
-      isRandomLoading.value = false;
-    }
   }
 
   async function sharePlace(place: RankedPlace) {
@@ -290,6 +248,11 @@ export function useFoodDiscovery() {
     selectedRecipe.value = recipe;
   }
 
+  function openPickedRecipe() {
+    const recipe = randomSuggestion.value?.recipe;
+    if (recipe) { randomSuggestion.value = null; selectedRecipe.value = recipe; }
+  }
+
   function closeRecipeDetail() {
     selectedRecipe.value = null;
   }
@@ -299,6 +262,8 @@ export function useFoodDiscovery() {
   }
 
   return {
+    ...results,
+    filters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
     mode,
     mealTime,
     occasion,
@@ -310,27 +275,17 @@ export function useFoodDiscovery() {
     isLocating,
     locationLabel,
     districts,
-    places,
-    recipes,
-    selectedPlace,
     selectedRecipe,
-    randomSuggestion,
-    isLoading,
-    isRandomLoading,
-    errorMessage,
-    dataSource,
-    hasSearched,
     copyNotification,
     budgetPerPerson,
     fetchDistricts,
     requestGeolocation,
     onDistrictChange,
-    getRecommendations,
-    fetchRandomPick,
     sharePlace,
     getDirectionsUrl,
     selectPlaceForMap,
     openRecipeDetail,
+    openPickedRecipe,
     closeRecipeDetail,
     closeRandomModal,
   };

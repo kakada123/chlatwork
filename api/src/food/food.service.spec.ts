@@ -10,11 +10,12 @@ import { FoodRecommendationEngine } from "./food-recommendation.engine";
 import type { Place } from "./food.types";
 import { plainToInstance } from "class-transformer";
 import { FoodController } from "./food.controller";
+import { generatedFoodRecipe } from "../../test/food-fixtures";
 
 describe("FoodService", () => {
   let service: FoodService;
   let placesProvider: { searchNearby: jest.Mock };
-  let aiPicker: { choose: jest.Mock; assertAvailable: jest.Mock };
+  let aiPicker: { choose: jest.Mock; assertAvailable: jest.Mock; generateRecipes: jest.Mock };
   let engine: FoodRecommendationEngine;
   const fixture: Place = {
     id: "google:fixture",
@@ -28,6 +29,10 @@ describe("FoodService", () => {
     source: "google",
     isPriceVerified: false,
   };
+  const aiRecipe = { ...generatedFoodRecipe(), id: "gemini-fixture", source: "gemini", steps: [
+    { step: 1, textKm: "លាងផ្សិត។", textEn: "Wash mushrooms." },
+    { step: 2, textKm: "ឆាបាយនិងផ្សិតឱ្យឆ្អិន។", textEn: "Cook the mushrooms and rice." },
+  ] };
 
   beforeEach(() => {
     placesProvider = {
@@ -43,6 +48,7 @@ describe("FoodService", () => {
           messageKm: "សាកញ៉ាំនៅទីនេះថ្ងៃនេះ។",
         }),
       assertAvailable: jest.fn(),
+      generateRecipes: jest.fn().mockResolvedValue([aiRecipe]),
     };
     engine = new FoodRecommendationEngine();
     service = new FoodService(
@@ -87,13 +93,14 @@ describe("FoodService", () => {
       expect(response.places[0].budgetFit).toBeDefined();
     });
 
-    it("handles cook-at-home mode returning ranked Khmer recipes", async () => {
+    it("generates cook-at-home recipes through Gemini with the current budget and recent names", async () => {
       const response = await service.recommend({
         mode: "cook-at-home",
         mealTime: "lunch",
         occasion: "family",
         peopleCount: 4,
         totalBudget: 15,
+        recentRecipeNames: ["Beef Lok Lak"],
       });
 
       expect(response.mode).toBe("cook-at-home");
@@ -101,6 +108,10 @@ describe("FoodService", () => {
       expect(response.recipes!.length).toBeGreaterThan(0);
       expect(response.recipes![0].steps.length).toBeGreaterThan(0);
       expect(response.recipes![0].ingredients.length).toBeGreaterThan(0);
+      expect(response.dataSource).toBe("gemini");
+      expect(response.recipes![0].id).toBe("gemini-fixture");
+      expect(aiPicker.generateRecipes).toHaveBeenCalledWith(expect.objectContaining({ peopleCount: 4, totalBudget: 15, mealTime: "lunch", occasion: "family", recentRecipeNames: ["Beef Lok Lak"] }));
+      expect(aiPicker.choose).not.toHaveBeenCalled();
       expect(placesProvider.searchNearby).not.toHaveBeenCalled();
     });
   });
@@ -128,10 +139,6 @@ describe("FoodService", () => {
 
   describe("getRandomFood", () => {
     it("keeps the legacy route available and obtains its recipe choice from Gemini", async () => {
-      aiPicker.choose.mockResolvedValue({
-        id: "samlor-korko",
-        messageKm: "សាកធ្វើសម្លកកូរម្តង។",
-      });
       const [QueryDto] = Reflect.getMetadata(
         "design:paramtypes",
         FoodController.prototype,
@@ -144,7 +151,8 @@ describe("FoodService", () => {
       expect(suggestion).toBeDefined();
       expect(suggestion.messageKm).toBeDefined();
       expect(suggestion.selectionSource).toBe("gemini");
-      expect(suggestion.dish?.recipeId).toBe("samlor-korko");
+      expect(suggestion.dish?.recipeId).toBe("gemini-fixture");
+      expect(suggestion.recipe?.source).toBe("gemini");
     });
   });
 
@@ -178,6 +186,7 @@ describe("FoodService", () => {
         104.9247,
         3000,
         "គុយទាវ",
+        expect.objectContaining({ mode: "dine-out", district: "bkk" }),
       );
       const [candidates, criteria] = aiPicker.choose.mock.calls[0];
       expect(candidates[0]).toMatchObject({
@@ -195,20 +204,42 @@ describe("FoodService", () => {
       });
     });
 
-    it("chooses only a recipe from the existing catalog in cook-at-home mode", async () => {
-      aiPicker.choose.mockImplementation(async (candidates) => ({
-        id: candidates[0].id,
-        messageKm: "សាកធ្វើម្ហូបខ្មែរនេះនៅផ្ទះ។",
-      }));
+    it("generates one complete recipe for a cook-at-home pick without a static shortlist or second paid AI call", async () => {
       const result = await service.pick({
         mode: "cook-at-home",
-        mealTime: "breakfast",
-        cuisine: "noodle",
+        mealTime: "lunch",
+        cuisine: "mushroom",
       });
       expect(result.type).toBe("dish");
       expect(result.dish?.recipeId).toBeDefined();
-      expect(service.getRecipeById(result.dish!.recipeId!)).toBeDefined();
+      expect(result.recipe).toEqual(aiRecipe);
+      expect(result.messageKm).toBe(aiRecipe.recommendationKm);
+      expect(aiPicker.generateRecipes).toHaveBeenCalledWith(expect.objectContaining({ limit: 1, cuisine: "mushroom" }));
+      expect(aiPicker.choose).not.toHaveBeenCalled();
       expect(placesProvider.searchNearby).not.toHaveBeenCalled();
+    });
+
+    it("excludes recently displayed restaurants before ranking and picking", async () => {
+      const fresh = { ...fixture, id: "google:fresh", googlePlaceId: "fresh", name: "Fresh Restaurant" };
+      placesProvider.searchNearby.mockResolvedValue({ places: [fixture, fresh], dataSource: "google" });
+      aiPicker.choose.mockResolvedValue({ id: fresh.id, messageKm: "ជម្រើសថ្មីសម្រាប់ថ្ងៃនេះ។" });
+      const recommendations = await service.recommend({ excludePlaceIds: [fixture.id] });
+      expect(recommendations.places.map((place) => place.id)).toEqual([fresh.id]);
+      const pick = await service.pick({ excludePlaceIds: [fixture.id] });
+      expect(pick.place?.id).toBe(fresh.id);
+      expect(aiPicker.choose.mock.calls[0][0].map((candidate: Place) => candidate.id)).toEqual([fresh.id]);
+    });
+
+    it("does not silently recycle restaurants after all candidates have been seen", async () => {
+      expect((await service.recommend({ excludePlaceIds: [fixture.id] })).places).toEqual([]);
+      await expect(service.pick({ excludePlaceIds: [fixture.id] })).rejects.toBeInstanceOf(NotFoundException);
+      expect(aiPicker.choose).not.toHaveBeenCalled();
+    });
+
+    it("does not fall back to the constant recipe catalog on AI failure", async () => {
+      aiPicker.generateRecipes.mockRejectedValue(new ServiceUnavailableException("AI unavailable"));
+      await expect(service.recommend({ mode: "cook-at-home" })).rejects.toBeInstanceOf(ServiceUnavailableException);
+      await expect(service.pick({ mode: "cook-at-home" })).rejects.toBeInstanceOf(ServiceUnavailableException);
     });
 
     it("does not invent an alternative when there are no Google candidates", async () => {

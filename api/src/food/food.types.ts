@@ -20,6 +20,8 @@ export interface Place {
   id: string;
   googlePlaceId?: string;
   googleMapsUri?: string;
+  rating?: number;
+  userRatingCount?: number;
   attributions?: Array<{ provider: string; providerUri?: string }>;
   name: string;
   nameKm?: string;
@@ -82,6 +84,8 @@ export interface KhmerRecipe {
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
   tips?: string;
+  source?: "gemini";
+  recommendationKm?: string;
 }
 
 export interface FoodDistrict {
@@ -107,8 +111,11 @@ export interface RecommendationResponse {
   };
   places: RankedPlace[];
   recipes?: KhmerRecipe[];
+  nextPageToken?: string;
+  searchCenter?: { lat: number; lng: number };
+  routePolyline?: string;
   totalFound: number;
-  dataSource: "google" | "curated";
+  dataSource: "google" | "curated" | "gemini";
   attribution: FoodAttribution;
 }
 
@@ -129,5 +136,6 @@ export interface RandomFoodSuggestion {
     recipeId?: string;
   };
   place?: Place;
+  recipe?: KhmerRecipe;
   messageKm: string;
 }

@@ -1,11 +1,23 @@
 import {
   Injectable,
+  BadRequestException,
   Logger,
   ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Place } from "./food.types";
 import { calculateDistanceKm } from "./data/districts";
+import type { FoodFiltersDto } from "./dto/food-filters.dto";
+import { foodSearchQuery, searchLocationLabel } from "./food-search-preferences";
+
+export interface GoogleFoodSearchResult {
+  places: Place[]; dataSource: "google"; nextPageToken?: string;
+  searchCenter?: { lat: number; lng: number }; routePolyline?: string;
+}
+
+class GoogleFoodRequestError extends Error {
+  constructor(readonly status: number, readonly reason: string) { super("Google Food provider failed"); }
+}
 
 const FOOD_TYPES = ["restaurant", "cafe", "fast_food_restaurant", "food_court"];
 const SAFE_GOOGLE_ERROR_REASONS = new Set([
@@ -126,93 +138,104 @@ export class GooglePlacesProviderAdapter {
   private readonly logger = new Logger(GooglePlacesProviderAdapter.name);
   constructor(private readonly config: ConfigService) {}
 
+  routeSearchAvailable(): boolean {
+    const value = this.config.get<string>("GOOGLE_ROUTES_API_KEY")?.trim();
+    return Boolean(value && !/^(dummy_|replace_)/i.test(value));
+  }
+
   async searchNearby(
     lat: number,
     lng: number,
     radiusMeters = 2000,
     cuisine?: string,
-  ): Promise<{ places: Place[]; dataSource: "google" }> {
+    options: FoodFiltersDto = {},
+  ): Promise<GoogleFoodSearchResult> {
     const apiKey = this.config.get<string>("GOOGLE_PLACES_API_KEY")?.trim();
     if (!apiKey || /^(dummy_|replace_)/i.test(apiKey)) {
       throw new ServiceUnavailableException(
         "Google place search is not configured.",
       );
     }
-    const circle = {
-      center: { latitude: lat, longitude: lng },
-      radius: radiusMeters,
-    };
-    const query = cuisine?.trim();
-    const useTextSearch = Boolean(query && query.toLowerCase() !== "all");
-    let providerStatus: number | undefined;
-    let providerReason = "UNKNOWN";
+    const locationLabel = searchLocationLabel(options);
+    const query = foodSearchQuery(cuisine, options.filters);
+    const alongRoute = options.filters?.locationDiscovery === "along-my-route";
+    if (alongRoute && (!options.routeOrigin?.trim() || !options.routeDestination?.trim())) throw new BadRequestException("Enter a route origin and destination.");
+    if ((options.searchLat === undefined) !== (options.searchLng === undefined)) throw new BadRequestException("Supply both search-center coordinates.");
+    const routesKey = this.config.get<string>("GOOGLE_ROUTES_API_KEY")?.trim();
+    if (alongRoute && !options.pageToken && (!routesKey || /^(dummy_|replace_)/i.test(routesKey))) throw new ServiceUnavailableException("Route search is not configured.");
     try {
-      // Fetch fresh Google data without caching or substituting unverified curated locations.
-      const response = await fetch(
-        `https://places.googleapis.com/v1/places:${useTextSearch ? "searchText" : "searchNearby"}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": apiKey,
-            "X-Goog-FieldMask": FIELD_MASK,
-          },
-          body: JSON.stringify(
-            useTextSearch
-              ? {
-                  textQuery: query,
-                  regionCode: "KH",
-                  languageCode: "km",
-                  pageSize: 20,
-                  locationBias: { circle },
-                }
-              : {
-                  includedTypes: FOOD_TYPES,
-                  maxResultCount: 20,
-                  rankPreference: "DISTANCE",
-                  languageCode: "km",
-                  locationRestriction: { circle },
-                },
-          ),
-          signal: AbortSignal.timeout(8000),
-        },
-      );
-      providerStatus = response.status;
-      if (!response.ok) {
-        providerReason = googleErrorReason(
-          await response.json().catch(() => null),
-        );
-        throw new Error("Provider HTTP failure");
+      let center = { lat, lng };
+      let routePolyline: string | undefined;
+      if (alongRoute) {
+        if (options.pageToken && options.routePolyline) routePolyline = options.routePolyline;
+        else {
+          const body = await this.request("https://routes.googleapis.com/directions/v2:computeRoutes", routesKey!, "routes.polyline.encodedPolyline", {
+            origin: { address: options.routeOrigin }, destination: { address: options.routeDestination }, travelMode: "DRIVE", routingPreference: "TRAFFIC_UNAWARE", computeAlternativeRoutes: false,
+          });
+          const routes = Array.isArray(body.routes) ? body.routes : [];
+          const encoded = record(record(routes[0]).polyline).encodedPolyline;
+          if (typeof encoded !== "string" || !encoded || encoded.length > 20000) throw new Error("Route unavailable");
+          routePolyline = encoded;
+        }
+      } else if (options.pageToken && options.searchLat !== undefined && options.searchLng !== undefined) {
+        center = { lat: options.searchLat, lng: options.searchLng };
+      } else if (locationLabel) {
+        const body = await this.request("https://places.googleapis.com/v1/places:searchText", apiKey, "places.location", { textQuery: locationLabel, regionCode: "KH", pageSize: 1 });
+        const anchor = record((Array.isArray(body.places) ? body.places : [])[0]);
+        const point = record(anchor.location);
+        if (typeof point.latitude !== "number" || !Number.isFinite(point.latitude) || Math.abs(point.latitude) > 90 || typeof point.longitude !== "number" || !Number.isFinite(point.longitude) || Math.abs(point.longitude) > 180) throw new Error("Location unavailable");
+        center = { lat: point.latitude, lng: point.longitude };
       }
-      const body = record(await response.json());
+      const types = options.filters?.restaurantTypes;
+      const type = Array.isArray(types) && types.length === 1 ? ({ "food-court": "food_court", "fast-food-restaurant": "fast_food_restaurant", "coffee-shop": "cafe", "bakery-cafe": "bakery", "buffet-restaurant": "buffet_restaurant", "fine-dining": "fine_dining_restaurant", "bbq-restaurant": "barbecue_restaurant" } as Record<string, string>)[types[0]] : undefined;
+      const withRatings = Boolean(options.filters?.reviews || options.minimumRating);
+      const body = await this.request("https://places.googleapis.com/v1/places:searchText", apiKey, `${FIELD_MASK},nextPageToken${withRatings ? ",places.rating,places.userRatingCount" : ""}`, {
+        textQuery: query, regionCode: "KH", languageCode: "km", pageSize: 20,
+        ...(options.pageToken ? { pageToken: options.pageToken } : {}),
+        ...(type ? { includedType: type, strictTypeFiltering: true } : {}),
+        ...(options.filters?.operatingStatus === "open-now" ? { openNow: true } : {}),
+        ...(options.minimumRating ? { minRating: options.minimumRating } : {}),
+        ...(routePolyline ? { searchAlongRouteParameters: { polyline: { encodedPolyline: routePolyline } } }
+          : { locationBias: { circle: { center: { latitude: center.lat, longitude: center.lng }, radius: radiusMeters } } }),
+      });
       if (body.places !== undefined && !Array.isArray(body.places))
         throw new Error("Invalid provider result");
       const places: Place[] = [];
       const seen = new Set<string>();
       for (const candidate of (body.places || []) as unknown[]) {
-        const place = this.normalize(candidate, lat, lng);
+        const place = this.normalize(candidate, center.lat, center.lng);
         // Text search is location-biased rather than radius-restricted; enforce the requested radius ourselves.
         if (
           !place ||
-          (place.distanceMeters ?? Infinity) > radiusMeters ||
+          (!routePolyline && (place.distanceMeters ?? Infinity) > radiusMeters) ||
           seen.has(place.id)
         )
           continue;
         seen.add(place.id);
+        if (routePolyline) place.distanceMeters = undefined;
         places.push(place);
       }
-      return { places, dataSource: "google" };
-    } catch {
+      const nextPageToken = typeof body.nextPageToken === "string" && body.nextPageToken.length <= 4096 ? body.nextPageToken : undefined;
+      return { places, dataSource: "google", nextPageToken, searchCenter: center, ...(routePolyline ? { routePolyline } : {}) };
+    } catch (error) {
       // Never log raw provider messages, headers or metadata; ErrorInfo reasons are allowlisted above.
       this.logger.warn({
         message: "Google Places search failed",
-        providerStatus: providerStatus ?? null,
-        providerReason,
+        providerStatus: error instanceof GoogleFoodRequestError ? error.status : null,
+        providerReason: error instanceof GoogleFoodRequestError ? error.reason : "UNKNOWN",
       });
       throw new ServiceUnavailableException(
         "Google place search is unavailable. Please try again later.",
       );
     }
+  }
+
+  private async request(url: string, key: string, fieldMask: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": fieldMask }, body: JSON.stringify(body), signal: AbortSignal.timeout(8000) });
+    const value: unknown = await response.json().catch(() => null);
+    if (!response.ok) throw new GoogleFoodRequestError(response.status, googleErrorReason(value));
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new GoogleFoodRequestError(response.status, "UNKNOWN");
+    return value as Record<string, unknown>;
   }
 
   private normalize(
@@ -303,6 +326,8 @@ export class GooglePlacesProviderAdapter {
       street: text(source.formattedAddress),
       city: text(source.formattedAddress) || "",
       googleMapsUri: safeUrl(source.googleMapsUri, true),
+      rating: typeof source.rating === "number" && source.rating >= 0 && source.rating <= 5 ? source.rating : undefined,
+      userRatingCount: typeof source.userRatingCount === "number" && Number.isInteger(source.userRatingCount) && source.userRatingCount >= 0 ? source.userRatingCount : undefined,
       attributions,
       // A business listing or price tier is not a verified per-person menu price.
       isPriceVerified: false,

@@ -9,8 +9,9 @@ import {
   IsInt,
 } from "class-validator";
 import { foodNumber } from "./food-number";
+import { FoodFiltersDto } from "./food-filters.dto";
 
-export class FoodSearchQueryDto {
+export class FoodSearchQueryDto extends FoodFiltersDto {
   @IsOptional()
   @Transform(({ value }) => foodNumber(value))
   @IsNumber()

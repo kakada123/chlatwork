@@ -55,15 +55,10 @@ describe("GooglePlacesProviderAdapter", () => {
     expect(result.places[0].estimatedPricePerPersonUsd).toBeUndefined();
     expect(result.places[0].distanceMeters).toBeGreaterThan(0);
     const [url, request] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://places.googleapis.com/v1/places:searchNearby");
+    expect(url).toBe("https://places.googleapis.com/v1/places:searchText");
     expect(JSON.parse(request.body)).toMatchObject({
-      includedTypes: [
-        "restaurant",
-        "cafe",
-        "fast_food_restaurant",
-        "food_court",
-      ],
-      locationRestriction: {
+      pageSize: 20,
+      locationBias: {
         circle: {
           center: { latitude: 11.5516, longitude: 104.9247 },
           radius: 2000,
@@ -350,6 +345,54 @@ describe("GooglePlacesProviderAdapter", () => {
       }
     },
   );
+
+  it("preserves pagination tokens and sends selected food, roadside, vibe and operating filters", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ places: [place], nextPageToken: "next-page" })));
+    const result = await adapter.searchNearby(11.5516, 104.9247, 1000, "គុយទាវ", {
+      pageToken: "previous-page", filters: { foodTypes: ["kuy-teav"], restaurantTypes: ["street-food-stall"], vibes: ["quiet-and-peaceful"], operatingStatus: "open-now" }, minimumRating: 4,
+    });
+    expect(result.nextPageToken).toBe("next-page");
+    const request = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(request).toMatchObject({ pageToken: "previous-page", pageSize: 20, openNow: true, minRating: 4 });
+    expect(request.textQuery).toContain("Street Food Stall");
+    expect(request.textQuery).toContain("គុយទាវ");
+    expect(request.textQuery).toContain("Quiet & Peaceful");
+    expect(fetchMock.mock.calls[0][1].headers["X-Goog-FieldMask"]).toContain("nextPageToken");
+  });
+
+  it("resolves a selected city/area through Places before enforcing the requested distance", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ places: [{ location: { latitude: 13.36, longitude: 103.86 } }] })));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ places: [{ ...place, location: { latitude: 13.3601, longitude: 103.8601 } }] })));
+    const result = await adapter.searchNearby(11.5516, 104.9247, 1000, undefined, { filters: { city: "siem-reap" } });
+    expect(result.searchCenter).toEqual({ lat: 13.36, lng: 103.86 });
+    expect(result.places).toHaveLength(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).textQuery).toBe("Siem Reap, Cambodia");
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).locationBias.circle.center).toEqual({ latitude: 13.36, longitude: 103.86 });
+  });
+
+  it("reuses the resolved center while paging rather than resolving a different location again", async () => {
+    await adapter.searchNearby(11.5516, 104.9247, 1000, undefined, { pageToken: "page-two", searchLat: 13.36, searchLng: 103.86, filters: { city: "siem-reap" } });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).locationBias.circle.center).toEqual({ latitude: 13.36, longitude: 103.86 });
+  });
+
+  it("searches along a computed route and reuses its polyline on the next page", async () => {
+    adapter = new GooglePlacesProviderAdapter(new ConfigService({ GOOGLE_PLACES_API_KEY: "test_places_key", GOOGLE_ROUTES_API_KEY: "test_routes_key" }));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ routes: [{ polyline: { encodedPolyline: "fixture_encoded_route" } }] })));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ places: [place], nextPageToken: "page-two" })));
+    const options = { filters: { locationDiscovery: "along-my-route" }, routeOrigin: "Phnom Penh", routeDestination: "Siem Reap" };
+    const result = await adapter.searchNearby(11.55, 104.92, 3000, undefined, options);
+    expect(fetchMock.mock.calls[0][0]).toBe("https://routes.googleapis.com/directions/v2:computeRoutes");
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ origin: { address: "Phnom Penh" }, destination: { address: "Siem Reap" }, travelMode: "DRIVE" });
+    const body = JSON.parse(fetchMock.mock.calls[1][1].body);
+    expect(body.searchAlongRouteParameters.polyline.encodedPolyline).toBe("fixture_encoded_route");
+    expect(body.locationBias).toBeUndefined();
+    expect(result.routePolyline).toBe("fixture_encoded_route");
+    expect(result.places[0].distanceMeters).toBeUndefined();
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ places: [] })));
+    await adapter.searchNearby(11.55, 104.92, 3000, undefined, { ...options, pageToken: result.nextPageToken, routePolyline: result.routePolyline });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
 
   it("prefers a recognized structured reason over fallback message wording", async () => {
     const warning = jest.spyOn(Logger.prototype, "warn").mockImplementation();

@@ -15,6 +15,10 @@ describe("Food request validation", () => {
     { mode: "invented" },
     { peopleCount: true },
     { totalBudget: [] },
+    { excludePlaceIds: "google:one" }, { excludePlaceIds: [42] },
+    { excludePlaceIds: Array(101).fill("google:one") }, { excludePlaceIds: ["x".repeat(301)] },
+    { recentRecipeNames: [false] }, { recentRecipeNames: ["x".repeat(161)] },
+    { recentRecipeNames: Array(41).fill("Recipe") },
   ])("rejects malformed picker criteria %j", async (input) => {
     expect(
       (await validate(plainToInstance(FoodRecommendationDto, input))).length,

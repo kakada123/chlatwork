@@ -27,6 +27,8 @@ import {
   findDistrictById,
 } from "./data/districts";
 import { KHMER_RECIPES } from "./data/khmer-recipes";
+import { FOOD_FILTERS } from "./food-filters";
+import { discoveryRadius, resolvedFoodCriteria } from "./food-search-preferences";
 
 const GOOGLE_ATTRIBUTION: FoodAttribution = {
   provider: "Google Maps",
@@ -45,6 +47,11 @@ export class FoodService {
     private readonly aiPicker: FoodAiPickerService,
   ) {}
 
+  getFilters() {
+    const routes = this.placesProvider.routeSearchAvailable();
+    return FOOD_FILTERS.map((field) => ({ ...field, groups: field.groups.map((group) => ({ ...group, options: group.options.map((option) => ({ ...option, ...(option.value === "along-my-route" ? { disabled: !routes } : {}) })) })) }));
+  }
+
   /**
    * Use Google's live restaurant records; unavailable providers never become fabricated results.
    */
@@ -59,13 +66,14 @@ export class FoodService {
       query.lng,
       query.district,
     );
-    const radius = query.radius || 2500;
+    const radius = discoveryRadius(query, query.radius || 2500);
 
     const result = await this.placesProvider.searchNearby(
       coords.lat,
       coords.lng,
       radius,
       query.cuisine,
+      query,
     );
 
     return {
@@ -81,10 +89,7 @@ export class FoodService {
    */
   async recommend(dto: FoodRecommendationDto): Promise<RecommendationResponse> {
     const mode = dto.mode || "dine-out";
-    const mealTime = dto.mealTime || "lunch";
-    const occasion = dto.occasion || "friends";
-    const peopleCount = Math.max(1, dto.peopleCount || 1);
-    const totalBudget = dto.totalBudget;
+    const { mealTime, occasion, peopleCount, totalBudget } = resolvedFoodCriteria(dto);
     const budgetPerPerson = totalBudget ? totalBudget / peopleCount : undefined;
     const coords = this.resolveCoordinates(dto.lat, dto.lng, dto.district);
 
@@ -100,31 +105,29 @@ export class FoodService {
     };
 
     if (mode === "cook-at-home") {
-      const recipes = this.rankRecipes(
-        mealTime,
-        occasion,
-        budgetPerPerson,
-        dto.cuisine,
-      );
+      const recipes = await this.aiPicker.generateRecipes({ ...dto, mode, mealTime, occasion, peopleCount, totalBudget });
       return {
         mode: "cook-at-home",
         querySummary,
         places: [],
-        recipes: recipes.slice(0, dto.limit || 5),
+        recipes,
         totalFound: recipes.length,
-        dataSource: "curated",
+        dataSource: "gemini",
         attribution: RECIPE_ATTRIBUTION,
       };
     }
 
     // Dine out recommendation
-    const radius = 3000;
+    const radius = discoveryRadius(dto, 3000);
     const searchResult = await this.placesProvider.searchNearby(
       coords.lat,
       coords.lng,
       radius,
       dto.cuisine,
+      dto,
     );
+    querySummary.lat = searchResult.searchCenter?.lat ?? coords.lat;
+    querySummary.lng = searchResult.searchCenter?.lng ?? coords.lng;
 
     const criteria: RecommendationCriteria = {
       mealTime,
@@ -137,8 +140,9 @@ export class FoodService {
       userLng: coords.lng,
     };
 
+    const excluded = new Set(dto.excludePlaceIds || []);
     const rankedPlaces = this.recommendationEngine.rankPlaces(
-      searchResult.places,
+      searchResult.places.filter((place) => !excluded.has(place.id)),
       criteria,
       dto.limit || 5,
     );
@@ -150,6 +154,9 @@ export class FoodService {
       totalFound: rankedPlaces.length,
       dataSource: searchResult.dataSource,
       attribution: GOOGLE_ATTRIBUTION,
+      nextPageToken: searchResult.nextPageToken,
+      searchCenter: searchResult.searchCenter,
+      routePolyline: searchResult.routePolyline,
     };
   }
 
@@ -186,42 +193,28 @@ export class FoodService {
     // Avoid a paid Places lookup when the requested AI selection cannot run.
     this.aiPicker.assertAvailable();
     // Always build the candidate set on the server; callers cannot inject their own restaurant facts.
-    const recommendation = await this.recommend({ ...dto, limit: 20 });
+    let recommendation = await this.recommend({ ...dto, limit: dto.mode === "cook-at-home" ? 1 : 20 });
+    const seenTokens = new Set<string>();
+    // A pick may advance through real Google pages to find unseen choices; this never retries a failed request.
+    for (let page = 1; recommendation.mode === "dine-out" && !recommendation.places.length && recommendation.nextPageToken && page < 3; page++) {
+      const token = recommendation.nextPageToken;
+      if (seenTokens.has(token)) break;
+      seenTokens.add(token);
+      recommendation = await this.recommend({ ...dto, limit: 20, pageToken: token, searchLat: recommendation.searchCenter?.lat, searchLng: recommendation.searchCenter?.lng, routePolyline: recommendation.routePolyline });
+    }
     const criteria: FoodRecommendationDto = {
       ...recommendation.querySummary,
       mode: recommendation.mode,
       cuisine: dto.cuisine,
     };
     if (recommendation.mode === "cook-at-home") {
-      const recipes = (recommendation.recipes || []).filter(
-        (recipe) =>
-          !dto.mealTime ||
-          dto.mealTime === "any" ||
-          recipe.mealTimes.some((time) => time === dto.mealTime),
-      );
-      if (!recipes.length)
-        throw new NotFoundException("No recipes match these filters.");
-      const selection = await this.aiPicker.choose(
-        recipes.map((recipe) => ({
-          id: recipe.id,
-          nameKm: recipe.nameKm,
-          nameEn: recipe.nameEn,
-          mealTimes: recipe.mealTimes,
-          occasions: recipe.occasions,
-          estimatedCostUsd: recipe.estimatedCostUsd,
-          servings: recipe.servings,
-        })),
-        criteria,
-      );
-      const recipe = recipes.find((candidate) => candidate.id === selection.id);
-      if (!recipe)
-        throw new ServiceUnavailableException(
-          "AI selected an unavailable recipe.",
-        );
+      const recipe = recommendation.recipes?.[0];
+      if (!recipe?.recommendationKm || recipe.source !== "gemini") throw new ServiceUnavailableException("No generated recipe is available.");
       return {
         type: "dish",
         selectionSource: "gemini",
-        messageKm: selection.messageKm,
+        messageKm: recipe.recommendationKm,
+        recipe,
         dish: {
           nameKm: recipe.nameKm,
           nameEn: recipe.nameEn,
@@ -270,46 +263,6 @@ export class FoodService {
    */
   getDistricts(): FoodDistrict[] {
     return PHNOM_PENH_DISTRICTS;
-  }
-
-  private rankRecipes(
-    mealTime: MealTime,
-    occasion: string,
-    budgetPerPerson?: number,
-    keyword?: string,
-  ): KhmerRecipe[] {
-    const query = keyword?.trim().toLowerCase();
-    const recipes = KHMER_RECIPES.filter(
-      (recipe) =>
-        !query ||
-        query === "all" ||
-        `${recipe.nameKm} ${recipe.nameEn} ${recipe.category} ${recipe.ingredients.map((ingredient) => `${ingredient.nameKm} ${ingredient.nameEn}`).join(" ")}`
-          .toLowerCase()
-          .includes(query),
-    );
-    return [...recipes].sort((a, b) => {
-      let scoreA = 0;
-      let scoreB = 0;
-
-      if (mealTime !== "any") {
-        if (a.mealTimes.includes(mealTime as any)) scoreA += 20;
-        if (b.mealTimes.includes(mealTime as any)) scoreB += 20;
-      }
-
-      if (occasion !== "any") {
-        if (a.occasions.includes(occasion as any)) scoreA += 15;
-        if (b.occasions.includes(occasion as any)) scoreB += 15;
-      }
-
-      if (budgetPerPerson && budgetPerPerson > 0) {
-        const costA = a.estimatedCostUsd / a.servings;
-        const costB = b.estimatedCostUsd / b.servings;
-        if (costA <= budgetPerPerson) scoreA += 15;
-        if (costB <= budgetPerPerson) scoreB += 15;
-      }
-
-      return scoreB - scoreA;
-    });
   }
 
   private resolveCoordinates(

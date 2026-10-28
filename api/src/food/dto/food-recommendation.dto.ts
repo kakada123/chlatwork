@@ -8,9 +8,12 @@ import {
   Max,
   Min,
   MaxLength,
+  IsArray,
+  ArrayMaxSize,
 } from "class-validator";
 import { DiscoveryMode, MealTime, Occasion } from "../food.types";
 import { foodNumber } from "./food-number";
+import { FoodFiltersDto } from "./food-filters.dto";
 
 const validModes: DiscoveryMode[] = ["dine-out", "cook-at-home"];
 const validMealTimes: MealTime[] = [
@@ -30,7 +33,21 @@ const validOccasions: Occasion[] = [
   "any",
 ];
 
-export class FoodRecommendationDto {
+export class FoodRecommendationDto extends FoodFiltersDto {
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  @MaxLength(300, { each: true })
+  excludePlaceIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(40)
+  @IsString({ each: true })
+  @MaxLength(160, { each: true })
+  recentRecipeNames?: string[];
+
   @IsOptional()
   @IsIn(validModes)
   mode?: DiscoveryMode = "dine-out";
