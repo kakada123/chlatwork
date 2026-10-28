@@ -1,117 +1,79 @@
 # ChlatWork Food (ឆ្លាតវើក ហ្វូត)
 
-> Tagline: **"ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?"**  
-> Subdomain: `food.chlatwork.com` (and `/food` on main domain)
+Food discovery is available at `/food` and on the activated `food.chlatwork.com` product host.
 
----
+## Restaurant discovery
 
-## 1. Overview & Philosophy
+`GooglePlacesProviderAdapter` calls Google Places API (New) from the API server. A nearby request searches restaurants, cafés, fast food and food courts within the selected district or GPS radius. A Khmer/English dish or cuisine keyword uses Text Search with the same location context; the adapter also filters returned coordinates against the requested radius because Google's text-search location bias is not a strict boundary.
 
-ChlatWork Food is a **100% FREE-first, Khmer-first, mobile-first food discovery platform** integrated directly within the existing ChlatWork monorepo. It solves the everyday dilemma of deciding what to eat, where to dine out, or what Khmer meal to cook at home—tailored to party size, occasion, and real budget.
+Only named, valid, operational food businesses are returned. Closed, malformed, duplicate and out-of-radius listings are excluded. Google IDs, coordinates, addresses, Maps links and third-party attributions are preserved. There is no OSM or curated-restaurant fallback: empty results remain empty, and an unavailable provider returns a safe error.
 
-### Core Principles
-1. **Zero Paid APIs / Zero Paid AI**: No Google Places, no Google Maps API, no paid LLMs, and no commercial third-party keys.
-2. **Deterministic Recommendation Engine**: Transparent, reproducible rule-based scoring based on meal time, occasion, party size, budget, and location proximity.
-3. **Honest Price Data Policy**: Never claims a restaurant fits a user's budget without verified pricing data. Unverified spots are explicitly marked as `តម្លៃមិនទាន់ផ្ទៀងផ្ទាត់ (Price not verified)`.
-4. **Authentic Khmer Culture**: Native Khmer language UI, authentic traditional recipes (Samlor Korko, Amok, Lok Lak, Bai Sach Chrouk, Nom Banh Chok, etc.), and local Phnom Penh district mappings.
-5. **OpenStreetMap & ODbL Compliance**: Full attribution, compliant tile usage, and respectful querying of public Overpass infrastructure.
+Normal discovery retains the existing rule-based ranking for meal, occasion, group size and distance. Google listings do not establish verified per-person menu prices. Restaurant cards and AI picks display unverified pricing; the user should confirm prices with the restaurant. The local Khmer recipe catalog remains available without a Places key.
 
----
+## Google Maps display
 
-## 2. Architecture & Data Flow
+The map panel uses Google's official Maps Embed API. Selecting a restaurant card loads that Google place ID in the frame. Before results are selected, the frame shows the selected district or GPS center. The map shows the selected restaurant rather than a custom overlay of every result.
 
-```mermaid
-flowchart TD
-    User["User Browser\n(food.chlatwork.com / /food)"] --> NuxtRoute["Nuxt 4 / Nitro Server Routes\n(/server/api/food/*)"]
-    NuxtRoute --> NestAPI["NestJS Backend\n(FoodController / FoodService)"]
+If the browser Embed key is absent, a direct Google Maps link remains available. Directions use Google's `destination_place_id` as well as coordinates, and source links and provider attributions appear beside restaurant results. Leaflet, OpenStreetMap tiles and Overpass are no longer used.
 
-    subgraph Recommendation & Discovery Flow
-        NestAPI --> OsmAdapter["OsmProviderAdapter"]
-        NestAPI --> Engine["FoodRecommendationEngine\n(Deterministic Scoring)"]
-        NestAPI --> Recipes["Khmer Recipes Dataset\n(10 authentic dishes)"]
-        NestAPI --> Districts["Phnom Penh Districts\n(10 Khan regions)"]
+## “Pick for me” with Gemini
 
-        OsmAdapter --> Overpass["OpenStreetMap Overpass API\n(amenity=restaurant|cafe|fast_food)"]
-        OsmAdapter --> Curated["Curated Verified Places\n(Phnom Penh dataset)"]
-    end
+The picker submits the current mode, meal, occasion, group size, total budget, cuisine/dish keyword and district/GPS location to `POST /api/food/pick`.
 
-    Overpass -- "Timeout / Rate-limit fallback" --> Curated
-    Engine --> RankedResponse["Ranked Places / Recipes + Honest Budget Fit"]
-    RankedResponse --> NuxtRoute
-    NuxtRoute --> UI["Vue 3 UI + Interactive Leaflet Map + Directions"]
+- Dine-out candidates come from the server's current Google search and ranking.
+- Cook-at-home candidates come from the existing recipe catalog, filtered by meal and keyword and ranked using the existing occasion/budget rules.
+- `FoodAiPickerService` reuses `AI_ENABLED`, `GEMINI_API_KEY`, `GEMINI_TEXT_MODEL` and `AI_PROVIDER_TIMEOUT_MS`. Food deliberately uses Gemini as requested, independently of the Creator/Telegram `AI_USE_GEMINI` provider switch.
+- Gemini receives bounded candidate facts and selects one existing ID with a short Khmer explanation. Candidate IDs are constrained in the JSON schema and checked again on the server. Incomplete output, unknown IDs, invalid JSON and unavailable AI return a safe error.
+- The model cannot create restaurant or recipe records or overwrite their prices or locations. The prompt prohibits unsupported pricing and dietary claims. Model explanations remain generated suggestions and are not a guarantee about the business.
+- Requests use one provider attempt, frontend retries are disabled, and a second click cannot start a concurrent picker request. Failures never become a hardcoded recipe success.
+
+## Configuration
+
+Use only placeholders in example files. Configure real values separately in the appropriate hosting environment; never expose server keys through `NUXT_PUBLIC_*`.
+
+| Setting | Location | Purpose |
+| --- | --- | --- |
+| `GOOGLE_PLACES_API_KEY` | API server | Server-only key with Places API (New) enabled and API restrictions. Use compatible server application restrictions where infrastructure permits. |
+| `NUXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY` | Nuxt/Vercel | Separate browser key restricted to Maps Embed API and the exact frontend website referrers. This key is intentionally public. |
+| `AI_ENABLED=true` | API server | Existing global AI switch; disabled AI makes the picker unavailable. |
+| `GEMINI_API_KEY` | API server | Existing Gemini key; no additional Food AI key. |
+| `GEMINI_TEXT_MODEL` | API server | Existing configured Gemini text model. |
+| `AI_PROVIDER_TIMEOUT_MS` | API server | Existing provider timeout, capped at 30 seconds for Food. |
+
+To create the browser key in Google Cloud Console:
+
+1. Select the intended project and enable **Maps Embed API** under **APIs & Services → Library**.
+2. Open **Credentials → Create credentials → API key**.
+3. Set **Application restrictions → Websites**, with `https://food.chlatwork.com/*` and `https://chlatwork.com/*`. Add development origins only if needed.
+4. Set **API restrictions → Restrict key → Maps Embed API**, then save.
+5. Save the key as `NUXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY` in Vercel Production and redeploy. Create a separate Places key for the API server; website restrictions are unsuitable for server-to-server Places requests.
+
+Enable billing and the required Google APIs in the associated project. Places and Gemini requests may incur provider charges; Maps Embed requests are documented as free. No provider content is cached or persisted by this feature. The existing application-wide throttler remains at 60 requests per minute per tracker. Behind the frontend proxy its IP tracker can be shared by visitors; this is not a per-user quota. No new tight shared cap is introduced. Paid responses are `no-store`.
+
+Redeploy the API after configuring its settings and redeploy the frontend after configuring the Embed key. Keep the existing product-domain activation settings; append `food` to the current enabled list rather than replacing other products. Canonical and permanent-redirect activation remain separate rollout choices. This change does not alter DNS or deployment settings automatically.
+
+References: [Places setup](https://developers.google.com/maps/documentation/places/web-service/get-api-key), [Places attribution](https://developers.google.com/maps/documentation/places/web-service/policies), [Maps Embed](https://developers.google.com/maps/documentation/embed/get-started).
+
+## API endpoints
+
+All paths below use the Nuxt proxy; the API server exposes the same paths without `/api`.
+
+| Endpoint | Behavior |
+| --- | --- |
+| `GET /api/food/search` | Google search with `lat`, `lng`, `radius`, `cuisine`, `district`. |
+| `POST /api/food/recommend` | Existing ranked restaurant/recipe discovery. |
+| `POST /api/food/pick` | Gemini selects one candidate using the full recommendation criteria. |
+| `GET /api/food/random` | Legacy picker URL, now using Gemini and validated query criteria. |
+| `GET /api/food/recipes` | Existing recipe list with optional category/meal filters. |
+| `GET /api/food/recipes/:id` | Existing full recipe details. |
+| `GET /api/food/districts` | Existing Phnom Penh district centers. |
+
+```bash
+curl -X POST http://localhost:3001/api/food/pick \
+  -H 'Content-Type: application/json' \
+  -d '{"mode":"dine-out","mealTime":"dinner","occasion":"family","peopleCount":4,"totalBudget":20,"district":"bkk","cuisine":"គុយទាវ"}'
 ```
 
----
+## Validation
 
-## 3. Data Providers & Policy Compliance
-
-| Provider / Layer | Purpose | Cost | Compliance & Policy Details |
-| :--- | :--- | :--- | :--- |
-| **OpenStreetMap Overpass API** | Live search for nearby restaurants, cafés, fast food | Free | Query throttling (min 1s interval), 15-minute in-memory caching to eliminate keystroke spam, 8s timeout with graceful fallback to curated places. Mandatory ODbL 1.0 attribution on UI and API responses. |
-| **OpenStreetMap Tile Server** | Interactive map rendering via Leaflet | Free | Modest usage policy compliant. Displaying visible `© OpenStreetMap contributors` copyright badge linking to `https://www.openstreetmap.org/copyright`. No bulk tile downloading. |
-| **Browser Geolocation API** | Locating user near dining spots | Free | Explicit user permission required. Graceful fallback to Phnom Penh district selection or city center (`11.5564, 104.9282`) if denied. |
-| **Curated Places Dataset** | Verified Phnom Penh spots with confirmed pricing & features | Free | Locally maintained dataset with confirmed pricing (`isPriceVerified: true`) to ensure honest budget calculations. |
-| **Khmer Recipes Dataset** | Traditional home cooking guide | Free | 10 locally maintained authentic Khmer dishes with ingredients, steps, timings, portions, and budget estimates. |
-
----
-
-## 4. Recommendation Scoring Engine
-
-The recommendation engine (`FoodRecommendationEngine`) scores places deterministically:
-
-1. **Meal Time Suitability** (e.g., breakfast prioritizes noodle/congee/café; dinner prioritizes BBQ/hotpot/restaurants).
-2. **Occasion & Group Size**:
-   - `solo`: Cafés, quick eats, takeaway.
-   - `friends`: Group-friendly dining, BBQ, hotpot, food courts.
-   - `first-date` / `couple`: Romantic ambiance, quiet, air-conditioned seating.
-   - `family` / `elderly`: Family-friendly, wheelchair accessible, comfortable dining.
-3. **Budget Fit**:
-   - Compares estimated price per person (`totalBudget / peopleCount`) with `estimatedPricePerPersonUsd`.
-   - If pricing is verified and within budget: +20 points + exact savings explanation.
-   - If pricing is verified and exceeds budget: -15 points + explanation of difference.
-   - **If pricing is unverified**: 0 points (neutral) and labeled as `"តម្លៃមិនទាន់ផ្ទៀងផ្ទាត់ (Price not verified)"` with zero false claims.
-4. **Distance Proximity**:
-   - Haversine formula calculates exact distance:
-     - $\le 800\text{m}$: +25 points
-     - $\le 1.5\text{km}$: +15 points
-     - $\le 3\text{km}$: +8 points
-
----
-
-## 5. API Endpoints
-
-All endpoints are hosted under `/food` in the NestJS API and proxied via `/api/food/*` in Nuxt:
-
-- `GET /api/food/search?lat=&lng=&radius=&cuisine=&district=`: Search nearby dining spots.
-- `POST /api/food/recommend`: Request smart recommendations based on mode, meal time, occasion, people count, and total budget.
-- `GET /api/food/recipes`: List authentic Khmer recipes with optional category filter.
-- `GET /api/food/recipes/:id`: Detailed ingredients and step-by-step instructions for a single recipe.
-- `GET /api/food/random?mealTime=`: "រើសឱ្យខ្ញុំមួយ!" Random food or restaurant picker.
-- `GET /api/food/districts`: List of Phnom Penh Khan districts with geographical coordinates.
-
----
-
-## 6. Subdomain Routing & Deployment
-
-Food discovery is registered in the existing single-deployment product domain architecture:
-
-- In `app/lib/product-domains.ts`:
-  ```typescript
-  food: { name: "ChlatWork Food", entry: "/food", home: "/", host: "food" }
-  ```
-- Subdomain Rollout Environment Variables:
-  ```env
-  NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS=food
-  NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS=food
-  NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS=food
-  ```
-- DNS Configuration:
-  - CNAME `food.chlatwork.com` pointing to `cname.vercel-dns.com`.
-  - Reuses the existing Vercel deployment; no new hosting project required.
-
----
-
-## 7. Limitations of Free Public Services
-
-1. **Overpass Server Capacity**: Overpass public servers occasionally experience high global load or brief rate limits (HTTP 429). The system handles this gracefully by automatically falling back to curated local places without interrupting the user experience.
-2. **OpenStreetMap Tile Capacity**: The standard OSM tile server is intended for modest map views. If traffic scales significantly in the future, a dedicated vector tile source or self-hosted tile cache can be configured without changing application code.
+Provider specs mock only Google/Gemini boundaries and never call paid services. Frontend tests exercise real composable behavior and official map URL builders. Test and compilation results are local evidence; live keys, billing, provider availability, browser rendering and deployed hostname assignment require separate verification after deployment.

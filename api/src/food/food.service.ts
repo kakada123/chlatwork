@@ -1,6 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { OsmProviderAdapter } from './osm-provider.adapter';
-import { FoodRecommendationEngine, RecommendationCriteria } from './food-recommendation.engine';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from "@nestjs/common";
+import { GooglePlacesProviderAdapter } from "./google-places-provider.adapter";
+import { FoodAiPickerService } from "./food-ai-picker.service";
+import {
+  FoodRecommendationEngine,
+  RecommendationCriteria,
+} from "./food-recommendation.engine";
 import {
   RecommendationResponse,
   RandomFoodSuggestion,
@@ -8,42 +17,51 @@ import {
   FoodDistrict,
   Place,
   MealTime,
-} from './food.types';
-import { FoodSearchQueryDto } from './dto/food-search.dto';
-import { FoodRecommendationDto } from './dto/food-recommendation.dto';
+  FoodAttribution,
+} from "./food.types";
+import { FoodSearchQueryDto } from "./dto/food-search.dto";
+import { FoodRecommendationDto } from "./dto/food-recommendation.dto";
 import {
   PHNOM_PENH_CENTER,
   PHNOM_PENH_DISTRICTS,
   findDistrictById,
-} from './data/districts';
-import { KHMER_RECIPES } from './data/khmer-recipes';
+} from "./data/districts";
+import { KHMER_RECIPES } from "./data/khmer-recipes";
 
-const OSM_ATTRIBUTION = {
-  osm: 'Data © OpenStreetMap contributors, ODbL 1.0',
-  odbl: 'Open Database License (ODbL)',
-  licenseUrl: 'https://www.openstreetmap.org/copyright',
+const GOOGLE_ATTRIBUTION: FoodAttribution = {
+  provider: "Google Maps",
+  url: "https://maps.google.com",
+};
+const RECIPE_ATTRIBUTION: FoodAttribution = {
+  provider: "ChlatWork Food",
+  url: "https://chlatwork.com/food",
 };
 
 @Injectable()
 export class FoodService {
   constructor(
-    private readonly osmProvider: OsmProviderAdapter,
+    private readonly placesProvider: GooglePlacesProviderAdapter,
     private readonly recommendationEngine: FoodRecommendationEngine,
+    private readonly aiPicker: FoodAiPickerService,
   ) {}
 
   /**
-   * Search places with OSM and curated fallback.
+   * Use Google's live restaurant records; unavailable providers never become fabricated results.
    */
   async searchPlaces(query: FoodSearchQueryDto): Promise<{
     places: Place[];
     total: number;
-    dataSource: 'osm' | 'curated' | 'hybrid';
-    attribution: typeof OSM_ATTRIBUTION;
+    dataSource: "google";
+    attribution: FoodAttribution;
   }> {
-    const coords = this.resolveCoordinates(query.lat, query.lng, query.district);
+    const coords = this.resolveCoordinates(
+      query.lat,
+      query.lng,
+      query.district,
+    );
     const radius = query.radius || 2500;
 
-    const result = await this.osmProvider.searchNearby(
+    const result = await this.placesProvider.searchNearby(
       coords.lat,
       coords.lng,
       radius,
@@ -54,17 +72,17 @@ export class FoodService {
       places: result.places,
       total: result.places.length,
       dataSource: result.dataSource,
-      attribution: OSM_ATTRIBUTION,
+      attribution: GOOGLE_ATTRIBUTION,
     };
   }
 
   /**
-   * Smart recommendation engine (Deterministic, free-first, honest pricing).
+   * Preserve normal ranking while keeping restaurant price claims unverified.
    */
   async recommend(dto: FoodRecommendationDto): Promise<RecommendationResponse> {
-    const mode = dto.mode || 'dine-out';
-    const mealTime = dto.mealTime || 'lunch';
-    const occasion = dto.occasion || 'friends';
+    const mode = dto.mode || "dine-out";
+    const mealTime = dto.mealTime || "lunch";
+    const occasion = dto.occasion || "friends";
     const peopleCount = Math.max(1, dto.peopleCount || 1);
     const totalBudget = dto.totalBudget;
     const budgetPerPerson = totalBudget ? totalBudget / peopleCount : undefined;
@@ -81,22 +99,27 @@ export class FoodService {
       lng: coords.lng,
     };
 
-    if (mode === 'cook-at-home') {
-      const recipes = this.rankRecipes(mealTime, occasion, budgetPerPerson);
+    if (mode === "cook-at-home") {
+      const recipes = this.rankRecipes(
+        mealTime,
+        occasion,
+        budgetPerPerson,
+        dto.cuisine,
+      );
       return {
-        mode: 'cook-at-home',
+        mode: "cook-at-home",
         querySummary,
         places: [],
         recipes: recipes.slice(0, dto.limit || 5),
         totalFound: recipes.length,
-        dataSource: 'curated',
-        attribution: OSM_ATTRIBUTION,
+        dataSource: "curated",
+        attribution: RECIPE_ATTRIBUTION,
       };
     }
 
     // Dine out recommendation
     const radius = 3000;
-    const searchResult = await this.osmProvider.searchNearby(
+    const searchResult = await this.placesProvider.searchNearby(
       coords.lat,
       coords.lng,
       radius,
@@ -108,7 +131,8 @@ export class FoodService {
       occasion,
       peopleCount,
       totalBudget,
-      cuisine: dto.cuisine,
+      // Google text search already matches free-text dishes; a keyword is not necessarily a cuisine tag.
+      cuisine: undefined,
       userLat: coords.lat,
       userLng: coords.lng,
     };
@@ -120,12 +144,12 @@ export class FoodService {
     );
 
     return {
-      mode: 'dine-out',
+      mode: "dine-out",
       querySummary,
       places: rankedPlaces,
       totalFound: rankedPlaces.length,
       dataSource: searchResult.dataSource,
-      attribution: OSM_ATTRIBUTION,
+      attribution: GOOGLE_ATTRIBUTION,
     };
   }
 
@@ -152,51 +176,92 @@ export class FoodService {
   }
 
   /**
-   * "រើសឱ្យខ្ញុំមួយ!" Random food picker with fun message.
+   * Keep legacy GET clients working without an implicit paid restaurant lookup.
    */
-  getRandomFood(preferredMealTime?: MealTime): RandomFoodSuggestion {
-    const isRecipe = Math.random() > 0.4;
+  getRandomFood(dto: FoodRecommendationDto): Promise<RandomFoodSuggestion> {
+    return this.pick({ ...dto, mode: dto.mode || "cook-at-home" });
+  }
 
-    if (isRecipe && KHMER_RECIPES.length > 0) {
-      const filtered = preferredMealTime && preferredMealTime !== 'any'
-        ? KHMER_RECIPES.filter((r) => r.mealTimes.includes(preferredMealTime as any))
-        : KHMER_RECIPES;
-
-      const candidates = filtered.length > 0 ? filtered : KHMER_RECIPES;
-      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-
-      const messages = [
-        `ថ្ងៃនេះសាកធ្វើម្ហូប «${chosen.nameKm}» ញ៉ាំម្តងមើល៍ ឈ្ងុយឆ្ងាញ់ហើយសន្សំសំចៃ!`,
-        `តោះចុងភៅដៃឯក! ថ្ងៃនេះម្ហូប «${chosen.nameKm}» ពិតជាត្រូវម៉ាច់!`,
-        `«${chosen.nameKm}» ក្តៅៗជាមួយបាយស មិនដឹងឆ្ងាញ់យ៉ាងណាទេ!`,
-      ];
-
+  async pick(dto: FoodRecommendationDto): Promise<RandomFoodSuggestion> {
+    // Avoid a paid Places lookup when the requested AI selection cannot run.
+    this.aiPicker.assertAvailable();
+    // Always build the candidate set on the server; callers cannot inject their own restaurant facts.
+    const recommendation = await this.recommend({ ...dto, limit: 20 });
+    const criteria: FoodRecommendationDto = {
+      ...recommendation.querySummary,
+      mode: recommendation.mode,
+      cuisine: dto.cuisine,
+    };
+    if (recommendation.mode === "cook-at-home") {
+      const recipes = (recommendation.recipes || []).filter(
+        (recipe) =>
+          !dto.mealTime ||
+          dto.mealTime === "any" ||
+          recipe.mealTimes.some((time) => time === dto.mealTime),
+      );
+      if (!recipes.length)
+        throw new NotFoundException("No recipes match these filters.");
+      const selection = await this.aiPicker.choose(
+        recipes.map((recipe) => ({
+          id: recipe.id,
+          nameKm: recipe.nameKm,
+          nameEn: recipe.nameEn,
+          mealTimes: recipe.mealTimes,
+          occasions: recipe.occasions,
+          estimatedCostUsd: recipe.estimatedCostUsd,
+          servings: recipe.servings,
+        })),
+        criteria,
+      );
+      const recipe = recipes.find((candidate) => candidate.id === selection.id);
+      if (!recipe)
+        throw new ServiceUnavailableException(
+          "AI selected an unavailable recipe.",
+        );
       return {
-        type: 'dish',
+        type: "dish",
+        selectionSource: "gemini",
+        messageKm: selection.messageKm,
         dish: {
-          nameKm: chosen.nameKm,
-          nameEn: chosen.nameEn,
-          descriptionKm: chosen.descriptionKm,
-          mealTime: chosen.mealTimes[0] || 'lunch',
-          suggestedCuisine: 'Khmer',
-          recipeId: chosen.id,
+          nameKm: recipe.nameKm,
+          nameEn: recipe.nameEn,
+          descriptionKm: recipe.descriptionKm,
+          mealTime:
+            dto.mealTime && dto.mealTime !== "any"
+              ? dto.mealTime
+              : recipe.mealTimes[0],
+          suggestedCuisine: "Khmer",
+          recipeId: recipe.id,
         },
-        messageKm: messages[Math.floor(Math.random() * messages.length)],
       };
     }
-
-    // Pick from curated places
-    const curated = this.osmProvider.getCuratedPlacesNearby(
-      PHNOM_PENH_CENTER.lat,
-      PHNOM_PENH_CENTER.lng,
-      10000,
+    if (!recommendation.places.length)
+      throw new NotFoundException("No restaurants match these filters.");
+    const selection = await this.aiPicker.choose(
+      recommendation.places.map((place) => ({
+        id: place.id,
+        name: place.name,
+        cuisine: place.cuisine,
+        amenity: place.amenity,
+        distanceMeters: place.distanceMeters,
+        isPriceVerified: place.isPriceVerified,
+        budgetFit: place.budgetFit,
+        matchedFactors: place.matchedFactors,
+      })),
+      criteria,
     );
-    const chosenPlace = curated[Math.floor(Math.random() * curated.length)];
-
+    const place = recommendation.places.find(
+      (candidate) => candidate.id === selection.id,
+    );
+    if (!place)
+      throw new ServiceUnavailableException(
+        "AI selected an unavailable restaurant.",
+      );
     return {
-      type: 'place',
-      place: chosenPlace,
-      messageKm: `ថ្ងៃនេះសាកទៅញ៉ាំនៅ «${chosenPlace.name}» ម្តងមើល៍ មិនបាច់ពិបាកគិតច្រើនទេ!`,
+      type: "place",
+      place,
+      messageKm: selection.messageKm,
+      selectionSource: "gemini",
     };
   }
 
@@ -211,17 +276,27 @@ export class FoodService {
     mealTime: MealTime,
     occasion: string,
     budgetPerPerson?: number,
+    keyword?: string,
   ): KhmerRecipe[] {
-    return [...KHMER_RECIPES].sort((a, b) => {
+    const query = keyword?.trim().toLowerCase();
+    const recipes = KHMER_RECIPES.filter(
+      (recipe) =>
+        !query ||
+        query === "all" ||
+        `${recipe.nameKm} ${recipe.nameEn} ${recipe.category} ${recipe.ingredients.map((ingredient) => `${ingredient.nameKm} ${ingredient.nameEn}`).join(" ")}`
+          .toLowerCase()
+          .includes(query),
+    );
+    return [...recipes].sort((a, b) => {
       let scoreA = 0;
       let scoreB = 0;
 
-      if (mealTime !== 'any') {
+      if (mealTime !== "any") {
         if (a.mealTimes.includes(mealTime as any)) scoreA += 20;
         if (b.mealTimes.includes(mealTime as any)) scoreB += 20;
       }
 
-      if (occasion !== 'any') {
+      if (occasion !== "any") {
         if (a.occasions.includes(occasion as any)) scoreA += 15;
         if (b.occasions.includes(occasion as any)) scoreB += 15;
       }
@@ -242,15 +317,29 @@ export class FoodService {
     lng?: number,
     districtId?: string,
   ): { lat: number; lng: number } {
-    if (lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng)) {
+    if ((lat === undefined) !== (lng === undefined))
+      throw new BadRequestException(
+        "Latitude and longitude must be supplied together.",
+      );
+    if (
+      lat !== undefined &&
+      lng !== undefined &&
+      Number.isFinite(lat) &&
+      Number.isFinite(lng) &&
+      Math.abs(lat) <= 90 &&
+      Math.abs(lng) <= 180
+    ) {
       return { lat, lng };
     }
+    if (lat !== undefined || lng !== undefined)
+      throw new BadRequestException("Invalid coordinates.");
 
     if (districtId) {
       const district = findDistrictById(districtId);
       if (district) {
         return { lat: district.lat, lng: district.lng };
       }
+      throw new BadRequestException("Unknown Food district.");
     }
 
     return PHNOM_PENH_CENTER;

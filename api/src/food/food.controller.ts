@@ -5,45 +5,55 @@ import {
   Param,
   Post,
   Query,
-} from '@nestjs/common';
-import { FoodService } from './food.service';
-import { FoodSearchQueryDto } from './dto/food-search.dto';
-import { FoodRecommendationDto } from './dto/food-recommendation.dto';
-import { MealTime } from './food.types';
+  Header,
+} from "@nestjs/common";
+import { FoodService } from "./food.service";
+import { FoodSearchQueryDto } from "./dto/food-search.dto";
+import { FoodRecommendationDto } from "./dto/food-recommendation.dto";
+import { FoodRandomQueryDto } from "./dto/food-random-query.dto";
 
-@Controller('food')
+@Controller("food")
 export class FoodController {
   constructor(private readonly foodService: FoodService) {}
 
-  @Get('search')
+  @Get("search")
+  @Header("Cache-Control", "no-store")
   search(@Query() query: FoodSearchQueryDto) {
     return this.foodService.searchPlaces(query);
   }
 
-  @Post('recommend')
+  @Post("recommend")
+  @Header("Cache-Control", "no-store")
   recommend(@Body() dto: FoodRecommendationDto) {
     return this.foodService.recommend(dto);
   }
 
-  @Get('recipes')
+  @Get("recipes")
   getRecipes(
-    @Query('category') category?: string,
-    @Query('mealTime') mealTime?: string,
+    @Query("category") category?: string,
+    @Query("mealTime") mealTime?: string,
   ) {
     return this.foodService.getRecipes(category, mealTime);
   }
 
-  @Get('recipes/:id')
-  getRecipeById(@Param('id') id: string) {
+  @Get("recipes/:id")
+  getRecipeById(@Param("id") id: string) {
     return this.foodService.getRecipeById(id);
   }
 
-  @Get('random')
-  getRandomFood(@Query('mealTime') mealTime?: MealTime) {
-    return this.foodService.getRandomFood(mealTime);
+  @Get("random")
+  @Header("Cache-Control", "no-store")
+  getRandomFood(@Query() query: FoodRandomQueryDto) {
+    return this.foodService.getRandomFood(query);
   }
 
-  @Get('districts')
+  @Post("pick")
+  @Header("Cache-Control", "no-store")
+  pick(@Body() dto: FoodRecommendationDto) {
+    return this.foodService.pick(dto);
+  }
+
+  @Get("districts")
   getDistricts() {
     return this.foodService.getDistricts();
   }

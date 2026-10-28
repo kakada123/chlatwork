@@ -15,22 +15,6 @@ useHead({
     },
     { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
   ],
-  link: [
-    {
-      rel: "stylesheet",
-      href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-      integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
-      crossorigin: "",
-    },
-  ],
-  script: [
-    {
-      src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-      integrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
-      crossorigin: "",
-      defer: true,
-    },
-  ],
 });
 </script>
 
@@ -90,23 +74,23 @@ useHead({
       <slot />
     </main>
 
-    <!-- Footer with mandatory OSM & ODbL Attribution -->
+    <!-- Keep provider attribution and price limitations visible near discovery results. -->
     <footer class="mt-12 border-t border-stone-200 bg-white/50 px-4 py-8 text-center text-xs leading-6 text-stone-500 dark:border-stone-800 dark:bg-stone-950/50 dark:text-stone-400 sm:px-6">
       <div class="mx-auto max-w-5xl space-y-2">
         <p>
           ទិន្នន័យភោជនីយដ្ឋាន និងផែនទីបានមកពី
           <a
-            href="https://www.openstreetmap.org/copyright"
+            href="https://maps.google.com"
             target="_blank"
             rel="noopener noreferrer"
-            class="font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+            class="font-normal text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+            translate="no"
           >
-            &copy; OpenStreetMap contributors (ODbL 1.0)
+            Google Maps
           </a>
-          ដោយឥតគិតថ្លៃ
         </p>
         <p class="text-[11px] text-stone-400 dark:text-stone-500">
-          ChlatWork Food មិនគិតថ្លៃសេវា មិនប្រើប្រាស់ API បង់ប្រាក់ និងបង្ហាញតម្លៃជាក់ស្ដែងតាមភាពត្រឹមត្រូវនៃទិន្នន័យ។
+          AI ជួយរើសតាមលក្ខខណ្ឌរបស់អ្នក។ តម្លៃ និងព័ត៌មានហាងអាចផ្លាស់ប្តូរ សូមបញ្ជាក់ជាមួយហាងផ្ទាល់។
         </p>
         <div class="pt-2">
           <a

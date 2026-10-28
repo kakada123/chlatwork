@@ -1,14 +1,9 @@
-export type MealTime = 'breakfast' | 'lunch' | 'snack' | 'dinner' | 'any';
+export type MealTime = "breakfast" | "lunch" | "snack" | "dinner" | "any";
 export type Occasion =
-  | 'solo'
-  | 'friends'
-  | 'first-date'
-  | 'couple'
-  | 'family'
-  | 'elderly'
-  | 'any';
-export type DiscoveryMode = 'dine-out' | 'cook-at-home';
-export type AmenityType = 'restaurant' | 'cafe' | 'fast_food' | 'food_court' | 'bar';
+  "solo" | "friends" | "first-date" | "couple" | "family" | "elderly" | "any";
+export type DiscoveryMode = "dine-out" | "cook-at-home";
+export type AmenityType =
+  "restaurant" | "cafe" | "fast_food" | "food_court" | "bar";
 
 export interface PlaceFeatures {
   wheelchair?: boolean;
@@ -23,7 +18,9 @@ export interface PlaceFeatures {
 
 export interface Place {
   id: string;
-  osmId?: string;
+  googlePlaceId?: string;
+  googleMapsUri?: string;
+  attributions?: Array<{ provider: string; providerUri?: string }>;
   name: string;
   nameKm?: string;
   nameEn?: string;
@@ -38,12 +35,12 @@ export interface Place {
   openingHours?: string;
   phone?: string;
   website?: string;
-  priceTier?: '$' | '$$' | '$$$' | '$$$$';
+  priceTier?: "$" | "$$" | "$$$" | "$$$$";
   estimatedPricePerPersonUsd?: number;
   isPriceVerified: boolean;
   recommendedDishes?: string[];
   features?: PlaceFeatures;
-  source: 'osm' | 'curated';
+  source: "google" | "curated";
 }
 
 export interface RankedPlace extends Place {
@@ -71,14 +68,17 @@ export interface KhmerRecipe {
   nameEn: string;
   descriptionKm: string;
   descriptionEn: string;
-  mealTimes: Array<'breakfast' | 'lunch' | 'snack' | 'dinner'>;
-  occasions: Array<'solo' | 'friends' | 'first-date' | 'couple' | 'family' | 'elderly'>;
+  mealTimes: Array<"breakfast" | "lunch" | "snack" | "dinner">;
+  occasions: Array<
+    "solo" | "friends" | "first-date" | "couple" | "family" | "elderly"
+  >;
   prepTimeMinutes: number;
   cookTimeMinutes: number;
   servings: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   estimatedCostUsd: number;
-  category: 'soup' | 'stir-fry' | 'curry' | 'rice' | 'noodle' | 'salad' | 'dessert';
+  category:
+    "soup" | "stir-fry" | "curry" | "rice" | "noodle" | "salad" | "dessert";
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
   tips?: string;
@@ -108,16 +108,18 @@ export interface RecommendationResponse {
   places: RankedPlace[];
   recipes?: KhmerRecipe[];
   totalFound: number;
-  dataSource: 'osm' | 'curated' | 'hybrid';
-  attribution: {
-    osm: string;
-    odbl: string;
-    licenseUrl: string;
-  };
+  dataSource: "google" | "curated";
+  attribution: FoodAttribution;
+}
+
+export interface FoodAttribution {
+  provider: "Google Maps" | "ChlatWork Food";
+  url: string;
 }
 
 export interface RandomFoodSuggestion {
-  type: 'dish' | 'place';
+  selectionSource?: "gemini";
+  type: "dish" | "place";
   dish?: {
     nameKm: string;
     nameEn: string;

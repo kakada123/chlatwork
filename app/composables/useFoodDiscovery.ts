@@ -1,4 +1,5 @@
 import { ref, computed } from "vue";
+import { foodDirectionsUrl } from "~/lib/food-maps";
 
 export type DiscoveryMode = "dine-out" | "cook-at-home";
 export type MealTime = "breakfast" | "lunch" | "snack" | "dinner" | "any";
@@ -17,7 +18,9 @@ export interface PlaceFeatures {
 
 export interface RankedPlace {
   id: string;
-  osmId?: string;
+  googlePlaceId?: string;
+  googleMapsUri?: string;
+  attributions?: Array<{ provider: string; providerUri?: string }>;
   name: string;
   nameKm?: string;
   nameEn?: string;
@@ -37,7 +40,7 @@ export interface RankedPlace {
   isPriceVerified: boolean;
   recommendedDishes?: string[];
   features?: PlaceFeatures;
-  source: "osm" | "curated";
+  source: "google" | "curated";
   score: number;
   budgetFit: string;
   matchedFactors: string[];
@@ -85,6 +88,7 @@ export interface FoodDistrict {
 }
 
 export interface RandomFoodSuggestion {
+  selectionSource?: "gemini";
   type: "dish" | "place";
   dish?: {
     nameKm: string;
@@ -121,7 +125,7 @@ export function useFoodDiscovery() {
   const isLoading = ref<boolean>(false);
   const isRandomLoading = ref<boolean>(false);
   const errorMessage = ref<string | null>(null);
-  const dataSource = ref<"osm" | "curated" | "hybrid">("osm");
+  const dataSource = ref<"google" | "curated">("google");
   const hasSearched = ref<boolean>(false);
   const copyNotification = ref<string | null>(null);
 
@@ -188,37 +192,29 @@ export function useFoodDiscovery() {
     }
   }
 
+  function currentCriteria(limit: number): Record<string, unknown> {
+    return {
+      mode: mode.value, mealTime: mealTime.value, occasion: occasion.value,
+      peopleCount: peopleCount.value, totalBudget: totalBudget.value,
+      cuisine: searchKeyword.value.trim() || undefined, limit,
+      ...(userCoords.value ? userCoords.value : selectedDistrictId.value ? { district: selectedDistrictId.value } : {}),
+    };
+  }
+
   async function getRecommendations() {
     isLoading.value = true;
     errorMessage.value = null;
     hasSearched.value = true;
 
     try {
-      const payload: Record<string, any> = {
-        mode: mode.value,
-        mealTime: mealTime.value,
-        occasion: occasion.value,
-        peopleCount: peopleCount.value,
-        totalBudget: totalBudget.value,
-        cuisine: searchKeyword.value.trim() || undefined,
-        limit: 5,
-      };
-
-      if (userCoords.value) {
-        payload.lat = userCoords.value.lat;
-        payload.lng = userCoords.value.lng;
-      } else if (selectedDistrictId.value) {
-        payload.district = selectedDistrictId.value;
-      }
-
       const res = await $fetch<{
         mode: DiscoveryMode;
         places: RankedPlace[];
         recipes?: KhmerRecipe[];
-        dataSource: "osm" | "curated" | "hybrid";
+        dataSource: "google" | "curated";
       }>("/api/food/recommend", {
         method: "POST",
-        body: payload,
+        body: currentCriteria(5),
       });
 
       places.value = res.places || [];
@@ -238,25 +234,20 @@ export function useFoodDiscovery() {
   }
 
   async function fetchRandomPick() {
+    if (isRandomLoading.value) return;
     isRandomLoading.value = true;
+    errorMessage.value = null;
+    randomSuggestion.value = null;
     try {
-      const res = await $fetch<RandomFoodSuggestion>("/api/food/random", {
-        query: { mealTime: mealTime.value },
+      const res = await $fetch<RandomFoodSuggestion>("/api/food/pick", {
+        method: "POST",
+        body: currentCriteria(20),
+        // A network retry can produce another paid AI selection.
+        retry: 0,
       });
       randomSuggestion.value = res;
     } catch {
-      randomSuggestion.value = {
-        type: "dish",
-        dish: {
-          nameKm: "ឡុកឡាក់សាច់គោ",
-          nameEn: "Beef Lok Lak",
-          descriptionKm: "សាច់គោផុយឆាម្រេចកំពត ជាមួយបាយស និងពងមាន់ចៀន",
-          mealTime: "lunch",
-          suggestedCuisine: "Khmer",
-          recipeId: "lok-lak-sach-ko",
-        },
-        messageKm: "ថ្ងៃនេះសាកញ៉ាំ «ឡុកឡាក់សាច់គោ» ម្តងមើល៍ ធានាថាឆ្ងាញ់ពេញចិត្ត!",
-      };
+      errorMessage.value = "មិនអាចរើសម្ហូបជាមួយ AI បាននៅពេលនេះទេ។ សូមពិនិត្យលក្ខខណ្ឌស្វែងរក ឬព្យាយាមម្ដងទៀត។";
     } finally {
       isRandomLoading.value = false;
     }
@@ -287,8 +278,8 @@ export function useFoodDiscovery() {
     }
   }
 
-  function getDirectionsUrl(lat: number, lng: number): string {
-    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  function getDirectionsUrl(place: RankedPlace): string {
+    return foodDirectionsUrl(place);
   }
 
   function selectPlaceForMap(place: RankedPlace) {

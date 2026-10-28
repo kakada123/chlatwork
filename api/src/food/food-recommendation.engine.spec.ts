@@ -48,7 +48,7 @@ describe('FoodRecommendationEngine', () => {
       city: 'Phnom Penh',
       isPriceVerified: false, // Unverified pricing
       features: { takeaway: true },
-      source: 'osm',
+      source: 'google',
     },
   ];
 

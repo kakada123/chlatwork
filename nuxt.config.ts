@@ -117,6 +117,7 @@ export default defineNuxtConfig({
         previewOrigins: nodeEnv.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS || (nodeEnv.VERCEL_URL ? `https://${nodeEnv.VERCEL_URL}` : ""),
       },
       googleClientId: nodeEnv.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
+      googleMapsEmbedApiKey: nodeEnv.NUXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY || "",
       googleMeasurementId,
       telegramClientId: nodeEnv.NUXT_PUBLIC_TELEGRAM_CLIENT_ID || "",
     },

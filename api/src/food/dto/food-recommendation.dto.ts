@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform } from "class-transformer";
 import {
   IsIn,
   IsInt,
@@ -7,35 +7,51 @@ import {
   IsString,
   Max,
   Min,
-} from 'class-validator';
-import { DiscoveryMode, MealTime, Occasion } from '../food.types';
+  MaxLength,
+} from "class-validator";
+import { DiscoveryMode, MealTime, Occasion } from "../food.types";
+import { foodNumber } from "./food-number";
 
-const validModes: DiscoveryMode[] = ['dine-out', 'cook-at-home'];
-const validMealTimes: MealTime[] = ['breakfast', 'lunch', 'snack', 'dinner', 'any'];
-const validOccasions: Occasion[] = ['solo', 'friends', 'first-date', 'couple', 'family', 'elderly', 'any'];
+const validModes: DiscoveryMode[] = ["dine-out", "cook-at-home"];
+const validMealTimes: MealTime[] = [
+  "breakfast",
+  "lunch",
+  "snack",
+  "dinner",
+  "any",
+];
+const validOccasions: Occasion[] = [
+  "solo",
+  "friends",
+  "first-date",
+  "couple",
+  "family",
+  "elderly",
+  "any",
+];
 
 export class FoodRecommendationDto {
   @IsOptional()
   @IsIn(validModes)
-  mode?: DiscoveryMode = 'dine-out';
+  mode?: DiscoveryMode = "dine-out";
 
   @IsOptional()
   @IsIn(validMealTimes)
-  mealTime?: MealTime = 'lunch';
+  mealTime?: MealTime = "lunch";
 
   @IsOptional()
   @IsIn(validOccasions)
-  occasion?: Occasion = 'friends';
+  occasion?: Occasion = "friends";
 
   @IsOptional()
-  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : 1))
+  @Transform(({ value }) => foodNumber(value))
   @IsInt()
   @Min(1)
   @Max(50)
   peopleCount?: number = 1;
 
   @IsOptional()
-  @Transform(({ value }) => (value !== undefined && value !== null && value !== '' ? parseFloat(value) : undefined))
+  @Transform(({ value }) => foodNumber(value))
   @IsNumber()
   @Min(0)
   @Max(10000)
@@ -43,28 +59,30 @@ export class FoodRecommendationDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   cuisine?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(64)
   district?: string;
 
   @IsOptional()
-  @Transform(({ value }) => (value !== undefined && value !== null && value !== '' ? parseFloat(value) : undefined))
+  @Transform(({ value }) => foodNumber(value))
   @IsNumber()
   @Min(-90)
   @Max(90)
   lat?: number;
 
   @IsOptional()
-  @Transform(({ value }) => (value !== undefined && value !== null && value !== '' ? parseFloat(value) : undefined))
+  @Transform(({ value }) => foodNumber(value))
   @IsNumber()
   @Min(-180)
   @Max(180)
   lng?: number;
 
   @IsOptional()
-  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : 5))
+  @Transform(({ value }) => foodNumber(value))
   @IsInt()
   @Min(1)
   @Max(20)

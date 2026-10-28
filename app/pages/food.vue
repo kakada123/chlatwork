@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, computed } from "vue";
 import {
   Utensils,
   ChefHat,
@@ -26,6 +26,7 @@ import {
   type Occasion,
 } from "~/composables/useFoodDiscovery";
 import FoodDiscoveryMap from "~/components/food/FoodDiscoveryMap.vue";
+import FoodPlaceAttribution from "~/components/food/FoodPlaceAttribution.vue";
 
 definePageMeta({
   layout: "food",
@@ -67,6 +68,8 @@ const {
   closeRecipeDetail,
   closeRandomModal,
 } = useFoodDiscovery();
+
+const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
 
 const mealTimeOptions: Array<{ value: MealTime; labelKm: string; icon: string }> = [
   { value: "breakfast", labelKm: "ពេលព្រឹក", icon: "🍳" },
@@ -117,7 +120,7 @@ onMounted(async () => {
           @click="fetchRandomPick"
         >
           <Dices class="size-5" :class="{ 'animate-spin': isRandomLoading }" />
-          <span>រើសឱ្យខ្ញុំមួយ! 🎲</span>
+          <span>រើសឱ្យខ្ញុំមួយ! ✨ AI</span>
         </button>
       </div>
 
@@ -324,7 +327,7 @@ onMounted(async () => {
             ភោជនីយដ្ឋាន និងហាងដែលត្រូវជាមួយអ្នក
           </h3>
           <p class="text-xs text-stone-500 dark:text-stone-400">
-            ផ្អែកលើការវាយតម្លៃលក្ខណៈវិនិច្ឆ័យ Deterministic · បង្ហាញលក្ខខណ្ឌថវិកាពិតប្រាកដ
+            ទិន្នន័យហាងពី Google Maps · តម្លៃត្រូវបញ្ជាក់ជាមួយហាងផ្ទាល់
           </p>
         </div>
 
@@ -442,7 +445,7 @@ onMounted(async () => {
             <!-- Actions (Directions, Share) -->
             <div class="mt-3.5 flex items-center justify-between border-t border-stone-100 pt-2.5 text-xs dark:border-stone-800/80">
               <a
-                :href="getDirectionsUrl(place.lat, place.lng)"
+                :href="getDirectionsUrl(place)"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-1 font-bold text-orange-600 hover:text-orange-700 hover:underline dark:text-orange-400"
@@ -463,22 +466,22 @@ onMounted(async () => {
                 <span>ចែករំលែក</span>
               </button>
             </div>
+            <FoodPlaceAttribution :place="place" class="mt-3" />
           </article>
         </div>
 
-        <!-- Interactive Leaflet Map (6 cols) -->
+        <!-- Selected restaurant on Google Maps -->
         <div class="lg:col-span-6">
           <div class="sticky top-20">
             <FoodDiscoveryMap
               :places="places"
               :selected-place="selectedPlace"
-              :center-lat="userCoords?.lat"
-              :center-lng="userCoords?.lng"
-              @select-place="selectPlaceForMap"
+              :center-lat="mapCenter?.lat"
+              :center-lng="mapCenter?.lng"
             />
             <div class="mt-2 flex items-center justify-between px-1 text-[11px] text-stone-400">
-              <span>ចុចលើកាត ឬសញ្ញាសម្គាល់លើផែនទីដើម្បីមើលព័ត៌មានលម្អិត</span>
-              <span>OSM Tile Server</span>
+              <span>ចុចលើកាតដើម្បីមើលហាងនោះនៅលើផែនទី</span>
+              <span translate="no">Google Maps</span>
             </div>
           </div>
         </div>
@@ -683,7 +686,7 @@ onMounted(async () => {
         </div>
 
         <h3 class="mt-4 text-lg font-black text-stone-900 dark:text-stone-50">
-          សម្រេចចិត្តឱ្យអ្នករួចហើយ! 🎲
+          AI រើសឱ្យអ្នករួចហើយ! ✨
         </h3>
 
         <div class="mt-4 rounded-2xl bg-orange-50/60 p-4 text-sm font-semibold text-orange-950 dark:bg-orange-950/30 dark:text-orange-200">
@@ -719,7 +722,7 @@ onMounted(async () => {
             {{ randomSuggestion.place.street || randomSuggestion.place.district }}
           </p>
           <a
-            :href="getDirectionsUrl(randomSuggestion.place.lat, randomSuggestion.place.lng)"
+            :href="getDirectionsUrl(randomSuggestion.place)"
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:underline dark:text-orange-400"
@@ -727,6 +730,8 @@ onMounted(async () => {
             <Compass class="size-3.5" />
             <span>បើកទិសដៅ &rarr;</span>
           </a>
+          <p class="text-xs text-stone-500 dark:text-stone-400">តម្លៃមិនទាន់ផ្ទៀងផ្ទាត់។ សូមបញ្ជាក់ជាមួយហាងផ្ទាល់។</p>
+          <FoodPlaceAttribution :place="randomSuggestion.place" />
         </div>
 
         <div class="mt-6 flex gap-2">
