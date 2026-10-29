@@ -155,6 +155,14 @@ The adapter logs `providerStatus` plus an allowlisted `providerReason` from Goog
 
 Raw errors, keys, coordinates and project metadata are never logged. This diagnostic improvement does not itself change Google Cloud permissions or resolve a rejected key. Redeploy the API for new logs; if a server environment value changes, redeploy/restart that API service so it uses the updated configuration.
 
+### Google Places 429 troubleshooting
+
+HTTP 429 means Google rejected the search because of a rate or quota limit. It affects district-based and GPS searches alike. The generic frontend location/filter error does not indicate that the selected district is invalid. In the Google Cloud project owning the backend Places key, open **APIs & Services → Places API (New) → Quotas & System Limits** and inspect the Text Search limit and usage. Check whether a project-defined daily limit or per-minute limit has been reached. Restore available quota or request an appropriate increase; repeated clicks, changing districts, or redeploying cannot lift Google's limit. See [Google's quota guidance](https://developers.google.com/maps/documentation/places/web-service/usage-and-billing).
+
+After a provider 429, the adapter pauses requests to that endpoint for 60 seconds per API process. It makes no automatic retry and returns HTTP 503 with the public `FOOD_PLACES_RATE_LIMITED` code. The Nuxt bridge forwards only that code and the page displays a Khmer quota message for discovery, pagination and picking. Routes and Places cooldowns are separate. This reduces repeated rejected calls; it cannot restore an exhausted Google quota, coordinate multiple API replicas, or stop requests already in flight. No Google place content is cached or persisted. Redeploy both API and frontend for this handling.
+
+Quota errors are logged using recognized fixed reasons (`RATE_LIMIT_EXCEEDED`, `QUOTA_EXCEEDED`, `DAILY_LIMIT_EXCEEDED`) or `RATE_LIMITED` when HTTP 429 has no recognized reason. Raw provider error text and project metadata remain private.
+
 ## API endpoints
 
 All paths below use the Nuxt proxy; the API server exposes the same paths without `/api`.

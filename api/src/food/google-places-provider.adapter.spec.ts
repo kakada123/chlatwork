@@ -34,6 +34,42 @@ describe("GooglePlacesProviderAdapter", () => {
     global.fetch = originalFetch;
   });
 
+  it("pauses provider calls after a quota rejection and allows a later district search", async () => {
+    const clock = jest.spyOn(Date, "now").mockReturnValue(100000);
+    const warning = jest.spyOn(Logger.prototype, "warn").mockImplementation();
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({
+        error: { status: "RESOURCE_EXHAUSTED", message: "private project quota details" },
+      }), { status: 429 }),
+    );
+    const searchError = async (lat = 11.5516) => {
+      try {
+        await adapter.searchNearby(lat, 104.9247);
+      } catch (error) {
+        return error as ServiceUnavailableException;
+      }
+      throw new Error("Expected a quota rejection");
+    };
+    try {
+      const failure = await searchError();
+      expect(failure.getStatus()).toBe(503);
+      expect(failure.getResponse()).toMatchObject({ code: "FOOD_PLACES_RATE_LIMITED" });
+      expect(JSON.stringify(failure.getResponse())).not.toContain("private project");
+      clock.mockReturnValue(159999);
+      expect((await searchError(11.57)).getResponse()).toMatchObject({ code: "FOOD_PLACES_RATE_LIMITED" });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(warning).toHaveBeenCalledWith({
+        message: "Google Places search failed", providerStatus: 429, providerReason: "RATE_LIMITED",
+      });
+      clock.mockReturnValue(160000);
+      expect((await adapter.searchNearby(11.5516, 104.9247)).places).toHaveLength(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      clock.mockRestore();
+      warning.mockRestore();
+    }
+  });
+
   it("rejects malformed route continuation without calling paid providers", async () => {
     await expect(adapter.searchNearby(11.55, 104.92, 2000, undefined, {
       filters: { locationDiscovery: "along-my-route" }, routeOrigin: "BKK", routeDestination: "Airport", pageToken: "page-2",

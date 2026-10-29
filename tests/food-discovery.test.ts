@@ -52,6 +52,40 @@ function discovery(
   });
 }
 
+test("district search reports Google quota errors without blaming GPS or filters", async () => {
+  const state = discovery(async () => {
+    throw { statusCode: 503, data: { data: { code: "FOOD_PLACES_RATE_LIMITED" } } };
+  });
+  state.onDistrictChange("tuol-kork");
+  await state.getRecommendations();
+  assert.match(state.errorMessage.value, /Google Places/);
+  assert.equal(state.selectedDistrictId.value, "tuol-kork");
+  assert.equal(state.isLoading.value, false);
+  await state.fetchRandomPick();
+  assert.match(state.errorMessage.value, /Google Places/);
+});
+
+test("a quota failure while loading more preserves restaurants and stops automatic pagination", async () => {
+  let calls = 0;
+  const state = discovery(async () => {
+    calls++;
+    if (calls > 1)
+      throw { statusCode: 503, data: { data: { code: "FOOD_PLACES_RATE_LIMITED" } } };
+    return {
+      mode: "dine-out", dataSource: "google",
+      places: [{ id: "google:existing-place" }], nextPageToken: "page-2",
+    };
+  });
+  await state.getRecommendations();
+  await state.loadMorePlaces();
+  assert.match(state.errorMessage.value, /Google Places/);
+  assert.equal(state.places.value[0].id, "google:existing-place");
+  assert.equal(state.paginationError.value, true);
+  assert.equal(state.canAutoLoadMore.value, false);
+  assert.equal(state.isLoadingMore.value, false);
+  assert.equal(calls, 2);
+});
+
 test("the page can wait for initial account resolution before starting paid generation", async () => {
   let calls = 0;
   const state = discovery(

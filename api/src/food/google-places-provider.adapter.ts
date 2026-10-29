@@ -29,6 +29,9 @@ const SAFE_GOOGLE_ERROR_REASONS = new Set([
   "SERVICE_DISABLED",
   "BILLING_DISABLED",
   "CONSUMER_INVALID",
+  "RATE_LIMIT_EXCEEDED",
+  "QUOTA_EXCEEDED",
+  "DAILY_LIMIT_EXCEEDED",
 ]);
 const FIELD_MASK = [
   "id",
@@ -136,6 +139,7 @@ function safeUrl(value: unknown, mapsOnly = false): string | undefined {
 @Injectable()
 export class GooglePlacesProviderAdapter {
   private readonly logger = new Logger(GooglePlacesProviderAdapter.name);
+  private readonly quotaBlockedUntil = new Map<string, number>();
   constructor(private readonly config: ConfigService) {}
 
   routeSearchAvailable(): boolean {
@@ -225,16 +229,50 @@ export class GooglePlacesProviderAdapter {
         providerStatus: error instanceof GoogleFoodRequestError ? error.status : null,
         providerReason: error instanceof GoogleFoodRequestError ? error.reason : "UNKNOWN",
       });
+      if (error instanceof GoogleFoodRequestError && error.status === 429) {
+        throw new ServiceUnavailableException({
+          statusCode: 503,
+          code: "FOOD_PLACES_RATE_LIMITED",
+          message:
+            "Google place search has reached a provider quota limit. Please try again later.",
+        });
+      }
       throw new ServiceUnavailableException(
         "Google place search is unavailable. Please try again later.",
       );
     }
   }
 
-  private async request(url: string, key: string, fieldMask: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": fieldMask }, body: JSON.stringify(body), signal: AbortSignal.timeout(8000) });
+  private async request(
+    url: string,
+    key: string,
+    fieldMask: string,
+    body: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    // Pause this provider endpoint after a 429 instead of spending quota on repeated clicks.
+    // This guard is per API process; Routes failures do not block ordinary Places searches.
+    if ((this.quotaBlockedUntil.get(url) ?? 0) > Date.now())
+      throw new GoogleFoodRequestError(429, "RATE_LIMITED");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": key,
+        "X-Goog-FieldMask": fieldMask,
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
+    });
     const value: unknown = await response.json().catch(() => null);
-    if (!response.ok) throw new GoogleFoodRequestError(response.status, googleErrorReason(value));
+    if (!response.ok) {
+      if (response.status === 429)
+        this.quotaBlockedUntil.set(url, Date.now() + 60_000);
+      const reason = googleErrorReason(value);
+      throw new GoogleFoodRequestError(
+        response.status,
+        response.status === 429 && reason === "UNKNOWN" ? "RATE_LIMITED" : reason,
+      );
+    }
     if (!value || typeof value !== "object" || Array.isArray(value)) throw new GoogleFoodRequestError(response.status, "UNKNOWN");
     return value as Record<string, unknown>;
   }

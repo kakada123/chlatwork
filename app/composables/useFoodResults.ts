@@ -191,6 +191,17 @@ export function useFoodResults(
     }
   }
 
+  function placesQuotaMessage(error: unknown): string | undefined {
+    const response = (error as {
+      data?: { code?: string; data?: { code?: string } };
+    } | null)?.data;
+    if (
+      response?.code === "FOOD_PLACES_RATE_LIMITED" ||
+      response?.data?.code === "FOOD_PLACES_RATE_LIMITED"
+    )
+      return "Google Places បានឈានដល់កម្រិតប្រើប្រាស់។ សូមរង់ចាំយ៉ាងហោចណាស់ ១ នាទី រួចសាកម្ដងទៀត។ បើនៅតែមិនបាន សូមទាក់ទងអ្នកគ្រប់គ្រងឱ្យពិនិត្យ quota របស់ Google។";
+  }
+
   async function getRecommendations() {
     if (!accountReady) return;
     const ownerRevision = accountRevision;
@@ -241,9 +252,10 @@ export function useFoodResults(
       )
         errorMessage.value =
           "មិនមានជម្រើសថ្មីដែលត្រូវគ្នាទេ។ សាកប្តូរតម្រង ឬអនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ។";
-    } catch {
+    } catch (error) {
       if (ownerRevision === accountRevision && signature() === key) {
         errorMessage.value =
+          placesQuotaMessage(error) ??
           "មិនអាចទាញយកការណែនាំបានទេ។ សូមពិនិត្យតម្រង ទីតាំង និងព្យាយាមម្តងទៀត។";
         cursor.value = undefined;
       }
@@ -299,10 +311,12 @@ export function useFoodResults(
           : undefined;
       cursor.value = nextPage;
       if (!selectedPlace.value) selectedPlace.value = places.value[0] || null;
-    } catch {
+    } catch (error) {
       if (ownerRevision !== accountRevision) return;
       paginationError.value = true;
-      errorMessage.value = "មិនអាចផ្ទុកហាងបន្ថែមបានទេ។ ចុចដើម្បីសាកម្ដងទៀត។";
+      errorMessage.value =
+        placesQuotaMessage(error) ??
+        "មិនអាចផ្ទុកហាងបន្ថែមបានទេ។ ចុចដើម្បីសាកម្ដងទៀត។";
     } finally {
       isLoadingMore.value = false;
       drainRefresh();
@@ -338,9 +352,10 @@ export function useFoodResults(
         result.recipe ? [result.recipe] : [],
       );
       if (result.recipe?.savedRecipeId) savedRecipesVersion.value++;
-    } catch {
+    } catch (error) {
       if (ownerRevision === accountRevision && signature() === key)
         errorMessage.value =
+          placesQuotaMessage(error) ??
           "មិនអាចរើសជម្រើសថ្មីជាមួយ AI បានទេ។ សាកប្តូរតម្រង ឬព្យាយាមម្ដងទៀត។";
     } finally {
       isRandomLoading.value = false;

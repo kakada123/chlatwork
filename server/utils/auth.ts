@@ -79,13 +79,17 @@ export async function requestAuthApi<T>(
       ? body.message.join(", ")
       : body?.message || body?.error || "Authentication request failed";
     const statusCode = fetchError.response?.status ?? 502;
-    // Preserve only this public downloader code; never forward upstream diagnostics.
+    // Forward only recognized public codes on their own routes, never provider diagnostics.
     const data =
       statusCode === 502 &&
       path.startsWith("/youtube-downloader/") &&
       body?.code === "UPSTREAM_AUTH_REQUIRED"
         ? { code: "UPSTREAM_AUTH_REQUIRED" }
-        : undefined;
+        : statusCode === 503 &&
+            path.startsWith("/food/") &&
+            body?.code === "FOOD_PLACES_RATE_LIMITED"
+          ? { code: "FOOD_PLACES_RATE_LIMITED" }
+          : undefined;
     throw createError({ statusCode, statusMessage: message, data });
   }
 }
