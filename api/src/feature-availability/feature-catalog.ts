@@ -52,6 +52,11 @@ export const MAIN_BOT_FEATURES = {
 } as const;
 
 export const FEATURE_CATALOG = [
+  {
+    key: 'ads:sitewide',
+    label: 'Show website ads',
+    group: 'Website advertising',
+  },
   ...Object.entries(websiteNames).map(([name, label]) => ({
     key: `website:${name}`,
     label,

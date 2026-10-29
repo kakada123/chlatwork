@@ -9,7 +9,7 @@ type FeatureRow = {
 
 definePageMeta({ middleware: ["auth", "admin"] });
 useSeoMeta({
-  title: "Tool availability | ChlatWork Admin",
+  title: "Tools & ads | ChlatWork Admin",
   robots: "noindex, nofollow",
 });
 
@@ -18,7 +18,7 @@ const { data, status, error } = await useFetch<FeatureRow[]>(
   { lazy: true },
 );
 const pending = computed(() => ["idle", "pending"].includes(status.value));
-const { refresh: refreshPublic } = useFeatureAvailability();
+const { refresh: refreshPublic, disabled } = useFeatureAvailability();
 const draft = reactive<Record<string, boolean>>({});
 const saving = ref<string | null>(null);
 const message = ref("");
@@ -61,6 +61,12 @@ async function save(row: FeatureRow) {
       },
     );
     draft[row.key] = saved.enabled;
+    // Apply the confirmed ad choice immediately, even if the subsequent public read is unavailable.
+    if (row.key === "ads:sitewide") {
+      disabled.value = saved.enabled
+        ? disabled.value.filter(key => key !== row.key)
+        : [...new Set([...disabled.value, row.key])];
+    }
     data.value = (data.value ?? []).map((item) =>
       item.key === row.key
         ? { ...item, enabled: saved.enabled, updatedAt: saved.updatedAt }
@@ -94,9 +100,11 @@ async function toggleAndSave(row: FeatureRow) {
         class="text-sm font-semibold text-sky-700 dark:text-cyan-300"
         >← Admin</NuxtLink
       >
-      <h1 class="mt-3 text-2xl font-bold">Tool availability</h1>
+      <h1 class="mt-3 text-2xl font-bold">Tools & ads</h1>
       <p class="mt-2 text-sm text-slate-600 dark:text-white/60">
-        Website switches hide tools and block their pages. Creator switches
+        Show website ads controls banners, sidebars, native ads and sponsored links across every product.
+        Open pages recheck on return to the tab and once a minute. Disabling can reload an open page to clear provider-injected ads.
+        Website tool switches hide tools and block their pages. Creator switches
         block new AI requests on the site and bot. Telegram switches block new
         bot actions. Saved data remains available when you re-enable a feature.
       </p>

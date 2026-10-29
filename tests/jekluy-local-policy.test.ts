@@ -20,7 +20,10 @@ test("JekLuy's local-only shell skips the ad session fetch while other pages ret
     };
     const module = { exports: {} as any };
     new Function("require", "module", "exports", ...Object.keys(globals), code)(
-      () => ({ canShowAdsForUser }), module, module.exports, ...Object.values(globals),
+      (name: string) => name === "~/lib/ad-visibility"
+        ? { canShowAdsForUser }
+        : { useFeatureAvailability: () => ({ loaded: ref(true), isEnabled: () => true, refresh: async () => {} }) },
+      module, module.exports, ...Object.values(globals),
     );
     const view = module.exports.useAdVisibility();
     mounted.forEach((fn) => fn());

@@ -169,7 +169,7 @@ function formatChartDate(value: string) {
         </div>
       </header>
 
-      <NuxtLink to="/admin/tools" class="inline-flex min-h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white">Manage tool availability</NuxtLink>
+      <NuxtLink to="/admin/tools" class="inline-flex min-h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white">Manage tools & ads</NuxtLink>
 
       <MemberKhqrManager />
 

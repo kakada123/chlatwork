@@ -84,4 +84,21 @@ describe('Feature availability', () => {
     ).rejects.toMatchObject({ status: 400 });
     expect(prisma.featureAvailability.upsert).not.toHaveBeenCalled();
   });
+
+  it('persists the admin website-ad switch and exposes its disabled state publicly', async () => {
+    const { service } = setup();
+    expect(
+      (await service.list()).find((row) => row.key === 'ads:sitewide'),
+    ).toMatchObject({ enabled: true, group: 'Website advertising' });
+    const admin = '00000000-0000-4000-8000-000000000001';
+    const saved = await service.update('ads:sitewide', false, admin);
+    expect(saved).toMatchObject({
+      key: 'ads:sitewide',
+      enabled: false,
+      updatedByUserId: admin,
+    });
+    expect(await service.disabledKeys()).toEqual(['ads:sitewide']);
+    await service.update('ads:sitewide', true, admin);
+    expect(await service.disabledKeys()).toEqual([]);
+  });
 });

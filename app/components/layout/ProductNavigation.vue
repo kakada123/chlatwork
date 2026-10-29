@@ -190,7 +190,7 @@ onBeforeUnmount(() =>
               <NuxtLink
                 to="/admin/tools"
                 class="min-h-11 content-center rounded-xl px-3"
-                >Tool availability</NuxtLink
+                >Tools & ads</NuxtLink
               >
             </template>
           </nav>

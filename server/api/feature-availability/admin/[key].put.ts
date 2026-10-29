@@ -8,7 +8,11 @@ import { apiBaseUrl, getFreshAccessToken } from "../../../utils/auth";
 
 export default defineEventHandler(async (event) => {
   const key = getRouterParam(event, "key", { decode: true });
-  if (!key || !/^(website|creator|telegram):[a-z0-9_-]+$/i.test(key)) {
+  if (
+    !key ||
+    (!/^(website|creator|telegram):[a-z0-9_-]+$/i.test(key) &&
+      key !== "ads:sitewide")
+  ) {
     throw createError({ statusCode: 404, statusMessage: "Feature not found" });
   }
   const accessToken = await getFreshAccessToken(event);
