@@ -221,6 +221,32 @@ test("an account switch clears private recipe/modals and rejects a late generati
   assert.equal(state.randomSuggestion.value, null);
 });
 
+test("mobile GPS can select the current location without submitting unfinished choices", () => {
+  let success!: (value: unknown) => void;
+  let calls = 0;
+  const state = discovery(async () => { calls++; return {}; }, {
+    navigator: { geolocation: { getCurrentPosition: (done: typeof success) => { success = done; } } },
+  });
+  state.requestGeolocation({ refresh: false });
+  success({ coords: { latitude: 11.55, longitude: 104.92 } });
+  assert.deepEqual(state.userCoords.value, { lat: 11.55, lng: 104.92 });
+  assert.equal(state.isLocating.value, false);
+  assert.equal(calls, 0);
+});
+
+test("a district picked during GPS lookup wins over the late GPS callback", () => {
+  let success!: (value: unknown) => void;
+  const state = discovery(async () => ({}), {
+    navigator: { geolocation: { getCurrentPosition: (done: typeof success) => { success = done; } } },
+  });
+  state.requestGeolocation({ refresh: false });
+  state.onDistrictChange("tuol-kork");
+  success({ coords: { latitude: 11.55, longitude: 104.92 } });
+  assert.equal(state.selectedDistrictId.value, "tuol-kork");
+  assert.equal(state.userCoords.value, null);
+  assert.equal(state.isLocating.value, false);
+});
+
 test("an old account's GPS callback cannot restore private coordinates or trigger discovery for the next account", () => {
   const requests: Array<{
     success: (value: unknown) => void;

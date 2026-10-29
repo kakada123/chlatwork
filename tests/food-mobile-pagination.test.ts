@@ -10,6 +10,9 @@ test("Food mobile observer loads only intersecting available pages, follows view
   const unmounted: Array<() => void> = [];
   const canLoad = vue.ref(true);
   let gpsRequests = 0;
+  let gpsOptions: unknown;
+  let discoveries = 0;
+  let resultScrolls = 0;
   let loads = 0,
     observed = 0,
     disconnected = 0;
@@ -50,14 +53,29 @@ test("Food mobile observer loads only intersecting available pages, follows view
     isLocating: vue.ref(false),
     districts: vue.ref([]),
     selectedDistrictId: vue.ref(""),
+    mode: vue.ref("dine-out"),
+    mealTime: vue.ref("lunch"),
+    peopleCount: vue.ref(3),
+    totalBudget: vue.ref(10),
+    searchKeyword: vue.ref(""),
+    isLoading: vue.ref(false),
+    isLoadingMore: vue.ref(false),
+    isRandomLoading: vue.ref(false),
+    locationQuery: vue.ref(""),
+    routeOrigin: vue.ref(""),
+    routeDestination: vue.ref(""),
+    errorMessage: vue.ref(null),
     canAutoLoadMore: canLoad,
     fetchDistricts: async () => {},
     fetchFilters: async () => {},
-    getRecommendations() {},
+    getRecommendations() {
+      discoveries++;
+    },
     loadMorePlaces: async () => {
       loads++;
     },
-    requestGeolocation() {
+    requestGeolocation(options: unknown) {
+      gpsOptions = options;
       gpsRequests++;
     },
     setDiscoveryAccount() {},
@@ -75,6 +93,7 @@ test("Food mobile observer loads only intersecting available pages, follows view
     "definePageMeta",
     "window",
     "IntersectionObserver",
+    "document",
     code,
   )(
     (name: string) => {
@@ -98,6 +117,13 @@ test("Food mobile observer loads only intersecting available pages, follows view
     () => {},
     { matchMedia: () => viewport, IntersectionObserver: Observer },
     Observer,
+    {
+      getElementById: () => ({
+        scrollIntoView: () => {
+          resultScrolls++;
+        },
+      }),
+    },
   );
   const scope = vue.effectScope();
   try {
@@ -108,14 +134,67 @@ test("Food mobile observer loads only intersecting available pages, follows view
     await mounted[0]();
     await vue.nextTick();
     assert.equal(page.isMobile.value, true);
+    assert.equal(
+      discoveries,
+      0,
+      "mobile setup must not submit before the final choice",
+    );
     state.filters.value = { locationDiscovery: "near-me" };
     await vue.nextTick();
     assert.equal(gpsRequests, 1);
+    assert.deepEqual(gpsOptions, { refresh: false });
+    assert.equal(
+      observed,
+      0,
+      "the hidden result list must not load more pages",
+    );
+    onIntersection([{ isIntersecting: true }]);
+    assert.equal(loads, 0);
+    page.mobilePanel.value = "results";
+    await vue.nextTick();
     assert.ok(observed > 0);
     onIntersection([{ isIntersecting: false }]);
     assert.equal(loads, 0);
     onIntersection([{ isIntersecting: true }]);
     assert.equal(loads, 1);
+    page.mobileResultView.value = "map";
+    await vue.nextTick();
+    onIntersection([{ isIntersecting: true }]);
+    assert.equal(loads, 1, "map-only view must not paginate the hidden list");
+    page.mobileResultView.value = "list";
+    page.mobilePanel.value = "search";
+    await vue.nextTick();
+    onIntersection([{ isIntersecting: true }]);
+    assert.equal(loads, 1, "leaving results stops pending observer callbacks");
+    page.changeMobileCriteria({
+      keyword: "គុយទាវ",
+      mealTime: "breakfast",
+      peopleCount: 2,
+      totalBudget: 5,
+    });
+    assert.equal(discoveries, 0, "editing choices must not submit");
+    assert.equal(state.searchKeyword.value, "គុយទាវ");
+    assert.equal(state.mealTime.value, "breakfast");
+    assert.equal(state.peopleCount.value, 2);
+    await page.submitDiscovery();
+    assert.equal(discoveries, 1);
+    assert.equal(page.mobilePanel.value, "results");
+    assert.equal(resultScrolls, 1);
+    state.filters.value = {
+      city: "siem-reap",
+      area: "bkk",
+      locationDiscovery: "within-1-km",
+      dietary: ["vegan"],
+    };
+    state.locationQuery.value = "old city";
+    page.requestMobileLocation();
+    assert.deepEqual(state.filters.value, {
+      locationDiscovery: "within-1-km",
+      dietary: ["vegan"],
+    });
+    assert.equal(state.locationQuery.value, "");
+    assert.equal(discoveries, 1, "the mobile GPS button must not resubmit");
+    assert.deepEqual(gpsOptions, { refresh: false });
     canLoad.value = false;
     await vue.nextTick();
     onIntersection([{ isIntersecting: true }]);

@@ -28,6 +28,7 @@ import FoodPlaceAttribution from "~/components/food/FoodPlaceAttribution.vue";
 import FoodQuickFilters from "~/components/food/FoodQuickFilters.vue";
 import FoodSavedRecipes from "~/components/food/FoodSavedRecipes.vue";
 import FoodMenuCatalog from "~/components/food/FoodMenuCatalog.vue";
+import FoodMobileDiscovery from "~/components/food/FoodMobileDiscovery.vue";
 import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
 import { useAuth } from "~/composables/useAuth";
 
@@ -40,6 +41,7 @@ const {
   filters, filterDefinitions, filtersError, fetchFilters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
   isLoadingMore, hasMorePlaces, canAutoLoadMore, paginationError, loadMorePlaces, hasSuggestionHistory, clearSuggestionHistory,
   mode,
+  mealTime,
   peopleCount,
   totalBudget,
   selectedDistrictId,
@@ -74,10 +76,70 @@ const {
   closeRandomModal,
 } = useFoodDiscovery({ waitForAccount: true });
 const { user: foodUser, isReady: foodAuthReady, fetchMe: resolveFoodAuth } = useAuth();
-watch(() => foodUser.value?.id || null, (owner) => setDiscoveryAccount(owner), { flush: "sync" });
+const mobilePanel = ref<"steps" | "search" | "results" | "catalog" | "saved" | "advanced">("steps");
+const mobileResultView = ref<"list" | "map">("list");
+let mobileLocationChosen = false;
+let pageActive = true;
+watch(() => foodUser.value?.id || null, (owner) => {
+  setDiscoveryAccount(owner);
+  mobilePanel.value = "steps";
+  mobileLocationChosen = false;
+}, { flush: "sync" });
+const discoveryBusy = computed(() => !foodAuthReady.value || isLoading.value || isLoadingMore.value || isRandomLoading.value);
+function changeMobileCriteria(patch: {
+  keyword?: string; mode?: "dine-out" | "cook-at-home"; mealTime?: "breakfast" | "lunch" | "snack" | "dinner" | "any";
+  peopleCount?: number; totalBudget?: number; filters?: Record<string, string | string[]>;
+}) {
+  if (discoveryBusy.value) return;
+  if (patch.keyword !== undefined) searchKeyword.value = patch.keyword;
+  if (patch.mode !== undefined) mode.value = patch.mode;
+  if (patch.mealTime !== undefined) mealTime.value = patch.mealTime;
+  if (patch.peopleCount !== undefined) peopleCount.value = patch.peopleCount;
+  if (patch.totalBudget !== undefined) totalBudget.value = patch.totalBudget;
+  if (patch.filters !== undefined) filters.value = patch.filters;
+}
+function clearMobileLocationFilters() {
+  const { city, area, locationDiscovery, ...remaining } = filters.value;
+  if (typeof locationDiscovery === "string" && /^within-(1|3|5|10)-km$/.test(locationDiscovery)) remaining.locationDiscovery = locationDiscovery;
+  filters.value = remaining;
+  locationQuery.value = "";
+  routeOrigin.value = "";
+  routeDestination.value = "";
+}
+function requestMobileLocation() {
+  if (discoveryBusy.value) return;
+  mobileLocationChosen = true;
+  clearMobileLocationFilters();
+  requestGeolocation({ refresh: false });
+}
+function chooseMobileDistrict(id: string) {
+  if (discoveryBusy.value || !districts.value.some(district => district.id === id)) return;
+  mobileLocationChosen = true;
+  clearMobileLocationFilters();
+  onDistrictChange(id);
+  errorMessage.value = null;
+}
+async function useGrantedMobileLocation() {
+  if (!isMobile.value || typeof navigator === "undefined" || !navigator.permissions) return;
+  const owner = foodUser.value?.id;
+  try {
+    const permission = await navigator.permissions.query({ name: "geolocation" });
+    // Permission checks must not overwrite a later manual choice or an account change.
+    if (pageActive && permission.state === "granted" && owner === foodUser.value?.id && !mobileLocationChosen && !userCoords.value && isMobile.value) requestMobileLocation();
+  } catch { /* Manual location selection remains available when Permissions API is unsupported. */ }
+}
+async function submitDiscovery() {
+  if (discoveryBusy.value || (isMobile.value && isLocating.value)) return;
+  mobilePanel.value = "results";
+  mobileResultView.value = "list";
+  await getRecommendations();
+  if (isMobile.value) await nextTick(() => document.getElementById("food-discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
 function chooseCatalogFood(item: FoodMenuItem, target: "dine-out" | "cook-at-home") {
+  mobilePanel.value = "results";
+  mobileResultView.value = "list";
   void selectCatalogFood(item, target);
   void nextTick(() => document.getElementById("food-discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
@@ -90,7 +152,7 @@ watch(() => filters.value.city, (city) => {
   }
 });
 watch(() => filters.value.locationDiscovery, (discovery) => {
-  if (discovery === "near-me" && !userCoords.value && !isLocating.value) requestGeolocation();
+  if (discovery === "near-me" && !userCoords.value && !isLocating.value) requestGeolocation({ refresh: !isMobile.value });
 });
 
 const loadMoreSentinel = ref<HTMLElement | null>(null);
@@ -101,28 +163,38 @@ let viewport: MediaQueryList | undefined;
 function updateViewport() { isMobile.value = viewport?.matches || false; }
 function observeMore() {
   observer?.disconnect();
-  if (isMobile.value && supportsInfiniteScroll.value && canAutoLoadMore.value && loadMoreSentinel.value) observer?.observe(loadMoreSentinel.value);
+  if (isMobile.value && mobilePanel.value === "results" && mobileResultView.value === "list" && supportsInfiniteScroll.value && canAutoLoadMore.value && loadMoreSentinel.value) observer?.observe(loadMoreSentinel.value);
 }
-watch([loadMoreSentinel, canAutoLoadMore, isMobile], observeMore);
+watch([loadMoreSentinel, canAutoLoadMore, isMobile, mobilePanel, mobileResultView], observeMore);
 onMounted(async () => {
   viewport = window.matchMedia("(max-width: 767px)");
   updateViewport();
   viewport.addEventListener("change", updateViewport);
   supportsInfiniteScroll.value = typeof window.IntersectionObserver === "function";
   if (supportsInfiniteScroll.value) observer = new IntersectionObserver((entries) => {
-    if (entries.some((entry) => entry.isIntersecting) && canAutoLoadMore.value) void loadMorePlaces();
+    if (isMobile.value && mobilePanel.value === "results" && mobileResultView.value === "list" && entries.some((entry) => entry.isIntersecting) && canAutoLoadMore.value) void loadMorePlaces();
   }, { rootMargin: "240px 0px" });
   await Promise.all([fetchDistricts(), fetchFilters(), foodAuthReady.value ? Promise.resolve() : resolveFoodAuth()]);
   setDiscoveryAccount(foodUser.value?.id || null);
-  void getRecommendations();
+  // Mobile waits for the completed choices; mounting or switching menus must never spend on generation.
+  if (isMobile.value) void useGrantedMobileLocation();
+  else void getRecommendations();
 });
-onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("change", updateViewport); });
+onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.removeEventListener("change", updateViewport); });
 </script>
 
 <template>
-  <div class="space-y-8">
+  <div class="flex flex-col gap-4 md:gap-8">
+    <FoodMobileDiscovery
+      v-model:panel="mobilePanel" :keyword="searchKeyword" :mode="mode" :meal-time="mealTime"
+      :people-count="peopleCount" :total-budget="totalBudget" :filters="filters" :budget-label="budgetRangeLabel"
+      :disabled="discoveryBusy" :locating="isLocating" :has-coords="Boolean(userCoords)"
+      :location-label="locationLabel" :district-id="selectedDistrictId" :districts="districts"
+      @change="changeMobileCriteria" @submit="submitDiscovery" @locate="requestMobileLocation" @district="chooseMobileDistrict"
+    />
+    <p v-if="errorMessage && mobilePanel !== 'advanced'" role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 md:hidden">{{ errorMessage }}</p>
     <!-- Hero / Headline Section -->
-    <div class="food-hero rounded-3xl border border-orange-100 p-6 shadow-sm dark:border-stone-800 sm:p-8">
+    <div class="food-hero hidden rounded-3xl border border-orange-100 p-6 shadow-sm dark:border-stone-800 md:block sm:p-8">
       <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
         <div class="space-y-2 text-center sm:text-left">
           <div class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-950/80 dark:text-orange-300">
@@ -157,7 +229,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
           :class="mode === 'dine-out'
             ? 'bg-orange-500 text-white shadow'
             : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'"
-          @click="mode = 'dine-out'; getRecommendations()"
+          @click="mode = 'dine-out'; submitDiscovery()"
         >
           <Utensils class="size-4" />
           <span>ញ៉ាំនៅក្រៅ (Dine Out)</span>
@@ -168,7 +240,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
           :class="mode === 'cook-at-home'
             ? 'bg-orange-500 text-white shadow'
             : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'"
-          @click="mode = 'cook-at-home'; getRecommendations()"
+          @click="mode = 'cook-at-home'; submitDiscovery()"
         >
           <ChefHat class="size-4" />
           <span>ធ្វើម្ហូបនៅផ្ទះ (Cook at Home)</span>
@@ -177,7 +249,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
     </div>
 
     <!-- Filter & Discovery Criteria Form -->
-    <div class="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/70 sm:p-7">
+    <div class="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/70 sm:p-7" :class="{ 'hidden md:block': mobilePanel !== 'advanced' }">
       <FoodQuickFilters :active="activeQuickPreset" :disabled="!foodAuthReady || isLoading || isLoadingMore || isRandomLoading" class="mb-6 border-b border-stone-100 pb-6 dark:border-stone-800" @select="selectQuickPreset" />
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <!-- People & Budget Controls -->
@@ -232,7 +304,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
             <select
               :value="selectedDistrictId"
               class="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-2.5 text-xs font-semibold text-stone-800 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
-              @change="onDistrictChange(($event.target as HTMLSelectElement).value)"
+              @change="isMobile ? chooseMobileDistrict(($event.target as HTMLSelectElement).value) : onDistrictChange(($event.target as HTMLSelectElement).value)"
             >
               <option value="">ជ្រើសរើសខណ្ឌ...</option>
               <option
@@ -250,7 +322,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
               :class="{ 'border-orange-500 text-orange-600 animate-pulse': isLocating }"
               title="ប្រើទីតាំងបច្ចុប្បន្ន (GPS)"
               :disabled="isLocating"
-              @click="requestGeolocation"
+              @click="isMobile ? requestMobileLocation() : requestGeolocation()"
             >
               <Compass class="size-4" />
             </button>
@@ -289,7 +361,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
             type="text"
             class="w-full rounded-2xl border border-stone-200 bg-stone-50 py-2.5 pl-10 pr-4 text-xs font-medium text-stone-800 placeholder-stone-400 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
             placeholder="ស្វែងរកតាមមុខម្ហូប (ឧ. បាយសាច់ជ្រូក, គុយទាវ, BBQ, កាហ្វេ...)"
-            @keyup.enter="getRecommendations"
+            @keyup.enter="submitDiscovery"
           />
         </div>
 
@@ -297,7 +369,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
           type="button"
           class="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 active:scale-[0.99] sm:w-auto"
           :disabled="isLoading || isLoadingMore || isRandomLoading"
-          @click="getRecommendations"
+          @click="submitDiscovery"
         >
           <RefreshCw v-if="isLoading" class="size-4 animate-spin" />
           <Sparkles v-else class="size-4" />
@@ -305,7 +377,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
         </button>
       </div>
 
-      <button v-if="hasSuggestionHistory" type="button" class="mt-4 text-xs font-semibold text-orange-600 underline underline-offset-4 disabled:opacity-50" :disabled="isLoading || isLoadingMore || isRandomLoading" @click="clearSuggestionHistory(); getRecommendations()">អនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ / Reset recent choices</button>
+      <button v-if="hasSuggestionHistory" type="button" class="mt-4 text-xs font-semibold text-orange-600 underline underline-offset-4 disabled:opacity-50" :disabled="isLoading || isLoadingMore || isRandomLoading" @click="clearSuggestionHistory(); submitDiscovery()">អនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ / Reset recent choices</button>
 
       <!-- Geolocation / Error Alert -->
       <div v-if="errorMessage" class="mt-4 flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
@@ -323,10 +395,17 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
       <span>{{ copyNotification }}</span>
     </div>
 
-    <FoodMenuCatalog :disabled="!foodAuthReady || isLoading || isLoadingMore || isRandomLoading" @choose="chooseCatalogFood" />
+    <div v-if="!isMobile || mobilePanel === 'catalog'" :class="{ 'hidden md:block': mobilePanel !== 'catalog' }">
+      <FoodMenuCatalog :disabled="discoveryBusy" :initially-expanded="isMobile" @choose="chooseCatalogFood" />
+    </div>
+    <FoodSavedRecipes v-if="isMobile && mobilePanel === 'saved'" :refresh-key="savedRecipesVersion" initially-expanded @open="openRecipeDetail" />
+    <div v-if="mobilePanel === 'results' && !hasSearched && !isLoading" class="rounded-2xl border border-stone-200 bg-white p-5 text-center text-sm dark:border-stone-700 dark:bg-stone-900 md:hidden">
+      ជ្រើសម្ហូប ឬស្វែងរក ដើម្បីមើលលទ្ធផល។
+      <button type="button" class="mt-3 block min-h-11 w-full font-semibold text-orange-600" @click="mobilePanel = 'steps'">ចាប់ផ្ដើមជ្រើសម្ហូប →</button>
+    </div>
 
     <!-- Dine-Out Results Section -->
-    <section v-if="mode === 'dine-out'" id="food-discovery-results" class="scroll-mt-24 space-y-6">
+    <section v-if="mode === 'dine-out'" id="food-discovery-results" class="scroll-mt-24 space-y-6" :class="{ 'hidden md:block': mobilePanel !== 'results' }">
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
@@ -341,17 +420,22 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
           type="button"
           class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400"
           :disabled="isLoading || isLoadingMore || isRandomLoading"
-          @click="getRecommendations"
+          @click="submitDiscovery"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
           <span>សាកល្បងម្ដងទៀត</span>
         </button>
       </div>
 
+      <div class="flex gap-2 md:hidden" aria-label="Result display">
+        <button type="button" :aria-pressed="mobileResultView === 'list'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'list' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'list'">📋 បញ្ជីហាង</button>
+        <button type="button" :aria-pressed="mobileResultView === 'map'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'map' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'map'">📍 ផែនទី</button>
+      </div>
+
       <!-- Map & Place Grid Layout -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <!-- Ranked Place Cards (5 cols) -->
-        <div class="space-y-4 lg:col-span-6">
+        <div class="space-y-4 lg:col-span-6" :class="{ 'hidden md:block': mobileResultView === 'map' }">
           <div v-if="isLoading" class="space-y-4">
             <div v-for="i in 3" :key="i" class="h-44 animate-pulse rounded-2xl bg-stone-200 dark:bg-stone-800" />
           </div>
@@ -483,7 +567,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
         </div>
 
         <!-- Selected restaurant on Google Maps -->
-        <div class="lg:col-span-6">
+        <div v-if="!isMobile || (mobilePanel === 'results' && mobileResultView === 'map')" class="lg:col-span-6">
           <div class="sticky top-20">
             <FoodDiscoveryMap
               :places="places"
@@ -501,7 +585,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
     </section>
 
     <!-- Cook-at-Home (Khmer Recipes) Results Section -->
-    <section v-if="mode === 'cook-at-home'" id="food-discovery-results" class="scroll-mt-24 space-y-6">
+    <section v-if="mode === 'cook-at-home'" id="food-discovery-results" class="scroll-mt-24 space-y-6" :class="{ 'hidden md:block': mobilePanel !== 'results' }">
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
@@ -516,7 +600,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
           type="button"
           class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400"
           :disabled="isLoading || isLoadingMore || isRandomLoading"
-          @click="getRecommendations"
+          @click="submitDiscovery"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
           <span>សាកល្បងម្ដងទៀត</span>
@@ -524,7 +608,8 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
       </div>
 
       <!-- Recipes Grid -->
-      <FoodSavedRecipes :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
+      <FoodSavedRecipes v-if="!isMobile" :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
+      <p v-if="isLoading" role="status" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">កំពុងបង្កើតរូបមន្តតាមជម្រើសរបស់អ្នក…</p>
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="recipe in recipes"

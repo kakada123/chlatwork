@@ -3,16 +3,16 @@ import { onMounted, ref, watch } from "vue";
 import { useAuth } from "~/composables/useAuth";
 import { useSavedFoodRecipes } from "~/composables/useSavedFoodRecipes";
 import type { KhmerRecipe } from "~/composables/useFoodDiscovery";
-const props = defineProps<{ refreshKey: number }>();
+const props = defineProps<{ refreshKey: number; initiallyExpanded?: boolean }>();
 const emit = defineEmits<{ (event: "open", recipe: KhmerRecipe): void }>();
 const { user, isReady, fetchMe } = useAuth();
 const { recipes, isLoading, errorMessage, hasMore, refresh, loadMore } =
   useSavedFoodRecipes(() => user.value?.id || null);
-const expanded = ref(false);
+const expanded = ref(Boolean(props.initiallyExpanded));
 let mounted = false;
 function toggle(event: Event) {
   expanded.value = (event.target as HTMLDetailsElement).open;
-  if (mounted && expanded.value && user.value) void refresh();
+  if (mounted && expanded.value && user.value && !isLoading.value) void refresh();
 }
 watch([() => user.value?.id, () => props.refreshKey], () => {
   if (mounted && expanded.value && user.value) void refresh();
@@ -20,6 +20,7 @@ watch([() => user.value?.id, () => props.refreshKey], () => {
 onMounted(async () => {
   mounted = true;
   if (!isReady.value) await fetchMe();
+  if (expanded.value && user.value && !isLoading.value) void refresh();
 });
 function date(value: string) {
   return new Date(value).toLocaleDateString("km-KH", {
@@ -32,6 +33,7 @@ function date(value: string) {
 
 <template>
   <details
+    :open="expanded"
     class="min-w-0 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900 sm:p-5"
     @toggle="toggle"
   >

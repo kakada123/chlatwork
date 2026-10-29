@@ -177,9 +177,11 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
   }
   const results = useFoodResults(currentCriteria, mode, options.waitForAccount);
   let discoveryAccountRevision = 0;
+  let locationRevision = 0;
   function setDiscoveryAccount(ownerId: string | null) {
     if (!results.setAccountScope(ownerId)) return;
     discoveryAccountRevision++;
+    locationRevision++;
     isLocating.value = false;
     selectedRecipe.value = null;
     filters.value = {};
@@ -285,7 +287,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     }
   }
 
-  function requestGeolocation() {
+  function requestGeolocation(options: { refresh?: boolean } = {}) {
     if (typeof window === "undefined" || !navigator.geolocation) {
       errorMessage.value =
         "ឧបករណ៍របស់អ្នកមិនគាំទ្រ Geolocation ទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
@@ -295,10 +297,11 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     isLocating.value = true;
     errorMessage.value = null;
     const ownerRevision = discoveryAccountRevision;
+    const requestRevision = ++locationRevision;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        if (ownerRevision !== discoveryAccountRevision) return;
+        if (ownerRevision !== discoveryAccountRevision || requestRevision !== locationRevision) return;
         // GPS is the new anchor; an earlier city/address must not override the user's location.
         const { city, area, ...remaining } = filters.value;
         filters.value = remaining;
@@ -310,11 +313,11 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
         locationLabel.value = "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)";
         selectedDistrictId.value = "";
         isLocating.value = false;
-        // Auto-refresh recommendations with user's actual GPS location
-        getRecommendations();
+        // Mobile setup can acquire an anchor without submitting unfinished choices or spending on generation.
+        if (options.refresh !== false) getRecommendations();
       },
       (err) => {
-        if (ownerRevision !== discoveryAccountRevision) return;
+        if (ownerRevision !== discoveryAccountRevision || requestRevision !== locationRevision) return;
         isLocating.value = false;
         if (err.code === err.PERMISSION_DENIED) {
           errorMessage.value =
@@ -329,6 +332,9 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
   }
 
   function onDistrictChange(districtId: string) {
+    // A later manual choice wins over any GPS lookup still in flight.
+    locationRevision++;
+    isLocating.value = false;
     selectedDistrictId.value = districtId;
     userCoords.value = null;
     const match = districts.value.find((d) => d.id === districtId);

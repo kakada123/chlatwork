@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useFoodMenuCatalog } from "~/composables/useFoodMenuCatalog";
 import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
-defineProps<{ disabled?: boolean }>();
+const props = defineProps<{ disabled?: boolean; initiallyExpanded?: boolean }>();
 const emit = defineEmits<{
   (
     event: "choose",
@@ -30,7 +30,7 @@ const {
   search,
   loadMore,
 } = useFoodMenuCatalog();
-const expanded = ref(false),
+const expanded = ref(Boolean(props.initiallyExpanded)),
   sentinel = ref<HTMLElement | null>(null),
   mobile = ref(false),
   supported = ref(false);
@@ -44,7 +44,7 @@ const meals: Record<string, string> = {
 };
 function toggle(event: Event) {
   expanded.value = (event.target as HTMLDetailsElement).open;
-  if (expanded.value && !hasLoaded.value) void search();
+  if (expanded.value && !hasLoaded.value && !isLoading.value) void search();
 }
 function choose(item: FoodMenuItem, mode: "dine-out" | "cook-at-home") {
   expanded.value = false;
@@ -60,6 +60,7 @@ function resize() {
 }
 watch([expanded, sentinel, mobile, canAutoLoadMore], observe);
 onMounted(() => {
+  if (expanded.value && !hasLoaded.value && !isLoading.value) void search();
   viewport = window.matchMedia("(max-width: 767px)");
   resize();
   viewport.addEventListener("change", resize);
