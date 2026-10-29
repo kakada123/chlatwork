@@ -4,15 +4,35 @@ import { useColorMode } from "~/composables/useColorMode";
 import { useProductDomain } from "~/composables/useProductDomain";
 
 const { isDark, toggleColorMode } = useColorMode();
-const { config } = useProductDomain();
+const { config, canonical } = useProductDomain();
+const foodTitle = "ChlatWork Food - ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?";
+const foodDescription = "ស្វែងរកភោជនីយដ្ឋានឆ្ងាញ់ៗជិតអ្នក ឬរូបមន្តម្ហូបខ្មែរឆ្ងាញ់ៗ តាមថវិកា និងឱកាសជួបជុំ ដោយឥតគិតថ្លៃ ១០០%";
+// Share crawlers need an absolute, server-rendered image URL on either supported Food URL.
+const shareImage = computed(() => new URL("/images/food/khmer-food-background-v1.jpg", canonical.value).href);
+const shareImageAlt = "Cambodian food: grilled pork with rice, fish amok, and noodle soup";
+
+useSeoMeta({
+  title: foodTitle,
+  description: foodDescription,
+  ogTitle: foodTitle,
+  ogDescription: foodDescription,
+  ogType: "website",
+  ogSiteName: "ChlatWork Food",
+  ogUrl: canonical,
+  ogImage: shareImage,
+  ogImageWidth: 1600,
+  ogImageHeight: 900,
+  ogImageType: "image/jpeg",
+  ogImageAlt: shareImageAlt,
+  twitterCard: "summary_large_image",
+  twitterTitle: foodTitle,
+  twitterDescription: foodDescription,
+  twitterImage: shareImage,
+  twitterImageAlt: shareImageAlt,
+});
 
 useHead({
-  title: "ChlatWork Food - ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?",
   meta: [
-    {
-      name: "description",
-      content: "ស្វែងរកភោជនីយដ្ឋានឆ្ងាញ់ៗជិតអ្នក ឬរូបមន្តម្ហូបខ្មែរឆ្ងាញ់ៗ តាមថវិកា និងឱកាសជួបជុំ ដោយឥតគិតថ្លៃ ១០០%",
-    },
     { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
   ],
 });
@@ -129,7 +149,7 @@ useHead({
   background-position: center right;
 }
 
-:global(.dark) .food-shell {
+.dark .food-shell {
   --food-background-wash: rgb(12 15 20 / 94%);
 }
 

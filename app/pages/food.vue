@@ -780,7 +780,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
   background-position: center right;
 }
 
-:global(.dark) .food-hero {
+.dark .food-hero {
   background-image:
     linear-gradient(100deg, rgb(12 15 20 / 97%) 0%, rgb(12 15 20 / 90%) 42%, rgb(12 15 20 / 68%) 100%),
     var(--food-background-image);
@@ -794,7 +794,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
       var(--food-background-image);
   }
 
-  :global(.dark) .food-hero {
+  .dark .food-hero {
     background-image:
       linear-gradient(100deg, rgb(12 15 20 / 95%), rgb(12 15 20 / 84%)),
       var(--food-background-image);
