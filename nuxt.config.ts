@@ -60,8 +60,9 @@ const colorModeScript = `
 `;
 
 const securityHeaders = {
+  // Food's current-location control needs first-party GPS access; the browser still asks for consent.
   "Permissions-Policy":
-    "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), clipboard-read=(), clipboard-write=(self)",
+    "camera=(self), microphone=(), geolocation=(self), payment=(), usb=(), serial=(), clipboard-read=(), clipboard-write=(self)",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Strict-Transport-Security": "max-age=31536000",
   "X-Content-Type-Options": "nosniff",

@@ -9,6 +9,7 @@
       :width="ad.width"
       :height="ad.height"
       class="max-w-full border-0"
+      allow="geolocation 'none'"
       referrerpolicy="strict-origin-when-cross-origin"
       scrolling="no"
     />
