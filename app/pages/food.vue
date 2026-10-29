@@ -122,7 +122,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
 <template>
   <div class="space-y-8">
     <!-- Hero / Headline Section -->
-    <div class="rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50 via-amber-50/50 to-white p-6 shadow-sm dark:border-stone-800 dark:from-stone-900 dark:via-stone-900/60 dark:to-stone-950 sm:p-8">
+    <div class="food-hero rounded-3xl border border-orange-100 p-6 shadow-sm dark:border-stone-800 sm:p-8">
       <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
         <div class="space-y-2 text-center sm:text-left">
           <div class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-950/80 dark:text-orange-300">
@@ -770,3 +770,34 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
     </div>
   </div>
 </template>
+
+<style scoped>
+.food-hero {
+  background-image:
+    linear-gradient(100deg, rgb(255 251 245 / 98%) 0%, rgb(255 251 245 / 92%) 42%, rgb(255 251 245 / 45%) 100%),
+    var(--food-background-image);
+  background-size: cover;
+  background-position: center right;
+}
+
+:global(.dark) .food-hero {
+  background-image:
+    linear-gradient(100deg, rgb(12 15 20 / 97%) 0%, rgb(12 15 20 / 90%) 42%, rgb(12 15 20 / 68%) 100%),
+    var(--food-background-image);
+}
+
+@media (max-width: 639px) {
+  .food-hero {
+    background-position: center right;
+    background-image:
+      linear-gradient(100deg, rgb(255 251 245 / 95%), rgb(255 251 245 / 80%)),
+      var(--food-background-image);
+  }
+
+  :global(.dark) .food-hero {
+    background-image:
+      linear-gradient(100deg, rgb(12 15 20 / 95%), rgb(12 15 20 / 84%)),
+      var(--food-background-image);
+  }
+}
+</style>

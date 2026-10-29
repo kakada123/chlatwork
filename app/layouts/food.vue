@@ -107,10 +107,36 @@ useHead({
 
 <style scoped>
 .food-shell {
+  position: relative;
+  isolation: isolate;
+  --food-background-image: url("/images/food/khmer-food-background-v1.jpg");
+  --food-background-wash: rgb(250 250 249 / 86%);
   --app-font: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-family: var(--app-font);
   letter-spacing: 0;
   line-height: 1.7;
+}
+
+/* Keep the decorative image behind the page without affecting scrolling or pointer targets. */
+.food-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(var(--food-background-wash), var(--food-background-wash)), var(--food-background-image);
+  background-size: cover;
+  background-position: center right;
+}
+
+:global(.dark) .food-shell {
+  --food-background-wash: rgb(12 15 20 / 94%);
+}
+
+@media (max-width: 639px) {
+  .food-shell {
+    --food-background-image: url("/images/food/khmer-food-background-mobile-v1.jpg");
+  }
 }
 
 .food-shell :deep(button:focus-visible),
