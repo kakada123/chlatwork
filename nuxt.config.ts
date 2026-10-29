@@ -250,6 +250,8 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: "vercel",
+    // Leave time for Food's bounded Gemini recovery and recipe persistence before the proxy terminates.
+    vercel: { functions: { maxDuration: 60 } },
     output: nodeEnv.CHLATWORK_NITRO_OUTPUT_DIR
       ? { dir: nodeEnv.CHLATWORK_NITRO_OUTPUT_DIR }
       : undefined,

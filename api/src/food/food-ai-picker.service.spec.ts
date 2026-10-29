@@ -216,7 +216,7 @@ describe("FoodAiPickerService", () => {
         jest.useRealTimers();
       });
 
-      it("recovers once after backoff with the identical criteria and recent exclusions", async () => {
+      it("recovers on the alternate Gemini model with identical criteria and recent exclusions", async () => {
         reply([generatedFoodRecipe()]);
         generateContent.mockRejectedValueOnce({
           status: 500,
@@ -232,9 +232,13 @@ describe("FoodAiPickerService", () => {
         await jest.advanceTimersByTimeAsync(1);
         expect((await pending)[0].nameEn).toBe("Ginger Mushroom Rice");
         expect(generateContent).toHaveBeenCalledTimes(2);
-        expect(generateContent.mock.calls[1][0]).toEqual(
-          generateContent.mock.calls[0][0],
+        expect(generateContent.mock.calls[0][0].model).toBe(
+          "gemini-3.5-flash-lite",
         );
+        expect(generateContent.mock.calls[1][0]).toEqual({
+          ...generateContent.mock.calls[0][0],
+          model: "gemini-3.1-flash-lite",
+        });
         expect(warning).toHaveBeenCalledWith(
           expect.objectContaining({
             reason: "TIMEOUT",
@@ -245,32 +249,71 @@ describe("FoodAiPickerService", () => {
         expect(JSON.stringify(warning.mock.calls)).not.toContain("private");
       });
 
-      it("gives the second attempt only the time left in the total 30-second budget", async () => {
+      it("gives the second attempt only the time left in the total 55-second budget", async () => {
         reply([generatedFoodRecipe()]);
         picker = new FoodAiPickerService(
-          new ConfigService({ ...config, AI_PROVIDER_TIMEOUT_MS: 30000 }),
+          new ConfigService({ ...config, FOOD_AI_RECIPE_TIMEOUT_MS: 45000 }),
         );
         generateContent.mockImplementationOnce(async () => {
-          jest.setSystemTime(22000);
+          jest.setSystemTime(38000);
           throw { status: 504 };
         });
-        const pending = picker.generateRecipes({ peopleCount: 4, limit: 1 });
+        const pending = picker
+          .generateRecipes({ peopleCount: 4, limit: 1 })
+          .catch((error) => error);
         await jest.advanceTimersByTimeAsync(1000);
-        await pending;
+        expect(await pending).toEqual([
+          expect.objectContaining({ nameEn: "Ginger Mushroom Rice" }),
+        ]);
         expect(
           (GoogleGenAI as unknown as jest.Mock).mock.calls.at(-1)[0]
             .httpOptions,
-        ).toMatchObject({ timeout: 7000, retryOptions: { attempts: 1 } });
+        ).toMatchObject({ timeout: 16000, retryOptions: { attempts: 1 } });
       });
 
       it("does not pay for another attempt when too little total time remains", async () => {
         generateContent.mockImplementationOnce(async () => {
-          jest.setSystemTime(25000);
+          jest.setSystemTime(45000);
           throw { status: 504 };
         });
         await expect(picker.generateRecipes({})).rejects.toBeInstanceOf(
           ServiceUnavailableException,
         );
+        expect(generateContent).toHaveBeenCalledTimes(1);
+      });
+
+      it("honors a configured recovery model and still validates its servings", async () => {
+        picker = new FoodAiPickerService(
+          new ConfigService({
+            ...config,
+            FOOD_GEMINI_RECIPE_FALLBACK_MODEL: "gemini-3.6-flash",
+          }),
+        );
+        reply([generatedFoodRecipe({ servings: 3 })]);
+        generateContent.mockRejectedValueOnce({ status: 504 });
+        const failure = expect(
+          picker.generateRecipes({ peopleCount: 4, limit: 1 }),
+        ).rejects.toBeInstanceOf(ServiceUnavailableException);
+        await jest.advanceTimersByTimeAsync(1000);
+        await failure;
+        expect(generateContent.mock.calls[1][0].model).toBe("gemini-3.6-flash");
+        expect(warning).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            reason: "SERVINGS_MISMATCH",
+            attempt: 2,
+          }),
+        );
+      });
+
+      it("does not start a recovery call after the shared budget is consumed during backoff", async () => {
+        generateContent.mockRejectedValueOnce({ status: 504 });
+        const failure = expect(
+          picker.generateRecipes({}),
+        ).rejects.toBeInstanceOf(ServiceUnavailableException);
+        await jest.advanceTimersByTimeAsync(0);
+        jest.setSystemTime(55000);
+        await jest.advanceTimersByTimeAsync(1000);
+        await failure;
         expect(generateContent).toHaveBeenCalledTimes(1);
       });
 
@@ -439,6 +482,82 @@ describe("FoodAiPickerService", () => {
       });
       expect(JSON.parse(request.contents).candidates).toBeUndefined();
       expect(generateContent).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([undefined, 0, -1, "invalid"])(
+      "allows a full recipe to finish beyond the shared short text timeout with recipe timeout %s",
+      async (timeout) => {
+        jest.useFakeTimers();
+        try {
+          picker = new FoodAiPickerService(
+            new ConfigService({
+              ...config,
+              FOOD_AI_RECIPE_TIMEOUT_MS: timeout,
+            }),
+          );
+          generateContent.mockImplementation(
+            () =>
+              new Promise((resolve, reject) => {
+                const options = (
+                  GoogleGenAI as unknown as jest.Mock
+                ).mock.calls.at(-1)[0];
+                setTimeout(
+                  () =>
+                    reject(
+                      Object.assign(new Error("private"), {
+                        name: "AbortError",
+                      }),
+                    ),
+                  options.httpOptions.timeout,
+                );
+                setTimeout(
+                  () =>
+                    resolve({
+                      text: JSON.stringify({
+                        recipes: [generatedFoodRecipe()],
+                      }),
+                      candidates: [{ finishReason: "STOP" }],
+                    }),
+                  18000,
+                );
+              }),
+          );
+          const pending = picker
+            .generateRecipes({ peopleCount: 4, limit: 1 })
+            .catch((error) => error);
+          await jest.advanceTimersByTimeAsync(18000);
+          expect(await pending).toEqual([
+            expect.objectContaining({ nameEn: "Ginger Mushroom Rice" }),
+          ]);
+        } finally {
+          jest.clearAllTimers();
+          jest.useRealTimers();
+        }
+      },
+    );
+
+    it("honors the dedicated recipe timeout without changing the ordinary picker timeout", async () => {
+      picker = new FoodAiPickerService(
+        new ConfigService({
+          ...config,
+          FOOD_AI_RECIPE_TIMEOUT_MS: 9000,
+        }),
+      );
+      reply([generatedFoodRecipe()]);
+      await picker.generateRecipes({ peopleCount: 4, limit: 1 });
+      expect(
+        (GoogleGenAI as unknown as jest.Mock).mock.calls.at(-1)[0].httpOptions
+          .timeout,
+      ).toBe(9000);
+      generateContent.mockResolvedValue({
+        text: JSON.stringify({ id: "google:one", messageKm: "ជម្រើសល្អ" }),
+        candidates: [{ finishReason: "STOP" }],
+      });
+      await picker.choose(candidates, {});
+      expect(
+        (GoogleGenAI as unknown as jest.Mock).mock.calls.at(-1)[0].httpOptions
+          .timeout,
+      ).toBe(12000);
     });
 
     it("removes recently shown recipes and duplicate names even when case and punctuation differ", async () => {

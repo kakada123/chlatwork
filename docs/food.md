@@ -70,7 +70,7 @@ The picker submits the current mode, meal, occasion, group size, total budget, c
 
 - Dine-out candidates come from the server's current Google search and ranking.
 - Cook at Home requests one new full Khmer/English recipe at a time to reduce inference latency. The API still supports explicitly requested batches of up to three. A cook-at-home pick generates one recipe directly. Neither path chooses from the constant recipe catalog.
-- `FoodAiPickerService` reuses `AI_ENABLED`, `GEMINI_API_KEY`, `GEMINI_TEXT_MODEL` and `AI_PROVIDER_TIMEOUT_MS`. Food deliberately uses Gemini as requested, independently of the Creator/Telegram `AI_USE_GEMINI` provider switch.
+- `FoodAiPickerService` reuses `AI_ENABLED`, `GEMINI_API_KEY` and `GEMINI_TEXT_MODEL`. Short restaurant picks use `AI_PROVIDER_TIMEOUT_MS`; full recipes have an independent `FOOD_AI_RECIPE_TIMEOUT_MS`. Food deliberately uses Gemini as requested, independently of the Creator/Telegram `AI_USE_GEMINI` provider switch.
 - For dining, Gemini receives bounded candidate facts and selects one existing ID with a short Khmer explanation. Candidate IDs are constrained in the JSON schema and checked again on the server.
 - Generated recipes include ingredients/quantities, cooking steps, servings, prep/cook times and estimated total ingredient costs. Structured output is validated for bounded fields, valid metadata, exact servings, selected meal/occasion, budget ceiling and recent-name duplication. Invalid/incomplete or repeated-only output returns an error without a catalog fallback.
 - Gemini cannot invent restaurant records or overwrite restaurant prices/locations. Prompts prohibit unsupported pricing and dietary guarantees. Recipes and explanations are generated suggestions; costs and dietary suitability require confirmation.
@@ -80,7 +80,7 @@ The browser remembers the last 40 restaurant IDs and 40 recipe names in account-
 
 ### Recipe generation failures
 
-Recipe warnings log a fixed `stage` and `reason`, numeric `providerStatus` when supplied, allowlisted `finishReason`/`blockReason`, and a fixed `validationField` when validation rejects output. Request size and elapsed milliseconds aid latency diagnosis. Logs never include prompts, generated text, recent names, provider messages, keys or internal Google infrastructure identifiers.
+Recipe warnings log a fixed `stage` and `reason`, numeric `providerStatus` when supplied, allowlisted `finishReason`/`blockReason`, and a fixed `validationField` when validation rejects output. Request size, sanitized model names and elapsed milliseconds aid latency diagnosis. Logs never include prompts, generated text, recent names, provider messages, keys or internal Google infrastructure identifiers.
 
 | Reason | Meaning / next check |
 | --- | --- |
@@ -95,9 +95,11 @@ Recipe warnings log a fixed `stage` and `reason`, numeric `providerStatus` when 
 | `INVALID_*` / `*_MISMATCH` / `OVER_BUDGET` | Output failed local validation; `validationField` identifies the rejected field without its value. |
 | `REPEATED_ONLY` | All valid generated choices repeated recent names. |
 
-Upstream deadlines are external provider failures; requesting one recipe reduces the work but does not guarantee provider availability. After the observed pattern of successful requests followed by an upstream deadline, recipe generation now permits **one recovery attempt** for Google's explicit `DEADLINE_EXCEEDED` or HTTP 504. It waits 1–1.25 seconds with jitter and reuses the same model, complete criteria and recent exclusions. Both attempts and the wait share a 30-second budget; each attempt also honors the configured provider timeout. Recovery starts only if at least five seconds remain after the wait. Logs mark the attempt and whether recovery is scheduled.
+Upstream deadlines are external provider failures; requesting one concise recipe reduces the work but does not guarantee provider availability. Full recipes have a separate **25-second per-attempt timeout**, avoiding the shorter timeout used for simple text picks. `FOOD_AI_RECIPE_TIMEOUT_MS` can override this up to 45 seconds. Both attempts and the wait share a **55-second budget**. Nuxt's shared Vercel function is explicitly configured for 60 seconds so the proxy can wait for bounded generation and persistence; deploy the frontend configuration as well as the API.
 
-This can issue one extra billable Gemini request. Local SDK aborts/timeouts, authentication/quota errors, generic provider errors, blocked/truncated output, invalid JSON, invalid recipes and repeated-only results are not retried. A second provider failure stops safely. There is no hidden model switch or constant-recipe fallback. See Google's [API error reference](https://ai.google.dev/gemini-api/docs/api-errors) and [bounded backoff guidance](https://ai.google.dev/gemini-api/docs/troubleshooting).
+Recipe generation permits **one recovery attempt** only for Google's explicit `DEADLINE_EXCEEDED` or HTTP 504. It waits 1–1.25 seconds with jitter, then uses `FOOD_GEMINI_RECIPE_FALLBACK_MODEL` (default `gemini-3.1-flash-lite`, or `gemini-3.5-flash-lite` when the primary is already 3.1). This avoids automatically targeting the same failing model deployment. Complete criteria, recent exclusions, requested count, schema and validation remain identical. Recovery starts only if at least ten seconds remain after the wait, and its timeout is clamped to the remaining budget. Logs identify the model and attempt without raw provider details.
+
+This can issue one extra billable Gemini request with the same existing key. Local SDK aborts/timeouts, authentication/quota errors, generic provider errors, blocked/truncated output, invalid JSON, invalid recipes and repeated-only results are not retried. A second provider failure stops safely. There is no static recipe fallback, and validated generated recipes still follow the existing database-save path. The recovery model must be enabled for the project's key. See Google's [stable 3.1 Flash-Lite model](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite), [API error reference](https://ai.google.dev/gemini-api/docs/api-errors) and [bounded backoff guidance](https://ai.google.dev/gemini-api/docs/troubleshooting).
 
 ## Configuration
 
@@ -111,7 +113,9 @@ Use only placeholders in example files. Configure real values separately in the 
 | `AI_ENABLED=true` | API server | Existing global AI switch; disabled AI makes the picker unavailable. |
 | `GEMINI_API_KEY` | API server | Existing Gemini key; no additional Food AI key. |
 | `GEMINI_TEXT_MODEL` | API server | Existing configured Gemini text model. |
-| `AI_PROVIDER_TIMEOUT_MS` | API server | Existing provider timeout, capped at 30 seconds for Food. |
+| `AI_PROVIDER_TIMEOUT_MS` | API server | Existing short restaurant-picker timeout, capped at 30 seconds. |
+| `FOOD_AI_RECIPE_TIMEOUT_MS` | API server, optional | Recipe per-attempt timeout, default 25000 ms, capped at 45000 ms and the remaining 55-second total budget. Invalid/nonpositive values use the default. |
+| `FOOD_GEMINI_RECIPE_FALLBACK_MODEL` | API server, optional | Alternate Gemini recipe model after one confirmed upstream deadline; default `gemini-3.1-flash-lite`, or 3.5 when primary is already 3.1. |
 
 To create the browser key in Google Cloud Console:
 
