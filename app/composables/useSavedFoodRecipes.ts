@@ -1,18 +1,22 @@
 import { computed, ref, watch } from "vue";
 import type { KhmerRecipe } from "~/composables/useFoodDiscovery";
 
-export function useSavedFoodRecipes(owner: () => string | null) {
+export function useSavedFoodRecipes(
+  owner: () => string | null,
+  options: { shared?: boolean } = {},
+) {
+  const scope = () => (options.shared ? "shared" : owner());
   const recipes = ref<KhmerRecipe[]>([]);
   const isLoading = ref(false);
   const errorMessage = ref<string | null>(null);
   const cursor = ref<string | undefined>();
-  const hasMore = computed(() => Boolean(owner() && cursor.value));
+  const hasMore = computed(() => Boolean(scope() && cursor.value));
   let revision = 0,
     pendingRefresh = false;
   const seen = new Set<string>();
   // A new account must never briefly see the previous account's saved content or late responses.
   watch(
-    owner,
+    scope,
     () => {
       revision++;
       recipes.value = [];
@@ -26,7 +30,7 @@ export function useSavedFoodRecipes(owner: () => string | null) {
   );
 
   async function load(reset: boolean) {
-    const account = owner();
+    const account = scope();
     if (!account) return;
     if (isLoading.value) {
       if (reset) pendingRefresh = true;
@@ -41,11 +45,14 @@ export function useSavedFoodRecipes(owner: () => string | null) {
       const response = await $fetch<{
         recipes: KhmerRecipe[];
         nextCursor?: string;
-      }>("/api/food/saved-recipes", {
-        query: { limit: 20, ...(token ? { cursor: token } : {}) },
-        retry: 0,
-      });
-      if (version !== revision || account !== owner()) return;
+      }>(
+        options.shared ? "/api/food/shared-recipes" : "/api/food/saved-recipes",
+        {
+          query: { limit: 20, ...(token ? { cursor: token } : {}) },
+          retry: 0,
+        },
+      );
+      if (version !== revision || account !== scope()) return;
       if (reset) {
         recipes.value = [];
         seen.clear();
@@ -63,11 +70,11 @@ export function useSavedFoodRecipes(owner: () => string | null) {
           ? response.nextCursor
           : undefined;
     } catch {
-      if (version === revision && account === owner())
+      if (version === revision && account === scope())
         errorMessage.value =
           "មិនអាចផ្ទុករូបមន្តដែលបានរក្សាទុកបានទេ។ សូមសាកម្ដងទៀត។";
     } finally {
-      if (version === revision && account === owner()) {
+      if (version === revision && account === scope()) {
         isLoading.value = false;
         if (pendingRefresh) {
           pendingRefresh = false;

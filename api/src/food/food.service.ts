@@ -275,6 +275,8 @@ export class FoodService {
 
   getSavedRecipes(ownerId: string, query: FoodSavedRecipesDto) { return this.recipeStore.list(ownerId, query); }
   getSavedRecipe(ownerId: string, id: string) { return this.recipeStore.get(ownerId, id); }
+  getSharedRecipes(query: FoodSavedRecipesDto) { return this.recipeStore.listShared(query); }
+  getSharedRecipe(id: string) { return this.recipeStore.getShared(id); }
 
   private resolveCoordinates(
     lat?: number,

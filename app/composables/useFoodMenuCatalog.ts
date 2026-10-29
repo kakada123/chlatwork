@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
+import type { FoodMenuCatalogItem } from "~~/api/src/food/catalog/food-menu.contract";
 interface Option {
   value: string;
   label: string;
@@ -7,7 +7,7 @@ interface Option {
   icon?: string;
 }
 interface CatalogResult {
-  items: FoodMenuItem[];
+  items: FoodMenuCatalogItem[];
   total: number;
   nextCursor?: string;
   categories: Option[];
@@ -22,7 +22,7 @@ export function useFoodMenuCatalog() {
     cuisine = ref(""),
     mealTime = ref(""),
     tag = ref("");
-  const items = ref<FoodMenuItem[]>([]),
+  const items = ref<FoodMenuCatalogItem[]>([]),
     total = ref(0),
     categories = ref<Option[]>([]),
     cuisines = ref<Option[]>([]);
@@ -59,6 +59,11 @@ export function useFoodMenuCatalog() {
       pending = false;
       void search();
     }
+  }
+  function refresh() {
+    // Generation can finish while this same catalog query is still in flight.
+    if (busy()) pending = true;
+    else void search();
   }
   async function search() {
     const key = signature();
@@ -154,6 +159,7 @@ export function useFoodMenuCatalog() {
     hasMore,
     canAutoLoadMore,
     search,
+    refresh,
     loadMore,
   };
 }

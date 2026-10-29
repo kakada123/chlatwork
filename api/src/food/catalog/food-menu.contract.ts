@@ -127,6 +127,11 @@ export interface FoodMenuBatch {
   items: FoodMenuItem[];
 }
 
+// Recipe availability is response metadata, never part of the imported catalog records.
+export interface FoodMenuCatalogItem extends FoodMenuItem {
+  recipeId?: string;
+}
+
 export function foodMenuNameKey(value: string): string {
   return value
     .normalize("NFKC")

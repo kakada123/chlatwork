@@ -70,7 +70,7 @@ describe("FoodRecipeStore", () => {
     expect(prisma.$executeRaw).not.toHaveBeenCalled();
   });
 
-  it("reads only the authenticated account with a stable cursor and no public history", async () => {
+  it("keeps account history scoped to its owner with a stable cursor", async () => {
     const row = {
       id: savedId,
       recipe,
@@ -88,6 +88,66 @@ describe("FoodRecipeStore", () => {
     expect(query.values).toContain(savedId);
     await expect(store.list("", { limit: 1 })).rejects.toBeInstanceOf(
       BadRequestException,
+    );
+  });
+
+  it("lists shared cooking instructions without account metadata or personalized recommendations", async () => {
+    const row = {
+      id: savedId,
+      recipe,
+      createdAt: new Date("2026-10-28T03:00:00Z"),
+      ownerId: owner,
+    };
+    prisma.$queryRaw.mockResolvedValue([row, { ...row, id: other }]);
+    const first = await store.listShared({ limit: 1 });
+    expect(first.recipes).toHaveLength(1);
+    expect(first.recipes[0]).toMatchObject({
+      savedRecipeId: savedId,
+      savedToAccount: false,
+      steps: recipe.steps,
+    });
+    expect(first.recipes[0]).not.toHaveProperty("recommendationKm");
+    expect(first.recipes[0]).not.toHaveProperty("ownerId");
+    expect(first.nextCursor).toBeTruthy();
+    const query = prisma.$queryRaw.mock.calls[0][0];
+    expect(query.sql).not.toContain("owner_id");
+    prisma.$queryRaw.mockResolvedValue([]);
+    await store.listShared({ limit: 1, cursor: first.nextCursor });
+    expect(prisma.$queryRaw.mock.calls[1][0].values).toContain(savedId);
+  });
+
+  it("opens a shared recipe by its stable saved ID without claiming it belongs to the viewer", async () => {
+    prisma.$queryRaw.mockResolvedValue([
+      { id: savedId, recipe, createdAt: new Date() },
+    ]);
+    const shared = await store.getShared(savedId);
+    expect(shared.steps).toEqual(recipe.steps);
+    expect(shared.savedToAccount).toBe(false);
+    expect(shared).not.toHaveProperty("recommendationKm");
+    expect(prisma.$queryRaw.mock.calls[0][0].sql).not.toContain("owner_id");
+    prisma.$queryRaw.mockResolvedValue([]);
+    await expect(store.getShared(savedId)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    await expect(store.getShared("invalid")).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it("validates public paging and hides storage failures", async () => {
+    await expect(store.listShared({ limit: 21 })).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    await expect(
+      store.listShared({ cursor: "invalid" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    prisma.$queryRaw.mockRejectedValue(new Error("private database details"));
+    await expect(store.listShared({})).rejects.toThrow(
+      "Recipe saving is unavailable. Please try again later.",
+    );
+    await expect(store.getShared(savedId)).rejects.toThrow(
+      "Recipe saving is unavailable. Please try again later.",
     );
   });
 

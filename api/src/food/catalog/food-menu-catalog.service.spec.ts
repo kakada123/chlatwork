@@ -19,7 +19,7 @@ describe("Food menu catalog", () => {
     prisma.$queryRaw
       .mockResolvedValueOnce([{ total: 1000n }])
       .mockResolvedValueOnce([
-        foodMenuFixture,
+        { ...foodMenuFixture, recipeId: null },
         {
           ...foodMenuFixture,
           slug: "other",
@@ -33,7 +33,9 @@ describe("Food menu catalog", () => {
     expect(result.nextCursor).toBe(foodMenuFixture.slug);
     expect(result.categories).toHaveLength(13);
     expect(prisma.$queryRaw.mock.calls[1][0].sql).toContain("is_active = TRUE");
-    expect(prisma.$queryRaw.mock.calls[1][0].sql).toContain("cuisine <> 'THAI'");
+    expect(prisma.$queryRaw.mock.calls[1][0].sql).toContain(
+      "cuisine <> 'THAI'",
+    );
   });
   it("parameterizes literal Khmer/English search, filters and cursor values", async () => {
     prisma.$queryRaw
@@ -61,6 +63,20 @@ describe("Food menu catalog", () => {
       ]),
     );
     expect(query.sql).not.toContain("rice_100%");
+  });
+  it("links a food idea to the latest generated recipe matching either language without exposing its owner", async () => {
+    const recipeId = "33333333-3333-4333-8333-333333333333";
+    prisma.$queryRaw
+      .mockResolvedValueOnce([{ total: 1n }])
+      .mockResolvedValueOnce([{ ...foodMenuFixture, recipeId }]);
+    const result = await service.list({});
+    expect(result.items[0]).toEqual({ ...foodMenuFixture, recipeId });
+    const query = prisma.$queryRaw.mock.calls[1][0];
+    expect(query.sql).toContain("food_ai_recipes");
+    expect(query.sql).toContain("nameKm");
+    expect(query.sql).toContain("nameEn");
+    expect(query.sql).toContain("created_at DESC, id DESC");
+    expect(query.sql).not.toContain("owner_id");
   });
   it("returns honest empty results and safe errors without a hardcoded menu fallback", async () => {
     prisma.$queryRaw

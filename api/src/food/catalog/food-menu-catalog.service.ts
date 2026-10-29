@@ -13,6 +13,7 @@ import {
   parseFoodMenuItem,
 } from "./food-menu.contract";
 import type { FoodMenuQueryDto } from "./food-menu-query.dto";
+import type { FoodMenuCatalogItem } from "./food-menu.contract";
 
 @Injectable()
 export class FoodMenuCatalogService {
@@ -21,7 +22,10 @@ export class FoodMenuCatalogService {
 
   async list(query: FoodMenuQueryDto) {
     const limit = query.limit ?? 24;
-    const filters = [Prisma.sql`is_active = TRUE`, Prisma.sql`cuisine <> 'THAI'`];
+    const filters = [
+      Prisma.sql`is_active = TRUE`,
+      Prisma.sql`cuisine <> 'THAI'`,
+    ];
     const keyword = query.q?.trim();
     if (keyword) {
       // Wildcard characters are literal user text; parameter binding separately prevents SQL injection.
@@ -45,15 +49,30 @@ export class FoodMenuCatalogService {
         const counts = await tx.$queryRaw<Array<{ total: bigint }>>(
           Prisma.sql`SELECT COUNT(*) AS total FROM food_menu_items WHERE ${where}`,
         );
-        const rows = await tx.$queryRaw<unknown[]>(Prisma.sql`
+        const rows = await tx.$queryRaw<
+          Array<Record<string, unknown>>
+        >(Prisma.sql`
           SELECT slug, name_km AS "nameKm", name_en AS "nameEn", description_km AS "descriptionKm", description_en AS "descriptionEn",
-            category, cuisine, meal_times AS "mealTimes", ingredients, tags
-          FROM food_menu_items WHERE ${where} ${cursor} ORDER BY slug ASC LIMIT ${limit + 1}
+            category, cuisine, meal_times AS "mealTimes", ingredients, tags, matched."recipeId"
+          FROM food_menu_items AS menu
+          LEFT JOIN LATERAL (
+            SELECT id AS "recipeId" FROM food_ai_recipes
+            WHERE lower(btrim(normalize(recipe->>'nameKm', NFKC))) = lower(btrim(normalize(menu.name_km, NFKC)))
+               OR lower(btrim(normalize(recipe->>'nameEn', NFKC))) = lower(btrim(normalize(menu.name_en, NFKC)))
+            ORDER BY created_at DESC, id DESC LIMIT 1
+          ) AS matched ON TRUE
+          WHERE ${where} ${cursor} ORDER BY slug ASC LIMIT ${limit + 1}
         `);
         const total = Number(counts[0]?.total ?? 0);
         if (!Number.isSafeInteger(total) || total < 0)
           throw new Error("Invalid catalog count");
-        const items = rows.slice(0, limit).map((row) => parseFoodMenuItem(row));
+        // Match either complete name, never a substring that could open instructions for a different dish.
+        const items: FoodMenuCatalogItem[] = rows
+          .slice(0, limit)
+          .map(({ recipeId, ...row }) => ({
+            ...parseFoodMenuItem(row),
+            ...(typeof recipeId === "string" ? { recipeId } : {}),
+          }));
         return {
           items,
           total,

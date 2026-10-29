@@ -52,6 +52,41 @@ function discovery(
   });
 }
 
+test("viewing a food idea's existing recipe fetches instructions without generating again", async () => {
+  const calls: any[][] = [];
+  const recipe = { id: "gemini-existing", steps: [{ step: 1, textKm: "ចម្អិន" }] };
+  const state = discovery(async (...args) => { calls.push(args); return recipe; });
+  await state.openSharedRecipe("33333333-3333-4333-8333-333333333333");
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], "/api/food/shared-recipes/33333333-3333-4333-8333-333333333333");
+  assert.equal(state.selectedRecipe.value.id, "gemini-existing");
+});
+
+test("an old recipe response cannot replace a newer selection or reopen a closed detail", async () => {
+  let finish!: (value: unknown) => void;
+  const state = discovery(async () => new Promise(resolve => { finish = resolve; }));
+  const pending = state.openSharedRecipe("saved-id");
+  state.openRecipeDetail({ id: "newer" } as never);
+  finish({ id: "old" });
+  await pending;
+  assert.equal(state.selectedRecipe.value.id, "newer");
+  const closed = state.openSharedRecipe("saved-id");
+  state.closeRecipeDetail();
+  finish({ id: "old" });
+  await closed;
+  assert.equal(state.selectedRecipe.value, null);
+});
+
+test("an unavailable shared recipe shows a retryable error without starting AI generation", async () => {
+  let calls = 0;
+  const state = discovery(async () => { calls++; throw new Error("offline"); });
+  await state.openSharedRecipe("saved-id");
+  assert.equal(calls, 1);
+  assert.equal(state.selectedRecipe.value, null);
+  assert.ok(state.recipeDetailError.value);
+  assert.equal(state.isSharedRecipeLoading.value, false);
+});
+
 test("district search reports Google quota errors without blaming GPS or filters", async () => {
   const state = discovery(async () => {
     throw { statusCode: 503, data: { data: { code: "FOOD_PLACES_RATE_LIMITED" } } };

@@ -37,6 +37,8 @@ describe("Food saved-recipe ownership", () => {
     ).toThrow(ServiceUnavailableException);
   });
   it("protects both history routes and uses server identity on generation and reads", () => {
+    for (const method of ["sharedRecipes", "sharedRecipe"] as const)
+      expect(Reflect.getMetadata(GUARDS_METADATA, FoodController.prototype[method])).toBeUndefined();
     for (const method of ["savedRecipes", "savedRecipe"] as const)
       expect(
         Reflect.getMetadata(GUARDS_METADATA, FoodController.prototype[method]),

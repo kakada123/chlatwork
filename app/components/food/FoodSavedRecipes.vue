@@ -3,24 +3,24 @@ import { onMounted, ref, watch } from "vue";
 import { useAuth } from "~/composables/useAuth";
 import { useSavedFoodRecipes } from "~/composables/useSavedFoodRecipes";
 import type { KhmerRecipe } from "~/composables/useFoodDiscovery";
-const props = defineProps<{ refreshKey: number; initiallyExpanded?: boolean }>();
+const props = defineProps<{ refreshKey: number; initiallyExpanded?: boolean; shared?: boolean }>();
 const emit = defineEmits<{ (event: "open", recipe: KhmerRecipe): void }>();
 const { user, isReady, fetchMe } = useAuth();
 const { recipes, isLoading, errorMessage, hasMore, refresh, loadMore } =
-  useSavedFoodRecipes(() => user.value?.id || null);
+  useSavedFoodRecipes(() => user.value?.id || null, { shared: props.shared });
 const expanded = ref(Boolean(props.initiallyExpanded));
 let mounted = false;
 function toggle(event: Event) {
   expanded.value = (event.target as HTMLDetailsElement).open;
-  if (mounted && expanded.value && user.value && !isLoading.value) void refresh();
+  if (mounted && expanded.value && (props.shared || user.value) && !isLoading.value) void refresh();
 }
 watch([() => user.value?.id, () => props.refreshKey], () => {
-  if (mounted && expanded.value && user.value) void refresh();
+  if (mounted && expanded.value && (props.shared || user.value)) void refresh();
 });
 onMounted(async () => {
   mounted = true;
-  if (!isReady.value) await fetchMe();
-  if (expanded.value && user.value && !isLoading.value) void refresh();
+  if (!props.shared && !isReady.value) await fetchMe();
+  if (expanded.value && (props.shared || user.value) && !isLoading.value) void refresh();
 });
 function date(value: string) {
   return new Date(value).toLocaleDateString("km-KH", {
@@ -40,12 +40,12 @@ function date(value: string) {
     <summary
       class="cursor-pointer text-sm font-bold text-stone-800 dark:text-stone-100"
     >
-      📚 រូបមន្តដែលបានរក្សាទុក
-      <span class="ml-1 font-normal text-stone-500">/ My recipes</span>
+      📚 {{ shared ? 'រូបមន្តសម្រាប់គ្រប់គ្នា' : 'រូបមន្តដែលបានរក្សាទុក' }}
+      <span class="ml-1 font-normal text-stone-500">/ {{ shared ? 'Global recipes' : 'My recipes' }}</span>
     </summary>
     <div v-if="expanded" class="mt-4 space-y-3">
-      <p v-if="!isReady" class="text-sm text-stone-500">កំពុងផ្ទុកគណនី…</p>
-      <p v-else-if="!user" class="text-sm leading-relaxed text-stone-500">
+      <p v-if="!shared && !isReady" class="text-sm text-stone-500">កំពុងផ្ទុកគណនី…</p>
+      <p v-else-if="!shared && !user" class="text-sm leading-relaxed text-stone-500">
         ចូលគណនីមុនបង្កើតរូបមន្ត ដើម្បីរក្សាទុក និងមើលប្រវត្តិរបស់អ្នកនៅទីនេះ។
         <NuxtLink to="/account" class="font-semibold text-orange-600 underline"
           >ចូលគណនី</NuxtLink
@@ -54,7 +54,7 @@ function date(value: string) {
       <template v-else>
         <div class="flex flex-wrap items-center justify-between gap-2">
           <p class="text-xs text-stone-500">
-            រូបមន្ត AI របស់គណនីអ្នក · បើកមើលបានដោយមិនបង្កើតឡើងវិញ
+            {{ shared ? 'រូបមន្ត AI ដែលបានបង្កើតរួច សម្រាប់គ្រប់គ្នា' : 'រូបមន្ត AI របស់គណនីអ្នក' }} · បើកមើលបានដោយមិនបង្កើតឡើងវិញ
           </p>
           <button
             type="button"

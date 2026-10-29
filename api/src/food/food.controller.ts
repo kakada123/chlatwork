@@ -81,6 +81,18 @@ export class FoodController {
     return this.foodService.pick(dto, user?.id ?? null);
   }
 
+  @Get("shared-recipes")
+  @Header("Cache-Control", "no-store")
+  sharedRecipes(@Query() query: FoodSavedRecipesDto) {
+    return this.foodService.getSharedRecipes(query);
+  }
+
+  @Get("shared-recipes/:id")
+  @Header("Cache-Control", "no-store")
+  sharedRecipe(@Param("id", ParseUUIDPipe) id: string) {
+    return this.foodService.getSharedRecipe(id);
+  }
+
   @Get("saved-recipes")
   @UseGuards(JwtAuthGuard)
   @Header("Cache-Control", "no-store")

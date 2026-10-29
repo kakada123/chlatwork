@@ -7,6 +7,7 @@ import ts from "../api/node_modules/typescript/lib/typescript.js";
 function saved(
   owner: () => string | null,
   fetcher: (...args: any[]) => Promise<unknown>,
+  shared = false,
 ) {
   const source = readFileSync(
     new URL("../app/composables/useSavedFoodRecipes.ts", import.meta.url),
@@ -28,8 +29,29 @@ function saved(
     module.exports,
     fetcher,
   );
-  return module.exports.useSavedFoodRecipes(owner);
+  return module.exports.useSavedFoodRecipes(owner, { shared });
 }
+
+test("global recipes load for a guest from the public endpoint", async () => {
+  const calls: any[][] = [];
+  const state = saved(
+    () => null,
+    async (...args) => {
+      calls.push(args);
+      return {
+        recipes: [{ id: "recipe", savedRecipeId: "shared" }],
+        nextCursor: "next",
+      };
+    },
+    true,
+  );
+  await state.refresh();
+  assert.equal(calls[0]?.[0], "/api/food/shared-recipes");
+  assert.equal(state.recipes.value[0].savedRecipeId, "shared");
+  assert.equal(state.hasMore.value, true);
+  await state.loadMore();
+  assert.equal(calls[1][1].query.cursor, "next");
+});
 
 test("saved recipes clear on account changes and ignore a previous account's late response", async () => {
   const owner = vue.ref<string | null>("account-a");

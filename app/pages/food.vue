@@ -73,6 +73,9 @@ const {
   getDirectionsUrl,
   selectPlaceForMap,
   openRecipeDetail,
+  openSharedRecipe,
+  isSharedRecipeLoading,
+  recipeDetailError,
   openPickedRecipe,
   closeRecipeDetail,
   closeRandomModal,
@@ -413,7 +416,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
     </div>
 
     <div v-if="!isMobile || mobilePanel === 'catalog'" :class="{ 'hidden md:block': mobilePanel !== 'catalog' }">
-      <FoodMenuCatalog :disabled="discoveryBusy" :initially-expanded="isMobile" @choose="chooseCatalogFood" />
+      <FoodMenuCatalog :disabled="discoveryBusy" :initially-expanded="isMobile" :refresh-key="savedRecipesVersion" :recipe-loading="isSharedRecipeLoading" @choose="chooseCatalogFood" @open-recipe="openSharedRecipe" />
+      <p v-if="isSharedRecipeLoading" role="status" class="mt-3 text-sm text-stone-500">កំពុងផ្ទុករូបមន្ត…</p>
+      <p v-if="recipeDetailError" role="alert" class="mt-3 text-sm text-amber-700 dark:text-amber-300">{{ recipeDetailError }}</p>
+      <FoodSavedRecipes class="mt-4" shared :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
     </div>
     <FoodSavedRecipes v-if="isMobile && mobilePanel === 'saved'" :refresh-key="savedRecipesVersion" initially-expanded @open="openRecipeDetail" />
     <div v-if="mobilePanel === 'results' && !hasSearched && !isLoading" class="rounded-2xl border border-stone-200 bg-white p-5 text-center text-sm dark:border-stone-700 dark:bg-stone-900 md:hidden">
@@ -609,7 +615,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             រូបមន្តម្ហូបខ្មែរបែបប្រពៃណី សន្សំសំចៃ និងឆ្ងាញ់ពិសា
           </h3>
           <p class="text-xs text-stone-500 dark:text-stone-400">
-            រូបមន្តថ្មីដោយ AI តាមចំនួនមនុស្ស និងថវិការបស់អ្នក · តម្លៃគ្រឿងផ្សំគ្រាន់តែជាការប៉ាន់ស្មាន
+            រូបមន្តថ្មីដោយ AI តាមចំនួនមនុស្ស និងថវិការបស់អ្នក សម្រាប់គ្រប់គ្នា · តម្លៃគ្រឿងផ្សំគ្រាន់តែជាការប៉ាន់ស្មាន
           </p>
         </div>
 

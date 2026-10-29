@@ -2,8 +2,9 @@
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { useFoodMenuCatalog } from "~/composables/useFoodMenuCatalog";
 import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
-const props = defineProps<{ disabled?: boolean; initiallyExpanded?: boolean }>();
+const props = defineProps<{ disabled?: boolean; initiallyExpanded?: boolean; refreshKey?: number; recipeLoading?: boolean }>();
 const emit = defineEmits<{
+  (event: "open-recipe", id: string): void;
   (
     event: "choose",
     item: FoodMenuItem,
@@ -28,6 +29,7 @@ const {
   hasMore,
   canAutoLoadMore,
   search,
+  refresh,
   loadMore,
 } = useFoodMenuCatalog();
 const expanded = ref(Boolean(props.initiallyExpanded)),
@@ -44,7 +46,7 @@ const meals: Record<string, string> = {
 };
 function toggle(event: Event) {
   expanded.value = (event.target as HTMLDetailsElement).open;
-  if (expanded.value && !hasLoaded.value && !isLoading.value) void search();
+  if (expanded.value) refresh();
 }
 function choose(item: FoodMenuItem, mode: "dine-out" | "cook-at-home") {
   expanded.value = false;
@@ -59,6 +61,9 @@ function resize() {
   mobile.value = viewport?.matches || false;
 }
 watch([expanded, sentinel, mobile, canAutoLoadMore], observe);
+watch(() => props.refreshKey, () => {
+  if (expanded.value) refresh();
+});
 onMounted(() => {
   if (expanded.value && !hasLoaded.value && !isLoading.value) void search();
   viewport = window.matchMedia("(max-width: 767px)");
@@ -259,6 +264,15 @@ onBeforeUnmount(() => {
             </p>
           </details>
           <div class="mt-auto flex flex-wrap gap-2 pt-4">
+            <button
+              v-if="item.recipeId"
+              type="button"
+              :disabled="recipeLoading"
+              class="rounded-xl border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 disabled:opacity-50 dark:border-emerald-900 dark:text-emerald-300"
+              @click="emit('open-recipe', item.recipeId)"
+            >
+              មើលរបៀបចម្អិន / View how to cook
+            </button>
             <button
               type="button"
               :disabled="disabled"

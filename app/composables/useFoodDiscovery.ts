@@ -136,6 +136,9 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
 
   const districts = ref<FoodDistrict[]>([]);
   const selectedRecipe = ref<KhmerRecipe | null>(null);
+  const isSharedRecipeLoading = ref(false);
+  const recipeDetailError = ref<string | null>(null);
+  let sharedRecipeRequest = 0;
   const filters = ref<Record<string, string | string[]>>({});
   const locationQuery = ref("");
   const routeOrigin = ref("");
@@ -172,7 +175,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     mode.value = target;
     searchKeyword.value = item.nameKm;
     if (!item.mealTimes.some((meal) => meal === mealTime.value)) mealTime.value = item.mealTimes[0] || "any";
-    selectedRecipe.value = null;
+    closeRecipeDetail();
     randomSuggestion.value = null;
     await getRecommendations();
   }
@@ -185,7 +188,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     locationRevision++;
     isLocating.value = false;
     locationError.value = false;
-    selectedRecipe.value = null;
+    closeRecipeDetail();
     filters.value = {};
     allergies.value = "";
     locationQuery.value = "";
@@ -424,18 +427,45 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
   }
 
   function openRecipeDetail(recipe: KhmerRecipe) {
+    sharedRecipeRequest++;
+    isSharedRecipeLoading.value = false;
+    recipeDetailError.value = null;
     selectedRecipe.value = recipe;
+  }
+
+  async function openSharedRecipe(id: string) {
+    const request = ++sharedRecipeRequest;
+    const accountRevision = discoveryAccountRevision;
+    isSharedRecipeLoading.value = true;
+    recipeDetailError.value = null;
+    try {
+      const recipe = await $fetch<KhmerRecipe>(
+        `/api/food/shared-recipes/${encodeURIComponent(id)}`,
+        { retry: 0 },
+      );
+      // A late response must not replace a newer selection or reopen a closed dialog.
+      if (request === sharedRecipeRequest && accountRevision === discoveryAccountRevision)
+        selectedRecipe.value = recipe;
+    } catch {
+      if (request === sharedRecipeRequest && accountRevision === discoveryAccountRevision)
+        recipeDetailError.value = "មិនអាចផ្ទុករូបមន្តបានទេ។ សូមចុចមើលម្ដងទៀត។";
+    } finally {
+      if (request === sharedRecipeRequest) isSharedRecipeLoading.value = false;
+    }
   }
 
   function openPickedRecipe() {
     const recipe = randomSuggestion.value?.recipe;
     if (recipe) {
       randomSuggestion.value = null;
-      selectedRecipe.value = recipe;
+      openRecipeDetail(recipe);
     }
   }
 
   function closeRecipeDetail() {
+    sharedRecipeRequest++;
+    isSharedRecipeLoading.value = false;
+    recipeDetailError.value = null;
     selectedRecipe.value = null;
   }
 
@@ -477,6 +507,9 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     getDirectionsUrl,
     selectPlaceForMap,
     openRecipeDetail,
+    openSharedRecipe,
+    isSharedRecipeLoading,
+    recipeDetailError,
     openPickedRecipe,
     closeRecipeDetail,
     closeRandomModal,

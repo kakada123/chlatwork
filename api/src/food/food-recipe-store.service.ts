@@ -74,23 +74,35 @@ export class FoodRecipeStore {
 
   async list(ownerId: string, query: FoodSavedRecipesDto) {
     this.owner(ownerId);
+    return this.listPage(ownerId, query);
+  }
+
+  async listShared(query: FoodSavedRecipesDto) {
+    return this.listPage(null, query);
+  }
+
+  private async listPage(ownerId: string | null, query: FoodSavedRecipesDto) {
     const limit = query.limit ?? 20;
     if (!Number.isInteger(limit) || limit < 1 || limit > 20)
       throw new BadRequestException("Invalid saved-recipe page size.");
     const cursor = this.cursor(query.cursor);
     try {
+      const scope =
+        ownerId === null
+          ? Prisma.sql`TRUE`
+          : Prisma.sql`owner_id = ${ownerId}::uuid`;
       const boundary = cursor
         ? Prisma.sql`AND (created_at, id) < (${cursor.at}, ${cursor.id}::uuid)`
         : Prisma.empty;
       const rows = await this.prisma.$queryRaw<SavedRow[]>(Prisma.sql`
         SELECT id, recipe, created_at AS "createdAt" FROM food_ai_recipes
-        WHERE owner_id = ${ownerId}::uuid ${boundary}
+        WHERE ${scope} ${boundary}
         ORDER BY created_at DESC, id DESC LIMIT ${limit + 1}
       `);
       const visible = rows.slice(0, limit);
       const last = visible.at(-1);
       return {
-        recipes: visible.map((row) => this.fromRow(row)),
+        recipes: visible.map((row) => this.fromRow(row, ownerId !== null)),
         ...(rows.length > limit && last
           ? {
               nextCursor: Buffer.from(
@@ -105,6 +117,20 @@ export class FoodRecipeStore {
     } catch {
       return this.unavailable();
     }
+  }
+
+  async getShared(id: string): Promise<KhmerRecipe> {
+    if (!UUID.test(id)) throw new NotFoundException("Recipe not found.");
+    try {
+      const rows = await this.prisma.$queryRaw<SavedRow[]>(Prisma.sql`
+        SELECT id, recipe, created_at AS "createdAt" FROM food_ai_recipes
+        WHERE id = ${id}::uuid LIMIT 1
+      `);
+      if (rows[0]) return this.fromRow(rows[0], false);
+    } catch {
+      return this.unavailable();
+    }
+    throw new NotFoundException("Recipe not found.");
   }
 
   async get(ownerId: string, id: string): Promise<KhmerRecipe> {
@@ -123,7 +149,7 @@ export class FoodRecipeStore {
     throw new NotFoundException("Saved recipe not found.");
   }
 
-  private fromRow(row: SavedRow): KhmerRecipe {
+  private fromRow(row: SavedRow, savedToAccount = true): KhmerRecipe {
     const servings =
       row.recipe && typeof row.recipe === "object"
         ? (row.recipe as Record<string, unknown>).servings
@@ -133,11 +159,13 @@ export class FoodRecipeStore {
       { peopleCount: servings as number },
       1,
     )[0];
+    // Public cooking instructions must not expose the personalized explanation or imply account ownership.
+    if (!savedToAccount) delete recipe.recommendationKm;
     return {
       ...recipe,
       savedRecipeId: row.id,
       savedAt: row.createdAt.toISOString(),
-      savedToAccount: true,
+      savedToAccount,
     };
   }
   private owner(id: string) {
