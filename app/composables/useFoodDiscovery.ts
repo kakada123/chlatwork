@@ -313,8 +313,8 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
         locationLabel.value = "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)";
         selectedDistrictId.value = "";
         isLocating.value = false;
-        // Mobile setup can acquire an anchor without submitting unfinished choices or spending on generation.
-        if (options.refresh !== false) getRecommendations();
+        // GPS can refresh restaurant search, but changing location must never create a recipe.
+        if (options.refresh !== false && mode.value === "dine-out") getRecommendations();
       },
       (err) => {
         if (ownerRevision !== discoveryAccountRevision || requestRevision !== locationRevision) return;

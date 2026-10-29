@@ -66,10 +66,12 @@ test("Food mobile observer loads only intersecting available pages, follows view
     routeDestination: vue.ref(""),
     errorMessage: vue.ref(null),
     canAutoLoadMore: canLoad,
+    hasSearched: vue.ref(false),
     fetchDistricts: async () => {},
     fetchFilters: async () => {},
     getRecommendations() {
       discoveries++;
+      state.hasSearched.value = true;
     },
     loadMorePlaces: async () => {
       loads++;
@@ -200,9 +202,49 @@ test("Food mobile observer loads only intersecting available pages, follows view
     onIntersection([{ isIntersecting: true }]);
     assert.equal(loads, 1);
     viewport.matches = false;
+    state.hasSearched.value = false;
     onViewport();
     await vue.nextTick();
     assert.equal(page.isMobile.value, false);
+    assert.equal(
+      discoveries,
+      2,
+      "expanding unfinished mobile setup must start desktop discovery",
+    );
+    state.isLoading.value = true;
+    state.mode.value = "cook-at-home";
+    await page.submitDiscovery();
+    assert.equal(
+      discoveries,
+      3,
+      "desktop mode changes must reach the result queue while a search is running",
+    );
+    state.isLoading.value = false;
+    state.hasSearched.value = true;
+    viewport.matches = true;
+    onViewport();
+    await vue.nextTick();
+    viewport.matches = false;
+    onViewport();
+    await vue.nextTick();
+    assert.equal(
+      discoveries,
+      3,
+      "resizing with results must not issue another search",
+    );
+    state.hasSearched.value = false;
+    viewport.matches = true;
+    onViewport();
+    await vue.nextTick();
+    viewport.matches = false;
+    onViewport();
+    await vue.nextTick();
+    assert.equal(discoveries, 3, "resizing unfinished recipe choices must not auto-generate a recipe");
+    page.changeDiscoveryMode("cook-at-home");
+    assert.equal(discoveries, 3, "opening Cook at Home must never create a recipe");
+    state.mode.value = "dine-out";
+    page.changeDiscoveryMode("cook-at-home");
+    assert.equal(discoveries, 3, "switching from Dine Out to Cook at Home must not submit");
     const previous = disconnected;
     unmounted.forEach((work) => work());
     assert.ok(disconnected > previous);

@@ -56,6 +56,7 @@ const {
   selectedRecipe,
   randomSuggestion,
   isLoading,
+  isRecipeLoading,
   isRandomLoading,
   errorMessage,
   dataSource,
@@ -129,11 +130,18 @@ async function useGrantedMobileLocation() {
   } catch { /* Manual location selection remains available when Permissions API is unsupported. */ }
 }
 async function submitDiscovery() {
-  if (discoveryBusy.value || (isMobile.value && isLocating.value)) return;
+  if (!foodAuthReady.value || (isMobile.value && (discoveryBusy.value || isLocating.value))) return;
+  // Desktop mode/criteria changes must reach the results queue while an earlier request finishes.
   mobilePanel.value = "results";
   mobileResultView.value = "list";
   await getRecommendations();
   if (isMobile.value) await nextTick(() => document.getElementById("food-discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
+function changeDiscoveryMode(next: "dine-out" | "cook-at-home") {
+  if (mode.value === next) return;
+  mode.value = next;
+  // Opening recipes is free. Only the explicit Generate/Suggest or Pick for Me action creates a recipe.
+  if (next === "dine-out") void submitDiscovery();
 }
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
@@ -158,6 +166,7 @@ watch(() => filters.value.locationDiscovery, (discovery) => {
 const loadMoreSentinel = ref<HTMLElement | null>(null);
 const isMobile = ref(false);
 const supportsInfiniteScroll = ref(false);
+let discoveryInitialized = false;
 let observer: IntersectionObserver | undefined;
 let viewport: MediaQueryList | undefined;
 function updateViewport() { isMobile.value = viewport?.matches || false; }
@@ -166,6 +175,11 @@ function observeMore() {
   if (isMobile.value && mobilePanel.value === "results" && mobileResultView.value === "list" && supportsInfiniteScroll.value && canAutoLoadMore.value && loadMoreSentinel.value) observer?.observe(loadMoreSentinel.value);
 }
 watch([loadMoreSentinel, canAutoLoadMore, isMobile, mobilePanel, mobileResultView], observeMore);
+watch(isMobile, (mobile, wasMobile) => {
+  // A window widened before mobile submission still needs its first desktop restaurant search.
+  // Recipes remain an explicit action, and existing results must not be refreshed just by resizing.
+  if (discoveryInitialized && wasMobile && !mobile && !hasSearched.value && mode.value === "dine-out") void getRecommendations();
+});
 onMounted(async () => {
   viewport = window.matchMedia("(max-width: 767px)");
   updateViewport();
@@ -176,9 +190,10 @@ onMounted(async () => {
   }, { rootMargin: "240px 0px" });
   await Promise.all([fetchDistricts(), fetchFilters(), foodAuthReady.value ? Promise.resolve() : resolveFoodAuth()]);
   setDiscoveryAccount(foodUser.value?.id || null);
+  discoveryInitialized = true;
   // Mobile waits for the completed choices; mounting or switching menus must never spend on generation.
   if (isMobile.value) void useGrantedMobileLocation();
-  else void getRecommendations();
+  else if (mode.value === "dine-out") void getRecommendations();
 });
 onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.removeEventListener("change", updateViewport); });
 </script>
@@ -229,7 +244,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           :class="mode === 'dine-out'
             ? 'bg-orange-500 text-white shadow'
             : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'"
-          @click="mode = 'dine-out'; submitDiscovery()"
+          @click="changeDiscoveryMode('dine-out')"
         >
           <Utensils class="size-4" />
           <span>ញ៉ាំនៅក្រៅ (Dine Out)</span>
@@ -240,7 +255,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           :class="mode === 'cook-at-home'
             ? 'bg-orange-500 text-white shadow'
             : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100'"
-          @click="mode = 'cook-at-home'; submitDiscovery()"
+          @click="changeDiscoveryMode('cook-at-home')"
         >
           <ChefHat class="size-4" />
           <span>ធ្វើម្ហូបនៅផ្ទះ (Cook at Home)</span>
@@ -603,13 +618,14 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="submitDiscovery"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
-          <span>សាកល្បងម្ដងទៀត</span>
+          <span>{{ recipes.length ? 'សាកល្បងម្ដងទៀត' : 'បង្កើតរូបមន្តថ្មី' }}</span>
         </button>
       </div>
 
       <!-- Recipes Grid -->
       <FoodSavedRecipes v-if="!isMobile" :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
-      <p v-if="isLoading" role="status" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">កំពុងបង្កើតរូបមន្តតាមជម្រើសរបស់អ្នក…</p>
+      <p v-if="isRecipeLoading" role="status" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">កំពុងបង្កើតរូបមន្តតាមជម្រើសរបស់អ្នក…</p>
+      <p v-else-if="!recipes.length" class="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300">ជ្រើសលក្ខខណ្ឌរបស់អ្នក រួចចុច «ស្នើឱ្យខ្ញុំ» ឬ «រើសឱ្យខ្ញុំមួយ» ដើម្បីបង្កើតរូបមន្តថ្មី។</p>
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="recipe in recipes"

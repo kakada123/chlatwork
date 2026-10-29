@@ -234,6 +234,19 @@ test("mobile GPS can select the current location without submitting unfinished c
   assert.equal(calls, 0);
 });
 
+test("a GPS response after opening Cook at Home updates location without creating a recipe", () => {
+  let success!: (value: unknown) => void;
+  let calls = 0;
+  const state = discovery(async () => { calls++; return {}; }, {
+    navigator: { geolocation: { getCurrentPosition: (done: typeof success) => { success = done; } } },
+  });
+  state.requestGeolocation();
+  state.mode.value = "cook-at-home";
+  success({ coords: { latitude: 11.55, longitude: 104.92 } });
+  assert.deepEqual(state.userCoords.value, { lat: 11.55, lng: 104.92 });
+  assert.equal(calls, 0);
+});
+
 test("a district picked during GPS lookup wins over the late GPS callback", () => {
   let success!: (value: unknown) => void;
   const state = discovery(async () => ({}), {
@@ -453,6 +466,67 @@ test("a new search with the same page token restores paging after criteria chang
   assert.equal(state.hasMorePlaces.value, false);
   await state.getRecommendations();
   assert.equal(state.hasMorePlaces.value, true);
+});
+
+test("a mode change queued during recipe generation restores restaurant results and the map selection", async () => {
+  let finish!: (value: unknown) => void;
+  const calls: any[][] = [];
+  const state = discovery((...args) => {
+    calls.push(args);
+    if (calls.length === 1)
+      return new Promise((resolve) => {
+        finish = resolve;
+      });
+    return Promise.resolve({
+      mode: "dine-out",
+      dataSource: "google",
+      places: [
+        {
+          id: "google:restaurant",
+          name: "Restaurant",
+          lat: 11.55,
+          lng: 104.92,
+        },
+      ],
+    });
+  });
+  state.mode.value = "cook-at-home";
+  const original = state.getRecommendations();
+  assert.equal(state.isRecipeLoading.value, true);
+  state.mode.value = "dine-out";
+  await state.getRecommendations();
+  assert.equal(calls.length, 1, "the current request is not duplicated");
+  finish({
+    mode: "cook-at-home",
+    dataSource: "gemini",
+    places: [],
+    recipes: [],
+  });
+  await original;
+  await vue.nextTick();
+  assert.equal(calls.length, 2);
+  assert.equal(calls[1][1].body.mode, "dine-out");
+  assert.equal(state.places.value[0].id, "google:restaurant");
+  assert.equal(state.selectedPlace.value.id, "google:restaurant");
+  assert.equal(state.isRecipeLoading.value, false);
+});
+
+test("opening Cook at Home cannot turn a queued restaurant refresh into paid recipe generation", async () => {
+  let finish!: (value: unknown) => void;
+  const calls: any[][] = [];
+  const state = discovery((...args) => {
+    calls.push(args);
+    return new Promise(resolve => { finish = resolve; });
+  });
+  const pending = state.getRecommendations();
+  state.searchKeyword.value = "rice";
+  await state.getRecommendations();
+  state.mode.value = "cook-at-home";
+  assert.equal(state.isRecipeLoading.value, false, "an active restaurant search is not recipe generation");
+  finish({ mode: "dine-out", dataSource: "google", places: [] });
+  await pending;
+  await vue.nextTick();
+  assert.equal(calls.length, 1, "the stale queued request must not generate a recipe");
 });
 
 test("the first page deduplicates place IDs and budget summaries respect type and ranges", async () => {

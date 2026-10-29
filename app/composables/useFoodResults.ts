@@ -42,6 +42,7 @@ export function useFoodResults(
   const selectedPlace = ref<RankedPlace | null>(null),
     randomSuggestion = ref<RandomFoodSuggestion | null>(null);
   const isLoading = ref(false),
+    isRecipeLoading = ref(false),
     isLoadingMore = ref(false),
     isRandomLoading = ref(false);
   const errorMessage = ref<string | null>(null),
@@ -56,7 +57,7 @@ export function useFoodResults(
     accountRevision = 0,
     accountReady = !waitForAccount;
   let loadedHistory = false,
-    pendingRefresh = false,
+    pendingRefresh: string | null = null,
     inFlightSignature = "";
   let nextPage: string | undefined,
     activeCriteria: Record<string, unknown> = {};
@@ -158,7 +159,8 @@ export function useFoodResults(
     errorMessage.value = null;
     hasSearched.value = false;
     paginationError.value = false;
-    pendingRefresh = false;
+    pendingRefresh = null;
+    isRecipeLoading.value = false;
     inFlightSignature = "";
     return true;
   }
@@ -182,8 +184,10 @@ export function useFoodResults(
   }
   function drainRefresh() {
     if (pendingRefresh && !busy()) {
-      pendingRefresh = false;
-      void getRecommendations();
+      const requestedCriteria = pendingRefresh;
+      pendingRefresh = null;
+      // Only the latest explicitly submitted criteria may run; opening another mode is not a request.
+      if (requestedCriteria === signature()) void getRecommendations();
     }
   }
 
@@ -192,10 +196,11 @@ export function useFoodResults(
     const ownerRevision = accountRevision;
     const key = signature();
     if (busy()) {
-      if (key !== inFlightSignature) pendingRefresh = true;
+      pendingRefresh = key !== inFlightSignature ? key : null;
       return;
     }
     isLoading.value = true;
+    isRecipeLoading.value = mode.value === "cook-at-home";
     inFlightSignature = key;
     errorMessage.value = null;
     paginationError.value = false;
@@ -244,6 +249,7 @@ export function useFoodResults(
       }
     } finally {
       isLoading.value = false;
+      isRecipeLoading.value = false;
       drainRefresh();
     }
   }
@@ -348,6 +354,7 @@ export function useFoodResults(
     selectedPlace,
     randomSuggestion,
     isLoading,
+    isRecipeLoading,
     isLoadingMore,
     isRandomLoading,
     errorMessage,
