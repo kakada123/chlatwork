@@ -1,0 +1,1711 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 1,
+  "items": [
+    {
+      "slug": "grilled-pork-with-rice",
+      "nameKm": "បាយសាច់ជ្រូកអាំង",
+      "nameEn": "Grilled pork with rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ជ្រក់បន្លែ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled pork with rice commonly uses rice, pork, pickled vegetables. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "grilled-chicken-with-rice",
+      "nameKm": "បាយសាច់មាន់អាំង",
+      "nameEn": "Grilled chicken with rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ជ្រក់បន្លែ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled chicken with rice commonly uses rice, chicken, pickled vegetables. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "steamed-chicken-rice",
+      "nameKm": "បាយមាន់ស្ងោរ",
+      "nameEn": "Steamed chicken rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed chicken rice commonly uses rice, chicken, ginger. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "roast-chicken-rice",
+      "nameKm": "បាយមាន់ដុត",
+      "nameEn": "Roast chicken rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast chicken rice commonly uses rice, chicken, garlic. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-pork-belly-rice",
+      "nameKm": "បាយសាច់ជ្រូកខ្វៃ",
+      "nameEn": "Crispy pork belly rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូកបីជាន់ និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy pork belly rice commonly uses rice, pork belly, cucumber. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូកបីជាន់",
+          "nameEn": "Pork belly"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-duck-rice",
+      "nameKm": "បាយទាខ្វៃ",
+      "nameEn": "Roast duck rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ទា និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast duck rice commonly uses rice, duck, cucumber. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-lok-lak-rice",
+      "nameKm": "បាយឡុកឡាក់សាច់គោ",
+      "nameEn": "Beef lok lak rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់គោ និង ម្រេច និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef lok lak rice commonly uses rice, beef, black pepper, onion. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-lok-lak-rice",
+      "nameKm": "បាយឡុកឡាក់សាច់មាន់",
+      "nameEn": "Chicken lok lak rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ម្រេច និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken lok lak rice commonly uses rice, chicken, black pepper, onion. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "braised-pork-and-egg-rice",
+      "nameKm": "បាយខសាច់ជ្រូកស៊ុត",
+      "nameEn": "Braised pork and egg rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ស៊ុត និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Braised pork and egg rice commonly uses rice, pork, egg, palm sugar. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-and-bitter-melon-rice",
+      "nameKm": "បាយសាច់ជ្រូកឆាម្រះ",
+      "nameEn": "Pork and bitter melon rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ម្រះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork and bitter melon rice commonly uses rice, pork, bitter melon. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crab-fried-rice",
+      "nameKm": "បាយឆាក្តាម",
+      "nameEn": "Crab fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ក្តាម និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crab fried rice commonly uses rice, crab, egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sausage-fried-rice",
+      "nameKm": "បាយឆាកុនចៀង",
+      "nameEn": "Chinese sausage fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង កុនចៀង និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sausage fried rice commonly uses rice, chinese sausage, egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "កុនចៀង",
+          "nameEn": "Chinese sausage"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "salted-fish-fried-rice",
+      "nameKm": "បាយឆាត្រីប្រៃ",
+      "nameEn": "Salted fish fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ត្រី និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salted fish fried rice commonly uses rice, fish, egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "salted-egg-fried-rice",
+      "nameKm": "បាយឆាស៊ុតប្រៃ",
+      "nameEn": "Salted egg fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុតប្រៃ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salted egg fried rice commonly uses rice, salted egg, egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុតប្រៃ",
+          "nameEn": "Salted egg"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "prahok-fried-rice",
+      "nameKm": "បាយឆាប្រហុក",
+      "nameEn": "Prahok fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ប្រហុក និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Prahok fried rice commonly uses rice, fermented fish paste, pork. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "fermented-fish-and-pork-rice",
+      "nameKm": "បាយផ្អកត្រីសាច់ជ្រូក",
+      "nameEn": "Fermented fish and pork rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ត្រី និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fermented fish and pork rice commonly uses rice, fish, pork. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-with-prahok-ktis",
+      "nameKm": "បាយប្រហុកខ្ទិះ",
+      "nameEn": "Rice with prahok ktis",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ប្រហុក និង សាច់ជ្រូក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice with prahok ktis commonly uses rice, fermented fish paste, pork, coconut milk. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-with-steamed-fish-amok",
+      "nameKm": "បាយអាម៉ុកត្រី",
+      "nameEn": "Rice with steamed fish amok",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ត្រី និង ខ្ទិះដូង និង គ្រឿងបុក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice with steamed fish amok commonly uses rice, fish, coconut milk, kroeung spice paste. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-with-khmer-chicken-curry",
+      "nameKm": "បាយការីសាច់មាន់",
+      "nameEn": "Rice with Khmer chicken curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង គ្រឿងការី និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice with Khmer chicken curry commonly uses rice, chicken, curry spices, coconut milk. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-with-grilled-fish",
+      "nameKm": "បាយត្រីអាំង",
+      "nameEn": "Rice with grilled fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ត្រី និង ជ្រក់បន្លែ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice with grilled fish commonly uses rice, fish, pickled vegetables. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "yangzhou-fried-rice",
+      "nameKm": "បាយឆាយ៉ាងចូវ",
+      "nameEn": "Yangzhou fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង បង្គា និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Yangzhou fried rice commonly uses rice, pork, shrimp, egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lotus-leaf-sticky-rice",
+      "nameKm": "បាយដំណើបខ្ចប់ស្លឹកឈូក",
+      "nameEn": "Lotus leaf sticky rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង សាច់មាន់ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus leaf sticky rice commonly uses sticky rice, chicken, mushroom. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "claypot-chicken-rice",
+      "nameKm": "បាយមាន់ឆ្នាំងដី",
+      "nameEn": "Claypot chicken rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ផ្សិត និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Claypot chicken rice commonly uses rice, chicken, mushroom, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "claypot-pork-rib-rice",
+      "nameKm": "បាយឆ្អឹងជំនីរជ្រូកឆ្នាំងដី",
+      "nameEn": "Claypot pork rib rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ឆ្អឹងជំនីរជ្រូក និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Claypot pork rib rice commonly uses rice, pork ribs, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "hainanese-chicken-rice",
+      "nameKm": "បាយមាន់ហៃណាន",
+      "nameEn": "Hainanese chicken rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hainanese chicken rice commonly uses rice, chicken, ginger. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "char-siu-pork-rice",
+      "nameKm": "បាយសាច់ជ្រូកស៊ីអ៊ីវអាំង",
+      "nameEn": "Char siu pork rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Char siu pork rice commonly uses rice, pork, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "century-egg-and-pork-congee",
+      "nameKm": "បបរសាច់ជ្រូកស៊ុតទាខ្មៅ",
+      "nameEn": "Century egg and pork congee",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ស៊ុតទាខ្មៅ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Century egg and pork congee commonly uses rice, pork, century egg. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ស៊ុតទាខ្មៅ",
+          "nameEn": "Century egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "chicken-oyakodon",
+      "nameKm": "បាយមាន់ស៊ុតអូយ៉ាកុដុន",
+      "nameEn": "Chicken oyakodon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ស៊ុត និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken oyakodon commonly uses rice, chicken, egg, onion. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-katsudon",
+      "nameKm": "បាយសាច់ជ្រូកបំពងស៊ុតកាត្ស៊ុដុន",
+      "nameEn": "Pork katsudon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់ជ្រូក និង ស៊ុត និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork katsudon commonly uses rice, pork, egg, breadcrumbs. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-katsudon",
+      "nameKm": "បាយមាន់បំពងស៊ុតកាត្ស៊ុដុន",
+      "nameEn": "Chicken katsudon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ស៊ុត និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken katsudon commonly uses rice, chicken, egg, breadcrumbs. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-gyudon",
+      "nameKm": "បាយសាច់គោហ្គ្យូដុន",
+      "nameEn": "Beef gyudon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់គោ និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef gyudon commonly uses rice, beef, onion. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tempura-rice-bowl",
+      "nameKm": "បាយតេមពូរ៉ា",
+      "nameEn": "Tempura rice bowl",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង បង្គា និង បន្លែចម្រុះ និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tempura rice bowl commonly uses rice, shrimp, vegetables, wheat flour. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "salmon-teriyaki-rice",
+      "nameKm": "បាយត្រីសាល់ម៉ុនទេរីយ៉ាគី",
+      "nameEn": "Salmon teriyaki rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ត្រីសាល់ម៉ុន និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salmon teriyaki rice commonly uses rice, salmon, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "unagi-rice-bowl",
+      "nameKm": "បាយអន្ទង់អាំងអ៊ូណាហ្គី",
+      "nameEn": "Unagi rice bowl",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង អន្ទង់ និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Unagi rice bowl commonly uses rice, eel, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "អន្ទង់",
+          "nameEn": "Eel"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-takikomi-rice",
+      "nameKm": "បាយតាគីកូមីផ្សិត",
+      "nameEn": "Mushroom takikomi rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ផ្សិត និង ការ៉ុត និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom takikomi rice commonly uses rice, mushroom, carrot, soy sauce. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-risotto",
+      "nameKm": "រីសូតូផ្សិត",
+      "nameEn": "Mushroom risotto",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ផ្សិត និង ប៊័រ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom risotto commonly uses rice, mushroom, butter, cheese. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-risotto",
+      "nameKm": "រីសូតូមាន់",
+      "nameEn": "Chicken risotto",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សាច់មាន់ និង ប៊័រ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken risotto commonly uses rice, chicken, butter, cheese. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "prawn-risotto",
+      "nameKm": "រីសូតូបង្គា",
+      "nameEn": "Prawn risotto",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង បង្គា និង ប៊័រ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Prawn risotto commonly uses rice, shrimp, butter, cheese. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "seafood-paella",
+      "nameKm": "បាយប៉ាអេលឡាគ្រឿងសមុទ្រ",
+      "nameEn": "Seafood paella",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង គ្រឿងសមុទ្រ និង សាហ្វ្រន និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood paella commonly uses rice, seafood, saffron, tomato. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "សាហ្វ្រន",
+          "nameEn": "Saffron"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetable-risotto",
+      "nameKm": "រីសូតូបន្លែ",
+      "nameEn": "Vegetable risotto",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង បន្លែចម្រុះ និង ប៊័រ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable risotto commonly uses rice, vegetables, butter, cheese. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-fried-rice",
+      "nameKm": "បាយឆាសាច់មាន់",
+      "nameEn": "Chicken fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken fried rice commonly uses rice, egg, garlic, vegetables, chicken. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-fried-rice",
+      "nameKm": "បាយឆាសាច់ជ្រូក",
+      "nameEn": "Pork fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork fried rice commonly uses rice, egg, garlic, vegetables, pork. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-fried-rice",
+      "nameKm": "បាយឆាសាច់គោ",
+      "nameEn": "Beef fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef fried rice commonly uses rice, egg, garlic, vegetables, beef. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "shrimp-fried-rice",
+      "nameKm": "បាយឆាបង្គា",
+      "nameEn": "Shrimp fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp fried rice commonly uses rice, egg, garlic, vegetables, shrimp. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "squid-fried-rice",
+      "nameKm": "បាយឆាមឹក",
+      "nameEn": "Squid fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Squid fried rice commonly uses rice, egg, garlic, vegetables, squid. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "seafood-fried-rice",
+      "nameKm": "បាយឆាគ្រឿងសមុទ្រ",
+      "nameEn": "Seafood fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood fried rice commonly uses rice, egg, garlic, vegetables, seafood. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tofu-fried-rice",
+      "nameKm": "បាយឆាតៅហ៊ូ",
+      "nameEn": "Tofu fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tofu fried rice commonly uses rice, egg, garlic, vegetables, tofu. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetables-fried-rice",
+      "nameKm": "បាយឆាបន្លែចម្រុះ",
+      "nameEn": "Vegetables fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetables fried rice commonly uses rice, egg, garlic, vegetables. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "egg-fried-rice",
+      "nameKm": "បាយឆាស៊ុត",
+      "nameEn": "Egg fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ស៊ុត និង ខ្ទឹមស និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg fried rice commonly uses rice, egg, garlic, vegetables. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-chicken-fried-rice",
+      "nameKm": "បាយឆាខ្ទឹមសសាច់មាន់",
+      "nameEn": "Garlic Chicken fried rice",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ខ្ទឹមស និង ស៊ុត និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic Chicken fried rice commonly uses rice, garlic, egg, chicken. Preparation varies by kitchen.",
+      "category": "RICE",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    }
+  ]
+}

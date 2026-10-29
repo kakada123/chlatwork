@@ -132,6 +132,24 @@ test("Food AI failure clears the previous pick and shows an error without fabric
   assert.equal(state.isRandomLoading.value, false);
 });
 
+test("catalog actions use Google/Gemini with the chosen dish and retain dietary constraints", async () => {
+  const calls: any[][] = [];
+  const state = discovery(async (...args) => { calls.push(args); return { mode: "cook-at-home", places: [], recipes: [], dataSource: "gemini" }; });
+  state.filters.value = { foodTypes: ["beer"], restaurantTypes: ["pub-and-restaurant"], mealWindow: "dinner-7-10-pm", dietary: ["allergies"], city: "siem-reap" };
+  state.allergies.value = "peanuts";
+  await state.selectCatalogFood({ nameKm: "គុយទាវ", mealTimes: ["breakfast"] }, "cook-at-home");
+  const body = calls[0][1].body;
+  assert.equal(calls[0][0], "/api/food/recommend");
+  assert.equal(body.cuisine, "គុយទាវ");
+  assert.equal(body.mode, "cook-at-home");
+  assert.equal(body.limit, 1);
+  assert.equal(body.mealTime, "breakfast");
+  assert.equal(body.filters.foodTypes, undefined);
+  assert.equal(body.filters.restaurantTypes, undefined);
+  assert.equal(body.filters.city, "siem-reap");
+  assert.equal(body.allergies, "peanuts");
+});
+
 test("Cook at Home requests one complete recipe at a time to reduce inference latency", async () => {
   const calls: any[][] = [];
   const state = discovery(async (...args) => {

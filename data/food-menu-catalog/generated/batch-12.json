@@ -1,0 +1,1556 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 12,
+  "items": [
+    {
+      "slug": "vietnamese-caramel-shrimp",
+      "nameKm": "បង្គាខស្ករវៀតណាម",
+      "nameEn": "Vietnamese caramel shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង ទឹកត្រី និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese caramel shrimp commonly uses shrimp, fish sauce, palm sugar. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ទឹកត្រី",
+          "nameEn": "Fish sauce"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-steamed-clams-with-lemongrass",
+      "nameKm": "លៀសចំហុយស្លឹកគ្រៃវៀតណាម",
+      "nameEn": "Vietnamese steamed clams with lemongrass",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា លៀស និង ស្លឹកគ្រៃ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese steamed clams with lemongrass commonly uses clams, lemongrass, chilli. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "លៀស",
+          "nameEn": "Clams"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-shrimp",
+      "nameKm": "បង្គាចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Shrimp commonly uses garlic, fresh herbs, shrimp. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-crab",
+      "nameKm": "ក្តាមចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Crab",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង ក្តាម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Crab commonly uses garlic, fresh herbs, crab. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-clams",
+      "nameKm": "លៀសចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Clams",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង លៀស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Clams commonly uses garlic, fresh herbs, clams. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "លៀស",
+          "nameEn": "Clams"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-mussels",
+      "nameKm": "ខ្យងសមុទ្រចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Mussels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង ខ្យងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Mussels commonly uses garlic, fresh herbs, mussels. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្យងសមុទ្រ",
+          "nameEn": "Mussels"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-oysters",
+      "nameKm": "អយស្ទ័រចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Oysters",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង អយស្ទ័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Oysters commonly uses garlic, fresh herbs, oysters. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "អយស្ទ័រ",
+          "nameEn": "Oysters"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-scallops",
+      "nameKm": "ខ្យងស្កាឡប់ចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Scallops",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង ខ្យងស្កាឡប់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Scallops commonly uses garlic, fresh herbs, scallops. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្យងស្កាឡប់",
+          "nameEn": "Scallops"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-lobster",
+      "nameKm": "បង្កងចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Lobster",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង បង្កង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Lobster commonly uses garlic, fresh herbs, lobster. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "បង្កង",
+          "nameEn": "Lobster"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-steamed-fish",
+      "nameKm": "សាច់ត្រីចំហុយខ្ទឹមស",
+      "nameEn": "Garlic steamed Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ជីគ្រប់មុខ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic steamed Fish commonly uses garlic, fresh herbs, fish. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-fish",
+      "nameKm": "សាច់ត្រីចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Fish commonly uses ginger, fresh herbs, soy sauce, fish. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-crab",
+      "nameKm": "ក្តាមចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Crab",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង ក្តាម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Crab commonly uses ginger, fresh herbs, soy sauce, crab. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-shrimp",
+      "nameKm": "បង្គាចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Shrimp commonly uses ginger, fresh herbs, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-clams",
+      "nameKm": "លៀសចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Clams",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង លៀស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Clams commonly uses ginger, fresh herbs, soy sauce, clams. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "លៀស",
+          "nameEn": "Clams"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-sea-bass",
+      "nameKm": "ត្រីឆ្ពង់ចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Sea bass",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង ត្រីឆ្ពង់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Sea bass commonly uses ginger, fresh herbs, soy sauce, sea bass. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ត្រីឆ្ពង់",
+          "nameEn": "Sea bass"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-steamed-red-snapper",
+      "nameKm": "ត្រីក្រហមចំហុយខ្ញី",
+      "nameEn": "Ginger steamed Red snapper",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង ត្រីក្រហម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger steamed Red snapper commonly uses ginger, fresh herbs, soy sauce, red snapper. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ត្រីក្រហម",
+          "nameEn": "Red snapper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-baked-shrimp",
+      "nameKm": "បង្គាដុតប៊័រ",
+      "nameEn": "Butter baked Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៊័រ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter baked Shrimp commonly uses butter, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-baked-lobster",
+      "nameKm": "បង្កងដុតប៊័រ",
+      "nameEn": "Butter baked Lobster",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៊័រ និង ខ្ទឹមស និង បង្កង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter baked Lobster commonly uses butter, garlic, lobster. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្កង",
+          "nameEn": "Lobster"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-baked-oysters",
+      "nameKm": "អយស្ទ័រដុតប៊័រ",
+      "nameEn": "Butter baked Oysters",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៊័រ និង ខ្ទឹមស និង អយស្ទ័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter baked Oysters commonly uses butter, garlic, oysters. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "អយស្ទ័រ",
+          "nameEn": "Oysters"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-baked-scallops",
+      "nameKm": "ខ្យងស្កាឡប់ដុតប៊័រ",
+      "nameEn": "Butter baked Scallops",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៊័រ និង ខ្ទឹមស និង ខ្យងស្កាឡប់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter baked Scallops commonly uses butter, garlic, scallops. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្យងស្កាឡប់",
+          "nameEn": "Scallops"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-baked-mussels",
+      "nameKm": "ខ្យងសមុទ្រដុតប៊័រ",
+      "nameEn": "Butter baked Mussels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៊័រ និង ខ្ទឹមស និង ខ្យងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter baked Mussels commonly uses butter, garlic, mussels. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្យងសមុទ្រ",
+          "nameEn": "Mussels"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-garlic-fried-shrimp",
+      "nameKm": "បង្គាបំពងខ្ទឹមស",
+      "nameEn": "Crispy garlic fried Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ម្សៅស្រូវសាលី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy garlic fried Shrimp commonly uses garlic, wheat flour, shrimp. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-garlic-fried-squid",
+      "nameKm": "មឹកបំពងខ្ទឹមស",
+      "nameEn": "Crispy garlic fried Squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ម្សៅស្រូវសាលី និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy garlic fried Squid commonly uses garlic, wheat flour, squid. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-garlic-fried-fish",
+      "nameKm": "សាច់ត្រីបំពងខ្ទឹមស",
+      "nameEn": "Crispy garlic fried Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ម្សៅស្រូវសាលី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy garlic fried Fish commonly uses garlic, wheat flour, fish. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-garlic-fried-crab",
+      "nameKm": "ក្តាមបំពងខ្ទឹមស",
+      "nameEn": "Crispy garlic fried Crab",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ម្សៅស្រូវសាលី និង ក្តាម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy garlic fried Crab commonly uses garlic, wheat flour, crab. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-garlic-fried-snails",
+      "nameKm": "ខ្យងបំពងខ្ទឹមស",
+      "nameEn": "Crispy garlic fried Snails",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ម្សៅស្រូវសាលី និង ខ្យង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy garlic fried Snails commonly uses garlic, wheat flour, snails. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ខ្យង",
+          "nameEn": "Snails"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tamarind-glazed-shrimp",
+      "nameKm": "បង្គាជ្រលក់ទឹកអម្ពិល",
+      "nameEn": "Tamarind glazed Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ស្ករត្នោត និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tamarind glazed Shrimp commonly uses tamarind, palm sugar, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tamarind-glazed-crab",
+      "nameKm": "ក្តាមជ្រលក់ទឹកអម្ពិល",
+      "nameEn": "Tamarind glazed Crab",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ស្ករត្នោត និង ខ្ទឹមស និង ក្តាម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tamarind glazed Crab commonly uses tamarind, palm sugar, garlic, crab. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tamarind-glazed-fish",
+      "nameKm": "សាច់ត្រីជ្រលក់ទឹកអម្ពិល",
+      "nameEn": "Tamarind glazed Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ស្ករត្នោត និង ខ្ទឹមស និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tamarind glazed Fish commonly uses tamarind, palm sugar, garlic, fish. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tamarind-glazed-squid",
+      "nameKm": "មឹកជ្រលក់ទឹកអម្ពិល",
+      "nameEn": "Tamarind glazed Squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ស្ករត្នោត និង ខ្ទឹមស និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tamarind glazed Squid commonly uses tamarind, palm sugar, garlic, squid. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-chive-cakes",
+      "nameKm": "នំគូឆាយ",
+      "nameEn": "Garlic chive cakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង គូឆាយ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic chive cakes commonly uses rice flour, garlic chives, garlic. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "គូឆាយ",
+          "nameEn": "Garlic chives"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "fried-banana-fritters",
+      "nameKm": "ចេកចៀន",
+      "nameEn": "Fried banana fritters",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ចេក និង ម្សៅអង្ករ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fried banana fritters commonly uses banana, rice flour, sugar. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "fried-sweet-potato",
+      "nameKm": "ដំឡូងជ្វាបំពង",
+      "nameEn": "Fried sweet potato",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងជ្វា និង ម្សៅអង្ករ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fried sweet potato commonly uses sweet potato, rice flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងជ្វា",
+          "nameEn": "Sweet potato"
+        },
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "fried-cassava-sticks",
+      "nameKm": "ដំឡូងមីបំពង",
+      "nameEn": "Fried cassava sticks",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងមី និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fried cassava sticks commonly uses cassava, salt. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងមី",
+          "nameEn": "Cassava"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-fried-spring-rolls",
+      "nameKm": "ណែមចៀនខ្មែរ",
+      "nameEn": "Khmer fried spring rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង សាច់ជ្រូក និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fried spring rolls commonly uses rice paper, pork, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-fresh-spring-rolls",
+      "nameKm": "ណែមស្រស់ខ្មែរ",
+      "nameEn": "Khmer fresh spring rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង បង្គា និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fresh spring rolls commonly uses rice paper, shrimp, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-rice-pancake",
+      "nameKm": "បាញ់ឆែវខ្មែរ",
+      "nameEn": "Khmer rice pancake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សាច់ជ្រូក និង បង្គា និង សណ្ដែកបណ្ដុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer rice pancake commonly uses rice flour, pork, shrimp, bean sprouts. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-coconut-rice-cups",
+      "nameKm": "នំគ្រក់",
+      "nameEn": "Khmer coconut rice cups",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង ខ្ទិះដូង និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer coconut rice cups commonly uses rice flour, coconut milk, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-rice-crepes",
+      "nameKm": "បាញ់ចាវខ្មែរ",
+      "nameEn": "Khmer rice crepes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សាច់ជ្រូក និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer rice crepes commonly uses rice flour, pork, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-beef-meatballs",
+      "nameKm": "ប្រហិតសាច់គោ",
+      "nameEn": "Khmer beef meatballs",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ខ្ទឹមស និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer beef meatballs commonly uses beef, garlic, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-pork-meatballs",
+      "nameKm": "ប្រហិតសាច់ជ្រូក",
+      "nameEn": "Khmer pork meatballs",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង ខ្ទឹមស និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer pork meatballs commonly uses pork, garlic, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-fish-cakes",
+      "nameKm": "ប្រហិតត្រី",
+      "nameEn": "Khmer fish cakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង គ្រឿងបុក និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fish cakes commonly uses fish, kroeung spice paste, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-fried-shrimp-cakes",
+      "nameKm": "ប្រហិតបង្គាបំពង",
+      "nameEn": "Khmer fried shrimp cakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fried shrimp cakes commonly uses shrimp, wheat flour, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "grilled-sticky-rice-parcels",
+      "nameKm": "បាយដំណើបអាំងខ្ចប់ស្លឹកចេក",
+      "nameEn": "Grilled sticky rice parcels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled sticky rice parcels commonly uses sticky rice, coconut milk. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "boiled-corn",
+      "nameKm": "ពោតស្ងោរ",
+      "nameEn": "Boiled corn",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោត និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Boiled corn commonly uses corn, salt. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "roasted-peanuts",
+      "nameKm": "សណ្ដែកដីលីង",
+      "nameEn": "Roasted peanuts",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកដី និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roasted peanuts commonly uses peanuts, salt. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "fried-crickets-with-garlic",
+      "nameKm": "ចង្រិតលីងខ្ទឹមស",
+      "nameEn": "Fried crickets with garlic",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ចង្រិត និង ខ្ទឹមស និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fried crickets with garlic commonly uses crickets, garlic, chilli. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចង្រិត",
+          "nameEn": "Crickets"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "balut-duck-egg",
+      "nameKm": "ពងទាកូន",
+      "nameEn": "Balut duck egg",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពងទាកូន និង ម្រេច និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Balut duck egg commonly uses balut duck egg, black pepper, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពងទាកូន",
+          "nameEn": "Balut duck egg"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "quail-egg-skewers",
+      "nameKm": "ស៊ុតក្រួចចង្កាក់",
+      "nameEn": "Quail egg skewers",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស៊ុតក្រួច និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Quail egg skewers commonly uses quail eggs, soy sauce. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស៊ុតក្រួច",
+          "nameEn": "Quail eggs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-fried-rice-balls",
+      "nameKm": "នំអង្ករមូលបំពង",
+      "nameEn": "Khmer fried rice balls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សាច់ជ្រូក និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fried rice balls commonly uses rice flour, pork, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    }
+  ]
+}

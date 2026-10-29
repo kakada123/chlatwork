@@ -1,0 +1,1744 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 11,
+  "items": [
+    {
+      "slug": "caprese-salad",
+      "nameKm": "សាឡាត់កាព្រេសេ",
+      "nameEn": "Caprese salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង ឈីសម៉ូហ្សារ៉េឡា និង ជីរនាងវង និង ប្រេងអូលីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caprese salad commonly uses tomato, mozzarella, basil, olive oil. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cobb-salad",
+      "nameKm": "សាឡាត់កុប",
+      "nameEn": "Cobb salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង បេកុន និង ស៊ុត និង ផ្លែបឺរ និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cobb salad commonly uses chicken, bacon, egg, avocado, lettuce. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "potato-salad",
+      "nameKm": "សាឡាត់ដំឡូងបារាំង",
+      "nameEn": "Potato salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ម៉ាយ៉ូណេស និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Potato salad commonly uses potato, mayonnaise, egg. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "coleslaw",
+      "nameKm": "សាឡាត់ស្ពៃក្តោបការ៉ុត",
+      "nameEn": "Coleslaw",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃក្តោប និង ការ៉ុត និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coleslaw commonly uses cabbage, carrot, mayonnaise. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "olivier-salad",
+      "nameKm": "សាឡាត់អូលីវីយ៉េ",
+      "nameEn": "Olivier salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ការ៉ុត និង ហាំ និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Olivier salad commonly uses potato, carrot, ham, mayonnaise. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beetroot-salad",
+      "nameKm": "សាឡាត់មើមប៊ីត",
+      "nameEn": "Beetroot salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មើមប៊ីត និង សាឡាត់ និង ទឹកជ្រលក់សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beetroot salad commonly uses beetroot, lettuce, salad dressing. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មើមប៊ីត",
+          "nameEn": "Beetroot"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tuna-pasta-salad",
+      "nameKm": "សាឡាត់ប៉ាស្តាត្រីធូណា",
+      "nameEn": "Tuna pasta salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉ាស្តាប៉េនណេ និង ត្រីធូណា និង ប៉េងប៉ោះ និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna pasta salad commonly uses penne, tuna, tomato, mayonnaise. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉ាស្តាប៉េនណេ",
+          "nameEn": "Penne"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-pasta-salad",
+      "nameKm": "សាឡាត់ប៉ាស្តាមាន់",
+      "nameEn": "Chicken pasta salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉ាស្តាប៉េនណេ និង សាច់មាន់ និង ប៉េងប៉ោះ និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken pasta salad commonly uses penne, chicken, tomato, mayonnaise. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉ាស្តាប៉េនណេ",
+          "nameEn": "Penne"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "roasted-vegetable-salad",
+      "nameKm": "សាឡាត់បន្លែដុត",
+      "nameEn": "Roasted vegetable salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង សាឡាត់ និង ទឹកជ្រលក់សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roasted vegetable salad commonly uses vegetables, lettuce, salad dressing. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spinach-and-mushroom-salad",
+      "nameKm": "សាឡាត់ស្ពៃស្ពីណាចផ្សិត",
+      "nameEn": "Spinach and mushroom salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃស្ពីណាច និង ផ្សិត និង ទឹកជ្រលក់សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spinach and mushroom salad commonly uses spinach, mushroom, salad dressing. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "apple-walnut-salad",
+      "nameKm": "សាឡាត់ផ្លែប៉ោមវ៉ាល់ណាត់",
+      "nameEn": "Apple walnut salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្លែប៉ោម និង គ្រាប់វ៉ាល់ណាត់ និង សាឡាត់ និង ទឹកជ្រលក់សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Apple walnut salad commonly uses apple, walnuts, lettuce, salad dressing. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        },
+        {
+          "nameKm": "គ្រាប់វ៉ាល់ណាត់",
+          "nameEn": "Walnuts"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-seaweed-salad",
+      "nameKm": "សាឡាត់សារាយជប៉ុន",
+      "nameEn": "Japanese seaweed salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សារាយសមុទ្រ និង ល្ង និង ទឹកជ្រលក់សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese seaweed salad commonly uses seaweed, sesame, salad dressing. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-cucumber-sesame-salad",
+      "nameKm": "សាឡាត់ត្រសក់ល្ងជប៉ុន",
+      "nameEn": "Japanese cucumber sesame salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រសក់ និង ល្ង និង ទឹកខ្មេះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese cucumber sesame salad commonly uses cucumber, sesame, vinegar. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-crab-stick-salad",
+      "nameKm": "សាឡាត់សាច់ក្តាមជប៉ុន",
+      "nameEn": "Japanese crab stick salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ក្តាមបន្ទះ និង ត្រសក់ និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese crab stick salad commonly uses crab sticks, cucumber, mayonnaise. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ក្តាមបន្ទះ",
+          "nameEn": "Crab sticks"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-blossom-salad-with-chicken",
+      "nameKm": "ញាំត្រយូងចេកសាច់មាន់",
+      "nameEn": "Banana blossom salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រយូងចេក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana blossom salad with Chicken commonly uses banana blossom, fresh herbs, lime, peanuts, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-blossom-salad-with-beef",
+      "nameKm": "ញាំត្រយូងចេកសាច់គោ",
+      "nameEn": "Banana blossom salad with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រយូងចេក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana blossom salad with Beef commonly uses banana blossom, fresh herbs, lime, peanuts, beef. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-blossom-salad-with-shrimp",
+      "nameKm": "ញាំត្រយូងចេកបង្គា",
+      "nameEn": "Banana blossom salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រយូងចេក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana blossom salad with Shrimp commonly uses banana blossom, fresh herbs, lime, peanuts, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-blossom-salad-with-fish",
+      "nameKm": "ញាំត្រយូងចេកសាច់ត្រី",
+      "nameEn": "Banana blossom salad with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រយូងចេក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana blossom salad with Fish commonly uses banana blossom, fresh herbs, lime, peanuts, fish. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lotus-stem-salad-with-shrimp",
+      "nameKm": "ញាំក្រអៅឈូកបង្គា",
+      "nameEn": "Lotus stem salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រអៅឈូក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus stem salad with Shrimp commonly uses lotus stems, fresh herbs, lime, peanuts, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រអៅឈូក",
+          "nameEn": "Lotus stems"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lotus-stem-salad-with-pork",
+      "nameKm": "ញាំក្រអៅឈូកសាច់ជ្រូក",
+      "nameEn": "Lotus stem salad with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រអៅឈូក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus stem salad with Pork commonly uses lotus stems, fresh herbs, lime, peanuts, pork. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រអៅឈូក",
+          "nameEn": "Lotus stems"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lotus-stem-salad-with-chicken",
+      "nameKm": "ញាំក្រអៅឈូកសាច់មាន់",
+      "nameEn": "Lotus stem salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រអៅឈូក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus stem salad with Chicken commonly uses lotus stems, fresh herbs, lime, peanuts, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រអៅឈូក",
+          "nameEn": "Lotus stems"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "green-mango-salad-with-fish",
+      "nameKm": "ញាំស្វាយសាច់ត្រី",
+      "nameEn": "Green mango salad with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Green mango salad with Fish commonly uses mango, fresh herbs, lime, peanuts, fish. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "green-mango-salad-with-shrimp",
+      "nameKm": "ញាំស្វាយបង្គា",
+      "nameEn": "Green mango salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Green mango salad with Shrimp commonly uses mango, fresh herbs, lime, peanuts, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "green-mango-salad-with-beef",
+      "nameKm": "ញាំស្វាយសាច់គោ",
+      "nameEn": "Green mango salad with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Green mango salad with Beef commonly uses mango, fresh herbs, lime, peanuts, beef. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "green-mango-salad-with-chicken",
+      "nameKm": "ញាំស្វាយសាច់មាន់",
+      "nameEn": "Green mango salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Green mango salad with Chicken commonly uses mango, fresh herbs, lime, peanuts, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cucumber-salad-with-beef",
+      "nameKm": "ញាំត្រសក់សាច់គោ",
+      "nameEn": "Cucumber salad with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រសក់ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cucumber salad with Beef commonly uses cucumber, fresh herbs, lime, beef. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cucumber-salad-with-pork",
+      "nameKm": "ញាំត្រសក់សាច់ជ្រូក",
+      "nameEn": "Cucumber salad with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រសក់ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cucumber salad with Pork commonly uses cucumber, fresh herbs, lime, pork. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cucumber-salad-with-shrimp",
+      "nameKm": "ញាំត្រសក់បង្គា",
+      "nameEn": "Cucumber salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រសក់ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cucumber salad with Shrimp commonly uses cucumber, fresh herbs, lime, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-glass-noodle-salad-with-chicken",
+      "nameKm": "ញាំមីសួខ្មែរសាច់មាន់",
+      "nameEn": "Khmer glass noodle salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer glass noodle salad with Chicken commonly uses glass noodles, fresh herbs, lime, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-glass-noodle-salad-with-seafood",
+      "nameKm": "ញាំមីសួខ្មែរគ្រឿងសមុទ្រ",
+      "nameEn": "Khmer glass noodle salad with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer glass noodle salad with Seafood commonly uses glass noodles, fresh herbs, lime, seafood. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-glass-noodle-salad-with-shrimp",
+      "nameKm": "ញាំមីសួខ្មែរបង្គា",
+      "nameEn": "Khmer glass noodle salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer glass noodle salad with Shrimp commonly uses glass noodles, fresh herbs, lime, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-glass-noodle-salad-with-pork",
+      "nameKm": "ញាំមីសួខ្មែរសាច់ជ្រូក",
+      "nameEn": "Khmer glass noodle salad with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer glass noodle salad with Pork commonly uses glass noodles, fresh herbs, lime, pork. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-herb-salad-with-beef",
+      "nameKm": "ញាំជីសាច់គោ",
+      "nameEn": "Khmer herb salad with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer herb salad with Beef commonly uses fresh herbs, lime, peanuts, beef. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-herb-salad-with-chicken",
+      "nameKm": "ញាំជីសាច់មាន់",
+      "nameEn": "Khmer herb salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer herb salad with Chicken commonly uses fresh herbs, lime, peanuts, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-herb-salad-with-fish",
+      "nameKm": "ញាំជីសាច់ត្រី",
+      "nameEn": "Khmer herb salad with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer herb salad with Fish commonly uses fresh herbs, lime, peanuts, fish. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-herb-salad-with-shrimp",
+      "nameKm": "ញាំជីបង្គា",
+      "nameEn": "Khmer herb salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer herb salad with Shrimp commonly uses fresh herbs, lime, peanuts, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "caesar-salad-with-chicken",
+      "nameKm": "សាឡាត់ស៊ីសារសាច់មាន់",
+      "nameEn": "Caesar salad with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាឡាត់ និង ឈីស និង នំប៉័ង និង ទឹកជ្រលក់សាឡាត់ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caesar salad with Chicken commonly uses lettuce, cheese, bread, salad dressing, chicken. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "caesar-salad-with-salmon",
+      "nameKm": "សាឡាត់ស៊ីសារត្រីសាល់ម៉ុន",
+      "nameEn": "Caesar salad with Salmon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាឡាត់ និង ឈីស និង នំប៉័ង និង ទឹកជ្រលក់សាឡាត់ និង ត្រីសាល់ម៉ុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caesar salad with Salmon commonly uses lettuce, cheese, bread, salad dressing, salmon. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "caesar-salad-with-shrimp",
+      "nameKm": "សាឡាត់ស៊ីសារបង្គា",
+      "nameEn": "Caesar salad with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាឡាត់ និង ឈីស និង នំប៉័ង និង ទឹកជ្រលក់សាឡាត់ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caesar salad with Shrimp commonly uses lettuce, cheese, bread, salad dressing, shrimp. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "caesar-salad-with-tofu",
+      "nameKm": "សាឡាត់ស៊ីសារតៅហ៊ូ",
+      "nameEn": "Caesar salad with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាឡាត់ និង ឈីស និង នំប៉័ង និង ទឹកជ្រលក់សាឡាត់ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caesar salad with Tofu commonly uses lettuce, cheese, bread, salad dressing, tofu. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ទឹកជ្រលក់សាឡាត់",
+          "nameEn": "Salad dressing"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "kep-green-pepper-crab",
+      "nameKm": "ក្តាមម្រេចកែប",
+      "nameEn": "Kep green pepper crab",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្តាម និង ម្រេចខ្ចី និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kep green pepper crab commonly uses crab, green peppercorns, garlic. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        },
+        {
+          "nameKm": "ម្រេចខ្ចី",
+          "nameEn": "Green peppercorns"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-steamed-fish-with-kroeung",
+      "nameKm": "ត្រីចំហុយគ្រឿងខ្មែរ",
+      "nameEn": "Khmer steamed fish with kroeung",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង គ្រឿងបុក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer steamed fish with kroeung commonly uses fish, kroeung spice paste, coconut milk. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "whole-fried-fish-with-mango-relish",
+      "nameKm": "ត្រីបំពងស្វាយ",
+      "nameEn": "Whole fried fish with mango relish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ស្វាយ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Whole fried fish with mango relish commonly uses fish, mango, garlic. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-braised-fish-in-palm-sugar",
+      "nameKm": "ត្រីខស្ករត្នោត",
+      "nameEn": "Khmer braised fish in palm sugar",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ស្ករត្នោត និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer braised fish in palm sugar commonly uses fish, palm sugar, garlic. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "fermented-fish-omelette",
+      "nameKm": "ពងចៀនផ្អកត្រី",
+      "nameEn": "Fermented fish omelette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ស៊ុត និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fermented fish omelette commonly uses fish, egg, garlic. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "prahok-steamed-in-banana-leaf",
+      "nameKm": "ប្រហុកចំហុយខ្ចប់ស្លឹកចេក",
+      "nameEn": "Prahok steamed in banana leaf",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប្រហុក និង សាច់ជ្រូក និង គ្រឿងបុក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Prahok steamed in banana leaf commonly uses fermented fish paste, pork, kroeung spice paste. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "coconut-steamed-snails",
+      "nameKm": "ខ្យងចំហុយខ្ទិះដូង",
+      "nameEn": "Coconut steamed snails",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្យង និង ខ្ទិះដូង និង ស្លឹកគ្រៃ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut steamed snails commonly uses snails, coconut milk, lemongrass. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្យង",
+          "nameEn": "Snails"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salt-baked-prawns",
+      "nameKm": "បង្គាដុតអំបិល",
+      "nameEn": "Salt baked prawns",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salt baked prawns commonly uses shrimp, salt. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pepper-stuffed-squid",
+      "nameKm": "មឹកញាត់សាច់ម្រេច",
+      "nameEn": "Pepper stuffed squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មឹក និង សាច់ជ្រូក និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pepper stuffed squid commonly uses squid, pork, black pepper. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-claypot-caramel-fish",
+      "nameKm": "ត្រីខឆ្នាំងដីវៀតណាម",
+      "nameEn": "Vietnamese claypot caramel fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ទឹកត្រី និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese claypot caramel fish commonly uses fish, fish sauce, palm sugar. Preparation varies by kitchen.",
+      "category": "SEAFOOD",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ទឹកត្រី",
+          "nameEn": "Fish sauce"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

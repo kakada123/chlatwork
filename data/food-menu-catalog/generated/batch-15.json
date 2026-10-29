@@ -1,0 +1,1650 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 15,
+  "items": [
+    {
+      "slug": "chocolate-brownie",
+      "nameKm": "នំប្រោននីសូកូឡា",
+      "nameEn": "Chocolate brownie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សូកូឡា និង ប៊័រ និង ស៊ុត និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate brownie commonly uses chocolate, butter, egg, wheat flour. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-lava-cake",
+      "nameKm": "នំឡាវ៉ាសូកូឡា",
+      "nameEn": "Chocolate lava cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សូកូឡា និង ប៊័រ និង ស៊ុត និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate lava cake commonly uses chocolate, butter, egg, wheat flour. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "tiramisu",
+      "nameKm": "នំទីរ៉ាមីស៊ុ",
+      "nameEn": "Tiramisu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ក្រែមឈីស និង ស៊ុត និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tiramisu commonly uses coffee, cream cheese, egg, wheat flour. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "creme-brulee",
+      "nameKm": "ក្រែមប្រ៊ូឡេ",
+      "nameEn": "Creme brulee",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង ស៊ុត និង ស្ករស និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Creme brulee commonly uses cream, egg, sugar, vanilla. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "creme-caramel",
+      "nameKm": "ក្រែមការ៉ាមែល",
+      "nameEn": "Creme caramel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ស៊ុត និង ការ៉ាមែល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Creme caramel commonly uses milk, egg, caramel. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-mousse",
+      "nameKm": "មូសសូកូឡា",
+      "nameEn": "Chocolate mousse",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សូកូឡា និង គ្រីម និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate mousse commonly uses chocolate, cream, egg. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fruit-salad-with-yogurt",
+      "nameKm": "សាឡាត់ផ្លែឈើយ៉ាអួ",
+      "nameEn": "Fruit salad with yogurt",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ផ្លែប៉ោម និង ចេក និង យ៉ាអួ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fruit salad with yogurt commonly uses mango, apple, banana, yogurt. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "apple-crumble",
+      "nameKm": "ផ្លែប៉ោមក្រាំប៊ល",
+      "nameEn": "Apple crumble",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្លែប៉ោម និង ប៊័រ និង ម្សៅស្រូវសាលី និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Apple crumble commonly uses apple, butter, wheat flour, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-split",
+      "nameKm": "ការ៉េមចេកបាណាណាស្ព្លីត",
+      "nameEn": "Banana split",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ចេក និង ការ៉េម និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana split commonly uses banana, ice cream, chocolate. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "classic-waffles",
+      "nameKm": "វ៉ាហ្វលប៊័រ",
+      "nameEn": "Classic waffles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ទឹកដោះគោ និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Classic waffles commonly uses wheat flour, egg, milk, butter. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-waffles",
+      "nameKm": "វ៉ាហ្វលសូកូឡា",
+      "nameEn": "Chocolate waffles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate waffles commonly uses wheat flour, egg, chocolate. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-waffles",
+      "nameKm": "វ៉ាហ្វលស្ត្របឺរី",
+      "nameEn": "Strawberry waffles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry waffles commonly uses wheat flour, egg, strawberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-pancakes",
+      "nameKm": "ផេនខេកចេក",
+      "nameEn": "Banana pancakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ចេក និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana pancakes commonly uses wheat flour, egg, banana, milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "blueberry-pancakes",
+      "nameKm": "ផេនខេកប្លូបឺរី",
+      "nameEn": "Blueberry pancakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ប្លូបឺរី និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry pancakes commonly uses wheat flour, egg, blueberry, milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-crepes",
+      "nameKm": "ក្រែបសូកូឡា",
+      "nameEn": "Chocolate crepes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង សូកូឡា និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate crepes commonly uses wheat flour, egg, chocolate, milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-chocolate-crepes",
+      "nameKm": "ក្រែបចេកសូកូឡា",
+      "nameEn": "Banana chocolate crepes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ចេក និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana chocolate crepes commonly uses wheat flour, egg, banana, chocolate. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fruit-parfait",
+      "nameKm": "បង្អែមផ្លែឈើប៉ាហ្វេ",
+      "nameEn": "Fruit parfait",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា យ៉ាអួ និង ស្វាយ និង ស្ត្របឺរី និង ស្រូវអូត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fruit parfait commonly uses yogurt, mango, strawberry, oats. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        },
+        {
+          "nameKm": "ស្រូវអូត",
+          "nameEn": "Oats"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "bread-pudding",
+      "nameKm": "បង្អែមនំប៉័ង",
+      "nameEn": "Bread pudding",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ទឹកដោះគោ និង ស៊ុត និង ទំពាំងបាយជូរក្រៀម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bread pudding commonly uses bread, milk, egg, raisins. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទំពាំងបាយជូរក្រៀម",
+          "nameEn": "Raisins"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "lemon-tart",
+      "nameKm": "នំតាតក្រូចលឿង",
+      "nameEn": "Lemon tart",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ក្រូចលឿង និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemon tart commonly uses wheat flour, egg, lemon, butter. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fruit-tart",
+      "nameKm": "នំតាតផ្លែឈើ",
+      "nameEn": "Fruit tart",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ក្រែមស៊ុត និង ស្វាយ និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fruit tart commonly uses wheat flour, custard, mango, strawberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ក្រែមស៊ុត",
+          "nameEn": "Custard"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-tart",
+      "nameKm": "នំតាតសូកូឡា",
+      "nameEn": "Chocolate tart",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate tart commonly uses wheat flour, chocolate, cream. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "custard-tart",
+      "nameKm": "នំតាតក្រែមស៊ុត",
+      "nameEn": "Custard tart",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Custard tart commonly uses wheat flour, egg, milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-sorbet",
+      "nameKm": "ស័របេតស្វាយ",
+      "nameEn": "Mango sorbet",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្វាយ និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango sorbet commonly uses mango, sugar, water. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "lemon-sorbet",
+      "nameKm": "ស័របេតក្រូចលឿង",
+      "nameEn": "Lemon sorbet",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រូចលឿង និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemon sorbet commonly uses lemon, sugar, water. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coconut-sorbet",
+      "nameKm": "ស័របេតដូង",
+      "nameEn": "Coconut sorbet",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដូង និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut sorbet commonly uses coconut, sugar, water. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-mochi",
+      "nameKm": "ម៉ូឈីស្ត្របឺរី",
+      "nameEn": "Strawberry mochi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ស្ត្របឺរី និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry mochi commonly uses glutinous rice flour, strawberry, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "red-bean-mochi",
+      "nameKm": "ម៉ូឈីសណ្ដែកក្រហម",
+      "nameEn": "Red bean mochi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង សណ្ដែកក្រហម និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Red bean mochi commonly uses glutinous rice flour, red beans, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកក្រហម",
+          "nameEn": "Red beans"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-mochi",
+      "nameKm": "ម៉ូឈីម៉ាចា",
+      "nameEn": "Matcha mochi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ម៉ាចា និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha mochi commonly uses glutinous rice flour, matcha, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "japanese-cotton-cheesecake",
+      "nameKm": "ឈីសខេកជប៉ុនទន់",
+      "nameEn": "Japanese cotton cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង ស៊ុត និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese cotton cheesecake commonly uses cream cheese, egg, milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "dorayaki",
+      "nameKm": "នំដូរ៉ាយ៉ាគី",
+      "nameEn": "Dorayaki",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង សណ្ដែកក្រហម និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dorayaki commonly uses wheat flour, egg, red beans, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សណ្ដែកក្រហម",
+          "nameEn": "Red beans"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-ice-cream",
+      "nameKm": "ការ៉េមវ៉ានីឡា",
+      "nameEn": "Vanilla ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla ice cream commonly uses milk, cream, sugar, vanilla. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-ice-cream",
+      "nameKm": "ការ៉េមសូកូឡា",
+      "nameEn": "Chocolate ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate ice cream commonly uses milk, cream, sugar, chocolate. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-ice-cream",
+      "nameKm": "ការ៉េមស្ត្របឺរី",
+      "nameEn": "Strawberry ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry ice cream commonly uses milk, cream, sugar, strawberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-ice-cream",
+      "nameKm": "ការ៉េមស្វាយ",
+      "nameEn": "Mango ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango ice cream commonly uses milk, cream, sugar, mango. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coconut-ice-cream",
+      "nameKm": "ការ៉េមដូង",
+      "nameEn": "Coconut ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut ice cream commonly uses milk, cream, sugar, coconut. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coffee-ice-cream",
+      "nameKm": "ការ៉េមកាហ្វេ",
+      "nameEn": "Coffee ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង កាហ្វេ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coffee ice cream commonly uses milk, cream, sugar, coffee. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-ice-cream",
+      "nameKm": "ការ៉េមម៉ាចា",
+      "nameEn": "Matcha ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ម៉ាចា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha ice cream commonly uses milk, cream, sugar, matcha. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "taro-ice-cream",
+      "nameKm": "ការ៉េមត្រាវ",
+      "nameEn": "Taro ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ត្រាវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Taro ice cream commonly uses milk, cream, sugar, taro. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ត្រាវ",
+          "nameEn": "Taro"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "durian-ice-cream",
+      "nameKm": "ការ៉េមទុរេន",
+      "nameEn": "Durian ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ទុរេន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Durian ice cream commonly uses milk, cream, sugar, durian. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទុរេន",
+          "nameEn": "Durian"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-ice-cream",
+      "nameKm": "ការ៉េមចេក",
+      "nameEn": "Banana ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ចេក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana ice cream commonly uses milk, cream, sugar, banana. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "blueberry-ice-cream",
+      "nameKm": "ការ៉េមប្លូបឺរី",
+      "nameEn": "Blueberry ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង ប្លូបឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry ice cream commonly uses milk, cream, sugar, blueberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "pistachios-ice-cream",
+      "nameKm": "ការ៉េមគ្រាប់ពីស្តាឈីយ៉ូ",
+      "nameEn": "Pistachios ice cream",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គ្រីម និង ស្ករស និង គ្រាប់ពីស្តាឈីយ៉ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pistachios ice cream commonly uses milk, cream, sugar, pistachios. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "គ្រាប់ពីស្តាឈីយ៉ូ",
+          "nameEn": "Pistachios"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-cheesecake",
+      "nameKm": "ឈីសខេកស្ត្របឺរី",
+      "nameEn": "Strawberry cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង នំខូគី និង ស្ករស និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry cheesecake commonly uses cream cheese, cookies, sugar, strawberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "blueberry-cheesecake",
+      "nameKm": "ឈីសខេកប្លូបឺរី",
+      "nameEn": "Blueberry cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង នំខូគី និង ស្ករស និង ប្លូបឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry cheesecake commonly uses cream cheese, cookies, sugar, blueberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-cheesecake",
+      "nameKm": "ឈីសខេកស្វាយ",
+      "nameEn": "Mango cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង នំខូគី និង ស្ករស និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango cheesecake commonly uses cream cheese, cookies, sugar, mango. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-cheesecake",
+      "nameKm": "ឈីសខេកសូកូឡា",
+      "nameEn": "Chocolate cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង នំខូគី និង ស្ករស និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate cheesecake commonly uses cream cheese, cookies, sugar, chocolate. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-cheesecake",
+      "nameKm": "ឈីសខេកម៉ាចា",
+      "nameEn": "Matcha cheesecake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រែមឈីស និង នំខូគី និង ស្ករស និង ម៉ាចា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha cheesecake commonly uses cream cheese, cookies, sugar, matcha. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-panna-cotta",
+      "nameKm": "ប៉ាណាកូតាវ៉ានីឡា",
+      "nameEn": "Vanilla panna cotta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង ជេឡាទីន និង ស្ករស និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla panna cotta commonly uses cream, gelatin, sugar, vanilla. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ជេឡាទីន",
+          "nameEn": "Gelatin"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-panna-cotta",
+      "nameKm": "ប៉ាណាកូតាស្ត្របឺរី",
+      "nameEn": "Strawberry panna cotta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង ជេឡាទីន និង ស្ករស និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry panna cotta commonly uses cream, gelatin, sugar, strawberry. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ជេឡាទីន",
+          "nameEn": "Gelatin"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-panna-cotta",
+      "nameKm": "ប៉ាណាកូតាស្វាយ",
+      "nameEn": "Mango panna cotta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង ជេឡាទីន និង ស្ករស និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango panna cotta commonly uses cream, gelatin, sugar, mango. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ជេឡាទីន",
+          "nameEn": "Gelatin"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    }
+  ]
+}

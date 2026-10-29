@@ -1,0 +1,1694 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 6,
+  "items": [
+    {
+      "slug": "cream-of-mushroom-soup",
+      "nameKm": "ស៊ុបគ្រីមផ្សិត",
+      "nameEn": "Cream of mushroom soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង គ្រីម និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cream of mushroom soup commonly uses mushroom, cream, butter. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cream-of-tomato-soup",
+      "nameKm": "ស៊ុបគ្រីមប៉េងប៉ោះ",
+      "nameEn": "Cream of tomato soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង គ្រីម និង ជីរនាងវង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cream of tomato soup commonly uses tomato, cream, basil. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "broccoli-cheddar-soup",
+      "nameKm": "ស៊ុបផ្កាខាត់ណាខៀវឈីស",
+      "nameEn": "Broccoli cheddar soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាខាត់ណាខៀវ និង ឈីស និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Broccoli cheddar soup commonly uses broccoli, cheese, milk. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាខាត់ណាខៀវ",
+          "nameEn": "Broccoli"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "potato-leek-soup",
+      "nameKm": "ស៊ុបដំឡូងខ្ទឹមស្លឹក",
+      "nameEn": "Potato leek soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ខ្ទឹមស្លឹក និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Potato leek soup commonly uses potato, leek, butter. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ខ្ទឹមស្លឹក",
+          "nameEn": "Leek"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "french-onion-soup",
+      "nameKm": "ស៊ុបខ្ទឹមបារាំងបារាំង",
+      "nameEn": "French onion soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមបារាំង និង ប៊័រ និង នំប៉័ង និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "French onion soup commonly uses onion, butter, bread, cheese. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "corn-chowder",
+      "nameKm": "ស៊ុបពោតគ្រីម",
+      "nameEn": "Corn chowder",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោត និង ដំឡូងបារាំង និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Corn chowder commonly uses corn, potato, cream. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-corn-chowder",
+      "nameKm": "ស៊ុបពោតគ្រីមសាច់មាន់",
+      "nameEn": "Chicken corn chowder",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ពោត និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken corn chowder commonly uses chicken, corn, cream. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-vegetable-soup",
+      "nameKm": "ស៊ុបសាច់គោបន្លែ",
+      "nameEn": "Beef vegetable soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង បន្លែចម្រុះ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef vegetable soup commonly uses beef, vegetables, tomato. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "minestrone-soup",
+      "nameKm": "ស៊ុបមីនេស្ត្រូនេ",
+      "nameEn": "Minestrone soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ប៉េងប៉ោះ និង ម៉ាការ៉ូនី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Minestrone soup commonly uses vegetables, tomato, macaroni. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-cream-soup",
+      "nameKm": "ស៊ុបល្ពៅគ្រីម",
+      "nameEn": "Pumpkin cream soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin cream soup commonly uses pumpkin, cream. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "carrot-ginger-soup",
+      "nameKm": "ស៊ុបការ៉ុតខ្ញី",
+      "nameEn": "Carrot ginger soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ការ៉ុត និង ខ្ញី និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Carrot ginger soup commonly uses carrot, ginger, cream. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "red-lentil-soup",
+      "nameKm": "ស៊ុបសណ្ដែកក្រហមឡែនទីល",
+      "nameEn": "Red lentil soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកឡែនទីលក្រហម និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Red lentil soup commonly uses red lentils, tomato, onion. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកឡែនទីលក្រហម",
+          "nameEn": "Red lentils"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-noodle-soup",
+      "nameKm": "ស៊ុបមាន់មីសរសៃ",
+      "nameEn": "Chicken noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង មី និង ការ៉ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken noodle soup commonly uses chicken, egg noodles, carrot. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seafood-bisque",
+      "nameKm": "ស៊ុបគ្រឿងសមុទ្រប៊ីស្គី",
+      "nameEn": "Seafood bisque",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងសមុទ្រ និង គ្រីម និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood bisque commonly uses seafood, cream, tomato. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-kroeung-soup-with-beef",
+      "nameKm": "សម្លម្ជូរគ្រឿងសាច់គោ",
+      "nameEn": "Khmer sour kroeung soup with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង អម្ពិល និង បន្លែចម្រុះ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour kroeung soup with Beef commonly uses kroeung spice paste, tamarind, vegetables, beef. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-kroeung-soup-with-pork",
+      "nameKm": "សម្លម្ជូរគ្រឿងសាច់ជ្រូក",
+      "nameEn": "Khmer sour kroeung soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង អម្ពិល និង បន្លែចម្រុះ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour kroeung soup with Pork commonly uses kroeung spice paste, tamarind, vegetables, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-kroeung-soup-with-chicken",
+      "nameKm": "សម្លម្ជូរគ្រឿងសាច់មាន់",
+      "nameEn": "Khmer sour kroeung soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង អម្ពិល និង បន្លែចម្រុះ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour kroeung soup with Chicken commonly uses kroeung spice paste, tamarind, vegetables, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-kroeung-soup-with-fish",
+      "nameKm": "សម្លម្ជូរគ្រឿងសាច់ត្រី",
+      "nameEn": "Khmer sour kroeung soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង អម្ពិល និង បន្លែចម្រុះ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour kroeung soup with Fish commonly uses kroeung spice paste, tamarind, vegetables, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-kroeung-soup-with-frog",
+      "nameKm": "សម្លម្ជូរគ្រឿងកង្កែប",
+      "nameEn": "Khmer sour kroeung soup with Frog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង អម្ពិល និង បន្លែចម្រុះ និង កង្កែប។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour kroeung soup with Frog commonly uses kroeung spice paste, tamarind, vegetables, frog. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "កង្កែប",
+          "nameEn": "Frog"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-soup-with-fish",
+      "nameKm": "សម្លម្ជូរយួនសាច់ត្រី",
+      "nameEn": "Khmer sour soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ប៉េងប៉ោះ និង ម្នាស់ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour soup with Fish commonly uses tamarind, tomato, pineapple, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-soup-with-chicken",
+      "nameKm": "សម្លម្ជូរយួនសាច់មាន់",
+      "nameEn": "Khmer sour soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ប៉េងប៉ោះ និង ម្នាស់ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour soup with Chicken commonly uses tamarind, tomato, pineapple, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-soup-with-pork",
+      "nameKm": "សម្លម្ជូរយួនសាច់ជ្រូក",
+      "nameEn": "Khmer sour soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ប៉េងប៉ោះ និង ម្នាស់ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour soup with Pork commonly uses tamarind, tomato, pineapple, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-soup-with-shrimp",
+      "nameKm": "សម្លម្ជូរយួនបង្គា",
+      "nameEn": "Khmer sour soup with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ប៉េងប៉ោះ និង ម្នាស់ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour soup with Shrimp commonly uses tamarind, tomato, pineapple, shrimp. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-sour-soup-with-seafood",
+      "nameKm": "សម្លម្ជូរយួនគ្រឿងសមុទ្រ",
+      "nameEn": "Khmer sour soup with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ប៉េងប៉ោះ និង ម្នាស់ និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sour soup with Seafood commonly uses tamarind, tomato, pineapple, seafood. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-korko-with-fish",
+      "nameKm": "សម្លកកូរសាច់ត្រី",
+      "nameEn": "Samlor korko with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង បន្លែចម្រុះ និង អង្ករ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor korko with Fish commonly uses kroeung spice paste, vegetables, rice, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-korko-with-pork",
+      "nameKm": "សម្លកកូរសាច់ជ្រូក",
+      "nameEn": "Samlor korko with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង បន្លែចម្រុះ និង អង្ករ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor korko with Pork commonly uses kroeung spice paste, vegetables, rice, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-korko-with-chicken",
+      "nameKm": "សម្លកកូរសាច់មាន់",
+      "nameEn": "Samlor korko with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង បន្លែចម្រុះ និង អង្ករ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor korko with Chicken commonly uses kroeung spice paste, vegetables, rice, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-korko-with-beef",
+      "nameKm": "សម្លកកូរសាច់គោ",
+      "nameEn": "Samlor korko with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង បន្លែចម្រុះ និង អង្ករ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor korko with Beef commonly uses kroeung spice paste, vegetables, rice, beef. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "winter-melon-soup-with-pork",
+      "nameKm": "ស្ងោរត្រឡាចសាច់ជ្រូក",
+      "nameEn": "Winter melon soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រឡាច និង ជីគ្រប់មុខ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Winter melon soup with Pork commonly uses winter melon, fresh herbs, garlic, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រឡាច",
+          "nameEn": "Winter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "winter-melon-soup-with-chicken",
+      "nameKm": "ស្ងោរត្រឡាចសាច់មាន់",
+      "nameEn": "Winter melon soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រឡាច និង ជីគ្រប់មុខ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Winter melon soup with Chicken commonly uses winter melon, fresh herbs, garlic, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រឡាច",
+          "nameEn": "Winter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "winter-melon-soup-with-shrimp",
+      "nameKm": "ស្ងោរត្រឡាចបង្គា",
+      "nameEn": "Winter melon soup with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រឡាច និង ជីគ្រប់មុខ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Winter melon soup with Shrimp commonly uses winter melon, fresh herbs, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រឡាច",
+          "nameEn": "Winter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "winter-melon-soup-with-fish",
+      "nameKm": "ស្ងោរត្រឡាចសាច់ត្រី",
+      "nameEn": "Winter melon soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រឡាច និង ជីគ្រប់មុខ និង ខ្ទឹមស និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Winter melon soup with Fish commonly uses winter melon, fresh herbs, garlic, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រឡាច",
+          "nameEn": "Winter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-clear-soup-with-chicken",
+      "nameKm": "ស៊ុបផ្សិតទឹកថ្លាសាច់មាន់",
+      "nameEn": "Mushroom clear soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ជីគ្រប់មុខ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom clear soup with Chicken commonly uses mushroom, fresh herbs, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-clear-soup-with-pork",
+      "nameKm": "ស៊ុបផ្សិតទឹកថ្លាសាច់ជ្រូក",
+      "nameEn": "Mushroom clear soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ជីគ្រប់មុខ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom clear soup with Pork commonly uses mushroom, fresh herbs, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-clear-soup-with-shrimp",
+      "nameKm": "ស៊ុបផ្សិតទឹកថ្លាបង្គា",
+      "nameEn": "Mushroom clear soup with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ជីគ្រប់មុខ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom clear soup with Shrimp commonly uses mushroom, fresh herbs, shrimp. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-clear-soup-with-tofu",
+      "nameKm": "ស៊ុបផ្សិតទឹកថ្លាតៅហ៊ូ",
+      "nameEn": "Mushroom clear soup with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ជីគ្រប់មុខ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom clear soup with Tofu commonly uses mushroom, fresh herbs, tofu. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seaweed-soup-with-pork",
+      "nameKm": "ស៊ុបសារាយសាច់ជ្រូក",
+      "nameEn": "Seaweed soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សារាយសមុទ្រ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seaweed soup with Pork commonly uses seaweed, garlic, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seaweed-soup-with-chicken",
+      "nameKm": "ស៊ុបសារាយសាច់មាន់",
+      "nameEn": "Seaweed soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សារាយសមុទ្រ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seaweed soup with Chicken commonly uses seaweed, garlic, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seaweed-soup-with-shrimp",
+      "nameKm": "ស៊ុបសារាយបង្គា",
+      "nameEn": "Seaweed soup with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សារាយសមុទ្រ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seaweed soup with Shrimp commonly uses seaweed, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seaweed-soup-with-tofu",
+      "nameKm": "ស៊ុបសារាយតៅហ៊ូ",
+      "nameEn": "Seaweed soup with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សារាយសមុទ្រ និង ខ្ទឹមស និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seaweed soup with Tofu commonly uses seaweed, garlic, tofu. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pickled-mustard-soup-with-pork",
+      "nameKm": "សម្លស្ពៃជ្រក់សាច់ជ្រូក",
+      "nameEn": "Pickled mustard soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃជ្រក់ និង ខ្ទឹមស និង ខ្ញី និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pickled mustard soup with Pork commonly uses pickled mustard greens, garlic, ginger, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃជ្រក់",
+          "nameEn": "Pickled mustard greens"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pickled-mustard-soup-with-chicken",
+      "nameKm": "សម្លស្ពៃជ្រក់សាច់មាន់",
+      "nameEn": "Pickled mustard soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃជ្រក់ និង ខ្ទឹមស និង ខ្ញី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pickled mustard soup with Chicken commonly uses pickled mustard greens, garlic, ginger, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃជ្រក់",
+          "nameEn": "Pickled mustard greens"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pickled-mustard-soup-with-fish",
+      "nameKm": "សម្លស្ពៃជ្រក់សាច់ត្រី",
+      "nameEn": "Pickled mustard soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃជ្រក់ និង ខ្ទឹមស និង ខ្ញី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pickled mustard soup with Fish commonly uses pickled mustard greens, garlic, ginger, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃជ្រក់",
+          "nameEn": "Pickled mustard greens"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pickled-mustard-soup-with-duck",
+      "nameKm": "សម្លស្ពៃជ្រក់សាច់ទា",
+      "nameEn": "Pickled mustard soup with Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃជ្រក់ និង ខ្ទឹមស និង ខ្ញី និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pickled mustard soup with Duck commonly uses pickled mustard greens, garlic, ginger, duck. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃជ្រក់",
+          "nameEn": "Pickled mustard greens"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-soup-with-pork",
+      "nameKm": "ស្ងោរម្រះសាច់ជ្រូក",
+      "nameEn": "Bitter melon soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ជីគ្រប់មុខ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon soup with Pork commonly uses bitter melon, fresh herbs, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-soup-with-chicken",
+      "nameKm": "ស្ងោរម្រះសាច់មាន់",
+      "nameEn": "Bitter melon soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ជីគ្រប់មុខ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon soup with Chicken commonly uses bitter melon, fresh herbs, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-soup-with-fish",
+      "nameKm": "ស្ងោរម្រះសាច់ត្រី",
+      "nameEn": "Bitter melon soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ជីគ្រប់មុខ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon soup with Fish commonly uses bitter melon, fresh herbs, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-soup-with-pork",
+      "nameKm": "សម្លល្ពៅសាច់ជ្រូក",
+      "nameEn": "Pumpkin soup with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin soup with Pork commonly uses pumpkin, garlic, pork. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-soup-with-chicken",
+      "nameKm": "សម្លល្ពៅសាច់មាន់",
+      "nameEn": "Pumpkin soup with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin soup with Chicken commonly uses pumpkin, garlic, chicken. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-soup-with-fish",
+      "nameKm": "សម្លល្ពៅសាច់ត្រី",
+      "nameEn": "Pumpkin soup with Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin soup with Fish commonly uses pumpkin, garlic, fish. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

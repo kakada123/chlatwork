@@ -1,0 +1,1674 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 5,
+  "items": [
+    {
+      "slug": "japanese-pork-yaki-udon",
+      "nameKm": "មីអ៊ូដុងឆាសាច់ជ្រូក",
+      "nameEn": "Japanese Pork yaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Pork yaki udon commonly uses udon noodles, cabbage, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-chicken-yaki-udon",
+      "nameKm": "មីអ៊ូដុងឆាសាច់មាន់",
+      "nameEn": "Japanese Chicken yaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Chicken yaki udon commonly uses udon noodles, cabbage, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-beef-yaki-udon",
+      "nameKm": "មីអ៊ូដុងឆាសាច់គោ",
+      "nameEn": "Japanese Beef yaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Beef yaki udon commonly uses udon noodles, cabbage, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-shrimp-yaki-udon",
+      "nameKm": "មីអ៊ូដុងឆាបង្គា",
+      "nameEn": "Japanese Shrimp yaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Shrimp yaki udon commonly uses udon noodles, cabbage, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-vegetables-yaki-udon",
+      "nameKm": "មីអ៊ូដុងឆាបន្លែចម្រុះ",
+      "nameEn": "Japanese Vegetables yaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Vegetables yaki udon commonly uses udon noodles, cabbage, soy sauce, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-beef-udon-soup",
+      "nameKm": "មីអ៊ូដុងទឹកសាច់គោ",
+      "nameEn": "Japanese Beef udon soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Beef udon soup commonly uses udon noodles, fresh herbs, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-chicken-udon-soup",
+      "nameKm": "មីអ៊ូដុងទឹកសាច់មាន់",
+      "nameEn": "Japanese Chicken udon soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Chicken udon soup commonly uses udon noodles, fresh herbs, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-tofu-udon-soup",
+      "nameKm": "មីអ៊ូដុងទឹកតៅហ៊ូ",
+      "nameEn": "Japanese Tofu udon soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Tofu udon soup commonly uses udon noodles, fresh herbs, soy sauce, tofu. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-shrimp-udon-soup",
+      "nameKm": "មីអ៊ូដុងទឹកបង្គា",
+      "nameEn": "Japanese Shrimp udon soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Shrimp udon soup commonly uses udon noodles, fresh herbs, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-hand-pulled-noodles-with-beef",
+      "nameKm": "មីទាញចិនសាច់គោ",
+      "nameEn": "Chinese hand-pulled noodles with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese hand-pulled noodles with Beef commonly uses wheat flour, fresh herbs, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-hand-pulled-noodles-with-pork",
+      "nameKm": "មីទាញចិនសាច់ជ្រូក",
+      "nameEn": "Chinese hand-pulled noodles with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese hand-pulled noodles with Pork commonly uses wheat flour, fresh herbs, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-hand-pulled-noodles-with-chicken",
+      "nameKm": "មីទាញចិនសាច់មាន់",
+      "nameEn": "Chinese hand-pulled noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese hand-pulled noodles with Chicken commonly uses wheat flour, fresh herbs, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-hand-pulled-noodles-with-vegetables",
+      "nameKm": "មីទាញចិនបន្លែចម្រុះ",
+      "nameEn": "Chinese hand-pulled noodles with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ និង ទឹកស៊ីអ៊ីវ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese hand-pulled noodles with Vegetables commonly uses wheat flour, fresh herbs, soy sauce, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sesame-noodles-with-chicken",
+      "nameKm": "មីល្ងចិនសាច់មាន់",
+      "nameEn": "Chinese sesame noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ល្ង និង ត្រសក់ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sesame noodles with Chicken commonly uses egg noodles, sesame, cucumber, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sesame-noodles-with-pork",
+      "nameKm": "មីល្ងចិនសាច់ជ្រូក",
+      "nameEn": "Chinese sesame noodles with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ល្ង និង ត្រសក់ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sesame noodles with Pork commonly uses egg noodles, sesame, cucumber, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sesame-noodles-with-tofu",
+      "nameKm": "មីល្ងចិនតៅហ៊ូ",
+      "nameEn": "Chinese sesame noodles with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ល្ង និង ត្រសក់ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sesame noodles with Tofu commonly uses egg noodles, sesame, cucumber, tofu. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "italian-chicken-pesto-pasta",
+      "nameKm": "ប៉ាស្តាប៉េស្តូសាច់មាន់",
+      "nameEn": "Italian Chicken pesto pasta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង ជីរនាងវង និង ឈីស និង ប្រេងអូលីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Italian Chicken pesto pasta commonly uses spaghetti, basil, cheese, olive oil, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "italian-shrimp-pesto-pasta",
+      "nameKm": "ប៉ាស្តាប៉េស្តូបង្គា",
+      "nameEn": "Italian Shrimp pesto pasta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង ជីរនាងវង និង ឈីស និង ប្រេងអូលីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Italian Shrimp pesto pasta commonly uses spaghetti, basil, cheese, olive oil, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "italian-mushroom-pesto-pasta",
+      "nameKm": "ប៉ាស្តាប៉េស្តូផ្សិត",
+      "nameEn": "Italian Mushroom pesto pasta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង ជីរនាងវង និង ឈីស និង ប្រេងអូលីវ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Italian Mushroom pesto pasta commonly uses spaghetti, basil, cheese, olive oil, mushroom. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "italian-chicken-cream-pasta",
+      "nameKm": "ប៉ាស្តាគ្រីមសាច់មាន់",
+      "nameEn": "Italian Chicken cream pasta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉ាស្តាប៉េនណេ និង គ្រីម និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Italian Chicken cream pasta commonly uses penne, cream, garlic, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉ាស្តាប៉េនណេ",
+          "nameEn": "Penne"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "preserved-lime-chicken-soup",
+      "nameKm": "ស្ងោរមាន់ក្រូចឆ្មាង៉ាំង៉ូវ",
+      "nameEn": "Preserved lime chicken soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ក្រូចឆ្មាង៉ាំង៉ូវ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Preserved lime chicken soup commonly uses chicken, preserved lime, ginger. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មាង៉ាំង៉ូវ",
+          "nameEn": "Preserved lime"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-chicken-banana-blossom-soup",
+      "nameKm": "ស្ងោរមាន់ត្រយូងចេក",
+      "nameEn": "Khmer chicken banana blossom soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ត្រយូងចេក និង ស្លឹកគ្រៃ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer chicken banana blossom soup commonly uses chicken, banana blossom, lemongrass. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-proher",
+      "nameKm": "សម្លប្រហើរ",
+      "nameEn": "Samlor proher",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ល្ពៅ និង គ្រឿងបុក និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor proher commonly uses fish, pumpkin, kroeung spice paste, vegetables. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-machu-srae-fish-soup",
+      "nameKm": "សម្លម្ជូរស្រែត្រី",
+      "nameEn": "Samlor machu srae fish soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង អម្ពិល និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor machu srae fish soup commonly uses fish, tamarind, vegetables. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samlor-machu-water-lily-soup",
+      "nameKm": "សម្លម្ជូររំចង់",
+      "nameEn": "Samlor machu water lily soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង អម្ពិល និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samlor machu water lily soup commonly uses fish, tamarind, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-beef-hotpot",
+      "nameKm": "ស៊ុបសាច់គោឆ្នាំងភ្លើង",
+      "nameEn": "Khmer beef hotpot",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង បន្លែចម្រុះ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer beef hotpot commonly uses beef, vegetables, tofu. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-chicken-hotpot",
+      "nameKm": "ស៊ុបមាន់ឆ្នាំងភ្លើង",
+      "nameEn": "Khmer chicken hotpot",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង បន្លែចម្រុះ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer chicken hotpot commonly uses chicken, vegetables, mushroom. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-seafood-hotpot",
+      "nameKm": "ស៊ុបគ្រឿងសមុទ្រឆ្នាំងភ្លើង",
+      "nameEn": "Khmer seafood hotpot",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងសមុទ្រ និង បន្លែចម្រុះ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer seafood hotpot commonly uses seafood, vegetables, tofu. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-tendon-soup",
+      "nameKm": "ស៊ុបសរសៃគោ",
+      "nameEn": "Beef tendon soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ជីគ្រប់មុខ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef tendon soup commonly uses beef, fresh herbs, ginger. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-rib-and-radish-soup",
+      "nameKm": "ស្ងោរឆ្អឹងជំនីរជ្រូកឆៃថាវ",
+      "nameEn": "Pork rib and radish soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆ្អឹងជំនីរជ្រូក និង ឆៃថាវ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork rib and radish soup commonly uses pork ribs, radish, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        },
+        {
+          "nameKm": "ឆៃថាវ",
+          "nameEn": "Radish"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-liver-soup",
+      "nameKm": "ស្ងោរថ្លើមជ្រូក",
+      "nameEn": "Pork liver soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ថ្លើមជ្រូក និង ជីគ្រប់មុខ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork liver soup commonly uses pork liver, fresh herbs, ginger. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ថ្លើមជ្រូក",
+          "nameEn": "Pork liver"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "duck-and-ginger-soup",
+      "nameKm": "ស៊ុបទាខ្ញី",
+      "nameEn": "Duck and ginger soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ទា និង ខ្ញី និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Duck and ginger soup commonly uses duck, ginger, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "hot-and-sour-tofu-soup",
+      "nameKm": "ស៊ុបតៅហ៊ូជូរហឹរចិន",
+      "nameEn": "Hot and sour tofu soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅហ៊ូ និង ផ្សិត និង ទឹកខ្មេះ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot and sour tofu soup commonly uses tofu, mushroom, vinegar, chilli. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-herbal-chicken-soup",
+      "nameKm": "ស៊ុបមាន់ថ្នាំចិន",
+      "nameEn": "Chinese herbal chicken soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង យិនស៊ិន និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese herbal chicken soup commonly uses chicken, ginseng, ginger. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "យិនស៊ិន",
+          "nameEn": "Ginseng"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-fish-maw-soup",
+      "nameKm": "ស៊ុបពោះត្រី",
+      "nameEn": "Chinese fish maw soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោះត្រី និង សាច់មាន់ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese fish maw maw soup commonly uses fish maw, chicken, mushroom. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោះត្រី",
+          "nameEn": "Fish maw"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-lotus-root-pork-soup",
+      "nameKm": "ស៊ុបឆ្អឹងជ្រូកក្រអៅឈូក",
+      "nameEn": "Chinese lotus root pork soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆ្អឹងជំនីរជ្រូក និង មើមឈូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese lotus root pork soup commonly uses pork ribs, lotus root. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        },
+        {
+          "nameKm": "មើមឈូក",
+          "nameEn": "Lotus root"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-egg-drop-soup",
+      "nameKm": "ស៊ុបស៊ុតចិន",
+      "nameEn": "Chinese egg drop soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស៊ុត និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese egg drop soup commonly uses egg, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-seafood-tofu-soup",
+      "nameKm": "ស៊ុបតៅហ៊ូគ្រឿងសមុទ្រចិន",
+      "nameEn": "Chinese seafood tofu soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅហ៊ូ និង គ្រឿងសមុទ្រ និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese seafood tofu soup commonly uses tofu, seafood, ginger. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "kimchi-jjigae",
+      "nameKm": "ស៊ុបគីមឈី",
+      "nameEn": "Kimchi jjigae",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គីមឈី និង សាច់ជ្រូក និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kimchi jjigae commonly uses kimchi, pork, tofu. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គីមឈី",
+          "nameEn": "Kimchi"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "sundubu-jjigae",
+      "nameKm": "ស៊ុបតៅហ៊ូទន់កូរ៉េ",
+      "nameEn": "Sundubu jjigae",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅហ៊ូ និង គ្រឿងសមុទ្រ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sundubu jjigae commonly uses tofu, seafood, chilli. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "doenjang-jjigae",
+      "nameKm": "ស៊ុបសណ្ដែកសៀងកូរ៉េ",
+      "nameEn": "Doenjang jjigae",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅស៊ី និង តៅហ៊ូ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Doenjang jjigae commonly uses fermented bean paste, tofu, vegetables. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅស៊ី",
+          "nameEn": "Fermented bean paste"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samgyetang",
+      "nameKm": "ស៊ុបមាន់យិនស៊ិនកូរ៉េ",
+      "nameEn": "Samgyetang",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង យិនស៊ិន និង អង្ករ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samgyetang commonly uses chicken, ginseng, rice. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "យិនស៊ិន",
+          "nameEn": "Ginseng"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-seaweed-miyeokguk",
+      "nameKm": "ស៊ុបសារាយសាច់គោកូរ៉េ",
+      "nameEn": "Beef seaweed miyeokguk",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង សារាយសមុទ្រ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef seaweed miyeokguk commonly uses beef, seaweed, garlic. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "galbitang",
+      "nameKm": "ស៊ុបឆ្អឹងជំនីរគោកូរ៉េ",
+      "nameEn": "Galbitang",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆ្អឹងជំនីរគោ និង ឆៃថាវ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Galbitang commonly uses beef short ribs, radish, garlic. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆ្អឹងជំនីរគោ",
+          "nameEn": "Beef short ribs"
+        },
+        {
+          "nameKm": "ឆៃថាវ",
+          "nameEn": "Radish"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "seolleongtang",
+      "nameKm": "ស៊ុបឆ្អឹងគោទឹកសកូរ៉េ",
+      "nameEn": "Seolleongtang",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seolleongtang commonly uses beef, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mandu-dumpling-soup",
+      "nameKm": "ស៊ុបគាវម៉ាន់ឌូ",
+      "nameEn": "Mandu dumpling soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង សាច់ជ្រូក និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mandu dumpling soup commonly uses wonton wrappers, pork, vegetables. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tofu-miso-soup",
+      "nameKm": "ស៊ុបមីសូតៅហ៊ូ",
+      "nameEn": "Tofu miso soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅហ៊ូ និង មីសូ និង សារាយសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tofu miso soup commonly uses tofu, miso paste, seaweed. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "មីសូ",
+          "nameEn": "Miso paste"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "clam-miso-soup",
+      "nameKm": "ស៊ុបមីសូលៀស",
+      "nameEn": "Clam miso soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា លៀស និង មីសូ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Clam miso soup commonly uses clams, miso paste, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "លៀស",
+          "nameEn": "Clams"
+        },
+        {
+          "nameKm": "មីសូ",
+          "nameEn": "Miso paste"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salmon-miso-soup",
+      "nameKm": "ស៊ុបមីសូត្រីសាល់ម៉ុន",
+      "nameEn": "Salmon miso soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រីសាល់ម៉ុន និង មីសូ និង សារាយសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salmon miso soup commonly uses salmon, miso paste, seaweed. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "មីសូ",
+          "nameEn": "Miso paste"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-clear-mushroom-soup",
+      "nameKm": "ស៊ុបផ្សិតទឹកថ្លាជប៉ុន",
+      "nameEn": "Japanese clear mushroom soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ទឹកស៊ីអ៊ីវ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese clear mushroom soup commonly uses mushroom, soy sauce, fresh herbs. Preparation varies by kitchen.",
+      "category": "SOUP",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

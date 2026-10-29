@@ -1,0 +1,1372 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 19,
+  "items": [
+    {
+      "slug": "coconut-latte",
+      "nameKm": "ឡាតេដូង",
+      "nameEn": "Coconut latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut latte commonly uses coffee, coconut milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "oat-milk-latte",
+      "nameKm": "ឡាតេទឹកដោះអូត",
+      "nameEn": "Oat milk latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះស្រូវអូត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Oat milk latte commonly uses coffee, oat milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះស្រូវអូត",
+          "nameEn": "Oat milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "almond-milk-latte",
+      "nameKm": "ឡាតេទឹកដោះអាល់ម៉ុន",
+      "nameEn": "Almond milk latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះអាល់ម៉ុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Almond milk latte commonly uses coffee, almond milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះអាល់ម៉ុន",
+          "nameEn": "Almond milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "cold-brew-coffee",
+      "nameKm": "កាហ្វេខូលប្រ៊ូ",
+      "nameEn": "Cold brew coffee",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cold brew coffee commonly uses coffee, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "orange-espresso-tonic",
+      "nameKm": "កាហ្វេក្រូចសូដា",
+      "nameEn": "Orange espresso tonic",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ក្រូច និង ទឹកសូដា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Orange espresso tonic commonly uses coffee, orange, soda water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ក្រូច",
+          "nameEn": "Orange"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "affogato",
+      "nameKm": "អាហ្វូហ្គាតូ",
+      "nameEn": "Affogato",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ការ៉េម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Affogato commonly uses coffee, ice cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "espresso-frappe",
+      "nameKm": "អេស្ព្រេសូហ្វ្រាប៉េ",
+      "nameEn": "Espresso frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Espresso frappe commonly uses coffee, milk, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mocha-frappe",
+      "nameKm": "ម៉ូកាហ្វ្រាប៉េ",
+      "nameEn": "Mocha frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង កាកាវ និង ទឹកដោះគោ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mocha frappe commonly uses coffee, cocoa, milk, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "caramel-frappe",
+      "nameKm": "ការ៉ាមែលហ្វ្រាប៉េ",
+      "nameEn": "Caramel frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ការ៉ាមែល និង ទឹកដោះគោ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caramel frappe commonly uses coffee, caramel, milk, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-frappe",
+      "nameKm": "វ៉ានីឡាហ្វ្រាប៉េ",
+      "nameEn": "Vanilla frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង វ៉ានីឡា និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla frappe commonly uses milk, vanilla, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-frappe",
+      "nameKm": "សូកូឡាហ្វ្រាប៉េ",
+      "nameEn": "Chocolate frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា សូកូឡា និង ទឹកដោះគោ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate frappe commonly uses chocolate, milk, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "cookie-cream-frappe",
+      "nameKm": "ខូគីគ្រីមហ្វ្រាប៉េ",
+      "nameEn": "Cookie cream frappe",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា នំខូគី និង ទឹកដោះគោ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cookie cream frappe commonly uses cookies, milk, cream. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-chocolate",
+      "nameKm": "សូកូឡាក្តៅ",
+      "nameEn": "Hot chocolate",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាកាវ និង ទឹកដោះគោ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot chocolate commonly uses cocoa, milk, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-chocolate",
+      "nameKm": "សូកូឡាទឹកកក",
+      "nameEn": "Iced chocolate",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាកាវ និង ទឹកដោះគោ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced chocolate commonly uses cocoa, milk, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-matcha-latte",
+      "nameKm": "ម៉ាចាឡាតេក្តៅ",
+      "nameEn": "Hot matcha latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាចា និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot matcha latte commonly uses matcha, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-matcha-latte",
+      "nameKm": "ម៉ាចាឡាតេទឹកកក",
+      "nameEn": "Iced matcha latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាចា និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced matcha latte commonly uses matcha, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "honey-lemon-tea",
+      "nameKm": "តែទឹកឃ្មុំក្រូចលឿង",
+      "nameEn": "Honey lemon tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែ និង ទឹកឃ្មុំ និង ក្រូចលឿង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey lemon tea commonly uses tea, honey, lemon. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែ",
+          "nameEn": "Tea"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "ginger-honey-tea",
+      "nameKm": "តែខ្ញីទឹកឃ្មុំ",
+      "nameEn": "Ginger honey tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ទឹកឃ្មុំ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger honey tea commonly uses ginger, honey, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chamomile-tea",
+      "nameKm": "តែកាម៉ូម៉ាយ",
+      "nameEn": "Chamomile tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាកាម៉ូម៉ាយ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chamomile tea commonly uses chamomile, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាកាម៉ូម៉ាយ",
+          "nameEn": "Chamomile"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mint-tea",
+      "nameKm": "តែជីរអង្កាម",
+      "nameEn": "Mint tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរអង្កាម និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mint tea commonly uses mint, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរអង្កាម",
+          "nameEn": "Mint"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "jasmine-tea",
+      "nameKm": "តែផ្កាម្លិះ",
+      "nameEn": "Jasmine tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែផ្កាម្លិះ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Jasmine tea commonly uses jasmine tea, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែផ្កាម្លិះ",
+          "nameEn": "Jasmine tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "oolong-tea",
+      "nameKm": "តែអ៊ូឡុង",
+      "nameEn": "Oolong tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែអ៊ូឡុង និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Oolong tea commonly uses oolong tea, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែអ៊ូឡុង",
+          "nameEn": "Oolong tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "sparkling-lemonade",
+      "nameKm": "ទឹកក្រូចលឿងសូដា",
+      "nameEn": "Sparkling lemonade",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រូចលឿង និង ទឹកសូដា និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sparkling lemonade commonly uses lemon, soda water, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "virgin-mojito",
+      "nameKm": "ម៉ូហ៊ីតូមិនមានស្រា",
+      "nameEn": "Virgin mojito",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រូចឆ្មា និង ជីរអង្កាម និង ទឹកសូដា និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Virgin mojito commonly uses lime, mint, soda water, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "ជីរអង្កាម",
+          "nameEn": "Mint"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mojito",
+      "nameKm": "ម៉ូហ៊ីតូ",
+      "nameEn": "Mojito",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រារ៉ូម និង ក្រូចឆ្មា និង ជីរអង្កាម និង ទឹកសូដា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mojito commonly uses rum, lime, mint, soda water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រារ៉ូម",
+          "nameEn": "Rum"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "ជីរអង្កាម",
+          "nameEn": "Mint"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "margarita",
+      "nameKm": "ម៉ាហ្គារីតា",
+      "nameEn": "Margarita",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រាតេគីឡា និង ក្រូចឆ្មា និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Margarita commonly uses tequila, lime, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រាតេគីឡា",
+          "nameEn": "Tequila"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "pina-colada",
+      "nameKm": "ភីណាកូឡាដា",
+      "nameEn": "Pina colada",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រារ៉ូម និង ម្នាស់ និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pina colada commonly uses rum, pineapple, coconut milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រារ៉ូម",
+          "nameEn": "Rum"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "gin-and-tonic",
+      "nameKm": "ជីនតូនិក",
+      "nameEn": "Gin and tonic",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រាជីន និង ទឹកសូដា និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Gin and tonic commonly uses gin, soda water, lime. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រាជីន",
+          "nameEn": "Gin"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "whisky-soda",
+      "nameKm": "វីស្គីសូដា",
+      "nameEn": "Whisky soda",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រាវីស្គី និង ទឹកសូដា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Whisky soda commonly uses whisky, soda water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រាវីស្គី",
+          "nameEn": "Whisky"
+        },
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "sangria",
+      "nameKm": "សាំងហ្គ្រីយ៉ា",
+      "nameEn": "Sangria",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រាទំពាំងបាយជូរ និង ក្រូច និង ផ្លែប៉ោម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sangria commonly uses wine, orange, apple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រាទំពាំងបាយជូរ",
+          "nameEn": "Wine"
+        },
+        {
+          "nameKm": "ក្រូច",
+          "nameEn": "Orange"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "slug": "lime-iced-tea",
+      "nameKm": "តែទឹកកកក្រូចឆ្មា",
+      "nameEn": "Lime iced tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ក្រូចឆ្មា និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lime iced tea commonly uses black tea, lime, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "plain-sparkling-water",
+      "nameKm": "ទឹកសូដាសុទ្ធ",
+      "nameEn": "Plain sparkling water",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកសូដា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Plain sparkling water commonly uses soda water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកសូដា",
+          "nameEn": "Soda water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "still-mineral-water",
+      "nameKm": "ទឹករ៉ែសុទ្ធ",
+      "nameEn": "Still mineral water",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Still mineral water commonly uses water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-watermelon-juice",
+      "nameKm": "ទឹកឪឡឹកស្រស់",
+      "nameEn": "Fresh Watermelon juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ឪឡឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Watermelon juice commonly uses water, watermelon. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ឪឡឹក",
+          "nameEn": "Watermelon"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-orange-juice",
+      "nameKm": "ទឹកក្រូចស្រស់",
+      "nameEn": "Fresh Orange juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ក្រូច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Orange juice commonly uses water, orange. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ក្រូច",
+          "nameEn": "Orange"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-apple-juice",
+      "nameKm": "ទឹកផ្លែប៉ោមស្រស់",
+      "nameEn": "Fresh Apple juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ផ្លែប៉ោម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Apple juice commonly uses water, apple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-guava-juice",
+      "nameKm": "ទឹកត្របែកស្រស់",
+      "nameEn": "Fresh Guava juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ត្របែក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Guava juice commonly uses water, guava. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ត្របែក",
+          "nameEn": "Guava"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-dragon-fruit-juice",
+      "nameKm": "ទឹកស្រកានាគស្រស់",
+      "nameEn": "Fresh Dragon fruit juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ស្រកានាគ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Dragon fruit juice commonly uses water, dragon fruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ស្រកានាគ",
+          "nameEn": "Dragon fruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-passion-fruit-juice",
+      "nameKm": "ទឹកផ្លែបាសិនស្រស់",
+      "nameEn": "Fresh Passion fruit juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ផ្លែបាសិន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Passion fruit juice commonly uses water, passion fruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែបាសិន",
+          "nameEn": "Passion fruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-pineapple-juice",
+      "nameKm": "ទឹកម្នាស់ស្រស់",
+      "nameEn": "Fresh Pineapple juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ម្នាស់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Pineapple juice commonly uses water, pineapple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-carrot-juice",
+      "nameKm": "ទឹកការ៉ុតស្រស់",
+      "nameEn": "Fresh Carrot juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ការ៉ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Carrot juice commonly uses water, carrot. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-grapes-juice",
+      "nameKm": "ទឹកទំពាំងបាយជូរស្រស់",
+      "nameEn": "Fresh Grapes juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ទំពាំងបាយជូរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Grapes juice commonly uses water, grapes. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ទំពាំងបាយជូរ",
+          "nameEn": "Grapes"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-mango-juice",
+      "nameKm": "ទឹកស្វាយស្រស់",
+      "nameEn": "Fresh Mango juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Mango juice commonly uses water, mango. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-soursop-juice",
+      "nameKm": "ទឹកទៀបបារាំងស្រស់",
+      "nameEn": "Fresh Soursop juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ទៀបបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Soursop juice commonly uses water, soursop. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ទៀបបារាំង",
+          "nameEn": "Soursop"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-lime-juice",
+      "nameKm": "ទឹកក្រូចឆ្មាស្រស់",
+      "nameEn": "Fresh Lime juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Lime juice commonly uses water, lime. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-lemon-juice",
+      "nameKm": "ទឹកក្រូចលឿងស្រស់",
+      "nameEn": "Fresh Lemon juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ក្រូចលឿង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Lemon juice commonly uses water, lemon. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-papaya-juice",
+      "nameKm": "ទឹកល្ហុងស្រស់",
+      "nameEn": "Fresh Papaya juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ល្ហុង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Papaya juice commonly uses water, papaya. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ល្ហុង",
+          "nameEn": "Papaya"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "fresh-pear-juice",
+      "nameKm": "ទឹកផ្លែសារីស្រស់",
+      "nameEn": "Fresh Pear juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹក និង ផ្លែសារី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh Pear juice commonly uses water, pear. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែសារី",
+          "nameEn": "Pear"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-smoothie",
+      "nameKm": "ទឹកក្រឡុកស្វាយ",
+      "nameEn": "Mango smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango smoothie commonly uses milk, mango. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-smoothie",
+      "nameKm": "ទឹកក្រឡុកចេក",
+      "nameEn": "Banana smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ចេក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana smoothie commonly uses milk, banana. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    }
+  ]
+}

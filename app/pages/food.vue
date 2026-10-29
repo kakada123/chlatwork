@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, computed, ref, watch } from "vue";
+import { onMounted, onBeforeUnmount, computed, ref, watch, nextTick } from "vue";
 import {
   Utensils,
   ChefHat,
@@ -27,6 +27,8 @@ import FoodDiscoveryFilters from "~/components/food/FoodDiscoveryFilters.vue";
 import FoodPlaceAttribution from "~/components/food/FoodPlaceAttribution.vue";
 import FoodQuickFilters from "~/components/food/FoodQuickFilters.vue";
 import FoodSavedRecipes from "~/components/food/FoodSavedRecipes.vue";
+import FoodMenuCatalog from "~/components/food/FoodMenuCatalog.vue";
+import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
 import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({
@@ -34,7 +36,7 @@ definePageMeta({
 });
 
 const {
-  activeQuickPreset, selectQuickPreset, savedRecipesVersion, setDiscoveryAccount,
+  activeQuickPreset, selectQuickPreset, selectCatalogFood, savedRecipesVersion, setDiscoveryAccount,
   filters, filterDefinitions, filtersError, fetchFilters, locationQuery, routeOrigin, routeDestination, allergies, minimumRating,
   isLoadingMore, hasMorePlaces, canAutoLoadMore, paginationError, loadMorePlaces, hasSuggestionHistory, clearSuggestionHistory,
   mode,
@@ -75,6 +77,10 @@ const { user: foodUser, isReady: foodAuthReady, fetchMe: resolveFoodAuth } = use
 watch(() => foodUser.value?.id || null, (owner) => setDiscoveryAccount(owner), { flush: "sync" });
 
 const mapCenter = computed(() => userCoords.value || districts.value.find((district) => district.id === selectedDistrictId.value));
+function chooseCatalogFood(item: FoodMenuItem, target: "dine-out" | "cook-at-home") {
+  void selectCatalogFood(item, target);
+  void nextTick(() => document.getElementById("food-discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
 const budgetRangeLabel = computed(() => filterDefinitions.value.find((field) => field.key === "budgetRange")?.groups.flatMap((group) => group.options).find((option) => option.value === filters.value.budgetRange)?.label);
 const flexibleBudget = computed(() => filters.value.budgetType === "flexible-no-fixed-budget");
 watch(() => filters.value.city, (city) => {
@@ -317,8 +323,10 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
       <span>{{ copyNotification }}</span>
     </div>
 
+    <FoodMenuCatalog :disabled="!foodAuthReady || isLoading || isLoadingMore || isRandomLoading" @choose="chooseCatalogFood" />
+
     <!-- Dine-Out Results Section -->
-    <section v-if="mode === 'dine-out'" class="space-y-6">
+    <section v-if="mode === 'dine-out'" id="food-discovery-results" class="scroll-mt-24 space-y-6">
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
@@ -493,7 +501,7 @@ onBeforeUnmount(() => { observer?.disconnect(); viewport?.removeEventListener("c
     </section>
 
     <!-- Cook-at-Home (Khmer Recipes) Results Section -->
-    <section v-if="mode === 'cook-at-home'" class="space-y-6">
+    <section v-if="mode === 'cook-at-home'" id="food-discovery-results" class="scroll-mt-24 space-y-6">
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">

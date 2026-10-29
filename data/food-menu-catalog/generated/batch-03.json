@@ -1,0 +1,1671 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 3,
+  "items": [
+    {
+      "slug": "nom-banh-chok-with-fish-gravy",
+      "nameKm": "នំបញ្ចុកសម្លខ្មែរ",
+      "nameEn": "Nom banh chok with fish gravy",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សាច់ត្រី និង គ្រឿងបុក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Nom banh chok with fish gravy commonly uses rice vermicelli, fish, kroeung spice paste, coconut milk. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "nom-banh-chok-with-khmer-curry",
+      "nameKm": "នំបញ្ចុកសម្លការីខ្មែរ",
+      "nameEn": "Nom banh chok with Khmer curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សាច់មាន់ និង ខ្ទិះដូង និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Nom banh chok with Khmer curry commonly uses rice vermicelli, chicken, coconut milk, curry spices. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "kuy-teav-phnom-penh",
+      "nameKm": "គុយទាវភ្នំពេញ",
+      "nameEn": "Kuy teav Phnom Penh",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង សាច់ជ្រូក និង បង្គា និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kuy teav Phnom Penh commonly uses rice noodles, pork, shrimp, garlic. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "kuy-teav-with-beef-tendon",
+      "nameKm": "គុយទាវសរសៃគោ",
+      "nameEn": "Kuy teav with beef tendon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង សាច់គោ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kuy teav with beef tendon commonly uses rice noodles, beef, fresh herbs. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "pork-wonton-noodle-soup",
+      "nameKm": "មីគាវសាច់ជ្រូក",
+      "nameEn": "Pork wonton noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង សំបកវ៉ាន់តាន់ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork wonton noodle soup commonly uses egg noodles, wonton wrappers, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "shrimp-wonton-noodle-soup",
+      "nameKm": "មីគាវបង្គា",
+      "nameEn": "Shrimp wonton noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង សំបកវ៉ាន់តាន់ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp wonton noodle soup commonly uses egg noodles, wonton wrappers, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-duck-noodle-soup",
+      "nameKm": "មីទាខ្វៃទឹក",
+      "nameEn": "Roast duck noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង សាច់ទា និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast duck noodle soup commonly uses egg noodles, duck, fresh herbs. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "dry-roast-duck-noodles",
+      "nameKm": "មីទាខ្វៃគោក",
+      "nameEn": "Dry roast duck noodles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង សាច់ទា និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dry roast duck noodles commonly uses egg noodles, duck, soy sauce. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crab-noodle-soup",
+      "nameKm": "គុយទាវក្តាម",
+      "nameEn": "Crab noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ក្តាម និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crab noodle soup commonly uses rice noodles, crab, fresh herbs. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ក្តាម",
+          "nameEn": "Crab"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-rib-noodle-soup",
+      "nameKm": "គុយទាវឆ្អឹងជំនីរជ្រូក",
+      "nameEn": "Pork rib noodle soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ឆ្អឹងជំនីរជ្រូក និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork rib noodle soup commonly uses rice noodles, pork ribs, fresh herbs. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "instant-noodles-with-fried-egg",
+      "nameKm": "មីកញ្ចប់ស៊ុតចៀន",
+      "nameEn": "Instant noodles with fried egg",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Instant noodles with fried egg commonly uses egg noodles, egg, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tonkotsu-ramen",
+      "nameKm": "រ៉ាមេនស៊ុបឆ្អឹងជ្រូក",
+      "nameEn": "Tonkotsu ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង សាច់ជ្រូក និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tonkotsu ramen commonly uses ramen noodles, pork, egg. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "shoyu-ramen",
+      "nameKm": "រ៉ាមេនទឹកស៊ីអ៊ីវ",
+      "nameEn": "Shoyu ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shoyu ramen commonly uses ramen noodles, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "miso-ramen",
+      "nameKm": "រ៉ាមេនមីសូ",
+      "nameEn": "Miso ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង មីសូ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Miso ramen commonly uses ramen noodles, miso paste, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "មីសូ",
+          "nameEn": "Miso paste"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-shio-ramen",
+      "nameKm": "រ៉ាមេនមាន់ទឹកថ្លា",
+      "nameEn": "Chicken shio ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង សាច់មាន់ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken shio ramen commonly uses ramen noodles, chicken, egg. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spicy-tantan-ramen",
+      "nameKm": "រ៉ាមេនតាន់តាន់ហឹរ",
+      "nameEn": "Spicy tantan ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង សាច់ជ្រូក និង ល្ង និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spicy tantan ramen commonly uses ramen noodles, pork, sesame, chilli. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "seafood-ramen",
+      "nameKm": "រ៉ាមេនគ្រឿងសមុទ្រ",
+      "nameEn": "Seafood ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង គ្រឿងសមុទ្រ និង សារាយសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood ramen commonly uses ramen noodles, seafood, seaweed. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetable-miso-ramen",
+      "nameKm": "រ៉ាមេនមីសូបន្លែ",
+      "nameEn": "Vegetable miso ramen",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង មីសូ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable miso ramen commonly uses ramen noodles, miso paste, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "មីសូ",
+          "nameEn": "Miso paste"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cold-soba-noodles",
+      "nameKm": "មីសូបាត្រជាក់",
+      "nameEn": "Cold soba noodles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសូបា និង ទឹកស៊ីអ៊ីវ និង សារាយសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cold soba noodles commonly uses soba noodles, soy sauce, seaweed. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសូបា",
+          "nameEn": "Soba noodles"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tempura-soba",
+      "nameKm": "មីសូបាតេមពូរ៉ា",
+      "nameEn": "Tempura soba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសូបា និង បង្គា និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tempura soba commonly uses soba noodles, shrimp, wheat flour. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសូបា",
+          "nameEn": "Soba noodles"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "kitsune-udon",
+      "nameKm": "អ៊ូដុងតៅហ៊ូបំពង",
+      "nameEn": "Kitsune udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង តៅហ៊ូ និង ទឹកស៊ីអ៊ីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kitsune udon commonly uses udon noodles, tofu, soy sauce. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-curry-udon",
+      "nameKm": "អ៊ូដុងការីសាច់គោ",
+      "nameEn": "Beef curry udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង សាច់គោ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef curry udon commonly uses udon noodles, beef, curry spices. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "nabeyaki-udon",
+      "nameKm": "អ៊ូដុងឆ្នាំងដី",
+      "nameEn": "Nabeyaki udon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីអ៊ូដុង និង សាច់មាន់ និង ស៊ុត និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Nabeyaki udon commonly uses udon noodles, chicken, egg, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីអ៊ូដុង",
+          "nameEn": "Udon noodles"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japchae",
+      "nameKm": "មីសួកូរ៉េចាបឆែ",
+      "nameEn": "Japchae",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង សាច់គោ និង បន្លែចម្រុះ និង ល្ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japchae commonly uses glass noodles, beef, vegetables, sesame. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "jajangmyeon",
+      "nameKm": "មីកូរ៉េសណ្ដែកខ្មៅ",
+      "nameEn": "Jajangmyeon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង សាច់ជ្រូក និង តៅស៊ី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Jajangmyeon commonly uses egg noodles, pork, fermented bean paste. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "តៅស៊ី",
+          "nameEn": "Fermented bean paste"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "jjamppong",
+      "nameKm": "មីស៊ុបគ្រឿងសមុទ្រកូរ៉េហឹរ",
+      "nameEn": "Jjamppong",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង គ្រឿងសមុទ្រ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Jjamppong commonly uses egg noodles, seafood, chilli. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "bibim-guksu",
+      "nameKm": "មីកូរ៉េលាយហឹរ",
+      "nameEn": "Bibim guksu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ត្រសក់ និង ម្ទេសកូរ៉េ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bibim guksu commonly uses wheat flour, cucumber, gochujang. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ម្ទេសកូរ៉េ",
+          "nameEn": "Gochujang"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "kalguksu",
+      "nameKm": "មីកូរ៉េកាត់ដោយដៃ",
+      "nameEn": "Kalguksu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kalguksu commonly uses wheat flour, chicken, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "naengmyeon",
+      "nameKm": "មីកូរ៉េត្រជាក់",
+      "nameEn": "Naengmyeon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសូបា និង សាច់គោ និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Naengmyeon commonly uses soba noodles, beef, cucumber. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសូបា",
+          "nameEn": "Soba noodles"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "kimchi-ramyeon",
+      "nameKm": "មីរ៉ាម្យ៉ុនគីមឈី",
+      "nameEn": "Kimchi ramyeon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីរ៉ាមេន និង គីមឈី និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kimchi ramyeon commonly uses ramen noodles, kimchi, egg. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីរ៉ាមេន",
+          "nameEn": "Ramen noodles"
+        },
+        {
+          "nameKm": "គីមឈី",
+          "nameEn": "Kimchi"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spaghetti-bolognese",
+      "nameKm": "ស្ប៉ាហ្គេទីបូឡូញ៉េស",
+      "nameEn": "Spaghetti bolognese",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង សាច់គោ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spaghetti bolognese commonly uses spaghetti, beef, tomato. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spaghetti-carbonara",
+      "nameKm": "ស្ប៉ាហ្គេទីកាបូណារ៉ា",
+      "nameEn": "Spaghetti carbonara",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង បេកុន និង ស៊ុត និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spaghetti carbonara commonly uses spaghetti, bacon, egg, cheese. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spaghetti-aglio-e-olio",
+      "nameKm": "ស្ប៉ាហ្គេទីខ្ទឹមសប្រេងអូលីវ",
+      "nameEn": "Spaghetti aglio e olio",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង ខ្ទឹមស និង ប្រេងអូលីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spaghetti aglio e olio commonly uses spaghetti, garlic, olive oil. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spaghetti-puttanesca",
+      "nameKm": "ស្ប៉ាហ្គេទីអូលីវនិងខេប៊ើរ",
+      "nameEn": "Spaghetti puttanesca",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ប៉ាហ្គេទី និង អូលីវ និង គ្រាប់ខេប៊ើរ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spaghetti puttanesca commonly uses spaghetti, olives, capers, tomato. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ប៉ាហ្គេទី",
+          "nameEn": "Spaghetti"
+        },
+        {
+          "nameKm": "អូលីវ",
+          "nameEn": "Olives"
+        },
+        {
+          "nameKm": "គ្រាប់ខេប៊ើរ",
+          "nameEn": "Capers"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "penne-arrabbiata",
+      "nameKm": "ប៉េនណេអារ៉ាប៊ីយ៉ាតា",
+      "nameEn": "Penne arrabbiata",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉ាស្តាប៉េនណេ និង ប៉េងប៉ោះ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Penne arrabbiata commonly uses penne, tomato, chilli. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉ាស្តាប៉េនណេ",
+          "nameEn": "Penne"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "fettuccine-alfredo",
+      "nameKm": "ហ្វេតទូឈីនីអាល់ហ្វ្រេដូ",
+      "nameEn": "Fettuccine alfredo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង គ្រីម និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fettuccine alfredo commonly uses wheat flour, cream, cheese. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "macaroni-and-cheese",
+      "nameKm": "ម៉ាការ៉ូនីឈីស",
+      "nameEn": "Macaroni and cheese",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ឈីស និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni and cheese commonly uses macaroni, cheese, milk. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-lasagna",
+      "nameKm": "ឡាសាញ៉ាសាច់គោ",
+      "nameEn": "Beef lasagna",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef lasagna commonly uses wheat flour, beef, cheese, tomato. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetable-lasagna",
+      "nameKm": "ឡាសាញ៉ាបន្លែ",
+      "nameEn": "Vegetable lasagna",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង បន្លែចម្រុះ និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable lasagna commonly uses wheat flour, vegetables, cheese, tomato. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spinach-ravioli",
+      "nameKm": "រ៉ាវីអូលីស្ពៃស្ពីណាច",
+      "nameEn": "Spinach ravioli",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស្ពៃស្ពីណាច និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spinach ravioli commonly uses wheat flour, spinach, cheese. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "potato-gnocchi",
+      "nameKm": "ញ៉ុគគីដំឡូងបារាំង",
+      "nameEn": "Potato gnocchi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ម្សៅស្រូវសាលី និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Potato gnocchi commonly uses potato, wheat flour, butter. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-kuy-teav",
+      "nameKm": "គុយទាវសាច់ជ្រូក",
+      "nameEn": "Pork kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "beef-kuy-teav",
+      "nameKm": "គុយទាវសាច់គោ",
+      "nameEn": "Beef kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "chicken-kuy-teav",
+      "nameKm": "គុយទាវសាច់មាន់",
+      "nameEn": "Chicken kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "fish-kuy-teav",
+      "nameKm": "គុយទាវសាច់ត្រី",
+      "nameEn": "Fish kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fish kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, fish. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "shrimp-kuy-teav",
+      "nameKm": "គុយទាវបង្គា",
+      "nameEn": "Shrimp kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "seafood-kuy-teav",
+      "nameKm": "គុយទាវគ្រឿងសមុទ្រ",
+      "nameEn": "Seafood kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ជីគ្រប់មុខ និង សណ្ដែកបណ្ដុះ និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood kuy teav commonly uses rice noodles, fresh herbs, bean sprouts, seafood. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "dry-pork-kuy-teav",
+      "nameKm": "គុយទាវគោកសាច់ជ្រូក",
+      "nameEn": "Dry Pork kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមស និង ជីគ្រប់មុខ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dry Pork kuy teav commonly uses rice noodles, garlic, fresh herbs, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "dry-beef-kuy-teav",
+      "nameKm": "គុយទាវគោកសាច់គោ",
+      "nameEn": "Dry Beef kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមស និង ជីគ្រប់មុខ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dry Beef kuy teav commonly uses rice noodles, garlic, fresh herbs, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "dry-chicken-kuy-teav",
+      "nameKm": "គុយទាវគោកសាច់មាន់",
+      "nameEn": "Dry Chicken kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមស និង ជីគ្រប់មុខ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dry Chicken kuy teav commonly uses rice noodles, garlic, fresh herbs, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    }
+  ]
+}

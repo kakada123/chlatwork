@@ -1,0 +1,1494 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 18,
+  "items": [
+    {
+      "slug": "fish-tacos",
+      "nameKm": "តាកូត្រី",
+      "nameEn": "Fish tacos",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់ត្រី និង ស្ពៃក្តោប។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fish tacos commonly uses wheat flour, fish, cabbage. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-burrito",
+      "nameKm": "ប៊ូរីតូមាន់",
+      "nameEn": "Chicken burrito",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង អង្ករ និង សណ្ដែកខ្មៅ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken burrito commonly uses wheat flour, chicken, rice, black beans. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សណ្ដែកខ្មៅ",
+          "nameEn": "Black beans"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-burrito",
+      "nameKm": "ប៊ូរីតូសាច់គោ",
+      "nameEn": "Beef burrito",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង អង្ករ និង សណ្ដែកខ្មៅ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef burrito commonly uses wheat flour, beef, rice, black beans. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សណ្ដែកខ្មៅ",
+          "nameEn": "Black beans"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-caesar-wrap",
+      "nameKm": "រ៉ាប់មាន់ស៊ីសារ",
+      "nameEn": "Chicken Caesar wrap",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង សាឡាត់ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken Caesar wrap commonly uses wheat flour, chicken, lettuce, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "falafel-wrap",
+      "nameKm": "រ៉ាប់ហ្វាឡាហ្វែល",
+      "nameEn": "Falafel wrap",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សណ្ដែកឈីកពី និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Falafel wrap commonly uses wheat flour, chickpeas, lettuce. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សណ្ដែកឈីកពី",
+          "nameEn": "Chickpeas"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-shawarma",
+      "nameKm": "សាវ៉ាម៉ាមាន់",
+      "nameEn": "Chicken shawarma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង យ៉ាអួ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken shawarma commonly uses wheat flour, chicken, yogurt, fresh herbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-shawarma",
+      "nameKm": "សាវ៉ាម៉ាសាច់គោ",
+      "nameEn": "Beef shawarma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង យ៉ាអួ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef shawarma commonly uses wheat flour, beef, yogurt, fresh herbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "hot-dog",
+      "nameKm": "ហតដក",
+      "nameEn": "Hot dog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់ក្រក និង ម៉ាស្តាត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot dog commonly uses bread, sausage, mustard. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        },
+        {
+          "nameKm": "ម៉ាស្តាត",
+          "nameEn": "Mustard"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chilli-cheese-hot-dog",
+      "nameKm": "ហតដកឈីសម្ទេស",
+      "nameEn": "Chilli cheese hot dog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់ក្រក និង ឈីស និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chilli cheese hot dog commonly uses bread, sausage, cheese, chilli. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-pork-pate-baguette",
+      "nameKm": "នំប៉័ងប៉ាតេសាច់ជ្រូក",
+      "nameEn": "Khmer pork pate baguette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ងបារាំង និង សាច់ជ្រូក និង ជ្រក់បន្លែ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer pork pate baguette commonly uses baguette, pork, pickled vegetables, fresh herbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ងបារាំង",
+          "nameEn": "Baguette"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-meatball-baguette",
+      "nameKm": "នំប៉័ងប្រហិតសាច់គោ",
+      "nameEn": "Khmer meatball baguette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ងបារាំង និង សាច់គោ និង ជ្រក់បន្លែ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer meatball baguette commonly uses baguette, beef, pickled vegetables. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ងបារាំង",
+          "nameEn": "Baguette"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-chicken-curry-baguette",
+      "nameKm": "នំប៉័ងការីមាន់",
+      "nameEn": "Khmer chicken curry baguette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ងបារាំង និង សាច់មាន់ និង គ្រឿងការី និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer chicken curry baguette commonly uses baguette, chicken, curry spices, coconut milk. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ងបារាំង",
+          "nameEn": "Baguette"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-pork-baguette",
+      "nameKm": "នំប៉័ងសាច់ជ្រូកអាំង",
+      "nameEn": "Khmer grilled pork baguette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ងបារាំង និង សាច់ជ្រូក និង ជ្រក់បន្លែ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled pork baguette commonly uses baguette, pork, pickled vegetables. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ងបារាំង",
+          "nameEn": "Baguette"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-crispy-fried-chicken",
+      "nameKm": "មាន់បំពងស្រួយកូរ៉េ",
+      "nameEn": "Korean crispy fried chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្សៅស្រូវសាលី និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean crispy fried chicken commonly uses chicken, wheat flour, garlic. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-sweet-chilli-chicken",
+      "nameKm": "មាន់កូរ៉េទឹកជ្រលក់ផ្អែមហឹរ",
+      "nameEn": "Korean sweet chilli chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្ទេសកូរ៉េ និង ទឹកឃ្មុំ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean sweet chilli chicken commonly uses chicken, gochujang, honey. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្ទេសកូរ៉េ",
+          "nameEn": "Gochujang"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-soy-garlic-chicken",
+      "nameKm": "មាន់កូរ៉េខ្ទឹមសស៊ីអ៊ីវ",
+      "nameEn": "Korean soy garlic chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ទឹកស៊ីអ៊ីវ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean soy garlic chicken commonly uses chicken, soy sauce, garlic. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-cheese-chicken",
+      "nameKm": "មាន់កូរ៉េឈីស",
+      "nameEn": "Korean cheese chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ឈីស និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean cheese chicken commonly uses chicken, cheese, wheat flour. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-corn-dog",
+      "nameKm": "នំពោតសាច់ក្រកកូរ៉េ",
+      "nameEn": "Korean corn dog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោត និង ម្សៅស្រូវសាលី និង សាច់ក្រក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean corn dog commonly uses corn, wheat flour, sausage. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-mozzarella-corn-dog",
+      "nameKm": "នំពោតឈីសកូរ៉េ",
+      "nameEn": "Korean mozzarella corn dog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោត និង ម្សៅស្រូវសាលី និង ឈីសម៉ូហ្សារ៉េឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean mozzarella corn dog commonly uses corn, wheat flour, mozzarella. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banh-mi-with-pork",
+      "nameKm": "នំប៉័ងបាញ់មីសាច់ជ្រូក",
+      "nameEn": "Banh mi with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ងបារាំង និង ជ្រក់បន្លែ និង ជីគ្រប់មុខ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banh mi with Pork commonly uses baguette, pickled vegetables, fresh herbs, pork. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ងបារាំង",
+          "nameEn": "Baguette"
+        },
+        {
+          "nameKm": "ជ្រក់បន្លែ",
+          "nameEn": "Pickled vegetables"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-iced-black-coffee",
+      "nameKm": "កាហ្វេខ្មៅទឹកកកខ្មែរ",
+      "nameEn": "Khmer iced black coffee",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer iced black coffee commonly uses coffee, sugar, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "khmer-iced-milk-coffee",
+      "nameKm": "កាហ្វេទឹកដោះគោទឹកកកខ្មែរ",
+      "nameEn": "Khmer iced milk coffee",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោខាប់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer iced milk coffee commonly uses coffee, condensed milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោខាប់",
+          "nameEn": "Condensed milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "khmer-hot-milk-coffee",
+      "nameKm": "កាហ្វេទឹកដោះគោក្តៅខ្មែរ",
+      "nameEn": "Khmer hot milk coffee",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោខាប់ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer hot milk coffee commonly uses coffee, condensed milk, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោខាប់",
+          "nameEn": "Condensed milk"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "fresh-sugarcane-juice",
+      "nameKm": "ទឹកអំពៅស្រស់",
+      "nameEn": "Fresh sugarcane juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា អំពៅ និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh sugarcane juice commonly uses sugarcane, lime. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អំពៅ",
+          "nameEn": "Sugarcane"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "fresh-coconut-water",
+      "nameKm": "ទឹកដូងស្រស់",
+      "nameEn": "Fresh coconut water",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh coconut water commonly uses coconut water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដូង",
+          "nameEn": "Coconut water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "fresh-palm-juice",
+      "nameKm": "ទឹកត្នោតផ្អែម",
+      "nameEn": "Fresh palm juice",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fresh palm juice commonly uses palm sap. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកត្នោត",
+          "nameEn": "Palm sap"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "iced-soy-milk",
+      "nameKm": "ទឹកសណ្ដែកទឹកកក",
+      "nameEn": "Iced soy milk",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកសណ្ដែក និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced soy milk commonly uses soy milk, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកសណ្ដែក",
+          "nameEn": "Soy milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "hot-soy-milk",
+      "nameKm": "ទឹកសណ្ដែកក្តៅ",
+      "nameEn": "Hot soy milk",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកសណ្ដែក និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot soy milk commonly uses soy milk, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកសណ្ដែក",
+          "nameEn": "Soy milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "grass-jelly-milk-drink",
+      "nameKm": "ទឹកចាហួយខ្មៅទឹកដោះគោ",
+      "nameEn": "Grass jelly milk drink",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ចាហួយខ្មៅ និង ទឹកដោះគោ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grass jelly milk drink commonly uses grass jelly, milk, sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចាហួយខ្មៅ",
+          "nameEn": "Grass jelly"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "tamarind-iced-drink",
+      "nameKm": "ទឹកអម្ពិលទឹកកក",
+      "nameEn": "Tamarind iced drink",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា អម្ពិល និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tamarind iced drink commonly uses tamarind, sugar, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "basil-seed-lime-drink",
+      "nameKm": "ទឹកគ្រាប់ជីរក្រូចឆ្មា",
+      "nameEn": "Basil seed lime drink",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ជីរ និង ក្រូចឆ្មា និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil seed lime drink commonly uses basil seeds, lime, sugar, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ជីរ",
+          "nameEn": "Basil seeds"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "chrysanthemum-iced-tea",
+      "nameKm": "ទឹកផ្កាគ្រីសង់ត្រជាក់",
+      "nameEn": "Chrysanthemum iced tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាគ្រីសង់ និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chrysanthemum iced tea commonly uses chrysanthemum, sugar, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាគ្រីសង់",
+          "nameEn": "Chrysanthemum"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "pandan-herbal-drink",
+      "nameKm": "ទឹកស្លឹកតើយ",
+      "nameEn": "Pandan herbal drink",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកតើយ និង ស្ករស និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pandan herbal drink commonly uses pandan, sugar, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកតើយ",
+          "nameEn": "Pandan"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "khmer-avocado-condensed-milk-shake",
+      "nameKm": "ទឹកក្រឡុកបឺរទឹកដោះគោខាប់",
+      "nameEn": "Khmer avocado condensed milk shake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្លែបឺរ និង ទឹកដោះគោខាប់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer avocado condensed milk shake commonly uses avocado, condensed milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        },
+        {
+          "nameKm": "ទឹកដោះគោខាប់",
+          "nameEn": "Condensed milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "khmer-mixed-fruit-shake",
+      "nameKm": "ទឹកក្រឡុកផ្លែឈើចម្រុះខ្មែរ",
+      "nameEn": "Khmer mixed fruit shake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ចេក និង ស្វាយ និង ល្ហុង និង ទឹកដោះគោខាប់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer mixed fruit shake commonly uses banana, mango, papaya, condensed milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        },
+        {
+          "nameKm": "ល្ហុង",
+          "nameEn": "Papaya"
+        },
+        {
+          "nameKm": "ទឹកដោះគោខាប់",
+          "nameEn": "Condensed milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "STREET_FOOD"
+      ]
+    },
+    {
+      "slug": "espresso",
+      "nameKm": "អេស្ព្រេសូ",
+      "nameEn": "Espresso",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Espresso commonly uses coffee, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-americano",
+      "nameKm": "អាមេរិកាណូក្តៅ",
+      "nameEn": "Hot americano",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot americano commonly uses coffee, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-americano",
+      "nameKm": "អាមេរិកាណូទឹកកក",
+      "nameEn": "Iced americano",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced americano commonly uses coffee, water. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-cafe-latte",
+      "nameKm": "កាហ្វេឡាតេក្តៅ",
+      "nameEn": "Hot cafe latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot cafe latte commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-cafe-latte",
+      "nameKm": "កាហ្វេឡាតេទឹកកក",
+      "nameEn": "Iced cafe latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced cafe latte commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-cappuccino",
+      "nameKm": "កាពូឈីណូក្តៅ",
+      "nameEn": "Hot cappuccino",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot cappuccino commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-cappuccino",
+      "nameKm": "កាពូឈីណូទឹកកក",
+      "nameEn": "Iced cappuccino",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced cappuccino commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hot-mocha",
+      "nameKm": "ម៉ូកាក្តៅ",
+      "nameEn": "Hot mocha",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង កាកាវ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hot mocha commonly uses coffee, cocoa, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "iced-mocha",
+      "nameKm": "ម៉ូកាទឹកកក",
+      "nameEn": "Iced mocha",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង កាកាវ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Iced mocha commonly uses coffee, cocoa, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "flat-white",
+      "nameKm": "ហ្វ្លែតវ៉ាយ",
+      "nameEn": "Flat white",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Flat white commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "macchiato",
+      "nameKm": "ម៉ាគីយ៉ាតូ",
+      "nameEn": "Macchiato",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macchiato commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "cortado",
+      "nameKm": "ករតាដូ",
+      "nameEn": "Cortado",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cortado commonly uses coffee, milk. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "caramel-latte",
+      "nameKm": "ឡាតេការ៉ាមែល",
+      "nameEn": "Caramel latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ និង ការ៉ាមែល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caramel latte commonly uses coffee, milk, caramel. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-latte",
+      "nameKm": "ឡាតេវ៉ានីឡា",
+      "nameEn": "Vanilla latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla latte commonly uses coffee, milk, vanilla. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "hazelnut-latte",
+      "nameKm": "ឡាតេហាសែលណាត់",
+      "nameEn": "Hazelnut latte",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា កាហ្វេ និង ទឹកដោះគោ និង គ្រាប់ហាសែលណាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hazelnut latte commonly uses coffee, milk, hazelnuts. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់ហាសែលណាត់",
+          "nameEn": "Hazelnuts"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    }
+  ]
+}

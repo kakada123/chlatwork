@@ -1,0 +1,31 @@
+{
+  "records": 1000,
+  "categoryCounts": {
+    "RICE": 100,
+    "NOODLES": 120,
+    "SOUP": 80,
+    "CURRY": 50,
+    "STIR_FRY": 80,
+    "GRILL": 60,
+    "SALAD": 50,
+    "SEAFOOD": 40,
+    "SNACK": 90,
+    "DESSERT": 80,
+    "BAKERY": 50,
+    "FAST_FOOD": 70,
+    "DRINK": 130
+  },
+  "cuisineCounts": {
+    "CHINESE": 67,
+    "INDIAN": 42,
+    "JAPANESE": 75,
+    "KHMER": 417,
+    "KOREAN": 37,
+    "OTHER": 61,
+    "VIETNAMESE": 19,
+    "WESTERN": 282
+  },
+  "source": "AI_ASSISTED",
+  "thaiMenuItems": 0,
+  "sha256": "f839fda814c93ccd41ddaab54d87d73ff853369b87eeccc9520ef7780fc94df1"
+}

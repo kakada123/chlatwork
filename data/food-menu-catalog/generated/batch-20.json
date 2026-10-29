@@ -1,0 +1,1462 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 20,
+  "items": [
+    {
+      "slug": "pineapple-smoothie",
+      "nameKm": "ទឹកក្រឡុកម្នាស់",
+      "nameEn": "Pineapple smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ម្នាស់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pineapple smoothie commonly uses milk, pineapple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "papaya-smoothie",
+      "nameKm": "ទឹកក្រឡុកល្ហុង",
+      "nameEn": "Papaya smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ល្ហុង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Papaya smoothie commonly uses milk, papaya. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ល្ហុង",
+          "nameEn": "Papaya"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "watermelon-smoothie",
+      "nameKm": "ទឹកក្រឡុកឪឡឹក",
+      "nameEn": "Watermelon smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ឪឡឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Watermelon smoothie commonly uses milk, watermelon. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ឪឡឹក",
+          "nameEn": "Watermelon"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "avocado-smoothie",
+      "nameKm": "ទឹកក្រឡុកផ្លែបឺរ",
+      "nameEn": "Avocado smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ផ្លែបឺរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Avocado smoothie commonly uses milk, avocado. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "passion-fruit-smoothie",
+      "nameKm": "ទឹកក្រឡុកផ្លែបាសិន",
+      "nameEn": "Passion fruit smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ផ្លែបាសិន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Passion fruit smoothie commonly uses milk, passion fruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ផ្លែបាសិន",
+          "nameEn": "Passion fruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-smoothie",
+      "nameKm": "ទឹកក្រឡុកស្ត្របឺរី",
+      "nameEn": "Strawberry smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry smoothie commonly uses milk, strawberry. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "blueberry-smoothie",
+      "nameKm": "ទឹកក្រឡុកប្លូបឺរី",
+      "nameEn": "Blueberry smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ប្លូបឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry smoothie commonly uses milk, blueberry. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "dragon-fruit-smoothie",
+      "nameKm": "ទឹកក្រឡុកស្រកានាគ",
+      "nameEn": "Dragon fruit smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ស្រកានាគ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dragon fruit smoothie commonly uses milk, dragon fruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្រកានាគ",
+          "nameEn": "Dragon fruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "guava-smoothie",
+      "nameKm": "ទឹកក្រឡុកត្របែក",
+      "nameEn": "Guava smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ត្របែក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Guava smoothie commonly uses milk, guava. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ត្របែក",
+          "nameEn": "Guava"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "soursop-smoothie",
+      "nameKm": "ទឹកក្រឡុកទៀបបារាំង",
+      "nameEn": "Soursop smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ទៀបបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Soursop smoothie commonly uses milk, soursop. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ទៀបបារាំង",
+          "nameEn": "Soursop"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "durian-smoothie",
+      "nameKm": "ទឹកក្រឡុកទុរេន",
+      "nameEn": "Durian smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ទុរេន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Durian smoothie commonly uses milk, durian. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ទុរេន",
+          "nameEn": "Durian"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "jackfruit-smoothie",
+      "nameKm": "ទឹកក្រឡុកខ្នុរ",
+      "nameEn": "Jackfruit smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ខ្នុរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Jackfruit smoothie commonly uses milk, jackfruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ខ្នុរ",
+          "nameEn": "Jackfruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "kiwi-smoothie",
+      "nameKm": "ទឹកក្រឡុកគីវី",
+      "nameEn": "Kiwi smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង គីវី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kiwi smoothie commonly uses milk, kiwi. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គីវី",
+          "nameEn": "Kiwi"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coconut-smoothie",
+      "nameKm": "ទឹកក្រឡុកដូង",
+      "nameEn": "Coconut smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut smoothie commonly uses milk, coconut. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "apple-smoothie",
+      "nameKm": "ទឹកក្រឡុកផ្លែប៉ោម",
+      "nameEn": "Apple smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ផ្លែប៉ោម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Apple smoothie commonly uses milk, apple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "peach-smoothie",
+      "nameKm": "ទឹកក្រឡុកផ្លែប៉េស",
+      "nameEn": "Peach smoothie",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ផ្លែប៉េស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Peach smoothie commonly uses milk, peach. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ផ្លែប៉េស",
+          "nameEn": "Peach"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-milkshake",
+      "nameKm": "មីលខ៍សេកវ៉ានីឡា",
+      "nameEn": "Vanilla milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla milkshake commonly uses milk, ice cream, vanilla. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-milkshake",
+      "nameKm": "មីលខ៍សេកសូកូឡា",
+      "nameEn": "Chocolate milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate milkshake commonly uses milk, ice cream, chocolate. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-milkshake",
+      "nameKm": "មីលខ៍សេកស្ត្របឺរី",
+      "nameEn": "Strawberry milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry milkshake commonly uses milk, ice cream, strawberry. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "banana-milkshake",
+      "nameKm": "មីលខ៍សេកចេក",
+      "nameEn": "Banana milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ចេក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana milkshake commonly uses milk, ice cream, banana. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-milkshake",
+      "nameKm": "មីលខ៍សេកស្វាយ",
+      "nameEn": "Mango milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango milkshake commonly uses milk, ice cream, mango. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coffee-milkshake",
+      "nameKm": "មីលខ៍សេកកាហ្វេ",
+      "nameEn": "Coffee milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង កាហ្វេ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coffee milkshake commonly uses milk, ice cream, coffee. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "cookies-milkshake",
+      "nameKm": "មីលខ៍សេកនំខូគី",
+      "nameEn": "Cookies milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង នំខូគី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cookies milkshake commonly uses milk, ice cream, cookies. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "នំខូគី",
+          "nameEn": "Cookies"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "caramel-milkshake",
+      "nameKm": "មីលខ៍សេកការ៉ាមែល",
+      "nameEn": "Caramel milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ការ៉ាមែល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caramel milkshake commonly uses milk, ice cream, caramel. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-milkshake",
+      "nameKm": "មីលខ៍សេកម៉ាចា",
+      "nameEn": "Matcha milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ម៉ាចា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha milkshake commonly uses milk, ice cream, matcha. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "taro-milkshake",
+      "nameKm": "មីលខ៍សេកត្រាវ",
+      "nameEn": "Taro milkshake",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកដោះគោ និង ការ៉េម និង ត្រាវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Taro milkshake commonly uses milk, ice cream, taro. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉េម",
+          "nameEn": "Ice cream"
+        },
+        {
+          "nameKm": "ត្រាវ",
+          "nameEn": "Taro"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "taro-milk-tea",
+      "nameKm": "តែទឹកដោះគោត្រាវ",
+      "nameEn": "Taro milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ត្រាវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Taro milk tea commonly uses black tea, milk, taro. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ត្រាវ",
+          "nameEn": "Taro"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-milk-tea",
+      "nameKm": "តែទឹកដោះគោម៉ាចា",
+      "nameEn": "Matcha milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ម៉ាចា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha milk tea commonly uses black tea, milk, matcha. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-milk-tea",
+      "nameKm": "តែទឹកដោះគោសូកូឡា",
+      "nameEn": "Chocolate milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate milk tea commonly uses black tea, milk, chocolate. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coffee-milk-tea",
+      "nameKm": "តែទឹកដោះគោកាហ្វេ",
+      "nameEn": "Coffee milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង កាហ្វេ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coffee milk tea commonly uses black tea, milk, coffee. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "កាហ្វេ",
+          "nameEn": "Coffee"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "caramel-milk-tea",
+      "nameKm": "តែទឹកដោះគោការ៉ាមែល",
+      "nameEn": "Caramel milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ការ៉ាមែល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caramel milk tea commonly uses black tea, milk, caramel. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "vanilla-milk-tea",
+      "nameKm": "តែទឹកដោះគោវ៉ានីឡា",
+      "nameEn": "Vanilla milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង វ៉ានីឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla milk tea commonly uses black tea, milk, vanilla. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-milk-tea",
+      "nameKm": "តែទឹកដោះគោស្ត្របឺរី",
+      "nameEn": "Strawberry milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry milk tea commonly uses black tea, milk, strawberry. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-milk-tea",
+      "nameKm": "តែទឹកដោះគោស្វាយ",
+      "nameEn": "Mango milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango milk tea commonly uses black tea, milk, mango. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "coconut-milk-tea",
+      "nameKm": "តែទឹកដោះគោដូង",
+      "nameEn": "Coconut milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Coconut milk tea commonly uses black tea, milk, coconut. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "brown-sugar-milk-tea",
+      "nameKm": "តែទឹកដោះគោស្ករត្នោតពណ៌ត្នោត",
+      "nameEn": "Brown sugar milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង ស្ករត្នោតពណ៌ត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Brown sugar milk tea commonly uses black tea, milk, brown sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោតពណ៌ត្នោត",
+          "nameEn": "Brown sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "taro-pearl-milk-tea",
+      "nameKm": "តែគុជទឹកដោះគោត្រាវ",
+      "nameEn": "Taro pearl milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង គ្រាប់តាប៉្យូកា និង ត្រាវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Taro pearl milk tea commonly uses black tea, milk, tapioca pearls, taro. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "ត្រាវ",
+          "nameEn": "Taro"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "matcha-pearl-milk-tea",
+      "nameKm": "តែគុជទឹកដោះគោម៉ាចា",
+      "nameEn": "Matcha pearl milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង គ្រាប់តាប៉្យូកា និង ម៉ាចា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Matcha pearl milk tea commonly uses black tea, milk, tapioca pearls, matcha. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "ម៉ាចា",
+          "nameEn": "Matcha"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "chocolate-pearl-milk-tea",
+      "nameKm": "តែគុជទឹកដោះគោសូកូឡា",
+      "nameEn": "Chocolate pearl milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង គ្រាប់តាប៉្យូកា និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate pearl milk tea commonly uses black tea, milk, tapioca pearls, chocolate. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "caramel-pearl-milk-tea",
+      "nameKm": "តែគុជទឹកដោះគោការ៉ាមែល",
+      "nameEn": "Caramel pearl milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង គ្រាប់តាប៉្យូកា និង ការ៉ាមែល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Caramel pearl milk tea commonly uses black tea, milk, tapioca pearls, caramel. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "ការ៉ាមែល",
+          "nameEn": "Caramel"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "brown-sugar-pearl-milk-tea",
+      "nameKm": "តែគុជទឹកដោះគោស្ករត្នោតពណ៌ត្នោត",
+      "nameEn": "Brown sugar pearl milk tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែខ្មៅ និង ទឹកដោះគោ និង គ្រាប់តាប៉្យូកា និង ស្ករត្នោតពណ៌ត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Brown sugar pearl milk tea commonly uses black tea, milk, tapioca pearls, brown sugar. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែខ្មៅ",
+          "nameEn": "Black tea"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "ស្ករត្នោតពណ៌ត្នោត",
+          "nameEn": "Brown sugar"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "lychee-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកគូលែន",
+      "nameEn": "Lychee iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង គូលែន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lychee iced green tea commonly uses green tea, water, lychee. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "គូលែន",
+          "nameEn": "Lychee"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "peach-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកផ្លែប៉េស",
+      "nameEn": "Peach iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ផ្លែប៉េស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Peach iced green tea commonly uses green tea, water, peach. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែប៉េស",
+          "nameEn": "Peach"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "passion-fruit-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកផ្លែបាសិន",
+      "nameEn": "Passion fruit iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ផ្លែបាសិន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Passion fruit iced green tea commonly uses green tea, water, passion fruit. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែបាសិន",
+          "nameEn": "Passion fruit"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "mango-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកស្វាយ",
+      "nameEn": "Mango iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ស្វាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mango iced green tea commonly uses green tea, water, mango. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ស្វាយ",
+          "nameEn": "Mango"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "strawberry-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកស្ត្របឺរី",
+      "nameEn": "Strawberry iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ស្ត្របឺរី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry iced green tea commonly uses green tea, water, strawberry. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "lemon-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកក្រូចលឿង",
+      "nameEn": "Lemon iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ក្រូចលឿង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemon iced green tea commonly uses green tea, water, lemon. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "apple-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកផ្លែប៉ោម",
+      "nameEn": "Apple iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ផ្លែប៉ោម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Apple iced green tea commonly uses green tea, water, apple. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "orange-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកក្រូច",
+      "nameEn": "Orange iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង ក្រូច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Orange iced green tea commonly uses green tea, water, orange. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "ក្រូច",
+          "nameEn": "Orange"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    },
+    {
+      "slug": "longan-iced-green-tea",
+      "nameKm": "តែបៃតងទឹកកកមៀន",
+      "nameEn": "Longan iced green tea",
+      "descriptionKm": "ភេសជ្ជៈនេះមានគ្រឿងផ្សំទូទៅដូចជា តែបៃតង និង ទឹក និង មៀន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Longan iced green tea commonly uses green tea, water, longan. Preparation varies by kitchen.",
+      "category": "DRINK",
+      "cuisine": "OTHER",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តែបៃតង",
+          "nameEn": "Green tea"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        },
+        {
+          "nameKm": "មៀន",
+          "nameEn": "Longan"
+        }
+      ],
+      "tags": [
+        "CAFE"
+      ]
+    }
+  ]
+}

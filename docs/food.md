@@ -32,6 +32,16 @@ Fourteen curated shortcuts fill the existing controls: after-work drinks, after-
 
 Presets preserve location, dietary/allergy, food-exclusion and accessibility choices. They replace other stale discovery choices and reset a hidden minimum-rating threshold. Presets contain filter values only; actual restaurants and recipes continue to come from Google/Gemini.
 
+## Public food menu catalog
+
+The expandable **Food ideas** section sits above the live results. It reads the `food_menu_items` database table, shows actual matching counts, and supports Khmer/English search plus category, cuisine, meal-time and style filters. Results use 24-item keyset pages, desktop Load More and mobile infinite scrolling with manual retry after failures. Thai cuisine is excluded from the catalog contract, importer and supplied seed.
+
+The supplied [standalone schema + 1,000-record seed](../database/seeds/2026-10-28-food-menu-catalog-1000.sql) is ready for manual review/execution. It also widens the earlier category constraint to include `FAST_FOOD`; `CREATE TABLE IF NOT EXISTS` alone does not update an existing check. If a previous import failed, clear its transaction with `ROLLBACK;` before running the corrected script. No database import is run automatically.
+
+These are AI-assisted menu ideas with representative ingredients, separate from private generated recipe history. **Find nearby** explicitly calls the existing Google discovery flow; **Generate recipe** requests a fresh Gemini recipe and keeps current dietary/location constraints. Choosing a menu does not substitute static catalog data for a generated recipe.
+
+See the [dataset/import guide](../data/food-menu-catalog/README.md) and [copyable ChatGPT batch prompt](prompts/food-menu-catalog-1000.md). New generated JSON can be validated and converted to SQL with `npm run food:catalog:prepare`; the tool checks all 1,000 records, duplicate normalized names/slugs, field bounds and excluded cuisine before creating a new SQL file.
+
 ## Saved AI recipes
 
 Every validated Gemini recipe is persisted before the API returns success. Storage is checked before generation so a missing table does not incur a paid AI request. The `FoodAiRecipe` model stores an opaque saved ID, stable recipe ID, recipe JSON, timestamp and optional account owner using the existing PostgreSQL connection. Parameterized SQL supports the manually deployed table without depending on generated-client rollout timing.
@@ -152,6 +162,7 @@ All paths below use the Nuxt proxy; the API server exposes the same paths withou
 | `GET /api/food/recipes/:id` | Legacy catalog details; generated recipe details arrive in recommendation/pick responses. |
 | `GET /api/food/districts` | Existing Phnom Penh district centers. |
 | `GET /api/food/filters` | Valid grouped filter options and route availability. |
+| `GET /api/food/menu-catalog` | Public database catalog with search/filters and a bounded slug cursor. |
 | `GET /api/food/saved-recipes` | Authenticated account history, 20 per page with an opaque cursor. |
 | `GET /api/food/saved-recipes/:id` | Authenticated owner-only saved recipe lookup by UUID. |
 

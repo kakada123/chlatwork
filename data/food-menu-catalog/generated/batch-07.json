@@ -1,0 +1,1742 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 7,
+  "items": [
+    {
+      "slug": "beef-saraman-curry",
+      "nameKm": "ការីសារ៉ាម៉ាន់សាច់គោ",
+      "nameEn": "Beef saraman curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ខ្ទិះដូង និង សណ្ដែកដី និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef saraman curry commonly uses beef, coconut milk, peanuts, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "steamed-fish-amok",
+      "nameKm": "អាម៉ុកត្រី",
+      "nameEn": "Steamed fish amok",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ខ្ទិះដូង និង គ្រឿងបុក និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed fish amok commonly uses fish, coconut milk, kroeung spice paste, egg. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-amok",
+      "nameKm": "អាម៉ុកសាច់មាន់",
+      "nameEn": "Chicken amok",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ខ្ទិះដូង និង គ្រឿងបុក និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken amok commonly uses chicken, coconut milk, kroeung spice paste, egg. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-amok",
+      "nameKm": "អាម៉ុកផ្សិត",
+      "nameEn": "Mushroom amok",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទិះដូង និង គ្រឿងបុក និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom amok commonly uses mushroom, coconut milk, kroeung spice paste, egg. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "prahok-ktis",
+      "nameKm": "ប្រហុកខ្ទិះ",
+      "nameEn": "Prahok ktis",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប្រហុក និង សាច់ជ្រូក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Prahok ktis commonly uses fermented fish paste, pork, coconut milk. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-fish-coconut-curry",
+      "nameKm": "សម្លខ្ទិះត្រីខ្មែរ",
+      "nameEn": "Khmer fish coconut curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ខ្ទិះដូង និង គ្រឿងបុក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fish coconut curry commonly uses fish, coconut milk, kroeung spice paste. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-chicken-banana-blossom-curry",
+      "nameKm": "សម្លខ្ទិះត្រយូងចេកសាច់មាន់",
+      "nameEn": "Khmer chicken banana blossom curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ត្រយូងចេក និង ខ្ទិះដូង និង គ្រឿងបុក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer chicken banana blossom curry commonly uses chicken, banana blossom, coconut milk, kroeung spice paste. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ត្រយូងចេក",
+          "nameEn": "Banana blossom"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-chicken",
+      "nameKm": "ការីមាន់ប៊័រ",
+      "nameEn": "Butter chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ប៉េងប៉ោះ និង ប៊័រ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter chicken commonly uses chicken, tomato, butter, cream. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "paneer-butter-masala",
+      "nameKm": "ប៉ានៀរប៊័រម៉ាសាឡា",
+      "nameEn": "Paneer butter masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឈីសប៉ានៀរ និង ប៊័រ និង ប៉េងប៉ោះ និង គ្រីម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Paneer butter masala commonly uses paneer, butter, tomato, cream. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឈីសប៉ានៀរ",
+          "nameEn": "Paneer"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "palak-paneer",
+      "nameKm": "ស្ពៃស្ពីណាចប៉ានៀរ",
+      "nameEn": "Palak paneer",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃស្ពីណាច និង ឈីសប៉ានៀរ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Palak paneer commonly uses spinach, paneer, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "ឈីសប៉ានៀរ",
+          "nameEn": "Paneer"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-saag",
+      "nameKm": "ការីមាន់ស្ពៃស្ពីណាច",
+      "nameEn": "Chicken saag",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ស្ពៃស្ពីណាច និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken saag commonly uses chicken, spinach, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lamb-rogan-josh",
+      "nameKm": "ការីចៀមរ៉ូហ្គានចូស",
+      "nameEn": "Lamb rogan josh",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ចៀម និង ប៉េងប៉ោះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lamb rogan josh commonly uses lamb, tomato, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ចៀម",
+          "nameEn": "Lamb"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chana-masala",
+      "nameKm": "ការីសណ្ដែកឈីកពី",
+      "nameEn": "Chana masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកឈីកពី និង ប៉េងប៉ោះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chana masala commonly uses chickpeas, tomato, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកឈីកពី",
+          "nameEn": "Chickpeas"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "dal-tadka",
+      "nameKm": "ការីសណ្ដែកដាល់តាដកា",
+      "nameEn": "Dal tadka",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកឡែនទីល និង ខ្ទឹមបារាំង និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dal tadka commonly uses lentils, onion, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកឡែនទីល",
+          "nameEn": "Lentils"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "dal-makhani",
+      "nameKm": "ដាល់ម៉ាខានី",
+      "nameEn": "Dal makhani",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកខ្មៅ និង គ្រីម និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dal makhani commonly uses black beans, cream, butter. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកខ្មៅ",
+          "nameEn": "Black beans"
+        },
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "aloo-gobi",
+      "nameKm": "ដំឡូងនិងផ្កាខាត់ណាការី",
+      "nameEn": "Aloo gobi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ផ្កាខាត់ណា និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Aloo gobi commonly uses potato, cauliflower, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ផ្កាខាត់ណា",
+          "nameEn": "Cauliflower"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "aloo-matar",
+      "nameKm": "ការីដំឡូងសណ្ដែក",
+      "nameEn": "Aloo matar",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង បន្លែចម្រុះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Aloo matar commonly uses potato, vegetables, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "baingan-bharta",
+      "nameKm": "ត្រប់អាំងម៉ាសាឡា",
+      "nameEn": "Baingan bharta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រប់ និង ប៉េងប៉ោះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Baingan bharta commonly uses eggplant, tomato, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រប់",
+          "nameEn": "Eggplant"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bhindi-masala",
+      "nameKm": "ការីបន្លែអូក្រាម៉ាសាឡា",
+      "nameEn": "Bhindi masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោតបារាំង និង ប៉េងប៉ោះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bhindi masala commonly uses okra, tomato, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោតបារាំង",
+          "nameEn": "Okra"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "goan-fish-curry",
+      "nameKm": "ការីត្រីគោអាន",
+      "nameEn": "Goan fish curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ខ្ទិះដូង និង អម្ពិល និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Goan fish curry commonly uses fish, coconut milk, tamarind, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "អម្ពិល",
+          "nameEn": "Tamarind"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-chettinad-curry",
+      "nameKm": "ការីមាន់ឆេទីណាដ",
+      "nameEn": "Chicken Chettinad curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្រេច និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken Chettinad curry commonly uses chicken, black pepper, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "egg-masala-curry",
+      "nameKm": "ការីស៊ុតម៉ាសាឡា",
+      "nameEn": "Egg masala curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស៊ុត និង ប៉េងប៉ោះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg masala curry commonly uses egg, tomato, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "keema-matar",
+      "nameKm": "ការីសាច់ចិញ្ច្រាំសណ្ដែក",
+      "nameEn": "Keema matar",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង បន្លែចម្រុះ និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Keema matar commonly uses beef, vegetables, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chickpea-coconut-curry",
+      "nameKm": "ការីសណ្ដែកឈីកពីខ្ទិះដូង",
+      "nameEn": "Chickpea coconut curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកឈីកពី និង ខ្ទិះដូង និង គ្រឿងការី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chickpea coconut curry commonly uses chickpeas, coconut milk, curry spices. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកឈីកពី",
+          "nameEn": "Chickpeas"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-chicken-curry",
+      "nameKm": "ការីក្រហមខ្មែរសាច់មាន់",
+      "nameEn": "Khmer red Chicken curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Chicken curry commonly uses coconut milk, curry spices, lemongrass, chicken. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-beef-curry",
+      "nameKm": "ការីក្រហមខ្មែរសាច់គោ",
+      "nameEn": "Khmer red Beef curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Beef curry commonly uses coconut milk, curry spices, lemongrass, beef. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-pork-curry",
+      "nameKm": "ការីក្រហមខ្មែរសាច់ជ្រូក",
+      "nameEn": "Khmer red Pork curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Pork curry commonly uses coconut milk, curry spices, lemongrass, pork. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-duck-curry",
+      "nameKm": "ការីក្រហមខ្មែរសាច់ទា",
+      "nameEn": "Khmer red Duck curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Duck curry commonly uses coconut milk, curry spices, lemongrass, duck. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-fish-curry",
+      "nameKm": "ការីក្រហមខ្មែរសាច់ត្រី",
+      "nameEn": "Khmer red Fish curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Fish curry commonly uses coconut milk, curry spices, lemongrass, fish. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-shrimp-curry",
+      "nameKm": "ការីក្រហមខ្មែរបង្គា",
+      "nameEn": "Khmer red Shrimp curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Shrimp curry commonly uses coconut milk, curry spices, lemongrass, shrimp. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-red-vegetables-curry",
+      "nameKm": "ការីក្រហមខ្មែរបន្លែចម្រុះ",
+      "nameEn": "Khmer red Vegetables curry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទិះដូង និង គ្រឿងការី និង ស្លឹកគ្រៃ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer red Vegetables curry commonly uses coconut milk, curry spices, lemongrass, vegetables. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-chicken-tikka-masala",
+      "nameKm": "ទីកាម៉ាសាឡាសាច់មាន់",
+      "nameEn": "Indian Chicken tikka masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង យ៉ាអួ និង គ្រឿងការី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Chicken tikka masala commonly uses tomato, yogurt, curry spices, chicken. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-shrimp-tikka-masala",
+      "nameKm": "ទីកាម៉ាសាឡាបង្គា",
+      "nameEn": "Indian Shrimp tikka masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង យ៉ាអួ និង គ្រឿងការី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Shrimp tikka masala commonly uses tomato, yogurt, curry spices, shrimp. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-fish-tikka-masala",
+      "nameKm": "ទីកាម៉ាសាឡាសាច់ត្រី",
+      "nameEn": "Indian Fish tikka masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង យ៉ាអួ និង គ្រឿងការី និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Fish tikka masala commonly uses tomato, yogurt, curry spices, fish. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-paneer-tikka-masala",
+      "nameKm": "ទីកាម៉ាសាឡាឈីសប៉ានៀរ",
+      "nameEn": "Indian Paneer tikka masala",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង យ៉ាអួ និង គ្រឿងការី និង ឈីសប៉ានៀរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Paneer tikka masala commonly uses tomato, yogurt, curry spices, paneer. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "យ៉ាអួ",
+          "nameEn": "Yogurt"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ឈីសប៉ានៀរ",
+          "nameEn": "Paneer"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-chicken-korma",
+      "nameKm": "កូរម៉ាសាច់មាន់",
+      "nameEn": "Indian Chicken korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Chicken korma commonly uses cream, cashews, curry spices, chicken. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-lamb-korma",
+      "nameKm": "កូរម៉ាសាច់ចៀម",
+      "nameEn": "Indian Lamb korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង សាច់ចៀម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Lamb korma commonly uses cream, cashews, curry spices, lamb. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់ចៀម",
+          "nameEn": "Lamb"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-beef-korma",
+      "nameKm": "កូរម៉ាសាច់គោ",
+      "nameEn": "Indian Beef korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Beef korma commonly uses cream, cashews, curry spices, beef. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-vegetables-korma",
+      "nameKm": "កូរម៉ាបន្លែចម្រុះ",
+      "nameEn": "Indian Vegetables korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Vegetables korma commonly uses cream, cashews, curry spices, vegetables. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-paneer-korma",
+      "nameKm": "កូរម៉ាឈីសប៉ានៀរ",
+      "nameEn": "Indian Paneer korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង ឈីសប៉ានៀរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Paneer korma commonly uses cream, cashews, curry spices, paneer. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ឈីសប៉ានៀរ",
+          "nameEn": "Paneer"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-shrimp-korma",
+      "nameKm": "កូរម៉ាបង្គា",
+      "nameEn": "Indian Shrimp korma",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រីម និង គ្រាប់ស្វាយចន្ទី និង គ្រឿងការី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Shrimp korma commonly uses cream, cashews, curry spices, shrimp. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រីម",
+          "nameEn": "Cream"
+        },
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-pork-vindaloo",
+      "nameKm": "វីនដាឡូសាច់ជ្រូក",
+      "nameEn": "Indian Pork vindaloo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកខ្មេះ និង ម្ទេស និង គ្រឿងការី និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Pork vindaloo commonly uses vinegar, chilli, curry spices, pork. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-chicken-vindaloo",
+      "nameKm": "វីនដាឡូសាច់មាន់",
+      "nameEn": "Indian Chicken vindaloo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកខ្មេះ និង ម្ទេស និង គ្រឿងការី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Chicken vindaloo commonly uses vinegar, chilli, curry spices, chicken. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-lamb-vindaloo",
+      "nameKm": "វីនដាឡូសាច់ចៀម",
+      "nameEn": "Indian Lamb vindaloo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកខ្មេះ និង ម្ទេស និង គ្រឿងការី និង សាច់ចៀម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Lamb vindaloo commonly uses vinegar, chilli, curry spices, lamb. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់ចៀម",
+          "nameEn": "Lamb"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-beef-vindaloo",
+      "nameKm": "វីនដាឡូសាច់គោ",
+      "nameEn": "Indian Beef vindaloo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកខ្មេះ និង ម្ទេស និង គ្រឿងការី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Beef vindaloo commonly uses vinegar, chilli, curry spices, beef. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-shrimp-vindaloo",
+      "nameKm": "វីនដាឡូបង្គា",
+      "nameEn": "Indian Shrimp vindaloo",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកខ្មេះ និង ម្ទេស និង គ្រឿងការី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Shrimp vindaloo commonly uses vinegar, chilli, curry spices, shrimp. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-chicken-jalfrezi",
+      "nameKm": "ចាល់ហ្វ្រេស៊ីសាច់មាន់",
+      "nameEn": "Indian Chicken jalfrezi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង គ្រឿងការី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Chicken jalfrezi commonly uses tomato, onion, curry spices, chicken. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-lamb-jalfrezi",
+      "nameKm": "ចាល់ហ្វ្រេស៊ីសាច់ចៀម",
+      "nameEn": "Indian Lamb jalfrezi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង គ្រឿងការី និង សាច់ចៀម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Lamb jalfrezi commonly uses tomato, onion, curry spices, lamb. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "សាច់ចៀម",
+          "nameEn": "Lamb"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-paneer-jalfrezi",
+      "nameKm": "ចាល់ហ្វ្រេស៊ីឈីសប៉ានៀរ",
+      "nameEn": "Indian Paneer jalfrezi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង គ្រឿងការី និង ឈីសប៉ានៀរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Paneer jalfrezi commonly uses tomato, onion, curry spices, paneer. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "ឈីសប៉ានៀរ",
+          "nameEn": "Paneer"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "indian-shrimp-jalfrezi",
+      "nameKm": "ចាល់ហ្វ្រេស៊ីបង្គា",
+      "nameEn": "Indian Shrimp jalfrezi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង គ្រឿងការី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Indian Shrimp jalfrezi commonly uses tomato, onion, curry spices, shrimp. Preparation varies by kitchen.",
+      "category": "CURRY",
+      "cuisine": "INDIAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "គ្រឿងការី",
+          "nameEn": "Curry spices"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "COMFORT_FOOD",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

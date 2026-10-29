@@ -1,0 +1,1608 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 16,
+  "items": [
+    {
+      "slug": "butter-croissant",
+      "nameKm": "នំខ្រូអាសង់ប៊័រ",
+      "nameEn": "Butter croissant",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៊័រ និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter croissant commonly uses wheat flour, butter, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "almond-croissant",
+      "nameKm": "នំខ្រូអាសង់អាល់ម៉ុន",
+      "nameEn": "Almond croissant",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៊័រ និង គ្រាប់អាល់ម៉ុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Almond croissant commonly uses wheat flour, butter, almonds. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "គ្រាប់អាល់ម៉ុន",
+          "nameEn": "Almonds"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chocolate-croissant",
+      "nameKm": "នំខ្រូអាសង់សូកូឡា",
+      "nameEn": "Chocolate croissant",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៊័រ និង សូកូឡា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate croissant commonly uses wheat flour, butter, chocolate. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "ham-cheese-croissant",
+      "nameKm": "នំខ្រូអាសង់ហាំឈីស",
+      "nameEn": "Ham cheese croissant",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៊័រ និង ហាំ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ham cheese croissant commonly uses wheat flour, butter, ham, cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pain-au-chocolat",
+      "nameKm": "នំប៉ាំងអូសូកូឡា",
+      "nameEn": "Pain au chocolat",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង ប៊័រ និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pain au chocolat commonly uses wheat flour, chocolate, butter, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pain-aux-raisins",
+      "nameKm": "នំប៉័ងទំពាំងក្រៀម",
+      "nameEn": "Pain aux raisins",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ទំពាំងបាយជូរក្រៀម និង ប៊័រ និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pain aux raisins commonly uses wheat flour, raisins, butter, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ទំពាំងបាយជូរក្រៀម",
+          "nameEn": "Raisins"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cinnamon-roll",
+      "nameKm": "នំរមូរឈើអែម",
+      "nameEn": "Cinnamon roll",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ឈើអែម និង ប៊័រ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cinnamon roll commonly uses wheat flour, cinnamon, butter, sugar. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ឈើអែម",
+          "nameEn": "Cinnamon"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "apple-danish",
+      "nameKm": "នំដានីសផ្លែប៉ោម",
+      "nameEn": "Apple danish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ផ្លែប៉ោម និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Apple danish commonly uses wheat flour, apple, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ផ្លែប៉ោម",
+          "nameEn": "Apple"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "blueberry-danish",
+      "nameKm": "នំដានីសប្លូបឺរី",
+      "nameEn": "Blueberry danish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប្លូបឺរី និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry danish commonly uses wheat flour, blueberry, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "custard-danish",
+      "nameKm": "នំដានីសក្រែមស៊ុត",
+      "nameEn": "Custard danish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ក្រែមស៊ុត និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Custard danish commonly uses wheat flour, custard, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ក្រែមស៊ុត",
+          "nameEn": "Custard"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-brioche",
+      "nameKm": "នំប៉័ងប្រ៊ីយ៉ូសប៊័រ",
+      "nameEn": "Butter brioche",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ប៊័រ និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter brioche commonly uses wheat flour, egg, butter, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "french-baguette",
+      "nameKm": "នំប៉័ងបារាំង",
+      "nameEn": "French baguette",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "French baguette commonly uses wheat flour, yeast, water. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "whole-wheat-bread",
+      "nameKm": "នំប៉័ងស្រូវសាលីពេញគ្រាប់",
+      "nameEn": "Whole wheat bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង ស្រូវអូត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Whole wheat bread commonly uses wheat flour, yeast, oats. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ស្រូវអូត",
+          "nameEn": "Oats"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "sourdough-bread",
+      "nameKm": "នំប៉័ងសៅដូរ",
+      "nameEn": "Sourdough bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង ទឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sourdough bread commonly uses wheat flour, yeast, water. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ទឹក",
+          "nameEn": "Water"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "milk-bread",
+      "nameKm": "នំប៉័ងទឹកដោះគោ",
+      "nameEn": "Milk bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ទឹកដោះគោ និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Milk bread commonly uses wheat flour, milk, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-cheese-bun",
+      "nameKm": "នំប៉័ងខ្ទឹមសឈីស",
+      "nameEn": "Garlic cheese bun",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ខ្ទឹមស និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic cheese bun commonly uses wheat flour, garlic, cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "sausage-bun",
+      "nameKm": "នំប៉័ងសាច់ក្រក",
+      "nameEn": "Sausage bun",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់ក្រក និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sausage bun commonly uses wheat flour, sausage, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "ham-cheese-bun",
+      "nameKm": "នំប៉័ងហាំឈីស",
+      "nameEn": "Ham cheese bun",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ហាំ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ham cheese bun commonly uses wheat flour, ham, cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-floss-bun",
+      "nameKm": "នំប៉័ងសាច់ជ្រូកផាត់",
+      "nameEn": "Pork floss bun",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់ជ្រូក និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork floss bun commonly uses wheat flour, pork, mayonnaise. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tuna-mayonnaise-bun",
+      "nameKm": "នំប៉័ងធូណាម៉ាយ៉ូណេស",
+      "nameEn": "Tuna mayonnaise bun",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ត្រីធូណា និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna mayonnaise bun commonly uses wheat flour, tuna, mayonnaise. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chocolate-chip-muffin",
+      "nameKm": "នំម៉ាហ្វីនសូកូឡា",
+      "nameEn": "Chocolate chip muffin",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង ស៊ុត និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate chip muffin commonly uses wheat flour, chocolate, egg, milk. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "blueberry-muffin",
+      "nameKm": "នំម៉ាហ្វីនប្លូបឺរី",
+      "nameEn": "Blueberry muffin",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប្លូបឺរី និង ស៊ុត និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Blueberry muffin commonly uses wheat flour, blueberry, egg, milk. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប្លូបឺរី",
+          "nameEn": "Blueberry"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-muffin",
+      "nameKm": "នំម៉ាហ្វីនចេក",
+      "nameEn": "Banana muffin",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ចេក និង ស៊ុត និង ទឹកដោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana muffin commonly uses wheat flour, banana, egg, milk. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ទឹកដោះគោ",
+          "nameEn": "Milk"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "carrot-walnut-muffin",
+      "nameKm": "នំម៉ាហ្វីនការ៉ុតវ៉ាល់ណាត់",
+      "nameEn": "Carrot walnut muffin",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ការ៉ុត និង គ្រាប់វ៉ាល់ណាត់ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Carrot walnut muffin commonly uses wheat flour, carrot, walnuts, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "គ្រាប់វ៉ាល់ណាត់",
+          "nameEn": "Walnuts"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chocolate-chip-cookie",
+      "nameKm": "នំខូគីសូកូឡា",
+      "nameEn": "Chocolate chip cookie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង ប៊័រ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate chip cookie commonly uses wheat flour, chocolate, butter, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "oat-raisin-cookie",
+      "nameKm": "នំខូគីអូតទំពាំងក្រៀម",
+      "nameEn": "Oat raisin cookie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្រូវអូត និង ទំពាំងបាយជូរក្រៀម និង ប៊័រ និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Oat raisin cookie commonly uses oats, raisins, butter, wheat flour. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្រូវអូត",
+          "nameEn": "Oats"
+        },
+        {
+          "nameKm": "ទំពាំងបាយជូរក្រៀម",
+          "nameEn": "Raisins"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "butter-cookie",
+      "nameKm": "នំខូគីប៊័រ",
+      "nameEn": "Butter cookie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៊័រ និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Butter cookie commonly uses wheat flour, butter, sugar. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "almond-cookie",
+      "nameKm": "នំខូគីអាល់ម៉ុន",
+      "nameEn": "Almond cookie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង គ្រាប់អាល់ម៉ុន និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Almond cookie commonly uses wheat flour, almonds, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "គ្រាប់អាល់ម៉ុន",
+          "nameEn": "Almonds"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "peanut-cookie",
+      "nameKm": "នំខូគីសណ្ដែកដី",
+      "nameEn": "Peanut cookie",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សណ្ដែកដី និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Peanut cookie commonly uses wheat flour, peanuts, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chocolate-doughnut",
+      "nameKm": "នំដូណាត់សូកូឡា",
+      "nameEn": "Chocolate doughnut",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង មេនំប៉័ង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate doughnut commonly uses wheat flour, chocolate, yeast, sugar. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "sugar-glazed-doughnut",
+      "nameKm": "នំដូណាត់ស្ករ",
+      "nameEn": "Sugar glazed doughnut",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sugar glazed doughnut commonly uses wheat flour, yeast, sugar. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "strawberry-doughnut",
+      "nameKm": "នំដូណាត់ស្ត្របឺរី",
+      "nameEn": "Strawberry doughnut",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស្ត្របឺរី និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Strawberry doughnut commonly uses wheat flour, strawberry, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស្ត្របឺរី",
+          "nameEn": "Strawberry"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "custard-filled-doughnut",
+      "nameKm": "នំដូណាត់ក្រែមស៊ុត",
+      "nameEn": "Custard filled doughnut",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ក្រែមស៊ុត និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Custard filled doughnut commonly uses wheat flour, custard, yeast. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ក្រែមស៊ុត",
+          "nameEn": "Custard"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cheese-scone",
+      "nameKm": "នំស្កូនឈីស",
+      "nameEn": "Cheese scone",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ឈីស និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cheese scone commonly uses wheat flour, cheese, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "raisin-scone",
+      "nameKm": "នំស្កូនទំពាំងក្រៀម",
+      "nameEn": "Raisin scone",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ទំពាំងបាយជូរក្រៀម និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Raisin scone commonly uses wheat flour, raisins, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ទំពាំងបាយជូរក្រៀម",
+          "nameEn": "Raisins"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "plain-bagel",
+      "nameKm": "នំបេហ្គល",
+      "nameEn": "Plain bagel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Plain bagel commonly uses wheat flour, yeast, salt. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "sesame-bagel",
+      "nameKm": "នំបេហ្គលល្ង",
+      "nameEn": "Sesame bagel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង ល្ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sesame bagel commonly uses wheat flour, yeast, sesame. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pretzel",
+      "nameKm": "នំព្រីតសែល",
+      "nameEn": "Pretzel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មេនំប៉័ង និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pretzel commonly uses wheat flour, yeast, salt. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "banana-bread",
+      "nameKm": "នំប៉័ងចេក",
+      "nameEn": "Banana bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ចេក និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana bread commonly uses wheat flour, banana, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "zucchini-style-vegetable-bread",
+      "nameKm": "នំប៉័ងបន្លែ",
+      "nameEn": "Zucchini style vegetable bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង បន្លែចម្រុះ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Zucchini style vegetable bread commonly uses wheat flour, vegetables, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lemon-loaf-cake",
+      "nameKm": "នំនំប៉័ងក្រូចលឿង",
+      "nameEn": "Lemon loaf cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ក្រូចលឿង និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemon loaf cake commonly uses wheat flour, lemon, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "marble-cake",
+      "nameKm": "នំម៉ាបល",
+      "nameEn": "Marble cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង វ៉ានីឡា និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Marble cake commonly uses wheat flour, chocolate, vanilla, egg. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "sponge-cake",
+      "nameKm": "នំប៉ុងស្ពោន",
+      "nameEn": "Sponge cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុត និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sponge cake commonly uses wheat flour, egg, sugar. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "red-velvet-cupcake",
+      "nameKm": "ខាប់ខេករ៉េដវែលវ៉េត",
+      "nameEn": "Red velvet cupcake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង កាកាវ និង ក្រែមឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Red velvet cupcake commonly uses wheat flour, cocoa, cream cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "កាកាវ",
+          "nameEn": "Cocoa"
+        },
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chocolate-cupcake",
+      "nameKm": "ខាប់ខេកសូកូឡា",
+      "nameEn": "Chocolate cupcake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សូកូឡា និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chocolate cupcake commonly uses wheat flour, chocolate, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សូកូឡា",
+          "nameEn": "Chocolate"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vanilla-cupcake",
+      "nameKm": "ខាប់ខេកវ៉ានីឡា",
+      "nameEn": "Vanilla cupcake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង វ៉ានីឡា និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vanilla cupcake commonly uses wheat flour, vanilla, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "វ៉ានីឡា",
+          "nameEn": "Vanilla"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cheese-focaccia",
+      "nameKm": "នំហ្វូកាស៊ីយ៉ាឈីស",
+      "nameEn": "Cheese focaccia",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប្រេងអូលីវ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cheese focaccia commonly uses wheat flour, olive oil, cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rosemary-focaccia",
+      "nameKm": "នំហ្វូកាស៊ីយ៉ារ៉ូសម៉ារី",
+      "nameEn": "Rosemary focaccia",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប្រេងអូលីវ និង រ៉ូសម៉ារី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rosemary focaccia commonly uses wheat flour, olive oil, rosemary. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        },
+        {
+          "nameKm": "រ៉ូសម៉ារី",
+          "nameEn": "Rosemary"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spinach-feta-pastry",
+      "nameKm": "នំប៉ាស្ត្រីស្ពៃឈីស",
+      "nameEn": "Spinach feta pastry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស្ពៃស្ពីណាច និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spinach feta pastry commonly uses wheat flour, spinach, cheese. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-puff-pastry",
+      "nameKm": "នំប៉ាស្ត្រីផ្សិត",
+      "nameEn": "Mushroom puff pastry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ផ្សិត និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom puff pastry commonly uses wheat flour, mushroom, butter. Preparation varies by kitchen.",
+      "category": "BAKERY",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "CAFE",
+        "QUICK_MEAL"
+      ]
+    }
+  ]
+}

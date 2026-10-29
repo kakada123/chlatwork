@@ -165,6 +165,16 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     searchKeyword.value = next.keyword;
     minimumRating.value = 0;
   }
+  async function selectCatalogFood(item: { nameKm: string; mealTimes: Array<"breakfast" | "lunch" | "snack" | "dinner"> }, target: DiscoveryMode) {
+    const { foodTypes, cuisines, restaurantTypes, mealWindow, ...remaining } = filters.value;
+    filters.value = remaining;
+    mode.value = target;
+    searchKeyword.value = item.nameKm;
+    if (!item.mealTimes.some((meal) => meal === mealTime.value)) mealTime.value = item.mealTimes[0] || "any";
+    selectedRecipe.value = null;
+    randomSuggestion.value = null;
+    await getRecommendations();
+  }
   const results = useFoodResults(currentCriteria, mode, options.waitForAccount);
   let discoveryAccountRevision = 0;
   function setDiscoveryAccount(ownerId: string | null) {
@@ -414,6 +424,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     ...results,
     activeQuickPreset,
     selectQuickPreset,
+    selectCatalogFood,
     setDiscoveryAccount,
     filters,
     locationQuery,

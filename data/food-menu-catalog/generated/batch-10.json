@@ -1,0 +1,1720 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 10,
+  "items": [
+    {
+      "slug": "t-bone-steak",
+      "nameKm": "ស្ទេកធីបូន",
+      "nameEn": "T-bone steak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ប៊័រ និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "T-bone steak commonly uses beef, butter, black pepper. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-lamb-chops",
+      "nameKm": "សាច់ចៀមអាំងឆ្អឹង",
+      "nameEn": "Grilled lamb chops",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ចៀម និង រ៉ូសម៉ារី និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled lamb chops commonly uses lamb, rosemary, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ចៀម",
+          "nameEn": "Lamb"
+        },
+        {
+          "nameKm": "រ៉ូសម៉ារី",
+          "nameEn": "Rosemary"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "barbecue-pork-ribs",
+      "nameKm": "ឆ្អឹងជំនីរជ្រូកប៊ីប៊ីឃ្យូ",
+      "nameEn": "Barbecue pork ribs",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆ្អឹងជំនីរជ្រូក និង ប៉េងប៉ោះ និង ទឹកឃ្មុំ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Barbecue pork ribs commonly uses pork ribs, tomato, honey. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemon-grilled-salmon",
+      "nameKm": "ត្រីសាល់ម៉ុនអាំងក្រូចលឿង",
+      "nameEn": "Lemon grilled salmon",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រីសាល់ម៉ុន និង ក្រូចលឿង និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemon grilled salmon commonly uses salmon, lemon, butter. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "ក្រូចលឿង",
+          "nameEn": "Lemon"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-beef-with-herbs",
+      "nameKm": "សាច់គោដុតជី",
+      "nameEn": "Roast beef with herbs",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង រ៉ូសម៉ារី និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast beef with herbs commonly uses beef, rosemary, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "រ៉ូសម៉ារី",
+          "nameEn": "Rosemary"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-chicken-with-rosemary",
+      "nameKm": "មាន់ដុតរ៉ូសម៉ារី",
+      "nameEn": "Roast chicken with rosemary",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង រ៉ូសម៉ារី និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast chicken with rosemary commonly uses chicken, rosemary, butter. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "រ៉ូសម៉ារី",
+          "nameEn": "Rosemary"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "garlic-grilled-mushrooms",
+      "nameKm": "ផ្សិតអាំងខ្ទឹមស",
+      "nameEn": "Garlic grilled mushrooms",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ប្រេងអូលីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic grilled mushrooms commonly uses mushroom, garlic, olive oil. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-chicken",
+      "nameKm": "សាច់មាន់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Chicken commonly uses garlic, lemongrass, black pepper, chicken. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-pork",
+      "nameKm": "សាច់ជ្រូកអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Pork commonly uses garlic, lemongrass, black pepper, pork. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-beef",
+      "nameKm": "សាច់គោអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Beef commonly uses garlic, lemongrass, black pepper, beef. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-duck",
+      "nameKm": "សាច់ទាអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Duck commonly uses garlic, lemongrass, black pepper, duck. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-fish",
+      "nameKm": "សាច់ត្រីអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Fish commonly uses garlic, lemongrass, black pepper, fish. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-shrimp",
+      "nameKm": "បង្គាអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Shrimp commonly uses garlic, lemongrass, black pepper, shrimp. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-squid",
+      "nameKm": "មឹកអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Squid commonly uses garlic, lemongrass, black pepper, squid. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-frog",
+      "nameKm": "កង្កែបអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Frog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង កង្កែប។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Frog commonly uses garlic, lemongrass, black pepper, frog. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "កង្កែប",
+          "nameEn": "Frog"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-quail",
+      "nameKm": "ក្រួចអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Quail",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ក្រួច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Quail commonly uses garlic, lemongrass, black pepper, quail. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ក្រួច",
+          "nameEn": "Quail"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-eel",
+      "nameKm": "អន្ទង់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Eel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង អន្ទង់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Eel commonly uses garlic, lemongrass, black pepper, eel. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "អន្ទង់",
+          "nameEn": "Eel"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-tilapia",
+      "nameKm": "ត្រីទីឡាព្យាអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Tilapia",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ត្រីទីឡាព្យា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Tilapia commonly uses garlic, lemongrass, black pepper, tilapia. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ត្រីទីឡាព្យា",
+          "nameEn": "Tilapia"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-snakehead-fish",
+      "nameKm": "ត្រីរ៉ស់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Snakehead fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ត្រីរ៉ស់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Snakehead fish commonly uses garlic, lemongrass, black pepper, snakehead fish. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ត្រីរ៉ស់",
+          "nameEn": "Snakehead fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-catfish",
+      "nameKm": "ត្រីអណ្ដែងអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Catfish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ត្រីអណ្ដែង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Catfish commonly uses garlic, lemongrass, black pepper, catfish. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ត្រីអណ្ដែង",
+          "nameEn": "Catfish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-sea-bass",
+      "nameKm": "ត្រីឆ្ពង់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Sea bass",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ត្រីឆ្ពង់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Sea bass commonly uses garlic, lemongrass, black pepper, sea bass. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ត្រីឆ្ពង់",
+          "nameEn": "Sea bass"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-mackerel",
+      "nameKm": "ត្រីសាប៉ាអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Mackerel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ត្រីសាប៉ា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Mackerel commonly uses garlic, lemongrass, black pepper, mackerel. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ត្រីសាប៉ា",
+          "nameEn": "Mackerel"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-chicken-wings",
+      "nameKm": "ស្លាបមាន់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Chicken wings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ស្លាបមាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Chicken wings commonly uses garlic, lemongrass, black pepper, chicken wings. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ស្លាបមាន់",
+          "nameEn": "Chicken wings"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-chicken-liver",
+      "nameKm": "ថ្លើមមាន់អាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Chicken liver",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ថ្លើមមាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Chicken liver commonly uses garlic, lemongrass, black pepper, chicken liver. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ថ្លើមមាន់",
+          "nameEn": "Chicken liver"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-beef-liver",
+      "nameKm": "ថ្លើមគោអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Beef liver",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ថ្លើមគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Beef liver commonly uses garlic, lemongrass, black pepper, beef liver. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ថ្លើមគោ",
+          "nameEn": "Beef liver"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-beef-tongue",
+      "nameKm": "អណ្ដាតគោអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Beef tongue",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង អណ្ដាតគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Beef tongue commonly uses garlic, lemongrass, black pepper, beef tongue. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "អណ្ដាតគោ",
+          "nameEn": "Beef tongue"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-beef-tripe",
+      "nameKm": "ពោះគោអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Beef tripe",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ពោះគោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Beef tripe commonly uses garlic, lemongrass, black pepper, beef tripe. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ពោះគោ",
+          "nameEn": "Beef tripe"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-pork-intestines",
+      "nameKm": "ពោះវៀនជ្រូកអាំងបែបខ្មែរ",
+      "nameEn": "Khmer grilled Pork intestines",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមស និង ស្លឹកគ្រៃ និង ម្រេច និង ពោះវៀនជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled Pork intestines commonly uses garlic, lemongrass, black pepper, pork intestines. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ពោះវៀនជ្រូក",
+          "nameEn": "Pork intestines"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-skewers-of-beef",
+      "nameKm": "សាច់គោចង្កាក់គ្រឿងស្លឹកគ្រៃ",
+      "nameEn": "Lemongrass skewers of Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកគ្រៃ និង ខ្ទឹមស និង ស្ករត្នោត និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass skewers of Beef commonly uses lemongrass, garlic, palm sugar, beef. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-skewers-of-pork",
+      "nameKm": "សាច់ជ្រូកចង្កាក់គ្រឿងស្លឹកគ្រៃ",
+      "nameEn": "Lemongrass skewers of Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកគ្រៃ និង ខ្ទឹមស និង ស្ករត្នោត និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass skewers of Pork commonly uses lemongrass, garlic, palm sugar, pork. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-skewers-of-chicken",
+      "nameKm": "សាច់មាន់ចង្កាក់គ្រឿងស្លឹកគ្រៃ",
+      "nameEn": "Lemongrass skewers of Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកគ្រៃ និង ខ្ទឹមស និង ស្ករត្នោត និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass skewers of Chicken commonly uses lemongrass, garlic, palm sugar, chicken. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-skewers-of-shrimp",
+      "nameKm": "បង្គាចង្កាក់គ្រឿងស្លឹកគ្រៃ",
+      "nameEn": "Lemongrass skewers of Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកគ្រៃ និង ខ្ទឹមស និង ស្ករត្នោត និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass skewers of Shrimp commonly uses lemongrass, garlic, palm sugar, shrimp. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "honey-roast-chicken",
+      "nameKm": "សាច់មាន់អាំងទឹកឃ្មុំ",
+      "nameEn": "Honey roast Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកឃ្មុំ និង ខ្ទឹមស និង ម្រេច និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey roast Chicken commonly uses honey, garlic, black pepper, chicken. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "honey-roast-duck",
+      "nameKm": "សាច់ទាអាំងទឹកឃ្មុំ",
+      "nameEn": "Honey roast Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកឃ្មុំ និង ខ្ទឹមស និង ម្រេច និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey roast Duck commonly uses honey, garlic, black pepper, duck. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "honey-roast-pork-ribs",
+      "nameKm": "ឆ្អឹងជំនីរជ្រូកអាំងទឹកឃ្មុំ",
+      "nameEn": "Honey roast Pork ribs",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកឃ្មុំ និង ខ្ទឹមស និង ម្រេច និង ឆ្អឹងជំនីរជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey roast Pork ribs commonly uses honey, garlic, black pepper, pork ribs. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ឆ្អឹងជំនីរជ្រូក",
+          "nameEn": "Pork ribs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "honey-roast-chicken-wings",
+      "nameKm": "ស្លាបមាន់អាំងទឹកឃ្មុំ",
+      "nameEn": "Honey roast Chicken wings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទឹកឃ្មុំ និង ខ្ទឹមស និង ម្រេច និង ស្លាបមាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey roast Chicken wings commonly uses honey, garlic, black pepper, chicken wings. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ស្លាបមាន់",
+          "nameEn": "Chicken wings"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salt-and-chilli-grilled-chicken",
+      "nameKm": "សាច់មាន់អាំងអំបិលម្ទេស",
+      "nameEn": "Salt and chilli grilled Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អំបិល និង ម្ទេស និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salt and chilli grilled Chicken commonly uses salt, chilli, garlic, chicken. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salt-and-chilli-grilled-fish",
+      "nameKm": "សាច់ត្រីអាំងអំបិលម្ទេស",
+      "nameEn": "Salt and chilli grilled Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អំបិល និង ម្ទេស និង ខ្ទឹមស និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salt and chilli grilled Fish commonly uses salt, chilli, garlic, fish. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salt-and-chilli-grilled-shrimp",
+      "nameKm": "បង្គាអាំងអំបិលម្ទេស",
+      "nameEn": "Salt and chilli grilled Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អំបិល និង ម្ទេស និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salt and chilli grilled Shrimp commonly uses salt, chilli, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "salt-and-chilli-grilled-squid",
+      "nameKm": "មឹកអាំងអំបិលម្ទេស",
+      "nameEn": "Salt and chilli grilled Squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អំបិល និង ម្ទេស និង ខ្ទឹមស និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salt and chilli grilled Squid commonly uses salt, chilli, garlic, squid. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bok-lahong-khmer-green-papaya-salad",
+      "nameKm": "បុកល្ហុងខ្មែរ",
+      "nameEn": "Bok lahong Khmer green papaya salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ហុង និង សណ្ដែកកួរ និង ប៉េងប៉ោះ និង សណ្ដែកដី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bok lahong Khmer green papaya salad commonly uses papaya, long beans, tomato, peanuts. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ហុង",
+          "nameEn": "Papaya"
+        },
+        {
+          "nameKm": "សណ្ដែកកួរ",
+          "nameEn": "Long beans"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-eggplant-salad",
+      "nameKm": "ញាំត្រប់អាំង",
+      "nameEn": "Khmer grilled eggplant salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រប់ និង សាច់ជ្រូក និង ជីគ្រប់មុខ និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled eggplant salad commonly uses eggplant, pork, fresh herbs, lime. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រប់",
+          "nameEn": "Eggplant"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-water-lily-salad",
+      "nameKm": "ញាំរំចង់",
+      "nameEn": "Khmer water lily salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា រំចង់ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer water lily salad commonly uses water lily stems, fresh herbs, lime, peanuts. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "រំចង់",
+          "nameEn": "Water lily stems"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-pomelo-salad",
+      "nameKm": "ញាំក្រូចថ្លុង",
+      "nameEn": "Khmer pomelo salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រូចថ្លុង និង ជីគ្រប់មុខ និង សណ្ដែកដី និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer pomelo salad commonly uses pomelo, fresh herbs, peanuts, lime. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រូចថ្លុង",
+          "nameEn": "Pomelo"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-smoked-fish-salad",
+      "nameKm": "ញាំត្រីឆ្អើរ",
+      "nameEn": "Khmer smoked fish salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ជីគ្រប់មុខ និង ត្រសក់ និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer smoked fish salad commonly uses fish, fresh herbs, cucumber, lime. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-dried-shrimp-salad",
+      "nameKm": "ញាំបង្គាក្រៀម",
+      "nameEn": "Khmer dried shrimp salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង ត្រសក់ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer dried shrimp salad commonly uses shrimp, cucumber, fresh herbs. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-mixed-vegetable-salad",
+      "nameKm": "ញាំបន្លែចម្រុះ",
+      "nameEn": "Khmer mixed vegetable salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ជីគ្រប់មុខ និង សណ្ដែកដី និង ក្រូចឆ្មា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer mixed vegetable salad commonly uses vegetables, fresh herbs, peanuts, lime. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-fermented-fish-relish-salad",
+      "nameKm": "ញាំផ្អកត្រី",
+      "nameEn": "Khmer fermented fish relish salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ជីគ្រប់មុខ និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer fermented fish relish salad commonly uses fish, fresh herbs, cucumber. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-beef-lime-salad",
+      "nameKm": "ញាំសាច់គោទឹកក្រូចឆ្មា",
+      "nameEn": "Khmer beef lime salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ជីគ្រប់មុខ និង ក្រូចឆ្មា និង សណ្ដែកដី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer beef lime salad commonly uses beef, fresh herbs, lime, peanuts. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ក្រូចឆ្មា",
+          "nameEn": "Lime"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "greek-salad",
+      "nameKm": "សាឡាត់ក្រិក",
+      "nameEn": "Greek salad",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រសក់ និង ប៉េងប៉ោះ និង ឈីស និង អូលីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Greek salad commonly uses cucumber, tomato, cheese, olives. Preparation varies by kitchen.",
+      "category": "SALAD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "អូលីវ",
+          "nameEn": "Olives"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    }
+  ]
+}

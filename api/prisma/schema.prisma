@@ -1279,3 +1279,29 @@ model FoodAiRecipe {
   @@index([ownerId, createdAt(sort: Desc), id(sort: Desc)], map: "food_ai_recipes_owner_created_idx")
   @@map("food_ai_recipes")
 }
+
+model FoodMenuItem {
+  slug          String   @id @db.VarChar(96)
+  nameKm        String   @map("name_km") @db.VarChar(160)
+  nameEn        String   @map("name_en") @db.VarChar(160)
+  nameKeyKm     String   @unique @map("name_key_km") @db.VarChar(512)
+  nameKeyEn     String   @unique @map("name_key_en") @db.VarChar(512)
+  descriptionKm String   @map("description_km") @db.VarChar(500)
+  descriptionEn String   @map("description_en") @db.VarChar(500)
+  category      String   @db.VarChar(24)
+  cuisine       String   @db.VarChar(24)
+  mealTimes     String[] @map("meal_times")
+  ingredients   Json     @db.JsonB
+  tags          String[] @default([])
+  source        String   @default("AI_ASSISTED") @db.VarChar(24)
+  importBatch   String   @map("import_batch") @db.VarChar(64)
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@index([category, slug], map: "food_menu_items_category_slug_idx")
+  @@index([cuisine, slug], map: "food_menu_items_cuisine_slug_idx")
+  @@index([mealTimes], type: Gin, map: "food_menu_items_meals_idx")
+  @@index([tags], type: Gin, map: "food_menu_items_tags_idx")
+  @@map("food_menu_items")
+}

@@ -1,0 +1,1618 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 17,
+  "items": [
+    {
+      "slug": "classic-beef-burger",
+      "nameKm": "ប៊ឺហ្គឺសាច់គោ",
+      "nameEn": "Classic beef burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់គោ និង សាឡាត់ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Classic beef burger commonly uses bread, beef, lettuce, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "cheeseburger",
+      "nameKm": "ឈីសប៊ឺហ្គឺ",
+      "nameEn": "Cheeseburger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់គោ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cheeseburger commonly uses bread, beef, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "bacon-cheeseburger",
+      "nameKm": "ប៊ឺហ្គឺបេកុនឈីស",
+      "nameEn": "Bacon cheeseburger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់គោ និង បេកុន និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bacon cheeseburger commonly uses bread, beef, bacon, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-beef-burger",
+      "nameKm": "ប៊ឺហ្គឺសាច់គោផ្សិត",
+      "nameEn": "Mushroom beef burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់គោ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom beef burger commonly uses bread, beef, mushroom. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-chicken-burger",
+      "nameKm": "ប៊ឺហ្គឺមាន់ស្រួយ",
+      "nameEn": "Crispy chicken burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់មាន់ និង ម្សៅនំប៉័ង និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy chicken burger commonly uses bread, chicken, breadcrumbs, lettuce. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-chicken-burger",
+      "nameKm": "ប៊ឺហ្គឺមាន់អាំង",
+      "nameEn": "Grilled chicken burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់មាន់ និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled chicken burger commonly uses bread, chicken, lettuce. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spicy-chicken-burger",
+      "nameKm": "ប៊ឺហ្គឺមាន់ហឹរ",
+      "nameEn": "Spicy chicken burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់មាន់ និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spicy chicken burger commonly uses bread, chicken, chilli. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "fish-burger",
+      "nameKm": "ប៊ឺហ្គឺត្រី",
+      "nameEn": "Fish burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់ត្រី និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fish burger commonly uses bread, fish, breadcrumbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "shrimp-burger",
+      "nameKm": "ប៊ឺហ្គឺបង្គា",
+      "nameEn": "Shrimp burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង បង្គា និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp burger commonly uses bread, shrimp, breadcrumbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetable-burger",
+      "nameKm": "ប៊ឺហ្គឺបន្លែ",
+      "nameEn": "Vegetable burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង បន្លែចម្រុះ និង សណ្ដែកឈីកពី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable burger commonly uses bread, vegetables, chickpeas. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សណ្ដែកឈីកពី",
+          "nameEn": "Chickpeas"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "pulled-pork-burger",
+      "nameKm": "ប៊ឺហ្គឺសាច់ជ្រូកហែក",
+      "nameEn": "Pulled pork burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់ជ្រូក និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pulled pork burger commonly uses bread, pork, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "egg-breakfast-burger",
+      "nameKm": "ប៊ឺហ្គឺអាហារពេលព្រឹកស៊ុត",
+      "nameEn": "Egg breakfast burger",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ស៊ុត និង បេកុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg breakfast burger commonly uses bread, egg, bacon. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "margherita-pizza",
+      "nameKm": "ភីហ្សាម៉ាហ្គារីតា",
+      "nameEn": "Margherita pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ឈីសម៉ូហ្សារ៉េឡា និង ប៉េងប៉ោះ និង ជីរនាងវង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Margherita pizza commonly uses wheat flour, mozzarella, tomato, basil. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pepperoni-pizza",
+      "nameKm": "ភីហ្សាប៉េប៉េរ៉ូនី",
+      "nameEn": "Pepperoni pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ប៉េប៉េរ៉ូនី និង ឈីសម៉ូហ្សារ៉េឡា និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pepperoni pizza commonly uses wheat flour, pepperoni, mozzarella, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ប៉េប៉េរ៉ូនី",
+          "nameEn": "Pepperoni"
+        },
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "hawaiian-pizza",
+      "nameKm": "ភីហ្សាហាវ៉ៃ",
+      "nameEn": "Hawaiian pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ហាំ និង ម្នាស់ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Hawaiian pizza commonly uses wheat flour, ham, pineapple, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "barbecue-chicken-pizza",
+      "nameKm": "ភីហ្សាមាន់ប៊ីប៊ីឃ្យូ",
+      "nameEn": "Barbecue chicken pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង ប៉េងប៉ោះ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Barbecue chicken pizza commonly uses wheat flour, chicken, tomato, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "seafood-pizza",
+      "nameKm": "ភីហ្សាគ្រឿងសមុទ្រ",
+      "nameEn": "Seafood pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង គ្រឿងសមុទ្រ និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Seafood pizza commonly uses wheat flour, seafood, cheese, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "tuna-pizza",
+      "nameKm": "ភីហ្សាធូណា",
+      "nameEn": "Tuna pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ត្រីធូណា និង ខ្ទឹមបារាំង និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna pizza commonly uses wheat flour, tuna, onion, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "four-cheese-pizza",
+      "nameKm": "ភីហ្សាឈីសបួនមុខ",
+      "nameEn": "Four cheese pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ឈីស និង ឈីសម៉ូហ្សារ៉េឡា និង ក្រែមឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Four cheese pizza commonly uses wheat flour, cheese, mozzarella, cream cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        },
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "mushroom-pizza",
+      "nameKm": "ភីហ្សាផ្សិត",
+      "nameEn": "Mushroom pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ផ្សិត និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom pizza commonly uses wheat flour, mushroom, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vegetable-pizza",
+      "nameKm": "ភីហ្សាបន្លែ",
+      "nameEn": "Vegetable pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង បន្លែចម្រុះ និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable pizza commonly uses wheat flour, vegetables, cheese, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "beef-pizza",
+      "nameKm": "ភីហ្សាសាច់គោ",
+      "nameEn": "Beef pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef pizza commonly uses wheat flour, beef, cheese, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "sausage-pizza",
+      "nameKm": "ភីហ្សាសាច់ក្រក",
+      "nameEn": "Sausage pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់ក្រក និង ឈីស និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sausage pizza commonly uses wheat flour, sausage, cheese, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "spinach-cheese-pizza",
+      "nameKm": "ភីហ្សាស្ពៃឈីស",
+      "nameEn": "Spinach cheese pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស្ពៃស្ពីណាច និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spinach cheese pizza commonly uses wheat flour, spinach, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស្ពៃស្ពីណាច",
+          "nameEn": "Spinach"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pesto-chicken-pizza",
+      "nameKm": "ភីហ្សាមាន់ប៉េស្តូ",
+      "nameEn": "Pesto chicken pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង ជីរនាងវង និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pesto chicken pizza commonly uses wheat flour, chicken, basil, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "smoked-salmon-pizza",
+      "nameKm": "ភីហ្សាត្រីសាល់ម៉ុន",
+      "nameEn": "Smoked salmon pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ត្រីសាល់ម៉ុន និង ក្រែមឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Smoked salmon pizza commonly uses wheat flour, salmon, cream cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "garlic-prawn-pizza",
+      "nameKm": "ភីហ្សាបង្គាខ្ទឹមស",
+      "nameEn": "Garlic prawn pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង បង្គា និង ខ្ទឹមស និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic prawn pizza commonly uses wheat flour, shrimp, garlic, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "ham-mushroom-pizza",
+      "nameKm": "ភីហ្សាហាំផ្សិត",
+      "nameEn": "Ham mushroom pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ហាំ និង ផ្សិត និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ham mushroom pizza commonly uses wheat flour, ham, mushroom, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "meat-lovers-pizza",
+      "nameKm": "ភីហ្សាសាច់ចម្រុះ",
+      "nameEn": "Meat lovers pizza",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង សាច់ជ្រូក និង សាច់ក្រក និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Meat lovers pizza commonly uses wheat flour, beef, pork, sausage, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "សាច់ក្រក",
+          "nameEn": "Sausage"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chicken-club-sandwich",
+      "nameKm": "សាំងវិចខ្លាប់មាន់",
+      "nameEn": "Chicken club sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់មាន់ និង បេកុន និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken club sandwich commonly uses bread, chicken, bacon, lettuce. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "tuna-mayonnaise-sandwich",
+      "nameKm": "សាំងវិចធូណាម៉ាយ៉ូណេស",
+      "nameEn": "Tuna mayonnaise sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ត្រីធូណា និង ម៉ាយ៉ូណេស និង សាឡាត់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna mayonnaise sandwich commonly uses bread, tuna, mayonnaise, lettuce. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "ham-cheese-sandwich",
+      "nameKm": "សាំងវិចហាំឈីស",
+      "nameEn": "Ham cheese sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ហាំ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ham cheese sandwich commonly uses bread, ham, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ហាំ",
+          "nameEn": "Ham"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "egg-mayonnaise-sandwich",
+      "nameKm": "សាំងវិចស៊ុតម៉ាយ៉ូណេស",
+      "nameEn": "Egg mayonnaise sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ស៊ុត និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg mayonnaise sandwich commonly uses bread, egg, mayonnaise. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "blt-sandwich",
+      "nameKm": "សាំងវិចបេកុនសាឡាត់ប៉េងប៉ោះ",
+      "nameEn": "BLT sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង បេកុន និង សាឡាត់ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "BLT sandwich commonly uses bread, bacon, lettuce, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "បេកុន",
+          "nameEn": "Bacon"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-cheese-sandwich",
+      "nameKm": "សាំងវិចឈីសអាំង",
+      "nameEn": "Grilled cheese sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ឈីស និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled cheese sandwich commonly uses bread, cheese, butter. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-avocado-sandwich",
+      "nameKm": "សាំងវិចមាន់ផ្លែបឺរ",
+      "nameEn": "Chicken avocado sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់មាន់ និង ផ្លែបឺរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken avocado sandwich commonly uses bread, chicken, avocado. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-beef-sandwich",
+      "nameKm": "សាំងវិចសាច់គោដុត",
+      "nameEn": "Roast beef sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សាច់គោ និង ម៉ាស្តាត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast beef sandwich commonly uses bread, beef, mustard. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ម៉ាស្តាត",
+          "nameEn": "Mustard"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "smoked-salmon-bagel",
+      "nameKm": "បេហ្គលសាល់ម៉ុនក្រែមឈីស",
+      "nameEn": "Smoked salmon bagel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ត្រីសាល់ម៉ុន និង ក្រែមឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Smoked salmon bagel commonly uses bread, salmon, cream cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "ក្រែមឈីស",
+          "nameEn": "Cream cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "peanut-butter-banana-sandwich",
+      "nameKm": "សាំងវិចសណ្ដែកដីចេក",
+      "nameEn": "Peanut butter banana sandwich",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង សណ្ដែកដី និង ចេក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Peanut butter banana sandwich commonly uses bread, peanuts, banana. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "fish-and-chips",
+      "nameKm": "ត្រីបំពងដំឡូង",
+      "nameEn": "Fish and chips",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ដំឡូងបារាំង និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fish and chips commonly uses fish, potato, wheat flour. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "fried-chicken-wings",
+      "nameKm": "ស្លាបមាន់បំពង",
+      "nameEn": "Fried chicken wings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លាបមាន់ និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fried chicken wings commonly uses chicken wings, wheat flour. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លាបមាន់",
+          "nameEn": "Chicken wings"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "spicy-fried-chicken",
+      "nameKm": "មាន់បំពងហឹរ",
+      "nameEn": "Spicy fried chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្ទេស និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spicy fried chicken commonly uses chicken, chilli, wheat flour. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "honey-garlic-chicken-wings",
+      "nameKm": "ស្លាបមាន់ទឹកឃ្មុំខ្ទឹមស",
+      "nameEn": "Honey garlic chicken wings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លាបមាន់ និង ទឹកឃ្មុំ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Honey garlic chicken wings commonly uses chicken wings, honey, garlic. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លាបមាន់",
+          "nameEn": "Chicken wings"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "buffalo-chicken-wings",
+      "nameKm": "ស្លាបមាន់ប៊ូហ្វាឡូ",
+      "nameEn": "Buffalo chicken wings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លាបមាន់ និង ម្ទេស និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Buffalo chicken wings commonly uses chicken wings, chilli, butter. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លាបមាន់",
+          "nameEn": "Chicken wings"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-tenders",
+      "nameKm": "សាច់មាន់បន្ទះបំពង",
+      "nameEn": "Chicken tenders",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken tenders commonly uses chicken, breadcrumbs. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-quesadilla",
+      "nameKm": "ខេសាឌីឡាមាន់",
+      "nameEn": "Chicken quesadilla",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken quesadilla commonly uses wheat flour, chicken, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-quesadilla",
+      "nameKm": "ខេសាឌីឡាសាច់គោ",
+      "nameEn": "Beef quesadilla",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef quesadilla commonly uses wheat flour, beef, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vegetable-quesadilla",
+      "nameKm": "ខេសាឌីឡាបន្លែ",
+      "nameEn": "Vegetable quesadilla",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង បន្លែចម្រុះ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vegetable quesadilla commonly uses wheat flour, vegetables, cheese. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "beef-tacos",
+      "nameKm": "តាកូសាច់គោ",
+      "nameEn": "Beef tacos",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់គោ និង សាឡាត់ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef tacos commonly uses wheat flour, beef, lettuce, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-tacos",
+      "nameKm": "តាកូមាន់",
+      "nameEn": "Chicken tacos",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់មាន់ និង សាឡាត់ និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken tacos commonly uses wheat flour, chicken, lettuce, tomato. Preparation varies by kitchen.",
+      "category": "FAST_FOOD",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "QUICK_MEAL"
+      ]
+    }
+  ]
+}

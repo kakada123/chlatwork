@@ -1,0 +1,1457 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 13,
+  "items": [
+    {
+      "slug": "stuffed-bitter-melon-parcels",
+      "nameKm": "ម្រះញាត់សាច់",
+      "nameEn": "Stuffed bitter melon parcels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង សាច់ជ្រូក និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stuffed bitter melon parcels commonly uses bitter melon, pork, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-sticky-rice-pork-parcels",
+      "nameKm": "អន្សមជ្រូក",
+      "nameEn": "Khmer sticky rice pork parcels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង សាច់ជ្រូក និង សណ្ដែកបាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sticky rice pork parcels commonly uses sticky rice, pork, mung beans. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "banana-sticky-rice-parcels",
+      "nameKm": "អន្សមចេក",
+      "nameEn": "Banana sticky rice parcels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង ចេក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana sticky rice parcels commonly uses sticky rice, banana, coconut milk. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-coconut-sticky-rice-rolls",
+      "nameKm": "អន្សមដូង",
+      "nameEn": "Khmer coconut sticky rice rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer coconut sticky rice rolls commonly uses sticky rice, coconut milk. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "khmer-bean-sticky-rice-parcels",
+      "nameKm": "អន្សមសណ្ដែក",
+      "nameEn": "Khmer bean sticky rice parcels",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង សណ្ដែកបាយ និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer bean sticky rice parcels commonly uses sticky rice, mung beans, coconut milk. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "shrimp-har-gow",
+      "nameKm": "ហាកាវបង្គា",
+      "nameEn": "Shrimp har gow",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp har gow commonly uses shrimp, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pork-siu-mai",
+      "nameKm": "ស៊ូម៉ៃសាច់ជ្រូក",
+      "nameEn": "Pork siu mai",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង សំបកវ៉ាន់តាន់ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork siu mai commonly uses pork, wonton wrappers, mushroom. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "shrimp-siu-mai",
+      "nameKm": "ស៊ូម៉ៃបង្គា",
+      "nameEn": "Shrimp siu mai",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បង្គា និង សំបកវ៉ាន់តាន់ និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp siu mai commonly uses shrimp, wonton wrappers, mushroom. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        },
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-chicken-feet",
+      "nameKm": "ជើងមាន់ចំហុយតៅស៊ី",
+      "nameEn": "Steamed chicken feet",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង តៅស៊ី និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed chicken feet commonly uses chicken, fermented bean paste, garlic. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "តៅស៊ី",
+          "nameEn": "Fermented bean paste"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "turnip-cake",
+      "nameKm": "នំឆៃថាវចិន",
+      "nameEn": "Turnip cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆៃថាវ និង ម្សៅអង្ករ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Turnip cake commonly uses radish, rice flour, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆៃថាវ",
+          "nameEn": "Radish"
+        },
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-char-siu-buns",
+      "nameKm": "នំប៉ាវសាច់ជ្រូកឆាស៊ីវ",
+      "nameEn": "Steamed char siu buns",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង សាច់ជ្រូក និង មេនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed char siu buns commonly uses wheat flour, pork, yeast. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "មេនំប៉័ង",
+          "nameEn": "Yeast"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "salted-egg-custard-buns",
+      "nameKm": "នំប៉ាវស៊ុតប្រៃ",
+      "nameEn": "Salted egg custard buns",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ស៊ុតប្រៃ និង ក្រែមស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salted egg custard buns commonly uses wheat flour, salted egg, custard. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ស៊ុតប្រៃ",
+          "nameEn": "Salted egg"
+        },
+        {
+          "nameKm": "ក្រែមស៊ុត",
+          "nameEn": "Custard"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "shanghai-soup-dumplings",
+      "nameKm": "គាវស៊ុបសៀងហៃ",
+      "nameEn": "Shanghai soup dumplings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង សាច់ជ្រូក និង ខ្ញី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shanghai soup dumplings commonly uses wonton wrappers, pork, ginger. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chinese-scallion-pancakes",
+      "nameKm": "នំខ្ទឹមស្លឹកចិន",
+      "nameEn": "Chinese scallion pancakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង ជីគ្រប់មុខ និង ប្រេងអូលីវ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese scallion pancakes commonly uses wheat flour, fresh herbs, olive oil. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "ប្រេងអូលីវ",
+          "nameEn": "Olive oil"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chinese-sesame-balls",
+      "nameKm": "នំល្ងមូលចិន",
+      "nameEn": "Chinese sesame balls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ល្ង និង សណ្ដែកបាយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sesame balls commonly uses glutinous rice flour, sesame, mung beans. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "takoyaki-octopus-balls",
+      "nameKm": "តាកូយ៉ាគី",
+      "nameEn": "Takoyaki octopus balls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង មឹកអុកតូប៉ុស និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Takoyaki octopus balls commonly uses wheat flour, octopus, egg. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "មឹកអុកតូប៉ុស",
+          "nameEn": "Octopus"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chicken-karaage",
+      "nameKm": "មាន់បំពងការ៉ាអាហ្គេ",
+      "nameEn": "Chicken karaage",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ខ្ញី និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken karaage commonly uses chicken, ginger, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "potato-korokke",
+      "nameKm": "កូរ៉ុកកេដំឡូង",
+      "nameEn": "Potato korokke",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ម្សៅនំប៉័ង និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Potato korokke commonly uses potato, breadcrumbs, egg. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "gyoza-pork-dumplings",
+      "nameKm": "គាវហ្គ្យូហ្សាជ្រូក",
+      "nameEn": "Gyoza pork dumplings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង សាច់ជ្រូក និង ស្ពៃក្តោប។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Gyoza pork dumplings commonly uses wonton wrappers, pork, cabbage. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "edamame",
+      "nameKm": "សណ្ដែកអេដាម៉ាមេ",
+      "nameEn": "Edamame",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Edamame commonly uses vegetables, salt. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "california-sushi-roll",
+      "nameKm": "ស៊ូស៊ីកាលីហ្វ័រញ៉ា",
+      "nameEn": "California sushi roll",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សាច់ក្តាមបន្ទះ និង ផ្លែបឺរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "California sushi roll commonly uses sushi rice, crab sticks, avocado. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សាច់ក្តាមបន្ទះ",
+          "nameEn": "Crab sticks"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "spicy-tuna-roll",
+      "nameKm": "ស៊ូស៊ីធូណាហឹរ",
+      "nameEn": "Spicy tuna roll",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង ត្រីធូណា និង ម្ទេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Spicy tuna roll commonly uses sushi rice, tuna, chilli. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "salmon-avocado-roll",
+      "nameKm": "ស៊ូស៊ីសាល់ម៉ុនផ្លែបឺរ",
+      "nameEn": "Salmon avocado roll",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង ត្រីសាល់ម៉ុន និង ផ្លែបឺរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salmon avocado roll commonly uses sushi rice, salmon, avocado. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "korean-seafood-pancake",
+      "nameKm": "នំចៀនគ្រឿងសមុទ្រកូរ៉េ",
+      "nameEn": "Korean seafood pancake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង គ្រឿងសមុទ្រ និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean seafood pancake commonly uses wheat flour, seafood, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "kimchi-pancake",
+      "nameKm": "នំចៀនគីមឈី",
+      "nameEn": "Kimchi pancake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅស្រូវសាលី និង គីមឈី និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Kimchi pancake commonly uses wheat flour, kimchi, egg. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "គីមឈី",
+          "nameEn": "Kimchi"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "tteokbokki",
+      "nameKm": "នំអង្ករកូរ៉េតុកបុកគី",
+      "nameEn": "Tteokbokki",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំអង្ករ និង ម្ទេសកូរ៉េ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tteokbokki commonly uses rice cakes, gochujang. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំអង្ករ",
+          "nameEn": "Rice cakes"
+        },
+        {
+          "nameKm": "ម្ទេសកូរ៉េ",
+          "nameEn": "Gochujang"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "cheese-tteokbokki",
+      "nameKm": "តុកបុកគីឈីស",
+      "nameEn": "Cheese tteokbokki",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំអង្ករ និង ម្ទេសកូរ៉េ និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cheese tteokbokki commonly uses rice cakes, gochujang, cheese. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំអង្ករ",
+          "nameEn": "Rice cakes"
+        },
+        {
+          "nameKm": "ម្ទេសកូរ៉េ",
+          "nameEn": "Gochujang"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "gimbap",
+      "nameKm": "គីមបាប",
+      "nameEn": "Gimbap",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សារាយសមុទ្រ និង ស៊ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Gimbap commonly uses rice, seaweed, egg, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "beef-gimbap",
+      "nameKm": "គីមបាបសាច់គោ",
+      "nameEn": "Beef gimbap",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សារាយសមុទ្រ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef gimbap commonly uses rice, seaweed, beef. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "tuna-gimbap",
+      "nameKm": "គីមបាបធូណា",
+      "nameEn": "Tuna gimbap",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង សារាយសមុទ្រ និង ត្រីធូណា និង ម៉ាយ៉ូណេស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna gimbap commonly uses rice, seaweed, tuna, mayonnaise. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        },
+        {
+          "nameKm": "ម៉ាយ៉ូណេស",
+          "nameEn": "Mayonnaise"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "french-fries",
+      "nameKm": "ដំឡូងបារាំងបំពង",
+      "nameEn": "French fries",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "French fries commonly uses potato, salt. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "cheese-fries",
+      "nameKm": "ដំឡូងបំពងឈីស",
+      "nameEn": "Cheese fries",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ឈីស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cheese fries commonly uses potato, cheese. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ឈីស",
+          "nameEn": "Cheese"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "onion-rings",
+      "nameKm": "ខ្ទឹមបារាំងបំពងរង្វង់",
+      "nameEn": "Onion rings",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ទឹមបារាំង និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Onion rings commonly uses onion, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "mozzarella-sticks",
+      "nameKm": "ឈីសម៉ូហ្សារ៉េឡាបំពង",
+      "nameEn": "Mozzarella sticks",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឈីសម៉ូហ្សារ៉េឡា និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mozzarella sticks commonly uses mozzarella, breadcrumbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឈីសម៉ូហ្សារ៉េឡា",
+          "nameEn": "Mozzarella"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chicken-nuggets",
+      "nameKm": "ដុំមាន់បំពងណាហ្គេត",
+      "nameEn": "Chicken nuggets",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken nuggets commonly uses chicken, breadcrumbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "potato-wedges",
+      "nameKm": "ដំឡូងកាត់កង់ដុត",
+      "nameEn": "Potato wedges",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងបារាំង និង ជីគ្រប់មុខ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Potato wedges commonly uses potato, fresh herbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងបារាំង",
+          "nameEn": "Potato"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "fish-fingers",
+      "nameKm": "ត្រីបន្ទះបំពង",
+      "nameEn": "Fish fingers",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង ម្សៅនំប៉័ង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Fish fingers commonly uses fish, breadcrumbs. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "ម្សៅនំប៉័ង",
+          "nameEn": "Breadcrumbs"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "chicken-popcorn",
+      "nameKm": "មាន់ដុំតូចបំពង",
+      "nameEn": "Chicken popcorn",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្សៅស្រូវសាលី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken popcorn commonly uses chicken, wheat flour. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "garlic-bread",
+      "nameKm": "នំប៉័ងខ្ទឹមស",
+      "nameEn": "Garlic bread",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ខ្ទឹមស និង ប៊័រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Garlic bread commonly uses bread, garlic, butter. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "bruschetta",
+      "nameKm": "នំប៉័ងប្រ៊ូស្គេតា",
+      "nameEn": "Bruschetta",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំប៉័ង និង ប៉េងប៉ោះ និង ជីរនាងវង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bruschetta commonly uses bread, tomato, basil. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំប៉័ង",
+          "nameEn": "Bread"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-dumplings-with-pork",
+      "nameKm": "គាវចំហុយសាច់ជ្រូក",
+      "nameEn": "Steamed dumplings with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ញី និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed dumplings with Pork commonly uses wonton wrappers, ginger, garlic, pork. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-dumplings-with-chicken",
+      "nameKm": "គាវចំហុយសាច់មាន់",
+      "nameEn": "Steamed dumplings with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ញី និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed dumplings with Chicken commonly uses wonton wrappers, ginger, garlic, chicken. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-dumplings-with-shrimp",
+      "nameKm": "គាវចំហុយបង្គា",
+      "nameEn": "Steamed dumplings with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ញី និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed dumplings with Shrimp commonly uses wonton wrappers, ginger, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-dumplings-with-vegetables",
+      "nameKm": "គាវចំហុយបន្លែចម្រុះ",
+      "nameEn": "Steamed dumplings with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ញី និង ខ្ទឹមស និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed dumplings with Vegetables commonly uses wonton wrappers, ginger, garlic, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "steamed-dumplings-with-mushroom",
+      "nameKm": "គាវចំហុយផ្សិត",
+      "nameEn": "Steamed dumplings with Mushroom",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ញី និង ខ្ទឹមស និង ផ្សិត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Steamed dumplings with Mushroom commonly uses wonton wrappers, ginger, garlic, mushroom. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pan-fried-dumplings-with-pork",
+      "nameKm": "គាវចៀនសាច់ជ្រូក",
+      "nameEn": "Pan-fried dumplings with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង ស្ពៃក្តោប និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pan-fried dumplings with Pork commonly uses wonton wrappers, garlic, cabbage, pork. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pan-fried-dumplings-with-chicken",
+      "nameKm": "គាវចៀនសាច់មាន់",
+      "nameEn": "Pan-fried dumplings with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង ស្ពៃក្តោប និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pan-fried dumplings with Chicken commonly uses wonton wrappers, garlic, cabbage, chicken. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pan-fried-dumplings-with-shrimp",
+      "nameKm": "គាវចៀនបង្គា",
+      "nameEn": "Pan-fried dumplings with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង ស្ពៃក្តោប និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pan-fried dumplings with Shrimp commonly uses wonton wrappers, garlic, cabbage, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "pan-fried-dumplings-with-vegetables",
+      "nameKm": "គាវចៀនបន្លែចម្រុះ",
+      "nameEn": "Pan-fried dumplings with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង ស្ពៃក្តោប និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pan-fried dumplings with Vegetables commonly uses wonton wrappers, garlic, cabbage, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "crispy-wontons-with-pork",
+      "nameKm": "គាវបំពងស្រួយសាច់ជ្រូក",
+      "nameEn": "Crispy wontons with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy wontons with Pork commonly uses wonton wrappers, garlic, pork. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1775 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 4,
+  "items": [
+    {
+      "slug": "dry-shrimp-kuy-teav",
+      "nameKm": "គុយទាវគោកបង្គា",
+      "nameEn": "Dry Shrimp kuy teav",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមស និង ជីគ្រប់មុខ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Dry Shrimp kuy teav commonly uses rice noodles, garlic, fresh herbs, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-pork",
+      "nameKm": "មីកាតាំងឆាសាច់ជ្រូក",
+      "nameEn": "Stir-fried flat noodles with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Pork commonly uses flat rice noodles, egg, vegetables, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-beef",
+      "nameKm": "មីកាតាំងឆាសាច់គោ",
+      "nameEn": "Stir-fried flat noodles with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Beef commonly uses flat rice noodles, egg, vegetables, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-chicken",
+      "nameKm": "មីកាតាំងឆាសាច់មាន់",
+      "nameEn": "Stir-fried flat noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Chicken commonly uses flat rice noodles, egg, vegetables, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-shrimp",
+      "nameKm": "មីកាតាំងឆាបង្គា",
+      "nameEn": "Stir-fried flat noodles with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Shrimp commonly uses flat rice noodles, egg, vegetables, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-seafood",
+      "nameKm": "មីកាតាំងឆាគ្រឿងសមុទ្រ",
+      "nameEn": "Stir-fried flat noodles with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Seafood commonly uses flat rice noodles, egg, vegetables, seafood. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-flat-noodles-with-vegetables",
+      "nameKm": "មីកាតាំងឆាបន្លែចម្រុះ",
+      "nameEn": "Stir-fried flat noodles with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីកាតាំង និង ស៊ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried flat noodles with Vegetables commonly uses flat rice noodles, egg, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីកាតាំង",
+          "nameEn": "Flat rice noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-pork",
+      "nameKm": "មីឆាសាច់ជ្រូក",
+      "nameEn": "Stir-fried egg noodles with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Pork commonly uses egg noodles, egg, vegetables, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-beef",
+      "nameKm": "មីឆាសាច់គោ",
+      "nameEn": "Stir-fried egg noodles with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Beef commonly uses egg noodles, egg, vegetables, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-chicken",
+      "nameKm": "មីឆាសាច់មាន់",
+      "nameEn": "Stir-fried egg noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Chicken commonly uses egg noodles, egg, vegetables, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-shrimp",
+      "nameKm": "មីឆាបង្គា",
+      "nameEn": "Stir-fried egg noodles with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Shrimp commonly uses egg noodles, egg, vegetables, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-seafood",
+      "nameKm": "មីឆាគ្រឿងសមុទ្រ",
+      "nameEn": "Stir-fried egg noodles with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Seafood commonly uses egg noodles, egg, vegetables, seafood. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-egg-noodles-with-vegetables",
+      "nameKm": "មីឆាបន្លែចម្រុះ",
+      "nameEn": "Stir-fried egg noodles with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស៊ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried egg noodles with Vegetables commonly uses egg noodles, egg, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-pork",
+      "nameKm": "មីសួឆាសាច់ជ្រូក",
+      "nameEn": "Stir-fried glass noodles with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Pork commonly uses glass noodles, cabbage, carrot, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-beef",
+      "nameKm": "មីសួឆាសាច់គោ",
+      "nameEn": "Stir-fried glass noodles with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Beef commonly uses glass noodles, cabbage, carrot, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-chicken",
+      "nameKm": "មីសួឆាសាច់មាន់",
+      "nameEn": "Stir-fried glass noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Chicken commonly uses glass noodles, cabbage, carrot, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-shrimp",
+      "nameKm": "មីសួឆាបង្គា",
+      "nameEn": "Stir-fried glass noodles with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Shrimp commonly uses glass noodles, cabbage, carrot, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-seafood",
+      "nameKm": "មីសួឆាគ្រឿងសមុទ្រ",
+      "nameEn": "Stir-fried glass noodles with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Seafood commonly uses glass noodles, cabbage, carrot, seafood. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-glass-noodles-with-vegetables",
+      "nameKm": "មីសួឆាបន្លែចម្រុះ",
+      "nameEn": "Stir-fried glass noodles with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មីសួ និង ស្ពៃក្តោប និង ការ៉ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried glass noodles with Vegetables commonly uses glass noodles, cabbage, carrot, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-vermicelli-stir-fry-with-pork",
+      "nameKm": "នំបញ្ចុកឆាសាច់ជ្រូក",
+      "nameEn": "Rice vermicelli stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សណ្ដែកបណ្ដុះ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice vermicelli stir-fry with Pork commonly uses rice vermicelli, bean sprouts, garlic, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-vermicelli-stir-fry-with-chicken",
+      "nameKm": "នំបញ្ចុកឆាសាច់មាន់",
+      "nameEn": "Rice vermicelli stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សណ្ដែកបណ្ដុះ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice vermicelli stir-fry with Chicken commonly uses rice vermicelli, bean sprouts, garlic, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-vermicelli-stir-fry-with-shrimp",
+      "nameKm": "នំបញ្ចុកឆាបង្គា",
+      "nameEn": "Rice vermicelli stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សណ្ដែកបណ្ដុះ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice vermicelli stir-fry with Shrimp commonly uses rice vermicelli, bean sprouts, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "rice-vermicelli-stir-fry-with-vegetables",
+      "nameKm": "នំបញ្ចុកឆាបន្លែចម្រុះ",
+      "nameEn": "Rice vermicelli stir-fry with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង សណ្ដែកបណ្ដុះ និង ខ្ទឹមស និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice vermicelli stir-fry with Vegetables commonly uses rice vermicelli, bean sprouts, garlic, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "lort-cha-with-beef",
+      "nameKm": "លតឆាសាច់គោ",
+      "nameEn": "Lort cha with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សណ្ដែកបណ្ដុះ និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lort cha with Beef commonly uses rice flour, bean sprouts, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "lort-cha-with-pork",
+      "nameKm": "លតឆាសាច់ជ្រូក",
+      "nameEn": "Lort cha with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សណ្ដែកបណ្ដុះ និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lort cha with Pork commonly uses rice flour, bean sprouts, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "lort-cha-with-chicken",
+      "nameKm": "លតឆាសាច់មាន់",
+      "nameEn": "Lort cha with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សណ្ដែកបណ្ដុះ និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lort cha with Chicken commonly uses rice flour, bean sprouts, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "lort-cha-with-egg",
+      "nameKm": "លតឆាស៊ុត",
+      "nameEn": "Lort cha with Egg",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សណ្ដែកបណ្ដុះ និង ទឹកស៊ីអ៊ីវ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lort cha with Egg commonly uses rice flour, bean sprouts, soy sauce, egg. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "lort-cha-with-shrimp",
+      "nameKm": "លតឆាបង្គា",
+      "nameEn": "Lort cha with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង សណ្ដែកបណ្ដុះ និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lort cha with Shrimp commonly uses rice flour, bean sprouts, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "macaroni-stir-fry-with-beef",
+      "nameKm": "ម៉ាការ៉ូនីឆាសាច់គោ",
+      "nameEn": "Macaroni stir-fry with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ប៉េងប៉ោះ និង ស៊ុត និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni stir-fry with Beef commonly uses macaroni, tomato, egg, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "macaroni-stir-fry-with-pork",
+      "nameKm": "ម៉ាការ៉ូនីឆាសាច់ជ្រូក",
+      "nameEn": "Macaroni stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ប៉េងប៉ោះ និង ស៊ុត និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni stir-fry with Pork commonly uses macaroni, tomato, egg, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "macaroni-stir-fry-with-chicken",
+      "nameKm": "ម៉ាការ៉ូនីឆាសាច់មាន់",
+      "nameEn": "Macaroni stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ប៉េងប៉ោះ និង ស៊ុត និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni stir-fry with Chicken commonly uses macaroni, tomato, egg, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "macaroni-stir-fry-with-shrimp",
+      "nameKm": "ម៉ាការ៉ូនីឆាបង្គា",
+      "nameEn": "Macaroni stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ប៉េងប៉ោះ និង ស៊ុត និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni stir-fry with Shrimp commonly uses macaroni, tomato, egg, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "macaroni-stir-fry-with-vegetables",
+      "nameKm": "ម៉ាការ៉ូនីឆាបន្លែចម្រុះ",
+      "nameEn": "Macaroni stir-fry with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម៉ាការ៉ូនី និង ប៉េងប៉ោះ និង ស៊ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Macaroni stir-fry with Vegetables commonly uses macaroni, tomato, egg, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម៉ាការ៉ូនី",
+          "nameEn": "Macaroni"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-noodles-with-chicken",
+      "nameKm": "មីបំពងស្រួយសាច់មាន់",
+      "nameEn": "Crispy noodles with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ការ៉ុត និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy noodles with Chicken commonly uses egg noodles, carrot, garlic, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-noodles-with-beef",
+      "nameKm": "មីបំពងស្រួយសាច់គោ",
+      "nameEn": "Crispy noodles with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ការ៉ុត និង ខ្ទឹមស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy noodles with Beef commonly uses egg noodles, carrot, garlic, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-noodles-with-shrimp",
+      "nameKm": "មីបំពងស្រួយបង្គា",
+      "nameEn": "Crispy noodles with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ការ៉ុត និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy noodles with Shrimp commonly uses egg noodles, carrot, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-noodles-with-seafood",
+      "nameKm": "មីបំពងស្រួយគ្រឿងសមុទ្រ",
+      "nameEn": "Crispy noodles with Seafood",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ការ៉ុត និង ខ្ទឹមស និង គ្រឿងសមុទ្រ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy noodles with Seafood commonly uses egg noodles, carrot, garlic, seafood. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "គ្រឿងសមុទ្រ",
+          "nameEn": "Seafood"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-noodles-with-vegetables",
+      "nameKm": "មីបំពងស្រួយបន្លែចម្រុះ",
+      "nameEn": "Crispy noodles with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ការ៉ុត និង ខ្ទឹមស និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy noodles with Vegetables commonly uses egg noodles, carrot, garlic, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-beef-pho",
+      "nameKm": "ហ្វឺសាច់គោ",
+      "nameEn": "Vietnamese Beef pho",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមបារាំង និង ជីគ្រប់មុខ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese Beef pho commonly uses rice noodles, onion, fresh herbs, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "vietnamese-chicken-pho",
+      "nameKm": "ហ្វឺសាច់មាន់",
+      "nameEn": "Vietnamese Chicken pho",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមបារាំង និង ជីគ្រប់មុខ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese Chicken pho commonly uses rice noodles, onion, fresh herbs, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "vietnamese-tofu-pho",
+      "nameKm": "ហ្វឺតៅហ៊ូ",
+      "nameEn": "Vietnamese Tofu pho",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គុយទាវ និង ខ្ទឹមបារាំង និង ជីគ្រប់មុខ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese Tofu pho commonly uses rice noodles, onion, fresh herbs, tofu. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "breakfast",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គុយទាវ",
+          "nameEn": "Rice noodles"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL",
+        "STREET_FOOD",
+        "BREAKFAST_STALL"
+      ]
+    },
+    {
+      "slug": "vietnamese-grilled-pork-vermicelli",
+      "nameKm": "ប៊ុនសាច់ជ្រូកអាំង",
+      "nameEn": "Vietnamese grilled Pork vermicelli",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង ជីគ្រប់មុខ និង សណ្ដែកដី និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese grilled Pork vermicelli commonly uses rice vermicelli, fresh herbs, peanuts, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-grilled-chicken-vermicelli",
+      "nameKm": "ប៊ុនសាច់មាន់អាំង",
+      "nameEn": "Vietnamese grilled Chicken vermicelli",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង ជីគ្រប់មុខ និង សណ្ដែកដី និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese grilled Chicken vermicelli commonly uses rice vermicelli, fresh herbs, peanuts, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-grilled-beef-vermicelli",
+      "nameKm": "ប៊ុនសាច់គោអាំង",
+      "nameEn": "Vietnamese grilled Beef vermicelli",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង ជីគ្រប់មុខ និង សណ្ដែកដី និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese grilled Beef vermicelli commonly uses rice vermicelli, fresh herbs, peanuts, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "vietnamese-grilled-shrimp-vermicelli",
+      "nameKm": "ប៊ុនបង្គាអាំង",
+      "nameEn": "Vietnamese grilled Shrimp vermicelli",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា នំបញ្ចុក និង ជីគ្រប់មុខ និង សណ្ដែកដី និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese grilled Shrimp vermicelli commonly uses rice vermicelli, fresh herbs, peanuts, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-pork-yakisoba",
+      "nameKm": "មីយ៉ាគីសូបាសាច់ជ្រូក",
+      "nameEn": "Japanese Pork yakisoba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Pork yakisoba commonly uses egg noodles, cabbage, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-chicken-yakisoba",
+      "nameKm": "មីយ៉ាគីសូបាសាច់មាន់",
+      "nameEn": "Japanese Chicken yakisoba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Chicken yakisoba commonly uses egg noodles, cabbage, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-beef-yakisoba",
+      "nameKm": "មីយ៉ាគីសូបាសាច់គោ",
+      "nameEn": "Japanese Beef yakisoba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Beef yakisoba commonly uses egg noodles, cabbage, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-shrimp-yakisoba",
+      "nameKm": "មីយ៉ាគីសូបាបង្គា",
+      "nameEn": "Japanese Shrimp yakisoba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Shrimp yakisoba commonly uses egg noodles, cabbage, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    },
+    {
+      "slug": "japanese-vegetables-yakisoba",
+      "nameKm": "មីយ៉ាគីសូបាបន្លែចម្រុះ",
+      "nameEn": "Japanese Vegetables yakisoba",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា មី និង ស្ពៃក្តោប និង ទឹកស៊ីអ៊ីវ និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Japanese Vegetables yakisoba commonly uses egg noodles, cabbage, soy sauce, vegetables. Preparation varies by kitchen.",
+      "category": "NOODLES",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "មី",
+          "nameEn": "Egg noodles"
+        },
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "HOME_COOKING",
+        "QUICK_MEAL"
+      ]
+    }
+  ]
+}

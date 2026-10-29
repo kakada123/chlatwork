@@ -1,0 +1,1696 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 8,
+  "items": [
+    {
+      "slug": "beef-lok-lak",
+      "nameKm": "ឡុកឡាក់សាច់គោ",
+      "nameEn": "Beef lok lak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ម្រេច និង ខ្ទឹមបារាំង និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Beef lok lak commonly uses beef, black pepper, onion, tomato. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chicken-lok-lak",
+      "nameKm": "ឡុកឡាក់សាច់មាន់",
+      "nameEn": "Chicken lok lak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ម្រេច និង ខ្ទឹមបារាំង និង ប៉េងប៉ោះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chicken lok lak commonly uses chicken, black pepper, onion, tomato. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pork-with-fermented-fish-paste",
+      "nameKm": "សាច់ជ្រូកឆាប្រហុក",
+      "nameEn": "Pork with fermented fish paste",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង ប្រហុក និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pork with fermented fish paste commonly uses pork, fermented fish paste, garlic. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "egg-with-tomatoes",
+      "nameKm": "ស៊ុតឆាប៉េងប៉ោះ",
+      "nameEn": "Egg with tomatoes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស៊ុត និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg with tomatoes commonly uses egg, tomato, onion. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "stir-fried-bamboo-shoots",
+      "nameKm": "ទំពាំងឆា",
+      "nameEn": "Stir-fried bamboo shoots",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ទំពាំង និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Stir-fried bamboo shoots commonly uses bamboo shoots, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ទំពាំង",
+          "nameEn": "Bamboo shoots"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lotus-stem-stir-fry",
+      "nameKm": "ក្រអៅឈូកឆា",
+      "nameEn": "Lotus stem stir-fry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រអៅឈូក និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus stem stir-fry commonly uses lotus stems, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រអៅឈូក",
+          "nameEn": "Lotus stems"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bean-sprouts-and-tofu-stir-fry",
+      "nameKm": "សណ្ដែកបណ្ដុះឆាតៅហ៊ូ",
+      "nameEn": "Bean sprouts and tofu stir-fry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកបណ្ដុះ និង តៅហ៊ូ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bean sprouts and tofu stir-fry commonly uses bean sprouts, tofu, garlic. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកបណ្ដុះ",
+          "nameEn": "Bean sprouts"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cabbage-and-egg-stir-fry",
+      "nameKm": "ស្ពៃក្តោបឆាស៊ុត",
+      "nameEn": "Cabbage and egg stir-fry",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃក្តោប និង ស៊ុត និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cabbage and egg stir-fry commonly uses cabbage, egg, garlic. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃក្តោប",
+          "nameEn": "Cabbage"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-chicken",
+      "nameKm": "ឆាគ្រឿងសាច់មាន់",
+      "nameEn": "Lemongrass stir-fried Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Chicken commonly uses kroeung spice paste, lemongrass, chilli, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-pork",
+      "nameKm": "ឆាគ្រឿងសាច់ជ្រូក",
+      "nameEn": "Lemongrass stir-fried Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Pork commonly uses kroeung spice paste, lemongrass, chilli, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-beef",
+      "nameKm": "ឆាគ្រឿងសាច់គោ",
+      "nameEn": "Lemongrass stir-fried Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Beef commonly uses kroeung spice paste, lemongrass, chilli, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-duck",
+      "nameKm": "ឆាគ្រឿងសាច់ទា",
+      "nameEn": "Lemongrass stir-fried Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Duck commonly uses kroeung spice paste, lemongrass, chilli, duck. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-fish",
+      "nameKm": "ឆាគ្រឿងសាច់ត្រី",
+      "nameEn": "Lemongrass stir-fried Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Fish commonly uses kroeung spice paste, lemongrass, chilli, fish. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-frog",
+      "nameKm": "ឆាគ្រឿងកង្កែប",
+      "nameEn": "Lemongrass stir-fried Frog",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង កង្កែប។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Frog commonly uses kroeung spice paste, lemongrass, chilli, frog. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "កង្កែប",
+          "nameEn": "Frog"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "lemongrass-stir-fried-eel",
+      "nameKm": "ឆាគ្រឿងអន្ទង់",
+      "nameEn": "Lemongrass stir-fried Eel",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រឿងបុក និង ស្លឹកគ្រៃ និង ម្ទេស និង អន្ទង់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lemongrass stir-fried Eel commonly uses kroeung spice paste, lemongrass, chilli, eel. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "អន្ទង់",
+          "nameEn": "Eel"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-stir-fried-chicken",
+      "nameKm": "ឆាខ្ញីសាច់មាន់",
+      "nameEn": "Ginger stir-fried Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger stir-fried Chicken commonly uses ginger, garlic, onion, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-stir-fried-pork",
+      "nameKm": "ឆាខ្ញីសាច់ជ្រូក",
+      "nameEn": "Ginger stir-fried Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger stir-fried Pork commonly uses ginger, garlic, onion, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-stir-fried-beef",
+      "nameKm": "ឆាខ្ញីសាច់គោ",
+      "nameEn": "Ginger stir-fried Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger stir-fried Beef commonly uses ginger, garlic, onion, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-stir-fried-fish",
+      "nameKm": "ឆាខ្ញីសាច់ត្រី",
+      "nameEn": "Ginger stir-fried Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger stir-fried Fish commonly uses ginger, garlic, onion, fish. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ginger-stir-fried-duck",
+      "nameKm": "ឆាខ្ញីសាច់ទា",
+      "nameEn": "Ginger stir-fried Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្ញី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ginger stir-fried Duck commonly uses ginger, garlic, onion, duck. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្ញី",
+          "nameEn": "Ginger"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-chicken",
+      "nameKm": "ឆាជីរនាងវងសាច់មាន់",
+      "nameEn": "Basil stir-fried Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Chicken commonly uses basil, garlic, chilli, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-pork",
+      "nameKm": "ឆាជីរនាងវងសាច់ជ្រូក",
+      "nameEn": "Basil stir-fried Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Pork commonly uses basil, garlic, chilli, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-beef",
+      "nameKm": "ឆាជីរនាងវងសាច់គោ",
+      "nameEn": "Basil stir-fried Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Beef commonly uses basil, garlic, chilli, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-shrimp",
+      "nameKm": "ឆាជីរនាងវងបង្គា",
+      "nameEn": "Basil stir-fried Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Shrimp commonly uses basil, garlic, chilli, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-squid",
+      "nameKm": "ឆាជីរនាងវងមឹក",
+      "nameEn": "Basil stir-fried Squid",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង មឹក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Squid commonly uses basil, garlic, chilli, squid. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "មឹក",
+          "nameEn": "Squid"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "basil-stir-fried-tofu",
+      "nameKm": "ឆាជីរនាងវងតៅហ៊ូ",
+      "nameEn": "Basil stir-fried Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ជីរនាងវង និង ខ្ទឹមស និង ម្ទេស និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Basil stir-fried Tofu commonly uses basil, garlic, chilli, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "morning-glory-with-beef",
+      "nameKm": "ត្រកួនឆាសាច់គោ",
+      "nameEn": "Morning glory with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រកួន និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Morning glory with Beef commonly uses morning glory, garlic, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រកួន",
+          "nameEn": "Morning glory"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "morning-glory-with-pork",
+      "nameKm": "ត្រកួនឆាសាច់ជ្រូក",
+      "nameEn": "Morning glory with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រកួន និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Morning glory with Pork commonly uses morning glory, garlic, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រកួន",
+          "nameEn": "Morning glory"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "morning-glory-with-chicken",
+      "nameKm": "ត្រកួនឆាសាច់មាន់",
+      "nameEn": "Morning glory with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រកួន និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Morning glory with Chicken commonly uses morning glory, garlic, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រកួន",
+          "nameEn": "Morning glory"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "morning-glory-with-shrimp",
+      "nameKm": "ត្រកួនឆាបង្គា",
+      "nameEn": "Morning glory with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រកួន និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Morning glory with Shrimp commonly uses morning glory, garlic, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រកួន",
+          "nameEn": "Morning glory"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "morning-glory-with-tofu",
+      "nameKm": "ត្រកួនឆាតៅហ៊ូ",
+      "nameEn": "Morning glory with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រកួន និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Morning glory with Tofu commonly uses morning glory, garlic, soy sauce, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រកួន",
+          "nameEn": "Morning glory"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kale-with-beef",
+      "nameKm": "ស្ពៃខាត់ណាឆាសាច់គោ",
+      "nameEn": "Chinese kale with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃខាត់ណា និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kale with Beef commonly uses chinese kale, garlic, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃខាត់ណា",
+          "nameEn": "Chinese kale"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kale-with-pork",
+      "nameKm": "ស្ពៃខាត់ណាឆាសាច់ជ្រូក",
+      "nameEn": "Chinese kale with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃខាត់ណា និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kale with Pork commonly uses chinese kale, garlic, soy sauce, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃខាត់ណា",
+          "nameEn": "Chinese kale"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kale-with-chicken",
+      "nameKm": "ស្ពៃខាត់ណាឆាសាច់មាន់",
+      "nameEn": "Chinese kale with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃខាត់ណា និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kale with Chicken commonly uses chinese kale, garlic, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃខាត់ណា",
+          "nameEn": "Chinese kale"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kale-with-shrimp",
+      "nameKm": "ស្ពៃខាត់ណាឆាបង្គា",
+      "nameEn": "Chinese kale with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃខាត់ណា និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kale with Shrimp commonly uses chinese kale, garlic, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃខាត់ណា",
+          "nameEn": "Chinese kale"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kale-with-tofu",
+      "nameKm": "ស្ពៃខាត់ណាឆាតៅហ៊ូ",
+      "nameEn": "Chinese kale with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្ពៃខាត់ណា និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kale with Tofu commonly uses chinese kale, garlic, soy sauce, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្ពៃខាត់ណា",
+          "nameEn": "Chinese kale"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-stir-fry-with-egg",
+      "nameKm": "ម្រះឆាស៊ុត",
+      "nameEn": "Bitter melon stir-fry with Egg",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ខ្ទឹមស និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon stir-fry with Egg commonly uses bitter melon, garlic, egg. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-stir-fry-with-pork",
+      "nameKm": "ម្រះឆាសាច់ជ្រូក",
+      "nameEn": "Bitter melon stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon stir-fry with Pork commonly uses bitter melon, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-stir-fry-with-beef",
+      "nameKm": "ម្រះឆាសាច់គោ",
+      "nameEn": "Bitter melon stir-fry with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ខ្ទឹមស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon stir-fry with Beef commonly uses bitter melon, garlic, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "bitter-melon-stir-fry-with-chicken",
+      "nameKm": "ម្រះឆាសាច់មាន់",
+      "nameEn": "Bitter melon stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រះ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bitter melon stir-fry with Chicken commonly uses bitter melon, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រះ",
+          "nameEn": "Bitter melon"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mixed-vegetable-stir-fry-with-chicken",
+      "nameKm": "បន្លែចម្រុះឆាសាច់មាន់",
+      "nameEn": "Mixed vegetable stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mixed vegetable stir-fry with Chicken commonly uses vegetables, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mixed-vegetable-stir-fry-with-pork",
+      "nameKm": "បន្លែចម្រុះឆាសាច់ជ្រូក",
+      "nameEn": "Mixed vegetable stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mixed vegetable stir-fry with Pork commonly uses vegetables, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mixed-vegetable-stir-fry-with-beef",
+      "nameKm": "បន្លែចម្រុះឆាសាច់គោ",
+      "nameEn": "Mixed vegetable stir-fry with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ខ្ទឹមស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mixed vegetable stir-fry with Beef commonly uses vegetables, garlic, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mixed-vegetable-stir-fry-with-shrimp",
+      "nameKm": "បន្លែចម្រុះឆាបង្គា",
+      "nameEn": "Mixed vegetable stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mixed vegetable stir-fry with Shrimp commonly uses vegetables, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mixed-vegetable-stir-fry-with-tofu",
+      "nameKm": "បន្លែចម្រុះឆាតៅហ៊ូ",
+      "nameEn": "Mixed vegetable stir-fry with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា បន្លែចម្រុះ និង ខ្ទឹមស និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mixed vegetable stir-fry with Tofu commonly uses vegetables, garlic, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-stir-fry-with-chicken",
+      "nameKm": "ផ្សិតឆាសាច់មាន់",
+      "nameEn": "Mushroom stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom stir-fry with Chicken commonly uses mushroom, garlic, onion, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-stir-fry-with-pork",
+      "nameKm": "ផ្សិតឆាសាច់ជ្រូក",
+      "nameEn": "Mushroom stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom stir-fry with Pork commonly uses mushroom, garlic, onion, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-stir-fry-with-beef",
+      "nameKm": "ផ្សិតឆាសាច់គោ",
+      "nameEn": "Mushroom stir-fry with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom stir-fry with Beef commonly uses mushroom, garlic, onion, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-stir-fry-with-shrimp",
+      "nameKm": "ផ្សិតឆាបង្គា",
+      "nameEn": "Mushroom stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom stir-fry with Shrimp commonly uses mushroom, garlic, onion, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "mushroom-stir-fry-with-tofu",
+      "nameKm": "ផ្សិតឆាតៅហ៊ូ",
+      "nameEn": "Mushroom stir-fry with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្សិត និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mushroom stir-fry with Tofu commonly uses mushroom, garlic, onion, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្សិត",
+          "nameEn": "Mushroom"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

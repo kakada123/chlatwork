@@ -1,0 +1,1664 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 9,
+  "items": [
+    {
+      "slug": "cashew-stir-fried-chicken",
+      "nameKm": "ឆាគ្រាប់ស្វាយចន្ទីសាច់មាន់",
+      "nameEn": "Cashew stir-fried Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ស្វាយចន្ទី និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cashew stir-fried Chicken commonly uses cashews, onion, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cashew-stir-fried-beef",
+      "nameKm": "ឆាគ្រាប់ស្វាយចន្ទីសាច់គោ",
+      "nameEn": "Cashew stir-fried Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ស្វាយចន្ទី និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cashew stir-fried Beef commonly uses cashews, onion, garlic, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cashew-stir-fried-shrimp",
+      "nameKm": "ឆាគ្រាប់ស្វាយចន្ទីបង្គា",
+      "nameEn": "Cashew stir-fried Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ស្វាយចន្ទី និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cashew stir-fried Shrimp commonly uses cashews, onion, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cashew-stir-fried-tofu",
+      "nameKm": "ឆាគ្រាប់ស្វាយចន្ទីតៅហ៊ូ",
+      "nameEn": "Cashew stir-fried Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ស្វាយចន្ទី និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cashew stir-fried Tofu commonly uses cashews, onion, garlic, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ស្វាយចន្ទី",
+          "nameEn": "Cashews"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-pepper-stir-fried-beef",
+      "nameKm": "ឆាម្រេចសាច់គោ",
+      "nameEn": "Black pepper stir-fried Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រេច និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black pepper stir-fried Beef commonly uses black pepper, onion, garlic, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-pepper-stir-fried-chicken",
+      "nameKm": "ឆាម្រេចសាច់មាន់",
+      "nameEn": "Black pepper stir-fried Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រេច និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black pepper stir-fried Chicken commonly uses black pepper, onion, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-pepper-stir-fried-pork",
+      "nameKm": "ឆាម្រេចសាច់ជ្រូក",
+      "nameEn": "Black pepper stir-fried Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រេច និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black pepper stir-fried Pork commonly uses black pepper, onion, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-pepper-stir-fried-duck",
+      "nameKm": "ឆាម្រេចសាច់ទា",
+      "nameEn": "Black pepper stir-fried Duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រេច និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់ទា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black pepper stir-fried Duck commonly uses black pepper, onion, garlic, duck. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-pepper-stir-fried-shrimp",
+      "nameKm": "ឆាម្រេចបង្គា",
+      "nameEn": "Black pepper stir-fried Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្រេច និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black pepper stir-fried Shrimp commonly uses black pepper, onion, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pineapple-stir-fry-with-chicken",
+      "nameKm": "ម្នាស់ឆាសាច់មាន់",
+      "nameEn": "Pineapple stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pineapple stir-fry with Chicken commonly uses pineapple, onion, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pineapple-stir-fry-with-pork",
+      "nameKm": "ម្នាស់ឆាសាច់ជ្រូក",
+      "nameEn": "Pineapple stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pineapple stir-fry with Pork commonly uses pineapple, onion, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pineapple-stir-fry-with-shrimp",
+      "nameKm": "ម្នាស់ឆាបង្គា",
+      "nameEn": "Pineapple stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ខ្ទឹមបារាំង និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pineapple stir-fry with Shrimp commonly uses pineapple, onion, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-stir-fry-with-egg",
+      "nameKm": "ល្ពៅឆាស៊ុត",
+      "nameEn": "Pumpkin stir-fry with Egg",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin stir-fry with Egg commonly uses pumpkin, garlic, egg. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-stir-fry-with-pork",
+      "nameKm": "ល្ពៅឆាសាច់ជ្រូក",
+      "nameEn": "Pumpkin stir-fry with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin stir-fry with Pork commonly uses pumpkin, garlic, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "pumpkin-stir-fry-with-chicken",
+      "nameKm": "ល្ពៅឆាសាច់មាន់",
+      "nameEn": "Pumpkin stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pumpkin stir-fry with Chicken commonly uses pumpkin, garlic, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sweet-and-sour-pork",
+      "nameKm": "ឆាជូរអែមចិនសាច់ជ្រូក",
+      "nameEn": "Chinese sweet and sour Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sweet and sour Pork commonly uses pineapple, tomato, onion, pork. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sweet-and-sour-chicken",
+      "nameKm": "ឆាជូរអែមចិនសាច់មាន់",
+      "nameEn": "Chinese sweet and sour Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sweet and sour Chicken commonly uses pineapple, tomato, onion, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sweet-and-sour-fish",
+      "nameKm": "ឆាជូរអែមចិនសាច់ត្រី",
+      "nameEn": "Chinese sweet and sour Fish",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង សាច់ត្រី។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sweet and sour Fish commonly uses pineapple, tomato, onion, fish. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sweet-and-sour-shrimp",
+      "nameKm": "ឆាជូរអែមចិនបង្គា",
+      "nameEn": "Chinese sweet and sour Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sweet and sour Shrimp commonly uses pineapple, tomato, onion, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-sweet-and-sour-tofu",
+      "nameKm": "ឆាជូរអែមចិនតៅហ៊ូ",
+      "nameEn": "Chinese sweet and sour Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្នាស់ និង ប៉េងប៉ោះ និង ខ្ទឹមបារាំង និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese sweet and sour Tofu commonly uses pineapple, tomato, onion, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្នាស់",
+          "nameEn": "Pineapple"
+        },
+        {
+          "nameKm": "ប៉េងប៉ោះ",
+          "nameEn": "Tomato"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kung-pao-chicken",
+      "nameKm": "គុងប៉ាវសាច់មាន់",
+      "nameEn": "Chinese kung pao Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកដី និង ម្ទេស និង ខ្ទឹមបារាំង និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kung pao Chicken commonly uses peanuts, chilli, onion, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kung-pao-shrimp",
+      "nameKm": "គុងប៉ាវបង្គា",
+      "nameEn": "Chinese kung pao Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកដី និង ម្ទេស និង ខ្ទឹមបារាំង និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kung pao Shrimp commonly uses peanuts, chilli, onion, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kung-pao-beef",
+      "nameKm": "គុងប៉ាវសាច់គោ",
+      "nameEn": "Chinese kung pao Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកដី និង ម្ទេស និង ខ្ទឹមបារាំង និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kung pao Beef commonly uses peanuts, chilli, onion, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "chinese-kung-pao-tofu",
+      "nameKm": "គុងប៉ាវតៅហ៊ូ",
+      "nameEn": "Chinese kung pao Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកដី និង ម្ទេស និង ខ្ទឹមបារាំង និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Chinese kung pao Tofu commonly uses peanuts, chilli, onion, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកដី",
+          "nameEn": "Peanuts"
+        },
+        {
+          "nameKm": "ម្ទេស",
+          "nameEn": "Chilli"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "broccoli-stir-fry-with-beef",
+      "nameKm": "ផ្កាខាត់ណាខៀវឆាសាច់គោ",
+      "nameEn": "Broccoli stir-fry with Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាខាត់ណាខៀវ និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Broccoli stir-fry with Beef commonly uses broccoli, garlic, soy sauce, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាខាត់ណាខៀវ",
+          "nameEn": "Broccoli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "broccoli-stir-fry-with-chicken",
+      "nameKm": "ផ្កាខាត់ណាខៀវឆាសាច់មាន់",
+      "nameEn": "Broccoli stir-fry with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាខាត់ណាខៀវ និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Broccoli stir-fry with Chicken commonly uses broccoli, garlic, soy sauce, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាខាត់ណាខៀវ",
+          "nameEn": "Broccoli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "broccoli-stir-fry-with-shrimp",
+      "nameKm": "ផ្កាខាត់ណាខៀវឆាបង្គា",
+      "nameEn": "Broccoli stir-fry with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាខាត់ណាខៀវ និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Broccoli stir-fry with Shrimp commonly uses broccoli, garlic, soy sauce, shrimp. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាខាត់ណាខៀវ",
+          "nameEn": "Broccoli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "broccoli-stir-fry-with-tofu",
+      "nameKm": "ផ្កាខាត់ណាខៀវឆាតៅហ៊ូ",
+      "nameEn": "Broccoli stir-fry with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្កាខាត់ណាខៀវ និង ខ្ទឹមស និង ទឹកស៊ីអ៊ីវ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Broccoli stir-fry with Tofu commonly uses broccoli, garlic, soy sauce, tofu. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្កាខាត់ណាខៀវ",
+          "nameEn": "Broccoli"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-bean-sauce-beef",
+      "nameKm": "ឆាតៅស៊ីសាច់គោ",
+      "nameEn": "Black bean sauce Beef",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅស៊ី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់គោ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black bean sauce Beef commonly uses fermented bean paste, garlic, onion, beef. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅស៊ី",
+          "nameEn": "Fermented bean paste"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "black-bean-sauce-chicken",
+      "nameKm": "ឆាតៅស៊ីសាច់មាន់",
+      "nameEn": "Black bean sauce Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា តៅស៊ី និង ខ្ទឹមស និង ខ្ទឹមបារាំង និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black bean sauce Chicken commonly uses fermented bean paste, garlic, onion, chicken. Preparation varies by kitchen.",
+      "category": "STIR_FRY",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "តៅស៊ី",
+          "nameEn": "Fermented bean paste"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ខ្ទឹមបារាំង",
+          "nameEn": "Onion"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "roast-chicken-with-kroeung",
+      "nameKm": "មាន់ដុតគ្រឿងបុក",
+      "nameEn": "Roast chicken with kroeung",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង គ្រឿងបុក និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Roast chicken with kroeung commonly uses chicken, kroeung spice paste, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "clay-roast-chicken",
+      "nameKm": "មាន់ដុតដីឥដ្ឋ",
+      "nameEn": "Clay roast chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ស្លឹកគ្រៃ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Clay roast chicken commonly uses chicken, lemongrass, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-fish-in-banana-leaf",
+      "nameKm": "ត្រីអាំងខ្ចប់ស្លឹកចេក",
+      "nameEn": "Grilled fish in banana leaf",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ត្រី និង គ្រឿងបុក និង ជីរនាងវង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled fish in banana leaf commonly uses fish, kroeung spice paste, basil. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ត្រី",
+          "nameEn": "Fish"
+        },
+        {
+          "nameKm": "គ្រឿងបុក",
+          "nameEn": "Kroeung spice paste"
+        },
+        {
+          "nameKm": "ជីរនាងវង",
+          "nameEn": "Basil"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-grilled-sausage",
+      "nameKm": "សាច់ក្រកខ្មែរអាំង",
+      "nameEn": "Khmer grilled sausage",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង ខ្ទឹមស និង អង្ករ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer grilled sausage commonly uses pork, garlic, rice. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-corn-with-coconut-glaze",
+      "nameKm": "ពោតអាំងទឹកដូង",
+      "nameEn": "Grilled corn with coconut glaze",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ពោត និង ខ្ទិះដូង និង អំបិល។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled corn with coconut glaze commonly uses corn, coconut milk, salt. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ពោត",
+          "nameEn": "Corn"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-eggplant-with-minced-pork",
+      "nameKm": "ត្រប់អាំងសាច់ជ្រូកចិញ្ច្រាំ",
+      "nameEn": "Grilled eggplant with minced pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រប់ និង សាច់ជ្រូក និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled eggplant with minced pork commonly uses eggplant, pork, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រប់",
+          "nameEn": "Eggplant"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "grilled-beef-with-prahok-dip",
+      "nameKm": "គោអាំងទឹកប្រហុក",
+      "nameEn": "Grilled beef with prahok dip",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ប្រហុក និង ស្លឹកគ្រៃ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grilled beef with prahok dip commonly uses beef, fermented fish paste, lemongrass. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប្រហុក",
+          "nameEn": "Fermented fish paste"
+        },
+        {
+          "nameKm": "ស្លឹកគ្រៃ",
+          "nameEn": "Lemongrass"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "khmer-roast-pork-belly",
+      "nameKm": "សាច់ជ្រូកបីជាន់អាំងខ្មែរ",
+      "nameEn": "Khmer roast pork belly",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូកបីជាន់ និង ខ្ទឹមស និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer roast pork belly commonly uses pork belly, garlic, black pepper. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូកបីជាន់",
+          "nameEn": "Pork belly"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "peking-roast-duck",
+      "nameKm": "ទាខ្វៃប៉េកាំង",
+      "nameEn": "Peking roast duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ទា និង ម្សៅស្រូវសាលី និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Peking roast duck commonly uses duck, wheat flour, cucumber. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ម្សៅស្រូវសាលី",
+          "nameEn": "Wheat flour"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "cantonese-roast-duck",
+      "nameKm": "ទាខ្វៃក្វាងទុង",
+      "nameEn": "Cantonese roast duck",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ទា និង ទឹកស៊ីអ៊ីវ និង ផ្កាចន្ទន៍។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cantonese roast duck commonly uses duck, soy sauce, star anise. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ទា",
+          "nameEn": "Duck"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ផ្កាចន្ទន៍",
+          "nameEn": "Star anise"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "char-siu-pork",
+      "nameKm": "សាច់ជ្រូកឆាស៊ីវ",
+      "nameEn": "Char siu pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង ទឹកស៊ីអ៊ីវ និង ទឹកឃ្មុំ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Char siu pork commonly uses pork, soy sauce, honey. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ទឹកឃ្មុំ",
+          "nameEn": "Honey"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "crispy-roast-pork-belly",
+      "nameKm": "សាច់ជ្រូកខ្វៃស្បែកស្រួយ",
+      "nameEn": "Crispy roast pork belly",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូកបីជាន់ និង អំបិល និង ទឹកខ្មេះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy roast pork belly commonly uses pork belly, salt, vinegar. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូកបីជាន់",
+          "nameEn": "Pork belly"
+        },
+        {
+          "nameKm": "អំបិល",
+          "nameEn": "Salt"
+        },
+        {
+          "nameKm": "ទឹកខ្មេះ",
+          "nameEn": "Vinegar"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "five-spice-roast-chicken",
+      "nameKm": "មាន់អាំងម្សៅគ្រឿងប្រាំ",
+      "nameEn": "Five spice roast chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ផ្កាចន្ទន៍ និង ឈើអែម។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Five spice roast chicken commonly uses chicken, star anise, cinnamon. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ផ្កាចន្ទន៍",
+          "nameEn": "Star anise"
+        },
+        {
+          "nameKm": "ឈើអែម",
+          "nameEn": "Cinnamon"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "samgyeopsal-grilled-pork-belly",
+      "nameKm": "សាច់ជ្រូកបីជាន់អាំងកូរ៉េ",
+      "nameEn": "Samgyeopsal grilled pork belly",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូកបីជាន់ និង សាឡាត់ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Samgyeopsal grilled pork belly commonly uses pork belly, lettuce, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូកបីជាន់",
+          "nameEn": "Pork belly"
+        },
+        {
+          "nameKm": "សាឡាត់",
+          "nameEn": "Lettuce"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-beef-galbi",
+      "nameKm": "ឆ្អឹងជំនីរគោអាំងកាល់ប៊ី",
+      "nameEn": "Korean beef galbi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ឆ្អឹងជំនីរគោ និង ទឹកស៊ីអ៊ីវ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean beef galbi commonly uses beef short ribs, soy sauce, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ឆ្អឹងជំនីរគោ",
+          "nameEn": "Beef short ribs"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-spicy-pork-barbecue",
+      "nameKm": "សាច់ជ្រូកអាំងកូរ៉េហឹរ",
+      "nameEn": "Korean spicy pork barbecue",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់ជ្រូក និង ម្ទេសកូរ៉េ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean spicy pork barbecue commonly uses pork, gochujang, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        },
+        {
+          "nameKm": "ម្ទេសកូរ៉េ",
+          "nameEn": "Gochujang"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "korean-chicken-barbecue",
+      "nameKm": "មាន់អាំងកូរ៉េ",
+      "nameEn": "Korean chicken barbecue",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់មាន់ និង ទឹកស៊ីអ៊ីវ និង ខ្ទឹមស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Korean chicken barbecue commonly uses chicken, soy sauce, garlic. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "KOREAN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        },
+        {
+          "nameKm": "ទឹកស៊ីអ៊ីវ",
+          "nameEn": "Soy sauce"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "ribeye-steak",
+      "nameKm": "ស្ទេករីបអាយ",
+      "nameEn": "Ribeye steak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ប៊័រ និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Ribeye steak commonly uses beef, butter, black pepper. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "sirloin-steak",
+      "nameKm": "ស្ទេកសឺឡូញ",
+      "nameEn": "Sirloin steak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ប៊័រ និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sirloin steak commonly uses beef, butter, black pepper. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    },
+    {
+      "slug": "tenderloin-steak",
+      "nameKm": "ស្ទេកតែនឌឺឡូញ",
+      "nameEn": "Tenderloin steak",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សាច់គោ និង ប៊័រ និង ម្រេច។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tenderloin steak commonly uses beef, butter, black pepper. Preparation varies by kitchen.",
+      "category": "GRILL",
+      "cuisine": "WESTERN",
+      "mealTimes": [
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សាច់គោ",
+          "nameEn": "Beef"
+        },
+        {
+          "nameKm": "ប៊័រ",
+          "nameEn": "Butter"
+        },
+        {
+          "nameKm": "ម្រេច",
+          "nameEn": "Black pepper"
+        }
+      ],
+      "tags": [
+        "SHAREABLE",
+        "FAMILY_MEAL"
+      ]
+    }
+  ]
+}

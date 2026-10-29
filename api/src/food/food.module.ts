@@ -6,9 +6,11 @@ import { FoodAiPickerService } from "./food-ai-picker.service";
 import { FoodRecommendationEngine } from "./food-recommendation.engine";
 import { FoodRecipeStore } from "./food-recipe-store.service";
 import { FoodOptionalAuthGuard } from "./food-optional-auth.guard";
+import { FoodMenuCatalogController } from "./catalog/food-menu-catalog.controller";
+import { FoodMenuCatalogService } from "./catalog/food-menu-catalog.service";
 
 @Module({
-  controllers: [FoodController],
+  controllers: [FoodController, FoodMenuCatalogController],
   providers: [
     FoodService,
     GooglePlacesProviderAdapter,
@@ -16,6 +18,7 @@ import { FoodOptionalAuthGuard } from "./food-optional-auth.guard";
     FoodAiPickerService,
     FoodRecipeStore,
     FoodOptionalAuthGuard,
+    FoodMenuCatalogService,
   ],
   exports: [FoodService],
 })

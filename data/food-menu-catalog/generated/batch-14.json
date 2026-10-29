@@ -1,0 +1,1548 @@
+{
+  "schemaVersion": 1,
+  "batchNumber": 14,
+  "items": [
+    {
+      "slug": "crispy-wontons-with-shrimp",
+      "nameKm": "គាវបំពងស្រួយបង្គា",
+      "nameEn": "Crispy wontons with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy wontons with Shrimp commonly uses wonton wrappers, garlic, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "crispy-wontons-with-chicken",
+      "nameKm": "គាវបំពងស្រួយសាច់មាន់",
+      "nameEn": "Crispy wontons with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សំបកវ៉ាន់តាន់ និង ខ្ទឹមស និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Crispy wontons with Chicken commonly uses wonton wrappers, garlic, chicken. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "CHINESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សំបកវ៉ាន់តាន់",
+          "nameEn": "Wonton wrappers"
+        },
+        {
+          "nameKm": "ខ្ទឹមស",
+          "nameEn": "Garlic"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fresh-rolls-with-shrimp",
+      "nameKm": "គួយទាវរមូរស្រស់វៀតណាមបង្គា",
+      "nameEn": "Vietnamese fresh rolls with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង នំបញ្ចុក និង ជីគ្រប់មុខ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fresh rolls with Shrimp commonly uses rice paper, rice vermicelli, fresh herbs, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fresh-rolls-with-pork",
+      "nameKm": "គួយទាវរមូរស្រស់វៀតណាមសាច់ជ្រូក",
+      "nameEn": "Vietnamese fresh rolls with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង នំបញ្ចុក និង ជីគ្រប់មុខ និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fresh rolls with Pork commonly uses rice paper, rice vermicelli, fresh herbs, pork. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fresh-rolls-with-chicken",
+      "nameKm": "គួយទាវរមូរស្រស់វៀតណាមសាច់មាន់",
+      "nameEn": "Vietnamese fresh rolls with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង នំបញ្ចុក និង ជីគ្រប់មុខ និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fresh rolls with Chicken commonly uses rice paper, rice vermicelli, fresh herbs, chicken. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fresh-rolls-with-tofu",
+      "nameKm": "គួយទាវរមូរស្រស់វៀតណាមតៅហ៊ូ",
+      "nameEn": "Vietnamese fresh rolls with Tofu",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង នំបញ្ចុក និង ជីគ្រប់មុខ និង តៅហ៊ូ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fresh rolls with Tofu commonly uses rice paper, rice vermicelli, fresh herbs, tofu. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "នំបញ្ចុក",
+          "nameEn": "Rice vermicelli"
+        },
+        {
+          "nameKm": "ជីគ្រប់មុខ",
+          "nameEn": "Fresh herbs"
+        },
+        {
+          "nameKm": "តៅហ៊ូ",
+          "nameEn": "Tofu"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fried-rolls-with-pork",
+      "nameKm": "ណែមបំពងវៀតណាមសាច់ជ្រូក",
+      "nameEn": "Vietnamese fried rolls with Pork",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង មីសួ និង ការ៉ុត និង សាច់ជ្រូក។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fried rolls with Pork commonly uses rice paper, glass noodles, carrot, pork. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "សាច់ជ្រូក",
+          "nameEn": "Pork"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fried-rolls-with-chicken",
+      "nameKm": "ណែមបំពងវៀតណាមសាច់មាន់",
+      "nameEn": "Vietnamese fried rolls with Chicken",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង មីសួ និង ការ៉ុត និង សាច់មាន់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fried rolls with Chicken commonly uses rice paper, glass noodles, carrot, chicken. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "សាច់មាន់",
+          "nameEn": "Chicken"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fried-rolls-with-shrimp",
+      "nameKm": "ណែមបំពងវៀតណាមបង្គា",
+      "nameEn": "Vietnamese fried rolls with Shrimp",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង មីសួ និង ការ៉ុត និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fried rolls with Shrimp commonly uses rice paper, glass noodles, carrot, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "vietnamese-fried-rolls-with-vegetables",
+      "nameKm": "ណែមបំពងវៀតណាមបន្លែចម្រុះ",
+      "nameEn": "Vietnamese fried rolls with Vegetables",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ក្រដាសអង្ករ និង មីសួ និង ការ៉ុត និង បន្លែចម្រុះ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Vietnamese fried rolls with Vegetables commonly uses rice paper, glass noodles, carrot, vegetables. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "VIETNAMESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ក្រដាសអង្ករ",
+          "nameEn": "Rice paper"
+        },
+        {
+          "nameKm": "មីសួ",
+          "nameEn": "Glass noodles"
+        },
+        {
+          "nameKm": "ការ៉ុត",
+          "nameEn": "Carrot"
+        },
+        {
+          "nameKm": "បន្លែចម្រុះ",
+          "nameEn": "Vegetables"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "salmon-nigiri-sushi",
+      "nameKm": "ស៊ូស៊ីនីហ្គីរីត្រីសាល់ម៉ុន",
+      "nameEn": "Salmon nigiri sushi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ត្រីសាល់ម៉ុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salmon nigiri sushi commonly uses sushi rice, seaweed, salmon. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "tuna-nigiri-sushi",
+      "nameKm": "ស៊ូស៊ីនីហ្គីរីត្រីធូណា",
+      "nameEn": "Tuna nigiri sushi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ត្រីធូណា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna nigiri sushi commonly uses sushi rice, seaweed, tuna. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "shrimp-nigiri-sushi",
+      "nameKm": "ស៊ូស៊ីនីហ្គីរីបង្គា",
+      "nameEn": "Shrimp nigiri sushi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp nigiri sushi commonly uses sushi rice, seaweed, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "egg-nigiri-sushi",
+      "nameKm": "ស៊ូស៊ីនីហ្គីរីស៊ុត",
+      "nameEn": "Egg nigiri sushi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Egg nigiri sushi commonly uses sushi rice, seaweed, egg. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "eel-nigiri-sushi",
+      "nameKm": "ស៊ូស៊ីនីហ្គីរីអន្ទង់",
+      "nameEn": "Eel nigiri sushi",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង អន្ទង់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Eel nigiri sushi commonly uses sushi rice, seaweed, eel. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "អន្ទង់",
+          "nameEn": "Eel"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "salmon-maki-rolls",
+      "nameKm": "ស៊ូស៊ីម៉ាគីត្រីសាល់ម៉ុន",
+      "nameEn": "Salmon maki rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ត្រីសាល់ម៉ុន។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Salmon maki rolls commonly uses sushi rice, seaweed, salmon. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រីសាល់ម៉ុន",
+          "nameEn": "Salmon"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "tuna-maki-rolls",
+      "nameKm": "ស៊ូស៊ីម៉ាគីត្រីធូណា",
+      "nameEn": "Tuna maki rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ត្រីធូណា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tuna maki rolls commonly uses sushi rice, seaweed, tuna. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រីធូណា",
+          "nameEn": "Tuna"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "shrimp-maki-rolls",
+      "nameKm": "ស៊ូស៊ីម៉ាគីបង្គា",
+      "nameEn": "Shrimp maki rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង បង្គា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Shrimp maki rolls commonly uses sushi rice, seaweed, shrimp. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "បង្គា",
+          "nameEn": "Shrimp"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "cucumber-maki-rolls",
+      "nameKm": "ស៊ូស៊ីម៉ាគីត្រសក់",
+      "nameEn": "Cucumber maki rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ត្រសក់។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cucumber maki rolls commonly uses sushi rice, seaweed, cucumber. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ត្រសក់",
+          "nameEn": "Cucumber"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "avocado-maki-rolls",
+      "nameKm": "ស៊ូស៊ីម៉ាគីផ្លែបឺរ",
+      "nameEn": "Avocado maki rolls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករស៊ូស៊ី និង សារាយសមុទ្រ និង ផ្លែបឺរ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Avocado maki rolls commonly uses sushi rice, seaweed, avocado. Preparation varies by kitchen.",
+      "category": "SNACK",
+      "cuisine": "JAPANESE",
+      "mealTimes": [
+        "snack"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករស៊ូស៊ី",
+          "nameEn": "Sushi rice"
+        },
+        {
+          "nameKm": "សារាយសមុទ្រ",
+          "nameEn": "Seaweed"
+        },
+        {
+          "nameKm": "ផ្លែបឺរ",
+          "nameEn": "Avocado"
+        }
+      ],
+      "tags": [
+        "SHAREABLE"
+      ]
+    },
+    {
+      "slug": "palm-sugar-sponge-cakes",
+      "nameKm": "នំអាកោរត្នោត",
+      "nameEn": "Palm sugar sponge cakes",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង ស្ករត្នោត និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Palm sugar sponge cakes commonly uses rice flour, palm sugar, coconut. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "rice-flour-steamed-cups",
+      "nameKm": "នំអាកោរ",
+      "nameEn": "Rice flour steamed cups",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង ស្ករស និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Rice flour steamed cups commonly uses rice flour, sugar, coconut. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "sticky-rice-coconut-balls",
+      "nameKm": "នំផ្លែអាយ",
+      "nameEn": "Sticky rice coconut balls",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ស្ករត្នោត និង ដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sticky rice coconut balls commonly uses glutinous rice flour, palm sugar, coconut. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-sesame-doughnuts",
+      "nameKm": "នំកង",
+      "nameEn": "Khmer sesame doughnuts",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ល្ង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer sesame doughnuts commonly uses glutinous rice flour, sesame, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ល្ង",
+          "nameEn": "Sesame"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-layered-coconut-cake",
+      "nameKm": "នំជាន់",
+      "nameEn": "Khmer layered coconut cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer layered coconut cake commonly uses rice flour, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-rice-jelly-noodles",
+      "nameKm": "នំលតបង្អែម",
+      "nameEn": "Khmer rice jelly noodles",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករ និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer rice jelly noodles commonly uses rice flour, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករ",
+          "nameEn": "Rice flour"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-pumpkin-custard",
+      "nameKm": "សង់ខ្យាល្ពៅ",
+      "nameEn": "Khmer pumpkin custard",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ល្ពៅ និង ស៊ុត និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer pumpkin custard commonly uses pumpkin, egg, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ល្ពៅ",
+          "nameEn": "Pumpkin"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "banana-in-coconut-milk",
+      "nameKm": "បង្អែមចេកខ្ទិះ",
+      "nameEn": "Banana in coconut milk",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ចេក និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Banana in coconut milk commonly uses banana, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "taro-in-coconut-milk",
+      "nameKm": "បង្អែមត្រាវខ្ទិះ",
+      "nameEn": "Taro in coconut milk",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ត្រាវ និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Taro in coconut milk commonly uses taro, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ត្រាវ",
+          "nameEn": "Taro"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "sweet-potato-coconut-dessert",
+      "nameKm": "បង្អែមដំឡូងជ្វាខ្ទិះ",
+      "nameEn": "Sweet potato coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងជ្វា និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sweet potato coconut dessert commonly uses sweet potato, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងជ្វា",
+          "nameEn": "Sweet potato"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "cassava-coconut-pudding",
+      "nameKm": "បង្អែមដំឡូងមី",
+      "nameEn": "Cassava coconut pudding",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងមី និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Cassava coconut pudding commonly uses cassava, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងមី",
+          "nameEn": "Cassava"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "mung-bean-coconut-dessert",
+      "nameKm": "បង្អែមសណ្ដែកបាយ",
+      "nameEn": "Mung bean coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកបាយ និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Mung bean coconut dessert commonly uses mung beans, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "red-bean-coconut-dessert",
+      "nameKm": "បង្អែមសណ្ដែកក្រហម",
+      "nameEn": "Red bean coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកក្រហម និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Red bean coconut dessert commonly uses red beans, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកក្រហម",
+          "nameEn": "Red beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "black-bean-coconut-dessert",
+      "nameKm": "បង្អែមសណ្ដែកខ្មៅ",
+      "nameEn": "Black bean coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកខ្មៅ និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black bean coconut dessert commonly uses black beans, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកខ្មៅ",
+          "nameEn": "Black beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "black-sticky-rice-pudding",
+      "nameKm": "បង្អែមដំណើបខ្មៅ",
+      "nameEn": "Black sticky rice pudding",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើបខ្មៅ និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Black sticky rice pudding commonly uses black sticky rice, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើបខ្មៅ",
+          "nameEn": "Black sticky rice"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "young-rice-flakes-with-coconut",
+      "nameKm": "អំបុកដូង",
+      "nameEn": "Young rice flakes with coconut",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករ និង ដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Young rice flakes with coconut commonly uses rice, coconut, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករ",
+          "nameEn": "Rice"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "bamboo-sticky-rice-kralan",
+      "nameKm": "ក្រឡាន",
+      "nameEn": "Bamboo sticky rice kralan",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង សណ្ដែកខ្មៅ និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Bamboo sticky rice kralan commonly uses sticky rice, black beans, coconut milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "សណ្ដែកខ្មៅ",
+          "nameEn": "Black beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-rice-dumpling-nom-bot",
+      "nameKm": "នំបត់",
+      "nameEn": "Khmer rice dumpling nom bot",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង សណ្ដែកបាយ និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer rice dumpling nom bot commonly uses glutinous rice flour, mung beans, coconut milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-cone-dumpling-nom-kom",
+      "nameKm": "នំគម",
+      "nameEn": "Khmer cone dumpling nom kom",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ម្សៅអង្ករដំណើប និង ដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer cone dumpling nom kom commonly uses glutinous rice flour, coconut, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ម្សៅអង្ករដំណើប",
+          "nameEn": "Glutinous rice flour"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-steamed-cassava-cake",
+      "nameKm": "នំដំឡូងមីចំហុយ",
+      "nameEn": "Khmer steamed cassava cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងមី និង ដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer steamed cassava cake commonly uses cassava, coconut, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងមី",
+          "nameEn": "Cassava"
+        },
+        {
+          "nameKm": "ដូង",
+          "nameEn": "Coconut"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-baked-cassava-cake",
+      "nameKm": "នំដំឡូងមីដុត",
+      "nameEn": "Khmer baked cassava cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ដំឡូងមី និង ខ្ទិះដូង និង ស៊ុត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer baked cassava cake commonly uses cassava, coconut milk, egg. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ដំឡូងមី",
+          "nameEn": "Cassava"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-coconut-custard",
+      "nameKm": "សង់ខ្យាដូង",
+      "nameEn": "Khmer coconut custard",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស៊ុត និង ខ្ទិះដូង និង ស្ករត្នោត។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer coconut custard commonly uses egg, coconut milk, palm sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស៊ុត",
+          "nameEn": "Egg"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករត្នោត",
+          "nameEn": "Palm sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "khmer-palm-fruit-dessert",
+      "nameKm": "បង្អែមផ្លែត្នោត",
+      "nameEn": "Khmer palm fruit dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ផ្លែត្នោត និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Khmer palm fruit dessert commonly uses palm fruit, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ផ្លែត្នោត",
+          "nameEn": "Palm fruit"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "grass-jelly-coconut-dessert",
+      "nameKm": "បង្អែមចាហួយខ្មៅខ្ទិះ",
+      "nameEn": "Grass jelly coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ចាហួយខ្មៅ និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Grass jelly coconut dessert commonly uses grass jelly, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ចាហួយខ្មៅ",
+          "nameEn": "Grass jelly"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "tapioca-coconut-pudding",
+      "nameKm": "បង្អែមតាប៉្យូកាខ្ទិះ",
+      "nameEn": "Tapioca coconut pudding",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់តាប៉្យូកា និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Tapioca coconut pudding commonly uses tapioca pearls, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "jackfruit-coconut-dessert",
+      "nameKm": "បង្អែមខ្នុរខ្ទិះ",
+      "nameEn": "Jackfruit coconut dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ខ្នុរ និង ខ្ទិះដូង និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Jackfruit coconut dessert commonly uses jackfruit, coconut milk, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ខ្នុរ",
+          "nameEn": "Jackfruit"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "lotus-seed-sweet-soup",
+      "nameKm": "បង្អែមគ្រាប់ឈូក",
+      "nameEn": "Lotus seed sweet soup",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា គ្រាប់ឈូក និង ស្ករស។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Lotus seed sweet soup commonly uses lotus seeds, sugar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "គ្រាប់ឈូក",
+          "nameEn": "Lotus seeds"
+        },
+        {
+          "nameKm": "ស្ករស",
+          "nameEn": "Sugar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "pandan-coconut-jelly",
+      "nameKm": "ចាហួយស្លឹកតើយខ្ទិះ",
+      "nameEn": "Pandan coconut jelly",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា ស្លឹកតើយ និង ខ្ទិះដូង និង ម្សៅចាហួយ។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Pandan coconut jelly commonly uses pandan, coconut milk, agar. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "ស្លឹកតើយ",
+          "nameEn": "Pandan"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "ម្សៅចាហួយ",
+          "nameEn": "Agar"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "three-colour-khmer-dessert",
+      "nameKm": "បង្អែមបីពណ៌ខ្មែរ",
+      "nameEn": "Three colour Khmer dessert",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា សណ្ដែកបាយ និង ខ្ទិះដូង និង គ្រាប់តាប៉្យូកា។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Three colour Khmer dessert commonly uses mung beans, coconut milk, tapioca pearls. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "សណ្ដែកបាយ",
+          "nameEn": "Mung beans"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        },
+        {
+          "nameKm": "គ្រាប់តាប៉្យូកា",
+          "nameEn": "Tapioca pearls"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    },
+    {
+      "slug": "sticky-rice-banana-cake",
+      "nameKm": "នំដំណើបចេក",
+      "nameEn": "Sticky rice banana cake",
+      "descriptionKm": "មុខម្ហូបនេះមានគ្រឿងផ្សំទូទៅដូចជា អង្ករដំណើប និង ចេក និង ខ្ទិះដូង។ គ្រឿងផ្សំអាចខុសគ្នាតាមអ្នករៀបចំ។",
+      "descriptionEn": "Sticky rice banana cake commonly uses sticky rice, banana, coconut milk. Preparation varies by kitchen.",
+      "category": "DESSERT",
+      "cuisine": "KHMER",
+      "mealTimes": [
+        "snack",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "nameKm": "អង្ករដំណើប",
+          "nameEn": "Sticky rice"
+        },
+        {
+          "nameKm": "ចេក",
+          "nameEn": "Banana"
+        },
+        {
+          "nameKm": "ខ្ទិះដូង",
+          "nameEn": "Coconut milk"
+        }
+      ],
+      "tags": [
+        "STREET_FOOD",
+        "HOME_COOKING"
+      ]
+    }
+  ]
+}
