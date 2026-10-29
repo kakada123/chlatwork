@@ -131,6 +131,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
 
   const userCoords = ref<{ lat: number; lng: number } | null>(null);
   const isLocating = ref<boolean>(false);
+  const locationError = ref(false);
   const locationLabel = ref<string>("បឹងកេងកង (Boeng Keng Kang)");
 
   const districts = ref<FoodDistrict[]>([]);
@@ -183,6 +184,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     discoveryAccountRevision++;
     locationRevision++;
     isLocating.value = false;
+    locationError.value = false;
     selectedRecipe.value = null;
     filters.value = {};
     allergies.value = "";
@@ -289,12 +291,14 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
 
   function requestGeolocation(options: { refresh?: boolean } = {}) {
     if (typeof window === "undefined" || !navigator.geolocation) {
+      locationError.value = true;
       errorMessage.value =
         "ឧបករណ៍របស់អ្នកមិនគាំទ្រ Geolocation ទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
       return;
     }
 
     isLocating.value = true;
+    locationError.value = false;
     errorMessage.value = null;
     const ownerRevision = discoveryAccountRevision;
     const requestRevision = ++locationRevision;
@@ -313,15 +317,19 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
         locationLabel.value = "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)";
         selectedDistrictId.value = "";
         isLocating.value = false;
+        locationError.value = false;
         // GPS can refresh restaurant search, but changing location must never create a recipe.
         if (options.refresh !== false && mode.value === "dine-out") getRecommendations();
       },
       (err) => {
         if (ownerRevision !== discoveryAccountRevision || requestRevision !== locationRevision) return;
         isLocating.value = false;
+        locationError.value = true;
+        userCoords.value = null;
+        if (!selectedDistrictId.value) locationLabel.value = "សូមជ្រើសរើសតំបន់ជំនួស GPS";
         if (err.code === err.PERMISSION_DENIED) {
           errorMessage.value =
-            "ការអនុញ្ញាតទីតាំងត្រូវបានបដិសេធ។ សូមអនុញ្ញាត GPS ឬជ្រើសតម្រងទីតាំងផ្សេង។";
+            "កម្មវិធីអ៊ីនធឺណិតមិនអនុញ្ញាត GPS ទេ។ អ្នកនៅតែអាចស្វែងរកដោយជ្រើសតំបន់ ឬចុច «ប្រើតំបន់ដែលបានជ្រើស»។ បើចង់ប្រើ GPS សូមបើក Location ក្នុងសិទ្ធិរបស់គេហទំព័រ។";
         } else {
           errorMessage.value =
             "មិនអាចកំណត់ទីតាំង GPS បានទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
@@ -337,6 +345,15 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     isLocating.value = false;
     selectedDistrictId.value = districtId;
     userCoords.value = null;
+    locationError.value = false;
+    errorMessage.value = null;
+    // A manual district is the new anchor. Keep radius/dietary preferences, not stale GPS/city/route anchors.
+    const { city, area, locationDiscovery, ...remaining } = filters.value;
+    if (typeof locationDiscovery === "string" && /^within-(1|3|5|10)-km$/.test(locationDiscovery)) remaining.locationDiscovery = locationDiscovery;
+    filters.value = remaining;
+    locationQuery.value = "";
+    routeOrigin.value = "";
+    routeDestination.value = "";
     const match = districts.value.find((d) => d.id === districtId);
     if (match) {
       locationLabel.value = match.nameKm;
@@ -447,6 +464,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     searchKeyword,
     userCoords,
     isLocating,
+    locationError,
     locationLabel,
     districts,
     selectedRecipe,

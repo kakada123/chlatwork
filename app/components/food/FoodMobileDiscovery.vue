@@ -31,6 +31,7 @@ const props = defineProps<
     districtId: string;
     districts: Array<{ id: string; nameKm: string }>;
     budgetLabel?: string;
+  locationError?: boolean;
   }
 >();
 const emit = defineEmits<{
@@ -459,6 +460,13 @@ watch(
               </option>
             </select></label
           >
+          <button
+            v-if="locationError && districtId && !hasCoords"
+            type="button"
+            class="min-h-11 text-left text-xs font-semibold text-orange-600 underline underline-offset-4 dark:text-orange-400"
+            :disabled="disabled"
+            @click="emit('district', districtId)"
+          >ប្រើតំបន់ដែលបានជ្រើសជំនួស GPS</button>
           <p v-if="mode === 'cook-at-home'" class="text-xs text-stone-500">
             រូបមន្តអាចបង្កើតបានដោយមិនប្រើ GPS។
           </p>

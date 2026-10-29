@@ -260,6 +260,63 @@ test("a district picked during GPS lookup wins over the late GPS callback", () =
   assert.equal(state.isLocating.value, false);
 });
 
+test("denied GPS can be replaced by an explicit district without leaving a GPS-only filter behind", async () => {
+  let deny!: (value: unknown) => void;
+  const calls: any[][] = [];
+  const state = discovery(async (...args) => {
+    calls.push(args);
+    return { mode: "dine-out", dataSource: "google", places: [{ id: "restaurant-in-district" }] };
+  }, { navigator: { geolocation: { getCurrentPosition: (_: unknown, fail: typeof deny) => { deny = fail; } } } });
+  state.filters.value = { locationDiscovery: "near-me", dietary: ["vegan"], city: "siem-reap", area: "riverside" };
+  state.locationQuery.value = "old address";
+  state.routeOrigin.value = "old origin";
+  state.routeDestination.value = "old destination";
+  state.requestGeolocation();
+  deny({ code: 1, PERMISSION_DENIED: 1 });
+  assert.equal(state.isLocating.value, false);
+  assert.equal(state.locationError.value, true);
+  assert.ok(state.errorMessage.value);
+  assert.equal(calls.length, 0);
+  state.onDistrictChange("tuol-kork");
+  assert.equal(state.errorMessage.value, null);
+  assert.equal(state.locationError.value, false);
+  assert.deepEqual(state.filters.value, { dietary: ["vegan"] });
+  assert.equal(state.locationQuery.value, "");
+  assert.equal(state.routeOrigin.value, "");
+  assert.equal(state.routeDestination.value, "");
+  await state.getRecommendations();
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][1].body.district, "tuol-kork");
+  assert.equal(calls[0][1].body.lat, undefined);
+  assert.equal(calls[0][1].body.filters.locationDiscovery, undefined);
+  assert.equal(state.selectedPlace.value.id, "restaurant-in-district");
+});
+
+test("manual district selection retains a distance preference without generating a recipe", () => {
+  let calls = 0;
+  const state = discovery(async () => { calls++; return {}; });
+  state.mode.value = "cook-at-home";
+  state.filters.value = { locationDiscovery: "within-1-km", dietary: ["halal"] };
+  state.onDistrictChange("bkk");
+  assert.deepEqual(state.filters.value, { locationDiscovery: "within-1-km", dietary: ["halal"] });
+  assert.equal(calls, 0);
+});
+
+test("denied permission clears stale GPS coordinates and does not claim the old position is current", () => {
+  let deny!: (value: unknown) => void;
+  const state = discovery(async () => ({}), { navigator: { geolocation: {
+    getCurrentPosition: (_: unknown, fail: typeof deny) => { deny = fail; },
+  } } });
+  state.userCoords.value = { lat: 11.55, lng: 104.92 };
+  state.selectedDistrictId.value = "";
+  state.locationLabel.value = "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)";
+  state.requestGeolocation();
+  deny({ code: 1, PERMISSION_DENIED: 1 });
+  assert.equal(state.userCoords.value, null);
+  assert.equal(state.locationError.value, true);
+  assert.notEqual(state.locationLabel.value, "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)");
+});
+
 test("an old account's GPS callback cannot restore private coordinates or trigger discovery for the next account", () => {
   const requests: Array<{
     success: (value: unknown) => void;
