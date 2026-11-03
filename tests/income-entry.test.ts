@@ -175,7 +175,7 @@ test("income opens while the floating shortcut is off and saves as income", asyn
     controls.openQuickIncome();
     await view.flush();
     assert.ok(view.nodes().some((node) => node.tag === "h2" && node.text === "Add income"));
-    assert.ok(view.nodes().some((node) => node.tag === "option" && node.props.value === "Salary"));
+    assert.ok(view.nodes().some((node) => node.tag === "button" && node.props["aria-label"] === "Select Salary"));
     const amount = view.nodes().find((node) => node.tag === "input" && node.props.name === "amount")!;
     amount.props["onUpdate:modelValue"]("750");
     view.nodes().find((node) => node.tag === "form")!.props.onSubmit({ preventDefault() {} });

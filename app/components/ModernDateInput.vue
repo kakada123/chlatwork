@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { getDatePickerPosition } from "~/lib/date-picker-position";
 
 type DateInputType = "date" | "datetime-local";
 
@@ -23,6 +24,7 @@ const props = withDefaults(
     type?: DateInputType;
     size?: "sm" | "md";
     ariaLabel?: string;
+    placement?: "top" | "bottom";
 
     /**
      * Optional year range for dropdown.
@@ -35,12 +37,15 @@ const props = withDefaults(
     type: "date",
     size: "md",
     ariaLabel: "Choose date",
+    placement: "bottom",
     minYear: 1900,
     maxYear: 2100,
   },
 );
 
 const rootRef = ref<HTMLElement | null>(null);
+const calendarRef = ref<HTMLElement | null>(null);
+const calendarStyle = ref<Record<string, string>>({});
 const isOpen = ref(false);
 const activeMonth = ref(
   startOfMonth(parseValueDate(value.value) ?? new Date()),
@@ -133,8 +138,28 @@ watch(
   },
 );
 
-function openCalendar() {
+function updateCalendarPosition() {
+  if (!isOpen.value || !rootRef.value || !calendarRef.value) return;
+  const position = getDatePickerPosition(
+    rootRef.value.getBoundingClientRect(),
+    { width: calendarRef.value.offsetWidth, height: calendarRef.value.scrollHeight },
+    { width: document.documentElement.clientWidth, height: window.innerHeight },
+    props.placement,
+    window.innerWidth < 640,
+  );
+  calendarStyle.value = {
+    top: `${position.top}px`,
+    left: `${position.left}px`,
+    maxHeight: `${position.maxHeight}px`,
+  };
+}
+
+async function openCalendar() {
   isOpen.value = true;
+  await nextTick();
+  // The top layer escapes dialog overflow while preserving its focus-trap subtree.
+  calendarRef.value?.showPopover();
+  updateCalendarPosition();
 }
 
 function closeCalendar() {
@@ -196,11 +221,15 @@ function handleEscape(event: KeyboardEvent) {
 onMounted(() => {
   document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleEscape);
+  window.addEventListener("resize", updateCalendarPosition);
+  window.addEventListener("scroll", updateCalendarPosition, true);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleDocumentClick);
   document.removeEventListener("keydown", handleEscape);
+  window.removeEventListener("resize", updateCalendarPosition);
+  window.removeEventListener("scroll", updateCalendarPosition, true);
 });
 
 function parseValueDate(input: string) {
@@ -278,8 +307,12 @@ function toDateValue(date: Date) {
 
     <div
       v-if="isOpen"
-      class="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:z-40 sm:mt-2 sm:max-h-none sm:w-[min(22rem,calc(100vw-2rem))] sm:overflow-visible dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
+      ref="calendarRef"
+      popover="manual"
+      :style="calendarStyle"
+      class="fixed inset-auto m-0 w-[calc(100vw-1.5rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 sm:w-[min(22rem,calc(100vw-2rem))] dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
       @click.stop
+      @keydown.esc.stop.prevent="closeCalendar"
     >
       <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div class="grid w-full grid-cols-2 gap-2 sm:flex-1">

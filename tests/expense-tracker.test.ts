@@ -260,7 +260,7 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
   assert.match(form, /hidden w-full max-w-full gap-2 sm:grid sm:grid-cols-6/);
   assert.match(form, /ref="categoryPicker".*sm:hidden/);
   assert.match(form, /selectMobileCategory\(item\)/);
-  assert.match(form, /Custom category…/);
+  assert.match(form, /aria-label="Choose custom category"/);
   assert.match(form, /Enter your category/);
   assert.match(form, /Add note \(optional\)/);
   assert.match(form, /Remove note/);
@@ -270,7 +270,7 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
   assert.match(form, /desktop-note/);
   assert.match(form, /mobile-note/);
   assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
-  assert.match(form, /relative mt-2 hidden sm:block/);
+  assert.match(form, /aria-label="Search categories"/);
   assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);
   assert.match(form, /group hidden rounded-2xl/);
   assert.doesNotMatch(page, /Show a floating Add expense button/);

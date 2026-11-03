@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { compileScript, parse } from "@vue/compiler-sfc";
-import { createRenderer, createSSRApp, h } from "vue";
+import { createRenderer, createSSRApp, h, nextTick } from "vue";
 import { renderToString } from "vue/server-renderer";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 
@@ -127,6 +127,9 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
     value?: string;
     options: Element[];
     addEventListener: () => void;
+    focus: () => void;
+    open?: boolean;
+    text: string;
   };
   const element = (tag: string): Element => ({
     tag,
@@ -134,6 +137,8 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
     props: {},
     options: [],
     addEventListener() {},
+    focus() {},
+    text: "",
   });
   const root = element("root");
   const renderer = createRenderer<Element, Element>({
@@ -144,9 +149,11 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
       parent.children.push(child);
       child.parent = parent;
     },
-    remove() {},
-    setText() {},
-    setElementText() {},
+    remove(node) {
+      if (node.parent) node.parent.children = node.parent.children.filter((child) => child !== node);
+    },
+    setText(node, text) { node.text = text; },
+    setElementText(node, text) { node.text = text; },
     patchProp(node, key, _previous, value) {
       node.props[key] = value;
     },
@@ -228,6 +235,50 @@ test("the Quick Expense form submits the entered custom category name", () => {
       .props.onSubmit({ preventDefault() {} });
     assert.equal(emitted[0].category, "__custom__");
     assert.equal(emitted[0].customCategory, "សត្វចិញ្ចឹម");
+  } finally {
+    app.unmount();
+  }
+});
+
+test("category search filters without changing the saved selection until a result is chosen", async () => {
+  const emitted: any[] = [];
+  const { app, nodes } = mountForm(savedEntry, (row) => emitted.push(row));
+  try {
+    const search = nodes().find((node) => node.props["aria-label"] === "Search categories");
+    assert.ok(search, "the category picker must provide a search field");
+    search.value = "  coFF  ";
+    search.props["onUpdate:modelValue"](search.value);
+    await nextTick();
+    const results = nodes().find((node) => node.props["aria-label"] === "Category results")!;
+    const options = results.children.filter((node) => node.tag === "button");
+    assert.equal(options.length, 1);
+    assert.equal(options[0].props["aria-label"], "Select Coffee");
+    nodes().find((node) => node.tag === "form")!.props.onSubmit({ preventDefault() {} });
+    assert.equal(emitted[0].category, "Food");
+    await options[0].props.onClick();
+    nodes().find((node) => node.tag === "form")!.props.onSubmit({ preventDefault() {} });
+    assert.equal(emitted[1].category, "Coffee");
+  } finally {
+    app.unmount();
+  }
+});
+
+test("an empty category search keeps custom category entry available", async () => {
+  const emitted: any[] = [];
+  const { app, nodes } = mountForm(savedEntry, (row) => emitted.push(row));
+  try {
+    const search = nodes().find((node) => node.props["aria-label"] === "Search categories");
+    assert.ok(search, "the category picker must provide a search field");
+    search.value = "No matching category";
+    search.props["onUpdate:modelValue"](search.value);
+    await nextTick();
+    assert.ok(nodes().some((node) => node.props.role === "status" && node.text === "No categories found."));
+    await nodes().find((node) => node.props["aria-label"] === "Choose custom category")!.props.onClick();
+    await nextTick();
+    const input = nodes().find((node) => node.tag === "input" && node.props.placeholder === "Enter your category")!;
+    input.props["onUpdate:modelValue"]("Pet care");
+    nodes().find((node) => node.tag === "form")!.props.onSubmit({ preventDefault() {} });
+    assert.equal(emitted[0].customCategory, "Pet care");
   } finally {
     app.unmount();
   }

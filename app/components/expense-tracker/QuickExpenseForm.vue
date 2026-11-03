@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ChevronDown, MessageSquarePlus, ReceiptText, X } from "lucide-vue-next";
+import { Check, ChevronDown, MessageSquarePlus, Plus, ReceiptText, Search, X } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import {
   createExpenseRow,
@@ -42,6 +42,14 @@ const showOptionalNote = ref(Boolean(props.initialRow?.note));
 const error = ref("");
 const amountInput = ref<HTMLInputElement | null>(null);
 const categoryPicker = ref<HTMLDetailsElement | null>(null);
+const desktopCategoryPicker = ref<HTMLDetailsElement | null>(null);
+const desktopCategoryTrigger = ref<HTMLElement | null>(null);
+const categorySearchInput = ref<HTMLInputElement | null>(null);
+const categorySearch = ref("");
+const filteredCategories = computed(() => {
+  const query = categorySearch.value.trim().toLocaleLowerCase();
+  return availableCategories.value.filter((item) => item.toLocaleLowerCase().includes(query));
+});
 const customCategoryInput = ref<HTMLInputElement | null>(null);
 const mobileNoteInput = ref<HTMLInputElement | null>(null);
 const formId = useId();
@@ -67,6 +75,42 @@ function resetForm() {
   showOptionalNote.value = false;
   date.value = todayISO();
   error.value = "";
+  categorySearch.value = "";
+  if (desktopCategoryPicker.value) desktopCategoryPicker.value.open = false;
+}
+
+async function handleCategoryToggle() {
+  if (!desktopCategoryPicker.value?.open) return;
+  categorySearch.value = "";
+  await nextTick();
+  categorySearchInput.value?.focus();
+}
+
+function closeDesktopCategoryPicker() {
+  if (desktopCategoryPicker.value) desktopCategoryPicker.value.open = false;
+  desktopCategoryTrigger.value?.focus();
+}
+
+async function selectDesktopCategory(value: string) {
+  if (props.busy) return;
+  category.value = value;
+  closeDesktopCategoryPicker();
+  if (value === "__custom__") {
+    await nextTick();
+    customCategoryInput.value?.focus();
+  }
+}
+
+function moveCategoryFocus(event: KeyboardEvent, step: number) {
+  const controls = Array.from(desktopCategoryPicker.value?.querySelectorAll<HTMLElement>("input, button:not(:disabled)") ?? []);
+  const index = controls.indexOf(event.target as HTMLElement);
+  controls[Math.max(0, Math.min(controls.length - 1, index + step))]?.focus();
+}
+
+function handleCategoryFocusOut(event: FocusEvent) {
+  if (!desktopCategoryPicker.value?.contains(event.relatedTarget as Node | null)) {
+    if (desktopCategoryPicker.value) desktopCategoryPicker.value.open = false;
+  }
 }
 
 async function toggleOptionalNote() {
@@ -232,18 +276,82 @@ defineExpose({ focusAmount, resetForm });
           {{ item }}
         </button>
       </div>
-      <div class="relative mt-2 hidden sm:block">
-        <select
-          v-model="category"
-          class="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 pr-10 text-sm font-medium text-slate-700 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:focus:ring-cyan-300/10"
-          :disabled="props.busy"
+      <details
+        ref="desktopCategoryPicker"
+        class="group/category mt-2 hidden rounded-2xl border border-slate-200 bg-white open:border-sky-300 open:shadow-lg open:shadow-sky-950/5 dark:border-white/10 dark:bg-white/[0.035] dark:open:border-cyan-200/35 sm:block"
+        @toggle="handleCategoryToggle"
+        @keydown.esc.stop.prevent="closeDesktopCategoryPicker"
+        @keydown.down.prevent="moveCategoryFocus($event, 1)"
+        @keydown.up.prevent="moveCategoryFocus($event, -1)"
+        @focusout="handleCategoryFocusOut"
+      >
+        <summary
+          ref="desktopCategoryTrigger"
+          class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 text-sm outline-none transition hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/5 [&::-webkit-details-marker]:hidden"
           aria-label="All entry categories"
+          :aria-disabled="props.busy"
+          @click="props.busy && $event.preventDefault()"
+          @keydown.enter="props.busy && $event.preventDefault()"
+          @keydown.space="props.busy && $event.preventDefault()"
         >
-          <option v-for="item in availableCategories" :key="item" :value="item">{{ item }}</option>
-          <option value="__custom__">Custom category…</option>
-        </select>
-        <ChevronDown class="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-slate-400" aria-hidden="true" />
-      </div>
+          <span class="flex min-w-0 items-center gap-2.5">
+            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600 dark:bg-cyan-200/10 dark:text-cyan-200">
+              <Check class="size-4" aria-hidden="true" />
+            </span>
+            <span class="truncate font-semibold text-slate-800 dark:text-white/85">{{ categoryLabel }}</span>
+          </span>
+          <ChevronDown class="size-4 shrink-0 text-slate-400 transition group-open/category:rotate-180 dark:text-white/45" aria-hidden="true" />
+        </summary>
+        <!-- Expand within the form so the dialog can scroll every search result into view. -->
+        <div class="border-t border-slate-100 p-2 dark:border-white/10">
+          <div class="relative mb-2">
+            <Search class="pointer-events-none absolute left-3 top-3.5 size-4 text-slate-400 dark:text-white/40" aria-hidden="true" />
+            <input
+              ref="categorySearchInput"
+              v-model="categorySearch"
+              type="search"
+              aria-label="Search categories"
+              autocomplete="off"
+              maxlength="80"
+              placeholder="Search categories…"
+              class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-white/35 dark:focus:border-cyan-200/50 dark:focus:ring-cyan-200/10"
+              :disabled="props.busy"
+              @keydown.enter.prevent="filteredCategories[0] && selectDesktopCategory(filteredCategories[0])"
+            />
+          </div>
+          <div role="group" aria-label="Category results" class="max-h-52 space-y-1 overflow-y-auto overscroll-contain">
+            <button
+              v-for="item in filteredCategories"
+              :key="item"
+              type="button"
+              :aria-label="`Select ${item}`"
+              :aria-pressed="category === item"
+              :disabled="props.busy"
+              class="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 disabled:opacity-50"
+              :class="category === item
+                ? 'bg-sky-600 text-white dark:bg-cyan-200 dark:text-slate-950'
+                : 'text-slate-600 hover:bg-sky-50 dark:text-white/70 dark:hover:bg-white/5'"
+              @click="selectDesktopCategory(item)"
+            >
+              <span class="truncate">{{ item }}</span>
+              <Check v-if="category === item" class="size-4 shrink-0" aria-hidden="true" />
+            </button>
+            <p v-if="!filteredCategories.length" role="status" class="px-3 py-5 text-center text-sm text-slate-500 dark:text-white/45">No categories found.</p>
+          </div>
+          <div class="mt-2 border-t border-slate-100 pt-2 dark:border-white/10">
+            <button
+              type="button"
+              aria-label="Choose custom category"
+              :disabled="props.busy"
+              class="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm font-bold text-sky-700 transition hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 disabled:opacity-50 dark:text-cyan-200 dark:hover:bg-cyan-200/5"
+              @click="selectDesktopCategory('__custom__')"
+            >
+              <Plus class="size-4" aria-hidden="true" />
+              Custom category
+            </button>
+          </div>
+        </div>
+      </details>
       <div v-if="category === '__custom__'" class="mt-2">
         <label :for="customCategoryId" class="sr-only">Custom category</label>
         <input
@@ -261,7 +369,7 @@ defineExpose({ focusAmount, resetForm });
 
     <div v-if="props.initialRow" class="sm:hidden">
       <p class="mb-1.5 text-xs font-bold text-slate-500 dark:text-white/50">Date</p>
-      <ModernDateInput v-model="date" aria-label="Entry date" />
+      <ModernDateInput v-model="date" placement="top" aria-label="Entry date" />
     </div>
 
     <div class="sm:hidden">
@@ -300,7 +408,7 @@ defineExpose({ focusAmount, resetForm });
       <div class="grid gap-4 border-t border-slate-200 p-4 dark:border-white/10 sm:grid-cols-2">
         <div>
           <label class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Date</label>
-          <ModernDateInput v-model="date" aria-label="Expense date" />
+          <ModernDateInput v-model="date" placement="top" aria-label="Expense date" />
         </div>
         <div>
           <label :for="desktopNoteId" class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Note (optional)</label>
