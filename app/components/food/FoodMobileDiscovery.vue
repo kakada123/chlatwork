@@ -442,7 +442,7 @@ watch(
           <label
             class="block text-xs font-semibold text-stone-600 dark:text-stone-300"
             ><span>ឬជ្រើសតំបន់នៅភ្នំពេញ</span
-            ><select
+            ><ModernSelect
               :value="districtId"
               class="mobile-input mt-2"
               :disabled="disabled"
@@ -458,7 +458,7 @@ watch(
               >
                 {{ district.nameKm }}
               </option>
-            </select></label
+            </ModernSelect></label
           >
           <button
             v-if="locationError && districtId && !hasCoords"

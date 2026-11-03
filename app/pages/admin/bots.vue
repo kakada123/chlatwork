@@ -212,7 +212,7 @@ onMounted(() => void load());
         </label>
         <label class="text-xs font-semibold"
           >Bot
-          <select
+          <ModernSelect
             v-model="bot"
             class="mt-2 block rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-normal dark:border-white/15"
             @change="load()"
@@ -220,11 +220,11 @@ onMounted(() => void load());
             <option value="">Both bots</option>
             <option value="CREATOR">Creator</option>
             <option value="CHLATWORK">ChlatWork</option>
-          </select>
+          </ModernSelect>
         </label>
         <label class="text-xs font-semibold"
           >Status
-          <select
+          <ModernSelect
             v-model="status"
             class="mt-2 block rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-normal dark:border-white/15"
             @change="load()"
@@ -234,7 +234,7 @@ onMounted(() => void load());
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
             <option value="SUSPENDED">Suspended</option>
-          </select>
+          </ModernSelect>
         </label>
         <button
           type="submit"

@@ -243,7 +243,7 @@ useSeoMeta({
             <label for="youtube-quality" class="mb-2 block text-sm font-semibold">{{
               copy.quality
             }}</label>
-            <select
+            <ModernSelect
               id="youtube-quality"
               v-model="quality"
               :disabled="busy"
@@ -252,7 +252,7 @@ useSeoMeta({
               <option v-for="option in state.preview.qualities" :key="option" :value="option">
                 {{ option }}p
               </option>
-            </select>
+            </ModernSelect>
           </div>
           <!-- Keep the primary action colored: the dark theme maps white surfaces to black. -->
           <button

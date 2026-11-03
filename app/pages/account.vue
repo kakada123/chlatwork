@@ -30,6 +30,8 @@ import {
 } from "lucide-vue-next";
 import CommandQuickCard from "~/components/developer-commands/CommandQuickCard.vue";
 import TelegramPhoneSetting from "~/components/account/TelegramPhoneSetting.vue";
+import AccountDesktopNavigation from "~/components/account/AccountDesktopNavigation.vue";
+import { DESKTOP_ACCOUNT_SECTIONS, type DesktopAccountSection } from "~/lib/account-navigation";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import HomeToolCard from "~/components/landing/HomeToolCard.vue";
 import MoneyAmount from "~/components/MoneyAmount.vue";
@@ -129,7 +131,7 @@ const accountInformationGroups: Array<{
   },
 ];
 
-definePageMeta({ middleware: "auth" });
+definePageMeta({ middleware: "auth", layout: "account" });
 useSeoMeta({ title: "Profile | ChlatWork", robots: "noindex, nofollow" });
 
 const { user, logout } = useAuth();
@@ -163,6 +165,23 @@ const {
 const isLoggingOut = ref(false);
 const signOutDialogOpen = ref(false);
 const mobileAccountSection = ref<MobileAccountSection | null>(null);
+const desktopAccountSection = ref<DesktopAccountSection>("overview");
+const accountContent = ref<HTMLElement | null>(null);
+const desktopAccountSectionTitle = computed(() =>
+  DESKTOP_ACCOUNT_SECTIONS.find((section) => section.key === desktopAccountSection.value)?.title ?? "Overview",
+);
+
+function desktopPanelClass(section: DesktopAccountSection) {
+  return { "account-panel-hidden": desktopAccountSection.value !== section };
+}
+
+async function openDesktopAccountSection(section: DesktopAccountSection) {
+  desktopAccountSection.value = section;
+  await nextTick();
+  // Reset only this pane so the shared header and navigation stay in place.
+  accountContent.value?.scrollTo({ top: 0, behavior: "auto" });
+  accountContent.value?.focus({ preventScroll: true });
+}
 const mobileAccountSectionTitle = computed(() =>
   mobileAccountSection.value
     ? MOBILE_ACCOUNT_SECTION_TITLES[mobileAccountSection.value]
@@ -222,6 +241,11 @@ const expenseSummary = computed(() => {
 });
 
 const { websiteEnabled } = useFeatureAvailability();
+watch(() => websiteEnabled("developer-commands"), (enabled) => {
+  if (!enabled && desktopAccountSection.value === "favorite-commands") {
+    void openDesktopAccountSection("overview");
+  }
+});
 const favoriteTools = computed(() => favoriteToolKeys.value
   .map((key) => LANDING_TOOLS.find((tool) => tool.key === key))
   .filter((tool): tool is (typeof LANDING_TOOLS)[number] => Boolean(tool) && websiteEnabled(tool.key))
@@ -506,10 +530,10 @@ onBeforeUnmount(() => {
 
 <template>
   <main
-    class="pb-24 text-slate-950 sm:space-y-8 sm:pb-0 dark:text-white"
-    :class="mobileAccountSection ? 'space-y-4' : 'space-y-8'"
+    class="account-page pb-24 text-slate-950 sm:pb-0 dark:text-white"
+    :class="mobileAccountSection ? 'space-y-4 sm:space-y-8' : 'space-y-8'"
   >
-    <header class="border-b border-slate-200 dark:border-white/10" :class="mobileAccountSection ? 'pb-3 sm:pb-6' : 'pb-5 sm:pb-6'">
+    <header class="account-heading border-b border-slate-200 dark:border-white/10" :class="mobileAccountSection ? 'pb-3 sm:pb-6' : 'pb-5 sm:pb-6'">
       <!-- Mobile sub-sections use a focused back header; desktop keeps the account context visible. -->
       <div v-if="mobileAccountSection" class="flex min-h-12 items-center gap-3 sm:hidden">
         <button
@@ -531,9 +555,26 @@ onBeforeUnmount(() => {
       </div>
     </header>
 
+    <div class="account-workspace">
+      <AccountDesktopNavigation
+        :active-section="desktopAccountSection"
+        :commands-enabled="websiteEnabled('developer-commands')"
+        @select="openDesktopAccountSection"
+      />
+      <div
+        id="account-desktop-content"
+        ref="accountContent"
+        class="account-content"
+        :class="mobileAccountSection ? 'space-y-4 sm:space-y-8' : 'space-y-8'"
+        tabindex="-1"
+        role="region"
+        aria-label="Account content"
+      >
+        <h2 class="hidden text-xl font-semibold lg:block">{{ desktopAccountSectionTitle }}</h2>
+
     <section
       class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#101214] sm:rounded-2xl"
-      :class="{ 'hidden sm:block': mobileAccountSection }"
+      :class="[{ 'hidden sm:block': mobileAccountSection }, desktopPanelClass('overview')]"
     >
       <div class="p-5 sm:p-6">
         <div class="flex items-center gap-4 sm:gap-5">
@@ -682,7 +723,7 @@ onBeforeUnmount(() => {
       <p v-else-if="telegramNotificationStatus" role="status" class="mt-2 px-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ telegramNotificationStatus }}</p>
     </section>
 
-    <section v-if="!mobileAccountSection && websiteEnabled('expense-tracker')" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
+    <section :class="desktopPanelClass('settings')" v-if="websiteEnabled('expense-tracker')" class="hidden items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-cyan-300/20 dark:bg-cyan-300/[0.06] sm:flex">
       <span>
         <strong class="block text-sm">Quick Expense button</strong>
         <span class="mt-1 block text-xs text-slate-600 dark:text-white/55">Show the floating Add expense action while you are signed in.</span>
@@ -694,7 +735,7 @@ onBeforeUnmount(() => {
       </label>
     </section>
 
-    <section v-if="!mobileAccountSection" class="hidden items-center justify-between gap-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-300/20 dark:bg-blue-300/[0.06] sm:flex">
+    <section :class="desktopPanelClass('settings')" class="hidden items-center justify-between gap-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-300/20 dark:bg-blue-300/[0.06] sm:flex">
       <span class="flex min-w-0 items-center gap-3">
         <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-300/10 dark:text-blue-200"><BellRing class="size-5" aria-hidden="true" /></span>
         <span class="min-w-0">
@@ -719,7 +760,7 @@ onBeforeUnmount(() => {
     </section>
 
     <TelegramPhoneSetting
-      v-if="!mobileAccountSection"
+      :class="[desktopPanelClass('settings'), { 'hidden sm:block': mobileAccountSection }]"
       :enabled="telegramPhoneEnabled"
       :disabled="telegramPhoneDisabled"
       :description="telegramPhoneDescription"
@@ -728,7 +769,7 @@ onBeforeUnmount(() => {
       @toggle="toggleTelegramPhone"
     />
 
-    <NuxtLink v-if="!mobileAccountSection && websiteEnabled('chlatwork-link')" to="/account/link" class="flex items-center gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/5">
+    <NuxtLink :class="[desktopPanelClass('overview'), { 'hidden sm:flex': mobileAccountSection }]" v-if="websiteEnabled('chlatwork-link')" to="/account/link" class="flex items-center gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/5">
       <Link2 class="size-6 shrink-0 text-sky-600 dark:text-cyan-300" aria-hidden="true" />
       <span class="flex-1"><strong class="block text-sm">ChlatWork Link</strong><span class="mt-1 block text-xs text-slate-500 dark:text-white/60">Create your public page. Add your links. Share anywhere.</span></span>
       <ChevronRight class="size-5 text-sky-600 dark:text-cyan-300" aria-hidden="true" />
@@ -737,7 +778,7 @@ onBeforeUnmount(() => {
     <section
       id="profile-expense-section"
       class="sm:rounded-2xl sm:border sm:border-cyan-200 sm:bg-cyan-50/60 sm:p-6 dark:sm:border-cyan-300/20 dark:sm:bg-cyan-300/[0.06]"
-      :class="mobileAccountSection === 'expenses' ? 'block' : 'hidden sm:block'"
+      :class="[mobileAccountSection === 'expenses' ? 'block' : 'hidden sm:block', desktopPanelClass('expenses')]"
       aria-label="Expense Tracker"
     >
       <div class="space-y-3 sm:hidden">
@@ -857,7 +898,7 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="space-y-4" :class="mobileAccountSection === 'moments' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-moments">
+    <section class="space-y-4" :class="[mobileAccountSection === 'moments' ? 'block' : 'hidden sm:block', desktopPanelClass('moments')]" aria-labelledby="profile-moments">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300"><Sparkles class="h-5 w-5" aria-hidden="true" /></span>
@@ -901,11 +942,11 @@ onBeforeUnmount(() => {
       @confirm="signOut"
     />
 
-    <section id="profile-payback-history" class="scroll-mt-24" :class="mobileAccountSection === 'payback' ? 'block' : 'hidden sm:block'">
+    <section id="profile-payback-history" class="scroll-mt-24" :class="[mobileAccountSection === 'payback' ? 'block' : 'hidden sm:block', desktopPanelClass('payback')]">
       <PaybackCalculatorHistory :items="historyItems" :loading="historyLoading" :deleting-id="historyDeletingId" @load="reopenHistory" @remove="removeHistory" />
     </section>
 
-    <section id="profile-most-used-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'activity' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-most-used-tools-title">
+    <section id="profile-most-used-tools" class="scroll-mt-24 space-y-4" :class="[mobileAccountSection === 'activity' ? 'block' : 'hidden sm:block', desktopPanelClass('activity')]" aria-labelledby="profile-most-used-tools-title">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-300"><BarChart3 class="h-5 w-5" aria-hidden="true" /></span>
@@ -927,7 +968,7 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">Use a tool while signed in and it will appear here.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
     </section>
 
-    <section id="favorite-tools" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-tools' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-tools">
+    <section id="favorite-tools" class="scroll-mt-24 space-y-4" :class="[mobileAccountSection === 'favorite-tools' ? 'block' : 'hidden sm:block', desktopPanelClass('favorite-tools')]" aria-labelledby="profile-favorite-tools">
       <div class="flex items-center justify-between gap-4">
         <div><h2 id="profile-favorite-tools" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite tools</h2><p class="text-sm text-slate-500 dark:text-white/50 sm:mt-1">Synced securely to your signed-in account.</p></div>
         <NuxtLink to="/tools" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools →</NuxtLink>
@@ -940,7 +981,7 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite tools yet.</p><NuxtLink to="/tools" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse tools</NuxtLink></div>
     </section>
 
-    <section v-if="websiteEnabled('developer-commands')" id="favorite-commands" class="scroll-mt-24 space-y-4" :class="mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block'" aria-labelledby="profile-favorite-commands">
+    <section v-if="websiteEnabled('developer-commands')" id="favorite-commands" class="scroll-mt-24 space-y-4" :class="[mobileAccountSection === 'favorite-commands' ? 'block' : 'hidden sm:block', desktopPanelClass('favorite-commands')]" aria-labelledby="profile-favorite-commands">
       <div class="flex items-center justify-between gap-4"><h2 id="profile-favorite-commands" class="sr-only sm:not-sr-only sm:text-xl sm:font-semibold">Favorite commands</h2><NuxtLink to="/developer-commands" class="text-sm font-semibold text-sky-700 dark:text-cyan-300">Command Hub →</NuxtLink></div>
       <div v-if="!favoritesReady" class="h-24 animate-pulse rounded-2xl bg-slate-100 motion-reduce:animate-none dark:bg-white/[0.06]" aria-label="Loading favorite commands" />
       <div v-else-if="favoriteError" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300">{{ favoriteError }}</div>
@@ -948,7 +989,7 @@ onBeforeUnmount(() => {
       <div v-else class="rounded-2xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15"><p class="text-sm text-slate-500 dark:text-white/50">You have no favorite commands yet.</p><NuxtLink to="/developer-commands" class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300">Browse commands</NuxtLink></div>
     </section>
 
-    <section v-if="!mobileAccountSection" class="space-y-6 sm:hidden" aria-label="ChlatWork information">
+    <section :class="[desktopPanelClass('information'), mobileAccountSection ? 'hidden lg:block' : 'sm:hidden lg:block']" class="space-y-6" aria-label="ChlatWork information">
       <section v-for="group in accountInformationGroups" :key="group.key" :aria-labelledby="`account-${group.key}-title`">
         <h2 :id="`account-${group.key}-title`" class="px-1 text-lg font-semibold">{{ group.title }}</h2>
         <div class="mt-3 divide-y divide-slate-200 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.05]">
@@ -986,6 +1027,16 @@ onBeforeUnmount(() => {
       </section>
     </section>
 
+    <section :class="desktopPanelClass('settings')" class="hidden rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#101214] lg:block" aria-label="Appearance settings">
+      <div class="flex items-center justify-between gap-4">
+        <div><h3 class="text-sm font-semibold">Appearance</h3><p class="mt-1 text-xs text-slate-500 dark:text-white/50">Choose how ChlatWork looks.</p></div>
+        <button type="button" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:border-white/15" :aria-label="nextColorModeLabel" @click="toggleColorMode()">
+          <Moon v-if="isDark" class="size-4" aria-hidden="true" /><Sun v-else class="size-4" aria-hidden="true" />
+          {{ isDark ? "Dark" : "Light" }}
+        </button>
+      </div>
+    </section>
+
     <button
       v-if="!mobileAccountSection"
       type="button"
@@ -997,5 +1048,61 @@ onBeforeUnmount(() => {
       <span><strong class="block text-sm">{{ isLoggingOut ? "Signing out…" : "Sign out" }}</strong><span class="mt-1 block text-xs font-medium opacity-70">Sign out from your ChlatWork account</span></span>
     </button>
 
+      </div>
+    </div>
   </main>
 </template>
+
+<style scoped>
+@media (min-width: 1024px) {
+  .account-page {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .account-page > * + * {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .account-heading {
+    flex-shrink: 0;
+    padding-bottom: 1rem;
+  }
+
+  .account-workspace {
+    display: grid;
+    min-height: 0;
+    flex: 1;
+    grid-template-columns: clamp(10rem, 22%, 15rem) minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .account-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    border: 1px solid rgb(148 163 184 / 25%);
+    border-radius: 1rem;
+    padding: 1.5rem 1.5rem 5rem;
+    scrollbar-gutter: stable;
+  }
+
+  .account-content > * {
+    flex-shrink: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .account-panel-hidden {
+    display: none !important;
+  }
+}
+</style>

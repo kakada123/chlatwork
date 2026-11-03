@@ -233,7 +233,7 @@ onBeforeUnmount(() => {
               >
                 Invisible characters
               </label>
-              <select
+              <ModernSelect
                 id="khmer-invisible-mode"
                 v-model="options.invisibleCharacters"
                 class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
                 <option value="keep">
                   Keep
                 </option>
-              </select>
+              </ModernSelect>
             </div>
 
             <div>
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
               >
                 Digit conversion
               </label>
-              <select
+              <ModernSelect
                 id="khmer-digit-mode"
                 v-model="options.digitMode"
                 class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
@@ -271,7 +271,7 @@ onBeforeUnmount(() => {
                 <option value="latin-to-khmer">
                   0-9 to Khmer digits
                 </option>
-              </select>
+              </ModernSelect>
             </div>
           </div>
         </section>

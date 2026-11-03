@@ -10,14 +10,14 @@
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-4 max-w-sm">
         <label class="block text-sm font-semibold text-gray-900">Timezone</label>
-        <select
+        <ModernSelect
           v-model="timeZone"
           class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
         >
           <option v-for="zone in timeZoneOptions" :key="zone" :value="zone">
             {{ zone }}
           </option>
-        </select>
+        </ModernSelect>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-2">

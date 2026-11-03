@@ -33,12 +33,12 @@ function toggle(key: string, value: string) {
           <span v-if="selected(field.key).length" class="ml-1 text-orange-600">· {{ selected(field.key).length }}</span>
         </summary>
         <div class="mt-3 min-w-0">
-          <select v-if="!field.multiple" :value="modelValue[field.key] || ''" :aria-label="field.label" class="w-full min-w-0 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-base text-stone-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 sm:text-sm" @change="change(field.key, ($event.target as HTMLSelectElement).value)">
+          <ModernSelect v-if="!field.multiple" :value="modelValue[field.key] || ''" :aria-label="field.label" class="w-full min-w-0 rounded-xl border border-stone-200 bg-stone-50 px-2 py-2 text-base text-stone-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 sm:text-sm" @change="change(field.key, ($event.target as HTMLSelectElement).value)">
             <option value="">មិនកំណត់ / Any</option>
             <optgroup v-for="group in field.groups" :key="group.label" :label="group.label">
               <option v-for="option in group.options" :key="option.value" :value="option.value" :disabled="option.disabled">{{ option.label }}{{ option.disabled ? ' — unavailable' : '' }}</option>
             </optgroup>
-          </select>
+          </ModernSelect>
           <div v-else class="max-h-64 space-y-3 overflow-y-auto overscroll-contain pr-1">
             <p class="text-xs text-stone-500">ជ្រើសបានដល់ 8 / Up to 8</p>
             <fieldset v-for="group in field.groups" :key="group.label" class="space-y-1">

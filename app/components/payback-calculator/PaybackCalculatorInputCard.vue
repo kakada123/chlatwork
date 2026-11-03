@@ -137,10 +137,10 @@ watch(currency, (nextCurrency) => {
       </div>
 
       <label class="sr-only" for="payback-currency">Currency</label>
-      <select id="payback-currency" v-model="currency" class="payback-control h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none focus:border-sky-400 dark:text-white">
+      <ModernSelect id="payback-currency" v-model="currency" class="payback-control h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none focus:border-sky-400 dark:text-white">
         <option value="USD">USD</option>
         <option value="KHR">KHR</option>
-      </select>
+      </ModernSelect>
     </div>
 
     <div class="payback-panel overflow-hidden rounded-xl border border-slate-200">

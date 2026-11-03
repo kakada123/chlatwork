@@ -174,7 +174,7 @@ function handleClear() {
             >
               Error correction
             </label>
-            <select
+            <ModernSelect
               v-model="ecLevel"
               class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
@@ -182,7 +182,7 @@ function handleClear() {
               <option value="M">M (15%)</option>
               <option value="Q">Q (25%)</option>
               <option value="H">H (30%)</option>
-            </select>
+            </ModernSelect>
           </div>
 
           <div class="flex items-end gap-2">

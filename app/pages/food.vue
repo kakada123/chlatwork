@@ -320,7 +320,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             ទីតាំងនៅភ្នំពេញ
           </label>
           <div class="flex gap-1.5">
-            <select
+            <ModernSelect
               :value="selectedDistrictId"
               class="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-2.5 text-xs font-semibold text-stone-800 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
               @change="isMobile ? chooseMobileDistrict(($event.target as HTMLSelectElement).value) : onDistrictChange(($event.target as HTMLSelectElement).value)"
@@ -333,7 +333,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
               >
                 {{ d.nameKm }}
               </option>
-            </select>
+            </ModernSelect>
 
             <button
               type="button"
@@ -368,7 +368,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             <label class="space-y-1 text-sm"><span>ទៅកាន់ / Destination</span><input v-model="routeDestination" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
           </div>
           <label v-if="Array.isArray(filters.dietary) && filters.dietary.includes('allergies')" class="block space-y-1 text-sm"><span>អាលែកហ្ស៊ីដែលត្រូវជៀសវាង / Allergies to avoid</span><input v-model="allergies" maxlength="120" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
-          <label v-if="filters.reviews === 'rating'" class="block space-y-1 text-sm"><span>ការវាយតម្លៃអប្បបរមា / Minimum rating</span><select v-model.number="minimumRating" class="rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700"><option :value="0">Any</option><option v-for="rating in [3, 3.5, 4, 4.5]" :key="rating" :value="rating">{{ rating }}+</option></select></label>
+          <label v-if="filters.reviews === 'rating'" class="block space-y-1 text-sm"><span>ការវាយតម្លៃអប្បបរមា / Minimum rating</span><ModernSelect v-model.number="minimumRating" class="rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700"><option :value="0">Any</option><option v-for="rating in [3, 3.5, 4, 4.5]" :key="rating" :value="rating">{{ rating }}+</option></ModernSelect></label>
         </div>
       </details>
 

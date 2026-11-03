@@ -165,23 +165,23 @@ async function confirm() {
       >
         <label class="block text-sm font-medium"
           >Action
-          <select
+          <ModernSelect
             v-model="kind"
             class="mt-2 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
           >
             <option value="balance">Adjust credits / refund</option>
             <option value="limit">Set daily limit</option>
-          </select>
+          </ModernSelect>
         </label>
         <div v-if="kind === 'balance'" class="flex gap-3">
-          <select
+          <ModernSelect
             v-model="direction"
             aria-label="Credit direction"
             class="rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
           >
             <option :value="1">Add / refund</option>
             <option :value="-1">Deduct</option>
-          </select>
+          </ModernSelect>
           <input
             v-model="amount"
             aria-label="Credits"

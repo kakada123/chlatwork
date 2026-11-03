@@ -119,6 +119,10 @@ test("saved entries show a loading state while the selected day is loading", asy
 });
 
 function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "Document");
+  class TestDocument {}
+  const documentRoot = Object.assign(new TestDocument(), { activeElement: null });
+  Object.defineProperty(globalThis, "Document", { configurable: true, value: TestDocument });
   type Element = {
     tag: string;
     children: Element[];
@@ -130,6 +134,7 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
     focus: () => void;
     open?: boolean;
     text: string;
+    getRootNode: () => object;
   };
   const element = (tag: string): Element => ({
     tag,
@@ -139,6 +144,7 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
     addEventListener() {},
     focus() {},
     text: "",
+    getRootNode: () => documentRoot,
   });
   const root = element("root");
   const renderer = createRenderer<Element, Element>({
@@ -175,7 +181,14 @@ function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
     node,
     ...node.children.flatMap(walk),
   ];
-  return { app, nodes: () => walk(root) };
+  return {
+    app: { unmount() {
+      app.unmount();
+      if (previousDocument) Object.defineProperty(globalThis, "Document", previousDocument);
+      else Reflect.deleteProperty(globalThis, "Document");
+    } },
+    nodes: () => walk(root),
+  };
 }
 
 test("the reused Quick Expense form preloads the saved entry and emits only on Save", async () => {

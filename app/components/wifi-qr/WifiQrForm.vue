@@ -56,14 +56,14 @@ const enHeadline = defineModel<string>("enHeadline", {
     <div class="grid gap-3 sm:grid-cols-2">
       <div>
         <label class="text-sm font-medium">Security</label>
-        <select
+        <ModernSelect
           v-model="security"
           class="mt-1 h-11 w-full rounded-xl border px-3"
         >
           <option value="WPA">WPA / WPA2</option>
           <option value="WEP">WEP</option>
           <option value="nopass">No password</option>
-        </select>
+        </ModernSelect>
       </div>
 
       <div>
@@ -114,25 +114,25 @@ const enHeadline = defineModel<string>("enHeadline", {
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
           <label class="text-sm font-medium">Style</label>
-          <select
+          <ModernSelect
             v-model="theme"
             class="mt-1 h-11 w-full rounded-xl border px-3"
           >
             <option value="cute">Cute</option>
             <option value="modern">Modern</option>
             <option value="minimal">Minimal</option>
-          </select>
+          </ModernSelect>
         </div>
 
         <div>
           <label class="text-sm font-medium">Poster size</label>
-          <select
+          <ModernSelect
             v-model="posterSize"
             class="mt-1 h-11 w-full rounded-xl border px-3"
           >
             <option value="A5">A5</option>
             <option value="A4">A4</option>
-          </select>
+          </ModernSelect>
         </div>
       </div>
 

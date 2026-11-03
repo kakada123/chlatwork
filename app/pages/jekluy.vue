@@ -137,15 +137,15 @@ async function selectSummary() {
         <fieldset v-if="result.remainderCents > 0n" class="mt-4 space-y-2">
           <legend class="mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400">ចាត់ចែងសំណល់</legend>
           <label for="jekluy-remainder-mode" class="sr-only">វិធីចាត់ចែងសំណល់</label>
-          <select id="jekluy-remainder-mode" v-model="draft.remainderMode" class="jekluy-input w-full text-sm">
+          <ModernSelect id="jekluy-remainder-mode" v-model="draft.remainderMode" class="jekluy-input w-full text-sm">
             <option value="LEFTOVER_ONLY">ទុកសំណល់ដាច់ដោយឡែក</option>
             <option value="ASSIGN_TO_PERSON">ឱ្យម្នាក់ទទួលបន្ទុកសំណល់</option>
-          </select>
+          </ModernSelect>
           <template v-if="draft.remainderMode === 'ASSIGN_TO_PERSON'">
             <label for="jekluy-remainder-payer" class="block text-xs text-slate-500 dark:text-slate-400">អ្នកទទួលបន្ទុកសំណល់</label>
-            <select id="jekluy-remainder-payer" :value="result.remainderPersonId" class="jekluy-input w-full text-sm" @change="draft.remainderPayer = ($event.target as HTMLSelectElement).value">
+            <ModernSelect id="jekluy-remainder-payer" :value="result.remainderPersonId" class="jekluy-input w-full text-sm" @change="draft.remainderPayer = ($event.target as HTMLSelectElement).value">
               <option v-for="person in draft.participants" :key="person.id" :value="person.id">{{ person.name }}</option>
-            </select>
+            </ModernSelect>
           </template>
         </fieldset>
 

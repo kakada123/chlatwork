@@ -8,6 +8,7 @@ import * as icons from "lucide-vue-next";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as jekluy from "../app/lib/jekluy.ts";
 import { useJekLuy } from "../app/composables/useJekLuy.ts";
+import { ModernSelect } from "./helpers/load-modern-select.ts";
 
 test("the rendered screenshot case shows 15,000 riel as the payment and retains exact amounts only in its audit", async () => {
   const filename = new URL("../app/pages/jekluy.vue", import.meta.url).pathname;
@@ -32,7 +33,9 @@ test("the rendered screenshot case shows 15,000 riel as the payment and retains 
     if (!dependencies[name]) throw new Error(`Unexpected render dependency: ${name}`);
     return dependencies[name];
   }, module, module.exports, ...Object.values(globals));
-  const html = await renderer.renderToString(vue.createSSRApp(module.exports.default));
+  const app = vue.createSSRApp(module.exports.default);
+  app.component("ModernSelect", ModernSelect);
+  const html = await renderer.renderToString(app);
   const payments = html.match(/<ul\b[^>]*>[\s\S]*?<\/ul>/)![0];
   assert.match(payments, /15,000៛/);
   assert.doesNotMatch(payments, /14,967/);

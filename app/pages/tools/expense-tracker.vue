@@ -137,7 +137,7 @@
         >
           <Plus class="h-4 w-4" aria-hidden="true" />Add expense
         </button>
-        <select
+        <ModernSelect
           v-model="currency"
           aria-label="Expense currency"
           :disabled="entryBusy"
@@ -145,7 +145,7 @@
         >
           <option value="USD">USD</option>
           <option value="KHR">KHR</option>
-        </select>
+        </ModernSelect>
       </div>
     </header>
 
@@ -245,14 +245,14 @@
       </div>
       <label
         class="flex items-center gap-2 text-xs text-slate-500 dark:text-white/55 sm:hidden"
-        >Currency<select
+        >Currency<ModernSelect
           v-model="currency"
           :disabled="entryBusy"
           class="h-9 rounded-lg bg-slate-100 px-2 font-semibold text-slate-950 dark:bg-white/5 dark:text-white"
         >
           <option value="USD">USD</option>
           <option value="KHR">KHR</option>
-        </select></label
+        </ModernSelect></label
       >
       <button
         v-if="signedIn"

@@ -230,9 +230,14 @@ defineExpose({ focusAmount, resetForm });
           </span>
           <ChevronDown class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-180" aria-hidden="true" />
         </summary>
-        <div class="grid grid-cols-2 gap-2 border-t border-slate-200 p-2 dark:border-white/10">
+        <div class="border-t border-slate-200 p-2 dark:border-white/10">
+          <div class="relative mb-2">
+            <Search class="pointer-events-none absolute left-3 top-3.5 size-4 text-slate-400 dark:text-white/40" aria-hidden="true" />
+            <input v-model="categorySearch" type="search" aria-label="Search categories" autocomplete="off" maxlength="80" placeholder="Search categories…" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-base text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-black/20 dark:text-white dark:focus:border-cyan-200/50 dark:focus:ring-cyan-200/10" :disabled="props.busy" />
+          </div>
+          <div class="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto overscroll-contain">
           <button
-            v-for="item in availableCategories"
+            v-for="item in filteredCategories"
             :key="`mobile-${item}`"
             type="button"
             class="inline-flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
@@ -245,6 +250,7 @@ defineExpose({ focusAmount, resetForm });
             <Check v-if="category === item" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span class="truncate">{{ item }}</span>
           </button>
+          <p v-if="!filteredCategories.length" role="status" class="col-span-2 px-3 py-4 text-center text-sm text-slate-500 dark:text-white/45">No categories found.</p>
           <button
             type="button"
             class="col-span-2 inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
@@ -257,6 +263,7 @@ defineExpose({ focusAmount, resetForm });
             <Check v-if="category === '__custom__'" class="h-3.5 w-3.5" aria-hidden="true" />
             Custom category
           </button>
+          </div>
         </div>
       </details>
 

@@ -142,10 +142,10 @@ onBeforeUnmount(clearSelection);
     </div>
     <label class="mt-5 block text-sm font-medium">
       Telegram group
-      <select v-model="selectedChatId" class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:opacity-50 dark:border-white/15 dark:bg-[#101214]" :disabled="saving || !groups?.length">
+      <ModernSelect v-model="selectedChatId" class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:opacity-50 dark:border-white/15 dark:bg-[#101214]" :disabled="saving || !groups?.length">
         <option value="" disabled>Select a group</option>
         <option v-for="group in groups" :key="group.chatId" :value="group.chatId">{{ group.title }} · {{ group.memberCount }} members</option>
-      </select>
+      </ModernSelect>
     </label>
     <p v-if="selectedGroup" class="mt-2 text-xs text-slate-500 dark:text-white/50">Group {{ selectedGroup.chatId }}. Only active members observed in this group appear. Missing members can send /joinvote in that group.</p>
     <p v-else-if="groupsStatus === 'idle' || groupsStatus === 'pending'" role="status" class="mt-3 text-sm text-slate-500 dark:text-white/50">Loading groups…</p>

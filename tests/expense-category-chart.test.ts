@@ -6,6 +6,7 @@ import { createRenderer, createSSRApp, h, nextTick } from "vue";
 import { renderToString } from "vue/server-renderer";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import postcss from "postcss";
+import { ModernSelect } from "./helpers/load-modern-select.ts";
 
 async function compileComponent(
   name: string,
@@ -46,6 +47,7 @@ const { default: SummaryCard } = await import(
     "./ExpenseSpendingTrend.vue": trendUrl,
   })
 );
+SummaryCard.components = { ...SummaryCard.components, ModernSelect };
 
 async function renderChart(
   categories: { category: string; total: number; percent: number }[],

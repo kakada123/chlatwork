@@ -5,6 +5,7 @@ import * as vue from "vue";
 import { compileScript, parse } from "@vue/compiler-sfc";
 import { renderToString } from "vue/server-renderer";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
+import { ModernSelect } from "./helpers/load-modern-select.ts";
 
 function catalog(fetcher: (...args: any[]) => Promise<unknown>) {
   const source = readFileSync(
@@ -88,9 +89,9 @@ test("food ideas show cooking instructions only for matched recipes and retain b
     module,
     module.exports,
   );
-  const html = await renderToString(
-    vue.createSSRApp(module.exports.default, { initiallyExpanded: true }),
-  );
+  const app = vue.createSSRApp(module.exports.default, { initiallyExpanded: true });
+  app.component("ModernSelect", ModernSelect);
+  const html = await renderToString(app);
   const articles = html.match(/<article\b[\s\S]*?<\/article>/g) || [];
   assert.equal(articles.length, 2);
   assert.match(articles[0], /View how to cook/);

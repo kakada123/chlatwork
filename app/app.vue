@@ -1,9 +1,11 @@
 <template>
   <Analytics />
   <div
+    class="app-shell"
+    :data-account-workspace="route.path === '/account' ? '' : undefined"
     :class="canShowAds ? 'flex flex-col lg:grid lg:grid-cols-[160px_minmax(0,1fr)_160px] lg:gap-4 lg:px-4' : undefined"
   >
-    <div class="min-w-0 lg:order-2">
+    <div class="app-center min-w-0 lg:order-2">
       <AdsBannerAd v-if="canShowAds" :key="route.path" />
       <NuxtLayout>
         <NuxtPage />
@@ -139,3 +141,28 @@ useHead(() => ({
   ],
 }));
 </script>
+
+<style scoped>
+@media (min-width: 1024px) {
+  /* Account must share one viewport with any banner, rather than adding another viewport below it. */
+  .app-shell[data-account-workspace] {
+    height: 100dvh;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .app-shell[data-account-workspace] > .app-center {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .app-shell[data-account-workspace] > .app-center :deep(> .account-layout) {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+}
+</style>

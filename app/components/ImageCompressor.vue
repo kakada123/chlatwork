@@ -133,14 +133,14 @@
           >
             Output format
           </label>
-          <select
+          <ModernSelect
             v-model="opts.format"
             class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white"
           >
             <option value="image/webp">WebP (smallest)</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/png">PNG (lossless)</option>
-          </select>
+          </ModernSelect>
         </div>
 
         <div>

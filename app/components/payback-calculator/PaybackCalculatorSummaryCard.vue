@@ -195,13 +195,13 @@ function balanceClass(value: number) {
           How should this leftover be handled?
         </label>
 
-        <select
+        <ModernSelect
           v-model="khrRemainderMode"
           class="money-summary-control h-11 w-full rounded-lg border px-3 text-sm"
         >
           <option value="LEFTOVER_ONLY">Keep leftover separate</option>
           <option value="ASSIGN_TO_PERSON">Assign leftover to one person</option>
-        </select>
+        </ModernSelect>
       </div>
 
       <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
@@ -209,7 +209,7 @@ function balanceClass(value: number) {
           Who covers the leftover?
         </label>
 
-        <select
+        <ModernSelect
           v-model="khrRemainderPayer"
           class="money-summary-control h-11 w-full rounded-lg border px-3 text-sm"
         >
@@ -220,7 +220,7 @@ function balanceClass(value: number) {
           >
             {{ option }}
           </option>
-        </select>
+        </ModernSelect>
       </div>
 
       <p class="money-summary-muted text-xs">

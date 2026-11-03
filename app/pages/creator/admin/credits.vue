@@ -507,13 +507,13 @@ onBeforeUnmount(() => {
             >
               <div class="grid grid-cols-2 gap-3">
                 <label class="text-sm font-semibold"
-                  >Action<select
+                  >Action<ModernSelect
                     v-model="direction"
                     class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 dark:border-white/15 dark:bg-slate-900"
                   >
                     <option value="add">Add credits</option>
                     <option value="remove">Remove credits</option>
-                  </select></label
+                  </ModernSelect></label
                 >
                 <label class="text-sm font-semibold"
                   >Credits<input

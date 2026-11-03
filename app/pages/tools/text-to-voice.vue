@@ -108,14 +108,14 @@
             <label for="engine-select" class="block text-sm font-semibold text-gray-900">
               Engine
             </label>
-            <select
+            <ModernSelect
               id="engine-select"
               v-model="engine"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
               <option value="online">Online audio</option>
               <option value="browser">Browser voice</option>
-            </select>
+            </ModernSelect>
             <p class="text-xs text-gray-500">
               Online mode sends text to the ChlatWork API and can export MP3. Browser voice stays local.
             </p>
@@ -125,7 +125,7 @@
             <label for="online-voice-select" class="block text-sm font-semibold text-gray-900">
               Voice
             </label>
-            <select
+            <ModernSelect
               id="online-voice-select"
               v-model="onlineVoice"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -140,7 +140,7 @@
               >
                 {{ voice.label }}
               </option>
-            </select>
+            </ModernSelect>
             <p class="text-xs text-gray-500">
               Auto voice supports Khmer and English. Extended Khmer voices are Khmer-only.
             </p>
@@ -150,7 +150,7 @@
             <label for="voice-select" class="block text-sm font-semibold text-gray-900">
               Voice
             </label>
-            <select
+            <ModernSelect
               id="voice-select"
               v-model="selectedVoiceURI"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -163,7 +163,7 @@
               >
                 {{ voice.name }} ({{ voice.lang }})
               </option>
-            </select>
+            </ModernSelect>
             <p class="text-xs text-gray-500">
               Voices matching the detected language appear first when your browser provides them.
             </p>

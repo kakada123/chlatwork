@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-4">
-          <select
+          <ModernSelect
             v-model="category"
             class="min-w-0 rounded-xl border border-stone-200 bg-transparent px-2 py-2 text-base dark:border-stone-700 sm:text-sm"
             aria-label="Food category"
@@ -142,8 +142,8 @@ onBeforeUnmount(() => {
             >
               {{ option.icon }} {{ option.labelKm }}
             </option>
-          </select>
-          <select
+          </ModernSelect>
+          <ModernSelect
             v-model="cuisine"
             class="min-w-0 rounded-xl border border-stone-200 bg-transparent px-2 py-2 text-base dark:border-stone-700 sm:text-sm"
             aria-label="Cuisine"
@@ -157,8 +157,8 @@ onBeforeUnmount(() => {
             >
               {{ option.labelKm }}
             </option>
-          </select>
-          <select
+          </ModernSelect>
+          <ModernSelect
             v-model="mealTime"
             class="min-w-0 rounded-xl border border-stone-200 bg-transparent px-2 py-2 text-base dark:border-stone-700 sm:text-sm"
             aria-label="Meal time"
@@ -168,8 +168,8 @@ onBeforeUnmount(() => {
             <option v-for="meal in mealTimes" :key="meal" :value="meal">
               {{ meals[meal] || meal }}
             </option>
-          </select>
-          <select
+          </ModernSelect>
+          <ModernSelect
             v-model="tag"
             class="min-w-0 rounded-xl border border-stone-200 bg-transparent px-2 py-2 text-base dark:border-stone-700 sm:text-sm"
             aria-label="Food style"
@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
             <option value="QUICK_MEAL">ញ៉ាំឆាប់រហ័ស</option>
             <option value="SHAREABLE">ចែកគ្នាញ៉ាំ</option>
             <option value="FAMILY_MEAL">ញ៉ាំជុំគ្រួសារ</option>
-          </select>
+          </ModernSelect>
         </div>
       </form>
       <p

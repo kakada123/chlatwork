@@ -106,7 +106,7 @@ async function confirm() {
     >
       <label class="block text-sm font-medium"
         >Approval status
-        <select
+        <ModernSelect
           v-model="state.status"
           class="mt-2 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
         >
@@ -117,7 +117,7 @@ async function confirm() {
           >
             {{ status }}
           </option>
-        </select>
+        </ModernSelect>
       </label>
       <div class="flex flex-wrap gap-5 text-sm">
         <label class="flex items-center gap-2"

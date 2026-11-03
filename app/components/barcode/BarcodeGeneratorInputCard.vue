@@ -183,7 +183,7 @@ const hasUnicodeInput = computed(() =>
               Format
             </label>
 
-            <select
+            <ModernSelect
               v-model="format"
               class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
@@ -191,7 +191,7 @@ const hasUnicodeInput = computed(() =>
               <option value="EAN13">EAN13</option>
               <option value="UPC">UPC</option>
               <option value="CODE39">CODE39</option>
-            </select>
+            </ModernSelect>
           </div>
 
           <div>

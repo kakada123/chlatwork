@@ -481,7 +481,7 @@ const cameraFrameStyle = computed(() => ({
       >
         <label class="space-y-1 text-xs text-slate-500 dark:text-white/50">
           Camera device
-          <select
+          <ModernSelect
             v-model="selectedCameraId"
             class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
             @change="onCameraChange"
@@ -493,7 +493,7 @@ const cameraFrameStyle = computed(() => ({
             >
               {{ device.label || `Camera ${index + 1}` }}
             </option>
-          </select>
+          </ModernSelect>
         </label>
 
         <button

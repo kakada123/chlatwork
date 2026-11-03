@@ -316,7 +316,7 @@ function toDateValue(date: Date) {
     >
       <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div class="grid w-full grid-cols-2 gap-2 sm:flex-1">
-          <select
+          <ModernSelect
             v-model.number="activeMonthIndex"
             aria-label="Select month"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
@@ -328,9 +328,9 @@ function toDateValue(date: Date) {
             >
               {{ month.label }}
             </option>
-          </select>
+          </ModernSelect>
 
-          <select
+          <ModernSelect
             v-model.number="activeYear"
             aria-label="Select year"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
@@ -338,7 +338,7 @@ function toDateValue(date: Date) {
             <option v-for="year in yearOptions" :key="year" :value="year">
               {{ year }}
             </option>
-          </select>
+          </ModernSelect>
         </div>
 
         <div class="flex items-center justify-end gap-1">

@@ -4,7 +4,7 @@
       <label :for="fieldId('page-size')" class="block text-sm font-semibold text-gray-900 dark:text-white">
         Page size
       </label>
-      <select
+      <ModernSelect
         :id="fieldId('page-size')"
         v-model="pageSize"
         class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white dark:focus:ring-white/15"
@@ -12,14 +12,14 @@
         <option v-for="option in PAGE_SIZE_OPTIONS" :key="option.value" :value="option.value">
           {{ option.label }}
         </option>
-      </select>
+      </ModernSelect>
     </div>
 
     <div>
       <label :for="fieldId('orientation')" class="block text-sm font-semibold text-gray-900 dark:text-white">
         Orientation
       </label>
-      <select
+      <ModernSelect
         :id="fieldId('orientation')"
         v-model="orientation"
         class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white dark:focus:ring-white/15"
@@ -31,14 +31,14 @@
         >
           {{ option.label }}
         </option>
-      </select>
+      </ModernSelect>
     </div>
 
     <div>
       <label :for="fieldId('margin')" class="block text-sm font-semibold text-gray-900 dark:text-white">
         Margin
       </label>
-      <select
+      <ModernSelect
         :id="fieldId('margin')"
         v-model="margin"
         class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white dark:focus:ring-white/15"
@@ -46,14 +46,14 @@
         <option v-for="option in MARGIN_OPTIONS" :key="option.value" :value="option.value">
           {{ option.label }}
         </option>
-      </select>
+      </ModernSelect>
     </div>
 
     <div>
       <label :for="fieldId('images-per-page')" class="block text-sm font-semibold text-gray-900 dark:text-white">
         Images per page
       </label>
-      <select
+      <ModernSelect
         :id="fieldId('images-per-page')"
         v-model="imagesPerPage"
         class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white dark:focus:ring-white/15"
@@ -65,7 +65,7 @@
         >
           {{ option.label }}
         </option>
-      </select>
+      </ModernSelect>
       <p class="mt-2 text-xs text-gray-500 dark:text-white/55">
         Drag images between page cards to reshuffle the preview.
       </p>

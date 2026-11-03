@@ -438,27 +438,27 @@ function removeInvoiceItem(index: number) {
               <label class="text-sm font-semibold text-slate-900 dark:text-white">
                 Image quality
               </label>
-              <select
+              <ModernSelect
                 v-model.number="jpgQuality"
                 class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
               >
                 <option :value="0.82">Small file</option>
                 <option :value="0.92">Balanced</option>
                 <option :value="0.98">High quality</option>
-              </select>
+              </ModernSelect>
             </div>
             <div>
               <label class="text-sm font-semibold text-slate-900 dark:text-white">
                 Render scale
               </label>
-              <select
+              <ModernSelect
                 v-model.number="jpgScale"
                 class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
               >
                 <option :value="1.2">Light</option>
                 <option :value="1.6">Balanced</option>
                 <option :value="2">Sharp</option>
-              </select>
+              </ModernSelect>
             </div>
           </div>
 
@@ -539,13 +539,13 @@ function removeInvoiceItem(index: number) {
                 <label class="text-xs font-bold uppercase text-slate-500 dark:text-white/50">
                   Page size
                 </label>
-                <select
+                <ModernSelect
                   v-model="textPageSize"
                   class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
                 >
                   <option value="a4">A4</option>
                   <option value="letter">Letter</option>
-                </select>
+                </ModernSelect>
               </div>
               <div>
                 <label class="text-xs font-bold uppercase text-slate-500 dark:text-white/50">

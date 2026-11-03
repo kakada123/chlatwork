@@ -27,7 +27,7 @@ useSeoMeta({ title: "My Groups | ChlatWork", robots: "noindex, nofollow" });
         <nav class="flex items-center gap-4 text-sm">
           <NuxtLink :to="{ path: '/bot/account', query: { bot } }"
             >My account</NuxtLink
-          ><select
+          ><ModernSelect
             aria-label="Bot"
             :value="bot"
             class="rounded-lg bg-slate-100 p-2 dark:bg-slate-800"
@@ -42,7 +42,7 @@ useSeoMeta({ title: "My Groups | ChlatWork", robots: "noindex, nofollow" });
           >
             <option value="CHLATWORK">ChlatWork</option>
             <option value="CREATOR">Creator</option>
-          </select>
+          </ModernSelect>
         </nav>
       </div>
     </header>

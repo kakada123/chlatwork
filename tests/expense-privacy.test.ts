@@ -5,6 +5,7 @@ import { compileScript, parse } from "@vue/compiler-sfc";
 import { createRenderer, createSSRApp, h, nextTick, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
+import { ModernSelect } from "./helpers/load-modern-select.ts";
 
 async function componentUrl(
   name: string,
@@ -48,6 +49,7 @@ const Summary = (
 ).default;
 const History = (await import(await componentUrl("ExpenseEntryHistory")))
   .default;
+Summary.components = { ...Summary.components, ModernSelect };
 const props = {
   currency: "USD",
   rangeLabel: "October",

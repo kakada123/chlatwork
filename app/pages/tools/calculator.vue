@@ -55,13 +55,13 @@
           >
             Operation
           </label>
-          <select
+          <ModernSelect
             v-model="add.op"
             class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
             <option value="plus">+</option>
             <option value="minus">-</option>
-          </select>
+          </ModernSelect>
         </div>
 
         <div>
@@ -87,7 +87,7 @@
           >
             Unit
           </label>
-          <select
+          <ModernSelect
             v-model="add.unit"
             class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
@@ -95,7 +95,7 @@
             <option value="weeks">Weeks</option>
             <option value="months">Months</option>
             <option value="years">Years</option>
-          </select>
+          </ModernSelect>
         </div>
 
         <div class="flex items-end gap-2">

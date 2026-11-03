@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
     <form class="mt-4 space-y-3" @submit.prevent="addGuests">
       <textarea v-model="names" rows="4" maxlength="12100" class="guest-input resize-y" :placeholder="managerCopy.pasteGuests" />
       <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-        <label><span>{{ managerCopy.recipientType }}</span><select v-model="recipientType" class="guest-input mt-1"><option v-for="type in recipientTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label>
+        <label><span>{{ managerCopy.recipientType }}</span><ModernSelect v-model="recipientType" class="guest-input mt-1"><option v-for="type in recipientTypes" :key="type.value" :value="type.value">{{ type.label }}</option></ModernSelect></label>
         <label><span>{{ managerCopy.partyLimit }}</span><input v-model.number="maxGuests" type="number" min="1" max="20" class="guest-input mt-1" /></label>
         <button type="submit" class="add-button" :disabled="saving || !names.trim()"><LoaderCircle v-if="saving" class="h-4 w-4 animate-spin" />{{ saving ? managerCopy.addingGuests : managerCopy.addGuests }}</button>
       </div>

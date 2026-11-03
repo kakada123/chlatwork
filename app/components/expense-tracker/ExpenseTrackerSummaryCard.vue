@@ -261,14 +261,14 @@ const metrics = computed(() => [
               aria-hidden="true"
             />Budget
           </h3>
-          <select
+          <ModernSelect
             v-model="budget.period"
             aria-label="Budget period"
             class="h-9 rounded-lg bg-slate-100 px-2.5 text-xs font-semibold dark:bg-white/5"
           >
             <option value="monthly">Monthly</option>
             <option value="weekly">Weekly</option>
-          </select>
+          </ModernSelect>
         </div>
         <div class="mt-4 grid min-w-0 grid-cols-2 gap-4 sm:block">
           <div class="min-w-0">
@@ -392,7 +392,7 @@ const metrics = computed(() => [
             aria-hidden="true"
           />Spending by category
         </h3>
-        <select
+        <ModernSelect
           v-model="categorySort"
           aria-label="Sort categories"
           class="h-9 rounded-lg bg-slate-100 px-2.5 text-xs font-semibold dark:bg-white/5"
@@ -400,7 +400,7 @@ const metrics = computed(() => [
           <option value="highest">Highest first</option>
           <option value="lowest">Lowest first</option>
           <option value="name">Name A–Z</option>
-        </select>
+        </ModernSelect>
       </div>
       <div
         v-if="categoryBreakdown.length"

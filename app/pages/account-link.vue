@@ -585,18 +585,18 @@ async function refreshAnalytics() {
             </div>
             <div class="grid grid-cols-2 gap-4">
               <label
-                >Background<select v-model="draft.backgroundMode">
+                >Background<ModernSelect v-model="draft.backgroundMode">
                   <option value="preset">Theme preset</option>
                   <option value="solid">Solid color</option>
                   <option value="gradient">Gradient</option>
                   <option value="image">Photo</option>
-                </select></label
+                </ModernSelect></label
               ><label
-                >Color mode<select v-model="draft.colorMode">
+                >Color mode<ModernSelect v-model="draft.colorMode">
                   <option value="preset">From theme</option>
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
-                </select></label
+                </ModernSelect></label
               >
             </div>
             <div
@@ -656,25 +656,25 @@ async function refreshAnalytics() {
             >
             <div class="grid grid-cols-2 gap-4">
               <label
-                >Font<select v-model="draft.font">
+                >Font<ModernSelect v-model="draft.font">
                   <option value="sans">Modern</option>
                   <option value="serif">Editorial</option>
                   <option value="mono">Monospace</option>
-                </select></label
+                </ModernSelect></label
               ><label
-                >Card radius<select v-model="draft.radius">
+                >Card radius<ModernSelect v-model="draft.radius">
                   <option value="rounded">Rounded</option>
                   <option value="pill">Pill</option>
                   <option value="square">Square</option>
-                </select></label
+                </ModernSelect></label
               >
             </div>
             <label
-              >Button style<select v-model="draft.buttonStyle">
+              >Button style<ModernSelect v-model="draft.buttonStyle">
                 <option value="solid">Solid</option>
                 <option value="outline">Outline</option>
                 <option value="glass">Glass / blur</option>
-              </select></label
+              </ModernSelect></label
             >
             <label class="enabled-label"
               ><input v-model="draft.showBranding" type="checkbox" /> Show “Made

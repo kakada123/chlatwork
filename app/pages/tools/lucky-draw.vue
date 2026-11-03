@@ -150,7 +150,7 @@
             </label>
             <label class="flex items-center gap-2 font-semibold">
               Spin speed
-              <select
+              <ModernSelect
                 v-model="spinSpeed"
                 class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-sky-400 dark:border-white/15 dark:bg-[#17171b]"
                 :disabled="isSpinning"
@@ -158,7 +158,7 @@
                 <option value="quick">Quick</option>
                 <option value="standard">Standard</option>
                 <option value="suspense">Suspense</option>
-              </select>
+              </ModernSelect>
             </label>
             <label class="flex min-w-[min(100%,18rem)] flex-1 items-center gap-2 font-semibold">
               <span class="shrink-0">Note for this spin</span>
