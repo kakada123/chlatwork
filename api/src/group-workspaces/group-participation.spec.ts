@@ -58,6 +58,17 @@ it('denies the same free command in an unconnected group', async () => {
   expect(await service.handle('CHLATWORK', message)).toBe(true);
   expect(policy.assertEnabled).not.toHaveBeenCalled();
 });
+it.each(['1000', '6', '1000r', '10$'])(
+  'routes a plain split input %s through verified group membership and split policy', async (text) => {
+    const { service, access, message, policy } = gateway();
+    message.message.text = text;
+    expect(await service.handle('CHLATWORK', message)).toBe(false);
+    expect(policy.assertEnabled).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'A' }), 'split');
+    expect(access.register).not.toHaveBeenCalled();
+    policy.assertEnabled.mockRejectedValueOnce(new Error('split disabled'));
+    expect(await service.handle('CHLATWORK', message)).toBe(true);
+  },
+);
 it('does not let a free member invoke AI or group configuration', async () => {
   const { service, message } = gateway();
   message.message.text = '/grammar hi';

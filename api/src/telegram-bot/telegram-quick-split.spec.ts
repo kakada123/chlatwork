@@ -95,6 +95,7 @@ describe('Guided group split', () => {
 
   it.each([
     ['10', '🧾 $10.00 ÷ 6\nEach: $1.67'],
+    ['1000', '🧾 1,000 ÷ 6\nEach: 166.67'],
     ['10000', '🧾 10,000៛ ÷ 6\nEach: 1,667៛'],
     ['100r', '🧾 100៛ ÷ 6\nEach: 17៛'],
     ['100$', '🧾 $100.00 ÷ 6\nEach: $16.67'],
@@ -109,6 +110,40 @@ describe('Guided group split', () => {
     expect(bot.sendPhoto).toHaveBeenCalledWith(
       chatId, expect.stringContaining('/tg_123?'), `Member 123 · KHQR\n\n${result}`,
     );
+  });
+
+  it('accepts a plain 1000 amount and plain people count in the sender active session', async () => {
+    const { createService, send, bot, sessions } = setup();
+    const service = createService();
+    await send(service, '/split');
+    await send(service, '1000', 123, chatId, 0);
+    expect(sessions.get(`${chatId}:123`)?.amountInput).toBe('1000');
+    expect(bot.sendMessage).toHaveBeenLastCalledWith(
+      chatId, 'Please enter the number of people. Example: 6',
+      expect.objectContaining({ force_reply: true, selective: true }), undefined, 2,
+    );
+    await send(service, '0', 123, chatId, 0);
+    expect(sessions.get(`${chatId}:123`)?.amountInput).toBe('1000');
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    await send(service, '6', 123, chatId, 0);
+    expect(bot.sendPhoto).toHaveBeenCalledWith(
+      chatId, expect.stringContaining('/tg_123?'), 'Member 123 · KHQR\n\n🧾 1,000 ÷ 6\nEach: 166.67',
+    );
+    expect(sessions.size).toBe(0);
+  });
+
+  it('does not consume plain numbers without an active session or unrelated group text', async () => {
+    const { createService, send, bot, sessions } = setup();
+    const service = createService();
+    await send(service, '1000', 123, chatId, 0);
+    expect(bot.sendMessage).not.toHaveBeenCalled();
+    await send(service, '/split');
+    await send(service, 'order 1000', 123, chatId, 0);
+    await send(service, '1000', 456, chatId, 0);
+    await send(service, '1000', 123, -200, 0);
+    expect(bot.sendMessage).toHaveBeenCalledTimes(1);
+    expect(bot.sendPhoto).not.toHaveBeenCalled();
+    expect(sessions.get(`${chatId}:123`)?.amountInput).toBeNull();
   });
 
   it('isolates senders and groups and continues after a bot restart', async () => {
@@ -154,7 +189,7 @@ describe('Guided group split', () => {
     expect(bot.sendMessage).toHaveBeenLastCalledWith(chatId, 'Split cancelled.');
     await send(service, '/split');
     await jest.advanceTimersByTimeAsync(10 * 60_000 + 1);
-    await send(service, '36000');
+    await send(service, '36000', 123, chatId, 0);
     expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(sessions.get(`${chatId}:123`)?.amountInput).toBeNull();
   });
@@ -194,12 +229,12 @@ describe('Guided group split', () => {
     expect(bot.sendMessage).not.toHaveBeenCalled();
   });
 
-  it('does not consume unrelated numbers outside replies to its prompt', async () => {
+  it('does not consume numbers sent as replies to a different message', async () => {
     const { createService, send, bot, sessions } = setup();
     const service = createService();
     await send(service, '/split');
     await send(service, '36000');
-    await send(service, '6', 123, chatId, 0);
+    await send(service, '6', 123, chatId, 999);
     expect(bot.sendPhoto).not.toHaveBeenCalled();
     expect(sessions.get(`${chatId}:123`)?.amountInput).toBe('36000');
   });

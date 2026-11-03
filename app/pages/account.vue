@@ -570,7 +570,8 @@ onBeforeUnmount(() => {
         role="region"
         aria-label="Account content"
       >
-        <h2 class="hidden text-xl font-semibold lg:block">{{ desktopAccountSectionTitle }}</h2>
+        <!-- These panels already provide their own heading beside their actions. -->
+        <h2 v-if="!['moments', 'favorite-tools', 'favorite-commands'].includes(desktopAccountSection)" class="hidden text-xl font-semibold lg:block">{{ desktopAccountSectionTitle }}</h2>
 
     <section
       class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#101214] sm:rounded-2xl"

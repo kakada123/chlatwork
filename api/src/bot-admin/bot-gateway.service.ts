@@ -2,6 +2,7 @@ import { GroupConnectionsService } from '../group-workspaces/group-connections.s
 import { GroupAccessService } from '../group-workspaces/group-access.service';
 import { GroupFeaturePolicy } from '../group-workspaces/group-feature-policy';
 import { readMemberQrMention } from '../telegram-bot/telegram-member-qr';
+import { isTelegramQuickSplitInput } from '../telegram-bot/telegram-group-split';
 import type { TelegramUser } from '../telegram-bot/telegram-bot.types';
 import {
   BadRequestException,
@@ -164,9 +165,8 @@ export class BotGatewayService {
         data.startsWith('split:') ||
         personalCommand === 'split' ||
         personalCommand === 'cancel' ||
-        (!command &&
-          /^\d+(?:[.,]\d+)?$/.test(text) &&
-          message?.reply_to_message)
+        // The conversation layer requires a live sender/chat session before consuming plain input.
+        (!command && isTelegramQuickSplitInput(text))
           ? 'split'
           : data.startsWith('poll:') ||
               data.startsWith('pv:') ||

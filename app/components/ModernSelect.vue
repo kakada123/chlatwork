@@ -259,7 +259,8 @@ html.dark .modern-select { --select-bg: #101820; --select-text: #f1f5f9; --selec
 .modern-select-option { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: space-between; gap: 12px; border: 0; border-radius: 10px; padding: 10px 12px; background: transparent; color: var(--select-text); text-align: left; font-size: 14px; font-weight: 500; cursor: pointer; }
 .modern-select-option > span { min-width: 0; overflow-wrap: anywhere; }
 .modern-select-option > svg { flex-shrink: 0; }
-.modern-select-option.is-active:not(:disabled), .modern-select-option:hover:not(:disabled) { background: var(--select-hover); }
+/* A selected row keeps its cyan surface when keyboard-active or hovered. */
+.modern-select-option.is-active:not(:disabled):not(.is-selected), .modern-select-option:hover:not(:disabled):not(.is-selected) { background: var(--select-hover); }
 .modern-select-option.is-selected, .modern-select-option.is-selected:hover { background: #a5f3fc; color: #0f172a; font-weight: 700; }
 .modern-select-option:disabled { cursor: not-allowed; opacity: 0.4; }
 .modern-select-group { display: block; padding: 9px 12px 5px; color: var(--select-muted); font-size: 11px; font-weight: 700; }

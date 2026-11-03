@@ -7,6 +7,13 @@ const AMOUNT_PATTERN =
 const QUICK_AMOUNT_PATTERN =
   /^(\$\s*)?((?:0|[1-9]\d{0,11})(?:\.\d{1,2})?)(?:\s*(USD|KHR|៛|\$|r))?/i;
 
+/** Only amount-shaped plain text can continue a pending split; group conversation stays untouched. */
+export function isTelegramQuickSplitInput(text: string): boolean {
+  const input = text.trim();
+  const amount = QUICK_AMOUNT_PATTERN.exec(input);
+  return Boolean(amount && amount[0].length === input.length);
+}
+
 export interface ParsedTelegramSplit {
   total: string;
   currency: ExpenseCurrency;

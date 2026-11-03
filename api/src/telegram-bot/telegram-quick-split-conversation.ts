@@ -1,7 +1,7 @@
 import type { PrismaService } from '../prisma/prisma.service';
 import type { TelegramBotClient } from './telegram-bot.client';
 import type { TelegramMessage } from './telegram-bot.types';
-import { parseTelegramQuickSplit, TelegramSplitParseError, type TelegramQuickSplit } from './telegram-group-split';
+import { isTelegramQuickSplitInput, parseTelegramQuickSplit, TelegramSplitParseError, type TelegramQuickSplit } from './telegram-group-split';
 
 const AMOUNT_PROMPT = 'Please enter the amount. Example: 36000r or 10$';
 const PEOPLE_PROMPT = 'Please enter the number of people. Example: 6';
@@ -23,10 +23,12 @@ export class TelegramQuickSplitConversation {
     enabled: () => Promise<boolean>,
     showResult: (split: TelegramQuickSplit) => Promise<void>,
   ): Promise<boolean> {
-    const start = /^\/split(?:@[A-Za-z0-9_]+)?\s*$/i.test(message.text?.trim() ?? '');
-    // Binding answers to the prompt also works with privacy mode and ignores unrelated group numbers.
+    const text = message.text?.trim() ?? '';
+    const start = /^\/split(?:@[A-Za-z0-9_]+)?\s*$/i.test(text);
+    // Plain amounts are accepted only after the sender's live, chat-bound session is checked below.
+    // Keep ForceReply for clients/groups that require explicit replies to deliver messages to the bot.
     if (!start && command !== 'cancel' && (
-      command || !message.text || !message.reply_to_message
+      command || !text || (!message.reply_to_message && !isTelegramQuickSplitInput(text))
     )) return false;
 
     const chatId = BigInt(message.chat.id);
@@ -43,7 +45,8 @@ export class TelegramQuickSplitConversation {
       `;
       if (session && message.message_id <= session.lastMessageId) return true;
       if (!start && (!session || session.expiresAt.getTime() <= Date.now())) return false;
-      if (!start && command !== 'cancel' && message.reply_to_message?.message_id !== session!.promptMessageId) return false;
+      if (!start && command !== 'cancel' && message.reply_to_message
+        && message.reply_to_message.message_id !== session!.promptMessageId) return false;
       if (!(await enabled())) {
         await this.bot.sendMessage(message.chat.id, 'This feature is temporarily unavailable.');
         return true;
