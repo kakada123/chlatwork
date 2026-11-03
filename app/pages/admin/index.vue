@@ -148,21 +148,21 @@ function formatChartDate(value: string) {
               See how signed-in users engage with ChlatWork tools. Activity includes only tool names and timestamps—never tool inputs or generated content.
             </p>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <div class="inline-flex rounded-xl bg-white/10 p-1" aria-label="Analytics date range">
+          <div class="flex w-full items-center gap-3 sm:w-auto lg:shrink-0">
+            <div class="grid min-w-0 flex-1 grid-cols-3 gap-1.5 rounded-2xl bg-white/10 p-1.5 sm:flex-none" role="group" aria-label="Analytics date range">
               <button
                 v-for="range in ranges"
                 :key="range.value"
                 type="button"
-                class="min-h-9 rounded-lg px-3 text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
-                :class="selectedRange === range.value ? 'bg-white text-[#082552] shadow-sm' : 'text-white/70 hover:bg-white/10 hover:text-white'"
+                class="inline-flex min-h-11 min-w-0 items-center justify-center whitespace-nowrap rounded-xl px-2 py-2.5 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1729] sm:px-4 sm:text-sm"
+                :class="selectedRange === range.value ? 'bg-cyan-200 text-slate-950 shadow-sm hover:bg-cyan-100' : 'text-white/80 hover:bg-white/10 hover:text-white'"
                 :aria-pressed="selectedRange === range.value"
                 @click="selectedRange = range.value"
               >
                 {{ range.label }}
               </button>
             </div>
-            <button type="button" class="grid size-11 place-items-center rounded-xl border border-white/15 bg-white/10 text-white transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:opacity-50" aria-label="Refresh dashboard" :disabled="isLoading" @click="refresh()">
+            <button type="button" class="grid size-14 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10 text-white transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1729] disabled:opacity-50" aria-label="Refresh dashboard" :disabled="isLoading" @click="refresh()">
               <RefreshCw class="size-4" :class="{ 'animate-spin': isLoading }" aria-hidden="true" />
             </button>
           </div>
