@@ -31,6 +31,7 @@ import type { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import type { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 import type { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 import type { CurrentUser } from '../auth/types';
+import { readBirthdayAudioClip } from './birthday-audio';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -97,6 +98,10 @@ export class MomentsService {
   ) {}
 
   async create(userId: string, dto: CreateMomentDto) {
+    const birthdayAudio = readBirthdayAudioClip(dto.birthdayAudio);
+    if (dto.birthdayAudio != null && (dto.occasion !== 'BIRTHDAY' || !birthdayAudio)) {
+      throw new BadRequestException('Choose a valid birthday track and a clip of at least one second');
+    }
     const now = new Date();
     const activeCount = await this.prisma.moment.count({
       where: {
@@ -176,7 +181,7 @@ export class MomentsService {
     }> = [];
     const addBlock = (type: MomentBlockType, data: Record<string, unknown>) =>
       blocks.push({ type, position: blocks.length, data });
-    addBlock(MomentBlockType.HERO, { title });
+    addBlock(MomentBlockType.HERO, { title, ...(birthdayAudio ? { birthdayAudio } : {}) });
     addBlock(MomentBlockType.MESSAGE, { message });
     if (isInvitation) {
       addBlock(MomentBlockType.EVENT_DETAILS, {

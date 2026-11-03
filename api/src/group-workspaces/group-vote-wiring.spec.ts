@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaService } from '../prisma/prisma.service';
 import { DailyMomentVoteScheduler } from '../telegram-bot/daily-moment-vote.scheduler';
 import { TelegramGroupVoteService } from '../telegram-bot/telegram-group-vote.service';
@@ -33,7 +34,7 @@ class TestGlobals {}
 
 it('resolves HTTP reset and private bot controls with one shared voting scheduler', async () => {
   const module = await Test.createTestingModule({
-    imports: [TestGlobals, GroupWorkspacesModule],
+    imports: [TestGlobals, ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]), GroupWorkspacesModule],
     providers: [TelegramGroupVoteService, TelegramBotClient],
   }).compile();
   try {

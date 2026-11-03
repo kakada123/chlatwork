@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   ParseUUIDPipe,
@@ -27,6 +28,9 @@ import { CreateInvitationGuestsDto } from './dto/create-invitation-guests.dto';
 import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 import { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
+import { GenerateBirthdayWishDto } from './dto/generate-birthday-wish.dto';
+import { BirthdayWishService } from './birthday-wish.service';
+import { BirthdayWishRateLimitGuard } from './birthday-wish-rate-limit.guard';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -35,7 +39,17 @@ import {
 
 @Controller('moments')
 export class MomentsController {
-  constructor(private readonly moments: MomentsService) {}
+  constructor(
+    private readonly moments: MomentsService,
+    private readonly birthdayWishes: BirthdayWishService,
+  ) {}
+
+  @Post('birthday-wish')
+  @UseGuards(JwtAuthGuard, BirthdayWishRateLimitGuard)
+  @Header('Cache-Control', 'no-store')
+  generateBirthdayWish(@Body() dto: GenerateBirthdayWishDto) {
+    return this.birthdayWishes.generate(dto);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)

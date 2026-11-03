@@ -3,13 +3,32 @@ import {
   ArrayMinSize,
   IsArray,
   IsIn,
+  IsInt,
+  IsObject,
   IsISO8601,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
+  Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { BIRTHDAY_AUDIO_TRACKS } from '../birthday-audio';
+
+export class BirthdayAudioDto {
+  @IsIn(BIRTHDAY_AUDIO_TRACKS.map((track) => track.id))
+  trackId!: string;
+
+  @IsInt()
+  @Min(0)
+  startMs!: number;
+
+  @IsInt()
+  @Min(1000)
+  endMs!: number;
+}
 
 const OCCASIONS = [
   'ANNIVERSARY',
@@ -35,6 +54,12 @@ const THEMES = [
 ] as const;
 
 export class CreateMomentDto {
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => BirthdayAudioDto)
+  birthdayAudio?: BirthdayAudioDto;
+
   @IsString()
   @MinLength(1)
   @MaxLength(80)

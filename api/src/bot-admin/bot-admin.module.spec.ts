@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AiFeature } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatorCreditsService } from '../creator-ai/creator-credits.service';
@@ -29,7 +30,7 @@ class SafeTestGlobals {}
 describe('production access wiring', () => {
   it('enforces approval inside a real imported wallet module before touching funds', async () => {
     const module = await Test.createTestingModule({
-      imports: [SafeTestGlobals, BotAdminModule],
+      imports: [SafeTestGlobals, ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]), BotAdminModule],
     }).compile();
     const credits = module.get(CreatorCreditsService);
     await expect(

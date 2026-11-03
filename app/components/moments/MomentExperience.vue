@@ -2,6 +2,9 @@
 import confetti from "canvas-confetti";
 import { CalendarDays, Gift, Heart, Image as ImageIcon, MapPin, Navigation, Sparkles } from "lucide-vue-next";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
+import BirthdayMusicPlayer from "~/components/moments/BirthdayMusicPlayer.vue";
+import BirthdayCelebration from "~/components/moments/BirthdayCelebration.vue";
+import { readBirthdayAudioClip } from "~~/api/src/moments/birthday-audio";
 import {
   MOMENT_COPY,
   getMomentOccasionCopy,
@@ -95,6 +98,9 @@ let holdTimer: ReturnType<typeof setTimeout> | null = null;
 const heroBlock = computed(() =>
   props.moment.blocks.find((block) => block.type === "HERO"),
 );
+const birthdayAudio = computed(() => props.moment.occasion === "BIRTHDAY"
+  ? readBirthdayAudioClip(heroBlock.value?.data.birthdayAudio)
+  : null);
 const messageBlock = computed(() =>
   props.moment.blocks.find((block) => block.type === "MESSAGE"),
 );
@@ -408,6 +414,8 @@ onBeforeUnmount(() => {
       </p>
       <h1>{{ displayedHeroTitle }}</h1>
       <p class="scroll-note">{{ scrollCopy }}</p>
+      <BirthdayCelebration v-if="moment.occasion === 'BIRTHDAY'" :key="moment.slug" :preview="preview" :locale="locale" />
+      <BirthdayMusicPlayer v-if="birthdayAudio" :clip="birthdayAudio" :locale="locale" />
 
       <figure v-if="heroPhoto && !isVoting" class="hero-photo-wrap">
         <img
@@ -1246,6 +1254,9 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .occasion-atmosphere :where(i, span) { position: absolute; display: none; will-change: transform; }
+/* Birthday decorations stay behind its readable content and interactive controls. */
+.moment-occasion-birthday .occasion-atmosphere { z-index: 0; }
+.moment-occasion-birthday :where(.moment-hero, .moment-section, .moment-footer) { position: relative; z-index: 1; }
 .moment-category-celebrations .occasion-atmosphere i,
 .moment-category-surprises .occasion-atmosphere i {
   display: block;

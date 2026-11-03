@@ -15,6 +15,8 @@ import {
 } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
+import BirthdayAudioEditor from "~/components/moments/BirthdayAudioEditor.vue";
+import BirthdayWishGenerator from "~/components/moments/BirthdayWishGenerator.vue";
 import {
   getMomentDefaultStory,
   getMomentCategoryLabel,
@@ -58,6 +60,7 @@ const qrDataUrl = ref("");
 const copied = ref(false);
 const selectedCategory = ref<MomentCategory>("CELEBRATIONS");
 const draft = reactive<MomentDraft>({
+  birthdayAudio: null,
   recipientName: "",
   occasion: "BIRTHDAY",
   title: buildMomentTitle("", "BIRTHDAY", locale.value),
@@ -81,6 +84,16 @@ const visibleSteps = computed(() =>
   draft.occasion === "VOTING" ? [1, 3, 4] : [1, 2, 3, 4],
 );
 const progressStep = computed(() => visibleSteps.value.indexOf(step.value) + 1);
+
+function applyBirthdayWish(wish: { title: string; message: string; secretMessage: string }) {
+  draft.title = wish.title;
+  draft.message = wish.message;
+  draft.secretMessage = wish.secretMessage;
+  // Generated copy becomes the creator's edited story, so locale/name suggestions must not overwrite it.
+  titleTouched.value = true;
+  messageTouched.value = true;
+  secretTouched.value = true;
+}
 
 const suggestedTitle = computed(() =>
   buildMomentTitle(draft.recipientName, draft.occasion, locale.value),
@@ -336,6 +349,7 @@ async function publishMoment() {
         message: draft.message,
         secretMessage: draft.secretMessage,
         theme: draft.theme,
+        birthdayAudio: draft.occasion === "BIRTHDAY" ? draft.birthdayAudio ?? undefined : undefined,
         specialDate:
           !["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate
             ? draft.specialDate
@@ -674,6 +688,7 @@ onBeforeUnmount(() => {
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-three-title">{{ draft.occasion === 'VOTING' ? creatorCopy.pollTitle : creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
+            <BirthdayWishGenerator v-if="draft.occasion === 'BIRTHDAY'" :recipient-name="draft.recipientName" :locale="locale" @apply="applyBirthdayWish" />
             <div v-if="draft.occasion !== 'VOTING'">
               <label for="moment-title" class="field-label">{{
                 creatorCopy.titleLabel
@@ -800,6 +815,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </fieldset>
+            <BirthdayAudioEditor v-if="draft.occasion === 'BIRTHDAY'" v-model="draft.birthdayAudio" :locale="locale" />
           </div>
         </section>
 

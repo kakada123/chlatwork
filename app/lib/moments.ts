@@ -91,7 +91,7 @@ export function buildPreviewMoment(
       id: "preview-hero",
       type: "HERO",
       position: 0,
-      data: { title: draft.title },
+      data: { title: draft.title, ...(draft.occasion === "BIRTHDAY" && draft.birthdayAudio ? { birthdayAudio: { ...draft.birthdayAudio } } : {}) },
     },
     {
       id: "preview-message",
