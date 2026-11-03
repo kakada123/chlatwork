@@ -22,11 +22,13 @@ const props = withDefaults(
     preview?: boolean;
     locale?: MomentLocale;
     invitationGuest?: InvitationGuestIdentity | null;
+    externalMusic?: boolean;
   }>(),
   {
     preview: false,
     locale: "en",
     invitationGuest: null,
+    externalMusic: false,
   },
 );
 const { user, isReady, fetchMe } = useAuth();
@@ -391,7 +393,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BirthdayStoryExperience v-if="birthdayStory?.enabled" :key="moment.slug" :moment="moment" :settings="birthdayStory" :preview="preview" :locale="locale" />
+  <BirthdayStoryExperience v-if="birthdayStory?.enabled" :key="moment.slug" :moment="moment" :settings="birthdayStory" :preview="preview" :locale="locale" :external-music="externalMusic" />
   <article
     v-else
     class="moment-experience"
@@ -422,7 +424,7 @@ onBeforeUnmount(() => {
       <h1>{{ displayedHeroTitle }}</h1>
       <p v-if="moment.occasion !== 'BIRTHDAY'" class="scroll-note">{{ scrollCopy }}</p>
       <BirthdayCelebration v-if="moment.occasion === 'BIRTHDAY'" :key="moment.slug" :preview="preview" :locale="locale" />
-      <BirthdayMusicPlayer v-if="birthdayAudio" :clip="birthdayAudio" :locale="locale" :auto-play="!preview" />
+      <BirthdayMusicPlayer v-if="birthdayAudio && !externalMusic" :clip="birthdayAudio" :locale="locale" :auto-play="!preview" />
 
       <figure v-if="heroPhoto && !isVoting" class="hero-photo-wrap">
         <img
@@ -688,7 +690,7 @@ onBeforeUnmount(() => {
     ),
     var(--moment-bg);
   color: var(--moment-ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Hanuman", Georgia, "Times New Roman", serif;
 }
 .moment-experience.is-khmer {
   font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
@@ -809,7 +811,7 @@ onBeforeUnmount(() => {
   background: var(--moment-surface);
   padding: 0.55rem 0.9rem;
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -819,7 +821,7 @@ onBeforeUnmount(() => {
 .eyebrow,
 .section-kicker {
   color: var(--moment-accent);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -828,7 +830,7 @@ onBeforeUnmount(() => {
 .eyebrow {
   margin-top: 2.5rem;
 }
-.personal-invitation-eyebrow { margin: 1.25rem auto -.25rem; color: var(--moment-accent); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.personal-invitation-eyebrow { margin: 1.25rem auto -.25rem; color: var(--moment-accent); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .moment-experience.is-khmer .personal-invitation-eyebrow { letter-spacing: 0; text-transform: none; }
 .moment-hero h1 {
   margin: 1rem auto 0;
@@ -841,7 +843,7 @@ onBeforeUnmount(() => {
 .scroll-note {
   margin-top: 1.4rem;
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.82rem;
 }
 .hero-photo-wrap {
@@ -887,7 +889,7 @@ onBeforeUnmount(() => {
   border-radius: 1.5rem;
   background: var(--moment-surface);
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
 }
 .moment-section {
   margin: 0 auto;
@@ -911,10 +913,10 @@ onBeforeUnmount(() => {
   line-height: 1.5;
 }
 .event-section h2 { max-width: 48rem; margin-inline: auto; }
-.event-host { margin-top: .75rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .9rem; font-weight: 700; }
+.event-host { margin-top: .75rem; color: var(--moment-muted); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .9rem; font-weight: 700; }
 .event-actions { display: flex; justify-content: center; margin-top: 1.5rem; }
 .event-actions a,
-.event-detail-card a { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--moment-accent); padding: .75rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .8rem; font-weight: 800; }
+.event-detail-card a { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--moment-accent); padding: .75rem 1rem; color: white; font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .8rem; font-weight: 800; }
 .event-detail-grid { display: grid; margin-top: 2rem; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .event-detail-grid.is-single { grid-template-columns: minmax(0, 1fr); }
 .event-detail-card,
@@ -931,24 +933,24 @@ onBeforeUnmount(() => {
 .schedule-card p { margin-top: 1rem; white-space: pre-line; line-height: 1.9; }
 .rsvp-section { max-width: 760px; }
 .rsvp-form { margin-top: 2rem; }
-.rsvp-choices { display: grid; gap: .75rem; grid-template-columns: repeat(3, minmax(0, 1fr)); font-family: ui-sans-serif, system-ui, sans-serif; }
+.rsvp-choices { display: grid; gap: .75rem; grid-template-columns: repeat(3, minmax(0, 1fr)); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; }
 .rsvp-choices label { cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: 1rem .7rem; font-size: .82rem; font-weight: 800; transition: .18s ease; }
 .rsvp-choices label.selected { border-color: var(--moment-accent); background: var(--moment-accent); color: white; transform: translateY(-2px); }
 .rsvp-choices input { position: absolute; opacity: 0; pointer-events: none; }
 .rsvp-fields { display: grid; margin-top: 1rem; gap: .75rem; border: 1px solid var(--moment-border); border-radius: 1.5rem; background: var(--moment-surface); padding: 1rem; text-align: left; }
 .rsvp-fields input,
-.rsvp-fields textarea { width: 100%; border: 1px solid var(--moment-border); border-radius: .8rem; background: color-mix(in srgb, var(--moment-bg) 78%, transparent); padding: .85rem; color: var(--moment-ink); font-family: ui-sans-serif, system-ui, sans-serif; }
-.rsvp-fields label { color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 700; }
+.rsvp-fields textarea { width: 100%; border: 1px solid var(--moment-border); border-radius: .8rem; background: color-mix(in srgb, var(--moment-bg) 78%, transparent); padding: .85rem; color: var(--moment-ink); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; }
+.rsvp-fields label { color: var(--moment-muted); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .78rem; font-weight: 700; }
 .rsvp-fields label input { margin-top: .4rem; }
-.rsvp-fields button { border-radius: .85rem; background: var(--moment-accent); padding: .9rem 1rem; color: white; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 800; }
+.rsvp-fields button { border-radius: .85rem; background: var(--moment-accent); padding: .9rem 1rem; color: white; font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-weight: 800; }
 .rsvp-fields button:disabled { cursor: wait; opacity: .6; }
 .rsvp-status,
 .rsvp-success,
-.rsvp-error { margin-top: 1rem; color: var(--moment-muted); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
+.rsvp-error { margin-top: 1rem; color: var(--moment-muted); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
 .rsvp-success { color: #15803d; }
 .rsvp-error { color: #dc2626; }
 .poll-section { max-width: 960px; }
-.poll-form { display: grid; margin-top: 1.5rem; gap: .8rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+.poll-form { display: grid; margin-top: 1.5rem; gap: .8rem; font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; }
 .poll-options-fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
 .poll-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .poll-option { position: relative; display: block; min-width: 0; overflow: hidden; cursor: pointer; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem; text-align: left; }
@@ -961,7 +963,7 @@ onBeforeUnmount(() => {
 .poll-option-name strong { overflow-wrap: anywhere; }
 .poll-option-name img { width: 3rem; height: 3rem; flex: none; border-radius: .6rem; object-fit: cover; }
 .poll-option-copy small { color: var(--moment-muted); }
-.poll-vote-activity { margin-top: 1rem; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem 1rem; text-align: left; font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
+.poll-vote-activity { margin-top: 1rem; border: 1px solid var(--moment-border); border-radius: 1rem; background: var(--moment-surface); padding: .85rem 1rem; text-align: left; font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .85rem; }
 .poll-vote-activity p { color: var(--moment-muted); font-weight: 700; }
 .poll-vote-activity ul { margin-top: .4rem; list-style: none; }
 .poll-vote-activity li { overflow-wrap: anywhere; line-height: 1.6; }
@@ -1005,7 +1007,7 @@ onBeforeUnmount(() => {
   height: 0;
   transform: translateY(0.55rem);
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1031,7 +1033,7 @@ onBeforeUnmount(() => {
 .counter-label {
   margin-top: 1rem;
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
 }
 .secret-section {
   padding-bottom: 7rem;
@@ -1059,7 +1061,7 @@ onBeforeUnmount(() => {
   background: transparent;
   padding: 1rem 1.5rem;
   color: var(--moment-accent);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
   touch-action: none;
 }
@@ -1085,7 +1087,7 @@ onBeforeUnmount(() => {
 .hold-hint {
   margin-top: 0.8rem;
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
 }
 .secret-message {
@@ -1129,7 +1131,7 @@ onBeforeUnmount(() => {
 
 .moment-theme-celebration .moment-hero h1 {
   max-width: 900px;
-  font-family: ui-rounded, "Arial Rounded MT Bold", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-rounded, "Arial Rounded MT Bold", ui-sans-serif, system-ui, sans-serif;
   font-weight: 800 !important;
   line-height: .92;
 }
@@ -1210,7 +1212,7 @@ onBeforeUnmount(() => {
 .moment-theme-minimal .moment-hero h1 {
   margin-left: 0;
   max-width: 900px;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(2.5rem, 7vw, 5rem) !important;
   font-weight: 700 !important;
   letter-spacing: -.04em;
@@ -1248,7 +1250,7 @@ onBeforeUnmount(() => {
   transform: none;
 }
 .moment-theme-elegant .memory-photo figcaption {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Hanuman", Georgia, "Times New Roman", serif;
   letter-spacing: .16em;
 }
 
@@ -1306,7 +1308,7 @@ onBeforeUnmount(() => {
   display: block;
   margin-top: 1rem;
   color: var(--moment-accent);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: .85rem;
   font-weight: 800;
   letter-spacing: .35em;
@@ -1364,7 +1366,7 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--moment-border);
   padding: 1.5rem;
   color: var(--moment-muted);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
 }
 .secret-swap-enter-active,

@@ -50,13 +50,21 @@ Scene IDs: `gift`, `cake`, `memories`, `message`, `secret`, `celebration`. At mo
 - Remove birthday receiver labels “Birthday Moment” and “A little place on the internet for…”; retain only the existing footer attribution.
 - Secret copy is optional for birthdays, including Simple Mode; empty Story secret scenes are skipped. Other occasions retain existing validation and rendering.
 - Template changes must be available after creation through an authenticated Edit action.
+- Birthday create/edit now uses eight focused Simple stages or eleven Story stages in a viewport-height editor. The searchable step menu validates earlier required fields, and photo metadata edits one selected thumbnail at a time.
+- An optional DD/MM entry challenge runs before the surprise. Store the answer privately, redact every birthday block until unlocked, and use a one-hour server capability in an HttpOnly cookie. Invalid private configuration fails closed; limit attempts to ten per fifteen minutes per IP/slug. Existing birthdays without the challenge remain compatible.
+- Attempt music immediately with the saved canonical audio URL; show only one on/off control. Preserve the same audio element across birthday unlock and scene navigation, retry blocked playback on the first interaction, and honor explicit OFF.
+- Opening the gift automatically advances after its ribbon animation; reduced-motion advances immediately. Manual navigation, replay and unmount cancel pending transitions.
+- Hanuman's Khmer-only Unicode face leads the shared font stack and birthday-specific fonts, including English pages containing Khmer content. Dark selected-card tokens remain local to their component.
+- Birthday unlock previews render no nested form, use explicit button/Enter handlers, and never submit the editor's publish form.
 
 ## Delivered API and verification
 
 - Creation accepts optional birthday-only `birthdayStory` settings in the existing JSON block; stored IDs and Simple Mode remain compatible. No migration.
 - Owner-only GET `/moments/:id/edit`, GET `/moments/:id/edit/media/:mediaId`, and PUT `/moments/:id/edit`. Nuxt proxies keep credentials server-side and owner media non-cacheable.
+- Birthday creation/edit accepts private `birthdayUnlock: { day, month } | null`; omission preserves an existing challenge, and null removes it. POST `/moments/:slug/unlock` validates the answer; Nuxt stores the returned capability server-side in a cookie and returns only `{ unlocked: true }` to browser code. Gated public media requires the same capability. No database migration.
 - PUT validates an 80KB JSON payload, bounded multipart uploads, photo membership/order, settings and expiry before a row-locked transaction. Retained IDs, share slug, status and publication timestamp are preserved.
 - AI wish requests now include a validated optional `includeEmojis` boolean, with localized choice and enforcement of emoji-free prose when disabled.
 - Production Nuxt built with backend source excluded and dotenv disabled. Final direct Nest build includes all ten unchanged audio tracks; compiled audio/editor smoke checks passed.
 - Fresh review's schedule-clearing defect is fixed with a failing-then-passing Creator runtime regression. Upload validation includes WebP container bounds before native decode.
+- Refinement validation: 89 birthday frontend tests pass; full frontend 593/595 with the two existing unrelated source-assertion failures. API 1,716 tests plus three schema tests pass. API strict types, twelve birthday component scripts, client/SSR component compilation, scoped dark-selector audit and fresh production Nuxt build pass. Final direct Nest build and compiled gate/audio checks also pass.
 - Local validation does not prove deployed database transactions, browser audio/autoplay, visual appearance, microphone behavior, or live AI generation. Microphone and voice/video messages are deferred; recipient reactions are explicitly local feedback.

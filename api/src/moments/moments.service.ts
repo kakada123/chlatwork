@@ -33,6 +33,16 @@ import type { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-option
 import type { CurrentUser } from '../auth/types';
 import { readBirthdayAudioClip } from './birthday-audio';
 import { readBirthdayStorySettings } from './birthday-story';
+import {
+  BIRTHDAY_ACCESS_MAX_AGE,
+  birthdayDateMatches,
+  createBirthdayAccess,
+  issueBirthdayAccessToken,
+  readBirthdayAccessState,
+  readBirthdayUnlock,
+  stripBirthdayAccess,
+  verifyBirthdayAccessToken,
+} from './birthday-access';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -99,6 +109,13 @@ export class MomentsService {
   ) {}
 
   async create(userId: string, dto: CreateMomentDto) {
+    const birthdayUnlock = readBirthdayUnlock(dto.birthdayUnlock);
+    if (
+      dto.birthdayUnlock != null &&
+      (dto.occasion !== 'BIRTHDAY' || !birthdayUnlock)
+    ) {
+      throw new BadRequestException('Choose a valid birthday day and month');
+    }
     const birthdayStory = readBirthdayStorySettings(dto.birthdayStory);
     if (dto.birthdayStory != null && (dto.occasion !== 'BIRTHDAY' || !birthdayStory)) {
       throw new BadRequestException('Choose valid birthday story settings');
@@ -187,7 +204,14 @@ export class MomentsService {
     }> = [];
     const addBlock = (type: MomentBlockType, data: Record<string, unknown>) =>
       blocks.push({ type, position: blocks.length, data });
-    addBlock(MomentBlockType.HERO, { title, ...(birthdayAudio ? { birthdayAudio } : {}), ...(birthdayStory ? { birthdayStory } : {}) });
+    addBlock(MomentBlockType.HERO, {
+      title,
+      ...(birthdayAudio ? { birthdayAudio } : {}),
+      ...(birthdayStory ? { birthdayStory } : {}),
+      ...(birthdayUnlock
+        ? { birthdayAccess: createBirthdayAccess(birthdayUnlock) }
+        : {}),
+    });
     addBlock(MomentBlockType.MESSAGE, { message });
     if (isInvitation) {
       addBlock(MomentBlockType.EVENT_DETAILS, {
@@ -1425,7 +1449,7 @@ export class MomentsService {
     return { deleted: true };
   }
 
-  async getPublic(slug: string) {
+  async getPublic(slug: string, birthdayAccessToken?: string) {
     const moment = await this.prisma.moment.findUnique({
       where: { slug },
       include: {
@@ -1445,6 +1469,28 @@ export class MomentsService {
         status: 'locked' as const,
         recipientName: moment.recipientName,
         unlockAt: moment.publishAt.toISOString(),
+      };
+    }
+
+    const birthdayAccess = readBirthdayAccessState(moment.blocks);
+    // Invalid private settings remain locked; only the safe library clip can reach the entry screen.
+    if (
+      birthdayAccess.kind !== 'none' &&
+      (birthdayAccess.kind !== 'configured' ||
+        !verifyBirthdayAccessToken(birthdayAccessToken, moment.id, birthdayAccess.access))
+    ) {
+      const hero = moment.blocks.find(
+        (block) => block.type === MomentBlockType.HERO,
+      )?.data;
+      const audio = hero && typeof hero === 'object' && !Array.isArray(hero)
+        ? readBirthdayAudioClip(hero.birthdayAudio)
+        : null;
+      return {
+        status: 'birthday-locked' as const,
+        slug: moment.slug,
+        recipientName: moment.recipientName,
+        theme: moment.theme,
+        ...(audio ? { birthdayAudio: audio } : {}),
       };
     }
 
@@ -1470,7 +1516,7 @@ export class MomentsService {
         id: block.id,
         type: block.type,
         position: block.position,
-        data: block.data,
+        data: stripBirthdayAccess(block.data),
       })),
       media: moment.media.map((media) => ({
         id: media.id,
@@ -1488,6 +1534,30 @@ export class MomentsService {
             ),
           }
         : {}),
+    };
+  }
+
+  async unlockBirthday(slug: string, input: unknown) {
+    const date = readBirthdayUnlock(input);
+    if (!date) throw new BadRequestException('Enter a valid birthday day and month');
+    const moment = await this.prisma.moment.findUnique({
+      where: { slug },
+      include: { blocks: { select: { type: true, data: true } } },
+    });
+    this.assertPublic(moment);
+    if (moment.publishAt && moment.publishAt > new Date()) {
+      throw new ForbiddenException('This Moment has not unlocked yet');
+    }
+    if (moment.occasion !== MomentOccasion.BIRTHDAY) {
+      throw new NotFoundException('Moment not found');
+    }
+    const access = readBirthdayAccessState(moment.blocks);
+    if (access.kind !== 'configured' || !birthdayDateMatches(access.access, date)) {
+      throw new ForbiddenException('Birthday could not be verified');
+    }
+    return {
+      token: issueBirthdayAccessToken(moment.id, access.access),
+      maxAge: BIRTHDAY_ACCESS_MAX_AGE,
     };
   }
 
@@ -1842,14 +1912,30 @@ export class MomentsService {
     return { question, identityMode, options };
   }
 
-  async getPublicMedia(slug: string, mediaId: string, asJpeg = false) {
+  async getPublicMedia(
+    slug: string,
+    mediaId: string,
+    asJpeg = false,
+    birthdayAccessToken?: string,
+  ) {
     const media = await this.prisma.momentMedia.findFirst({
       where: { id: mediaId, moment: { slug } },
-      include: { moment: true },
+      include: {
+        moment: { include: { blocks: { select: { type: true, data: true } } } },
+      },
     });
     if (!media) throw new NotFoundException('Photo not found');
     this.assertPublic(media.moment);
     if (media.moment.publishAt && media.moment.publishAt > new Date()) {
+      throw new NotFoundException('Photo not found');
+    }
+    const birthdayAccess = readBirthdayAccessState(media.moment.blocks);
+    const birthdayProtected = birthdayAccess.kind !== 'none';
+    if (
+      birthdayProtected &&
+      (birthdayAccess.kind !== 'configured' ||
+        !verifyBirthdayAccessToken(birthdayAccessToken, media.moment.id, birthdayAccess.access))
+    ) {
       throw new NotFoundException('Photo not found');
     }
     if (!media.content)
@@ -1882,9 +1968,14 @@ export class MomentsService {
       return {
         content: Buffer.from(await canvas.encode('jpeg', 80)),
         mimeType: 'image/jpeg',
+        birthdayProtected,
       };
     }
-    return { content: Buffer.from(media.content), mimeType: media.mimeType };
+    return {
+      content: Buffer.from(media.content),
+      mimeType: media.mimeType,
+      birthdayProtected,
+    };
   }
 
   private assertPublic(

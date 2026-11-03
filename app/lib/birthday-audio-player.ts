@@ -95,8 +95,10 @@ export function createBirthdayAudioPlayer(
       if (source !== fragmentSource || audio.error) {
         source = fragmentSource;
         // A media fragment keeps the initial decode at the trim start, even before metadata arrives.
-        audio.src = fragmentSource;
-        audio.load();
+        if (audio.getAttribute?.("src") !== fragmentSource || audio.error) {
+          audio.src = fragmentSource;
+          audio.load();
+        }
       }
       const metadata = waitForMetadata();
       if (audio.readyState >= 1) audio.currentTime = clip.startMs / 1000;

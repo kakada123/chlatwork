@@ -14,6 +14,8 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
+import ModernSelect from "~/components/ModernSelect.vue";
+import BirthdayUnlockGate from "~/components/moments/BirthdayUnlockGate.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import BirthdayAudioEditor from "~/components/moments/BirthdayAudioEditor.vue";
 import BirthdayWishGenerator from "~/components/moments/BirthdayWishGenerator.vue";
@@ -36,6 +38,8 @@ import {
   buildPreviewMoment,
   getMomentFormError,
 } from "~/lib/moments";
+import { getBirthdayWizardStages, parseBirthdayUnlock } from "~/lib/birthday-wizard";
+import type { BirthdayWizardStage } from "~/lib/birthday-wizard";
 import type { MomentDraft } from "~/types/moment";
 
 type SelectedPhoto = { id: string; file?: File; existingMediaId?: string; url: string; caption?: string; date?: string };
@@ -51,6 +55,13 @@ const { user, isReady, fetchMe } = useAuth();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
 const creatorCopy = computed(() => copy.value.creator);
 const step = ref(1);
+const birthdayStage = ref<BirthdayWizardStage>("recipient");
+const creatorPanel = ref<HTMLElement | null>(null);
+const activePhotoId = ref("");
+const birthdayUnlockEnabled = ref(false);
+const birthdayUnlockDay = ref("");
+const birthdayUnlockMonth = ref("");
+const birthdayUnlockTouched = ref(false);
 const titleTouched = ref(false);
 const messageTouched = ref(false);
 const secretTouched = ref(false);
@@ -99,28 +110,63 @@ const visibleSteps = computed(() =>
 const progressStep = computed(() => visibleSteps.value.indexOf(step.value) + 1);
 const storyEnabled = computed(() => draft.occasion === "BIRTHDAY" && draft.birthdayStory?.enabled === true);
 const birthdayText = (en: string, km: string) => isKhmer.value ? km : en;
-const birthdaySections = computed(() => [
-  { id: "birthday-recipient", step: 1, label: birthdayText("Recipient details", "ព័ត៌មានអ្នកទទួល") },
-  { id: "birthday-theme", step: 3, label: birthdayText("Birthday theme", "រចនាប័ទ្មថ្ងៃកំណើត") },
-  { id: "birthday-music", step: 3, label: birthdayText("Music & effects", "តន្ត្រី និងបែបផែន") },
-  { id: "birthday-cake", step: 3, label: birthdayText("Birthday cake", "នំខួបកំណើត") },
-  { id: "birthday-memories", step: 2, label: birthdayText("Photo memories", "រូបភាពអនុស្សាវរីយ៍") },
-  { id: "birthday-message", step: 3, label: birthdayText("Personal message", "សារផ្ទាល់ខ្លួន") },
-  { id: "birthday-secret", step: 3, label: birthdayText("Secret surprise", "ការភ្ញាក់ផ្អើលសម្ងាត់") },
-  { id: "birthday-preview", step: 4, label: birthdayText("Preview & publish", "មើលជាមុន និងផ្សព្វផ្សាយ") },
-]);
-async function openBirthdaySection(section: { id: string; step: number }) {
-  if (isPublishing.value || isPreparingPhotos.value) return;
-  // Section links can move backwards freely, but forward navigation keeps the existing validation gates.
-  while (step.value < section.step) {
-    const previous = step.value;
-    nextStep();
-    if (previous === step.value) return;
+const birthdayWizard = computed(() => draft.occasion === "BIRTHDAY");
+const birthdayStages = computed(() => getBirthdayWizardStages(storyEnabled.value));
+const birthdayStageIndex = computed(() => birthdayStages.value.indexOf(birthdayStage.value));
+const isFinalStep = computed(() => birthdayWizard.value ? birthdayStage.value === "preview" : step.value === 4);
+const canGoBack = computed(() => birthdayWizard.value ? birthdayStageIndex.value > 0 : step.value > 1);
+const activePhoto = computed(() => photos.value.find(photo => photo.id === activePhotoId.value) ?? photos.value[0]);
+const activePhotoIndex = computed(() => photos.value.findIndex(photo => photo.id === activePhoto.value?.id));
+const birthdayStageLabels = computed<Record<BirthdayWizardStage, string>>(() => ({
+  recipient: birthdayText("Recipient & mode", "អ្នកទទួល និងរបៀប"), template: birthdayText("Birthday template", "គំរូថ្ងៃកំណើត"),
+  scenes: birthdayText("Story scenes", "ឈុតរឿងរ៉ាវ"), music: birthdayText("Music", "តន្ត្រី"), cake: birthdayText("Birthday cake", "នំខួបកំណើត"),
+  photos: birthdayText("Photo memories", "រូបភាពអនុស្សាវរីយ៍"), wish: birthdayText("AI birthday wish (optional)", "សារជូនពរដោយ AI (ជាជម្រើស)"),
+  message: birthdayText("Personal message", "សារផ្ទាល់ខ្លួន"), secret: birthdayText("Secret surprise (optional)", "ការភ្ញាក់ផ្អើលសម្ងាត់ (ជាជម្រើស)"),
+  unlock: birthdayText("Birthday unlock & schedule", "ដោះសោថ្ងៃកំណើត និងកំណត់ពេល"), preview: birthdayText("Preview & publish", "មើលជាមុន និងផ្សព្វផ្សាយ"),
+}));
+function validateBirthdayStage(stage: BirthdayWizardStage): string {
+  if (stage === "recipient" && !draft.recipientName.trim()) return creatorCopy.value.errors.recipient;
+  if (stage === "photos" && !storyEnabled.value && photos.value.length < 1) return creatorCopy.value.errors.photoRequired;
+  if (stage === "message" && !draft.title.trim()) return creatorCopy.value.errors.title;
+  if (stage === "message" && !draft.message.trim()) return creatorCopy.value.errors.message;
+  if (stage === "unlock") {
+    if (birthdayUnlockEnabled.value && !parseBirthdayUnlock(birthdayUnlockDay.value, birthdayUnlockMonth.value)) return birthdayText("Enter a valid birthday as DD / MM.", "សូមបញ្ចូលថ្ងៃកំណើតត្រឹមត្រូវជា DD / MM។");
+    return getMomentFormError(draft, photos.value.length, locale.value);
   }
-  step.value = section.step;
-  await nextTick();
-  document.getElementById(section.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  return "";
 }
+function goBirthdayStage(target: BirthdayWizardStage) {
+  if (isPublishing.value || isPreparingPhotos.value) return;
+  const targetIndex = birthdayStages.value.indexOf(target);
+  if (targetIndex < 0) return;
+  for (let index = birthdayStageIndex.value; index < targetIndex; index++) {
+    const error = validateBirthdayStage(birthdayStages.value[index]!);
+    if (error) { birthdayStage.value = birthdayStages.value[index]!; formError.value = error; return; }
+  }
+  formError.value = "";
+  birthdayStage.value = target;
+}
+function changeBirthdayStage(event: Event) {
+  goBirthdayStage((event.target as HTMLSelectElement).value as BirthdayWizardStage);
+  (event.target as HTMLSelectElement).value = birthdayStage.value;
+}
+function updateBirthdayUnlockPart(part: "day" | "month", event: Event) {
+  const input = event.target as HTMLInputElement;
+  const value = input.value.replace(/\D/g, "").slice(0, 2);
+  input.value = value;
+  if (part === "day") birthdayUnlockDay.value = value;
+  else birthdayUnlockMonth.value = value;
+  birthdayUnlockTouched.value = true;
+}
+watch([birthdayUnlockEnabled, birthdayUnlockDay, birthdayUnlockMonth], () => {
+  draft.birthdayUnlock = birthdayUnlockEnabled.value
+    ? parseBirthdayUnlock(birthdayUnlockDay.value, birthdayUnlockMonth.value)
+    : null;
+});
+watch([birthdayStage, step], async () => {
+  await nextTick();
+  if (creatorPanel.value) { creatorPanel.value.scrollTop = 0; creatorPanel.value.focus?.({ preventScroll: true }); }
+});
 
 function applyBirthdayWish(wish: { title: string; message: string; secretMessage: string }) {
   draft.title = wish.title;
@@ -184,6 +230,16 @@ const previewMoment = computed(() => {
   }
   return moment;
 });
+const birthdayPreviewOpened = ref(false);
+const birthdayPreviewError = ref("");
+watch(() => draft.birthdayUnlock, () => { birthdayPreviewOpened.value = false; birthdayPreviewError.value = ""; }, { deep: true });
+function unlockBirthdayPreview(value: { day: number; month: number }) {
+  const expected = draft.birthdayUnlock;
+  if (expected && expected.day === value.day && expected.month === value.month) {
+    birthdayPreviewOpened.value = true;
+    birthdayPreviewError.value = "";
+  } else birthdayPreviewError.value = locale.value === "km" ? "ថ្ងៃខែនេះមិនទាន់ត្រូវទេ។ សូមព្យាយាមម្ដងទៀត។" : "That birthday doesn’t match. Try again.";
+}
 const isPublishing = computed(
   () => publishState.value !== "idle" && publishState.value !== "done",
 );
@@ -216,6 +272,11 @@ function selectCategory(category: (typeof MOMENT_CATEGORIES)[number]) {
 
 function nextStep() {
   formError.value = "";
+  if (birthdayWizard.value) {
+    const next = birthdayStages.value[birthdayStageIndex.value + 1];
+    if (next) goBirthdayStage(next);
+    return;
+  }
   if (step.value === 1 && !draft.recipientName.trim()) {
     formError.value = draft.occasion === "INVITATION"
       ? creatorCopy.value.errors.eventName
@@ -251,6 +312,11 @@ function nextStep() {
 
 function previousStep() {
   formError.value = "";
+  if (birthdayWizard.value) {
+    const previous = birthdayStages.value[birthdayStageIndex.value - 1];
+    if (previous) goBirthdayStage(previous);
+    return;
+  }
   step.value = draft.occasion === "VOTING" && step.value === 3
     ? 1
     : Math.max(1, step.value - 1);
@@ -323,11 +389,12 @@ function removePhoto(id: string) {
 }
 
 function movePhoto(id: string, target: number) {
+  activePhotoId.value = id;
   photos.value = reorderBirthdayPhotos(photos.value, id, target);
 }
 
 function startPhotoDrag(event: DragEvent, id: string) {
-  if (!storyEnabled.value) return;
+  if (!birthdayWizard.value) return;
   draggedPhotoId.value = id;
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = "move";
@@ -377,6 +444,10 @@ async function onOptionImagePick(event: Event, index: number) {
 }
 
 async function requestPublish() {
+  if (birthdayWizard.value) {
+    formError.value = validateBirthdayStage("unlock");
+    if (formError.value) { birthdayStage.value = "unlock"; return; }
+  }
   if (editLoading.value || editError.value) return;
   formError.value = getMomentFormError(
     draft,
@@ -406,6 +477,9 @@ function buildCreatePayload() {
     message: draft.message,
     secretMessage: draft.secretMessage,
     theme: draft.theme,
+    birthdayUnlock: draft.occasion === "BIRTHDAY"
+      ? birthdayUnlockEnabled.value ? parseBirthdayUnlock(birthdayUnlockDay.value, birthdayUnlockMonth.value) : isEditing.value || birthdayUnlockTouched.value ? null : undefined
+      : undefined,
     birthdayAudio: draft.occasion === "BIRTHDAY" ? draft.birthdayAudio ?? undefined : undefined,
     birthdayStory: draft.occasion === "BIRTHDAY" && draft.birthdayStory
       ? alignBirthdayStoryMemories(draft.birthdayStory, photos.value)
@@ -514,6 +588,11 @@ async function loadExistingMoment() {
     photos.value.forEach(photo => { if (photo.url.startsWith("blob:")) URL.revokeObjectURL(photo.url); });
     photos.value = saved.photos;
     loadedEditStatus.value = saved.status;
+    birthdayUnlockEnabled.value = Boolean(saved.draft.birthdayUnlock);
+    birthdayUnlockDay.value = saved.draft.birthdayUnlock ? String(saved.draft.birthdayUnlock.day).padStart(2, "0") : "";
+    birthdayUnlockMonth.value = saved.draft.birthdayUnlock ? String(saved.draft.birthdayUnlock.month).padStart(2, "0") : "";
+    birthdayUnlockTouched.value = false;
+    birthdayStage.value = "recipient";
     publishState.value = "idle";
     publishedSlug.value = "";
     step.value = 1;
@@ -602,7 +681,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="moments-creator"
-    :class="{ 'is-khmer': isKhmer, 'moment-product-mobile': product === 'moment' }"
+    :class="{ 'is-khmer': isKhmer, 'moment-product-mobile': product === 'moment', 'birthday-wizard': birthdayWizard && publishState !== 'done' && !editLoading && !editError }"
     :lang="isKhmer ? 'km' : 'en'"
   >
     <div class="language-toolbar">
@@ -682,6 +761,7 @@ onBeforeUnmount(() => {
       </header>
 
       <ol
+        v-if="!birthdayWizard"
         class="stepper"
         :style="{ gridTemplateColumns: `repeat(${visibleSteps.length}, minmax(0, 1fr))` }"
         :aria-label="creatorCopy.progressLabel"
@@ -696,16 +776,23 @@ onBeforeUnmount(() => {
         </li>
       </ol>
 
-      <nav v-if="storyEnabled" class="birthday-section-nav" :aria-label="birthdayText('Birthday editor sections', 'ផ្នែកកែសម្រួលថ្ងៃកំណើត')">
-        <button v-for="section in birthdaySections" :key="section.id" type="button" :disabled="isPublishing || isPreparingPhotos" :aria-current="step === section.step ? 'step' : undefined" @click="openBirthdaySection(section)">{{ section.label }}</button>
+      <nav v-if="birthdayWizard" class="birthday-wizard-nav" :aria-label="birthdayText('Birthday editor steps', 'ជំហានកែសម្រួលថ្ងៃកំណើត')">
+        <p>{{ creatorCopy.stepLabel(birthdayStageIndex + 1, birthdayStages.length) }}</p>
+        <label for="birthday-wizard-step" class="sr-only">{{ birthdayText('Choose an editor step', 'ជ្រើសរើសជំហានកែសម្រួល') }}</label>
+        <span class="birthday-stage-select">
+          <ModernSelect id="birthday-wizard-step" class="w-full" :value="birthdayStage" :disabled="isPublishing || isPreparingPhotos" :search-placeholder="birthdayText('Find a step…', 'ស្វែងរកជំហាន…')" @change="changeBirthdayStage">
+            <option v-for="(stage, index) in birthdayStages" :key="stage" :value="stage">{{ index + 1 }}. {{ birthdayStageLabels[stage] }}</option>
+          </ModernSelect>
+        </span>
       </nav>
 
       <form
         class="creator-card"
-        @submit.prevent="step < 4 ? nextStep() : requestPublish()"
+        @submit.prevent="isFinalStep ? requestPublish() : nextStep()"
       >
-        <section v-if="step === 1" id="birthday-recipient" aria-labelledby="step-one-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+        <div ref="creatorPanel" class="creator-panel" :class="{ 'wizard-panel': birthdayWizard }" :tabindex="birthdayWizard ? -1 : undefined" :aria-label="birthdayWizard ? birthdayStageLabels[birthdayStage] : undefined">
+        <section v-if="birthdayWizard ? birthdayStage === 'recipient' : step === 1" id="birthday-recipient" aria-labelledby="step-one-title">
+          <p v-if="!birthdayWizard" class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-one-title">{{ draft.occasion === 'INVITATION' ? creatorCopy.invitationPersonTitle : draft.occasion === 'VOTING' ? creatorCopy.votingPersonTitle : creatorCopy.personTitle }}</h2>
           <label for="recipient-name" class="field-label mt-6"
             >{{ draft.occasion === 'INVITATION' ? creatorCopy.eventName : draft.occasion === 'VOTING' ? creatorCopy.voteName : creatorCopy.recipientName }}</label
@@ -723,7 +810,9 @@ onBeforeUnmount(() => {
             <label for="host-name" class="field-label">{{ creatorCopy.hostName }}</label>
             <input id="host-name" v-model="draft.hostName" maxlength="120" required class="field-input mt-2" :placeholder="creatorCopy.hostNamePlaceholder" autocomplete="organization" />
           </div>
-          <fieldset v-if="!isEditing" class="mt-7">
+          <details v-if="!isEditing" class="occasion-switcher mt-5" :open="!birthdayWizard">
+            <summary v-if="birthdayWizard">{{ birthdayText('Change occasion', 'ប្ដូរឱកាស') }}</summary>
+          <fieldset class="mt-4">
             <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
             <p class="category-label">{{ creatorCopy.categoryLabel }}</p>
             <div class="category-tabs" role="group" :aria-label="creatorCopy.categoryLabel">
@@ -756,11 +845,12 @@ onBeforeUnmount(() => {
               </label>
             </div>
           </fieldset>
+          </details>
           <BirthdayStoryEditor v-if="draft.occasion === 'BIRTHDAY' && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="mode" />
         </section>
 
-        <section v-else-if="step === 2" id="birthday-memories" aria-labelledby="step-two-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+        <section v-else-if="birthdayWizard ? birthdayStage === 'photos' : step === 2" id="birthday-memories" aria-labelledby="step-two-title">
+          <p v-if="!birthdayWizard" class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-two-title">{{ creatorCopy.photosTitle }}</h2>
           <p class="step-copy">{{ creatorCopy.photosDescription }}</p>
           <p v-if="storyEnabled" class="field-help">{{ birthdayText('Photos are optional in Story Mode. Drag photos to reorder them, or use the move buttons.', 'រូបថតជាជម្រើសក្នុងរបៀបរឿងរ៉ាវ។ អូសរូបថតដើម្បីប្ដូរលំដាប់ ឬប្រើប៊ូតុងផ្លាស់ទី។') }}</p>
@@ -799,12 +889,10 @@ onBeforeUnmount(() => {
           <p v-if="photoError" role="alert" class="error-message">
             {{ photoError }}
           </p>
-          <div v-if="photos.length" class="selected-photos" :class="{ 'story-photos': storyEnabled }">
-            <figure v-for="(photo, index) in photos" :key="photo.id" :draggable="storyEnabled && !isPublishing" @dragstart="startPhotoDrag($event, photo.id)" @dragend="draggedPhotoId = ''" @dragover.prevent @drop.prevent="dropPhoto($event, index)">
-              <img
-                :src="photo.url"
-                :alt="creatorCopy.selectedPhoto(index + 1)"
-              />
+          <div v-if="photos.length" class="selected-photos" :class="{ 'story-photos': storyEnabled, 'compact-birthday-photos': birthdayWizard }">
+            <figure v-for="(photo, index) in photos" :key="photo.id" :draggable="birthdayWizard && !isPublishing" @dragstart="startPhotoDrag($event, photo.id)" @dragend="draggedPhotoId = ''" @dragover.prevent @drop.prevent="dropPhoto($event, index)">
+              <button v-if="birthdayWizard" type="button" class="photo-select-button" :aria-label="birthdayText(`Edit photo ${index + 1}`, `កែប្រែរូបថត ${index + 1}`)" :aria-pressed="activePhoto?.id === photo.id" @click="activePhotoId = photo.id"><img :src="photo.url" :alt="creatorCopy.selectedPhoto(index + 1)" /></button>
+              <img v-else :src="photo.url" :alt="creatorCopy.selectedPhoto(index + 1)" />
               <button class="remove-photo-button"
                 type="button"
                 :aria-label="creatorCopy.removePhoto(index + 1)"
@@ -815,27 +903,78 @@ onBeforeUnmount(() => {
               <figcaption>{{
                 index === 0 ? creatorCopy.heroPhoto : index + 1
               }}</figcaption>
-              <div v-if="storyEnabled" class="memory-fields" draggable="false" @dragstart.stop.prevent>
-                <div class="photo-move-actions">
-                  <button type="button" :disabled="index === 0" :aria-label="birthdayText(`Move photo ${index + 1} earlier`, `ផ្លាស់ទីរូបថត ${index + 1} ទៅមុន`)" @click="movePhoto(photo.id, index - 1)">↑</button>
-                  <button type="button" :disabled="index === photos.length - 1" :aria-label="birthdayText(`Move photo ${index + 1} later`, `ផ្លាស់ទីរូបថត ${index + 1} ទៅក្រោយ`)" @click="movePhoto(photo.id, index + 1)">↓</button>
-                </div>
-                <label :for="`memory-caption-${photo.id}`">{{ birthdayText('Caption (optional)', 'ចំណងជើង (ជាជម្រើស)') }}</label>
-                <textarea :id="`memory-caption-${photo.id}`" v-model="photo.caption" maxlength="200" rows="2" class="field-input" />
-                <span class="character-count">{{ photo.caption?.length ?? 0 }} / 200</span>
-                <label :for="`memory-date-${photo.id}`">{{ birthdayText('Memory date (optional)', 'កាលបរិច្ឆេទអនុស្សាវរីយ៍ (ជាជម្រើស)') }}</label>
-                <input :id="`memory-date-${photo.id}`" v-model="photo.date" type="date" class="field-input" />
-              </div>
+
             </figure>
+          </div>
+          <div v-if="birthdayWizard && activePhoto" class="active-memory-editor">
+            <div class="photo-move-actions">
+              <strong>{{ creatorCopy.selectedPhoto(activePhotoIndex + 1) }}</strong>
+              <button type="button" :disabled="photos[0]?.id === activePhoto.id" :aria-label="birthdayText(`Move photo ${activePhotoIndex + 1} earlier`, 'ផ្លាស់ទីរូបថតទៅមុន')" @click="movePhoto(activePhoto.id, activePhotoIndex - 1)">↑</button>
+              <button type="button" :disabled="photos.at(-1)?.id === activePhoto.id" :aria-label="birthdayText(`Move photo ${activePhotoIndex + 1} later`, 'ផ្លាស់ទីរូបថតទៅក្រោយ')" @click="movePhoto(activePhoto.id, activePhotoIndex + 1)">↓</button>
+            </div>
+            <div v-if="storyEnabled" class="memory-fields">
+              <label :for="`memory-caption-${activePhoto.id}`">{{ birthdayText('Caption (optional)', 'ចំណងជើង (ជាជម្រើស)') }}</label>
+              <textarea :id="`memory-caption-${activePhoto.id}`" v-model="activePhoto.caption" maxlength="200" rows="2" class="field-input" />
+              <span class="character-count">{{ activePhoto.caption?.length ?? 0 }} / 200</span>
+              <label :for="`memory-date-${activePhoto.id}`">{{ birthdayText('Memory date (optional)', 'កាលបរិច្ឆេទអនុស្សាវរីយ៍ (ជាជម្រើស)') }}</label>
+              <input :id="`memory-date-${activePhoto.id}`" v-model="activePhoto.date" type="date" class="field-input" />
+            </div>
+          </div>
+        </section>
+
+        <section v-else-if="birthdayWizard && birthdayStage !== 'preview'" :data-birthday-stage="birthdayStage" aria-labelledby="birthday-stage-title">
+          <h2 id="birthday-stage-title">{{ birthdayStageLabels[birthdayStage] }}</h2>
+          <div class="birthday-stage-content">
+            <template v-if="birthdayStage === 'template'">
+              <BirthdayStoryEditor v-if="storyEnabled && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="theme" />
+              <fieldset v-else>
+                <legend class="sr-only">{{ creatorCopy.themeLabel }}</legend>
+                <div class="theme-grid">
+                  <label v-for="theme in localizedThemes" :key="theme.value" class="theme-card" :class="{ selected: draft.theme === theme.value }">
+                    <input v-model="draft.theme" type="radio" :value="theme.value" class="sr-only" />
+                    <span class="swatches"><i v-for="swatch in theme.swatches" :key="swatch" :style="{ backgroundColor: swatch }" /></span>
+                    <strong>{{ theme.label }}</strong><small>{{ theme.description }}</small>
+                  </label>
+                </div>
+              </fieldset>
+            </template>
+            <BirthdayStoryEditor v-else-if="birthdayStage === 'scenes' && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="scenes" />
+            <BirthdayAudioEditor v-else-if="birthdayStage === 'music'" v-model="draft.birthdayAudio" :locale="locale" />
+            <BirthdayStoryEditor v-else-if="birthdayStage === 'cake' && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="cake" />
+            <template v-else-if="birthdayStage === 'wish'">
+              <p class="field-help mb-3">{{ birthdayText('Create a suggestion, or continue to write your own message.', 'បង្កើតសារណែនាំ ឬបន្តដើម្បីសរសេរសារដោយខ្លួនឯង។') }}</p>
+              <BirthdayWishGenerator :recipient-name="draft.recipientName" :locale="locale" @apply="applyBirthdayWish" />
+            </template>
+            <div v-else-if="birthdayStage === 'message'" id="birthday-message" class="grid gap-4">
+              <div><label for="moment-title" class="field-label">{{ creatorCopy.titleLabel }}</label><input id="moment-title" v-model="draft.title" maxlength="120" class="field-input mt-2" @input="titleTouched = true" /></div>
+              <div><label for="moment-message" class="field-label">{{ creatorCopy.messageLabel }}</label><textarea id="moment-message" v-model="draft.message" maxlength="3000" rows="6" class="field-input mt-2 resize-y" @input="messageTouched = true" /><p class="character-count">{{ draft.message.length }} / 3000</p></div>
+            </div>
+            <div v-else-if="birthdayStage === 'secret'" id="birthday-secret">
+              <label for="secret-message" class="field-label">{{ creatorCopy.secretLabel }} <span>({{ creatorCopy.optional }})</span></label>
+              <textarea id="secret-message" v-model="draft.secretMessage" maxlength="1500" rows="5" class="field-input mt-2 resize-y" @input="secretTouched = true" />
+              <p class="field-help">{{ creatorCopy.secretHelp }}</p>
+            </div>
+            <div v-else-if="birthdayStage === 'unlock'" class="birthday-unlock-fields">
+              <label class="birthday-unlock-toggle"><input id="birthday-unlock-enabled" v-model="birthdayUnlockEnabled" type="checkbox" @change="birthdayUnlockTouched = true" /><strong>{{ birthdayText('Ask for the birthday before opening', 'សួរថ្ងៃកំណើតមុនពេលបើក') }}</strong></label>
+              <p class="field-help">{{ birthdayText('Optional: the recipient enters the correct day and month. No birth year is collected.', 'ជាជម្រើស៖ អ្នកទទួលបញ្ចូលថ្ងៃ និងខែត្រឹមត្រូវ។ មិនប្រមូលឆ្នាំកំណើតទេ។') }}</p>
+              <fieldset v-if="birthdayUnlockEnabled" class="birthday-day-month">
+                <legend class="sr-only">{{ birthdayText('Birthday DD / MM', 'ថ្ងៃកំណើត DD / MM') }}</legend>
+                <div><label for="birthday-unlock-day">{{ birthdayText('Day', 'ថ្ងៃ') }}</label><input id="birthday-unlock-day" :value="birthdayUnlockDay" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="DD" class="field-input" @input="updateBirthdayUnlockPart('day', $event)" @blur="birthdayUnlockDay && (birthdayUnlockDay = birthdayUnlockDay.padStart(2, '0'))" /></div>
+                <span aria-hidden="true">/</span>
+                <div><label for="birthday-unlock-month">{{ birthdayText('Month', 'ខែ') }}</label><input id="birthday-unlock-month" :value="birthdayUnlockMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="MM" class="field-input" @input="updateBirthdayUnlockPart('month', $event)" @blur="birthdayUnlockMonth && (birthdayUnlockMonth = birthdayUnlockMonth.padStart(2, '0'))" /></div>
+              </fieldset>
+              <div class="grid gap-4 sm:grid-cols-2 mt-5">
+                <div><label for="special-date" class="field-label">{{ creatorCopy.specialDate }} <span>({{ creatorCopy.optional }})</span></label><input id="special-date" v-model="draft.specialDate" type="date" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.counterHelp }}</p></div>
+                <div><label for="unlock-date" class="field-label">{{ creatorCopy.scheduledUnlock }} <span>({{ creatorCopy.optional }})</span></label><input id="unlock-date" v-model="draft.publishAt" type="datetime-local" :min="isEditing ? undefined : minimumUnlockDate" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.countdownHelp }}</p><p v-if="browserTimezone" class="field-help">{{ birthdayText('Schedule timezone:', 'តំបន់ម៉ោងកំណត់ពេល៖') }} {{ browserTimezone }}</p></div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section v-else-if="step === 3" aria-labelledby="step-three-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+          <p v-if="!birthdayWizard" class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-three-title">{{ draft.occasion === 'VOTING' ? creatorCopy.pollTitle : creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
-            <BirthdayStoryEditor v-if="storyEnabled && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" />
-            <BirthdayWishGenerator v-if="draft.occasion === 'BIRTHDAY'" :recipient-name="draft.recipientName" :locale="locale" @apply="applyBirthdayWish" />
             <div v-if="draft.occasion !== 'VOTING'" id="birthday-message">
               <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Personal message', 'សារផ្ទាល់ខ្លួន') }}</h3>
               <label for="moment-title" class="field-label">{{
@@ -965,18 +1104,13 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </fieldset>
-            <section v-if="draft.occasion === 'BIRTHDAY'" id="birthday-music" :aria-label="birthdayText('Music & effects', 'តន្ត្រី និងបែបផែន')">
-              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Music & effects', 'តន្ត្រី និងបែបផែន') }}</h3>
-              <p v-if="storyEnabled" class="field-help mb-3">{{ birthdayText('Birthday confetti and candles follow your enabled scenes. Reduced-motion preferences are respected.', 'ក្រដាសពណ៌ និងទៀនតាមឈុតដែលអ្នកបើក។ ចលនាត្រូវតាមការកំណត់កាត់បន្ថយចលនា។') }}</p>
-              <BirthdayAudioEditor v-model="draft.birthdayAudio" :locale="locale" />
-            </section>
           </div>
         </section>
 
         <section v-else id="birthday-preview" aria-labelledby="step-four-title">
-          <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
+          <p v-if="!birthdayWizard" class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-four-title">{{ creatorCopy.previewTitle }}</h2>
-          <fieldset v-if="!storyEnabled" class="mt-6">
+          <fieldset v-if="!birthdayWizard" class="mt-6">
             <legend class="field-label">{{ creatorCopy.themeLabel }} <span class="theme-count">{{ creatorCopy.themeCount }}</span></legend>
             <div class="theme-grid mt-3">
               <label
@@ -1012,7 +1146,9 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div class="experience-preview">
+            <BirthdayUnlockGate v-if="draft.occasion === 'BIRTHDAY' && draft.birthdayUnlock && !birthdayPreviewOpened" :recipient-name="draft.recipientName" :locale="locale" :error="birthdayPreviewError" preview @unlock="unlockBirthdayPreview" />
             <MomentExperience
+              v-else
               :moment="previewMoment"
               :locale="locale"
               preview
@@ -1030,9 +1166,10 @@ onBeforeUnmount(() => {
         <p v-if="formError" role="alert" class="error-message mt-5">
           {{ formError }}
         </p>
+        </div>
         <footer class="form-actions">
           <button
-            v-if="step > 1"
+            v-if="canGoBack"
             type="button"
             class="secondary-button"
             :disabled="isPublishing"
@@ -1047,9 +1184,9 @@ onBeforeUnmount(() => {
             :disabled="isPublishing || isPreparingPhotos"
           >
             <LoaderCircle v-if="isPublishing" class="h-4 w-4 animate-spin" />
-            <Sparkles v-else-if="step === 4" class="h-4 w-4" />
-            {{ step === 4 ? progressLabel : creatorCopy.continue }}
-            <ArrowRight v-if="step < 4" class="h-4 w-4" />
+            <Sparkles v-else-if="isFinalStep" class="h-4 w-4" />
+            {{ isFinalStep ? progressLabel : creatorCopy.continue }}
+            <ArrowRight v-if="!isFinalStep" class="h-4 w-4" />
           </button>
         </footer>
       </form>
@@ -1141,7 +1278,7 @@ onBeforeUnmount(() => {
 .creator-header h1,
 .success-card h1 {
   margin-top: 0.8rem;
-  font-family: Georgia, serif;
+  font-family: "Hanuman", Georgia, serif;
   font-size: clamp(2.4rem, 7vw, 4.8rem) !important;
   font-weight: 500 !important;
   line-height: 1;
@@ -1276,7 +1413,7 @@ onBeforeUnmount(() => {
   background: rgb(255 241 242 / 0.45);
   padding: 1rem;
 }
-:global(html.dark) .invitation-fields {
+:global(html.dark .invitation-fields) {
   border-color: rgb(251 113 133 / 0.2);
   background: rgb(251 113 133 / 0.05);
 }
@@ -1366,11 +1503,7 @@ onBeforeUnmount(() => {
   font-size: 0.62rem;
   font-weight: 800;
 }
-.birthday-section-nav { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.25rem 0; }
-.birthday-section-nav button { min-height: 2.5rem; padding: .5rem .8rem; border: 1px solid #e0e3e9; border-radius: .7rem; background: white; color: #475467; font-size: .78rem; }
-.birthday-section-nav button[aria-current] { border-color: #dc4f76; color: #ad2750; }
-.birthday-section-nav button:disabled { opacity: .5; cursor: not-allowed; }
-.birthday-section-nav button:focus-visible, .photo-move-actions button:focus-visible { outline: 3px solid #dc4f76; outline-offset: 3px; }
+.photo-move-actions button:focus-visible { outline: 3px solid #dc4f76; outline-offset: 3px; }
 .birthday-section-heading { margin-bottom: 1rem; font-weight: 700; font-size: 1.1rem; }
 [id^="birthday-"] { scroll-margin-top: 2rem; }
 .selected-photos.story-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
@@ -1384,7 +1517,7 @@ onBeforeUnmount(() => {
 .photo-move-actions { display: flex; justify-content: flex-end; gap: .4rem; }
 .photo-move-actions button { display: grid; place-items: center; min-width: 2.5rem; min-height: 2.5rem; border: 1px solid #e0e3e9; border-radius: .6rem; color: #475467; background: #f9fafb; }
 .photo-move-actions button:disabled { opacity: .4; cursor: not-allowed; }
-:global(html.dark) .birthday-section-nav button, :global(html.dark) .story-photos figure, :global(html.dark) .photo-move-actions button { background: #111318; color: #e8e9ed; border-color: #4b4450; }
+:global(html.dark .story-photos figure), :global(html.dark .photo-move-actions button) { background: #111318; color: #e8e9ed; border-color: #4b4450; }
 @media (max-width: 479px) { .selected-photos.story-photos { grid-template-columns: 1fr; } }
 .theme-grid {
   display: grid;
@@ -1732,4 +1865,60 @@ button:disabled {
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
+
+/* Keep birthday editing in one viewport; dense content scrolls inside its current task only. */
+.birthday-wizard { height: calc(100dvh - 7rem); min-height: 0; display: flex; flex-direction: column; }
+.birthday-wizard .language-toolbar { flex: none; }
+.birthday-wizard .creator-header { margin: .35rem 0 .7rem; text-align: left; flex: none; }
+.birthday-wizard .creator-header .creator-eyebrow, .birthday-wizard .creator-header > p:last-child { display: none; }
+.birthday-wizard .creator-header h1 { font-size: clamp(1.3rem, 3vw, 1.75rem) !important; margin: 0; line-height: 1.4; }
+.birthday-wizard-nav { display: flex; gap: .8rem; align-items: center; justify-content: space-between; margin-bottom: .8rem; flex: none; }
+.birthday-wizard-nav p { font-size: .78rem; color: #667085; flex-shrink: 0; }
+.birthday-stage-select { width: 75%; min-width: 0; }
+.birthday-wizard .creator-card { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0; padding: 1.25rem; overflow: hidden; }
+.birthday-wizard .wizard-panel { min-height: 0; flex: 1; overflow: auto; overscroll-behavior: contain; padding: .15rem .35rem .5rem .1rem; scrollbar-gutter: stable; }
+.birthday-wizard .wizard-panel:focus { outline: none; }
+.birthday-wizard .creator-card h2 { font-size: 1.35rem; line-height: 1.5; }
+.birthday-wizard .form-actions { flex: none; margin-top: .8rem; padding-top: .8rem; }
+.birthday-stage-content { margin-top: 1.1rem; }
+.birthday-wizard .occasion-switcher summary { color: #9d2455; cursor: pointer; font-size: .82rem; font-weight: 600; }
+.birthday-wizard .drop-zone { margin-top: .8rem; padding: .9rem; min-height: 6rem; gap: .3rem; }
+.birthday-wizard .drop-zone svg { width: 1.4rem; height: 1.4rem; }
+.selected-photos.compact-birthday-photos { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .5rem; }
+.compact-birthday-photos figure { min-width: 0; }
+.compact-birthday-photos img { height: 5rem; aspect-ratio: auto; }
+.photo-select-button { display: block; width: 100%; border: 3px solid transparent; border-radius: .75rem; overflow: hidden; }
+.photo-select-button[aria-pressed=true] { border-color: #be185d; }
+.compact-birthday-photos .remove-photo-button { height: 1.5rem; width: 1.5rem; right: .15rem; top: .15rem; }
+.compact-birthday-photos figcaption { pointer-events: none; top: auto; bottom: .3rem; }
+.active-memory-editor { margin-top: .8rem; border: 1px solid #e0e3e9; border-radius: .9rem; padding: .7rem; }
+.active-memory-editor .memory-fields { padding: .5rem 0 0; gap: .35rem; }
+.active-memory-editor .photo-move-actions { align-items: center; }
+.active-memory-editor .photo-move-actions strong { flex: 1; font-size: .8rem; }
+.birthday-wizard .theme-card { padding: .7rem; }
+.birthday-wizard .theme-card .swatches { margin-bottom: .4rem; }
+.birthday-wizard .experience-preview { max-height: none; height: auto; flex: 1; min-height: 15rem; margin-top: .5rem; border-width: .35rem; box-shadow: none; }
+.birthday-wizard #birthday-preview { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.birthday-wizard #birthday-preview .preview-heading { margin-top: .5rem; }
+.birthday-wizard #birthday-preview .privacy-note { margin-top: .8rem; padding: .7rem; }
+.birthday-unlock-toggle { display: flex; gap: .6rem; align-items: baseline; font-size: .9rem; }
+.birthday-unlock-toggle input { accent-color: #be185d; }
+.birthday-day-month { display: flex; align-items: end; gap: .6rem; margin-top: 1rem; }
+.birthday-day-month div { width: 5.5rem; }
+.birthday-day-month label { display: block; margin-bottom: .35rem; font-size: .8rem; }
+.birthday-day-month > span { align-self: center; margin-top: 1.4rem; font-size: 1.3rem; }
+.birthday-day-month input { text-align: center; }
+:global(html.dark .birthday-wizard-nav p) { color: #c9becf; }
+:global(html.dark .active-memory-editor) { border-color: #4b4450; }
+:global(html.dark .birthday-wizard .occasion-switcher summary) { color: #ffabc2; }
+@media (max-width: 639px) {
+  .birthday-wizard { height: calc(100dvh - 6rem); }
+  .birthday-wizard .creator-card { padding: .85rem; }
+  .birthday-wizard .creator-header { margin-bottom: .5rem; }
+  .birthday-wizard .creator-header h1 { font-size: 1.25rem !important; }
+  .birthday-wizard-nav { gap: .5rem; margin-bottom: .5rem; }
+  .birthday-stage-select { width: 76%; }
+  .compact-birthday-photos img { height: 3.5rem; }
+}
+
 </style>

@@ -242,6 +242,6 @@ input[type="range"] { width: 100%; min-height: 2rem; accent-color: #fb7185; }
 .audio-apply, .audio-apply:hover:not(:disabled) { background: #be185d; border-color: #f472b6; color: #fff; }
 .audio-error { color: var(--audio-error); font-size: .8rem; }
 .audio-selection { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; border-top: 1px solid var(--audio-border); padding-top: .8rem; }
-:global(html.dark) .birthday-audio-editor { --audio-text: #f8fafc; --audio-muted: #cbd5e1; --audio-border: rgba(255,255,255,.16); --audio-surface: rgba(255,255,255,.035); --audio-field: #151b29; --audio-hover: rgba(255,255,255,.12); --audio-error: #fda4af; }
+:global(html.dark .birthday-audio-editor) { --audio-text: #f8fafc; --audio-muted: #cbd5e1; --audio-border: rgba(255,255,255,.16); --audio-surface: rgba(255,255,255,.035); --audio-field: #151b29; --audio-hover: rgba(255,255,255,.12); --audio-error: #fda4af; }
 @media (max-width: 420px) { .audio-tracks li { align-items: stretch; flex-direction: column; } .audio-track-actions button { flex: 1; } }
 </style>

@@ -2,6 +2,7 @@ import { MOMENT_THEMES } from "../data/moments.ts";
 import { readBirthdayAudioClip } from "./birthday-audio.ts";
 import { createBirthdayStorySettings, readBirthdayStorySettings } from "./birthday-story.ts";
 import type { MomentDraft } from "../types/moment.ts";
+import { parseBirthdayUnlock } from "./birthday-wizard.ts";
 
 export interface ExistingBirthdayPhoto { id: string; existingMediaId: string; url: string; caption: string; date: string }
 
@@ -28,6 +29,15 @@ export function hydrateBirthdayMoment(value: unknown): { draft: Partial<MomentDr
   };
   const text = (type: string, key: string) => typeof block(type)[key] === "string" ? block(type)[key] as string : "";
   const hero = block("HERO");
+  const savedUnlock = moment.birthdayUnlock;
+  let birthdayUnlock: { day: number; month: number } | null = null;
+  if (savedUnlock !== null && savedUnlock !== undefined) {
+    if (typeof savedUnlock !== "object" || Array.isArray(savedUnlock)) throw new Error("Invalid saved birthday unlock");
+    const unlock = savedUnlock as Record<string, unknown>;
+    if (typeof unlock.day !== "number" || typeof unlock.month !== "number") throw new Error("Invalid saved birthday unlock");
+    birthdayUnlock = parseBirthdayUnlock(String(unlock.day), String(unlock.month));
+    if (!birthdayUnlock) throw new Error("Invalid saved birthday unlock");
+  }
   const story = hero.birthdayStory === undefined ? createBirthdayStorySettings() : readBirthdayStorySettings(hero.birthdayStory);
   if (!story) throw new Error("Invalid saved birthday story");
   const audio = hero.birthdayAudio === undefined ? null : readBirthdayAudioClip(hero.birthdayAudio);
@@ -46,6 +56,7 @@ export function hydrateBirthdayMoment(value: unknown): { draft: Partial<MomentDr
       recipientName: moment.recipientName, occasion: "BIRTHDAY", title: moment.title, theme: moment.theme as MomentDraft["theme"],
       message: text("MESSAGE", "message"), secretMessage: text("SECRET", "message"), specialDate: text("COUNTER", "date"),
       publishAt: localDateTime(moment.publishAt), birthdayStory: story, birthdayAudio: audio,
+      birthdayUnlock,
     },
     photos: media.map((photo, index) => ({ id: photo.id as string, existingMediaId: photo.id as string, url: photo.url as string, caption: story.memories[index]?.caption ?? "", date: story.memories[index]?.date ?? "" })),
   };

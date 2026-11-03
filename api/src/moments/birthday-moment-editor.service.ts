@@ -19,6 +19,13 @@ import { basename } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service';
 import { readBirthdayAudioClip } from './birthday-audio';
 import { readBirthdayStorySettings } from './birthday-story';
+import {
+  readBirthdayAccessState,
+  readBirthdayUnlock,
+  resolveBirthdayAccessEdit,
+  stripBirthdayAccess,
+  type BirthdayUnlock,
+} from './birthday-access';
 import { CreateMomentDto } from './dto/create-moment.dto';
 import {
   detectImageMime,
@@ -56,6 +63,7 @@ type EditableMoment = Prisma.MomentGetPayload<{ select: typeof EDIT_SELECT }>;
 type PhotoReference =
   { kind: 'existing'; id: string } | { kind: 'new'; index: number };
 interface EditorInput {
+  birthdayUnlock?: BirthdayUnlock | null;
   dto: CreateMomentDto;
   photos: PhotoReference[];
   blocks: Array<{
@@ -96,6 +104,13 @@ function assertOwned(
   }
 }
 function toEditorView(moment: EditableMoment) {
+  const access = readBirthdayAccessState(moment.blocks);
+  // Hydrating corrupt protection as disabled would let an unrelated form save silently remove the gate.
+  if (access.kind === 'invalid') {
+    throw new ServiceUnavailableException(
+      'Birthday unlock settings are temporarily unavailable.',
+    );
+  }
   return {
     id: moment.id,
     slug: moment.slug,
@@ -106,7 +121,14 @@ function toEditorView(moment: EditableMoment) {
     theme: moment.theme,
     publishAt: moment.publishAt?.toISOString() ?? null,
     expiresAt: moment.expiresAt?.toISOString() ?? null,
-    blocks: moment.blocks,
+    birthdayUnlock:
+      access.kind === 'configured'
+        ? { day: access.access.day, month: access.access.month }
+        : null,
+    blocks: moment.blocks.map((block) => ({
+      ...block,
+      data: stripBirthdayAccess(block.data),
+    })),
     media: moment.media.map(({ id, position }) => ({
       id,
       position,
@@ -240,7 +262,22 @@ export class BirthdayMomentEditorService {
             input.photos,
             normalized,
           );
-          await this.replaceBlocks(tx, momentId, current, input.blocks);
+          const access = resolveBirthdayAccessEdit(
+            current.blocks,
+            input.birthdayUnlock,
+          );
+          const blocks = input.blocks.map((block) =>
+            block.type === MomentBlockType.HERO && access !== undefined
+              ? {
+                  ...block,
+                  data: {
+                    ...block.data,
+                    birthdayAccess: access as unknown as Prisma.InputJsonObject,
+                  },
+                }
+              : block,
+          );
+          await this.replaceBlocks(tx, momentId, current, blocks);
           // Omit identity, status and publishedAt entirely: editing a live card never republishes or changes its link.
           return tx.moment.update({
             where: { id: momentId },
@@ -335,6 +372,9 @@ export class BirthdayMomentEditorService {
       throw new BadRequestException('Birthday Moment text cannot be blank');
     }
     const audio = readBirthdayAudioClip(dto.birthdayAudio);
+    const birthdayUnlock = readBirthdayUnlock(dto.birthdayUnlock);
+    if (dto.birthdayUnlock != null && !birthdayUnlock)
+      throw new BadRequestException('Choose a valid birthday day and month');
     if (dto.birthdayAudio != null && !audio)
       throw new BadRequestException('Choose a valid birthday track and clip');
     const story = readBirthdayStorySettings(dto.birthdayStory);
@@ -410,6 +450,8 @@ export class BirthdayMomentEditorService {
     add(MomentBlockType.SECRET, { message: dto.secretMessage.trim() });
     return {
       dto,
+      birthdayUnlock:
+        dto.birthdayUnlock === null ? null : (birthdayUnlock ?? undefined),
       photos,
       blocks,
       storyEnabled: story?.enabled === true,

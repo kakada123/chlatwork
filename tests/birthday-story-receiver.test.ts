@@ -87,6 +87,21 @@ test("gift and candle interactions gate progress, preserve state on back, and re
   } finally { view.unmount(); }
 });
 
+test("opening the gift advances automatically after its animation and never skips twice", async (context) => {
+  context.mock.timers.enable({ apis: ["setTimeout"] });
+  const view = mount();
+  try {
+    await view.click("open-gift");
+    assert.equal(view.nodes().find(node => node.props["data-scene"])?.props["data-scene"], "gift");
+    context.mock.timers.tick(700);
+    await nextTick(); await nextTick();
+    assert.equal(view.nodes().find(node => node.props["data-scene"])?.props["data-scene"], "cake");
+    context.mock.timers.tick(2000);
+    await nextTick();
+    assert.equal(view.nodes().find(node => node.props["data-scene"])?.props["data-scene"], "cake");
+  } finally { view.unmount(); context.mock.timers.reset(); }
+});
+
 test("memories use saved order, captions and dates, and tolerate image load errors", async () => {
   const view = mount({ settings: { scenes: ["memories", "message"] } });
   try {

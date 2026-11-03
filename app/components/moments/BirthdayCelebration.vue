@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 .birthday-sparkle-shower em { width: .5rem; height: 2.7rem; border: 2px solid currentColor; border-top: 0; border-bottom: 0; border-radius: 50%; animation: birthday-ribbon-drop calc(10s + var(--celebration-index) * .6s) linear infinite; animation-delay: calc(var(--celebration-index) * -2.1s); }
 .birthday-sparkle-shower.is-paused :where(b, em) { animation-play-state: paused; }
 .birthday-sparkle-shower.is-still :where(b, em) { animation: none; opacity: .28; will-change: auto; }
-.birthday-celebrate-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; margin-top: 1rem; padding: .65rem 1.2rem; border: 1px solid var(--moment-accent); border-radius: 999px; background: var(--moment-surface); color: var(--moment-ink); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem; font-weight: 800; box-shadow: 0 .4rem 1rem var(--moment-shadow); }
+.birthday-celebrate-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; margin-top: 1rem; padding: .65rem 1.2rem; border: 1px solid var(--moment-accent); border-radius: 999px; background: var(--moment-surface); color: var(--moment-ink); font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; font-size: .85rem; font-weight: 800; box-shadow: 0 .4rem 1rem var(--moment-shadow); }
 .birthday-celebrate-button:focus-visible { outline: 3px solid var(--moment-accent); outline-offset: 4px; }
 .birthday-celebrate-button:disabled { opacity: .65; cursor: default; }
 .birthday-cheer { min-height: 1.3rem; margin: .6rem 0 0; color: var(--moment-muted); font-size: .8rem; }

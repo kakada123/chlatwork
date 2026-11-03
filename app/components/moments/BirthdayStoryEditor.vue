@@ -4,7 +4,7 @@ import { BIRTHDAY_SCENE_IDS, BIRTHDAY_STORY_THEMES } from "~/lib/birthday-story"
 import type { BirthdayCakeDesign, BirthdaySceneId, BirthdayStorySettings } from "~/lib/birthday-story";
 import { moveBirthdayScene, toggleBirthdayScene } from "~/lib/birthday-story-editor";
 
-const props = withDefaults(defineProps<{ modelValue: BirthdayStorySettings; locale?: "en" | "km"; section?: "mode" | "settings" }>(), { locale: "en", section: "settings" });
+const props = withDefaults(defineProps<{ modelValue: BirthdayStorySettings; locale?: "en" | "km"; section?: "mode" | "theme" | "scenes" | "cake" | "settings" }>(), { locale: "en", section: "settings" });
 const emit = defineEmits<{ "update:modelValue": [value: BirthdayStorySettings] }>();
 const km = computed(() => props.locale === "km");
 const text = (en: string, kh: string) => km.value ? kh : en;
@@ -40,7 +40,7 @@ function setCandles(event: Event) {
     </div>
   </fieldset>
   <div v-else-if="modelValue.enabled" class="birthday-editor settings-editor">
-    <section id="birthday-theme" aria-labelledby="birthday-theme-title">
+    <section v-if="section === 'settings' || section === 'theme'" id="birthday-theme" aria-labelledby="birthday-theme-title">
       <h3 id="birthday-theme-title">{{ text('Birthday theme', 'រចនាប័ទ្មថ្ងៃកំណើត') }}</h3>
       <fieldset>
         <legend class="sr-only">{{ text('Birthday theme', 'រចនាប័ទ្មថ្ងៃកំណើត') }}</legend>
@@ -54,7 +54,9 @@ function setCandles(event: Event) {
       <label for="birthday-teaser" class="input-label">{{ text('Gift teaser (optional)', 'សារខ្លីលើអំណោយ (ជាជម្រើស)') }}</label>
       <textarea id="birthday-teaser" :value="modelValue.teaser" maxlength="160" rows="2" @input="update({ teaser: ($event.target as HTMLTextAreaElement).value })" />
       <p class="help">{{ modelValue.teaser.length }} / 160</p>
-      <h4>{{ text('Story scenes', 'ឈុតរឿងរ៉ាវ') }}</h4>
+    </section>
+    <section v-if="section === 'settings' || section === 'scenes'" id="birthday-scenes" aria-labelledby="birthday-scenes-title">
+      <h3 id="birthday-scenes-title">{{ text('Story scenes', 'ឈុតរឿងរ៉ាវ') }}</h3>
       <p class="help">{{ text('Choose at least one scene. The gift opens first and the celebration stays last. Empty photo and secret scenes are skipped.', 'ជ្រើសរើសយ៉ាងហោចណាស់មួយឈុត។ អំណោយនៅដើម ហើយការអបអរនៅចុងក្រោយ។ ឈុតរូបថត ឬសារសម្ងាត់ដែលទទេនឹងត្រូវរំលង។') }}</p>
       <ol class="scene-list">
         <li v-for="scene in orderedScenes" :key="scene">
@@ -69,7 +71,7 @@ function setCandles(event: Event) {
       <label class="option"><input type="checkbox" :checked="modelValue.allowReactions" @change="update({ allowReactions: ($event.target as HTMLInputElement).checked })" />{{ text('Show reactions on the recipient’s device', 'បង្ហាញប្រតិកម្មនៅលើឧបករណ៍អ្នកទទួល') }}</label>
       <p class="help">{{ text('Reactions are local feedback and are not sent to you or saved.', 'ប្រតិកម្មបង្ហាញតែក្នុងឧបករណ៍នេះ មិនផ្ញើមកអ្នក ឬរក្សាទុកទេ។') }}</p>
     </section>
-    <section id="birthday-cake" aria-labelledby="birthday-cake-title">
+    <section v-if="section === 'settings' || section === 'cake'" id="birthday-cake" aria-labelledby="birthday-cake-title">
       <h3 id="birthday-cake-title">{{ text('Birthday cake', 'នំខួបកំណើត') }}</h3>
       <fieldset class="cake-designs">
         <legend>{{ text('Cake design', 'រចនាប័ទ្មនំ') }}</legend>
@@ -83,38 +85,35 @@ function setCandles(event: Event) {
 </template>
 
 <style scoped>
-.birthday-editor { color: inherit; min-width: 0; }
+.birthday-editor { --birthday-border: #d9dce5; --birthday-selected-bg: #fff0f5; --birthday-selected-ink: #831843; --birthday-selected-border: #e05287; --birthday-muted: #667085; --birthday-field-bg: #fff; color: inherit; min-width: 0; }
 .birthday-editor legend, h3, h4 { font-weight: 700; }
 .mode-editor { margin-top: 1.75rem; }
 .mode-grid, .theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: .75rem; }
-.mode-grid > label, .theme-grid > label { display: flex; align-items: flex-start; gap: .65rem; padding: 1rem; border: 1px solid #d9dce5; border-radius: 1rem; cursor: pointer; }
-.mode-grid > label.selected, .theme-grid > label.selected { border-color: #e05287; background: #fff0f5; }
+.mode-grid > label, .theme-grid > label { display: flex; align-items: flex-start; gap: .65rem; padding: 1rem; border: 1px solid var(--birthday-border); border-radius: 1rem; cursor: pointer; }
+.mode-grid > label.selected, .theme-grid > label.selected { border-color: var(--birthday-selected-border); background: var(--birthday-selected-bg); color: var(--birthday-selected-ink); }
 input[type=radio], input[type=checkbox] { accent-color: #be185d; flex-shrink: 0; margin-top: .25rem; }
-small { display: block; margin-top: .35rem; font-size: .78rem; line-height: 1.6; color: #667085; }
+small { display: block; margin-top: .35rem; font-size: .78rem; line-height: 1.6; color: var(--birthday-muted); }
 .settings-editor { display: grid; gap: 2rem; }
 section { scroll-margin-top: 2rem; }
 h3 { font-size: 1.1rem; margin-bottom: 1rem; }
 h4 { margin-top: 1.25rem; }
 .input-label { display: block; margin-top: 1.1rem; margin-bottom: .5rem; font-weight: 600; font-size: .88rem; }
-textarea, input[type=number] { width: 100%; border: 1px solid #d9dce5; border-radius: .8rem; padding: .75rem; background: #fff; color: inherit; }
+textarea, input[type=number] { width: 100%; border: 1px solid var(--birthday-border); border-radius: .8rem; padding: .75rem; background: var(--birthday-field-bg); color: inherit; }
 input[type=number] { max-width: 8rem; }
 textarea { resize: vertical; }
 .swatches { display: flex; gap: .3rem; margin-bottom: .45rem; }
 .swatches i { width: 1.25rem; height: 1.25rem; border: 1px solid #8885; border-radius: 50%; }
-.help { color: #667085; font-size: .78rem; line-height: 1.7; margin-top: .5rem; }
+.help { color: var(--birthday-muted); font-size: .78rem; line-height: 1.7; margin-top: .5rem; }
 .scene-list { display: grid; gap: .5rem; margin-top: .75rem; }
-.scene-list li { display: flex; justify-content: space-between; align-items: center; min-height: 2.8rem; gap: .5rem; border: 1px solid #d9dce5; border-radius: .7rem; padding: .4rem .65rem; }
+.scene-list li { display: flex; justify-content: space-between; align-items: center; min-height: 2.8rem; gap: .5rem; border: 1px solid var(--birthday-border); border-radius: .7rem; padding: .4rem .65rem; }
 .scene-list label, .option, .cake-designs label { display: flex; align-items: baseline; gap: .6rem; font-size: .85rem; }
 .move-actions { display: flex; gap: .35rem; }
-button { border: 1px solid #d9dce5; border-radius: .5rem; min-height: 2.25rem; min-width: 2.25rem; font-weight: 700; }
+button { border: 1px solid var(--birthday-border); border-radius: .5rem; min-height: 2.25rem; min-width: 2.25rem; font-weight: 700; }
 button:disabled { opacity: .35; cursor: not-allowed; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #be185d; outline-offset: 3px; }
 .option { margin-top: 1rem; }
 .cake-designs { display: flex; gap: 1rem; flex-wrap: wrap; }
 .cake-designs legend { margin-bottom: .75rem; font-size: .88rem; }
-:global(.dark) .mode-grid > label.selected, :global(.dark) .theme-grid > label.selected { background: #422434; }
-:global(.dark) .mode-grid > label, :global(.dark) .theme-grid > label, :global(.dark) .scene-list li, :global(.dark) button { border-color: #4b4450; }
-:global(.dark) textarea, :global(.dark) input[type=number] { background: #211e29; border-color: #4b4450; }
-:global(.dark) .help, :global(.dark) small { color: #b9afc0; }
+:global(html.dark .birthday-editor) { --birthday-border: #4b4450; --birthday-selected-bg: #422434; --birthday-selected-ink: #ffe4ef; --birthday-selected-border: #f08baa; --birthday-muted: #c9becf; --birthday-field-bg: #211e29; }
 @media (max-width: 480px) { .mode-grid { grid-template-columns: 1fr; } .theme-grid > label { padding: .7rem; font-size: .8rem; } }
 </style>

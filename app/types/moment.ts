@@ -141,7 +141,15 @@ export interface LockedMoment {
   unlockAt: string;
 }
 
-export type PublicMoment = ReadyMoment | LockedMoment;
+export interface BirthdayLockedMoment {
+  status: "birthday-locked";
+  slug: string;
+  recipientName: string;
+  theme: MomentTheme;
+  birthdayAudio?: import("../lib/birthday-audio").BirthdayAudioClip | null;
+}
+
+export type PublicMoment = ReadyMoment | LockedMoment | BirthdayLockedMoment;
 
 export interface InvitationGuestIdentity {
   token: string;
@@ -170,6 +178,7 @@ export interface InvitationGuest {
 }
 
 export interface MomentDraft {
+  birthdayUnlock?: { day: number; month: number } | null;
   birthdayStory?: import("../lib/birthday-story").BirthdayStorySettings | null;
   birthdayAudio?: import("../lib/birthday-audio").BirthdayAudioClip | null;
   recipientName: string;

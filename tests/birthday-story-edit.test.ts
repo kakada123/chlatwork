@@ -46,3 +46,11 @@ test("atomic edit form aligns mixed existing/new order and counts only new uploa
   assert.throws(() => buildBirthdayEditForm({}, [{ file: new File([new Uint8Array(4_000_000)], "large.webp") }]), { message: BIRTHDAY_EDIT_TOO_LARGE });
   assert.throws(() => buildBirthdayEditForm({}, [{}]));
 });
+
+test("owner hydration keeps birthday unlock separate from public story metadata", () => {
+  const saved = hydrateBirthdayMoment({ ...owned, birthdayUnlock: { day: 29, month: 2 } });
+  assert.deepEqual(saved.draft.birthdayUnlock, { day: 29, month: 2 });
+  assert.equal("birthdayUnlock" in saved.draft.birthdayStory!, false);
+  assert.equal(hydrateBirthdayMoment({ ...owned, birthdayUnlock: null }).draft.birthdayUnlock, null);
+  assert.throws(() => hydrateBirthdayMoment({ ...owned, birthdayUnlock: { day: 31, month: 4 } }));
+});

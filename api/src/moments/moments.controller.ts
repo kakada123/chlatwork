@@ -32,6 +32,8 @@ import { RespondMomentRsvpDto } from './dto/respond-moment-rsvp.dto';
 import { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 import { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 import { GenerateBirthdayWishDto } from './dto/generate-birthday-wish.dto';
+import { BirthdayUnlockDto } from './dto/birthday-unlock.dto';
+import { birthdayUnlockAttemptTracker } from './birthday-access';
 import { BirthdayWishService } from './birthday-wish.service';
 import { BirthdayWishRateLimitGuard } from './birthday-wish-rate-limit.guard';
 import { BirthdayAudioService } from './birthday-audio.service';
@@ -260,10 +262,15 @@ export class MomentsController {
     @Param('mediaId', new ParseUUIDPipe({ version: '4' })) mediaId: string,
     @Query('format') format: string | undefined,
     @Res({ passthrough: true }) response: Response,
+    @Headers('x-moment-birthday-access') birthdayAccessToken?: string,
   ) {
-    const media = await this.moments.getPublicMedia(slug, mediaId, format === 'jpeg');
+    const media = await this.moments.getPublicMedia(
+      slug, mediaId, format === 'jpeg', birthdayAccessToken,
+    );
     response.setHeader('Content-Type', media.mimeType);
-    response.setHeader('Cache-Control', 'private, max-age=86400');
+    response.setHeader('Cache-Control', media.birthdayProtected || birthdayAccessToken !== undefined
+      ? 'private, no-store'
+      : 'private, max-age=86400');
     response.setHeader('X-Content-Type-Options', 'nosniff');
     return new StreamableFile(media.content);
   }
@@ -275,8 +282,19 @@ export class MomentsController {
   }
 
   @Get(':slug')
-  getPublic(@Param('slug') slug: string) {
-    return this.moments.getPublic(slug);
+  @Header('Cache-Control', 'no-store')
+  getPublic(
+    @Param('slug') slug: string,
+    @Headers('x-moment-birthday-access') birthdayAccessToken?: string,
+  ) {
+    return this.moments.getPublic(slug, birthdayAccessToken);
+  }
+
+  @Post(':slug/unlock')
+  @Throttle({ default: { limit: 10, ttl: 900_000, blockDuration: 900_000, getTracker: birthdayUnlockAttemptTracker } })
+  @Header('Cache-Control', 'no-store')
+  unlockBirthday(@Param('slug') slug: string, @Body() dto: BirthdayUnlockDto) {
+    return this.moments.unlockBirthday(slug, dto);
   }
 
   @Post(':slug/rsvp')

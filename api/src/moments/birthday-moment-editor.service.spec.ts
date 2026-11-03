@@ -2,6 +2,7 @@ import {
   BadRequestException,
   NotFoundException,
   PayloadTooLargeException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import {
   GUARDS_METADATA,
@@ -159,6 +160,7 @@ describe('birthday owner editor reads', () => {
       theme: 'ROMANTIC',
       publishAt: null,
       expiresAt: '2099-12-31T00:00:00.000Z',
+      birthdayUnlock: null,
       blocks: f.moment.blocks,
       media: [
         {
@@ -508,5 +510,114 @@ describe('birthday editor route protection', () => {
     expect(
       Reflect.getMetadata(`${THROTTLER_SKIP}default`, handler),
     ).toBeUndefined();
+  });
+});
+
+describe('birthday editor private date configuration', () => {
+  const privateAccess = { day: 3, month: 11, secret: 'a'.repeat(64) };
+  const blocks = () =>
+    savedMoment().blocks.map((block) =>
+      block.type === 'HERO'
+        ? { ...block, data: { title: 'Before', birthdayAccess: privateAccess } }
+        : block,
+    );
+  it('returns only the owner date and sanitizes the private key from every block', async () => {
+    const f = fixture({ blocks: blocks() });
+    const view = await f.service.get(USER, ID);
+    expect(view.birthdayUnlock).toEqual({ day: 3, month: 11 });
+    expect(JSON.stringify(view.blocks)).not.toContain('birthdayAccess');
+    expect(JSON.stringify(view)).not.toContain(privateAccess.secret);
+  });
+  it.each([undefined, { day: 3, month: 11 }])(
+    'preserves the key when an edit leaves the date unchanged: %o',
+    async (birthdayUnlock) => {
+      const f = fixture({ blocks: blocks() });
+      await f.service.update(
+        USER,
+        ID,
+        payload({ ...draft, birthdayUnlock }),
+        [],
+      );
+      expect(f.tx.momentBlock.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'block-HERO' },
+          data: expect.objectContaining({
+            data: expect.objectContaining({ birthdayAccess: privateAccess }),
+          }),
+        }),
+      );
+    },
+  );
+  it('rotates the key for a different date and removes it only for explicit null', async () => {
+    const f = fixture({ blocks: blocks() });
+    await f.service.update(
+      USER,
+      ID,
+      payload({ ...draft, birthdayUnlock: { day: 29, month: 2 } }),
+      [],
+    );
+    const heroUpdate = f.tx.momentBlock.update.mock.calls.find(
+      ([arg]) => arg.where.id === 'block-HERO' && arg.data.data,
+    )?.[0];
+    expect(heroUpdate.data.data.birthdayAccess).toEqual(
+      expect.objectContaining({ day: 29, month: 2 }),
+    );
+    expect(heroUpdate.data.data.birthdayAccess.secret).not.toBe(
+      privateAccess.secret,
+    );
+    const removed = fixture({ blocks: blocks() });
+    await removed.service.update(
+      USER,
+      ID,
+      payload({ ...draft, birthdayUnlock: null }),
+      [],
+    );
+    const cleared = removed.tx.momentBlock.update.mock.calls.find(
+      ([arg]) => arg.where.id === 'block-HERO' && arg.data.data,
+    )?.[0];
+    expect(cleared.data.data).not.toHaveProperty('birthdayAccess');
+  });
+  it('rejects invalid dates and client-supplied private keys without writes', async () => {
+    for (const value of [
+      { day: 31, month: 4 },
+      { day: 3, month: 11, secret: 'client-controlled' },
+    ]) {
+      const f = fixture({ blocks: blocks() });
+      await expect(
+        f.service.update(
+          USER,
+          ID,
+          payload({ ...draft, birthdayUnlock: value }),
+          [],
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(f.prisma.$transaction).not.toHaveBeenCalled();
+    }
+  });
+  it('keeps corrupt private settings fail-closed when the date is omitted', async () => {
+    const broken = blocks().map((block) =>
+      block.type === 'HERO'
+        ? { ...block, data: { birthdayAccess: null } }
+        : block,
+    );
+    const f = fixture({ blocks: broken });
+    await f.service.update(USER, ID, payload(draft), []);
+    const heroUpdate = f.tx.momentBlock.update.mock.calls.find(
+      ([arg]) => arg.where.id === 'block-HERO' && arg.data.data,
+    )?.[0];
+    expect(heroUpdate.data.data.birthdayAccess).toEqual({ invalid: true });
+  });
+  it('does not hydrate corrupt private settings as a disabled owner date', async () => {
+    const broken = blocks().map((block) =>
+      block.type === 'HERO'
+        ? { ...block, data: { birthdayAccess: null } }
+        : block,
+    );
+    const f = fixture({ blocks: broken });
+    await expect(f.service.get(USER, ID)).rejects.toEqual(
+      new ServiceUnavailableException(
+        'Birthday unlock settings are temporarily unavailable.',
+      ),
+    );
   });
 });

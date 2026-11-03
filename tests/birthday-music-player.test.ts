@@ -52,15 +52,15 @@ test("receiver attempts autoplay once with the saved looping clip and defaults v
 });
 test("blocked autoplay exposes the control and gift interaction retries synchronously", async()=>{
   const view=mount({blocked:true});
-  try {await nextTick();assert.equal(view.harness.plays.length,1);assert.ok(view.button("Play music"));assert.match(view.root.textContent,/Tap play/);view.harness.blocked=false;view.instance.requestPlay();assert.equal(view.harness.plays.length,2);await nextTick();assert.ok(view.button("Pause music"));} finally {view.unmount();}
+  try {await nextTick();assert.equal(view.harness.plays.length,1);assert.ok(view.button("Turn music on"));view.harness.blocked=false;view.documentRoot.dispatchEvent(new Event("pointerup"));assert.equal(view.harness.plays.length,2);await nextTick();assert.ok(view.button("Turn music off"));view.documentRoot.dispatchEvent(new Event("pointerup"));assert.equal(view.harness.plays.length,2);} finally {view.unmount();}
 });
-test("delayed catalog autoplay is attempted when metadata arrives and preview stays silent",async()=>{
+test("saved music starts immediately without waiting for catalog metadata and preview stays silent",async()=>{
   const view=mount({ready:false});
-  try {assert.equal(view.harness.plays.length,0);await view.ready();assert.equal(view.harness.plays.length,1);} finally {view.unmount();}
+  try {assert.equal(view.harness.plays.length,1);assert.equal(view.harness.plays[0].src,"/api/moments/birthday-audio/hbd-001");await view.ready();assert.equal(view.harness.plays.length,1);} finally {view.unmount();}
   const preview=mount({autoPlay:false,ready:false});
   try {await preview.ready();assert.equal(preview.harness.plays.length,0);preview.instance.requestPlay();assert.equal(preview.harness.plays.length,1);} finally {preview.unmount();}
 });
-test("mute and manual pause persist across scene interactions, and hiding pauses playback",async()=>{
+test("one on/off button controls sound, manual off survives interactions, and hiding pauses playback",async()=>{
   const view=mount();
-  try {await nextTick();view.button("Mute music").props.onClick();await nextTick();assert.equal(view.harness.audio.muted,true);view.button("Unmute music").props.onClick();assert.equal(view.harness.audio.muted,false);view.button("Pause music").props.onClick();view.instance.requestPlay();assert.equal(view.harness.plays.length,1);await nextTick();view.button("Play music").props.onClick();assert.equal(view.harness.plays.length,2);view.documentRoot.hidden=true;view.documentRoot.dispatchEvent(new Event("visibilitychange"));assert.ok(view.harness.pauses>0);} finally {view.unmount();}
+  try {await nextTick();view.button("Turn music off").props.onClick();view.instance.requestPlay();assert.equal(view.harness.plays.length,1);view.documentRoot.dispatchEvent(new Event("pointerup"));assert.equal(view.harness.plays.length,1);await nextTick();view.button("Turn music on").props.onClick();assert.equal(view.harness.plays.length,2);view.documentRoot.hidden=true;view.documentRoot.dispatchEvent(new Event("visibilitychange"));assert.ok(view.harness.pauses>0);} finally {view.unmount();}
 });

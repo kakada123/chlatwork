@@ -18,6 +18,7 @@ import {
 import { Type } from 'class-transformer';
 import { BIRTHDAY_AUDIO_TRACKS } from '../birthday-audio';
 import type { BirthdayStorySettings } from '../birthday-story';
+import { BirthdayUnlockDto } from './birthday-unlock.dto';
 
 export class BirthdayAudioDto {
   @IsIn(BIRTHDAY_AUDIO_TRACKS.map((track) => track.id))
@@ -56,6 +57,12 @@ const THEMES = [
 ] as const;
 
 export class CreateMomentDto {
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => BirthdayUnlockDto)
+  birthdayUnlock?: BirthdayUnlockDto | null;
+
   @IsOptional()
   @IsObject()
   birthdayStory?: BirthdayStorySettings;

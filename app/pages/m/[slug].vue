@@ -2,6 +2,10 @@
 import { Gift, Heart } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
+import BirthdayUnlockGate from "~/components/moments/BirthdayUnlockGate.vue";
+import BirthdayMusicPlayer from "~/components/moments/BirthdayMusicPlayer.vue";
+import { readBirthdayAudioClip } from "~/lib/birthday-audio";
+import { birthdayStoryThemeStyle, readBirthdayStorySettings } from "~/lib/birthday-story";
 import type { PublicMoment } from "~/types/moment";
 
 definePageMeta({ layout: false });
@@ -19,6 +23,38 @@ const {
 });
 
 const now = ref(Date.now());
+const unlockingBirthday = ref(false);
+const birthdayError = ref("");
+const musicPlayer = ref<{ requestPlay: () => void } | null>(null);
+const birthdayAudio = computed(() => {
+  if (moment.value?.status === "birthday-locked") return readBirthdayAudioClip(moment.value.birthdayAudio);
+  if (moment.value?.status !== "ready" || moment.value.occasion !== "BIRTHDAY") return null;
+  return readBirthdayAudioClip(moment.value.blocks.find(block => block.type === "HERO")?.data.birthdayAudio);
+});
+const birthdayStyle = computed(() => {
+  const hero = moment.value?.status === "ready" ? moment.value.blocks.find(block => block.type === "HERO") : undefined;
+  const story = readBirthdayStorySettings(hero?.data.birthdayStory);
+  return birthdayStoryThemeStyle(story?.theme ?? "ROMANTIC_PINK");
+});
+async function unlockBirthday(birthday: { day: number; month: number }) {
+  if (unlockingBirthday.value) return;
+  // Start the public library track inside this tap, before the request awaits the server.
+  musicPlayer.value?.requestPlay();
+  birthdayError.value = "";
+  unlockingBirthday.value = true;
+  try {
+    await $fetch(`/api/moments/${encodeURIComponent(slug.value)}/unlock`, { method: "POST", body: birthday });
+    await refresh();
+    if (moment.value?.status !== "ready") throw new Error("Birthday remains locked");
+  } catch (failure) {
+    const status = (failure as { statusCode?: number; response?: { status?: number } })?.statusCode ?? (failure as { response?: { status?: number } })?.response?.status;
+    birthdayError.value = status === 403
+      ? (locale.value === "km" ? "ថ្ងៃខែនេះមិនទាន់ត្រូវទេ។ សូមព្យាយាមម្ដងទៀត។" : "That birthday doesn’t match. Try again.")
+      : status === 429
+        ? (locale.value === "km" ? "សូមរង់ចាំបន្តិច រួចព្យាយាមម្ដងទៀត។" : "Please wait a moment before trying again.")
+        : (locale.value === "km" ? "មិនអាចបើកបានទេ។ សូមព្យាយាមម្ដងទៀត។" : "We couldn’t open this birthday. Please try again.");
+  } finally { unlockingBirthday.value = false; }
+}
 let timer: ReturnType<typeof setInterval> | null = null;
 const remaining = computed(() => {
   if (moment.value?.status !== "locked") return 0;
@@ -70,11 +106,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="moment?.status === 'ready'" class="public-moment-shell">
+  <div :style="birthdayStyle">
+  <BirthdayMusicPlayer v-if="birthdayAudio" :key="slug" ref="musicPlayer" :clip="birthdayAudio" :locale="locale" :style="{ position: 'fixed', top: '1rem', left: '1rem', margin: '0', zIndex: 50 }" />
+  <div v-if="moment?.status === 'birthday-locked'" class="public-language-toggle"><MomentLanguageToggle /></div>
+  <BirthdayUnlockGate v-if="moment?.status === 'birthday-locked'" :recipient-name="moment.recipientName" :locale="locale" :submitting="unlockingBirthday" :error="birthdayError" @unlock="unlockBirthday" />
+  <div v-else-if="moment?.status === 'ready'" class="public-moment-shell">
     <div class="public-language-toggle">
       <MomentLanguageToggle :dark="moment.theme === 'ELEGANT'" />
     </div>
-    <MomentExperience :moment="moment" :locale="locale" />
+    <MomentExperience :moment="moment" :locale="locale" external-music />
   </div>
 
   <main
@@ -124,6 +164,7 @@ onBeforeUnmount(() => {
       >
     </div>
   </main>
+  </div>
 </template>
 
 <style scoped>
@@ -188,7 +229,7 @@ onBeforeUnmount(() => {
 }
 h1 {
   margin-top: 1rem;
-  font-family: Georgia, serif;
+  font-family: "Hanuman", Georgia, serif;
   font-size: clamp(2.3rem, 8vw, 4.5rem) !important;
   font-weight: 500 !important;
   line-height: 1;
@@ -212,7 +253,7 @@ h1 {
 }
 .countdown strong {
   display: block;
-  font-family: Georgia, serif;
+  font-family: "Hanuman", Georgia, serif;
   font-size: clamp(1.4rem, 5vw, 2.4rem);
 }
 .countdown span {

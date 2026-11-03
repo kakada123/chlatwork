@@ -1,77 +1,63 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LoaderCircle, Music2, Pause, Play, Volume2, VolumeX } from "lucide-vue-next";
-import {
-  formatBirthdayAudioTime,
-  getBirthdayAudioTrack,
-  readBirthdayAudioClip,
-  type BirthdayAudioClip,
-} from "~/lib/birthday-audio";
-import { useBirthdayAudioCatalog } from "~/composables/useBirthdayAudioCatalog";
+import { LoaderCircle, Volume2, VolumeX } from "lucide-vue-next";
+import { readBirthdayAudioClip, type BirthdayAudioClip } from "~/lib/birthday-audio";
 import { createBirthdayAudioPlayer, type BirthdayAudioState } from "~/lib/birthday-audio-player";
 
 const props = withDefaults(defineProps<{ clip: BirthdayAudioClip; locale?: "en" | "km"; autoPlay?: boolean }>(), { locale: "en", autoPlay: true });
 const audio = ref<HTMLAudioElement | null>(null);
 const state = ref<BirthdayAudioState>("paused");
-const volume = ref(40);
-const muted = ref(false);
-const { tracks, loading: catalogLoading, error: catalogError, refresh: reloadCatalog } = useBirthdayAudioCatalog();
 const selection = computed(() => readBirthdayAudioClip(props.clip));
-const playableSelection = computed(() => readBirthdayAudioClip(props.clip, tracks.value));
-const track = computed(() => getBirthdayAudioTrack(selection.value?.trackId, tracks.value));
+// The saved clip was validated by the API. Its allowlisted route needs no extra catalog request.
+const source = computed(() => selection.value ? `/api/moments/birthday-audio/${selection.value.trackId}` : "");
+const fragmentSource = computed(() => selection.value ? `${source.value}#t=${selection.value.startMs / 1000},${selection.value.endMs / 1000}` : "");
 const busy = computed(() => state.value === "playing" || state.value === "loading");
-const labels = computed(() => props.locale === "km" ? {
-  music: "តន្ត្រីថ្ងៃកំណើត", play: "ចាក់តន្ត្រី", pause: "ផ្អាកតន្ត្រី", loading: "កំពុងផ្ទុកតន្ត្រី…",
-  volume: "កម្រិតសំឡេង", error: "មិនអាចចាក់តន្ត្រីបានទេ។ សូមចុចចាក់ម្តងទៀត។", loop: "ចាក់ផ្នែកដែលបានជ្រើសរើសម្តងហើយម្តងទៀត",
-  catalogError: "មិនអាចផ្ទុកតន្ត្រីនេះបានទេ។", retry: "ព្យាយាមម្តងទៀត",
-  mute: "បិទសំឡេងតន្ត្រី", unmute: "បើកសំឡេងតន្ត្រី",
-} : {
-  music: "Birthday music", play: "Play music", pause: "Pause music", loading: "Loading music…",
-  volume: "Volume", error: "Music could not play. Tap play to try again.", loop: "Your selected clip, on repeat",
-  catalogError: "This music could not load.", retry: "Try again",
-  mute: "Mute music", unmute: "Unmute music",
-});
+const label = computed(() => props.locale === "km" ? (busy.value ? "បិទតន្ត្រី" : "បើកតន្ត្រី") : (busy.value ? "Turn music off" : "Turn music on"));
 let player: ReturnType<typeof createBirthdayAudioPlayer> | undefined;
-let pendingPlay = props.autoPlay;
 let manuallyPaused = false;
 let mounted = false;
+let hasPlayed = false;
+let pendingPlay = props.autoPlay;
+const gestureEvents = ["pointerup", "touchend", "keydown"] as const;
 
+function removeGestureRetry() { gestureEvents.forEach(event => document.removeEventListener(event, retryFromGesture, true)); }
 function requestPlay() {
   if (manuallyPaused || busy.value) return;
-  if (!player || !playableSelection.value || !track.value || catalogLoading.value) {
-    pendingPlay = true;
-    return;
-  }
+  if (!player || !selection.value || !source.value) { pendingPlay = true; return; }
   pendingPlay = false;
-  // Do not await metadata here: play() must begin inside the recipient's gift/candle tap.
-  void player.play(track.value.src, playableSelection.value);
+  void player.play(source.value, selection.value);
+}
+function retryFromGesture(event: Event) {
+  if (!props.autoPlay || hasPlayed || manuallyPaused || document.hidden) return;
+  if ((event.target as Element | null)?.closest?.("[data-music-switch]")) return;
+  if (event.type === "keydown") {
+    const key = event as KeyboardEvent;
+    if (key.repeat || key.ctrlKey || key.metaKey || key.altKey) return;
+  }
+  requestPlay();
 }
 function toggle() {
   if (busy.value) {
     manuallyPaused = true; pendingPlay = false;
+    removeGestureRetry();
     player?.pause();
-    return;
-  }
-  manuallyPaused = false;
-  requestPlay();
+  } else { manuallyPaused = false; requestPlay(); }
 }
-function applyVolume() { if (audio.value) audio.value.volume = volume.value / 100; }
-function toggleMute() { muted.value = !muted.value; if (audio.value) audio.value.muted = muted.value; }
 function pauseWhenHidden() { if (document.hidden) { pendingPlay = false; player?.pause(); } }
-watch(() => [props.clip.trackId, props.clip.startMs, props.clip.endMs], () => {
+watch(() => `${props.clip.trackId}:${props.clip.startMs}:${props.clip.endMs}`, () => {
   player?.pause();
-  manuallyPaused = false;
-  pendingPlay = props.autoPlay;
-});
-watch([playableSelection, track, catalogLoading], () => {
-  // The public catalog can arrive after mount or after the first gift tap.
+  manuallyPaused = false; hasPlayed = false; pendingPlay = props.autoPlay;
   if (mounted && pendingPlay && !document.hidden) requestPlay();
 });
 onMounted(() => {
   mounted = true;
   if (audio.value) {
-    player = createBirthdayAudioPlayer(audio.value, { loop: true, onState: (value) => { state.value = value; } });
-    applyVolume();
+    audio.value.volume = .4;
+    player = createBirthdayAudioPlayer(audio.value, { loop: true, onState: value => {
+      state.value = value;
+      if (value === "playing") { hasPlayed = true; removeGestureRetry(); }
+    } });
+    if (props.autoPlay) gestureEvents.forEach(event => document.addEventListener(event, retryFromGesture, true));
     if (pendingPlay && !document.hidden) requestPlay();
   }
   document.addEventListener("visibilitychange", pauseWhenHidden);
@@ -79,46 +65,29 @@ onMounted(() => {
 defineExpose({ requestPlay });
 onBeforeUnmount(() => {
   mounted = false;
-  player?.destroy();
+  removeGestureRetry();
   document.removeEventListener("visibilitychange", pauseWhenHidden);
+  player?.destroy();
 });
 </script>
 
 <template>
   <div v-if="selection" class="birthday-music">
-    <audio ref="audio" preload="none" aria-hidden="true" />
-    <div class="music-heading"><Music2 :size="17" aria-hidden="true" /><span>{{ labels.music }}</span></div>
-    <div class="music-controls">
-      <button type="button" class="music-toggle" :disabled="!playableSelection || catalogLoading" :aria-label="busy ? labels.pause : labels.play" :aria-pressed="busy" @click="toggle">
-        <LoaderCircle v-if="state === 'loading'" class="loading-icon" :size="18" aria-hidden="true" />
-        <Pause v-else-if="state === 'playing'" :size="18" aria-hidden="true" />
-        <Play v-else :size="18" aria-hidden="true" />
-        {{ state === 'loading' ? labels.loading : state === 'playing' ? labels.pause : labels.play }}
-      </button>
-      <div v-if="track" class="music-track"><strong>{{ track.title }}</strong><small>{{ formatBirthdayAudioTime(selection.startMs) }} – {{ formatBirthdayAudioTime(selection.endMs) }} · {{ labels.loop }}</small></div>
-      <button type="button" class="music-toggle music-mute" :aria-label="muted ? labels.unmute : labels.mute" :aria-pressed="muted" @click="toggleMute"><VolumeX v-if="muted" :size="18" aria-hidden="true" /><Volume2 v-else :size="18" aria-hidden="true" /></button>
-      <label class="music-volume"><Volume2 :size="16" aria-hidden="true" /><span class="sr-only">{{ labels.volume }}</span><input v-model.number="volume" type="range" min="0" max="100" @input="applyVolume" /></label>
-    </div>
-    <p v-if="catalogLoading" class="music-error" role="status">{{ labels.loading }}</p>
-    <p v-else-if="catalogError || !playableSelection" class="music-error" role="status">{{ labels.catalogError }} <button type="button" @click="reloadCatalog()">{{ labels.retry }}</button></p>
-    <p v-if="state === 'error'" class="music-error" role="status">{{ labels.error }}</p>
+    <audio ref="audio" :src="fragmentSource" :autoplay="autoPlay" preload="metadata" playsinline aria-hidden="true" />
+    <button type="button" class="music-switch" data-music-switch :class="{ 'is-on': busy }" :aria-label="label" :title="label" :aria-pressed="busy" @click="toggle">
+      <LoaderCircle v-if="state === 'loading'" class="loading-icon" :size="19" aria-hidden="true" />
+      <Volume2 v-else-if="state === 'playing'" :size="19" aria-hidden="true" />
+      <VolumeX v-else :size="19" aria-hidden="true" />
+      <span class="sr-only">{{ label }}</span>
+    </button>
   </div>
 </template>
 
 <style scoped>
-.birthday-music { position: relative; z-index: 1; width: min(100%, 38rem); margin: 1.5rem auto 0; padding: 1rem; border: 1px solid var(--moment-border); border-radius: 1.25rem; background: var(--moment-surface); color: var(--moment-ink); text-align: left; }
-.music-heading { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; color: var(--moment-muted); font-size: .8rem; font-weight: 700; }
-.music-controls { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
-.music-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .6rem .9rem; border: 1px solid var(--moment-border); border-radius: .85rem; background: var(--moment-accent-soft); color: var(--moment-ink); font: inherit; font-size: .85rem; font-weight: 700; }
-.music-toggle:focus-visible, input:focus-visible { outline: 2px solid var(--moment-accent); outline-offset: 3px; }
-.music-toggle:disabled { opacity: .6; cursor: wait; }
-.music-track { flex: 1 1 10rem; min-width: 0; }
-.music-track strong, .music-track small { display: block; overflow-wrap: anywhere; }
-.music-track strong { font-size: .85rem; }
-.music-track small { margin-top: .2rem; color: var(--moment-muted); font-size: .7rem; }
-.music-volume { display: flex; align-items: center; gap: .35rem; }
-.music-volume input { width: 4.5rem; min-height: 2.75rem; accent-color: var(--moment-accent); }
-.music-error { margin-top: .75rem; font-size: .8rem; color: var(--moment-ink); }
+.birthday-music { position: relative; z-index: 5; display: flex; justify-content: center; margin: 1rem auto; }
+.music-switch { display: inline-flex; align-items: center; justify-content: center; width: 2.9rem; height: 2.9rem; border: 1px solid var(--moment-border); border-radius: 50%; background: var(--moment-surface); color: var(--moment-muted); box-shadow: 0 .35rem 1rem var(--moment-shadow); cursor: pointer; }
+.music-switch.is-on { background: var(--moment-accent-soft); color: var(--moment-ink); }
+.music-switch:focus-visible { outline: 2px solid var(--moment-accent); outline-offset: 4px; }
 .loading-icon { animation: music-spin 1s linear infinite; }
 @keyframes music-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .loading-icon { animation: none; } }

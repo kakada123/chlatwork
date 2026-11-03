@@ -1,22 +1,24 @@
 import { createError } from "h3";
 import { apiBaseUrl } from "../../../../utils/auth";
+import { momentBirthdayAccessHeaders } from "../../../../utils/moment-birthday-access";
 
 export default defineEventHandler(async (event) => {
   // Nitro requires one parameter name here; public GETs interpret the shared key as a slug.
   const momentKey = getRouterParam(event, "id");
   const mediaId = getRouterParam(event, "mediaId");
   const jpeg = getQuery(event).format === "jpeg";
+  const accessHeaders = momentBirthdayAccessHeaders(event, momentKey ?? "");
   try {
     const response = await $fetch.raw<ArrayBuffer>(
       `${apiBaseUrl(event)}/moments/${momentKey}/media/${mediaId}${jpeg ? "?format=jpeg" : ""}`,
-      { responseType: "arrayBuffer" },
+      { responseType: "arrayBuffer", headers: accessHeaders },
     );
     setResponseHeader(
       event,
       "Content-Type",
       response.headers.get("content-type") || "application/octet-stream",
     );
-    setResponseHeader(event, "Cache-Control", "private, max-age=86400");
+    setResponseHeader(event, "Cache-Control", accessHeaders["x-moment-birthday-access"] ? "private, no-store" : "private, max-age=86400");
     setResponseHeader(event, "X-Content-Type-Options", "nosniff");
     return new Uint8Array(response._data);
   } catch (error) {
