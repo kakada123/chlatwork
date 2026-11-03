@@ -17,6 +17,7 @@ test("admin analytics is protected by authentication and the ADMIN role", () => 
 test("admin dashboard reports aggregate and recent tool activity", () => {
   const service = readFileSync("api/src/admin/admin.service.ts", "utf8");
   const page = readFileSync("app/pages/admin/index.vue", "utf8");
+  const dashboard = readFileSync("app/components/admin/ActivityDashboard.vue", "utf8");
   const proxy = readFileSync("server/api/admin/analytics.get.ts", "utf8");
 
   assert.match(service, /totalUsers/);
@@ -25,10 +26,11 @@ test("admin dashboard reports aggregate and recent tool activity", () => {
   assert.match(service, /topUsers/);
   assert.match(service, /recentActivity/);
   assert.match(service, /COUNT\(DISTINCT "userId"\)/);
-  assert.match(page, /Most used tools/);
-  assert.match(page, /Most active users/);
-  assert.match(page, /Recent activity/);
-  assert.match(page, /never tool inputs or generated content/);
+  assert.match(page, /middleware: "admin"/);
+  assert.match(dashboard, /Most used tools/);
+  assert.match(dashboard, /Most active users/);
+  assert.match(dashboard, /Recent activity/);
+  assert.match(dashboard, /never tool inputs or generated content/);
   assert.match(proxy, /requestAuthenticatedApi\(event, `\/admin\/analytics\?range=\$\{range\}`\)/);
 });
 
