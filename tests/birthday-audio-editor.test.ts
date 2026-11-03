@@ -6,6 +6,7 @@ import { createRenderer, createSSRApp, h, nextTick, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import { BIRTHDAY_AUDIO_TRACKS } from "../api/src/moments/birthday-audio.ts";
+const catalog = BIRTHDAY_AUDIO_TRACKS.map(({ id, title, durationMs }) => ({ id, title, durationMs, src: `/api/moments/birthday-audio/${id}` }));
 
 type PlayerState = "loading" | "playing" | "paused" | "error";
 type PlayerHarness = {
@@ -30,6 +31,12 @@ const playerModule = `export function createBirthdayAudioPlayer(audio, options) 
     destroy() { harness.destroys++; }
   };
 }`;
+const catalogModule = `import { ref } from ${JSON.stringify(import.meta.resolve("vue"))};
+export function useBirthdayAudioCatalog() {
+  return globalThis[Symbol.for(${JSON.stringify(harnessKey)})]?.catalog ?? {
+    tracks: ref(${JSON.stringify(catalog)}), loading: ref(false), error: ref(null), refresh: async () => {}
+  };
+}`;
 const filename = "app/components/moments/BirthdayAudioEditor.vue";
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
 const compiled = compileScript(descriptor, { id: "birthday-audio-editor-test", inlineTemplate: true });
@@ -37,7 +44,8 @@ const source = ts.transpileModule(compiled.content, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 }).outputText
   .replace(/from ["']vue["']/g, `from ${JSON.stringify(import.meta.resolve("vue"))}`)
-  .replace(/from ["']~~\/api\/src\/moments\/birthday-audio["']/g, `from ${JSON.stringify(new URL("../api/src/moments/birthday-audio.ts", import.meta.url).href)}`)
+  .replace(/from ["']~\/lib\/birthday-audio["']/g, `from ${JSON.stringify(new URL("../app/lib/birthday-audio.ts", import.meta.url).href)}`)
+  .replace(/from ["']~\/composables\/useBirthdayAudioCatalog["']/g, `from ${JSON.stringify(`data:text/javascript;base64,${Buffer.from(catalogModule).toString("base64")}`)}`)
   .replace(/from ["']~\/lib\/birthday-audio-player["']/g, `from ${JSON.stringify(`data:text/javascript;base64,${Buffer.from(playerModule).toString("base64")}`)}`);
 const Editor = (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`)).default;
 
@@ -69,8 +77,10 @@ const renderer = createRenderer<HostNode, HostNode>({
   nextSibling: (node) => node.parent?.children[node.parent.children.indexOf(node) + 1] ?? null,
 });
 
-function mountEditor() {
+function mountEditor(options: { pending?: boolean; failed?: boolean } = {}) {
   const harness: PlayerHarness = { plays: [], pauses: 0, destroys: 0, fail: false, pending: false };
+  const catalogState = { tracks: ref(options.pending || options.failed ? [] : catalog), loading: ref(Boolean(options.pending)), error: ref<unknown>(options.failed ? new Error("unavailable") : null), refresh: async () => {} };
+  Object.assign(harness, { catalog: catalogState });
   (globalThis as any)[Symbol.for(harnessKey)] = harness;
   const model = ref<any>(null);
   const emitted: any[] = [];
@@ -90,7 +100,7 @@ function mountEditor() {
     return node;
   };
   return {
-    app, harness, model, emitted, nodes, button,
+    app, harness, model, emitted, nodes, button, catalogState,
     async click(label: string) {
       const node = button(label);
       assert.ok(!node.props.disabled, `${label} is disabled`);
@@ -119,7 +129,7 @@ test("track previews and candidate choices remain independent from the saved mus
   try {
     await view.click("Preview");
     assert.deepEqual(view.emitted, []);
-    assert.equal(view.harness.plays[0].src, BIRTHDAY_AUDIO_TRACKS[0]!.src);
+    assert.equal(view.harness.plays[0].src, catalog[0]!.src);
     assert.deepEqual(view.harness.plays[0].clip, { startMs: 0, endMs: BIRTHDAY_AUDIO_TRACKS[0]!.durationMs });
     assert.equal(view.button("Use this clip").props.disabled, true);
     await view.click("Choose");
@@ -212,5 +222,35 @@ test("search filters track choices without changing the saved clip", async () =>
     await nextTick();
     assert.ok(view.nodes().some((node) => node.props.role === "status" && node.textContent === "No tracks found."));
     assert.deepEqual(view.emitted, []);
+  } finally { view.app.unmount(); }
+});
+
+test("an asynchronously loaded Railway catalog restores the saved trim after mount", async () => {
+  const view = mountEditor({ pending: true });
+  try {
+    view.model.value = { trackId: catalog[1]!.id, startMs: 1000, endMs: 5000 };
+    await nextTick();
+    assert.equal(view.harness.plays.length, 0);
+    view.catalogState.tracks.value = catalog;
+    view.catalogState.loading.value = false;
+    await nextTick();
+    await view.click("Preview selected clip");
+    assert.deepEqual(view.harness.plays[0], { src: catalog[1]!.src, clip: view.model.value });
+    assert.equal(view.emitted.length, 0);
+  } finally { view.app.unmount(); }
+});
+
+test("catalog failures show a retry action and cannot apply an unavailable track", async () => {
+  const view = mountEditor({ failed: true });
+  try {
+    assert.ok(view.nodes().some((node) => node.props.role === "alert" && node.textContent.includes("music library")));
+    assert.ok(view.button("Try again"));
+    assert.equal(view.harness.plays.length, 0);
+    assert.equal(view.emitted.length, 0);
+    view.catalogState.tracks.value = catalog;
+    view.catalogState.error.value = null;
+    await nextTick();
+    await view.click("Preview selected clip");
+    assert.equal(view.harness.plays.length, 1);
   } finally { view.app.unmount(); }
 });

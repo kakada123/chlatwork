@@ -3,7 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  Head,
   Header,
+  Headers,
   Param,
   Patch,
   ParseUUIDPipe,
@@ -17,7 +19,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { CurrentAuthUser, OptionalCurrentAuthUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -31,6 +33,7 @@ import { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto
 import { GenerateBirthdayWishDto } from './dto/generate-birthday-wish.dto';
 import { BirthdayWishService } from './birthday-wish.service';
 import { BirthdayWishRateLimitGuard } from './birthday-wish-rate-limit.guard';
+import { BirthdayAudioService } from './birthday-audio.service';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -42,7 +45,61 @@ export class MomentsController {
   constructor(
     private readonly moments: MomentsService,
     private readonly birthdayWishes: BirthdayWishService,
+    private readonly birthdayAudio: BirthdayAudioService,
   ) {}
+
+  @Get('birthday-audio')
+  @SkipThrottle()
+  @Header('Cache-Control', 'public, max-age=300')
+  listBirthdayAudio() {
+    return this.birthdayAudio.listTracks();
+  }
+
+  @Head('birthday-audio/:trackId')
+  @SkipThrottle()
+  async headBirthdayAudio(
+    @Param('trackId') trackId: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const audio = await this.birthdayAudio.openTrack(trackId, undefined, true);
+    response.status(audio.statusCode);
+    for (const [name, value] of Object.entries(audio.headers)) {
+      response.setHeader(name, value);
+    }
+  }
+
+  @Get('birthday-audio/:trackId')
+  @SkipThrottle()
+  async getBirthdayAudio(
+    @Param('trackId') trackId: string,
+    @Headers('range') range: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const audio = await this.birthdayAudio.openTrack(trackId, range);
+    response.status(audio.statusCode);
+    for (const [name, value] of Object.entries(audio.headers)) {
+      response.setHeader(name, value);
+    }
+    if (!audio.stream) return;
+    const stream = audio.stream;
+    response.once('close', () => stream.destroy());
+    return new StreamableFile(stream)
+      .setErrorHandler((_error, reply) => {
+        if (reply.destroyed) return;
+        if (reply.headersSent) {
+          reply.end();
+          return;
+        }
+        // A late disk failure must not expose the asset path or cache a partial audio response.
+        response.removeHeader('Content-Range');
+        response.removeHeader('Content-Length');
+        response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        response.setHeader('Cache-Control', 'no-store');
+        reply.statusCode = 503;
+        reply.send('Birthday audio is temporarily unavailable.');
+      })
+      .setErrorLogger(() => undefined);
+  }
 
   @Post('birthday-wish')
   @UseGuards(JwtAuthGuard, BirthdayWishRateLimitGuard)

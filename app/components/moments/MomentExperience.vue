@@ -4,7 +4,7 @@ import { CalendarDays, Gift, Heart, Image as ImageIcon, MapPin, Navigation, Spar
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import BirthdayMusicPlayer from "~/components/moments/BirthdayMusicPlayer.vue";
 import BirthdayCelebration from "~/components/moments/BirthdayCelebration.vue";
-import { readBirthdayAudioClip } from "~~/api/src/moments/birthday-audio";
+import { readBirthdayAudioClip } from "~/lib/birthday-audio";
 import {
   MOMENT_COPY,
   getMomentOccasionCopy,

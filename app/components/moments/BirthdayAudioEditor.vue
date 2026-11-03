@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import {
-  BIRTHDAY_AUDIO_TRACKS,
   formatBirthdayAudioTime,
   getBirthdayAudioTrack,
   readBirthdayAudioClip,
   type BirthdayAudioClip,
-} from "~~/api/src/moments/birthday-audio";
+} from "~/lib/birthday-audio";
+import { useBirthdayAudioCatalog } from "~/composables/useBirthdayAudioCatalog";
 import { createBirthdayAudioPlayer } from "~/lib/birthday-audio-player";
 
 const props = withDefaults(defineProps<{
@@ -23,6 +23,7 @@ const messages = {
     previewClip: "Preview selected clip", apply: "Use this clip", beforeApply: "Preview this section before applying it.",
     selected: "Music for your Moment", none: "No background music selected.", remove: "Remove music",
     loading: "Loading music…", playing: "Playing preview", error: "Music could not play. Please try again.",
+    catalogError: "The music library could not load.", retry: "Try again",
   },
   km: {
     title: "តន្ត្រីថ្ងៃកំណើត", description: "ស្តាប់បទចម្រៀង ជ្រើសរើសផ្នែកណាមួយ រួចសាកស្តាប់ និងអនុវត្ត។ តន្ត្រីជាជម្រើសបន្ថែម។",
@@ -31,32 +32,34 @@ const messages = {
     previewClip: "សាកស្តាប់ផ្នែកដែលបានជ្រើស", apply: "ប្រើផ្នែកនេះ", beforeApply: "សាកស្តាប់ផ្នែកនេះមុនពេលអនុវត្ត។",
     selected: "តន្ត្រីសម្រាប់ Moment របស់អ្នក", none: "មិនទាន់បានជ្រើសរើសតន្ត្រីផ្ទៃខាងក្រោយ។", remove: "ដកតន្ត្រីចេញ",
     loading: "កំពុងផ្ទុកតន្ត្រី…", playing: "កំពុងសាកស្តាប់", error: "មិនអាចចាក់តន្ត្រីបានទេ។ សូមព្យាយាមម្តងទៀត។",
+    catalogError: "មិនអាចផ្ទុកបណ្ណាល័យតន្ត្រីបានទេ។", retry: "ព្យាយាមម្តងទៀត",
   },
 };
 const copy = computed(() => props.locale === "km" ? messages.km : messages.en);
+const { tracks, loading: catalogLoading, error: catalogError, refresh: reloadCatalog } = useBirthdayAudioCatalog();
 const inputId = useId();
 const search = ref("");
 const audio = ref<HTMLAudioElement | null>(null);
-const candidateTrackId = ref<string>(BIRTHDAY_AUDIO_TRACKS[0]?.id ?? "");
+const candidateTrackId = ref<string>("");
 const startMs = ref(0);
-const endMs = ref(Math.min(BIRTHDAY_AUDIO_TRACKS[0]?.durationMs ?? 0, 30_000));
+const endMs = ref(0);
 const playbackState = ref<"loading" | "playing" | "paused" | "error">("paused");
 const playbackKey = ref("");
 const previewedClip = ref("");
 let player: ReturnType<typeof createBirthdayAudioPlayer> | undefined;
 let playbackRequest = 0;
 
-const candidateTrack = computed(() => getBirthdayAudioTrack(candidateTrackId.value));
+const candidateTrack = computed(() => getBirthdayAudioTrack(candidateTrackId.value, tracks.value));
 const candidateClip = computed(() => readBirthdayAudioClip({
   trackId: candidateTrackId.value, startMs: startMs.value, endMs: endMs.value,
-}));
+}, tracks.value));
 const clipKey = computed(() => `${candidateTrackId.value}:${startMs.value}:${endMs.value}`);
 const canApply = computed(() => candidateClip.value !== null && previewedClip.value === clipKey.value);
-const selectedClip = computed(() => readBirthdayAudioClip(props.modelValue));
-const selectedTrack = computed(() => getBirthdayAudioTrack(selectedClip.value?.trackId));
+const selectedClip = computed(() => readBirthdayAudioClip(props.modelValue, tracks.value));
+const selectedTrack = computed(() => getBirthdayAudioTrack(selectedClip.value?.trackId, tracks.value));
 const visibleTracks = computed(() => {
   const query = search.value.trim().toLocaleLowerCase();
-  return BIRTHDAY_AUDIO_TRACKS.filter((track) => track.title.toLocaleLowerCase().includes(query));
+  return tracks.value.filter((track) => track.title.toLocaleLowerCase().includes(query));
 });
 const isActive = (key: string) => playbackKey.value === key
   && (playbackState.value === "loading" || playbackState.value === "playing");
@@ -70,7 +73,7 @@ function stopPlayback() {
 }
 
 function chooseTrack(trackId: string) {
-  const track = getBirthdayAudioTrack(trackId);
+  const track = getBirthdayAudioTrack(trackId, tracks.value);
   if (!track) return;
   stopPlayback();
   candidateTrackId.value = track.id;
@@ -97,7 +100,7 @@ function changeBoundary(boundary: "start" | "end", event: Event) {
 }
 
 async function preview(trackId: string, clip?: BirthdayAudioClip) {
-  const track = getBirthdayAudioTrack(trackId);
+  const track = getBirthdayAudioTrack(trackId, tracks.value);
   if (!track || !player) return;
   const key = clip ? "clip" : `track:${trackId}`;
   if (isActive(key)) { stopPlayback(); return; }
@@ -129,14 +132,16 @@ function removeClip() {
   emit("update:modelValue", null);
 }
 
-watch(() => props.modelValue, (value) => {
+watch([() => props.modelValue, tracks], ([value]) => {
   stopPlayback();
   previewedClip.value = "";
-  const clip = readBirthdayAudioClip(value);
+  const clip = readBirthdayAudioClip(value, tracks.value);
   if (clip) {
     candidateTrackId.value = clip.trackId;
     startMs.value = clip.startMs;
     endMs.value = clip.endMs;
+  } else if (!getBirthdayAudioTrack(candidateTrackId.value, tracks.value) && tracks.value[0]) {
+    chooseTrack(tracks.value[0].id);
   }
 }, { immediate: true, deep: true });
 
@@ -158,6 +163,8 @@ onBeforeUnmount(() => {
       <p class="audio-help">{{ copy.description }}</p>
     </div>
     <audio ref="audio" preload="none" aria-hidden="true" />
+    <p v-if="catalogLoading" class="audio-status" role="status">{{ copy.loading }}</p>
+    <div v-else-if="catalogError" class="audio-error" role="alert">{{ copy.catalogError }} <button type="button" @click="reloadCatalog()">{{ copy.retry }}</button></div>
     <label class="audio-search">
       <span>{{ copy.search }}</span>
       <input v-model="search" type="search" :placeholder="copy.search" />
@@ -174,7 +181,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </li>
-      <li v-if="!visibleTracks.length" role="status">{{ copy.empty }}</li>
+      <li v-if="!visibleTracks.length && !catalogLoading && !catalogError" role="status">{{ copy.empty }}</li>
     </ul>
     <div v-if="candidateTrack" class="audio-trim">
       <p class="audio-candidate">{{ candidateTrack.title }}</p>

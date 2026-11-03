@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
 import {
-  BIRTHDAY_AUDIO_TRACKS,
   formatBirthdayAudioTime,
+  readBirthdayAudioCatalog,
   readBirthdayAudioClip,
-} from "../api/src/moments/birthday-audio.ts";
+} from "../app/lib/birthday-audio.ts";
+import { BIRTHDAY_AUDIO_TRACKS } from "../api/src/moments/birthday-audio.ts";
 import { createBirthdayAudioPlayer } from "../app/lib/birthday-audio-player.ts";
 import { buildPreviewMoment } from "../app/lib/moments.ts";
 import type { MomentDraft } from "../app/types/moment.ts";
@@ -29,7 +30,7 @@ test("birthday catalog points at all ten bundled audio files", () => {
   assert.equal(BIRTHDAY_AUDIO_TRACKS.length, 10);
   assert.equal(new Set(BIRTHDAY_AUDIO_TRACKS.map((track) => track.id)).size, 10);
   for (const track of BIRTHDAY_AUDIO_TRACKS) {
-    assert.ok(existsSync(new URL(`../public${track.src}`, import.meta.url)), track.src);
+    assert.ok(existsSync(new URL(`../api/src/moments/assets/hbd/${track.fileName}`, import.meta.url)), track.fileName);
     assert.ok(track.durationMs > 1000);
   }
   assert.equal(formatBirthdayAudioTime(65_900), "1:05");
@@ -37,9 +38,11 @@ test("birthday catalog points at all ten bundled audio files", () => {
 
 test("only catalog tracks with finite integer boundaries and at least one second are playable", () => {
   const track = BIRTHDAY_AUDIO_TRACKS[0]!;
+  const tracks = BIRTHDAY_AUDIO_TRACKS.map(({ id, title, durationMs }) => ({ id, title, durationMs, src: `/api/moments/birthday-audio/${id}` }));
+  const read = (value: unknown) => readBirthdayAudioClip(value, tracks);
   const valid = { trackId: track.id, startMs: 10_000, endMs: 20_000 };
-  assert.deepEqual(readBirthdayAudioClip({ ...valid, src: "https://untrusted.test/a.mp3" }), valid);
-  assert.deepEqual(readBirthdayAudioClip({ ...valid, startMs: 0, endMs: track.durationMs }), {
+  assert.deepEqual(read({ ...valid, src: "https://untrusted.test/a.mp3" }), valid);
+  assert.deepEqual(read({ ...valid, startMs: 0, endMs: track.durationMs }), {
     trackId: track.id, startMs: 0, endMs: track.durationMs,
   });
   for (const invalid of [null, [], "audio", { ...valid, trackId: "../../private" },
@@ -47,7 +50,16 @@ test("only catalog tracks with finite integer boundaries and at least one second
     { ...valid, endMs: 10_999 }, { ...valid, endMs: 10_000 },
     { ...valid, endMs: Infinity }, { ...valid, endMs: NaN },
     { ...valid, startMs: 0.5 }, { ...valid, endMs: track.durationMs + 1 }]) {
-    assert.equal(readBirthdayAudioClip(invalid), null);
+    assert.equal(read(invalid), null);
+  }
+});
+
+test("public catalog accepts only bounded metadata and same-origin backend audio routes", () => {
+  const track = { id: "hbd-001", title: "Birthday", durationMs: 20_000, src: "/api/moments/birthday-audio/hbd-001" };
+  assert.deepEqual(readBirthdayAudioCatalog([{ ...track, fileName: "internal.m4a" }]), [track]);
+  for (const invalid of [null, {}, [track, track], [{ ...track, src: "https://untrusted.test/audio" }],
+    [{ ...track, id: "../private" }], [{ ...track, durationMs: -1 }], [{ ...track, durationMs: Infinity }]]) {
+    assert.throws(() => readBirthdayAudioCatalog(invalid));
   }
 });
 
