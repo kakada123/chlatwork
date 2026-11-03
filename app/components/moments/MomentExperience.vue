@@ -4,6 +4,8 @@ import { CalendarDays, Gift, Heart, Image as ImageIcon, MapPin, Navigation, Spar
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import BirthdayMusicPlayer from "~/components/moments/BirthdayMusicPlayer.vue";
 import BirthdayCelebration from "~/components/moments/BirthdayCelebration.vue";
+import BirthdayStoryExperience from "~/components/moments/BirthdayStoryExperience.vue";
+import { readBirthdayStorySettings } from "~/lib/birthday-story";
 import { readBirthdayAudioClip } from "~/lib/birthday-audio";
 import {
   MOMENT_COPY,
@@ -100,6 +102,9 @@ const heroBlock = computed(() =>
 );
 const birthdayAudio = computed(() => props.moment.occasion === "BIRTHDAY"
   ? readBirthdayAudioClip(heroBlock.value?.data.birthdayAudio)
+  : null);
+const birthdayStory = computed(() => props.moment.occasion === "BIRTHDAY"
+  ? readBirthdayStorySettings(heroBlock.value?.data.birthdayStory)
   : null);
 const messageBlock = computed(() =>
   props.moment.blocks.find((block) => block.type === "MESSAGE"),
@@ -386,7 +391,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <BirthdayStoryExperience v-if="birthdayStory?.enabled" :key="moment.slug" :moment="moment" :settings="birthdayStory" :preview="preview" :locale="locale" />
   <article
+    v-else
     class="moment-experience"
     :class="[
       themeClass,
@@ -404,18 +411,18 @@ onBeforeUnmount(() => {
     </div>
 
     <header v-if="!isVoting" class="moment-hero">
-      <div class="occasion-pill">
+      <div v-if="moment.occasion !== 'BIRTHDAY'" class="occasion-pill">
         <span aria-hidden="true">{{ occasion.emoji }}</span>
         {{ experienceCopy.occasionMoment(occasionLabel) }}
       </div>
-      <p v-if="!invitationGuest" class="eyebrow">{{ heroIntro }}</p>
+      <p v-if="!invitationGuest && moment.occasion !== 'BIRTHDAY'" class="eyebrow">{{ heroIntro }}</p>
       <p v-if="invitationGuest" class="personal-invitation-eyebrow">
         {{ experienceCopy.respectfullyInvited }}
       </p>
       <h1>{{ displayedHeroTitle }}</h1>
-      <p class="scroll-note">{{ scrollCopy }}</p>
+      <p v-if="moment.occasion !== 'BIRTHDAY'" class="scroll-note">{{ scrollCopy }}</p>
       <BirthdayCelebration v-if="moment.occasion === 'BIRTHDAY'" :key="moment.slug" :preview="preview" :locale="locale" />
-      <BirthdayMusicPlayer v-if="birthdayAudio" :clip="birthdayAudio" :locale="locale" />
+      <BirthdayMusicPlayer v-if="birthdayAudio" :clip="birthdayAudio" :locale="locale" :auto-play="!preview" />
 
       <figure v-if="heroPhoto && !isVoting" class="hero-photo-wrap">
         <img
@@ -610,7 +617,7 @@ onBeforeUnmount(() => {
     </section>
 
     <section
-      v-else-if="!isVoting"
+      v-else-if="!isVoting && moment.occasion !== 'BIRTHDAY'"
       class="moment-section secret-section"
       aria-labelledby="secret-title"
     >

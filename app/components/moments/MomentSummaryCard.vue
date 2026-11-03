@@ -3,6 +3,7 @@ import {
   CalendarClock,
   ExternalLink,
   Images,
+  Pencil,
   Trash2,
 } from "lucide-vue-next";
 import { getMomentOccasion } from "~/data/moments";
@@ -90,7 +91,7 @@ const createdDate = computed(() =>
     </div>
 
     <div
-      class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10"
+      class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-white/10"
     >
       <NuxtLink
         v-if="moment.groupWorkspaceId"
@@ -116,6 +117,9 @@ const createdDate = computed(() =>
         {{ managerCopy.notShared }}
       </span>
 
+      <NuxtLink v-if="moment.occasion === 'BIRTHDAY' && !moment.groupWorkspaceId" :to="localizeMomentPath(`/moments/${moment.id}/edit`)" class="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-300/10">
+        <Pencil class="h-4 w-4" aria-hidden="true" />{{ isKhmer ? 'កែប្រែ' : 'Edit' }}
+      </NuxtLink>
       <button
         v-if="deletable && !moment.groupWorkspaceId"
         type="button"

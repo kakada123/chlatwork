@@ -233,7 +233,7 @@ test("voting Moments render a poll and allow photo-free publishing", () => {
   assert.match(experience, /v-if="showMemoryAndCounterSections && photos\.length && !isVoting"/);
   assert.match(
     experience,
-    /v-else-if="!isVoting"\s+class="moment-section secret-section"/,
+    /v-else-if="!isVoting && moment\.occasion !== 'BIRTHDAY'"\s+class="moment-section secret-section"/,
   );
   assert.match(experience, /<header v-if="!isVoting" class="moment-hero">/);
   assert.match(experience, /pollRequiresName/);
@@ -540,7 +540,7 @@ test("personalized invitation guest links keep names private and connect RSVP id
     /<strong>\{\{ invitationGuest\.displayName \}\}<\/strong>/,
   );
   assert.match(experience, /experienceCopy\.value\.invitationScroll/);
-  assert.match(experience, /v-if="!invitationGuest" class="eyebrow"/);
+  assert.match(experience, /v-if="!invitationGuest && moment\.occasion !== 'BIRTHDAY'" class="eyebrow"/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS "moment_invitation_guests"/);
   assert.match(manager, /localizeMomentPath\(`\/i\/\$\{guest\.token\}`\)/);
 });

@@ -2,9 +2,11 @@
 import confetti, { type ConfettiCannon } from "canvas-confetti";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
-const props = withDefaults(defineProps<{ preview?: boolean; locale?: "en" | "km" }>(), {
+const props = withDefaults(defineProps<{ preview?: boolean; locale?: "en" | "km"; autoCelebrate?: boolean; showControls?: boolean }>(), {
   preview: false,
   locale: "en",
+  autoCelebrate: true,
+  showControls: true,
 });
 const canvas = ref<HTMLCanvasElement | null>(null);
 const reducedMotion = ref(true);
@@ -70,8 +72,9 @@ onMounted(() => {
   updateVisibility();
   motionPreference.addEventListener("change", updateMotionPreference);
   document.addEventListener("visibilitychange", updateVisibility);
-  if (!props.preview) void celebrate();
+  if (!props.preview && props.autoCelebrate) void celebrate();
 });
+defineExpose({ celebrate });
 onBeforeUnmount(() => {
   disposed = true;
   stopBurst();
@@ -87,10 +90,10 @@ onBeforeUnmount(() => {
       <b v-for="index in 6" :key="`star-${index}`" :style="{ '--celebration-index': index }">✦</b>
       <em v-for="index in 6" :key="`ribbon-${index}`" :style="{ '--celebration-index': index }" />
     </div>
-    <button type="button" class="birthday-celebrate-button" :disabled="celebrating || pageHidden" @click="celebrate">
+    <button v-if="showControls" type="button" class="birthday-celebrate-button" :disabled="celebrating || pageHidden" @click="celebrate">
       <span aria-hidden="true">🎉</span> {{ celebrating ? copy.celebrating : copy.celebrate }}
     </button>
-    <p class="birthday-cheer" role="status" aria-live="polite">{{ announced ? copy.greeting : "" }}</p>
+    <p class="birthday-cheer" :class="{ 'sr-only': !showControls }" role="status" aria-live="polite">{{ announced ? copy.greeting : "" }}</p>
   </div>
 </template>
 

@@ -13,9 +13,11 @@ import {
   MinLength,
   Min,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { BIRTHDAY_AUDIO_TRACKS } from '../birthday-audio';
+import type { BirthdayStorySettings } from '../birthday-story';
 
 export class BirthdayAudioDto {
   @IsIn(BIRTHDAY_AUDIO_TRACKS.map((track) => track.id))
@@ -56,6 +58,10 @@ const THEMES = [
 export class CreateMomentDto {
   @IsOptional()
   @IsObject()
+  birthdayStory?: BirthdayStorySettings;
+
+  @IsOptional()
+  @IsObject()
   @ValidateNested()
   @Type(() => BirthdayAudioDto)
   birthdayAudio?: BirthdayAudioDto;
@@ -78,6 +84,7 @@ export class CreateMomentDto {
   @MaxLength(3000)
   message!: string;
 
+  @ValidateIf((dto: CreateMomentDto, value: unknown) => !(value === '' && dto.occasion === 'BIRTHDAY'))
   @IsString()
   @MinLength(1)
   @MaxLength(1500)

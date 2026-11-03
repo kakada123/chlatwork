@@ -15,10 +15,11 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { CurrentAuthUser, OptionalCurrentAuthUser } from '../auth/current-user.decorator';
@@ -34,6 +35,7 @@ import { GenerateBirthdayWishDto } from './dto/generate-birthday-wish.dto';
 import { BirthdayWishService } from './birthday-wish.service';
 import { BirthdayWishRateLimitGuard } from './birthday-wish-rate-limit.guard';
 import { BirthdayAudioService } from './birthday-audio.service';
+import { BirthdayMomentEditorService, MAX_BIRTHDAY_EDIT_PAYLOAD_BYTES } from './birthday-moment-editor.service';
 import {
   MAX_MOMENT_IMAGE_BYTES,
   MomentsService,
@@ -46,7 +48,46 @@ export class MomentsController {
     private readonly moments: MomentsService,
     private readonly birthdayWishes: BirthdayWishService,
     private readonly birthdayAudio: BirthdayAudioService,
+    private readonly birthdayEditor: BirthdayMomentEditorService,
   ) {}
+
+  @Get(':id/edit')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  getBirthdayMomentForEdit(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.birthdayEditor.get(user.id, id);
+  }
+
+  @Get(':id/edit/media/:mediaId')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  @Header('Content-Type', 'image/webp')
+  @Header('X-Content-Type-Options', 'nosniff')
+  async getBirthdayMomentEditorMedia(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('mediaId', new ParseUUIDPipe({ version: '4' })) mediaId: string,
+  ) {
+    return new StreamableFile(await this.birthdayEditor.getMedia(user.id, id, mediaId));
+  }
+
+  @Put(':id/edit')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  @UseInterceptors(FilesInterceptor('files', 10, {
+    limits: { fileSize: MAX_MOMENT_IMAGE_BYTES, files: 10, fields: 1, fieldSize: MAX_BIRTHDAY_EDIT_PAYLOAD_BYTES, parts: 11 },
+  }))
+  updateBirthdayMoment(
+    @CurrentAuthUser() user: CurrentUser,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body('payload') payload: string,
+    @UploadedFiles() files?: MomentUpload[],
+  ) {
+    return this.birthdayEditor.update(user.id, id, payload, files ?? []);
+  }
 
   @Get('birthday-audio')
   @SkipThrottle()

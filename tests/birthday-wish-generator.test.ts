@@ -7,7 +7,7 @@ import { useBirthdayWishGenerator } from "../app/composables/useBirthdayWishGene
 
 const wish = { title: "Happy birthday!", message: "Have a wonderful day!", secretMessage: "You make every day brighter." };
 function fixture() {
-  const input = reactive({ recipientName: "Sophea", relationship: "friend", tone: "warm", language: "en" as "en" | "km", context: "" });
+  const input = reactive({ recipientName: "Sophea", relationship: "friend", tone: "warm", language: "en" as "en" | "km", context: "", includeEmojis: true });
   const session = ref<string | null>("first-user");
   let resolve!: (value: unknown) => void;
   let reject!: (error: unknown) => void;
@@ -55,19 +55,32 @@ test("generation only previews a validated result until explicitly requested for
   } finally { f.scope.stop(); }
 });
 
-for (const changed of ["recipientName", "relationship", "tone", "language", "context", "session"] as const) {
+for (const changed of ["recipientName", "relationship", "tone", "language", "context", "session", "includeEmojis"] as const) {
   test(`changing ${changed} clears a completed result and cannot apply it`, async () => {
     const f = fixture();
     try {
       const pending = f.state.generate(); f.resolve(wish); await pending;
       if (changed === "session") f.session.value = "another-user";
       else if (changed === "language") f.input.language = "km";
+      else if (changed === "includeEmojis") f.input.includeEmojis = false;
       else f.input[changed] = "changed";
       assert.equal(f.state.result.value, null);
       assert.equal(f.state.getApplicableWish(), null);
     } finally { f.scope.stop(); }
   });
 }
+
+test("the chosen emoji preference is sent as a boolean with the generation request", async () => {
+  const f = fixture();
+  try {
+    f.input.includeEmojis = false;
+    const pending = f.state.generate();
+    assert.equal((f.submitted() as { includeEmojis: boolean }).includeEmojis, false);
+    f.resolve(wish);
+    await pending;
+    assert.deepEqual(f.state.getApplicableWish(), wish);
+  } finally { f.scope.stop(); }
+});
 
 for (const outcome of ["success", "error", "unmount"] as const) {
   test(`late ${outcome} cannot restore stale output or errors after preferences change`, async () => {

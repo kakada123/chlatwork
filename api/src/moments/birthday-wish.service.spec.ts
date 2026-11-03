@@ -28,6 +28,29 @@ const khmer = {
 };
 
 describe('birthday wish validation and prompt', () => {
+  it('accepts either emoji preference, preserves older requests, and rejects non-booleans', async () => {
+    for (const includeEmojis of [true, false, undefined]) {
+      expect(await validate(plainToInstance(GenerateBirthdayWishDto, { ...input, includeEmojis }))).toEqual([]);
+    }
+    for (const includeEmojis of ['false', 0, {}, []]) {
+      expect((await validate(plainToInstance(GenerateBirthdayWishDto, { ...input, includeEmojis }))).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('uses the emoji choice in both language prompts and rejects added emoji when disabled', () => {
+    for (const language of ['en', 'km'] as const) {
+      const plain = buildBirthdayWishPrompt({ ...input, language, includeEmojis: false });
+      expect(plain.instructions).toContain('Do not add any emojis');
+      const withEmoji = buildBirthdayWishPrompt({ ...input, language, includeEmojis: true });
+      expect(withEmoji.instructions).toContain('Include a few');
+    }
+    const plain = buildBirthdayWishPrompt({ ...input, includeEmojis: false });
+    expect(plain.parse(english)).toEqual(english);
+    for (const emoji of ['🎉', '❤️', '👩🏽‍💻', '🇰🇭', '1️⃣']) {
+      expect(() => plain.parse({ ...english, title: `${english.title} ${emoji}` })).toThrow();
+    }
+    expect(buildBirthdayWishPrompt({ ...input, includeEmojis: true }).parse({ ...english, title: `${english.title} 🎉` }).title).toContain('🎉');
+  });
   it('accepts bounded freeform relationships, tones and optional context', async () => {
     expect(
       await validate(plainToInstance(GenerateBirthdayWishDto, input)),

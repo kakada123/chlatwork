@@ -32,6 +32,7 @@ import type { RespondMomentVoteDto } from './dto/respond-moment-vote.dto';
 import type { UpdateMomentPollOptionsDto } from './dto/update-moment-poll-options.dto';
 import type { CurrentUser } from '../auth/types';
 import { readBirthdayAudioClip } from './birthday-audio';
+import { readBirthdayStorySettings } from './birthday-story';
 
 const MAX_ACTIVE_MOMENTS = 3;
 const MAX_MEDIA = 10;
@@ -98,6 +99,10 @@ export class MomentsService {
   ) {}
 
   async create(userId: string, dto: CreateMomentDto) {
+    const birthdayStory = readBirthdayStorySettings(dto.birthdayStory);
+    if (dto.birthdayStory != null && (dto.occasion !== 'BIRTHDAY' || !birthdayStory)) {
+      throw new BadRequestException('Choose valid birthday story settings');
+    }
     const birthdayAudio = readBirthdayAudioClip(dto.birthdayAudio);
     if (dto.birthdayAudio != null && (dto.occasion !== 'BIRTHDAY' || !birthdayAudio)) {
       throw new BadRequestException('Choose a valid birthday track and a clip of at least one second');
@@ -120,7 +125,8 @@ export class MomentsService {
     const title = dto.title.trim();
     const message = dto.message.trim();
     const secretMessage = dto.secretMessage.trim();
-    if (!recipientName || !title || !message || !secretMessage) {
+    const needsSecret = dto.occasion !== 'BIRTHDAY';
+    if (!recipientName || !title || !message || (needsSecret && !secretMessage)) {
       throw new BadRequestException('Moment text cannot be blank');
     }
 
@@ -181,7 +187,7 @@ export class MomentsService {
     }> = [];
     const addBlock = (type: MomentBlockType, data: Record<string, unknown>) =>
       blocks.push({ type, position: blocks.length, data });
-    addBlock(MomentBlockType.HERO, { title, ...(birthdayAudio ? { birthdayAudio } : {}) });
+    addBlock(MomentBlockType.HERO, { title, ...(birthdayAudio ? { birthdayAudio } : {}), ...(birthdayStory ? { birthdayStory } : {}) });
     addBlock(MomentBlockType.MESSAGE, { message });
     if (isInvitation) {
       addBlock(MomentBlockType.EVENT_DETAILS, {
@@ -403,6 +409,7 @@ export class MomentsService {
         slug: true,
         occasion: true,
         _count: { select: { media: true } },
+        blocks: { where: { type: MomentBlockType.HERO }, select: { data: true }, take: 1 },
       },
     });
     if (!moment || moment.groupWorkspaceId)
@@ -410,7 +417,12 @@ export class MomentsService {
     if (moment.groupWorkspaceId || moment.creatorId !== userId)
       throw new ForbiddenException();
     if (moment.status === MomentStatus.PUBLISHED) return { slug: moment.slug };
-    if (moment._count.media < 1) {
+    const hero = moment.blocks?.[0]?.data;
+    const story = moment.occasion === MomentOccasion.BIRTHDAY && hero && typeof hero === 'object' && !Array.isArray(hero)
+      ? readBirthdayStorySettings(hero.birthdayStory)
+      : null;
+    // A text-and-cake story remains usable without uploaded memories; Simple Mode keeps its photo requirement.
+    if (moment._count.media < 1 && !story?.enabled) {
       if (moment.occasion === MomentOccasion.VOTING) {
         await this.prisma.moment.update({
           where: { id: momentId },

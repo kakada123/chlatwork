@@ -270,6 +270,7 @@ describe('birthday audio response handling', () => {
     null as never,
     null as never,
     service,
+    null as never,
   );
 
   it('returns range bytes with response headers and destroys a canceled stream', async () => {

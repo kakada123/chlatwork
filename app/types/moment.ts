@@ -170,6 +170,7 @@ export interface InvitationGuest {
 }
 
 export interface MomentDraft {
+  birthdayStory?: import("../lib/birthday-story").BirthdayStorySettings | null;
   birthdayAudio?: import("../lib/birthday-audio").BirthdayAudioClip | null;
   recipientName: string;
   occasion: MomentOccasion;

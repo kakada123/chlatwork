@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LoaderCircle, Music2, Pause, Play, Volume2 } from "lucide-vue-next";
+import { LoaderCircle, Music2, Pause, Play, Volume2, VolumeX } from "lucide-vue-next";
 import {
   formatBirthdayAudioTime,
   getBirthdayAudioTrack,
@@ -10,10 +10,11 @@ import {
 import { useBirthdayAudioCatalog } from "~/composables/useBirthdayAudioCatalog";
 import { createBirthdayAudioPlayer, type BirthdayAudioState } from "~/lib/birthday-audio-player";
 
-const props = withDefaults(defineProps<{ clip: BirthdayAudioClip; locale?: "en" | "km" }>(), { locale: "en" });
+const props = withDefaults(defineProps<{ clip: BirthdayAudioClip; locale?: "en" | "km"; autoPlay?: boolean }>(), { locale: "en", autoPlay: true });
 const audio = ref<HTMLAudioElement | null>(null);
 const state = ref<BirthdayAudioState>("paused");
 const volume = ref(40);
+const muted = ref(false);
 const { tracks, loading: catalogLoading, error: catalogError, refresh: reloadCatalog } = useBirthdayAudioCatalog();
 const selection = computed(() => readBirthdayAudioClip(props.clip));
 const playableSelection = computed(() => readBirthdayAudioClip(props.clip, tracks.value));
@@ -23,28 +24,61 @@ const labels = computed(() => props.locale === "km" ? {
   music: "តន្ត្រីថ្ងៃកំណើត", play: "ចាក់តន្ត្រី", pause: "ផ្អាកតន្ត្រី", loading: "កំពុងផ្ទុកតន្ត្រី…",
   volume: "កម្រិតសំឡេង", error: "មិនអាចចាក់តន្ត្រីបានទេ។ សូមចុចចាក់ម្តងទៀត។", loop: "ចាក់ផ្នែកដែលបានជ្រើសរើសម្តងហើយម្តងទៀត",
   catalogError: "មិនអាចផ្ទុកតន្ត្រីនេះបានទេ។", retry: "ព្យាយាមម្តងទៀត",
+  mute: "បិទសំឡេងតន្ត្រី", unmute: "បើកសំឡេងតន្ត្រី",
 } : {
   music: "Birthday music", play: "Play music", pause: "Pause music", loading: "Loading music…",
   volume: "Volume", error: "Music could not play. Tap play to try again.", loop: "Your selected clip, on repeat",
   catalogError: "This music could not load.", retry: "Try again",
+  mute: "Mute music", unmute: "Unmute music",
 });
 let player: ReturnType<typeof createBirthdayAudioPlayer> | undefined;
+let pendingPlay = props.autoPlay;
+let manuallyPaused = false;
+let mounted = false;
 
+function requestPlay() {
+  if (manuallyPaused || busy.value) return;
+  if (!player || !playableSelection.value || !track.value || catalogLoading.value) {
+    pendingPlay = true;
+    return;
+  }
+  pendingPlay = false;
+  // Do not await metadata here: play() must begin inside the recipient's gift/candle tap.
+  void player.play(track.value.src, playableSelection.value);
+}
 function toggle() {
-  if (busy.value) { player?.pause(); return; }
-  if (playableSelection.value && track.value) void player?.play(track.value.src, playableSelection.value);
+  if (busy.value) {
+    manuallyPaused = true; pendingPlay = false;
+    player?.pause();
+    return;
+  }
+  manuallyPaused = false;
+  requestPlay();
 }
 function applyVolume() { if (audio.value) audio.value.volume = volume.value / 100; }
-function pauseWhenHidden() { if (document.hidden) player?.pause(); }
-watch(() => [props.clip.trackId, props.clip.startMs, props.clip.endMs], () => player?.pause());
+function toggleMute() { muted.value = !muted.value; if (audio.value) audio.value.muted = muted.value; }
+function pauseWhenHidden() { if (document.hidden) { pendingPlay = false; player?.pause(); } }
+watch(() => [props.clip.trackId, props.clip.startMs, props.clip.endMs], () => {
+  player?.pause();
+  manuallyPaused = false;
+  pendingPlay = props.autoPlay;
+});
+watch([playableSelection, track, catalogLoading], () => {
+  // The public catalog can arrive after mount or after the first gift tap.
+  if (mounted && pendingPlay && !document.hidden) requestPlay();
+});
 onMounted(() => {
+  mounted = true;
   if (audio.value) {
     player = createBirthdayAudioPlayer(audio.value, { loop: true, onState: (value) => { state.value = value; } });
     applyVolume();
+    if (pendingPlay && !document.hidden) requestPlay();
   }
   document.addEventListener("visibilitychange", pauseWhenHidden);
 });
+defineExpose({ requestPlay });
 onBeforeUnmount(() => {
+  mounted = false;
   player?.destroy();
   document.removeEventListener("visibilitychange", pauseWhenHidden);
 });
@@ -62,6 +96,7 @@ onBeforeUnmount(() => {
         {{ state === 'loading' ? labels.loading : state === 'playing' ? labels.pause : labels.play }}
       </button>
       <div v-if="track" class="music-track"><strong>{{ track.title }}</strong><small>{{ formatBirthdayAudioTime(selection.startMs) }} – {{ formatBirthdayAudioTime(selection.endMs) }} · {{ labels.loop }}</small></div>
+      <button type="button" class="music-toggle music-mute" :aria-label="muted ? labels.unmute : labels.mute" :aria-pressed="muted" @click="toggleMute"><VolumeX v-if="muted" :size="18" aria-hidden="true" /><Volume2 v-else :size="18" aria-hidden="true" /></button>
       <label class="music-volume"><Volume2 :size="16" aria-hidden="true" /><span class="sr-only">{{ labels.volume }}</span><input v-model.number="volume" type="range" min="0" max="100" @input="applyVolume" /></label>
     </div>
     <p v-if="catalogLoading" class="music-error" role="status">{{ labels.loading }}</p>
@@ -82,7 +117,7 @@ onBeforeUnmount(() => {
 .music-track strong { font-size: .85rem; }
 .music-track small { margin-top: .2rem; color: var(--moment-muted); font-size: .7rem; }
 .music-volume { display: flex; align-items: center; gap: .35rem; }
-.music-volume input { width: 4.5rem; min-height: 1.5rem; accent-color: var(--moment-accent); }
+.music-volume input { width: 4.5rem; min-height: 2.75rem; accent-color: var(--moment-accent); }
 .music-error { margin-top: .75rem; font-size: .8rem; color: var(--moment-ink); }
 .loading-icon { animation: music-spin 1s linear infinite; }
 @keyframes music-spin { to { transform: rotate(360deg); } }

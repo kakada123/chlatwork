@@ -17,6 +17,10 @@ import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import BirthdayAudioEditor from "~/components/moments/BirthdayAudioEditor.vue";
 import BirthdayWishGenerator from "~/components/moments/BirthdayWishGenerator.vue";
+import BirthdayStoryEditor from "~/components/moments/BirthdayStoryEditor.vue";
+import { createBirthdayStorySettings } from "~/lib/birthday-story";
+import { alignBirthdayStoryMemories, reorderBirthdayPhotos } from "~/lib/birthday-story-editor";
+import { BIRTHDAY_EDIT_TOO_LARGE, buildBirthdayEditForm, hydrateBirthdayMoment } from "~/lib/birthday-story-edit";
 import {
   getMomentDefaultStory,
   getMomentCategoryLabel,
@@ -34,9 +38,15 @@ import {
 } from "~/lib/moments";
 import type { MomentDraft } from "~/types/moment";
 
-type SelectedPhoto = { id: string; file: File; url: string };
+type SelectedPhoto = { id: string; file?: File; existingMediaId?: string; url: string; caption?: string; date?: string };
 type PublishState = "idle" | "creating" | "uploading" | "publishing" | "done";
 
+const props = defineProps<{ editId?: string }>();
+const isEditing = computed(() => Boolean(props.editId));
+const editLoading = ref(Boolean(props.editId));
+const editError = ref("");
+const loadedEditStatus = ref<"DRAFT" | "PUBLISHED">("PUBLISHED");
+let editLoadGeneration = 0;
 const { user, isReady, fetchMe } = useAuth();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
 const creatorCopy = computed(() => copy.value.creator);
@@ -45,6 +55,8 @@ const titleTouched = ref(false);
 const messageTouched = ref(false);
 const secretTouched = ref(false);
 const photos = ref<SelectedPhoto[]>([]);
+const draggedPhotoId = ref("");
+const browserTimezone = ref("");
 const optionImages = ref<Record<number, SelectedPhoto>>({});
 const fileInput = ref<HTMLInputElement | null>(null);
 const photoError = ref("");
@@ -61,6 +73,7 @@ const copied = ref(false);
 const selectedCategory = ref<MomentCategory>("CELEBRATIONS");
 const draft = reactive<MomentDraft>({
   birthdayAudio: null,
+  birthdayStory: createBirthdayStorySettings(),
   recipientName: "",
   occasion: "BIRTHDAY",
   title: buildMomentTitle("", "BIRTHDAY", locale.value),
@@ -84,6 +97,30 @@ const visibleSteps = computed(() =>
   draft.occasion === "VOTING" ? [1, 3, 4] : [1, 2, 3, 4],
 );
 const progressStep = computed(() => visibleSteps.value.indexOf(step.value) + 1);
+const storyEnabled = computed(() => draft.occasion === "BIRTHDAY" && draft.birthdayStory?.enabled === true);
+const birthdayText = (en: string, km: string) => isKhmer.value ? km : en;
+const birthdaySections = computed(() => [
+  { id: "birthday-recipient", step: 1, label: birthdayText("Recipient details", "ព័ត៌មានអ្នកទទួល") },
+  { id: "birthday-theme", step: 3, label: birthdayText("Birthday theme", "រចនាប័ទ្មថ្ងៃកំណើត") },
+  { id: "birthday-music", step: 3, label: birthdayText("Music & effects", "តន្ត្រី និងបែបផែន") },
+  { id: "birthday-cake", step: 3, label: birthdayText("Birthday cake", "នំខួបកំណើត") },
+  { id: "birthday-memories", step: 2, label: birthdayText("Photo memories", "រូបភាពអនុស្សាវរីយ៍") },
+  { id: "birthday-message", step: 3, label: birthdayText("Personal message", "សារផ្ទាល់ខ្លួន") },
+  { id: "birthday-secret", step: 3, label: birthdayText("Secret surprise", "ការភ្ញាក់ផ្អើលសម្ងាត់") },
+  { id: "birthday-preview", step: 4, label: birthdayText("Preview & publish", "មើលជាមុន និងផ្សព្វផ្សាយ") },
+]);
+async function openBirthdaySection(section: { id: string; step: number }) {
+  if (isPublishing.value || isPreparingPhotos.value) return;
+  // Section links can move backwards freely, but forward navigation keeps the existing validation gates.
+  while (step.value < section.step) {
+    const previous = step.value;
+    nextStep();
+    if (previous === step.value) return;
+  }
+  step.value = section.step;
+  await nextTick();
+  document.getElementById(section.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 function applyBirthdayWish(wish: { title: string; message: string; secretMessage: string }) {
   draft.title = wish.title;
@@ -135,7 +172,7 @@ const visibleOccasions = computed(() => {
 
 const previewMoment = computed(() => {
   const moment = buildPreviewMoment(
-    draft,
+    { ...draft, birthdayStory: draft.birthdayStory ? alignBirthdayStoryMemories(draft.birthdayStory, photos.value) : null },
     photos.value.map((photo) => photo.url),
   );
   const poll = moment.blocks.find((block) => block.type === "POLL");
@@ -151,6 +188,12 @@ const isPublishing = computed(
   () => publishState.value !== "idle" && publishState.value !== "done",
 );
 const progressLabel = computed(() => {
+  if (isEditing.value) {
+    if (isPublishing.value) return birthdayText("Saving changes…", "កំពុងរក្សាទុកការកែប្រែ…");
+    return loadedEditStatus.value === "DRAFT"
+      ? birthdayText("Save & publish", "រក្សាទុក និងផ្សព្វផ្សាយ")
+      : birthdayText("Save changes", "រក្សាទុកការកែប្រែ");
+  }
   if (publishState.value === "creating") return creatorCopy.value.creating;
   if (publishState.value === "uploading")
     return creatorCopy.value.uploading(
@@ -185,7 +228,7 @@ function nextStep() {
     formError.value = creatorCopy.value.errors.hostName;
     return;
   }
-  if (step.value === 2 && draft.occasion !== "VOTING" && photos.value.length < 1) {
+  if (step.value === 2 && draft.occasion !== "VOTING" && !storyEnabled.value && photos.value.length < 1) {
     formError.value = creatorCopy.value.errors.photoRequired;
     return;
   }
@@ -275,8 +318,27 @@ function getPhotoPreparationError(error: unknown) {
 
 function removePhoto(id: string) {
   const photo = photos.value.find((item) => item.id === id);
-  if (photo) URL.revokeObjectURL(photo.url);
+  if (photo?.url.startsWith("blob:")) URL.revokeObjectURL(photo.url);
   photos.value = photos.value.filter((item) => item.id !== id);
+}
+
+function movePhoto(id: string, target: number) {
+  photos.value = reorderBirthdayPhotos(photos.value, id, target);
+}
+
+function startPhotoDrag(event: DragEvent, id: string) {
+  if (!storyEnabled.value) return;
+  draggedPhotoId.value = id;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+  }
+}
+
+function dropPhoto(event: DragEvent, target: number) {
+  event.stopPropagation();
+  if (draggedPhotoId.value) movePhoto(draggedPhotoId.value, target);
+  draggedPhotoId.value = "";
 }
 
 function addPollOption() {
@@ -315,6 +377,7 @@ async function onOptionImagePick(event: Event, index: number) {
 }
 
 async function requestPublish() {
+  if (editLoading.value || editError.value) return;
   formError.value = getMomentFormError(
     draft,
     photos.value.length,
@@ -331,7 +394,42 @@ async function requestPublish() {
 
 async function continueAfterLogin() {
   await fetchMe();
-  if (user.value) await publishMoment();
+  if (user.value && editError.value) await loadExistingMoment();
+  else if (user.value) await publishMoment();
+}
+
+function buildCreatePayload() {
+  return {
+    recipientName: draft.recipientName,
+    occasion: draft.occasion,
+    title: draft.title,
+    message: draft.message,
+    secretMessage: draft.secretMessage,
+    theme: draft.theme,
+    birthdayAudio: draft.occasion === "BIRTHDAY" ? draft.birthdayAudio ?? undefined : undefined,
+    birthdayStory: draft.occasion === "BIRTHDAY" && draft.birthdayStory
+      ? alignBirthdayStoryMemories(draft.birthdayStory, photos.value)
+      : undefined,
+    specialDate:
+      !["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate
+        ? draft.specialDate
+        : undefined,
+    publishAt: draft.publishAt
+      ? new Date(draft.publishAt).toISOString()
+      : isEditing.value ? null : undefined,
+    eventDate: draft.occasion === "INVITATION" && draft.eventDate
+      ? new Date(draft.eventDate).toISOString()
+      : undefined,
+    venueName: draft.occasion === "INVITATION" ? draft.venueName : undefined,
+    eventAddress: draft.occasion === "INVITATION" ? draft.eventAddress : undefined,
+    mapUrl: draft.occasion === "INVITATION" && draft.mapUrl ? draft.mapUrl : undefined,
+    dressCode: draft.occasion === "INVITATION" && draft.dressCode ? draft.dressCode : undefined,
+    eventSchedule: draft.occasion === "INVITATION" && draft.eventSchedule ? draft.eventSchedule : undefined,
+    hostName: draft.occasion === "INVITATION" ? draft.hostName : undefined,
+    pollQuestion: draft.occasion === "VOTING" ? draft.recipientName : undefined,
+    pollOptions: draft.occasion === "VOTING" ? draft.pollOptions : undefined,
+    pollIdentityMode: draft.occasion === "VOTING" ? draft.pollIdentityMode : undefined,
+  };
 }
 
 async function publishMoment() {
@@ -340,40 +438,28 @@ async function publishMoment() {
   let momentId = "";
   try {
     publishState.value = "creating";
+    if (props.editId) {
+      const body = buildBirthdayEditForm(buildCreatePayload(), photos.value);
+      const saved = await $fetch<{ id: string; slug: string }>(`/api/moments/${encodeURIComponent(props.editId)}/edit`, { method: "PUT", body });
+      if (loadedEditStatus.value === "DRAFT") {
+        publishState.value = "publishing";
+        await $fetch(`/api/moments/${encodeURIComponent(props.editId)}/publish`, { method: "POST" });
+        loadedEditStatus.value = "PUBLISHED";
+      }
+      publishedSlug.value = saved.slug;
+      await updateShareArtifacts(saved.slug);
+      publishState.value = "done";
+      scrollToTop();
+      return;
+    }
     const created = await $fetch<{ id: string; slug: string }>("/api/moments", {
       method: "POST",
-      body: {
-        recipientName: draft.recipientName,
-        occasion: draft.occasion,
-        title: draft.title,
-        message: draft.message,
-        secretMessage: draft.secretMessage,
-        theme: draft.theme,
-        birthdayAudio: draft.occasion === "BIRTHDAY" ? draft.birthdayAudio ?? undefined : undefined,
-        specialDate:
-          !["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate
-            ? draft.specialDate
-            : undefined,
-        publishAt: draft.publishAt
-          ? new Date(draft.publishAt).toISOString()
-          : undefined,
-        eventDate: draft.occasion === "INVITATION" && draft.eventDate
-          ? new Date(draft.eventDate).toISOString()
-          : undefined,
-        venueName: draft.occasion === "INVITATION" ? draft.venueName : undefined,
-        eventAddress: draft.occasion === "INVITATION" ? draft.eventAddress : undefined,
-        mapUrl: draft.occasion === "INVITATION" && draft.mapUrl ? draft.mapUrl : undefined,
-        dressCode: draft.occasion === "INVITATION" && draft.dressCode ? draft.dressCode : undefined,
-        eventSchedule: draft.occasion === "INVITATION" && draft.eventSchedule ? draft.eventSchedule : undefined,
-        hostName: draft.occasion === "INVITATION" ? draft.hostName : undefined,
-        pollQuestion: draft.occasion === "VOTING" ? draft.recipientName : undefined,
-        pollOptions: draft.occasion === "VOTING" ? draft.pollOptions : undefined,
-        pollIdentityMode: draft.occasion === "VOTING" ? draft.pollIdentityMode : undefined,
-      },
+      body: buildCreatePayload(),
     });
     momentId = created.id;
     publishState.value = "uploading";
     for (const [index, photo] of (draft.occasion === "VOTING" ? [] : photos.value).entries()) {
+      if (!photo.file) continue;
       uploadProgress.value = index + 1;
       const body = new FormData();
       body.append("file", photo.file);
@@ -384,6 +470,7 @@ async function publishMoment() {
     }
     if (draft.occasion === "VOTING") {
       for (const [index, image] of Object.entries(optionImages.value)) {
+        if (!image.file) continue;
         uploadProgress.value += 1;
         const body = new FormData();
         body.append("file", image.file);
@@ -407,7 +494,33 @@ async function publishMoment() {
         () => null,
       );
     publishState.value = "idle";
-    formError.value = getRequestError(error);
+    formError.value = error instanceof Error && error.message === BIRTHDAY_EDIT_TOO_LARGE
+      ? birthdayText("New photos are too large to save together. Try fewer or smaller photos.", "រូបថតថ្មីមានទំហំធំពេកសម្រាប់រក្សាទុករួមគ្នា។ សូមសាកល្បងរូបថតតិច ឬតូចជាងនេះ។")
+      : getRequestError(error);
+  }
+}
+
+async function loadExistingMoment() {
+  if (!props.editId) return;
+  const generation = ++editLoadGeneration;
+  editLoading.value = true;
+  editError.value = "";
+  try {
+    const response = await $fetch<unknown>(`/api/moments/${encodeURIComponent(props.editId)}/edit`);
+    const saved = hydrateBirthdayMoment(response);
+    if (generation !== editLoadGeneration) return;
+    titleTouched.value = messageTouched.value = secretTouched.value = true;
+    Object.assign(draft, saved.draft);
+    photos.value.forEach(photo => { if (photo.url.startsWith("blob:")) URL.revokeObjectURL(photo.url); });
+    photos.value = saved.photos;
+    loadedEditStatus.value = saved.status;
+    publishState.value = "idle";
+    publishedSlug.value = "";
+    step.value = 1;
+  } catch {
+    if (generation === editLoadGeneration) editError.value = birthdayText("This birthday Moment could not be opened for editing. Sign in as its creator and try again.", "មិនអាចបើក Moment ថ្ងៃកំណើតនេះដើម្បីកែប្រែបានទេ។ សូមចូលគណនីអ្នកបង្កើត ហើយសាកល្បងម្ដងទៀត។");
+  } finally {
+    if (generation === editLoadGeneration) editLoading.value = false;
   }
 }
 
@@ -473,11 +586,15 @@ function getRequestError(error: unknown) {
     : message || creatorCopy.value.errors.publishFailed;
 }
 
-onMounted(() => {
-  void fetchMe();
+watch(() => props.editId, () => { void loadExistingMoment(); });
+onMounted(async () => {
+  browserTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  await fetchMe();
+  if (props.editId) await loadExistingMoment();
 });
 onBeforeUnmount(() => {
-  photos.value.forEach((photo) => URL.revokeObjectURL(photo.url));
+  editLoadGeneration++;
+  photos.value.forEach((photo) => { if (photo.url.startsWith("blob:")) URL.revokeObjectURL(photo.url); });
   Object.values(optionImages.value).forEach((image) => URL.revokeObjectURL(image.url));
 });
 </script>
@@ -491,13 +608,24 @@ onBeforeUnmount(() => {
     <div class="language-toolbar">
       <MomentLanguageToggle />
     </div>
-    <section v-if="publishState === 'done'" class="success-card">
+    <section v-if="editLoading" class="creator-card" role="status" aria-live="polite">
+      <LoaderCircle class="h-6 w-6 animate-spin" aria-hidden="true" />
+      <p class="mt-3">{{ birthdayText('Opening your birthday Moment…', 'កំពុងបើក Moment ថ្ងៃកំណើតរបស់អ្នក…') }}</p>
+    </section>
+    <section v-else-if="editError" class="creator-card">
+      <p role="alert" class="error-message">{{ editError }}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" class="primary-button" @click="loadExistingMoment">{{ birthdayText('Try again', 'សាកល្បងម្ដងទៀត') }}</button>
+        <button v-if="!user" type="button" class="secondary-button" @click="showLogin = true">{{ birthdayText('Sign in', 'ចូលគណនី') }}</button>
+      </div>
+    </section>
+    <section v-else-if="publishState === 'done'" class="success-card">
       <div class="success-icon">
         <Check class="h-8 w-8" aria-hidden="true" />
       </div>
       <p class="creator-eyebrow">{{ creatorCopy.readyEyebrow }}</p>
-      <h1>{{ creatorCopy.readyTitle }}</h1>
-      <p class="success-copy">{{ creatorCopy.readyCopy }}</p>
+      <h1>{{ isEditing ? birthdayText('Changes saved', 'ការកែប្រែបានរក្សាទុក') : creatorCopy.readyTitle }}</h1>
+      <p class="success-copy">{{ isEditing ? birthdayText('Your updated birthday Moment is ready to share with the same link.', 'Moment ថ្ងៃកំណើតដែលបានកែប្រែរួច អាចចែករំលែកតាមតំណដដែល។') : creatorCopy.readyCopy }}</p>
       <div class="share-panel">
         <img
           :src="qrDataUrl"
@@ -549,7 +677,7 @@ onBeforeUnmount(() => {
           <Sparkles class="h-4 w-4" aria-hidden="true" />
           {{ creatorCopy.eyebrow }}
         </p>
-        <h1>{{ creatorCopy.title }}</h1>
+        <h1>{{ isEditing ? birthdayText('Edit your birthday Moment', 'កែប្រែ Moment ថ្ងៃកំណើតរបស់អ្នក') : creatorCopy.title }}</h1>
         <p>{{ creatorCopy.description }}</p>
       </header>
 
@@ -568,11 +696,15 @@ onBeforeUnmount(() => {
         </li>
       </ol>
 
+      <nav v-if="storyEnabled" class="birthday-section-nav" :aria-label="birthdayText('Birthday editor sections', 'ផ្នែកកែសម្រួលថ្ងៃកំណើត')">
+        <button v-for="section in birthdaySections" :key="section.id" type="button" :disabled="isPublishing || isPreparingPhotos" :aria-current="step === section.step ? 'step' : undefined" @click="openBirthdaySection(section)">{{ section.label }}</button>
+      </nav>
+
       <form
         class="creator-card"
         @submit.prevent="step < 4 ? nextStep() : requestPublish()"
       >
-        <section v-if="step === 1" aria-labelledby="step-one-title">
+        <section v-if="step === 1" id="birthday-recipient" aria-labelledby="step-one-title">
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-one-title">{{ draft.occasion === 'INVITATION' ? creatorCopy.invitationPersonTitle : draft.occasion === 'VOTING' ? creatorCopy.votingPersonTitle : creatorCopy.personTitle }}</h2>
           <label for="recipient-name" class="field-label mt-6"
@@ -591,7 +723,7 @@ onBeforeUnmount(() => {
             <label for="host-name" class="field-label">{{ creatorCopy.hostName }}</label>
             <input id="host-name" v-model="draft.hostName" maxlength="120" required class="field-input mt-2" :placeholder="creatorCopy.hostNamePlaceholder" autocomplete="organization" />
           </div>
-          <fieldset class="mt-7">
+          <fieldset v-if="!isEditing" class="mt-7">
             <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
             <p class="category-label">{{ creatorCopy.categoryLabel }}</p>
             <div class="category-tabs" role="group" :aria-label="creatorCopy.categoryLabel">
@@ -624,12 +756,15 @@ onBeforeUnmount(() => {
               </label>
             </div>
           </fieldset>
+          <BirthdayStoryEditor v-if="draft.occasion === 'BIRTHDAY' && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="mode" />
         </section>
 
-        <section v-else-if="step === 2" aria-labelledby="step-two-title">
+        <section v-else-if="step === 2" id="birthday-memories" aria-labelledby="step-two-title">
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-two-title">{{ creatorCopy.photosTitle }}</h2>
           <p class="step-copy">{{ creatorCopy.photosDescription }}</p>
+          <p v-if="storyEnabled" class="field-help">{{ birthdayText('Photos are optional in Story Mode. Drag photos to reorder them, or use the move buttons.', 'រូបថតជាជម្រើសក្នុងរបៀបរឿងរ៉ាវ។ អូសរូបថតដើម្បីប្ដូរលំដាប់ ឬប្រើប៊ូតុងផ្លាស់ទី។') }}</p>
+          <p v-if="isEditing" class="field-help">{{ birthdayText('New photos must fit within 4 MB together when saving. Existing photos do not count toward this limit.', 'រូបថតថ្មីសរុបត្រូវតូចជាង 4 MB ពេលរក្សាទុក។ រូបថតចាស់មិនរាប់ក្នុងដែនកំណត់នេះទេ។') }}</p>
           <input
             ref="fileInput"
             type="file"
@@ -664,13 +799,13 @@ onBeforeUnmount(() => {
           <p v-if="photoError" role="alert" class="error-message">
             {{ photoError }}
           </p>
-          <div v-if="photos.length" class="selected-photos">
-            <figure v-for="(photo, index) in photos" :key="photo.id">
+          <div v-if="photos.length" class="selected-photos" :class="{ 'story-photos': storyEnabled }">
+            <figure v-for="(photo, index) in photos" :key="photo.id" :draggable="storyEnabled && !isPublishing" @dragstart="startPhotoDrag($event, photo.id)" @dragend="draggedPhotoId = ''" @dragover.prevent @drop.prevent="dropPhoto($event, index)">
               <img
                 :src="photo.url"
                 :alt="creatorCopy.selectedPhoto(index + 1)"
               />
-              <button
+              <button class="remove-photo-button"
                 type="button"
                 :aria-label="creatorCopy.removePhoto(index + 1)"
                 @click="removePhoto(photo.id)"
@@ -680,6 +815,17 @@ onBeforeUnmount(() => {
               <figcaption>{{
                 index === 0 ? creatorCopy.heroPhoto : index + 1
               }}</figcaption>
+              <div v-if="storyEnabled" class="memory-fields" draggable="false" @dragstart.stop.prevent>
+                <div class="photo-move-actions">
+                  <button type="button" :disabled="index === 0" :aria-label="birthdayText(`Move photo ${index + 1} earlier`, `ផ្លាស់ទីរូបថត ${index + 1} ទៅមុន`)" @click="movePhoto(photo.id, index - 1)">↑</button>
+                  <button type="button" :disabled="index === photos.length - 1" :aria-label="birthdayText(`Move photo ${index + 1} later`, `ផ្លាស់ទីរូបថត ${index + 1} ទៅក្រោយ`)" @click="movePhoto(photo.id, index + 1)">↓</button>
+                </div>
+                <label :for="`memory-caption-${photo.id}`">{{ birthdayText('Caption (optional)', 'ចំណងជើង (ជាជម្រើស)') }}</label>
+                <textarea :id="`memory-caption-${photo.id}`" v-model="photo.caption" maxlength="200" rows="2" class="field-input" />
+                <span class="character-count">{{ photo.caption?.length ?? 0 }} / 200</span>
+                <label :for="`memory-date-${photo.id}`">{{ birthdayText('Memory date (optional)', 'កាលបរិច្ឆេទអនុស្សាវរីយ៍ (ជាជម្រើស)') }}</label>
+                <input :id="`memory-date-${photo.id}`" v-model="photo.date" type="date" class="field-input" />
+              </div>
             </figure>
           </div>
         </section>
@@ -688,8 +834,10 @@ onBeforeUnmount(() => {
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-three-title">{{ draft.occasion === 'VOTING' ? creatorCopy.pollTitle : creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
+            <BirthdayStoryEditor v-if="storyEnabled && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" />
             <BirthdayWishGenerator v-if="draft.occasion === 'BIRTHDAY'" :recipient-name="draft.recipientName" :locale="locale" @apply="applyBirthdayWish" />
-            <div v-if="draft.occasion !== 'VOTING'">
+            <div v-if="draft.occasion !== 'VOTING'" id="birthday-message">
+              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Personal message', 'សារផ្ទាល់ខ្លួន') }}</h3>
               <label for="moment-title" class="field-label">{{
                 creatorCopy.titleLabel
               }}</label
@@ -766,16 +914,18 @@ onBeforeUnmount(() => {
                   id="unlock-date"
                   v-model="draft.publishAt"
                   type="datetime-local"
-                  :min="minimumUnlockDate"
+                  :min="isEditing ? undefined : minimumUnlockDate"
                   class="field-input mt-2"
                 />
                 <p class="field-help">{{ creatorCopy.countdownHelp }}</p>
+                <p v-if="browserTimezone" class="field-help">{{ birthdayText('Schedule timezone:', 'តំបន់ម៉ោងកំណត់ពេល៖') }} {{ browserTimezone }}</p>
               </div>
             </div>
-            <div v-if="draft.occasion !== 'VOTING'">
+            <div v-if="draft.occasion !== 'VOTING' && (draft.occasion !== 'BIRTHDAY' || storyEnabled)" id="birthday-secret">
+              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Secret surprise', 'ការភ្ញាក់ផ្អើលសម្ងាត់') }}</h3>
               <label for="secret-message" class="field-label">{{
                 creatorCopy.secretLabel
-              }}</label
+              }} <span v-if="storyEnabled">({{ creatorCopy.optional }})</span></label
               ><textarea
                 id="secret-message"
                 v-model="draft.secretMessage"
@@ -815,14 +965,18 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </fieldset>
-            <BirthdayAudioEditor v-if="draft.occasion === 'BIRTHDAY'" v-model="draft.birthdayAudio" :locale="locale" />
+            <section v-if="draft.occasion === 'BIRTHDAY'" id="birthday-music" :aria-label="birthdayText('Music & effects', 'តន្ត្រី និងបែបផែន')">
+              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Music & effects', 'តន្ត្រី និងបែបផែន') }}</h3>
+              <p v-if="storyEnabled" class="field-help mb-3">{{ birthdayText('Birthday confetti and candles follow your enabled scenes. Reduced-motion preferences are respected.', 'ក្រដាសពណ៌ និងទៀនតាមឈុតដែលអ្នកបើក។ ចលនាត្រូវតាមការកំណត់កាត់បន្ថយចលនា។') }}</p>
+              <BirthdayAudioEditor v-model="draft.birthdayAudio" :locale="locale" />
+            </section>
           </div>
         </section>
 
-        <section v-else aria-labelledby="step-four-title">
+        <section v-else id="birthday-preview" aria-labelledby="step-four-title">
           <p class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-four-title">{{ creatorCopy.previewTitle }}</h2>
-          <fieldset class="mt-6">
+          <fieldset v-if="!storyEnabled" class="mt-6">
             <legend class="field-label">{{ creatorCopy.themeLabel }} <span class="theme-count">{{ creatorCopy.themeCount }}</span></legend>
             <div class="theme-grid mt-3">
               <label
@@ -1190,7 +1344,7 @@ onBeforeUnmount(() => {
   width: 100%;
   object-fit: cover;
 }
-.selected-photos button {
+.selected-photos .remove-photo-button {
   position: absolute;
   right: 0.35rem;
   top: 0.35rem;
@@ -1212,6 +1366,26 @@ onBeforeUnmount(() => {
   font-size: 0.62rem;
   font-weight: 800;
 }
+.birthday-section-nav { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.25rem 0; }
+.birthday-section-nav button { min-height: 2.5rem; padding: .5rem .8rem; border: 1px solid #e0e3e9; border-radius: .7rem; background: white; color: #475467; font-size: .78rem; }
+.birthday-section-nav button[aria-current] { border-color: #dc4f76; color: #ad2750; }
+.birthday-section-nav button:disabled { opacity: .5; cursor: not-allowed; }
+.birthday-section-nav button:focus-visible, .photo-move-actions button:focus-visible { outline: 3px solid #dc4f76; outline-offset: 3px; }
+.birthday-section-heading { margin-bottom: 1rem; font-weight: 700; font-size: 1.1rem; }
+[id^="birthday-"] { scroll-margin-top: 2rem; }
+.selected-photos.story-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.story-photos figure { aspect-ratio: auto; border: 1px solid #e0e3e9; background: #fff; }
+.story-photos img { height: 12rem; aspect-ratio: 4 / 3; }
+.story-photos figcaption { top: .4rem; bottom: auto; }
+.memory-fields { padding: .85rem; display: grid; gap: .5rem; }
+.memory-fields label { font-size: .75rem; font-weight: 600; }
+.memory-fields .field-input { min-height: 2.5rem; padding: .6rem; font-size: .8rem; }
+.memory-fields .character-count { margin: 0; }
+.photo-move-actions { display: flex; justify-content: flex-end; gap: .4rem; }
+.photo-move-actions button { display: grid; place-items: center; min-width: 2.5rem; min-height: 2.5rem; border: 1px solid #e0e3e9; border-radius: .6rem; color: #475467; background: #f9fafb; }
+.photo-move-actions button:disabled { opacity: .4; cursor: not-allowed; }
+:global(html.dark) .birthday-section-nav button, :global(html.dark) .story-photos figure, :global(html.dark) .photo-move-actions button { background: #111318; color: #e8e9ed; border-color: #4b4450; }
+@media (max-width: 479px) { .selected-photos.story-photos { grid-template-columns: 1fr; } }
 .theme-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

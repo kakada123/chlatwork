@@ -12,6 +12,7 @@ const customRelationship = ref("");
 const tone = ref("warm");
 const customTone = ref("");
 const language = ref<"en" | "km">(props.locale);
+const includeEmojis = ref(true);
 const context = ref("");
 const applied = ref(false);
 const isKhmer = computed(() => props.locale === "km");
@@ -22,6 +23,7 @@ const copy = computed(() => isKhmer.value ? {
   relationshipPlaceholder: "ឧ. គ្រូបង្រៀន ឬអ្នកណែនាំ", tone: "សំនៀងនៃពាក្យជូនពរ",
   customTone: "បញ្ជាក់សំនៀងដែលអ្នកចង់បាន", tonePlaceholder: "ឧ. សុភាព និងមានក្តីសង្ឃឹម",
   language: "ភាសានៃពាក្យជូនពរ", context: "ព័ត៌មានបន្ថែម (មិនចាំបាច់)",
+  includeEmojis: "បន្ថែមអ៊ីម៉ូជីក្នុងពាក្យជូនពរ",
   contextPlaceholder: "ចែករំលែកអនុស្សាវរីយ៍ គុណសម្បត្តិ ឬអ្វីដែលអ្នកចង់ជូនពរ។",
   privacy: "បញ្ចូលតែព័ត៌មានដែលអ្នកចង់ចែករំលែកជាមួយសេវា AI។",
   nameRequired: "បញ្ចូលឈ្មោះអ្នកទទួលមុនសិន។", loginRequired: "ចូលគណនីដើម្បីបង្កើតពាក្យជូនពរជាមួយ AI។",
@@ -38,6 +40,7 @@ const copy = computed(() => isKhmer.value ? {
   relationshipPlaceholder: "e.g. teacher or mentor", tone: "Tone of the wish",
   customTone: "Describe your preferred tone", tonePlaceholder: "e.g. respectful and hopeful",
   language: "Wish language", context: "Personal details (optional)",
+  includeEmojis: "Include emojis in the wish",
   contextPlaceholder: "Share a memory, a quality you appreciate, or something to wish for.",
   privacy: "Only include details you want to share with the AI provider.",
   nameRequired: "Enter the recipient’s name first.", loginRequired: "Sign in to generate a wish with AI.",
@@ -76,6 +79,7 @@ const { result, loading, error, canGenerate, generate, getApplicableWish } = use
     relationship: relationship.value === "custom" ? customRelationship.value.trim() : relationship.value,
     tone: tone.value === "custom" ? customTone.value.trim() : tone.value,
     language: language.value,
+    includeEmojis: includeEmojis.value,
     context: context.value.trim(),
   }),
   session: () => user.value?.id ?? null,
@@ -128,6 +132,10 @@ function applyWish() {
         </ModernSelect>
       </label>
     </div>
+    <label class="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+      <input v-model="includeEmojis" type="checkbox" class="h-4 w-4 rounded border-slate-300 accent-violet-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-500" />
+      <span>{{ copy.includeEmojis }}</span>
+    </label>
     <label class="wish-label">
       <span>{{ copy.context }}</span>
       <textarea v-model="context" rows="3" maxlength="1000" :placeholder="copy.contextPlaceholder" class="wish-input resize-y" />

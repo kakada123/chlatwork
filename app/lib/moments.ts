@@ -1,4 +1,5 @@
 import { getMomentOccasion } from "../data/moments.ts";
+import { readBirthdayStorySettings } from "./birthday-story.ts";
 import {
   MOMENT_COPY,
   buildKhmerMomentTitle,
@@ -91,7 +92,7 @@ export function buildPreviewMoment(
       id: "preview-hero",
       type: "HERO",
       position: 0,
-      data: { title: draft.title, ...(draft.occasion === "BIRTHDAY" && draft.birthdayAudio ? { birthdayAudio: { ...draft.birthdayAudio } } : {}) },
+      data: { title: draft.title, ...(draft.occasion === "BIRTHDAY" && draft.birthdayAudio ? { birthdayAudio: { ...draft.birthdayAudio } } : {}), ...(draft.occasion === "BIRTHDAY" && draft.birthdayStory ? { birthdayStory: readBirthdayStorySettings(draft.birthdayStory) } : {}) },
     },
     {
       id: "preview-message",
@@ -160,12 +161,13 @@ export function getMomentFormError(
   locale: MomentLocale = "en",
 ) {
   const errors = MOMENT_COPY[locale].creator.errors;
+  const story = draft.occasion === "BIRTHDAY" ? readBirthdayStorySettings(draft.birthdayStory) : null;
   if (!draft.recipientName.trim())
     return draft.occasion === "INVITATION" ? errors.eventName : errors.recipient;
   if (!draft.title.trim()) return errors.title;
   if (!draft.message.trim()) return errors.message;
-  if (!draft.secretMessage.trim()) return errors.secret;
-  if (draft.occasion !== "VOTING" && photoCount < 1) return errors.photoRequired;
+  if (!draft.secretMessage.trim() && draft.occasion !== "BIRTHDAY") return errors.secret;
+  if (draft.occasion !== "VOTING" && !story?.enabled && photoCount < 1) return errors.photoRequired;
   if (photoCount > MAX_MOMENT_PHOTOS)
     return errors.tooManyPhotos(MAX_MOMENT_PHOTOS);
   if (!["INVITATION", "VOTING"].includes(draft.occasion) && draft.specialDate && !isValidMomentDate(draft.specialDate))

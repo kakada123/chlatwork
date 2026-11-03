@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsIn,
   IsOptional,
   IsString,
@@ -31,6 +32,10 @@ export class GenerateBirthdayWishDto {
 
   @IsIn(['en', 'km'])
   language!: 'en' | 'km';
+
+  @IsOptional()
+  @IsBoolean()
+  includeEmojis?: boolean;
 
   @IsOptional()
   @Transform(trimText)

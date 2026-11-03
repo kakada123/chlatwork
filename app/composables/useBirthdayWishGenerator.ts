@@ -5,6 +5,7 @@ export interface BirthdayWishRequest {
   relationship: string;
   tone: string;
   language: "en" | "km";
+  includeEmojis?: boolean;
   context?: string;
 }
 export interface BirthdayWishResult {
@@ -40,6 +41,7 @@ export function useBirthdayWishGenerator(options: {
     return Boolean(options.session()) && validText(input.recipientName, 80) &&
       validText(input.relationship, 120) && validText(input.tone, 120) &&
       (input.language === "en" || input.language === "km") &&
+      (input.includeEmojis === undefined || typeof input.includeEmojis === "boolean") &&
       Array.from(input.context ?? "").length <= 1000;
   });
   let requestVersion = 0;
