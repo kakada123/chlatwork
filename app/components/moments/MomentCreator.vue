@@ -777,7 +777,7 @@ onBeforeUnmount(() => {
       </ol>
 
       <nav v-if="birthdayWizard" class="birthday-wizard-nav" :aria-label="birthdayText('Birthday editor steps', 'ជំហានកែសម្រួលថ្ងៃកំណើត')">
-        <p>{{ creatorCopy.stepLabel(birthdayStageIndex + 1, birthdayStages.length) }}</p>
+        <p><span class="sr-only">{{ creatorCopy.stepLabel(birthdayStageIndex + 1, birthdayStages.length) }}</span><span aria-hidden="true">{{ birthdayStageIndex + 1 }} / {{ birthdayStages.length }}</span></p>
         <label for="birthday-wizard-step" class="sr-only">{{ birthdayText('Choose an editor step', 'ជ្រើសរើសជំហានកែសម្រួល') }}</label>
         <span class="birthday-stage-select">
           <ModernSelect id="birthday-wizard-step" class="w-full" :value="birthdayStage" :disabled="isPublishing || isPreparingPhotos" :search-placeholder="birthdayText('Find a step…', 'ស្វែងរកជំហាន…')" @change="changeBirthdayStage">
@@ -1867,16 +1867,16 @@ button:disabled {
 }
 
 /* Keep birthday editing in one viewport; dense content scrolls inside its current task only. */
-.birthday-wizard { height: calc(100dvh - 7rem); min-height: 0; display: flex; flex-direction: column; }
-.birthday-wizard .language-toolbar { flex: none; }
-.birthday-wizard .creator-header { margin: .35rem 0 .7rem; text-align: left; flex: none; }
+.birthday-wizard { position: relative; height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.birthday-wizard .language-toolbar { position: absolute; top: 0; right: 0; }
+.birthday-wizard .creator-header { width: 100%; max-width: none; min-height: 2.6rem; padding-right: 7rem; margin: 0 0 .6rem; text-align: left; flex: none; }
 .birthday-wizard .creator-header .creator-eyebrow, .birthday-wizard .creator-header > p:last-child { display: none; }
 .birthday-wizard .creator-header h1 { font-size: clamp(1.3rem, 3vw, 1.75rem) !important; margin: 0; line-height: 1.4; }
 .birthday-wizard-nav { display: flex; gap: .8rem; align-items: center; justify-content: space-between; margin-bottom: .8rem; flex: none; }
-.birthday-wizard-nav p { font-size: .78rem; color: #667085; flex-shrink: 0; }
-.birthday-stage-select { width: 75%; min-width: 0; }
+.birthday-wizard-nav p { font-size: .78rem; color: #667085; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.birthday-stage-select { flex: 1; min-width: 0; }
 .birthday-wizard .creator-card { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0; padding: 1.25rem; overflow: hidden; }
-.birthday-wizard .wizard-panel { min-height: 0; flex: 1; overflow: auto; overscroll-behavior: contain; padding: .15rem .35rem .5rem .1rem; scrollbar-gutter: stable; }
+.birthday-wizard .wizard-panel { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior-y: contain; padding: .15rem .5rem 1rem .1rem; scroll-padding-block: 1rem; scrollbar-gutter: stable; }
 .birthday-wizard .wizard-panel:focus { outline: none; }
 .birthday-wizard .creator-card h2 { font-size: 1.35rem; line-height: 1.5; }
 .birthday-wizard .form-actions { flex: none; margin-top: .8rem; padding-top: .8rem; }
@@ -1897,8 +1897,8 @@ button:disabled {
 .active-memory-editor .photo-move-actions strong { flex: 1; font-size: .8rem; }
 .birthday-wizard .theme-card { padding: .7rem; }
 .birthday-wizard .theme-card .swatches { margin-bottom: .4rem; }
-.birthday-wizard .experience-preview { max-height: none; height: auto; flex: 1; min-height: 15rem; margin-top: .5rem; border-width: .35rem; box-shadow: none; }
-.birthday-wizard #birthday-preview { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.birthday-wizard .experience-preview { max-height: none; height: auto; min-height: 0; overflow: visible; margin-top: .5rem; border-width: .35rem; box-shadow: none; }
+.birthday-wizard #birthday-preview { min-height: 0; }
 .birthday-wizard #birthday-preview .preview-heading { margin-top: .5rem; }
 .birthday-wizard #birthday-preview .privacy-note { margin-top: .8rem; padding: .7rem; }
 .birthday-unlock-toggle { display: flex; gap: .6rem; align-items: baseline; font-size: .9rem; }
@@ -1912,12 +1912,11 @@ button:disabled {
 :global(html.dark .active-memory-editor) { border-color: #4b4450; }
 :global(html.dark .birthday-wizard .occasion-switcher summary) { color: #ffabc2; }
 @media (max-width: 639px) {
-  .birthday-wizard { height: calc(100dvh - 6rem); }
   .birthday-wizard .creator-card { padding: .85rem; }
   .birthday-wizard .creator-header { margin-bottom: .5rem; }
-  .birthday-wizard .creator-header h1 { font-size: 1.25rem !important; }
+  .moments-creator.birthday-wizard .creator-header h1 { font-size: 1rem !important; line-height: 1.6; letter-spacing: 0; }
+  .moments-creator.birthday-wizard .creator-card h2 { font-size: 1.25rem; line-height: 1.6; }
   .birthday-wizard-nav { gap: .5rem; margin-bottom: .5rem; }
-  .birthday-stage-select { width: 76%; }
   .compact-birthday-photos img { height: 3.5rem; }
 }
 

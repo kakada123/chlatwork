@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import MomentCreator from "~/components/moments/MomentCreator.vue";
 
+definePageMeta({ layout: "moment-editor", momentEditor: true });
+
 const route = useRoute();
 const { isKhmer } = useMomentLanguage();
 const id = computed(() => String(route.params.id ?? ""));

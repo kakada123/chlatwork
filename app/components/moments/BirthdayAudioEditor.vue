@@ -224,7 +224,7 @@ p { margin: 0; }
 .audio-search, .audio-boundary { display: grid; gap: .45rem; font-size: .78rem; }
 input[type="search"], input[type="number"] { width: 100%; min-height: 2.75rem; border: 1px solid #64748b; border-radius: .65rem; background: var(--audio-field); color: var(--audio-text); padding: .55rem .7rem; }
 input[type="search"]::placeholder { color: var(--audio-muted); }
-.audio-tracks { display: grid; gap: .5rem; max-height: 17rem; overflow-y: auto; margin: 0; padding: .15rem; list-style: none; }
+.audio-tracks { display: grid; gap: .5rem; margin: 0; padding: .15rem; list-style: none; }
 .audio-tracks li { display: flex; align-items: center; justify-content: space-between; gap: .7rem; border: 1px solid var(--audio-border); border-radius: .75rem; padding: .6rem; }
 .audio-tracks li.is-chosen { border-color: #fb7185; background: rgba(251,113,133,.08); }
 .audio-track-title { display: grid; gap: .1rem; min-width: 0; font-size: .8rem; overflow-wrap: anywhere; }

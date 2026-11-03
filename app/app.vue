@@ -3,7 +3,8 @@
   <div
     class="app-shell"
     :data-account-workspace="route.path === '/account' ? '' : undefined"
-    :class="canShowAds ? 'flex flex-col lg:grid lg:grid-cols-[160px_minmax(0,1fr)_160px] lg:gap-4 lg:px-4' : undefined"
+    :data-moment-editor="route.meta.momentEditor === true ? '' : undefined"
+    :class="canShowAds ? 'flex flex-col lg:grid lg:grid-cols-[160px_minmax(0,1fr)_160px] lg:gap-4 lg:px-4' : route.meta.momentEditor === true ? 'flex flex-col' : undefined"
   >
     <div class="app-center min-w-0 lg:order-2">
       <AdsBannerAd v-if="canShowAds" :key="route.path" />
@@ -143,6 +144,19 @@ useHead(() => ({
 </script>
 
 <style scoped>
+.app-shell[data-moment-editor] {
+  height: var(--moment-editor-viewport-height, 100dvh);
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+.app-shell[data-moment-editor] > .app-center {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
 @media (min-width: 1024px) {
   /* Account must share one viewport with any banner, rather than adding another viewport below it. */
   .app-shell[data-account-workspace] {

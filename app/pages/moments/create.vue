@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import MomentCreator from "~/components/moments/MomentCreator.vue";
 
+definePageMeta({ layout: "moment-editor", momentEditor: true });
+
 const { isKhmer, copy } = useMomentLanguage();
 const { canonical } = useProductDomain();
 
