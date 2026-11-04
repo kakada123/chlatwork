@@ -85,7 +85,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     intro:
       "Use these tools when dates, timestamps, deadlines, or scheduled jobs need to be checked quickly.",
     accent: "from-lime-300 via-emerald-300 to-teal-400",
-    toolKeys: ["stopwatch", "calculator", "unix-timestamp", "cron-explainer"],
+    toolKeys: ["khmer-calendar", "stopwatch", "calculator", "unix-timestamp", "cron-explainer"],
   },
   {
     key: "calculators",
@@ -179,7 +179,7 @@ export const TOOL_DIRECTORY_CATEGORIES: ToolDirectoryCategory[] = [
     intro:
       "Use lightweight language helpers for cleaning copied Khmer text and reading written content aloud.",
     accent: "from-fuchsia-300 via-pink-300 to-rose-400",
-    toolKeys: ["khmer-unicode-fixer", "text-to-voice"],
+    toolKeys: ["khmer-calendar", "khmer-unicode-fixer", "text-to-voice"],
   },
   {
     key: "scanners",

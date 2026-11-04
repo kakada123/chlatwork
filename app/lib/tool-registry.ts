@@ -11,9 +11,21 @@ export type ToolDef = {
   status: ToolStatus;
   category: ToolCategory;
   description: string;
+  availabilityOptional?: boolean;
 };
 
 export const TOOLS: ToolDef[] = [
+  {
+    key: "khmer-calendar",
+    // Public local data remains usable during API outages; explicit admin disables still apply.
+    availabilityOptional: true,
+    name: "Khmer Calendar",
+    route: "/tools/khmer-calendar",
+    enabled: true,
+    status: "stable",
+    category: "Utilities",
+    description: "Explore Khmer lunar dates, Cambodian public holidays, Buddhist holy days and traditional Khmer year details.",
+  },
   {
     key: "youtube-downloader",
     name: "YouTube Video Downloader",
@@ -281,6 +293,7 @@ export const ALL_TOOLS_ICON_PATHS = [
 ];
 
 export const TOOL_ICON_PATHS: Record<string, string[]> = {
+  "khmer-calendar": ["M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z", "M7 2v4", "M17 2v4", "M3 9h18", "M7 13h2", "M15 13h2", "M7 17h2", "M15 17h2"],
   stopwatch: ["M12 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z", "M12 10v4l2 2", "M9 2h6", "M12 2v4", "M19 5l2 2"],
   "youtube-downloader": ["M4 5h16v10H4V5Z", "M10 8l5 2-5 2V8Z", "M12 17v5", "M9 19l3 3 3-3"],
   "chlatwork-link": ["M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1", "M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"],
@@ -494,6 +507,7 @@ export const TOOL_ICON_PATHS: Record<string, string[]> = {
 };
 
 export const TOOL_ICON_CLASSES: Record<string, string> = {
+  "khmer-calendar": "bg-rose-50 text-rose-700 group-hover:bg-rose-700 group-hover:text-white",
   stopwatch: "bg-cyan-50 text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white",
   "youtube-downloader": "bg-red-50 text-red-700 group-hover:bg-red-600 group-hover:text-white",
   "chlatwork-link": "bg-sky-50 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",

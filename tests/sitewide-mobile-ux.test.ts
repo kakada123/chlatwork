@@ -73,6 +73,7 @@ test("all page routes inherit the app shell unless they are responsive immersive
     "app/pages/love-probation.vue",
     "app/pages/m/[slug].vue",
     "app/pages/most-annoying.vue",
+    "app/pages/tools/khmer-calendar.vue",
     "app/pages/u/[slug].vue",
   ]);
 

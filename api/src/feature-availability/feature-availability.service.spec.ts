@@ -85,6 +85,20 @@ describe('Feature availability', () => {
     expect(prisma.featureAvailability.upsert).not.toHaveBeenCalled();
   });
 
+  it('lets admins disable and restore the Khmer calendar through the website catalog', async () => {
+    const { service } = setup();
+    expect(
+      (await service.list()).find(
+        (row) => row.key === 'website:khmer-calendar',
+      ),
+    ).toMatchObject({ enabled: true, label: 'Khmer Calendar' });
+    await service.update('website:khmer-calendar', false, 'admin');
+    expect(await service.isEnabled('website:khmer-calendar')).toBe(false);
+    expect(await service.disabledKeys()).toContain('website:khmer-calendar');
+    await service.update('website:khmer-calendar', true, 'admin');
+    expect(await service.isEnabled('website:khmer-calendar')).toBe(true);
+  });
+
   it('persists the admin website-ad switch and exposes its disabled state publicly', async () => {
     const { service } = setup();
     expect(

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { ref } from "vue";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
+import { createJiti } from "jiti";
 
 function compile(
   path: string,
@@ -104,7 +105,12 @@ test("availability shares concurrent requests per app, retries failures, and kee
   assert.equal(other.websiteEnabled("expense"), true);
 });
 
-function middleware(availability: any, isHydrating = false, server = false) {
+function middleware(
+  availability: any,
+  isHydrating = false,
+  server = false,
+  tools = [{ route: "/expense", key: "expense", enabled: true }],
+) {
   return compile(
     "../app/middleware/availability.global.ts",
     {
@@ -117,7 +123,7 @@ function middleware(availability: any, isHydrating = false, server = false) {
     (name) => {
       if (name === "~/lib/tool-registry")
         return {
-          TOOLS: [{ route: "/expense", key: "expense", enabled: true }],
+          TOOLS: tools,
         };
       if (name === "~/data/creator-tools")
         return {
@@ -158,9 +164,22 @@ test("workspace navigation does not wait for public availability", async () => {
 });
 
 test("local-only JekLuy navigation neither requests nor waits for backend availability", async () => {
-  const run = middleware({ refresh: () => { throw new Error("Local-only pages must not request the API"); } });
-  assert.equal(await run({ path: "/jekluy", meta: { localOnly: true } }), undefined);
-  assert.equal(await run({ path: "/", meta: { localOnly: true, productLegacyPath: "/jekluy" } }), undefined);
+  const run = middleware({
+    refresh: () => {
+      throw new Error("Local-only pages must not request the API");
+    },
+  });
+  assert.equal(
+    await run({ path: "/jekluy", meta: { localOnly: true } }),
+    undefined,
+  );
+  assert.equal(
+    await run({
+      path: "/",
+      meta: { localOnly: true, productLegacyPath: "/jekluy" },
+    }),
+    undefined,
+  );
 });
 
 test("gated tools still wait for fresh availability and fail closed", async () => {
@@ -238,5 +257,78 @@ test("product entry aliases retain fail-closed availability checks", async () =>
     refresh: async () => {},
     websiteEnabled: () => false,
   });
-  assert.equal((await run({ path: "/", meta: { productLegacyPath: "/expense" } })).statusCode, 503);
+  assert.equal(
+    (await run({ path: "/", meta: { productLegacyPath: "/expense" } }))
+      .statusCode,
+    503,
+  );
+});
+
+async function calendarTools() {
+  const jiti = createJiti(import.meta.url, {
+    alias: { "~": new URL("../app", import.meta.url).pathname },
+    fsCache: false,
+  });
+  return (await jiti.import<any>("../app/lib/tool-registry.ts")).TOOLS;
+}
+
+test("the real calendar route loads during availability outages on both SSR and client navigation", async () => {
+  const tools = await calendarTools();
+  for (const server of [false, true]) {
+    const run = middleware(
+      {
+        loaded: ref(false),
+        refresh: async () => {
+          throw new Error("API unavailable");
+        },
+        websiteEnabled: () => true,
+      },
+      false,
+      server,
+      tools,
+    );
+    assert.equal(await run({ path: "/tools/khmer-calendar" }), undefined);
+  }
+});
+
+test("calendar availability remains enforceable from a successful check or a known disabled snapshot", async () => {
+  const tools = await calendarTools();
+  for (const offline of [false, true]) {
+    const run = middleware(
+      {
+        loaded: ref(true),
+        refresh: async () => {
+          if (offline) throw new Error("API unavailable");
+        },
+        websiteEnabled: () => false,
+      },
+      false,
+      false,
+      tools,
+    );
+    const result = await run({ path: "/tools/khmer-calendar" });
+    assert.equal(result.statusCode, 503);
+    assert.equal(result.statusMessage, "This tool is temporarily unavailable.");
+  }
+});
+
+test("availability outages still block other tools in the real registry", async () => {
+  const run = middleware(
+    {
+      loaded: ref(false),
+      refresh: async () => {
+        throw new Error("API unavailable");
+      },
+      websiteEnabled: () => true,
+    },
+    false,
+    false,
+    await calendarTools(),
+  );
+  const result = await run({ path: "/tools/youtube-downloader" });
+  assert.equal(result.statusCode, 503);
+  assert.equal(
+    result.statusMessage,
+    "Tool availability could not be checked. Please try again.",
+  );
 });

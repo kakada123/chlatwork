@@ -48,6 +48,7 @@ export const BETA_TOOL_PAGE_PATHS = [
 ];
 
 export const ALL_TOOL_PAGE_PATHS = [
+  "/tools/khmer-calendar",
   "/tools/stopwatch",
   "/tools/youtube-downloader",
   "/tools/payback-calculator",

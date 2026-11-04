@@ -6,6 +6,7 @@ type SearchableTool = Pick<
 >;
 
 const TOOL_SEARCH_ALIASES: Record<string, string[]> = {
+  "khmer-calendar": ["ប្រតិទិនខ្មែរ", "ចន្ទគតិ", "ថ្ងៃសីល", "ថ្ងៃបុណ្យ", "ឆ្នាំខ្មែរ", "Cambodia holidays", "Khmer lunar calendar", "public holidays"],
   "payback-calculator": ["split bill", "split expense", "group expense"],
   "image-compress": ["compress photo", "reduce image size", "image optimizer"],
   "image-to-pdf": ["jpg to pdf", "png to pdf", "photo to pdf"],

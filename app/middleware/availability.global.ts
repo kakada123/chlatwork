@@ -31,16 +31,20 @@ export default defineNuxtRouteMiddleware(async (to) => {
     // Recheck on navigation; hydration can reuse the snapshot already fetched by SSR.
     if (!hydratedSnapshot) await availability.refresh();
   } catch {
-    if (websiteTool || creatorTool || commandHub || linkEditor) {
-      return abortNavigation(
-        createError({
-          statusCode: 503,
-          statusMessage:
-            "Tool availability could not be checked. Please try again.",
-        }),
-      );
+    if (!websiteTool?.availabilityOptional) {
+      if (websiteTool || creatorTool || commandHub || linkEditor) {
+        return abortNavigation(
+          createError({
+            statusCode: 503,
+            statusMessage:
+              "Tool availability could not be checked. Please try again.",
+          }),
+        );
+      }
+      return;
     }
-    return;
+    // A fully local public tool can work without the API. Still enforce any known
+    // disabled setting below, including a snapshot from before the outage.
   }
 
   if (

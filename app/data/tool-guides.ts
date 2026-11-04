@@ -147,6 +147,28 @@ function createPdfGuide(options: PdfGuideOptions): ToolGuideContent {
 }
 
 const RAW_GUIDES: Record<string, ToolGuideContent> = {
+  "khmer-calendar": {
+    metaTitle: "Khmer Calendar, Cambodia Holidays & Celebrations | ChlatWork",
+    metaDescription: "Explore Khmer lunar dates, Cambodian public holidays and international celebrations, with Buddhist holy days, traditional years and a full-screen calendar.",
+    heroTitle: "Khmer Calendar & Celebrations",
+    heroDescription: "Plan around Cambodian public holidays, Khmer and Chinese festivals, family occasions and international celebrations in a Khmer-first calendar.",
+    ctaLabel: "Open Khmer Calendar",
+    whatIs: ["A full-window calendar combining Gregorian dates with Khmer lunar dates, Buddhist holy days, Buddhist Era years, animal years and sak cycles.", "Public holiday schedules are verified separately for 2026 and 2027. Celebrations and observances are shown with their own labels and do not imply paid leave."],
+    whyUse: ["See Cambodian traditions and international occasions together.", "Check lunar dates and Khmer year details without an account.", "Use a compact mobile calendar or optional browser fullscreen on a larger display."],
+    steps: ["Choose a month and year, or select Today to return to the current date in Cambodia.", "Select a day to see its lunar date, traditional year and events.", "Use the celebration filters and annual list to find festivals and special occasions.", "Check the public holiday label and official source before planning time off."],
+    useCases: ["Planning family celebrations, school activities and festival campaigns.", "Checking Khmer lunar dates for invitations and ceremonies.", "Comparing public holidays with cultural and international observances."],
+    tips: ["A celebration is not automatically a Cambodian public holiday.", "Dates based on local religious announcements may differ; follow the note beside the event.", "The official holiday list is unavailable outside the explicitly verified years."],
+    privacy: ["Date conversion and the event catalog run in your browser. No account or personal calendar upload is required."],
+    faqs: [
+      { question: "Which years have verified Cambodian public holidays?", answer: "The complete official schedules for 2026 and 2027 are included with source links. Other years show a coverage notice instead of inferred public holiday dates." },
+      { question: "Does it include international celebrations?", answer: "Yes. The calendar includes cultural celebrations such as Chinese New Year, Valentine’s Day, Halloween and Christmas, alongside Cambodian festivals and major international observances." },
+      { question: "Does every event mean a day off?", answer: "No. Only events labeled Public holiday belong to the verified Cambodian public holiday schedule. Celebrations, commemorations and Buddhist holy days use separate labels." },
+      { question: "Which timezone does Today use?", answer: "Today follows Asia/Phnom_Penh, even when you view the calendar from another timezone." },
+      { question: "Can I use fullscreen on my phone?", answer: "The calendar fills the browser window on all screen sizes. An optional fullscreen button appears when your browser supports it." },
+    ],
+    keywords: ["Khmer calendar", "ប្រតិទិនខ្មែរ", "Cambodia public holidays", "Khmer lunar dates", "Chinese New Year", "international celebrations"],
+    applicationCategory: "UtilitiesApplication",
+  },
   stopwatch: {
     metaTitle: "Online Stopwatch with Lap Times | ChlatWork",
     metaDescription: "Measure elapsed time, pause and resume a session, and record split and total lap times with this free online stopwatch.",

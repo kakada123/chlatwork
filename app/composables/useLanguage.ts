@@ -257,6 +257,10 @@ const TOOL_TRANSLATIONS: Record<
 > = {
   en: {},
   km: {
+    "khmer-calendar": {
+      name: "ប្រតិទិនខ្មែរ",
+      description: "មើលចន្ទគតិ ថ្ងៃឈប់សម្រាកកម្ពុជា ថ្ងៃសីល និងឆ្នាំខ្មែរ។",
+    },
     calculator: {
       name: "គណនាកាលបរិច្ឆេទ",
       description: "បូក ដក និងប្រៀបធៀបកាលបរិច្ឆេទសម្រាប់ការងារ។",

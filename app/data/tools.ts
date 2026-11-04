@@ -53,6 +53,7 @@ const CATEGORY_ICON_PATHS: Record<string, string[]> = {
 };
 
 const TOOL_ACCENTS: Record<string, string> = {
+  "khmer-calendar": "from-rose-300 to-red-700",
   stopwatch: "from-cyan-300 to-sky-500",
   "youtube-downloader": "from-red-400 to-rose-500",
   calculator: "from-blue-400 to-cyan-300",
