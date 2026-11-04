@@ -9,11 +9,14 @@ import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as calendar from "../app/lib/khmer-calendar.ts";
 import * as holidays from "../app/data/cambodia-holidays.ts";
 import * as celebrations from "../app/data/calendar-celebrations.ts";
+import { ModernSelect } from "./helpers/load-modern-select.ts";
+import * as sharing from "../app/lib/calendar-sharing.ts";
+import { loadCalendarComponent } from "./helpers/load-calendar-component.ts";
 
 function loadPage(
   inlineTemplate = false,
   date = { year: 2026, month: 11, day: 4 },
-  sourcePath = "../app/pages/tools/khmer-calendar.vue",
+  sourcePath = "../app/pages/tools/khmer-calendar/index.vue",
 ) {
   const filename = new URL(sourcePath, import.meta.url).pathname;
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), {
@@ -34,6 +37,7 @@ function loadPage(
     vue,
     "lucide-vue-next": icons,
     "~/lib/khmer-calendar": calendar,
+    "~/lib/calendar-sharing": sharing,
     "~/data/cambodia-holidays": holidays,
     "~/data/calendar-celebrations": celebrations,
   };
@@ -43,6 +47,11 @@ function loadPage(
     useSeoMeta() {},
     useHead() {},
     useState: () => vue.ref({ ...date }),
+    useRoute: () => ({ query: {} }),
+    useProductDomain: () => ({
+      config: { mainOrigin: "https://chlatwork.com" },
+    }),
+    navigateTo() {},
     onMounted() {},
     onBeforeUnmount() {},
   };
@@ -56,6 +65,13 @@ function loadPage(
             inlineTemplate,
             date,
             "../app/components/khmer-calendar/CelebrationBrowser.vue",
+          ),
+        };
+      if (name === "~/components/khmer-calendar/CalendarShareButton.vue")
+        return {
+          __esModule: true,
+          default: loadCalendarComponent(
+            "app/components/khmer-calendar/CalendarShareButton.vue",
           ),
         };
       if (!(name in dependencies))
@@ -106,6 +122,7 @@ test("fullscreen rejection is handled with usable feedback", async () => {
 test("calendar renders real Khmer controls, lunar details and source links", async () => {
   const app = vue.createSSRApp(loadPage(true));
   app.component("NuxtLink", { template: "<a><slot /></a>" });
+  app.component("ModernSelect", ModernSelect);
   const html = await renderToString(app);
   assert.match(html, /ប្រតិទិនខ្មែរ/);
   assert.match(html, /ថ្ងៃនេះ/);
@@ -162,6 +179,7 @@ test("unverified years visibly explain missing official holiday coverage", async
     loadPage(true, { year: 2028, month: 1, day: 1 }),
   );
   app.component("NuxtLink", { template: "<a><slot /></a>" });
+  app.component("ModernSelect", ModernSelect);
   const html = await renderToString(app);
   assert.match(html, /coverage-notice/);
   assert.match(html, /២០២៦ និង ២០២៧/);
@@ -202,4 +220,51 @@ test("annual celebration browser filters bilingual searches and emits the chosen
   );
   browser.openDate("2026-12-25");
   assert.deepEqual(emitted, [["select", { year: 2026, month: 12, day: 25 }]]);
+});
+
+test("returning from a detail page restores its month, selected date, and language", () => {
+  const component = loadCalendarComponent(
+    "app/pages/tools/khmer-calendar/index.vue",
+    {
+      inlineTemplate: false,
+      route: { query: { date: "2027-04-16", lang: "en" } },
+    },
+  );
+  const page = component.setup({}, { expose() {} });
+  assert.deepEqual(page.selected.value, { year: 2027, month: 4, day: 16 });
+  assert.equal(page.khmer.value, false);
+});
+
+test("mobile date activation opens a public detail page while desktop stays inline", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  let mobile = true;
+  const navigations: string[] = [];
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: { matchMedia: () => ({ matches: mobile }) },
+  });
+  try {
+    const component = loadCalendarComponent(
+      "app/pages/tools/khmer-calendar/index.vue",
+      {
+        inlineTemplate: false,
+        route: { query: { lang: "en" } },
+        navigateTo: (path) => {
+          navigations.push(path);
+        },
+      },
+    );
+    const page = component.setup({}, { expose() {} });
+    await page.activateDate({ year: 2026, month: 11, day: 9 });
+    assert.deepEqual(navigations, [
+      "/tools/khmer-calendar/date/2026-11-09?lang=en",
+    ]);
+    mobile = false;
+    await page.activateDate({ year: 2026, month: 12, day: 25 });
+    assert.equal(navigations.length, 1);
+    assert.deepEqual(page.selected.value, { year: 2026, month: 12, day: 25 });
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, "window", descriptor);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
 });

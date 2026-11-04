@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { calendarDetailPath, parseCalendarDate } from "~/lib/calendar-sharing";
 import {
   CELEBRATION_CATEGORIES,
   CELEBRATION_SOURCES,
@@ -51,6 +52,9 @@ function openDate(date: string) {
   const [year, month, day] = date.split("-").map(Number);
   emit("select", { year: year!, month: month!, day: day! });
 }
+function eventPath(date: string, id: string) {
+  return calendarDetailPath(parseCalendarDate(date)!, id, props.khmer);
+}
 </script>
 
 <template>
@@ -94,7 +98,11 @@ function openDate(date: string) {
         /></label>
         <label
           >{{ label("ប្រភេទ", "Category")
-          }}<select v-model="category">
+          }}<ModernSelect
+            v-model="category"
+            class="w-full"
+            :search-placeholder="label('ស្វែងរកប្រភេទ…', 'Search categories…')"
+          >
             <option value="all">{{ label("ទាំងអស់", "All occasions") }}</option>
             <option value="public-holiday">
               {{ label("ថ្ងៃឈប់សម្រាកផ្លូវការ", "Official public holidays") }}
@@ -106,7 +114,7 @@ function openDate(date: string) {
             >
               {{ khmer ? item.km : item.en }}
             </option>
-          </select></label
+          </ModernSelect></label
         >
       </div>
       <p class="result-count" role="status">
@@ -142,6 +150,14 @@ function openDate(date: string) {
                   }}</span></span
                 >
               </button>
+              <NuxtLink
+                :to="eventPath(event.date, event.id)"
+                class="occasion-details"
+                >{{
+                  label("ព័ត៌មាន និងចែករំលែក", "Details & share")
+                }}
+                ↗</NuxtLink
+              >
             </li>
           </ul>
         </section>
@@ -222,8 +238,7 @@ summary > span:last-child {
   font-size: 11px;
   font-weight: 600;
 }
-.browser-filters input,
-.browser-filters select {
+.browser-filters input {
   min-width: 0;
   width: 100%;
   padding: 9px 12px;
@@ -289,6 +304,15 @@ li small.public-holiday {
   font-size: 10px;
   color: var(--muted);
   margin-top: 4px;
+}
+.occasion-details {
+  display: inline-block;
+  margin: 0 0 10px 35px;
+  min-height: 30px;
+  color: var(--red);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .celebration-sources {
   display: flex;

@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import CelebrationBrowser from "~/components/khmer-calendar/CelebrationBrowser.vue";
+import CalendarShareButton from "~/components/khmer-calendar/CalendarShareButton.vue";
+import {
+  calendarDetailPath,
+  getCalendarDetailMeta,
+  parseCalendarDate,
+} from "~/lib/calendar-sharing";
 import {
   ArrowLeft,
   CalendarDays,
@@ -42,12 +48,28 @@ useSeoMeta({
     "Explore Khmer lunar dates, Cambodian festivals and international celebrations in one calendar.",
 });
 
-const khmer = ref(true);
+const route = useRoute();
+const khmer = ref(route.query.lang !== "en");
 // Nuxt serializes this initial civil date so hydration cannot cross a midnight boundary.
 const today = useState<CalendarDate>("khmer-calendar-today", () =>
   getPhnomPenhToday(),
 );
-const selected = ref<CalendarDate>({ ...today.value });
+const selected = ref<CalendarDate>(
+  parseCalendarDate(route.query.date) ?? { ...today.value },
+);
+watch(
+  () => route.query.date,
+  (value) => {
+    const date = parseCalendarDate(value);
+    if (date) selected.value = date;
+  },
+);
+watch(
+  () => route.query.lang,
+  (value) => {
+    khmer.value = value !== "en";
+  },
+);
 const calendarRoot = ref<HTMLElement | null>(null);
 const fullscreen = ref(false);
 const fullscreenSupported = ref(false);
@@ -154,11 +176,25 @@ function selectDate(date: CalendarDate) {
   try {
     getDayDetails(date);
     selected.value = { ...date };
+    return true;
   } catch {
-    return;
+    return false;
   }
 }
+function mobileCalendar() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 850px)").matches
+  );
+}
+async function activateDate(date: CalendarDate) {
+  if (!selectDate(date)) return;
+  // A separate page keeps mobile date details reachable without scrolling past the month grid.
+  if (mobileCalendar())
+    await navigateTo(calendarDetailPath(date, undefined, khmer.value));
+}
 function selectCelebrationDate(date: CalendarDate) {
+  if (mobileCalendar()) return activateDate(date);
   selectDate(date);
   calendarRoot.value
     ?.querySelector(".month-panel")
@@ -370,9 +406,11 @@ onBeforeUnmount(() => {
               <label class="sr-only" for="calendar-month">{{
                 label("ខែ", "Month")
               }}</label>
-              <select
+              <ModernSelect
                 id="calendar-month"
+                class="w-40"
                 :value="selected.month"
+                :search-placeholder="label('ស្វែងរកខែ…', 'Search months…')"
                 @change="
                   setMonthYear(
                     selected.year,
@@ -387,13 +425,15 @@ onBeforeUnmount(() => {
                 >
                   {{ month }}
                 </option>
-              </select>
+              </ModernSelect>
               <label class="sr-only" for="calendar-year">{{
                 label("ឆ្នាំ", "Year")
               }}</label>
-              <select
+              <ModernSelect
                 id="calendar-year"
+                class="w-28"
                 :value="selected.year"
+                :search-placeholder="label('ស្វែងរកឆ្នាំ…', 'Search years…')"
                 @change="
                   setMonthYear(
                     Number(($event.target as HTMLSelectElement).value),
@@ -404,7 +444,7 @@ onBeforeUnmount(() => {
                 <option v-for="year in years" :key="year" :value="year">
                   {{ digits(year) }}
                 </option>
-              </select>
+              </ModernSelect>
             </div>
             <label class="observance-toggle"
               ><input v-model="showObservances" type="checkbox" />
@@ -461,7 +501,7 @@ onBeforeUnmount(() => {
                     :aria-pressed="day.key === selectedKey"
                     :aria-current="day.key === todayKey ? 'date' : undefined"
                     :tabindex="day.key === selectedKey ? 0 : -1"
-                    @click="selectDate(day.date)"
+                    @click="activateDate(day.date)"
                     @keydown="handleDayKey($event, day)"
                   >
                     <span class="day-top"
@@ -570,21 +610,37 @@ onBeforeUnmount(() => {
                 label("ថ្ងៃសីល", "Buddhist holy day")
               }}</span
             >
-            <dl class="year-details">
-              <div>
-                <dt>{{ label("ពុទ្ធសករាជ", "Buddhist Era") }}</dt>
-                <dd>{{ digits(detail.lunar.beYear) }}</dd>
-              </div>
-              <div>
-                <dt>{{ label("ឆ្នាំខ្មែរ", "Animal year") }}</dt>
-                <dd lang="km">{{ detail.lunar.animalYearName }}</dd>
-              </div>
-              <div>
-                <dt>{{ label("ស័ក", "Sak cycle") }}</dt>
-                <dd lang="km">{{ detail.lunar.sakName }}</dd>
-              </div>
-            </dl>
+            <details class="year-information">
+              <summary>
+                {{ label("ព័ត៌មានឆ្នាំខ្មែរ", "Khmer year details") }}
+              </summary>
+              <dl class="year-details">
+                <div>
+                  <dt>{{ label("ពុទ្ធសករាជ", "Buddhist Era") }}</dt>
+                  <dd>{{ digits(detail.lunar.beYear) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ label("ឆ្នាំខ្មែរ", "Animal year") }}</dt>
+                  <dd lang="km">{{ detail.lunar.animalYearName }}</dd>
+                </div>
+                <div>
+                  <dt>{{ label("ស័ក", "Sak cycle") }}</dt>
+                  <dd lang="km">{{ detail.lunar.sakName }}</dd>
+                </div>
+              </dl>
+            </details>
           </section>
+
+          <div class="selected-date-actions">
+            <NuxtLink :to="calendarDetailPath(selected, undefined, khmer)">{{
+              label("មើលព័ត៌មានថ្ងៃនេះ", "View date details")
+            }}</NuxtLink>
+            <CalendarShareButton
+              :path="calendarDetailPath(selected, undefined, khmer)"
+              :title="getCalendarDetailMeta(detail, null, khmer).title"
+              :khmer="khmer"
+            />
+          </div>
 
           <section class="day-detail-panel">
             <h3>{{ label("ពិធីបុណ្យ និងទិវា", "Holidays & observances") }}</h3>
@@ -598,11 +654,21 @@ onBeforeUnmount(() => {
                         "Celebration / observance · not a public holiday",
                       )
                 }}</span>
-                <p>{{ eventName(event) }}</p>
+                <p>
+                  <NuxtLink
+                    :to="calendarDetailPath(selected, event.id, khmer)"
+                    >{{ eventName(event) }}</NuxtLink
+                  >
+                </p>
                 <small v-if="event.estimated" class="estimated-note"
                   >{{ label("ប៉ាន់ស្មាន", "Estimated") }} ·
                   {{ khmer ? event.noteKm : event.noteEn }}</small
                 >
+                <CalendarShareButton
+                  :path="calendarDetailPath(selected, event.id, khmer)"
+                  :title="getCalendarDetailMeta(detail, event, khmer).title"
+                  :khmer="khmer"
+                />
               </li>
             </ul>
             <p v-else class="empty-copy">
@@ -764,7 +830,7 @@ onBeforeUnmount(() => {
   border-top: 4px solid #9a3038;
   border-bottom: 1px solid var(--line);
   background: var(--paper);
-  padding: 16px 36px 25px;
+  padding: 12px 30px 16px;
 }
 .brand-row,
 .title-row,
@@ -780,7 +846,7 @@ onBeforeUnmount(() => {
 }
 .brand-row {
   justify-content: space-between;
-  margin-bottom: 23px;
+  margin-bottom: 10px;
 }
 .back-link {
   display: inline-flex;
@@ -806,14 +872,15 @@ onBeforeUnmount(() => {
   min-height: 36px;
 }
 .title-row {
-  gap: 17px;
+  gap: 12px;
 }
 .calendar-emblem {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 61px;
-  height: 66px;
+  width: 48px;
+  height: 52px;
+  flex-shrink: 0;
   border: 1px solid var(--line);
   border-radius: 18px 18px 8px 8px;
   color: var(--red);
@@ -824,11 +891,11 @@ onBeforeUnmount(() => {
   font-size: 10px;
   letter-spacing: 0.14em;
   font-weight: 650;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 h1 {
-  font-size: 28px;
-  line-height: 1.6;
+  font-size: 24px;
+  line-height: 1.5;
   font-weight: 800;
   letter-spacing: -0.025em;
 }
@@ -927,15 +994,8 @@ h1 {
 }
 .date-selectors {
   gap: 7px;
-}
-.date-selectors select {
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 5px 28px 5px 10px;
-  background-color: var(--paper);
-  color: var(--ink);
-  font-size: 12px;
-  min-height: 34px;
+  min-width: 0;
+  max-width: 100%;
 }
 .observance-toggle {
   font-size: 11px;
@@ -1170,6 +1230,34 @@ h1 {
   margin-top: 15px;
   padding-top: 12px;
 }
+.year-information {
+  margin-top: 10px;
+}
+.year-information summary {
+  cursor: pointer;
+  color: #ecd2b2;
+  font-size: 11px;
+}
+.selected-date-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 3px;
+}
+.selected-date-actions > a {
+  color: var(--red);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.selected-events :deep(.calendar-share) {
+  margin-top: 8px;
+}
+.selected-events a:hover {
+  color: var(--red);
+}
 .year-details dt {
   font-size: 9px;
   color: #e7c5b9;
@@ -1312,6 +1400,76 @@ input:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
+summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+@media (min-width: 851px) {
+  .calendar-content {
+    padding-top: 16px;
+  }
+  .month-toolbar {
+    padding: 12px 18px 8px;
+  }
+  .month-heading h2 {
+    font-size: 20px;
+  }
+  .calendar-options {
+    padding: 0 18px 10px;
+  }
+  .month-grid th {
+    height: 32px;
+  }
+  .month-grid td {
+    height: clamp(64px, calc((100dvh - 360px) / 6), 120px);
+  }
+  .day-button {
+    height: clamp(64px, calc((100dvh - 360px) / 6), 120px);
+    min-height: 0;
+    padding: 4px 7px;
+    overflow: hidden;
+  }
+  .day-number {
+    font-size: 21px;
+    line-height: 1.25;
+  }
+  .day-events {
+    margin-top: 2px;
+    gap: 1px;
+  }
+  .calendar-legend {
+    padding: 8px 14px;
+  }
+  /* Bound long event content to the calendar workspace instead of extending the whole page. */
+  .calendar-sidebar {
+    max-height: max(480px, calc(100dvh - 190px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    gap: 12px;
+    padding: 2px;
+  }
+  .selected-card {
+    padding: 14px;
+  }
+  .selected-date {
+    margin: 5px 0 9px;
+  }
+  .selected-date > strong {
+    font-size: 38px;
+  }
+  .selected-lunar {
+    padding-top: 8px;
+    line-height: 1.8;
+  }
+  .day-detail-panel,
+  .month-event-panel {
+    padding: 13px;
+  }
+  .month-event-list {
+    max-height: 190px;
+  }
+}
 @media (min-width: 1500px) {
   .lunar-month {
     display: inline;
@@ -1344,8 +1502,7 @@ input:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
   .calendar-sidebar {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
+    display: none;
   }
   .selected-card {
     grid-row: span 2;
@@ -1354,7 +1511,7 @@ input:focus-visible {
     height: 105px;
   }
   .calendar-header {
-    padding: 13px 22px 22px;
+    padding: 10px 22px 14px;
   }
   .month-event-list {
     max-height: 220px;
@@ -1362,22 +1519,22 @@ input:focus-visible {
 }
 @media (max-width: 540px) {
   .calendar-header {
-    padding: 10px 15px 19px;
+    padding: 8px 15px 12px;
   }
   .brand-row {
-    margin-bottom: 17px;
+    margin-bottom: 8px;
   }
   .title-row {
     gap: 12px;
   }
   .calendar-emblem {
-    width: 46px;
-    height: 54px;
+    width: 40px;
+    height: 46px;
     border-radius: 14px 14px 6px 6px;
     flex-shrink: 0;
   }
   h1 {
-    font-size: 24px;
+    font-size: 21px;
   }
   .eyebrow {
     font-size: 8px;
@@ -1420,10 +1577,6 @@ input:focus-visible {
   }
   .observance-toggle {
     font-size: 10px;
-  }
-  .date-selectors select {
-    font-size: 11px;
-    min-height: 32px;
   }
   .month-grid th {
     font-size: 9px;
@@ -1494,6 +1647,23 @@ input:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .day-button {
     transition: none;
+  }
+}
+@media (min-width: 851px) and (max-height: 800px) {
+  /* Short windows retain readable dates; occasion names remain available in the sidebar. */
+  .day-button {
+    padding: 4px 7px;
+  }
+  .day-number {
+    font-size: 20px;
+  }
+  .day-events {
+    display: none;
+  }
+  .mobile-markers {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
   }
 }
 </style>
