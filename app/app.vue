@@ -74,7 +74,7 @@ onBeforeUnmount(() => {
 });
 
 const siteUrl = domainConfig.mainOrigin;
-const ogImage = `${siteUrl}/og-home.png`;
+const ogImage = `${siteUrl}/og-home.png?v=20261104`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
 const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));

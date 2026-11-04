@@ -27,11 +27,11 @@ useSeoMeta({
   ogDescription: computed(() => guide.value?.metaDescription ?? ""),
   ogType: "article",
   ogUrl: pageUrl,
-  ogImage: `${siteUrl}/og-home.png`,
+  ogImage: `${siteUrl}/og-home.png?v=20261104`,
   twitterCard: "summary_large_image",
   twitterTitle: computed(() => guide.value?.metaTitle ?? "Tool Guide - ChlatWork"),
   twitterDescription: computed(() => guide.value?.metaDescription ?? ""),
-  twitterImage: `${siteUrl}/og-home.png`,
+  twitterImage: `${siteUrl}/og-home.png?v=20261104`,
 });
 
 useHead(() => {

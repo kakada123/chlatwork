@@ -11,7 +11,7 @@ const canonicalUrl = computed(() =>
 const socialImageUrl = computed(() =>
   post.value
     ? `${siteUrl}${post.value.imagePath}?v=20260731-1`
-    : `${siteUrl}/og-home.png`,
+    : `${siteUrl}/og-home.png?v=20261104`,
 );
 
 watchEffect(() => {

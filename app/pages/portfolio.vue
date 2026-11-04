@@ -16,7 +16,7 @@ const pageTitle = "Kakada Ngen - Backend & Full-Stack Developer";
 const pageDescription =
   "Portfolio for Kakada Ngen, a backend-focused full-stack developer building POS systems, APIs, dashboards, microservices, Electron apps, and automation tools.";
 const pageUrl = `${siteUrl}/portfolio`;
-const ogImage = `${siteUrl}/og-home.png`;
+const ogImage = `${siteUrl}/og-home.png?v=20261104`;
 
 useLandingReveal(pageEl);
 
