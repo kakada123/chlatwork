@@ -4,6 +4,9 @@ import draggable from "vuedraggable";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
 import { LINK_THEMES } from "~/lib/link-profile";
 import LinkPlatformIcon from "./LinkPlatformIcon.vue";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 const props = defineProps<{
   profile: LinkProfile;
   preview?: boolean;
@@ -92,7 +95,7 @@ const links = computed(() =>
           (profile.displayName || "You").slice(0, 1).toUpperCase()
         }}</span>
       </div>
-      <h1>{{ profile.displayName || "Your name" }}</h1>
+      <h1>{{ profile.displayName || (isKhmer ? "ឈ្មោះរបស់អ្នក" : "Your name") }}</h1>
       <p v-if="profile.headline" class="link-headline">
         {{ profile.headline }}
       </p>
@@ -114,14 +117,14 @@ const links = computed(() =>
             type="button"
             class="link-button"
             :class="`button-${profile.buttonStyle}`"
-            :aria-label="`Reorder ${link.title || 'Your link'}`"
+            :aria-label="`Reorder ${link.title || (isKhmer ? 'តំណភ្ជាប់របស់អ្នក' : 'Your link')}`"
             :aria-disabled="disabled"
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
             @keydown.alt.up.prevent="movePreviewLink(link, -1)"
             @keydown.alt.down.prevent="movePreviewLink(link, 1)"
           >
             <LinkPlatformIcon :url="link.url" class="link-icon" />
-            <span>{{ link.title || "Your link" }}</span>
+            <span>{{ link.title || (isKhmer ? "តំណភ្ជាប់របស់អ្នក" : "Your link") }}</span>
             <ArrowUpRight class="link-arrow" aria-hidden="true" />
           </button>
         </template>
@@ -141,13 +144,13 @@ const links = computed(() =>
           @click="!preview && emit('click', link)"
         >
           <LinkPlatformIcon :url="link.url" class="link-icon" /><span>{{
-            link.title || "Your link"
+            link.title || (isKhmer ? "តំណភ្ជាប់របស់អ្នក" : "Your link")
           }}</span
           ><ArrowUpRight class="link-arrow" aria-hidden="true" />
         </component>
       </div>
       <p v-if="preview && !links.length" class="link-empty">
-        Your links will appear here.
+        {{ isKhmer ? "តំណភ្ជាប់របស់អ្នកនឹងបង្ហាញនៅទីនេះ។" : "Your links will appear here." }}
       </p>
       <slot />
       <NuxtLink v-if="profile.showBranding" to="/link" class="link-brand"

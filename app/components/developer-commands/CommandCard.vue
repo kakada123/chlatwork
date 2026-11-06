@@ -3,7 +3,9 @@ import { LoaderCircle } from "lucide-vue-next";
 import type { DeveloperCommand } from "~/types/developer-command";
 import CommandCopyButton from "~/components/developer-commands/CommandCopyButton.vue";
 import CommandCustomizer from "~/components/developer-commands/CommandCustomizer.vue";
+import { useLanguage } from "~/composables/useLanguage";
 
+const { isKhmer } = useLanguage();
 const props = withDefaults(
   defineProps<{ item: DeveloperCommand; favorite: boolean; requiresLogin?: boolean; saving?: boolean }>(),
   { requiresLogin: false, saving: false },
@@ -31,17 +33,17 @@ const dangerClass = computed(() => ({ safe: "border-emerald-200 bg-emerald-50 te
         </div>
         <h2 class="mt-1 truncate text-sm font-black text-slate-950 dark:text-white">{{ item.title }}</h2>
       </button>
-      <button type="button" class="shrink-0 rounded-lg p-1 text-lg leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-slate-800" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 dark:text-slate-600'" :aria-label="requiresLogin ? 'Sign in to add favorites' : favorite ? 'Remove from favorites' : 'Add to favorites'" :aria-pressed="favorite" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? 'Sign in to save favorites' : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
+      <button type="button" class="shrink-0 rounded-lg p-1 text-lg leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-slate-800" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 dark:text-slate-600'" :aria-label="requiresLogin ? (isKhmer ? 'ចូលគណនីដើម្បីដាក់ជាចំណូលចិត្ត' : 'Sign in to add favorites') : favorite ? (isKhmer ? 'ដកចេញពីចំណូលចិត្ត' : 'Remove from favorites') : (isKhmer ? 'ដាក់ជាចំណូលចិត្ត' : 'Add to favorites')" :aria-pressed="favorite" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? (isKhmer ? 'ចូលគណនីដើម្បីរក្សាទុកចំណូលចិត្ត' : 'Sign in to save favorites') : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
     </div>
 
-    <p v-if="isExpanded && item.consequence" class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold leading-5 text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300"><span class="font-black">Consequence:</span> {{ item.consequence }}</p>
+    <p v-if="isExpanded && item.consequence" class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold leading-5 text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300"><span class="font-black">{{ isKhmer ? "ផលប៉ះពាល់៖" : "Consequence:" }}</span> {{ item.consequence }}</p>
     <div v-if="isExpanded && item.platform" class="mt-3 flex flex-wrap gap-1.5"><span v-for="platform in item.platform" :key="platform" class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ platform }}</span></div>
 
     <CommandCustomizer v-if="isExpanded && isCustomizing && item.variables" class="mt-3" :variables="item.variables" :values="values" @change="(key, value) => values[key] = value" />
 
     <pre class="mt-2 overflow-x-auto whitespace-pre rounded-lg border border-transparent bg-slate-950 px-2.5 py-2 font-mono text-xs text-cyan-100 dark:border-slate-700 dark:bg-black dark:text-cyan-200"><code>{{ generatedCommand }}</code></pre>
     <div class="mt-2 flex items-center justify-between gap-2">
-      <button v-if="item.variables?.length" type="button" class="h-8 shrink-0 rounded-lg border border-slate-200 px-2 text-xs font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-800" :aria-expanded="isCustomizing" @click="isExpanded = true; isCustomizing = !isCustomizing">{{ isCustomizing ? "Hide" : "Customize" }}</button>
+      <button v-if="item.variables?.length" type="button" class="h-8 shrink-0 rounded-lg border border-slate-200 px-2 text-xs font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-800" :aria-expanded="isCustomizing" @click="isExpanded = true; isCustomizing = !isCustomizing">{{ isCustomizing ? (isKhmer ? "លាក់" : "Hide") : (isKhmer ? "កែប្រែ" : "Customize") }}</button>
       <span v-else />
       <CommandCopyButton :command="generatedCommand" @copied="emit('copied', generatedCommand)" />
     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AppLocale } from "~/composables/useLanguage";
+import { useLanguage } from "~/composables/useLanguage";
 
 interface GoogleCredentialResponse { credential?: string }
 
@@ -16,9 +17,9 @@ declare global {
   }
 }
 
-const props = withDefaults(defineProps<{ locale?: AppLocale }>(), {
-  locale: "en",
-});
+const { currentLocale } = useLanguage();
+const props = defineProps<{ locale?: AppLocale }>();
+const activeLocale = computed(() => props.locale ?? currentLocale.value);
 const emit = defineEmits<{ success: []; error: [message: string] }>();
 const config = useRuntimeConfig();
 const { loginWithGoogle, loginWithTelegram, startTelegramCodeLogin } = useAuth();
@@ -27,7 +28,7 @@ const googleClientId = computed(() => config.public.googleClientId);
 const telegramClientId = computed(() => config.public.telegramClientId);
 const isMiniAppAuthenticating = ref(false);
 const authCopy = computed(() =>
-  props.locale === "km"
+  activeLocale.value === "km"
     ? {
         divider: "ឬបន្តជាមួយ",
         googleMissing: "មិនទាន់បានកំណត់ Google login",
@@ -64,7 +65,7 @@ function loadScript(id: string, src: string) {
 }
 
 function getSocialAuthError(error: unknown) {
-  return props.locale === "km"
+  return activeLocale.value === "km"
     ? authCopy.value.loginError
     : getAuthErrorMessage(error);
 }
@@ -108,7 +109,7 @@ onMounted(async () => {
       },
     });
     window.google?.accounts.id.renderButton(googleButton.value, {
-      theme: "outline", size: "large", text: "continue_with", shape: "pill", width: 320, locale: props.locale,
+      theme: "outline", size: "large", text: "continue_with", shape: "pill", width: 320, locale: activeLocale.value,
     });
   } catch (error) {
     emit("error", getSocialAuthError(error));
@@ -119,7 +120,7 @@ onMounted(async () => {
 <template>
   <div class="mt-6 space-y-3">
     <p v-if="isMiniAppAuthenticating" role="status" class="rounded-xl bg-sky-50 px-4 py-3 text-center text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-      Verifying your Telegram account…
+      {{ activeLocale === 'km' ? "កំពុងផ្ទៀងផ្ទាត់គណនី Telegram របស់អ្នក…" : "Verifying your Telegram account…" }}
     </p>
     <template v-else>
     <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-gray-500">

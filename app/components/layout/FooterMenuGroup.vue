@@ -15,11 +15,17 @@ defineProps<{
 const emit = defineEmits<{
   action: [action: string];
 }>();
+
+const { isKhmer } = useLanguage();
 </script>
 
 <template>
   <nav class="space-y-3" :aria-label="ariaLabel">
-    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-white/35">
+    <!-- Khmer headings need natural spacing to keep their glyph clusters readable. -->
+    <p
+      class="text-xs font-semibold text-gray-400 dark:text-white/35"
+      :class="isKhmer ? 'tracking-normal' : 'uppercase tracking-[0.16em]'"
+    >
       {{ title }}
     </p>
     <div class="flex flex-col gap-2 text-gray-500 dark:text-white/55">

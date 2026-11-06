@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ArrowRight, Clapperboard, Languages, Search, Sparkles, X } from "lucide-vue-next";
 import { CREATOR_CATEGORIES, CREATOR_TOOLS, getCreatorToolsByCategory } from "~/data/creator-tools";
+import { useLanguage } from "~/composables/useLanguage";
 
 definePageMeta({ layout: "creator" });
 
+const { isKhmer } = useLanguage();
 const { items: recentItems, refresh: refreshHistory } = useCreatorHistory();
 const { user } = useAuth();
 const { product } = useProductDomain();
@@ -75,13 +77,14 @@ onMounted(() => {
           ChlatWork Creator
         </p>
         <h1 class="mt-2 text-[#082552] dark:text-white">
-          What do you want to create?
+          {{ isKhmer ? "តើអ្នកចង់បង្កើតអ្វី?" : "What do you want to create?" }}
         </h1>
         <p
           class="creator-intro mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60"
         >
-          Create platform-ready content and natural Khmer copy without learning
-          complicated AI tools.
+          {{ isKhmer
+            ? "បង្កើតមាតិកាដែលត្រៀមរួចជាស្រេចសម្រាប់បណ្តាញសង្គម និងការសរសេរជាភាសាខ្មែរបែបធម្មជាតិ ដោយមិនបាច់រៀនឧបករណ៍ AI ស្មុគស្មាញ។"
+            : "Create platform-ready content and natural Khmer copy without learning complicated AI tools." }}
         </p>
       </div>
       <NuxtLink
@@ -89,21 +92,21 @@ onMounted(() => {
         class="mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-violet-700 underline-offset-4 hover:underline dark:text-violet-300 sm:mt-0"
       >
         <template v-if="creditBalance !== null"
-          >{{ creditBalance }} credits remaining</template
+          >{{ creditBalance }} {{ isKhmer ? "ក្រេឌីតដែលនៅសល់" : "credits remaining" }}</template
         >
-        <template v-else>View your credits</template>
+        <template v-else>{{ isKhmer ? "មើលក្រេឌីតរបស់អ្នក" : "View your credits" }}</template>
       </NuxtLink>
     </header>
 
     <section v-if="product === 'creator'" class="space-y-4 sm:hidden" aria-label="Creator tools">
       <div class="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 dark:border-white/15 dark:bg-white/5">
         <Search class="size-4 shrink-0 text-slate-400" aria-hidden="true" />
-        <input v-model="mobileQuery" type="search" placeholder="Find a tool" aria-label="Search Creator tools" class="min-h-12 min-w-0 flex-1 bg-transparent text-sm outline-none" />
-        <button v-if="mobileQuery" type="button" class="grid size-11 shrink-0 place-items-center rounded-xl" aria-label="Clear tool search" @click="mobileQuery = ''"><X class="size-4" aria-hidden="true" /></button>
+        <input v-model="mobileQuery" type="search" :placeholder="isKhmer ? 'ស្វែងរកឧបករណ៍' : 'Find a tool'" :aria-label="isKhmer ? 'ស្វែងរកឧបករណ៍ Creator' : 'Search Creator tools'" class="min-h-12 min-w-0 flex-1 bg-transparent text-sm outline-none" />
+        <button v-if="mobileQuery" type="button" class="grid size-11 shrink-0 place-items-center rounded-xl" :aria-label="isKhmer ? 'សម្អាតការស្វែងរក' : 'Clear tool search'" @click="mobileQuery = ''"><X class="size-4" aria-hidden="true" /></button>
       </div>
-      <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Tool category">
-        <button type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === 'all' ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === 'all'" @click="mobileCategory = 'all'">All</button>
-        <button v-for="category in CREATOR_CATEGORIES" :key="category.id" type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === category.id ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === category.id" @click="mobileCategory = category.id">{{ category.title }}</button>
+      <div class="flex gap-2 overflow-x-auto pb-1" role="group" :aria-label="isKhmer ? 'ប្រភេទឧបករណ៍' : 'Tool category'">
+        <button type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === 'all' ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === 'all'" @click="mobileCategory = 'all'">{{ isKhmer ? "ទាំងអស់" : "All" }}</button>
+        <button v-for="category in CREATOR_CATEGORIES" :key="category.id" type="button" class="min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold" :class="mobileCategory === category.id ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200' : 'border-slate-200 dark:border-white/15'" :aria-pressed="mobileCategory === category.id" @click="mobileCategory = category.id">{{ isKhmer ? (category.id === 'create' ? 'បង្កើត' : category.id === 'video' ? 'វីដេអូ AI' : category.id === 'repurpose' ? 'កែច្នៃ' : 'ភាសាខ្មែរ') : category.title }}</button>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <NuxtLink v-for="tool in mobileTools" :key="tool.id" :to="tool.route" class="mobile-pressable flex min-h-28 min-w-0 flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:border-white/10 dark:bg-white/5">
@@ -111,7 +114,7 @@ onMounted(() => {
           <span class="text-sm font-semibold leading-5">{{ tool.shortTitle }}</span>
         </NuxtLink>
       </div>
-      <p v-if="!mobileTools.length" role="status" class="rounded-2xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500 dark:border-white/15">No matching tools.</p>
+      <p v-if="!mobileTools.length" role="status" class="rounded-2xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500 dark:border-white/15">{{ isKhmer ? "រកមិនឃើញឧបករណ៍ត្រូវគ្នាទេ។" : "No matching tools." }}</p>
     </section>
 
     <section v-if="createTools.length" class="creator-desktop-section" aria-labelledby="creator-create-title">
@@ -169,7 +172,7 @@ onMounted(() => {
             </h2>
           </div>
           <p class="mt-1 text-xs text-slate-500 dark:text-white/45">
-            Upload once. Turn the useful parts into content.
+            {{ isKhmer ? "បញ្ចូលវីដេអូតែម្តង។ បំប្លែងផ្នែកដែលមានប្រយោជន៍ទៅជាមាតិកា។" : "Upload once. Turn the useful parts into content." }}
           </p>
         </div>
       </div>
@@ -194,16 +197,17 @@ onMounted(() => {
               </h3>
               <span
                 class="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-800 dark:bg-amber-300/15 dark:text-amber-200"
-                >Flagship</span
+                >{{ isKhmer ? "ពេញនិយមបំផុត" : "Flagship" }}</span
               >
             </div>
             <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/60">
-              Get Khmer subtitles, captions, hooks, hashtags, a title, CTA, and
-              summary from one video.
+              {{ isKhmer
+                ? "ទទួលបានចំណងជើងរងជាភាសាខ្មែរ ចំណងជើងទាក់ទាញ hook, hashtag, CTA និងការសង្ខេបពីវីដេអូតែមួយ។"
+                : "Get Khmer subtitles, captions, hooks, hashtags, a title, CTA, and summary from one video." }}
             </p>
             <span
               class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200"
-              >Build a content pack
+              >{{ isKhmer ? "បង្កើត Content Pack" : "Build a content pack" }}
               <ArrowRight
                 class="size-4 transition group-hover:translate-x-0.5"
                 aria-hidden="true"
@@ -336,10 +340,10 @@ onMounted(() => {
       <div class="flex items-end justify-between gap-3">
         <div>
           <h2 id="creator-recent-title" class="text-lg font-semibold">
-            Recent generations
+            {{ isKhmer ? "ការបង្កើតថ្មីៗ" : "Recent generations" }}
           </h2>
           <p class="mt-1 text-xs text-slate-500 dark:text-white/45">
-            Saved securely to your ChlatWork account for 30 days.
+            {{ isKhmer ? "រក្សាទុកដោយសុវត្ថិភាពក្នុងគណនី ChlatWork របស់អ្នករយៈពេល 30 ថ្ងៃ។" : "Saved securely to your ChlatWork account for 30 days." }}
           </p>
         </div>
       </div>
@@ -363,7 +367,7 @@ onMounted(() => {
           <span
             class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-cyan-300"
           >
-            View details
+            {{ isKhmer ? "មើលលម្អិត" : "View details" }}
             <ArrowRight class="size-3.5" aria-hidden="true" /> </span
         ></NuxtLink>
       </div>
@@ -372,13 +376,13 @@ onMounted(() => {
         class="mt-3 rounded-2xl border border-dashed border-slate-300 p-5 text-center dark:border-white/15"
       >
         <p class="text-sm text-slate-500 dark:text-white/50">
-          Your latest Creator results will appear here.
+          {{ isKhmer ? "លទ្ធផល Creator ចុងក្រោយរបស់អ្នកនឹងបង្ហាញនៅទីនេះ។" : "Your latest Creator results will appear here." }}
         </p>
         <NuxtLink
           v-if="creatorEnabled('hook-generator')"
           to="/creator/create/hook"
           class="mt-2 inline-flex text-sm font-semibold text-sky-700 dark:text-cyan-300"
-          >Try the quick Hook Generator</NuxtLink
+          >{{ isKhmer ? "សាកល្បងឧបករណ៍បង្កើត Hook រហ័ស" : "Try the quick Hook Generator" }}</NuxtLink
         >
       </div>
     </section>

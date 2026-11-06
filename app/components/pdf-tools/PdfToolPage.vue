@@ -5,6 +5,7 @@ import {
   type PdfToolKey,
 } from "~/data/pdf-tools";
 import { findToolGuideByToolRoute } from "~/data/tool-guides";
+import { useLanguage } from "~/composables/useLanguage";
 import ModernDateInput from "~/components/ModernDateInput.vue";
 import PageRangeInput from "~/components/pdf-tools/PageRangeInput.vue";
 import PdfFileDropzone from "~/components/pdf-tools/PdfFileDropzone.vue";
@@ -55,6 +56,58 @@ type ResultItem = {
 
 const toolKey = computed(() => props.toolKey);
 const tool = computed(() => PDF_TOOL_BY_KEY[props.toolKey]);
+const { isKhmer } = useLanguage();
+
+const PDF_TOOL_COPY_KM: Record<PdfToolKey, { actionLabel: string; emptyState: string }> = {
+  "pdf-to-jpg": {
+    actionLabel: "បម្លែងទៅជា JPG",
+    emptyState: "ទម្លាក់ឯកសារ PDF មួយនៅទីនេះ ដើម្បីបម្លែងគ្រប់ទំព័រទៅជារូបភាព JPG។",
+  },
+  "merge-pdf": {
+    actionLabel: "បញ្ចូល PDF ចូលគ្នា",
+    emptyState: "ទម្លាក់ឯកសារ PDF ចាប់ពី ២ ឡើងទៅនៅទីនេះ ដើម្បីបញ្ចូលចូលគ្នា។",
+  },
+  "split-pdf": {
+    actionLabel: "បំបែកឯកសារ PDF",
+    emptyState: "ទម្លាក់ឯកសារ PDF មួយនៅទីនេះ រួចជ្រើសរើសទំព័រដែលត្រូវរក្សាទុក។",
+  },
+  "compress-pdf": {
+    actionLabel: "បង្រួមទំហំ PDF",
+    emptyState: "ទម្លាក់ឯកសារ PDF មួយនៅទីនេះ ដើម្បីកសាងឡើងវិញ និងកាត់បន្ថយទំហំ។",
+  },
+  "remove-pdf-pages": {
+    actionLabel: "លុបទំព័រចេញ",
+    emptyState: "ទម្លាក់ឯកសារ PDF មួយនៅទីនេះ រួចបញ្ចូលលេខទំព័រដែលត្រូវលុប។",
+  },
+  "reorder-pdf-pages": {
+    actionLabel: "តម្រៀបទំព័រឡើងវិញ",
+    emptyState: "ទម្លាក់ឯកសារ PDF មួយនៅទីនេះ រួចកំណត់លំដាប់លំដោយទំព័រថ្មី។",
+  },
+  "html-to-pdf": {
+    actionLabel: "បង្កើត PDF ពី HTML",
+    emptyState: "បញ្ចូលកូដ HTML ដើម្បីបង្កើតឯកសារ PDF។",
+  },
+  "text-to-pdf": {
+    actionLabel: "បង្កើត PDF ពីអត្ថបទ",
+    emptyState: "បញ្ចូលអត្ថបទដើម្បីបង្កើតឯកសារ PDF។",
+  },
+  "invoice-to-pdf": {
+    actionLabel: "បង្កើតវិក្កយបត្រ PDF",
+    emptyState: "បំពេញព័ត៌មានវិក្កយបត្រដើម្បីបង្កើតឯកសារ PDF។",
+  },
+};
+
+const currentActionLabel = computed(() =>
+  isKhmer.value && PDF_TOOL_COPY_KM[props.toolKey]
+    ? PDF_TOOL_COPY_KM[props.toolKey].actionLabel
+    : tool.value.actionLabel,
+);
+
+const currentEmptyState = computed(() =>
+  isKhmer.value && PDF_TOOL_COPY_KM[props.toolKey]
+    ? PDF_TOOL_COPY_KM[props.toolKey].emptyState
+    : tool.value.emptyState,
+);
 const guide = computed(() => findToolGuideByToolRoute(tool.value.route));
 const { websiteEnabled } = useFeatureAvailability();
 const relatedTools = computed(() =>
@@ -386,25 +439,25 @@ function removeInvoiceItem(index: number) {
       class="rounded-2xl border border-sky-200 bg-sky-50 p-5 shadow-sm dark:border-cyan-300/20 dark:bg-cyan-300/10 sm:p-6"
     >
       <p class="text-xs font-black uppercase tracking-[0.16em] text-sky-700 dark:text-cyan-300">
-        Beta · Coming back soon
+        {{ isKhmer ? "Beta · នឹងត្រឡប់មកវិញឆាប់ៗ" : "Beta · Coming back soon" }}
       </p>
       <h2 class="mt-3 text-xl font-black text-slate-950 dark:text-white">
-        Real PDF compression is being rebuilt
+        {{ isKhmer ? "មុខងារបង្រួមទំហំ PDF ពិតប្រាកដកំពុងត្រូវបានអភិវឌ្ឍឡើងវិញ" : "Real PDF compression is being rebuilt" }}
       </h2>
       <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-white/65">
-        The previous browser rebuild could leave an optimized PDF unchanged or make it larger, so compression is paused until the result can be measured confidently.
+        {{ isKhmer ? "ការកសាងឯកសារឡើងវិញលើ browser អាចធ្វើឱ្យ PDF ដែលបាន optimize រួចមិនថយចុះទំហំ ឬធំជាងមុន ដូច្នេះមុខងារនេះត្រូវបានផ្អាកបណ្តោះអាសន្នរហូតដល់លទ្ធផលអាចវាស់វែងបានជាក់លាក់។" : "The previous browser rebuild could leave an optimized PDF unchanged or make it larger, so compression is paused until the result can be measured confidently." }}
       </p>
       <ul class="mt-4 grid list-inside list-disc gap-2 text-sm text-slate-700 dark:text-white/75 sm:grid-cols-2">
-        <li>Image downsampling and DPI reduction</li>
-        <li>JPEG quality controls</li>
-        <li>Unused-object cleanup</li>
-        <li>Before/after size and saved percentage</li>
+        <li>{{ isKhmer ? "ការកាត់បន្ថយទំហំ និង DPI នៃរូបភាព" : "Image downsampling and DPI reduction" }}</li>
+        <li>{{ isKhmer ? "ការកំណត់គុណភាពរូបភាព JPEG" : "JPEG quality controls" }}</li>
+        <li>{{ isKhmer ? "សម្អាត Object ដែលមិនប្រើប្រាស់ក្នុងឯកសារ" : "Unused-object cleanup" }}</li>
+        <li>{{ isKhmer ? "ប្រៀបធៀបទំហំមុន និងក្រោយ ព្រមទាំងភាគរយដែលបានកាត់បន្ថយ" : "Before/after size and saved percentage" }}</li>
       </ul>
       <NuxtLink
         to="/tools/pdf"
         class="mt-5 inline-flex h-11 items-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 dark:ring-1 dark:ring-white/15"
       >
-        Explore available PDF tools
+        {{ isKhmer ? "រុករកឧបករណ៍ PDF ដែលមាន" : "Explore available PDF tools" }}
       </NuxtLink>
     </section>
 
@@ -417,8 +470,8 @@ function removeInvoiceItem(index: number) {
           :accept="tool.accept"
           :multiple="tool.multiple"
           :disabled="isProcessing"
-          :title="files.length ? `${files.length} selected` : 'Choose or drop files'"
-          :description="tool.emptyState"
+          :title="files.length ? (isKhmer ? `បានជ្រើស ${files.length}` : `${files.length} selected`) : (isKhmer ? 'ជ្រើសរើស ឬទម្លាក់ឯកសារនៅទីនេះ' : 'Choose or drop files')"
+          :description="currentEmptyState"
           @files-selected="addFiles"
         />
 
@@ -431,33 +484,33 @@ function removeInvoiceItem(index: number) {
         />
 
         <div class="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
-          <h2 class="text-sm font-black text-slate-950 dark:text-white">Options</h2>
+          <h2 class="text-sm font-black text-slate-950 dark:text-white">{{ isKhmer ? "ជម្រើស" : "Options" }}</h2>
 
           <div v-if="toolKey === 'pdf-to-jpg'" class="grid gap-3 sm:grid-cols-2">
             <div>
               <label class="text-sm font-semibold text-slate-900 dark:text-white">
-                Image quality
+                {{ isKhmer ? "គុណភាពរូបភាព" : "Image quality" }}
               </label>
               <ModernSelect
                 v-model.number="jpgQuality"
                 class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
               >
-                <option :value="0.82">Small file</option>
-                <option :value="0.92">Balanced</option>
-                <option :value="0.98">High quality</option>
+                <option :value="0.82">{{ isKhmer ? "ឯកសារតូច" : "Small file" }}</option>
+                <option :value="0.92">{{ isKhmer ? "មធ្យម" : "Balanced" }}</option>
+                <option :value="0.98">{{ isKhmer ? "គុណភាពខ្ពស់" : "High quality" }}</option>
               </ModernSelect>
             </div>
             <div>
               <label class="text-sm font-semibold text-slate-900 dark:text-white">
-                Render scale
+                {{ isKhmer ? "កម្រិតច្បាស់" : "Render scale" }}
               </label>
               <ModernSelect
                 v-model.number="jpgScale"
                 class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
               >
-                <option :value="1.2">Light</option>
-                <option :value="1.6">Balanced</option>
-                <option :value="2">Sharp</option>
+                <option :value="1.2">{{ isKhmer ? "ធម្មតា" : "Light" }}</option>
+                <option :value="1.6">{{ isKhmer ? "មធ្យម" : "Balanced" }}</option>
+                <option :value="2">{{ isKhmer ? "ច្បាស់ល្អ" : "Sharp" }}</option>
               </ModernSelect>
             </div>
           </div>
@@ -465,34 +518,34 @@ function removeInvoiceItem(index: number) {
           <PageRangeInput
             v-else-if="toolKey === 'split-pdf'"
             v-model="pageRange"
-            label="Pages to keep"
+            :label="isKhmer ? 'ទំព័រដែលត្រូវរក្សាទុក' : 'Pages to keep'"
             placeholder="1-3, 5, 8-10"
-            help="Use comma-separated pages and ranges."
+            :help="isKhmer ? 'ប្រើសញ្ញាក្បៀសដើម្បីបំបែកទំព័រ ឬជួរទំព័រ ដូចជា 1-3, 5, 8-10។' : 'Use comma-separated pages and ranges.'"
             :page-count="pageCount ?? undefined"
           />
 
           <PageRangeInput
             v-else-if="toolKey === 'remove-pdf-pages'"
             v-model="pagesToRemove"
-            label="Pages to remove"
+            :label="isKhmer ? 'ទំព័រដែលត្រូវលុប' : 'Pages to remove'"
             placeholder="2, 5-7"
-            help="The output keeps every page except these pages."
+            :help="isKhmer ? 'ឯកសារលទ្ធផលនឹងរក្សាទុកគ្រប់ទំព័រទាំងអស់ លើកលែងតែទំព័រទាំងនេះ។' : 'The output keeps every page except these pages.'"
             :page-count="pageCount ?? undefined"
           />
 
           <PageRangeInput
             v-else-if="toolKey === 'reorder-pdf-pages'"
             v-model="pageOrder"
-            label="New page order"
+            :label="isKhmer ? 'លំដាប់លំដោយទំព័រថ្មី' : 'New page order'"
             placeholder="3,1,2,4"
-            help="Enter each page once in the order you want."
+            :help="isKhmer ? 'បញ្ចូលលេខទំព័រនីមួយៗម្តង តាមលំដាប់លំដោយដែលអ្នកចង់បាន។' : 'Enter each page once in the order you want.'"
             :page-count="pageCount ?? undefined"
           />
 
           <div v-else-if="toolKey === 'html-to-pdf'" class="grid gap-4 lg:grid-cols-2">
             <div>
               <label class="text-sm font-semibold text-slate-900 dark:text-white">
-                HTML input
+                {{ isKhmer ? "បញ្ចូលកូដ HTML" : "HTML input" }}
               </label>
               <textarea
                 v-model="htmlInput"
@@ -500,7 +553,7 @@ function removeInvoiceItem(index: number) {
               />
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Preview</h3>
+              <h3 class="text-sm font-semibold text-slate-900 dark:text-white">{{ isKhmer ? "ទិដ្ឋភាពមុន" : "Preview" }}</h3>
               <ClientOnly>
                 <div
                   class="mt-2 min-h-[320px] overflow-auto rounded-xl border border-slate-200 bg-[#ffffff] p-4 text-sm leading-6 text-[#111827] shadow-inner shadow-slate-200/50 dark:border-white/10 dark:bg-[#ffffff] dark:text-[#111827] dark:shadow-black/20"
@@ -525,7 +578,7 @@ function removeInvoiceItem(index: number) {
             <div class="grid gap-3 sm:grid-cols-3">
               <div>
                 <label class="text-xs font-bold uppercase text-slate-500 dark:text-white/50">
-                  Font size
+                  {{ isKhmer ? "ទំហំអក្សរ" : "Font size" }}
                 </label>
                 <input
                   v-model.number="textFontSize"
@@ -537,7 +590,7 @@ function removeInvoiceItem(index: number) {
               </div>
               <div>
                 <label class="text-xs font-bold uppercase text-slate-500 dark:text-white/50">
-                  Page size
+                  {{ isKhmer ? "ទំហំទំព័រ" : "Page size" }}
                 </label>
                 <ModernSelect
                   v-model="textPageSize"
@@ -549,7 +602,7 @@ function removeInvoiceItem(index: number) {
               </div>
               <div>
                 <label class="text-xs font-bold uppercase text-slate-500 dark:text-white/50">
-                  Margin
+                  {{ isKhmer ? "គែមទំព័រ (Margin)" : "Margin" }}
                 </label>
                 <input
                   v-model.number="textMargin"
@@ -564,10 +617,10 @@ function removeInvoiceItem(index: number) {
 
           <div v-else-if="toolKey === 'invoice-to-pdf'" class="space-y-4">
             <div class="grid gap-3 sm:grid-cols-2">
-              <input v-model="invoice.companyName" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Company name" />
-              <input v-model="invoice.customerName" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Customer name" />
-              <input v-model="invoice.invoiceNumber" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Invoice number" />
-              <ModernDateInput v-model="invoice.date" aria-label="Invoice date" />
+              <input v-model="invoice.companyName" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'ឈ្មោះក្រុមហ៊ុន / ហាង' : 'Company name'" />
+              <input v-model="invoice.customerName" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'ឈ្មោះអតិថិជន' : 'Customer name'" />
+              <input v-model="invoice.invoiceNumber" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'លេខវិក្កយបត្រ' : 'Invoice number'" />
+              <ModernDateInput v-model="invoice.date" :aria-label="isKhmer ? 'កាលបរិច្ឆេទវិក្កយបត្រ' : 'Invoice date'" />
             </div>
 
             <div class="space-y-2">
@@ -576,11 +629,11 @@ function removeInvoiceItem(index: number) {
                 :key="index"
                 class="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.04] sm:grid-cols-[1fr_90px_120px_auto]"
               >
-                <input v-model="item.description" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Item description" />
-                <input v-model.number="item.quantity" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Qty" />
-                <input v-model.number="item.price" type="number" min="0" step="0.01" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Price" />
+                <input v-model="item.description" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'បរិយាយទំនិញ / សេវាកម្ម' : 'Item description'" />
+                <input v-model.number="item.quantity" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'ចំនួន' : 'Qty'" />
+                <input v-model.number="item.price" type="number" min="0" step="0.01" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'តម្លៃ' : 'Price'" />
                 <button type="button" class="h-11 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200 dark:hover:bg-red-400/15" @click="removeInvoiceItem(index)">
-                  Remove
+                  {{ isKhmer ? "លុប" : "Remove" }}
                 </button>
               </div>
             </div>
@@ -590,18 +643,18 @@ function removeInvoiceItem(index: number) {
               class="h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white dark:hover:bg-white/[0.10]"
               @click="addInvoiceItem"
             >
-              Add item
+              {{ isKhmer ? "បន្ថែមទំនិញ" : "Add item" }}
             </button>
 
             <div class="grid gap-3 sm:grid-cols-3">
-              <input v-model.number="invoice.discount" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Discount" />
-              <input v-model.number="invoice.taxRate" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Tax %" />
-              <input v-model="invoice.notes" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" placeholder="Notes" />
+              <input v-model.number="invoice.discount" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'បញ្ចុះតម្លៃ' : 'Discount'" />
+              <input v-model.number="invoice.taxRate" type="number" min="0" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'ពន្ធ %' : 'Tax %'" />
+              <input v-model="invoice.notes" class="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-white" :placeholder="isKhmer ? 'កំណត់ចំណាំ' : 'Notes'" />
             </div>
           </div>
 
           <p v-else class="text-sm leading-6 text-slate-500 dark:text-white/55">
-            {{ tool.emptyState }}
+            {{ currentEmptyState }}
           </p>
         </div>
 
@@ -612,11 +665,11 @@ function removeInvoiceItem(index: number) {
             :disabled="!canProcess"
             @click="processTool"
           >
-            {{ isProcessing ? "Processing..." : tool.actionLabel }}
+            {{ isProcessing ? (isKhmer ? "កំពុងដំណើរការ..." : "Processing...") : currentActionLabel }}
           </button>
 
           <p v-if="isProcessing" class="text-sm text-slate-500 dark:text-white/55">
-            Working locally in your browser...
+            {{ isKhmer ? "កំពុងដំណើរការនៅលើ Browser របស់អ្នកដោយផ្ទាល់..." : "Working locally in your browser..." }}
           </p>
         </div>
 
@@ -637,16 +690,16 @@ function removeInvoiceItem(index: number) {
 
       <aside class="space-y-4">
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <h2 class="text-sm font-black text-slate-950 dark:text-white">Privacy-first</h2>
+          <h2 class="text-sm font-black text-slate-950 dark:text-white">{{ isKhmer ? "ភាពឯកជនខ្ពស់" : "Privacy-first" }}</h2>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/65">
-            {{ tool.privacyNote }} For larger files, performance depends on your browser and device memory.
+            {{ isKhmer ? "ទិន្នន័យត្រូវបានដំណើរការលើ browser របស់អ្នក។ សម្រាប់ឯកសារធំ ល្បឿនដំណើរការអាស្រ័យលើ browser និងអង្គចងចាំ (RAM) នៃឧបករណ៍របស់អ្នក។" : `${tool.privacyNote} For larger files, performance depends on your browser and device memory.` }}
           </p>
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <h2 class="text-sm font-black text-slate-950 dark:text-white">Status</h2>
+          <h2 class="text-sm font-black text-slate-950 dark:text-white">{{ isKhmer ? "ស្ថានភាព" : "Status" }}</h2>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/65">
-            {{ results.length ? "Result ready for download." : "Add input to generate a result." }}
+            {{ results.length ? (isKhmer ? "លទ្ធផលរួចរាល់សម្រាប់ការទាញយក។" : "Result ready for download.") : (isKhmer ? "សូមបញ្ចូលទិន្នន័យដើម្បីបង្កើតលទ្ធផល។" : "Add input to generate a result.") }}
           </p>
         </div>
       </aside>

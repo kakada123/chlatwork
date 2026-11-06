@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Copy, Download, Share2, ExternalLink } from "lucide-vue-next";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 const props = defineProps<{ url: string; title: string; published: boolean }>();
 const qr = ref("");
 const message = ref("");
@@ -19,7 +22,7 @@ async function generateQr() {
     });
     if (revision === qrRevision) qr.value = data;
   } catch {
-    error.value = "Could not create the QR code. Please try again.";
+    error.value = isKhmer.value ? "មិនអាចបង្កើតកូដ QR បានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not create the QR code. Please try again.";
   }
 }
 onMounted(() => {
@@ -35,9 +38,9 @@ async function copyUrl() {
   error.value = "";
   try {
     await navigator.clipboard.writeText(props.url);
-    message.value = "Link copied.";
+    message.value = isKhmer.value ? "បានចម្លងតំណភ្ជាប់។" : "Link copied.";
   } catch {
-    error.value = "Could not copy. Select the URL and copy it manually.";
+    error.value = isKhmer.value ? "មិនអាចចម្លងបានទេ។ សូមជ្រើសរើស URL ហើយចម្លងដោយផ្ទាល់ដៃ។" : "Could not copy. Select the URL and copy it manually.";
   }
 }
 async function share() {
@@ -47,7 +50,7 @@ async function share() {
     await navigator.share({ title: props.title, url: props.url });
   } catch (err) {
     if ((err as Error).name !== "AbortError")
-      error.value = "Could not share this page. Try copying the URL.";
+      error.value = isKhmer.value ? "មិនអាចចែករំលែកទំព័រនេះបានទេ។ សូមសាកល្បងចម្លង URL។" : "Could not share this page. Try copying the URL.";
   }
 }
 </script>
@@ -55,32 +58,32 @@ async function share() {
 <template>
   <div class="link-share">
     <p v-if="!published">
-      Publish your page to enable sharing and QR download.
+      {{ isKhmer ? "បោះផ្សាយទំព័ររបស់អ្នកដើម្បីអាចចែករំលែក និងទាញយក QR បាន។" : "Publish your page to enable sharing and QR download." }}
     </p>
     <template v-else>
       <label class="share-url-label"
-        >Your public page<input
+        >{{ isKhmer ? "ទំព័រសាធារណៈរបស់អ្នក" : "Your public page" }}<input
           :value="url"
           readonly
-          aria-label="Public profile URL"
+          :aria-label="isKhmer ? 'URL ប្រវត្តិរូបសាធារណៈ' : 'Public profile URL'"
           @focus="($event.target as HTMLInputElement).select()"
       /></label>
       <div class="share-actions">
         <button type="button" @click="copyUrl">
-          <Copy :size="16" aria-hidden="true" /> Copy link
+          <Copy :size="16" aria-hidden="true" /> {{ isKhmer ? "ចម្លងតំណភ្ជាប់" : "Copy link" }}
         </button>
         <button type="button" @click="share">
-          <Share2 :size="16" aria-hidden="true" /> Share
+          <Share2 :size="16" aria-hidden="true" /> {{ isKhmer ? "ចែករំលែក" : "Share" }}
         </button>
         <a :href="url" target="_blank" rel="noopener noreferrer"
-          ><ExternalLink :size="16" aria-hidden="true" /> Open page</a
+          ><ExternalLink :size="16" aria-hidden="true" /> {{ isKhmer ? "បើកទំព័រ" : "Open page" }}</a
         >
       </div>
       <img
         v-if="qr"
         :src="qr"
         class="share-qr"
-        alt="QR code for this profile"
+        :alt="isKhmer ? 'កូដ QR សម្រាប់ប្រវត្តិរូបនេះ' : 'QR code for this profile'"
         width="220"
         height="220"
       />
@@ -89,7 +92,7 @@ async function share() {
         :href="qr"
         download="chlatwork-link-qr.png"
         class="share-download"
-        ><Download :size="16" aria-hidden="true" /> Download QR code</a
+        ><Download :size="16" aria-hidden="true" /> {{ isKhmer ? "ទាញយកកូដ QR" : "Download QR code" }}</a
       >
     </template>
     <p v-if="message" role="status">{{ message }}</p>

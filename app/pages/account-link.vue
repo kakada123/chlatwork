@@ -25,6 +25,9 @@ import {
 import { getAuthErrorMessage } from "~/composables/useAuth";
 import { prepareMomentImage } from "~/lib/moment-image";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 
 // A standalone explicit route avoids nesting the existing account page around this editor.
 definePageMeta({
@@ -50,15 +53,21 @@ const mobilePreviewOpen = useState<boolean>("link:mobile-preview", () => false);
 watch(() => route.fullPath, () => { mobilePreviewOpen.value = false; });
 onBeforeUnmount(() => { mobilePreviewOpen.value = false; });
 const { user } = useAuth();
-const tabs = [
-  { id: "profile", label: "Profile" },
-  { id: "links", label: "Links" },
-  { id: "appearance", label: "Appearance" },
-  { id: "share", label: "Share" },
-  { id: "analytics", label: "Analytics" },
+const tabList = [
+  { id: "profile", labelEn: "Profile", labelKm: "ប្រវត្តិរូប" },
+  { id: "links", labelEn: "Links", labelKm: "តំណភ្ជាប់" },
+  { id: "appearance", labelEn: "Appearance", labelKm: "រូបរាង" },
+  { id: "share", labelEn: "Share", labelKm: "ចែករំលែក" },
+  { id: "analytics", labelEn: "Analytics", labelKm: "ស្ថិតិ" },
 ];
+const tabs = computed(() =>
+  tabList.map((tab) => ({
+    id: tab.id,
+    label: isKhmer.value ? tab.labelKm : tab.labelEn,
+  })),
+);
 const section = computed(() => String(route.params.section || "profile"));
-if (!tabs.some((tab) => tab.id === section.value))
+if (!tabList.some((tab) => tab.id === section.value))
   throw createError({
     statusCode: 404,
     statusMessage: "Editor section not found.",
@@ -310,12 +319,12 @@ async function refreshAnalytics() {
             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300'
             : 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60'
         "
-        >{{ saved?.isPublished ? "Published" : "Draft" }}</span
+        >{{ saved?.isPublished ? (isKhmer ? "បានបោះផ្សាយ" : "Published") : (isKhmer ? "ព្រាង" : "Draft") }}</span
       >
     </header>
-    <div v-if="product === 'link'" class="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-white/5 sm:hidden" role="group" aria-label="Editor view">
-      <button type="button" class="min-h-11 rounded-xl text-sm font-semibold" :class="!mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="!mobilePreviewOpen" aria-controls="link-editor-form" @click="mobilePreviewOpen = false">Edit page</button>
-      <button type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold" :class="mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="mobilePreviewOpen" aria-controls="link-editor-preview" @click="mobilePreviewOpen = true"><Eye :size="16" aria-hidden="true" />Preview</button>
+    <div v-if="product === 'link'" class="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-white/5 sm:hidden" role="group" :aria-label="isKhmer ? 'ផ្ទាំងកែសម្រួល' : 'Editor view'">
+      <button type="button" class="min-h-11 rounded-xl text-sm font-semibold" :class="!mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="!mobilePreviewOpen" aria-controls="link-editor-form" @click="mobilePreviewOpen = false">{{ isKhmer ? "កែសម្រួលទំព័រ" : "Edit page" }}</button>
+      <button type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold" :class="mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="mobilePreviewOpen" aria-controls="link-editor-preview" @click="mobilePreviewOpen = true"><Eye :size="16" aria-hidden="true" />{{ isKhmer ? "មើលជាមុន" : "Preview" }}</button>
     </div>
     <div
       v-if="failure"
@@ -329,7 +338,7 @@ async function refreshAnalytics() {
         class="ml-2 underline"
         @click="reloadNuxtApp()"
       >
-        Retry
+        {{ isKhmer ? "ព្យាយាមម្តងទៀត" : "Retry" }}
       </button>
     </div>
     <p
@@ -793,10 +802,11 @@ async function refreshAnalytics() {
           />
         </div>
         <p class="mt-4 text-center text-xs text-slate-500 dark:text-white/60">
-          Drag preview links or use Alt + ↑/↓ to reorder. Save to update your
-          shared page.
+          {{ isKhmer
+            ? "អូសតំណភ្ជាប់មើលជាមុន ឬប្រើ Alt + ↑/↓ ដើម្បីរៀបចំលំដាប់ឡើងវិញ។ រក្សាទុកដើម្បីធ្វើបច្ចុប្បន្នភាពទំព័រចែករំលែករបស់អ្នក។"
+            : "Drag preview links or use Alt + ↑/↓ to reorder. Save to update your shared page." }}
         </p>
-        <button v-if="product === 'link'" type="button" class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold dark:border-white/15 sm:hidden" @click="mobilePreviewOpen = false">Continue editing</button>
+        <button v-if="product === 'link'" type="button" class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold dark:border-white/15 sm:hidden" @click="mobilePreviewOpen = false">{{ isKhmer ? "បន្តកែសម្រួល" : "Continue editing" }}</button>
       </aside>
     </div>
   </main>

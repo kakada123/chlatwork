@@ -10,6 +10,8 @@ defineProps<{
   mobile?: boolean;
 }>();
 defineEmits<{ toggle: [] }>();
+
+const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(false);
 </script>
 
 <template>
@@ -21,7 +23,7 @@ defineEmits<{ toggle: [] }>();
   >
     <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-300/10 dark:text-blue-200"><Phone class="size-5" aria-hidden="true" /></span>
     <span class="min-w-0 flex-1">
-      <strong class="block text-sm">Share Telegram phone number</strong>
+      <strong class="block text-sm">{{ isKhmer ? "ចែករំលែកលេខទូរសព្ទ Telegram" : "Share Telegram phone number" }}</strong>
       <span class="mt-1 block text-xs text-slate-500 dark:text-white/50">{{ description }}</span>
       <span v-if="error" role="alert" class="mt-1 block text-xs font-semibold text-red-600 dark:text-red-300">{{ error }}</span>
       <span v-else-if="status" role="status" class="mt-1 block text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ status }}</span>

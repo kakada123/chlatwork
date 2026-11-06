@@ -53,39 +53,50 @@
 
     <details
       class="payback-card mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 dark:text-white sm:p-6"
-      aria-label="How we validate finance examples"
+      :aria-label="isKhmer ? 'របៀបដែលយើងផ្ទៀងផ្ទាត់ឧទាហរណ៍ហិរញ្ញវត្ថុ' : 'How we validate finance examples'"
     >
-      <summary class="cursor-pointer text-sm font-bold">Accuracy and safety notes</summary>
+      <summary class="cursor-pointer text-sm font-bold">
+        {{ isKhmer ? "កំណត់សម្គាល់ភាពត្រឹមត្រូវ និងសុវត្ថិភាព" : "Accuracy and safety notes" }}
+      </summary>
       <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/60">
-        PayBack examples are reviewed against the calculator logic and cent-safe
-        settlement rules before publication. They are educational examples only,
-        not financial advice.
+        {{ isKhmer
+          ? "ឧទាហរណ៍ PayBack ត្រូវបានពិនិត្យផ្ទៀងផ្ទាត់ជាមួយក្បួនគណនា និងច្បាប់ទូទាត់ប្រាក់យ៉ាងត្រឹមត្រូវមុនពេលផ្សព្វផ្សាយ។ ពួកវាគ្រាន់តែជាឧទាហរណ៍សម្រាប់ការអប់រំប៉ុណ្ណោះ មិនមែនជាការប្រឹក្សាផ្នែកហិរញ្ញវត្ថុទេ។"
+          : "PayBack examples are reviewed against the calculator logic and cent-safe settlement rules before publication. They are educational examples only, not financial advice." }}
       </p>
       <ul
         class="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600 dark:text-white/60"
       >
         <li>
-          All sample totals are re-checked for split accuracy and rounding
-          behavior.
+          {{ isKhmer
+            ? "ចំនួនទឹកប្រាក់សរុបគំរូទាំងអស់ត្រូវបានត្រួតពិនិត្យឡើងវិញសម្រាប់ភាពត្រឹមត្រូវនៃការបែងចែក និងការបង្គត់លេខ។"
+            : "All sample totals are re-checked for split accuracy and rounding behavior." }}
         </li>
         <li>
-          KHR examples include leftover-handling notes and who covers any
-          remainder.
+          {{ isKhmer
+            ? "ឧទាហរណ៍ប្រាក់រៀល (KHR) រួមបញ្ចូលទាំងកំណត់សម្គាល់អំពីការដោះស្រាយលុយសេសសល់ និងអ្នកណាដែលចេញចំណែកសេសសល់នោះ។"
+            : "KHR examples include leftover-handling notes and who covers any remainder." }}
         </li>
         <li>
-          Before real transfers, confirm bank fees, exchange rates, and final
-          amounts with the group.
+          {{ isKhmer
+            ? "មុនពេលផ្ទេរប្រាក់ជាក់ស្តែង សូមផ្ទៀងផ្ទាត់ថ្លៃសេវាធនាគារ អត្រាប្តូរប្រាក់ និងចំនួនទឹកប្រាក់ចុងក្រោយជាមួយសមាជិកក្រុម។"
+            : "Before real transfers, confirm bank fees, exchange rates, and final amounts with the group." }}
         </li>
         <li>
-          If you spot an issue, request a correction from the Contact page.
+          {{ isKhmer
+            ? "ប្រសិនបើអ្នកឃើញបញ្ហា សូមស្នើសុំការកែតម្រូវពីទំព័រទំនាក់ទំនង។"
+            : "If you spot an issue, request a correction from the Contact page." }}
         </li>
       </ul>
       <div class="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-sky-700 dark:text-cyan-300">
         <NuxtLink to="/editorial-policy" class="underline">
-          Editorial policy
+          {{ isKhmer ? "គោលការណ៍និពន្ធ" : "Editorial policy" }}
         </NuxtLink>
-        <NuxtLink to="/disclaimer" class="underline">Disclaimer</NuxtLink>
-        <NuxtLink to="/contact" class="underline">Contact</NuxtLink>
+        <NuxtLink to="/disclaimer" class="underline">
+          {{ isKhmer ? "ការមិនទទួលខុសត្រូវ" : "Disclaimer" }}
+        </NuxtLink>
+        <NuxtLink to="/contact" class="underline">
+          {{ isKhmer ? "ទំនាក់ទំនង" : "Contact" }}
+        </NuxtLink>
       </div>
     </details>
   </div>
@@ -118,6 +129,9 @@ import {
   parsePaybackRows,
   parsePaybackSharePayload,
 } from "~/lib/payback-calculator";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 
 const route = useRoute();
 const router = useRouter();
@@ -175,11 +189,19 @@ let historySaveTimer: ReturnType<typeof setTimeout> | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 const persistenceMessage = computed(() => {
-  if (persistenceState.value === "loading") return "Loading your saved PayBack data...";
-  if (persistenceState.value === "saving") return "Saving...";
-  if (persistenceState.value === "failed") return "Could not save changes.";
-  if (persistenceState.value === "guest") return "Sign in to save this data to your account.";
-  return "Saved securely to your account.";
+  if (persistenceState.value === "loading") {
+    return isKhmer.value ? "កំពុងផ្ទុកទិន្នន័យ PayBack ដែលបានរក្សាទុក..." : "Loading your saved PayBack data...";
+  }
+  if (persistenceState.value === "saving") {
+    return isKhmer.value ? "កំពុងរក្សាទុក..." : "Saving...";
+  }
+  if (persistenceState.value === "failed") {
+    return isKhmer.value ? "មិនអាចរក្សាទុកការផ្លាស់ប្តូរបានទេ។" : "Could not save changes.";
+  }
+  if (persistenceState.value === "guest") {
+    return isKhmer.value ? "ចូលគណនីដើម្បីរក្សាទុកទិន្នន័យនេះទៅក្នុងគណនីរបស់អ្នក។" : "Sign in to save this data to your account.";
+  }
+  return isKhmer.value ? "បានរក្សាទុកដោយសុវត្ថិភាពក្នុងគណនីរបស់អ្នក។" : "Saved securely to your account.";
 });
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;

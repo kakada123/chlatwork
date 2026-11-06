@@ -9,6 +9,7 @@ import {
   creatorFeatureLabel,
   creatorFeatureRoute,
 } from "~/lib/creator-credit-display";
+import { useLanguage } from "~/composables/useLanguage";
 
 definePageMeta({ layout: "creator" });
 useSeoMeta({
@@ -16,6 +17,7 @@ useSeoMeta({
   robots: "noindex, nofollow",
 });
 
+const { isKhmer } = useLanguage();
 const { user, isReady, fetchMe } = useAuth();
 const overview = shallowRef<CreatorCreditOverview | null>(null);
 const creditBalance = useState<number | null>(
@@ -69,34 +71,34 @@ const cards = computed(() =>
   overview.value
     ? [
         {
-          label: "Available",
+          label: isKhmer.value ? "សមតុល្យដែលអាចប្រើបាន" : "Available",
           value: overview.value.balance,
-          detail: "Ready to use now",
+          detail: isKhmer.value ? "ត្រៀមរួចជាស្រេចសម្រាប់ការប្រើប្រាស់" : "Ready to use now",
         },
         {
-          label: "Received",
+          label: isKhmer.value ? "ទទួលបាន" : "Received",
           value: overview.value.totals.received,
-          detail: "Welcome grants and purchases",
+          detail: isKhmer.value ? "ជំនួយស្វាគមន៍ និងការទិញ" : "Welcome grants and purchases",
         },
         {
-          label: "Used",
+          label: isKhmer.value ? "បានប្រើប្រាស់" : "Used",
           value: overview.value.totals.used,
-          detail: "Completed generations",
+          detail: isKhmer.value ? "ការបង្កើតមាតិកាដែលបានបញ្ចប់" : "Completed generations",
         },
         {
-          label: "Reserved",
+          label: isKhmer.value ? "បម្រុងទុក" : "Reserved",
           value: overview.value.totals.reserved,
-          detail: "In progress; already held from your balance",
+          detail: isKhmer.value ? "កំពុងដំណើរការ ដោយកាត់ចេញពីសមតុល្យជាមុន" : "In progress; already held from your balance",
         },
         {
-          label: "Returned",
+          label: isKhmer.value ? "បានសងត្រឡប់" : "Returned",
           value: overview.value.totals.refunded,
-          detail: "Refunds for failed generations",
+          detail: isKhmer.value ? "ការសងត្រឡប់សម្រាប់ការបង្កើតដែលបរាជ័យ" : "Refunds for failed generations",
         },
         {
-          label: "Adjustments",
+          label: isKhmer.value ? "ការកែសម្រួល" : "Adjustments",
           value: overview.value.totals.adjustments,
-          detail: "Admin changes and expired credits",
+          detail: isKhmer.value ? "ការកែសម្រួលពី Admin ឬផុតកំណត់" : "Admin changes and expired credits",
         },
       ]
     : [],
@@ -112,11 +114,10 @@ const cards = computed(() =>
             class="size-7 text-violet-600 dark:text-violet-300"
             aria-hidden="true"
           />
-          Your credits
+          {{ isKhmer ? "ក្រេឌីតរបស់អ្នក" : "Your credits" }}
         </h1>
         <p class="mt-2 text-sm text-slate-600 dark:text-white/60">
-          See what you have, what you have used, and every recent balance
-          change.
+          {{ isKhmer ? "ពិនិត្យមើលសមតុល្យដែលអ្នកមាន ការប្រើប្រាស់ និងរាល់ការផ្លាស់ប្តូរថ្មីៗ។" : "See what you have, what you have used, and every recent balance change." }}
         </p>
       </div>
       <button
@@ -131,7 +132,7 @@ const cards = computed(() =>
           :class="{ 'animate-spin motion-reduce:animate-none': loading }"
           aria-hidden="true"
         />
-        Refresh
+        {{ isKhmer ? "ផ្ទុកឡើងវិញ" : "Refresh" }}
       </button>
     </header>
 
@@ -140,22 +141,22 @@ const cards = computed(() =>
       role="status"
       class="rounded-2xl border border-slate-200 p-6 text-sm text-slate-500 dark:border-white/10 dark:text-white/50"
     >
-      Loading your credits…
+      {{ isKhmer ? "កំពុងផ្ទុកក្រេឌីតរបស់អ្នក…" : "Loading your credits…" }}
     </p>
     <section
       v-else-if="!user"
       class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.04]"
     >
-      <h2 class="text-lg font-semibold">Sign in to see your credits</h2>
+      <h2 class="text-lg font-semibold">{{ isKhmer ? "ចូលគណនីដើម្បីមើលក្រេឌីតរបស់អ្នក" : "Sign in to see your credits" }}</h2>
       <p class="mt-2 text-sm text-slate-500 dark:text-white/50">
-        Your balance and credit activity are private to your account.
+        {{ isKhmer ? "សមតុល្យ និងសកម្មភាពក្រេឌីតរបស់អ្នកគឺជាទិន្នន័យឯកជនសម្រាប់តែគណនីរបស់អ្នកប៉ុណ្ណោះ។" : "Your balance and credit activity are private to your account." }}
       </p>
       <button
         type="button"
         class="mobile-pressable mt-4 min-h-11 rounded-xl bg-violet-600 px-5 font-semibold text-white"
         @click="showLogin = true"
       >
-        Sign in
+        {{ isKhmer ? "ចូលគណនី" : "Sign in" }}
       </button>
     </section>
     <p
@@ -192,27 +193,29 @@ const cards = computed(() =>
         </div>
       </section>
       <p class="text-xs text-slate-500 dark:text-white/50">
-        Totals cover all time. Credits are held when generation starts, and
-        returned if it fails. Daily usage limits still apply.
+        {{ isKhmer
+          ? "ចំនួនសរុបរាប់បញ្ចូលតាំងពីដំបូងមក។ ក្រេឌីតត្រូវបានរក្សាទុកនៅពេលចាប់ផ្តើមបង្កើត ហើយនឹងត្រូវបានសងត្រឡប់វិញប្រសិនបើការបង្កើតបរាជ័យ។ កម្រិតកំណត់ការប្រើប្រាស់ប្រចាំថ្ងៃនៅតែអនុវត្តដដែល។"
+          : "Totals cover all time. Credits are held when generation starts, and returned if it fails. Daily usage limits still apply." }}
       </p>
 
       <section aria-labelledby="credit-activity-title" class="space-y-3">
         <h2 id="credit-activity-title" class="text-lg font-semibold">
-          Credit activity
+          {{ isKhmer ? "សកម្មភាពក្រេឌីត" : "Credit activity" }}
         </h2>
         <p class="text-xs text-slate-500 dark:text-white/50">
-          Latest {{ overview.transactionLimit }} transactions.
+          {{ isKhmer ? `ប្រតិបត្តិការចុងក្រោយចំនួន ${overview.transactionLimit}។` : `Latest ${overview.transactionLimit} transactions.` }}
         </p>
         <CreatorCreditActivity :transactions="overview.transactions" />
       </section>
 
       <section aria-labelledby="credit-prices-title" class="space-y-3">
         <h2 id="credit-prices-title" class="text-lg font-semibold">
-          How much does each tool cost?
+          {{ isKhmer ? "តើឧបករណ៍នីមួយៗគិតថ្លៃប៉ុន្មាន?" : "How much does each tool cost?" }}
         </h2>
         <p class="text-sm text-slate-500 dark:text-white/50">
-          Video and audio tools charge per started minute: a 61-second clip
-          counts as 2 minutes.
+          {{ isKhmer
+            ? "ឧបករណ៍វីដេអូ និងសំឡេងគិតថ្លៃក្នុងមួយនាទីដែលបានចាប់ផ្តើម៖ ឃ្លីប 61 វិនាទីរាប់ជា 2 នាទី។"
+            : "Video and audio tools charge per started minute: a 61-second clip counts as 2 minutes." }}
         </p>
         <ul class="grid gap-2 sm:grid-cols-2">
           <li v-for="price in overview.prices" :key="price.feature">
@@ -229,7 +232,7 @@ const cards = computed(() =>
                   class="text-base text-violet-700 dark:text-violet-300"
                   >{{ price.credits }}</strong
                 >
-                credits<br />per {{ price.unit }}</span
+                {{ isKhmer ? "ក្រេឌីត" : "credits" }}<br />{{ isKhmer ? `ក្នុងមួយ ${price.unit}` : `per ${price.unit}` }}</span
               >
             </NuxtLink>
           </li>
@@ -239,18 +242,18 @@ const cards = computed(() =>
         class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4 dark:border-white/10"
       >
         <p class="text-sm text-slate-600 dark:text-white/60">
-          Need more credits?
+          {{ isKhmer ? "ត្រូវការក្រេឌីតបន្ថែម?" : "Need more credits?" }}
           <NuxtLink
             to="/contact"
             class="font-semibold text-violet-700 underline dark:text-violet-300"
-            >Contact ChlatWork support</NuxtLink
+            >{{ isKhmer ? "ទាក់ទងផ្នែកគាំទ្រ ChlatWork" : "Contact ChlatWork support" }}</NuxtLink
           >.
         </p>
         <NuxtLink
           v-if="user?.role === 'ADMIN'"
           to="/creator/admin/credits"
           class="mobile-pressable inline-flex min-h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white"
-          >Manage user credits</NuxtLink
+          >{{ isKhmer ? "គ្រប់គ្រងក្រេឌីតអ្នកប្រើប្រាស់" : "Manage user credits" }}</NuxtLink
         >
       </div>
     </template>

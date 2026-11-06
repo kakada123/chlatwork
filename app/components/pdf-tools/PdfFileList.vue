@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import { formatFileSize } from "~/lib/pdf-tools";
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   files: File[];
@@ -15,9 +18,9 @@ defineEmits<{
 <template>
   <div class="space-y-2">
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-sm font-bold text-slate-950 dark:text-white">Selected files</h2>
+      <h2 class="text-sm font-bold text-slate-950 dark:text-white">{{ isKhmer ? "ឯកសារដែលបានជ្រើសរើស" : "Selected files" }}</h2>
       <span class="text-xs text-slate-500 dark:text-white/50">
-        {{ files.length }} file{{ files.length === 1 ? "" : "s" }}
+        {{ isKhmer ? `ឯកសារចំនួន ${files.length}` : `${files.length} file${files.length === 1 ? "" : "s"}` }}
       </span>
     </div>
 
@@ -25,7 +28,7 @@ defineEmits<{
       v-if="files.length === 0"
       class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/55"
     >
-      No files selected yet.
+      {{ isKhmer ? "មិនទាន់មានឯកសារត្រូវបានជ្រើសរើសនៅឡើយទេ។" : "No files selected yet." }}
     </div>
 
     <ul v-else class="space-y-2">
@@ -56,7 +59,7 @@ defineEmits<{
             :disabled="index === 0"
             @click="$emit('move', index, -1)"
           >
-            Up
+            {{ isKhmer ? "ឡើងលើ" : "Up" }}
           </button>
           <button
             type="button"
@@ -64,7 +67,7 @@ defineEmits<{
             :disabled="index === files.length - 1"
             @click="$emit('move', index, 1)"
           >
-            Down
+            {{ isKhmer ? "ចុះក្រោម" : "Down" }}
           </button>
         </span>
 
@@ -73,7 +76,7 @@ defineEmits<{
           class="h-9 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-300/20 dark:bg-red-300/10 dark:text-red-100"
           @click="$emit('remove', index)"
         >
-          Remove
+          {{ isKhmer ? "លុប" : "Remove" }}
         </button>
       </li>
     </ul>

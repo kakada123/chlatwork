@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
+
 const props = defineProps<{
   accept: string;
   multiple: boolean;
@@ -98,7 +102,7 @@ function handleDrop(event: DragEvent) {
       <span
         class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 group-hover:text-white dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-slate-800 dark:group-hover:text-white"
       >
-        Choose files
+        {{ isKhmer ? "ជ្រើសរើសឯកសារ" : "Choose files" }}
       </span>
     </button>
   </div>

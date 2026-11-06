@@ -7,6 +7,9 @@ import CommandSearch from "~/components/developer-commands/CommandSearch.vue";
 import PlatformFilter from "~/components/developer-commands/PlatformFilter.vue";
 import CommandCategoryIcon from "~/components/developer-commands/CommandCategoryIcon.vue";
 import { DEVELOPER_GUIDES } from "~/data/developer-guides";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 
 const RECENTS_KEY = "chlatwork_developer_command_recents";
 const route = useRoute();
@@ -114,9 +117,9 @@ async function toggleFavoritesFilter() {
   <main class="mx-auto w-full max-w-[1440px] space-y-4 text-slate-900 dark:text-slate-100">
     <header class="flex flex-col gap-3 border-b border-slate-200/80 pb-4 dark:border-white/10 lg:flex-row lg:items-end lg:justify-between">
       <div class="shrink-0">
-        <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">Command Hub</p>
-        <h1 class="mt-1 text-lg font-black tracking-tight text-slate-950 dark:text-white sm:text-xl">Developer Commands</h1>
-        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Find, customize, and copy common developer commands.</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">{{ isKhmer ? "មជ្ឈមណ្ឌលពាក្យបញ្ជា" : "Command Hub" }}</p>
+        <h1 class="mt-1 text-lg font-black tracking-tight text-slate-950 dark:text-white sm:text-xl">{{ isKhmer ? "ពាក្យបញ្ជា Developer" : "Developer Commands" }}</h1>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ isKhmer ? "ស្វែងរក កែសម្រួល និងចម្លងពាក្យបញ្ជាដែលប្រើញឹកញាប់សម្រាប់ developer។" : "Find, customize, and copy common developer commands." }}</p>
       </div>
       <div class="w-full lg:max-w-3xl">
         <CommandSearch v-model="search" />
@@ -126,10 +129,10 @@ async function toggleFavoritesFilter() {
     <section v-if="isCategoryOverview" class="overflow-hidden rounded-[22px] border border-slate-200 bg-white/80 shadow-sm dark:border-slate-700 dark:bg-slate-900/90" aria-labelledby="production-guides-title">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-700">
         <div>
-          <p class="text-[10px] font-black uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">First release</p>
-          <h2 id="production-guides-title" class="text-sm font-black text-slate-950 dark:text-white">Production guides</h2>
+          <p class="text-[10px] font-black uppercase tracking-[0.14em] text-sky-700 dark:text-cyan-300">{{ isKhmer ? "ការចេញផ្សាយដំបូង" : "First release" }}</p>
+          <h2 id="production-guides-title" class="text-sm font-black text-slate-950 dark:text-white">{{ isKhmer ? "មគ្គុទ្ទេសក៍ជាក់ស្តែង" : "Production guides" }}</h2>
         </div>
-        <NuxtLink to="/developer-guides" class="text-xs font-bold text-sky-700 hover:underline dark:text-cyan-300">View all guides →</NuxtLink>
+        <NuxtLink to="/developer-guides" class="text-xs font-bold text-sky-700 hover:underline dark:text-cyan-300">{{ isKhmer ? "មើលមគ្គុទ្ទេសក៍ទាំងអស់ →" : "View all guides →" }}</NuxtLink>
       </div>
       <div class="grid sm:grid-cols-2 xl:grid-cols-5">
         <NuxtLink v-for="(guide, index) in DEVELOPER_GUIDES" :key="guide.slug" :to="guide.path" class="group flex min-w-0 items-center gap-3 border-b border-slate-100 px-4 py-3 transition hover:bg-sky-50 sm:[&:nth-last-child(-n+1)]:border-b-0 xl:border-b-0 xl:border-r xl:last:border-r-0 dark:border-slate-800 dark:hover:bg-white/[0.06]">
@@ -148,17 +151,17 @@ async function toggleFavoritesFilter() {
           <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-100 text-slate-700 transition group-hover:border-sky-200 group-hover:bg-sky-100 group-hover:text-sky-800 dark:border-slate-300 dark:bg-slate-100 dark:text-slate-700 dark:group-hover:border-cyan-300 dark:group-hover:bg-white dark:group-hover:text-slate-900"><CommandCategoryIcon :category="item" /></span>
           <span class="min-w-0">
             <span class="block truncate text-sm font-black text-slate-900 group-hover:text-sky-700 dark:text-white dark:group-hover:text-cyan-300">{{ item }}</span>
-            <span class="mt-0.5 block text-xs font-semibold text-slate-400 dark:text-slate-500">{{ counts[item] }} commands</span>
+            <span class="mt-0.5 block text-xs font-semibold text-slate-400 dark:text-slate-500">{{ isKhmer ? `${counts[item]} ពាក្យបញ្ជា` : `${counts[item]} commands` }}</span>
           </span>
         </button>
       </div>
 
       <div v-else class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex min-w-0 items-center gap-2 text-sm">
-          <button type="button" class="shrink-0 rounded-lg px-2 py-1.5 font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-sky-700 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-cyan-300" @click="category = 'All'; search = ''">← Categories</button>
+          <button type="button" class="shrink-0 rounded-lg px-2 py-1.5 font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-sky-700 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-cyan-300" @click="category = 'All'; search = ''">{{ isKhmer ? "← ប្រភេទ" : "← Categories" }}</button>
           <span class="h-5 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
           <span v-if="category !== 'All'" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-100 dark:text-slate-700"><CommandCategoryIcon :category="category" /></span>
-          <h2 class="truncate font-black text-slate-950 dark:text-white">{{ category === 'All' ? 'Search results' : category }}</h2>
+          <h2 class="truncate font-black text-slate-950 dark:text-white">{{ category === 'All' ? (isKhmer ? 'លទ្ធផលស្វែងរក' : 'Search results') : category }}</h2>
           <span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500 dark:bg-white/[0.08] dark:text-slate-400">{{ filteredCommands.length }}</span>
         </div>
       </div>
@@ -172,17 +175,17 @@ async function toggleFavoritesFilter() {
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <div class="inline-flex rounded-xl border border-slate-200 bg-white/80 p-1 dark:border-slate-700 dark:bg-slate-950/70" aria-label="Command display mode">
-            <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'quick' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'quick'" @click="viewMode = 'quick'">Quick view</button>
-            <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'detailed' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'detailed'" @click="viewMode = 'detailed'">Detailed</button>
+            <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'quick' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'quick'" @click="viewMode = 'quick'">{{ isKhmer ? "មើលរហ័ស" : "Quick view" }}</button>
+            <button type="button" class="rounded-lg px-3 py-1.5 text-xs font-bold" :class="viewMode === 'detailed' ? 'bg-slate-900 text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 dark:text-slate-400'" :aria-pressed="viewMode === 'detailed'" @click="viewMode = 'detailed'">{{ isKhmer ? "លម្អិត" : "Detailed" }}</button>
           </div>
-          <button type="button" class="h-10 rounded-xl border px-3 text-sm font-bold transition" :class="favoritesOnly ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-400/60 dark:bg-amber-400/15 dark:text-amber-200' : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-slate-500'" :aria-pressed="favoritesOnly" :title="requiresFavoriteLogin ? 'Sign in to view favorites' : undefined" @click="toggleFavoritesFilter">★ Favorites {{ favorites.length ? `(${favorites.length})` : "" }}</button>
+          <button type="button" class="h-10 rounded-xl border px-3 text-sm font-bold transition" :class="favoritesOnly ? 'border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-400/60 dark:bg-amber-400/15 dark:text-amber-200' : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-300 dark:hover:border-slate-500'" :aria-pressed="favoritesOnly" :title="requiresFavoriteLogin ? (isKhmer ? 'ចូលគណនីដើម្បីមើលចំណូលចិត្ត' : 'Sign in to view favorites') : undefined" @click="toggleFavoritesFilter">★ {{ isKhmer ? "ចំណូលចិត្ត" : "Favorites" }} {{ favorites.length ? `(${favorites.length})` : "" }}</button>
         </div>
       </div>
     </section>
 
     <div v-if="!isCategoryOverview" id="command-results" class="flex scroll-mt-24 items-center justify-between gap-4">
-      <p class="text-sm font-semibold text-slate-500 dark:text-white/50">{{ filteredCommands.length }} matching commands</p>
-      <p v-if="category !== 'All' || platform !== 'all' || favoritesOnly" class="text-xs text-slate-400 dark:text-slate-500">Filters are active</p>
+      <p class="text-sm font-semibold text-slate-500 dark:text-white/50">{{ isKhmer ? `${filteredCommands.length} ពាក្យបញ្ជាត្រូវគ្នា` : `${filteredCommands.length} matching commands` }}</p>
+      <p v-if="category !== 'All' || platform !== 'all' || favoritesOnly" class="text-xs text-slate-400 dark:text-slate-500">{{ isKhmer ? "តម្រងកំពុងដំណើរការ" : "Filters are active" }}</p>
     </div>
 
     <section v-if="!isCategoryOverview && filteredCommands.length" class="grid items-start gap-2" :class="viewMode === 'quick' ? 'sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4' : 'md:grid-cols-2 xl:grid-cols-3'" aria-live="polite">
@@ -194,11 +197,11 @@ async function toggleFavoritesFilter() {
       </template>
     </section>
     <section v-else-if="!isCategoryOverview" class="rounded-[22px] border border-dashed border-slate-300 bg-white/60 p-10 text-center dark:border-slate-700 dark:bg-slate-900/80">
-      <h2 class="font-black text-slate-900 dark:text-white">No matching commands</h2>
-      <p class="mt-2 text-sm text-slate-500 dark:text-white/50">Try fewer search words or clear a category, platform, or favorites filter.</p>
+      <h2 class="font-black text-slate-900 dark:text-white">{{ isKhmer ? "រកមិនឃើញពាក្យបញ្ជាត្រូវគ្នាទេ" : "No matching commands" }}</h2>
+      <p class="mt-2 text-sm text-slate-500 dark:text-white/50">{{ isKhmer ? "សាកល្បងពាក្យស្វែងរកតិចជាងនេះ ឬសម្អាតប្រភេទ ប្រព័ន្ធប្រតិបត្តិការ ឬតម្រងចំណូលចិត្ត។" : "Try fewer search words or clear a category, platform, or favorites filter." }}</p>
     </section>
 
-    <div v-if="copyNotice" role="status" class="fixed bottom-5 right-5 z-50 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-2xl dark:bg-white dark:text-slate-950">Copied!</div>
+    <div v-if="copyNotice" role="status" class="fixed bottom-5 right-5 z-50 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-2xl dark:bg-white dark:text-slate-950">{{ isKhmer ? "បានចម្លង!" : "Copied!" }}</div>
     <div v-else-if="favoriteError" role="alert" class="fixed bottom-5 right-5 z-50 max-w-sm rounded-xl bg-red-700 px-4 py-3 text-sm font-bold text-white shadow-2xl">{{ favoriteError }}</div>
   </main>
 </template>

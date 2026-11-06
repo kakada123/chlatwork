@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import { downloadBlob, formatFileSize } from "~/lib/pdf-tools";
+
+const { isKhmer } = useLanguage();
 
 const props = defineProps<{
   results: Array<{
@@ -17,9 +20,9 @@ const props = defineProps<{
     class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
   >
     <div class="mb-3 flex items-center justify-between gap-3">
-      <h2 class="text-sm font-bold text-slate-950 dark:text-white">Result</h2>
+      <h2 class="text-sm font-bold text-slate-950 dark:text-white">{{ isKhmer ? "លទ្ធផល" : "Result" }}</h2>
       <span class="text-xs text-slate-500 dark:text-white/50">
-        {{ props.results.length }} file{{ props.results.length === 1 ? "" : "s" }} ready
+        {{ isKhmer ? `ឯកសារចំនួន ${props.results.length} រួចរាល់` : `${props.results.length} file${props.results.length === 1 ? "" : "s"} ready` }}
       </span>
     </div>
 
@@ -43,7 +46,7 @@ const props = defineProps<{
           class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 hover:text-white dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-slate-800 dark:hover:text-white"
           @click="downloadBlob(result.blob, result.name)"
         >
-          Download
+          {{ isKhmer ? "ទាញយក" : "Download" }}
         </button>
       </div>
     </div>

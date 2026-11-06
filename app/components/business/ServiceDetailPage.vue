@@ -4,6 +4,9 @@ import {
   TELEGRAM_CONTACT,
   type BusinessService,
 } from "~/data/services";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 
 const props = defineProps<{
   service: BusinessService;
@@ -28,7 +31,7 @@ const relatedServices = computed(() =>
               to="/pricing"
               class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
             >
-              View pricing
+              {{ isKhmer ? "មើលតម្លៃសេវាកម្ម" : "View pricing" }}
             </NuxtLink>
             <p
               class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300"
@@ -51,7 +54,7 @@ const relatedServices = computed(() =>
             <span
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 dark:!border-slate-800 dark:bg-slate-900/70 dark:text-slate-300"
             >
-              From {{ service.startingPrice }}
+              {{ isKhmer ? `ចាប់ពី ${service.startingPrice}` : `From ${service.startingPrice}` }}
             </span>
             <span
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 dark:!border-slate-800 dark:bg-slate-900/70 dark:text-slate-300"
@@ -67,13 +70,13 @@ const relatedServices = computed(() =>
               rel="noopener noreferrer"
               class="inline-flex h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
             >
-              Message on Telegram
+              {{ isKhmer ? "ផ្ញើសារតាម Telegram" : "Message on Telegram" }}
             </a>
             <NuxtLink
               to="/pricing"
               class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
             >
-              Compare services
+              {{ isKhmer ? "ប្រៀបធៀបសេវាកម្ម" : "Compare services" }}
             </NuxtLink>
           </div>
         </div>
@@ -82,7 +85,7 @@ const relatedServices = computed(() =>
           class="rounded-2xl border border-green-100 bg-green-50 p-5 dark:!border-green-900/50 dark:bg-green-950/30"
         >
           <h2 class="text-sm font-black text-green-950 dark:text-green-300">
-            What you get
+            {{ isKhmer ? "អ្វីដែលអ្នកទទួលបាន" : "What you get" }}
           </h2>
           <ul class="mt-4 space-y-3">
             <li
@@ -100,8 +103,9 @@ const relatedServices = computed(() =>
           <p
             class="mt-5 text-sm leading-6 text-green-900/75 dark:text-green-300"
           >
-            No online checkout yet. Scope, delivery, and payment are confirmed
-            manually on Telegram first.
+            {{ isKhmer
+              ? "មិនទាន់មានការទូទាត់ប្រាក់តាមអនឡាញនៅឡើយទេ។ ទំហំការងារ ការប្រគល់ និងការទូទាត់ ត្រូវបានបញ្ជាក់ដោយផ្ទាល់តាម Telegram ជាមុន។"
+              : "No online checkout yet. Scope, delivery, and payment are confirmed manually on Telegram first." }}
           </p>
         </aside>
       </div>
@@ -112,7 +116,7 @@ const relatedServices = computed(() =>
         class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
-          Included in this service
+          {{ isKhmer ? "រួមបញ្ចូលក្នុងសេវាកម្មនេះ" : "Included in this service" }}
         </h2>
         <ul class="mt-4 space-y-3">
           <li
@@ -133,7 +137,7 @@ const relatedServices = computed(() =>
         class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
-          Best fit
+          {{ isKhmer ? "ស័ក្តិសមបំផុតសម្រាប់" : "Best fit" }}
         </h2>
         <ul class="mt-4 space-y-3">
           <li
@@ -155,7 +159,7 @@ const relatedServices = computed(() =>
       class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
     >
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
-        How the work starts
+        {{ isKhmer ? "របៀបចាប់ផ្តើមការងារ" : "How the work starts" }}
       </h2>
       <ol class="mt-4 grid gap-3 md:grid-cols-2">
         <li
@@ -175,7 +179,7 @@ const relatedServices = computed(() =>
 
     <section v-if="relatedServices.length > 0" class="space-y-3">
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
-        Other ChlatWork services
+        {{ isKhmer ? "សេវាកម្មផ្សេងទៀតរបស់ ChlatWork" : "Other ChlatWork services" }}
       </h2>
       <div class="grid gap-3 md:grid-cols-2">
         <NuxtLink
@@ -193,7 +197,7 @@ const relatedServices = computed(() =>
             {{ relatedService.description }}
           </p>
           <p class="mt-3 text-xs font-bold text-sky-700 dark:text-cyan-300">
-            From {{ relatedService.startingPrice }}
+            {{ isKhmer ? `ចាប់ពី ${relatedService.startingPrice}` : `From ${relatedService.startingPrice}` }}
           </p>
         </NuxtLink>
       </div>

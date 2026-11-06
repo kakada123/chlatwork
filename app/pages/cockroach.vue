@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { createSwatSoundPlayer } from "~/lib/cockroach-sound";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 
 definePageMeta({
   layout: false,
@@ -398,7 +401,7 @@ onBeforeUnmount(() => {
       aria-live="polite"
       aria-atomic="true"
     >
-      <span>Killed</span>
+      <span>{{ isKhmer ? "វាយងាប់" : "Killed" }}</span>
       <strong>{{ deadRoaches.length }}</strong>
     </div>
     <div
@@ -466,9 +469,9 @@ onBeforeUnmount(() => {
     <button
       type="button"
       class="sound-toggle"
-      aria-label="Hit sounds"
+      :aria-label="isKhmer ? 'សំឡេងវាយ' : 'Hit sounds'"
       :aria-pressed="soundEnabled"
-      :title="soundEnabled ? 'Mute hit sounds' : 'Enable hit sounds'"
+      :title="soundEnabled ? (isKhmer ? 'បិទសំឡេង' : 'Mute hit sounds') : (isKhmer ? 'បើកសំឡេង' : 'Enable hit sounds')"
       @pointerdown.stop
       @pointermove.stop="leavePointer"
       @pointerenter="leavePointer"

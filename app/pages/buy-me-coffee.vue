@@ -1,7 +1,16 @@
 <script setup lang="ts">
-const title = "Support ChlatWork";
-const description =
-  "Support the ChlatWork tool project through KHQR, ABA, or Bakong.";
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
+
+const title = computed(() =>
+  isKhmer.value ? "គាំទ្រ ChlatWork" : "Support ChlatWork",
+);
+const description = computed(() =>
+  isKhmer.value
+    ? "គាំទ្រគម្រោងឧបករណ៍ ChlatWork តាមរយៈ KHQR, ABA ឬ Bakong។"
+    : "Support the ChlatWork tool project through KHQR, ABA, or Bakong.",
+);
 
 useSeoMeta({
   title,
@@ -36,7 +45,7 @@ const showToast = (message: string) => {
 const copyLink = async () => {
   if (!process.client) return;
   await navigator.clipboard.writeText(`${location.origin}/buy-me-coffee`);
-  showToast("Link copied");
+  showToast(isKhmer.value ? "បានចម្លងតំណភ្ជាប់" : "Link copied");
 };
 </script>
 
@@ -44,10 +53,11 @@ const copyLink = async () => {
   <main class="mx-auto w-full max-w-[1440px] space-y-6">
     <header class="flex items-center gap-3">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold">Support ChlatWork</h1>
+        <h1 class="text-xl font-bold">{{ isKhmer ? "គាំទ្រ ChlatWork" : "Support ChlatWork" }}</h1>
         <p class="max-w-2xl text-sm text-gray-500 dark:text-white/55">
-          ChlatWork is a small independent tool project. Support helps cover
-          hosting, testing, and maintenance for free browser tools.
+          {{ isKhmer
+            ? "ChlatWork គឺជាគម្រោងឧបករណ៍ឯករាជ្យខ្នាតតូចមួយ។ ការគាំទ្រជួយចំណាយលើការបង្ហោះគេហទំព័រ ការធ្វើតេស្ត និងការថែទាំឧបករណ៍ឥតគិតថ្លៃក្នុង Browser។"
+            : "ChlatWork is a small independent tool project. Support helps cover hosting, testing, and maintenance for free browser tools." }}
         </p>
       </div>
     </header>
@@ -58,10 +68,12 @@ const copyLink = async () => {
     >
       <div class="space-y-1">
         <h2 id="support-qr-title" class="text-lg font-semibold">
-          KHQR payment
+          {{ isKhmer ? "ការទូទាត់តាម KHQR" : "KHQR payment" }}
         </h2>
         <p class="text-sm text-gray-500 dark:text-white/55">
-          Scan with ABA, Bakong, or any KHQR-compatible banking app.
+          {{ isKhmer
+            ? "ស្កេនជាមួយ ABA, Bakong ឬកម្មវិធីធនាគារណាមួយដែលគាំទ្រ KHQR។"
+            : "Scan with ABA, Bakong, or any KHQR-compatible banking app." }}
         </p>
       </div>
 
@@ -80,22 +92,23 @@ const copyLink = async () => {
           download
           class="flex-1 text-center rounded-xl bg-gray-900 text-white py-3 font-semibold hover:opacity-90"
         >
-          Save QR
+          {{ isKhmer ? "រក្សាទុក QR" : "Save QR" }}
         </a>
 
         <button
-          class="flex-1 rounded-xl border py-3 font-semibold hover:bg-gray-100"
+          class="flex-1 rounded-xl border py-3 font-semibold hover:bg-gray-100 dark:hover:bg-white/[0.08]"
           @click="copyLink"
         >
-          Copy link
+          {{ isKhmer ? "ចម្លងតំណភ្ជាប់" : "Copy link" }}
         </button>
       </div>
 
       <div
         class="rounded-xl bg-gray-100 p-4 text-sm text-gray-700 dark:bg-white/[0.08] dark:text-white/70"
       >
-        If the scan does not work, increase screen brightness or open the QR
-        image directly before scanning.
+        {{ isKhmer
+          ? "ប្រសិនបើការស្កេនមិនដំណើរការ សូមបង្កើនពន្លឺអេក្រង់ ឬបើករូបភាព QR ដោយផ្ទាល់មុនពេលស្កេន។"
+          : "If the scan does not work, increase screen brightness or open the QR image directly before scanning." }}
       </div>
     </section>
 

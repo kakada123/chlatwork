@@ -8,6 +8,8 @@ defineProps<{
 }>();
 defineEmits<{ select: [section: DesktopAccountSection] }>();
 
+const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(false);
+
 const icons = {
   overview: UserRound,
   expenses: ReceiptText,
@@ -36,7 +38,8 @@ const icons = {
         @click="$emit('select', section.key)"
       >
         <component :is="icons[section.key]" class="size-4 shrink-0" aria-hidden="true" />
-        {{ section.title }}
+        <span v-if="!isKhmer">{{ section.title }}</span>
+        <span v-else>{{ isKhmer && section.titleKm ? section.titleKm : section.title }}</span>
       </button>
     </template>
   </nav>

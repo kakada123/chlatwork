@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
+
 defineProps<{
   label: string;
   placeholder: string;
@@ -16,7 +20,7 @@ const model = defineModel<string>({ required: true });
         {{ label }}
       </label>
       <span v-if="pageCount" class="text-xs text-slate-500 dark:text-white/50">
-        {{ pageCount }} pages
+        {{ isKhmer ? `${pageCount} ទំព័រ` : `${pageCount} pages` }}
       </span>
     </div>
 

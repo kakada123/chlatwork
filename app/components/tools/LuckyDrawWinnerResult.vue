@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
+
 defineProps<{
   winner: string;
   note: string;
@@ -15,7 +19,7 @@ defineEmits<{
 <template>
   <div class="text-center">
     <p class="text-xs font-black uppercase tracking-[0.18em] text-sky-700 dark:text-cyan-300">
-      Winner
+      {{ isKhmer ? "អ្នកឈ្នះ" : "Winner" }}
     </p>
     <h3 class="mt-1 break-words text-2xl font-black text-slate-950 dark:text-white">
       {{ winner }}
@@ -25,7 +29,7 @@ defineEmits<{
       class="mx-auto mt-3 max-w-sm break-words rounded-xl border border-sky-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-white/15 dark:bg-black/20 dark:text-white/80"
     >
       <span class="mr-1 text-xs font-black uppercase tracking-wide text-sky-700 dark:text-cyan-300">
-        Assigned note:
+        {{ isKhmer ? "កំណត់ចំណាំ៖" : "Assigned note:" }}
       </span>
       {{ note }}
     </p>
@@ -35,7 +39,7 @@ defineEmits<{
         class="rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.06] dark:text-cyan-200 dark:hover:bg-white/10"
         @click="$emit('copy')"
       >
-        {{ winnerCopied ? "Winner copied" : "Copy winner" }}
+        {{ isKhmer ? (winnerCopied ? "បានចម្លងអ្នកឈ្នះ" : "ចម្លងអ្នកឈ្នះ") : (winnerCopied ? "Winner copied" : "Copy winner") }}
       </button>
       <button
         type="button"
@@ -43,7 +47,7 @@ defineEmits<{
         :disabled="!canSpin"
         @click="$emit('spinAgain')"
       >
-        Spin again
+        {{ isKhmer ? "បង្វិលម្តងទៀត" : "Spin again" }}
       </button>
     </div>
   </div>

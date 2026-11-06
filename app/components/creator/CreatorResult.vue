@@ -11,7 +11,10 @@ import {
   containsThaiScript,
   CREATOR_OUTPUT_BLOCKED_MESSAGE,
 } from "~/lib/creator-output-language";
+import { useLanguage } from "~/composables/useLanguage";
 import type { CreatorGenerationState } from "~/composables/useCreatorTool";
+
+const { isKhmer } = useLanguage();
 import type { CreatorToolDefinition } from "~/data/creator-tools";
 import type {
   CreatorGenerationResult,
@@ -121,10 +124,10 @@ const allText = computed(() => {
         /></span>
         <div>
           <h2 class="text-base font-semibold text-slate-900 dark:text-white">
-            Creating your result
+            {{ isKhmer ? "កំពុងបង្កើតលទ្ធផលរបស់អ្នក" : "Creating your result" }}
           </h2>
           <p class="mt-1 text-xs text-slate-500 dark:text-white/50">
-            Keep this page open. Duplicate submissions are disabled.
+            {{ isKhmer ? "សូមកុំទាន់បិទទំព័រនេះ។ ការដាក់ស្នើស្ទួនត្រូវបានបិទ។" : "Keep this page open. Duplicate submissions are disabled." }}
           </p>
         </div>
       </div>
@@ -147,7 +150,7 @@ const allText = computed(() => {
         class="mt-3 min-h-11 rounded-xl bg-violet-600 px-4 font-semibold text-white"
         @click="emit('regenerate')"
       >
-        Generate a new result
+        {{ isKhmer ? "បង្កើតលទ្ធផលថ្មី" : "Generate a new result" }}
       </button>
     </section>
 
@@ -163,7 +166,7 @@ const allText = computed(() => {
           <p
             class="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-300"
           >
-            Ready
+            {{ isKhmer ? "រួចរាល់" : "Ready" }}
           </p>
           <h2 class="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
             {{ result.title }}

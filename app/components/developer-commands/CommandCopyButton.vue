@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 const props = withDefaults(defineProps<{ command: string; subtle?: boolean }>(), {
   subtle: false,
 });
@@ -35,9 +38,9 @@ onBeforeUnmount(() => resetTimer && clearTimeout(resetTimer));
     :class="subtle
       ? 'border border-slate-200 bg-slate-50 text-slate-600 hover:border-sky-300 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/[0.12] dark:hover:text-white'
       : 'bg-slate-900 text-white hover:bg-slate-700 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400'"
-    :aria-label="copied ? 'Command copied' : 'Copy command'"
+    :aria-label="copied ? (isKhmer ? 'បានចម្លងពាក្យបញ្ជា' : 'Command copied') : (isKhmer ? 'ចម្លងពាក្យបញ្ជា' : 'Copy command')"
     @click="copyCommand"
   >
-    {{ copied ? "Copied!" : "Copy" }}
+    {{ copied ? (isKhmer ? "បានចម្លង!" : "Copied!") : (isKhmer ? "ចម្លង" : "Copy") }}
   </button>
 </template>
