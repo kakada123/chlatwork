@@ -16,9 +16,9 @@ const props = defineProps<{
   service: BusinessService;
 }>();
 
-const service = computed(() => localizeBusinessService(props.service, t("shared.components_admin_bot_group_workspaces.en")));
+const service = computed(() => localizeBusinessService(props.service, isKhmer.value ? "km" : "en"));
 const relatedServices = computed(() =>
-  BUSINESS_SERVICES.filter((service) => service.slug !== props.service.slug).map(service => localizeBusinessService(service, t("shared.components_admin_bot_group_workspaces.en"))),
+  BUSINESS_SERVICES.filter((service) => service.slug !== props.service.slug).map(service => localizeBusinessService(service, isKhmer.value ? "km" : "en")),
 );
 </script>
 

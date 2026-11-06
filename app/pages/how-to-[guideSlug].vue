@@ -11,7 +11,7 @@ const siteUrl = "https://chlatwork.com";
 const { isKhmer, localizeTool } = useLanguage();
 const guide = computed(() => {
   const source = findToolGuideByPath(route.path);
-  return source ? localizeToolGuide(source, t("shared.components_admin_bot_group_workspaces.en"), localizeTool(source.tool)) : null;
+  return source ? localizeToolGuide(source, isKhmer.value ? "km" : "en", localizeTool(source.tool)) : null;
 });
 const pageUrl = computed(() =>
   guide.value ? `${siteUrl}${guide.value.path}` : siteUrl,

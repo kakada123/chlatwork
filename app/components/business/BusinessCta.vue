@@ -26,7 +26,7 @@ const props = withDefaults(
   },
 );
 
-const service = computed(() => localizeBusinessService(BUSINESS_SERVICE_BY_SLUG[props.serviceSlug], t("shared.components_admin_bot_group_workspaces.en")));
+const service = computed(() => localizeBusinessService(BUSINESS_SERVICE_BY_SLUG[props.serviceSlug], isKhmer.value ? "km" : "en"));
 const heading = computed(
   () => props.title || (t("shared.components_business_business_cta.need_a_business_ready", { serviceShortName: service.value.shortName })),
 );

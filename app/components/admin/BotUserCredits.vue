@@ -275,7 +275,7 @@ async function confirm() {
         <tbody class="divide-y divide-slate-100 dark:divide-white/10">
           <tr v-for="entry in details.credits.transactions" :key="entry.id">
             <td class="py-3">
-              <p>{{ localizeBotCode(entry.type, t("shared.components_admin_bot_group_workspaces.en")) }}</p>
+              <p>{{ localizeBotCode(entry.type, isKhmer ? "km" : "en") }}</p>
               <time class="text-xs text-slate-500">{{
                 new Date(entry.createdAt).toLocaleString()
               }}</time>

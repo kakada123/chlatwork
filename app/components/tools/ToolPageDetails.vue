@@ -22,7 +22,7 @@ const { isKhmer, localizeTool } = useLanguage();
 const { destination } = useProductDomain();
 const localizedTool = computed(() => localizeTool(props.guide.tool));
 const canonicalUrl = computed(() => destination(props.guide.tool.route));
-const localizedGuide = computed(() => localizeToolGuide(props.guide, t("shared.components_admin_bot_group_workspaces.en"), localizedTool.value));
+const localizedGuide = computed(() => localizeToolGuide(props.guide, isKhmer.value ? "km" : "en", localizedTool.value));
 const faqs = computed(() => localizedGuide.value.faqs.slice(0, 6));
 const reviewDate = "2026-07-31";
 const editorialAuthor = {

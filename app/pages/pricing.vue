@@ -7,7 +7,7 @@ import { BUSINESS_SERVICES, TELEGRAM_CONTACT } from "~/data/services";
 const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
-const services = computed(() => BUSINESS_SERVICES.map(service => localizeBusinessService(service, t("shared.components_admin_bot_group_workspaces.en"))));
+const services = computed(() => BUSINESS_SERVICES.map(service => localizeBusinessService(service, isKhmer.value ? "km" : "en")));
 
 const title = computed(() =>
   t("shared.pages_pricing.chlat_work_pricing_invoice_tools"),

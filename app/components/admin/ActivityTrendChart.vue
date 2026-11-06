@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import type { DailyAdminActivity } from "~/lib/admin-dashboard";
 
@@ -48,10 +49,11 @@ const labelIndices = computed(() => {
   return [...new Set(Array.from({ length: count }, (_, index) =>
     Math.round((index * (props.days.length - 1)) / Math.max(1, count - 1))))];
 });
-const dateLabel = (date: string) => new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
+const localeTag = computed(() => (isKhmer.value ? "km-KH" : "en-US"));
+const dateLabel = (date: string) => new Intl.DateTimeFormat(localeTag.value, {
   month: "short", day: "numeric", timeZone: "UTC",
 }).format(new Date(`${date}T00:00:00Z`));
-const countLabel = (value: number) => new Intl.NumberFormat(t("shared.components_admin_activity_dashboard.en_us"), {
+const countLabel = (value: number) => new Intl.NumberFormat(localeTag.value, {
   notation: "compact", maximumFractionDigits: 1,
 }).format(value);
 const description = computed(() => props.days.map((day) =>

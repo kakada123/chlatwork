@@ -23,7 +23,7 @@ defineEmits<{ activityPage: [page: number]; historyPage: [page: number] }>();
         class="flex justify-between gap-4 py-3"
       >
         <span
-          >{{ localizeBotCode(entry.action, t("shared.components_admin_bot_group_workspaces.en")).toLowerCase().replaceAll("_", " ")
+          >{{ localizeBotCode(entry.action, isKhmer ? "km" : "en").toLowerCase().replaceAll("_", " ")
           }}<small
             v-if="entry.actorName || entry.telegramUserId"
             class="mt-1 block text-xs text-slate-500"

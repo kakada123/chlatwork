@@ -120,7 +120,7 @@ async function confirm() {
             :key="status"
             :value="status"
           >
-            {{ localizeBotCode(status, t("shared.components_admin_bot_group_workspaces.en")) }}
+            {{ localizeBotCode(status, isKhmer ? "km" : "en") }}
           </option>
         </ModernSelect>
       </label>
@@ -175,7 +175,7 @@ async function confirm() {
       class="space-y-3 rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm dark:border-violet-400/20 dark:bg-violet-400/10"
     >
       <p>
-        {{ t("shared.components_admin_bot_user_access.set_status_to") }} <strong>{{ localizeBotCode(review.body.status, t("shared.components_admin_bot_group_workspaces.en")) }}</strong
+        {{ t("shared.components_admin_bot_user_access.set_status_to") }} <strong>{{ localizeBotCode(review.body.status, isKhmer ? "km" : "en") }}</strong>
         >. Creator: {{ review.body.creatorEnabled ? t("shared.components_admin_bot_user_access.allowed") : t("shared.components_admin_bot_user_access.disabled") }}.
         ChlatWork: {{ review.body.chlatworkEnabled ? t("shared.components_admin_bot_user_access.allowed") : t("shared.components_admin_bot_user_access.disabled") }}.
       </p>

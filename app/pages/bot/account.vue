@@ -23,7 +23,7 @@ const qrLink = computed(() =>
       <div>
         <dt class="text-slate-500">{{ t("shared.pages_bot_account.manager_status") }}</dt>
         <dd class="mt-1">
-          {{ localizeBotCode(session.managerStatus, t("shared.components_admin_bot_group_workspaces.en")).toLowerCase().replaceAll("_", " ") }}
+          {{ localizeBotCode(session.managerStatus, isKhmer ? "km" : "en").toLowerCase().replaceAll("_", " ") }}
         </dd>
       </div>
       <div>

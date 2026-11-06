@@ -428,6 +428,7 @@
 <script setup lang="ts">
 import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
+import { localizeToolError } from "~/data/tool-ui-km";
 import ExpenseEntryHistory from "~/components/expense-tracker/ExpenseEntryHistory.vue";
 import ExpenseEntryEditDialog from "~/components/expense-tracker/ExpenseEntryEditDialog.vue";
 import {

@@ -62,10 +62,12 @@ const inputSizeClass = computed(() =>
   props.size === "sm" ? "h-11 rounded-lg text-sm" : "h-11 rounded-xl text-sm",
 );
 
+const localeTag = computed(() => (isKhmer.value ? "km-KH" : "en-US"));
+
 const monthOptions = computed(() =>
   Array.from({ length: 12 }, (_, index) => ({
     value: index,
-    label: new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), { month: "long" }).format(
+    label: new Intl.DateTimeFormat(localeTag.value, { month: "long" }).format(
       new Date(2000, index, 1),
     ),
   })),
@@ -96,7 +98,7 @@ const displayValue = computed(() => {
   const date = parseValueDate(value.value);
   if (!date) return "";
 
-  const label = new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
+  const label = new Intl.DateTimeFormat(localeTag.value, {
     month: "short",
     day: "numeric",
     year: "numeric",

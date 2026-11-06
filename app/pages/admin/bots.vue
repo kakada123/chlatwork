@@ -288,7 +288,7 @@ onMounted(() => void load());
                 <span
                   :class="badge(item.status)"
                   class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                  >{{ localizeBotCode(item.status, t("shared.components_admin_bot_group_workspaces.en")) }}</span
+                  >{{ localizeBotCode(item.status, isKhmer ? "km" : "en") }}</span
                 >
               </td>
               <td class="px-5 py-4">
@@ -468,7 +468,7 @@ onMounted(() => void load());
             >
               <div class="flex flex-wrap justify-between gap-2">
                 <p class="font-semibold">
-                  {{ localizeBotCode(entry.action, t("shared.components_admin_bot_group_workspaces.en")).replaceAll("_", " ") }}
+                  {{ localizeBotCode(entry.action, isKhmer ? "km" : "en").replaceAll("_", " ") }}
                   <span v-if="entry.bot" class="font-normal text-slate-500"
                     >· {{ entry.bot }}</span
                   >
@@ -484,7 +484,7 @@ onMounted(() => void load());
                 v-if="entry.details.status"
                 class="mt-1 text-xs text-slate-500"
               >
-                {{ localizeBotCode(entry.details.previousStatus, t("shared.components_admin_bot_group_workspaces.en")) }} → {{ localizeBotCode(entry.details.status, t("shared.components_admin_bot_group_workspaces.en")) }}
+                {{ localizeBotCode(entry.details.previousStatus, isKhmer ? "km" : "en") }} → {{ localizeBotCode(entry.details.status, isKhmer ? "km" : "en") }}
               </p>
               <p
                 v-if="entry.actorId"

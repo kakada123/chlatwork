@@ -80,7 +80,7 @@ const siteUrl = domainConfig.mainOrigin;
 const ogImage = `${siteUrl}/og-home.png?v=20261104`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
-const htmlLocale = computed(() => (t("shared.components_admin_bot_group_workspaces.en")));
+const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
 const normalizedPath = computed(() =>
   sourcePath.value,
 );

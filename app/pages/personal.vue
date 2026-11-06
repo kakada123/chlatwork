@@ -62,7 +62,7 @@ const shownMemories = computed(() => {
 });
 
 function localDate(value: string) {
-  return new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
+  return new Intl.DateTimeFormat(isKhmer.value ? "km-KH" : "en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
