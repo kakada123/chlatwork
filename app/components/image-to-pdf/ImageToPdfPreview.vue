@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">PDF preview</h2>
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ t("tools.imageToPdf.pdfPreview") }}</h2>
       <span class="text-xs text-gray-500 dark:text-white/55">
-        {{ pageCount }} page{{ pageCount === 1 ? "" : "s" }} total
+        {{ t(pageCount === 1 ? "tools.imageToPdf.pageTotalCount.one" : "tools.imageToPdf.pageTotalCount.other", { count: pageCount }) }}
       </span>
     </div>
 
@@ -16,11 +16,9 @@
           >
             <div class="flex h-full min-h-0 flex-col gap-3">
               <div class="flex items-center justify-between gap-3 px-1">
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">Page {{ pageIndex + 1 }}</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ t("tools.imageToPdf.page") }} {{ pageIndex + 1 }}</p>
                 <p class="text-xs text-gray-500 dark:text-white/55">
-                  {{ page.images.length }} of
-                  {{ imagesPerPage }}
-                  image{{ imagesPerPage === 1 ? "" : "s" }}
+                  {{ t(imagesPerPage === 1 ? "tools.imageToPdf.imagesOnPage.one" : "tools.imageToPdf.imagesOnPage.other", { count: page.images.length, perPage: imagesPerPage }) }}
                 </p>
               </div>
 
@@ -61,8 +59,8 @@
                         <button
                           type="button"
                           class="drag-handle absolute right-2 top-2 inline-flex h-10 w-10 cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-600 shadow-sm backdrop-blur transition hover:border-gray-300 hover:bg-white hover:text-gray-900 active:cursor-grabbing dark:border-white/10 dark:bg-gray-950/90 dark:text-white/75 dark:hover:border-white/25 dark:hover:bg-gray-800 dark:hover:text-white"
-                          aria-label="Drag to reorder"
-                          title="Drag to reorder"
+                          :aria-label="t(&quot;tools.imageToPdf.dragToReorder&quot;)"
+                          :title="t(&quot;tools.imageToPdf.dragToReorder&quot;)"
                         >
                           <svg
                             viewBox="0 0 24 24"
@@ -100,24 +98,18 @@
                             class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
                             :disabled="isFirstImage(pageIndex, index)"
                             @click="$emit('move-image', pageIndex, index, -1)"
-                          >
-                            Up
-                          </button>
+                          >{{ t("tools.imageToPdf.up") }}</button>
                           <button
                             type="button"
                             class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10] dark:hover:text-white"
                             :disabled="isLastImage(pageIndex, index)"
                             @click="$emit('move-image', pageIndex, index, 1)"
-                          >
-                            Down
-                          </button>
+                          >{{ t("tools.imageToPdf.down") }}</button>
                           <button
                             type="button"
                             class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200 dark:hover:bg-red-400/15"
                             @click="$emit('remove-image', pageIndex, index)"
-                          >
-                            Remove
-                          </button>
+                          >{{ t("tools.imageToPdf.remove") }}</button>
                         </div>
                       </div>
                     </article>
@@ -133,9 +125,7 @@
                     v-for="slot in emptySlotCount(page.images.length)"
                     :key="slot"
                     class="flex min-h-[120px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white/60 text-[11px] font-medium text-gray-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/35"
-                  >
-                    Empty slot
-                  </div>
+                  >{{ t("tools.imageToPdf.emptySlot") }}</div>
                 </div>
               </div>
             </div>
@@ -143,15 +133,13 @@
 
           <div class="flex items-center justify-between gap-3 px-2">
             <p class="text-center text-xs text-gray-500 dark:text-white/55">
-              PDF page {{ pageIndex + 1 }}
+              {{ t("tools.imageToPdf.pdfPage") }} {{ pageIndex + 1 }}
             </p>
             <p
               v-if="emptySlotCount(page.images.length) > 0"
               class="rounded-full border border-dashed border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-medium text-gray-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-white/40"
             >
-              {{ emptySlotCount(page.images.length) }} empty slot{{
-                emptySlotCount(page.images.length) === 1 ? "" : "s"
-              }}
+              {{ t(emptySlotCount(page.images.length) === 1 ? "tools.imageToPdf.emptySlotCount.one" : "tools.imageToPdf.emptySlotCount.other", { count: emptySlotCount(page.images.length) }) }}
             </p>
           </div>
         </article>
@@ -161,11 +149,15 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import Draggable from "vuedraggable";
 import type {
   PdfImagesPerPage,
   PdfPage,
 } from "~/composables/useImageToPdfTool";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{
   pages: PdfPage[];

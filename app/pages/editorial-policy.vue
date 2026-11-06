@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
 const { isKhmer } = useLanguage();
 
 const title = "Editorial Policy - ChlatWork";
@@ -44,126 +47,102 @@ useHead({
 <template>
   <main class="mx-auto w-full max-w-[1440px] space-y-8">
     <header class="space-y-2">
-      <h1 class="text-2xl font-bold">{{ isKhmer ? "គោលការណ៍វិចារណកថា (Editorial Policy)" : "Editorial Policy" }}</h1>
+      <h1 class="text-2xl font-bold">{{ t("shared.pages_editorial_policy.editorial_policy") }}</h1>
       <p class="max-w-3xl text-gray-600 dark:text-white/70">
         {{
-          isKhmer
-            ? "ទំព័រនេះពន្យល់អំពីរបៀបដែល ChlatWork បង្កើត និងថែរក្សាមគ្គុទ្ទេសក៍ឧបករណ៍ ឧទាហរណ៍អប់រំ ទំព័រគោលការណ៍ និងមាតិកាដំណើរការការងារជាក់ស្តែង។"
-            : "This page explains how ChlatWork creates and maintains tool guides, educational examples, policy pages, and practical workflow content."
+          t("shared.pages_editorial_policy.this_page_explains_how_chlat_work_creates_and_maintains")
         }}
       </p>
       <p class="text-sm text-gray-500 dark:text-white/50">
-        {{ isKhmer ? "កាលបរិច្ឆេទធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ ថ្ងៃទី ២៩ ខែមិថុនា ឆ្នាំ ២០២៦" : "Last updated: June 29, 2026" }}
+        {{ t("shared.pages_editorial_policy.last_updated_june_29_2026") }}
       </p>
     </header>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">{{ isKhmer ? "គោលបំណងនៃមាតិកា" : "Purpose of content" }}</h2>
+      <h2 class="text-lg font-semibold">{{ t("shared.pages_editorial_policy.purpose_of_content") }}</h2>
       <p class="text-gray-700 dark:text-white/75">
         {{
-          isKhmer
-            ? "មាតិការបស់ ChlatWork ត្រូវបានរចនាឡើងដើម្បីជួយអ្នកប្រើប្រាស់បំពេញកិច្ចការជាក់ស្តែងដោយកាត់បន្ថយភាពស្រពេចស្រពិល។ ទំព័រនានាត្រូវបានសរសេរឡើងដើម្បីភាពច្បាស់លាស់ និងល្បឿនលឿន៖ អំពីអ្វីដែលឧបករណ៍ធ្វើ ពេលណាដែលត្រូវប្រើ របៀបជៀសវាងកំហុស និងអ្វីដែលត្រូវផ្ទៀងផ្ទាត់មុនពេលយកលទ្ធផលទៅប្រើក្នុងការងារជាក់ស្តែង។"
-            : "ChlatWork content is designed to help users complete practical tasks with less confusion. Pages are written for clarity and speed: what the tool does, when to use it, how to avoid mistakes, and what to verify before using outputs in real workflows."
+          t("shared.pages_editorial_policy.chlat_work_content_is_designed_to_help_users_complete")
         }}
       </p>
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">{{ isKhmer ? "របៀបដែលមាតិកាត្រូវបានបង្កើតឡើង" : "How content is created" }}</h2>
+      <h2 class="text-lg font-semibold">{{ t("shared.pages_editorial_policy.how_content_is_created") }}</h2>
       <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
         <li>
           {{
-            isKhmer
-              ? "មគ្គុទ្ទេសក៍នីមួយៗចាប់ផ្តើមចេញពីមុខងារឧបករណ៍ជាក់ស្តែង និងតម្រូវការដំណើរការការងាររបស់អ្នកប្រើប្រាស់។"
-              : "Each guide starts from real tool behavior and user workflow needs."
+            t("shared.pages_editorial_policy.each_guide_starts_from_real_tool_behavior_and_user")
           }}
         </li>
         <li>
           {{
-            isKhmer
-              ? "ការពន្យល់ត្រូវបានសរសេរឡើងជាភាសាសាមញ្ញ ងាយយល់ ជាមួយឧទាហរណ៍ជាក់ស្តែងសម្រាប់ការប្រើប្រាស់នៅកម្ពុជា និងភាសាខ្មែរ-អង់គ្លេសស្របតាមបរិបទ។"
-              : "Explanations are written in plain language with practical examples for Cambodia and Khmer-English usage where relevant."
+            t("shared.pages_editorial_policy.explanations_are_written_in_plain_language_with_practical_examples")
           }}
         </li>
         <li>
           {{
-            isKhmer
-              ? "ឧទាហរណ៍បច្ចេកទេស និងហិរញ្ញវត្ថុ ត្រូវបានត្រួតពិនិត្យជាមួយតក្កវិជ្ជារបស់ឧបករណ៍បច្ចុប្បន្នមុនពេលផ្សព្វផ្សាយ។"
-              : "Technical and financial examples are checked against current tool logic before publishing."
+            t("shared.pages_editorial_policy.technical_and_financial_examples_are_checked_against_current_tool")
           }}
         </li>
         <li>
           {{
-            isKhmer
-              ? "ទំព័រនានាត្រូវបានធ្វើបច្ចុប្បន្នភាពនៅពេលដែលមុខងារឧបករណ៍ ការគាំទ្ររបស់ browser ឬលក្ខខណ្ឌគោលការណ៍មានការផ្លាស់ប្តូរ។"
-              : "Pages are updated when tool behavior, browser support, or policy requirements change."
+            t("shared.pages_editorial_policy.pages_are_updated_when_tool_behavior_browser_support_or")
           }}
         </li>
       </ul>
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">{{ isKhmer ? "ស្តង់ដារមាតិកាហិរញ្ញវត្ថុ និងប្រធានបទរសើប" : "Financial and YMYL content standard" }}</h2>
+      <h2 class="text-lg font-semibold">{{ t("shared.pages_editorial_policy.financial_and_ymyl_content_standard") }}</h2>
       <p class="text-gray-700 dark:text-white/75">
         {{
-          isKhmer
-            ? "ទំព័រដែលទាក់ទងនឹងលុយកាក់ ការចំណាយ ការកំណត់ថវិកា និងការគណនាចែកលុយ (payback) ត្រូវបានចាត់ទុកជាប្រធានបទដែលមានហានិភ័យខ្ពស់។ ទំព័រទាំងនេះរួមបញ្ចូលការបញ្ជាក់ពីកម្រិតកំណត់ ការរំលឹកឱ្យផ្ទៀងផ្ទាត់ និងការត្រួតពិនិត្យជាក់ស្តែងកាន់តែម៉ឺងម៉ាត់។"
-            : "Pages related to money, expenses, budgeting, and payback calculations are treated as higher-risk topics. These pages include stronger limitations, validation reminders, and practical checks."
+          t("shared.pages_editorial_policy.pages_related_to_money_expenses_budgeting_and_payback_calculations")
         }}
       </p>
       <ul class="list-disc space-y-1 pl-5 text-gray-700 dark:text-white/75">
         <li>
           {{
-            isKhmer
-              ? "ឧបករណ៍ហិរញ្ញវត្ថុគឺជាឧបករណ៍ជំនួយសម្រាប់ជាឯកសារយោង និងការសិក្សា មិនមែនជាការប្រឹក្សាផ្នែកហិរញ្ញវត្ថុឡើយ។"
-              : "Financial tools are educational utilities, not financial advice."
+            t("shared.pages_editorial_policy.financial_tools_are_educational_utilities_not_financial_advice")
           }}
         </li>
         <li>
           {{
-            isKhmer
-              ? "អ្នកប្រើប្រាស់ត្រូវបានរំលឹកឱ្យផ្ទៀងផ្ទាត់ការសន្មត កម្រៃសេវា និងចំនួនទឹកប្រាក់ទូទាត់ចុងក្រោយ មុនពេលផ្ញើប្រាក់ចេញ។"
-              : "Users are reminded to verify assumptions, fees, and final payment amounts before sending money."
+            t("shared.pages_editorial_policy.users_are_reminded_to_verify_assumptions_fees_and_final")
           }}
         </li>
         <li>
           {{
-            isKhmer
-              ? "មាតិកាជៀសវាងការសន្យាលើលទ្ធផលហិរញ្ញវត្ថុ ឬការសន្សំសំចៃដែលធានាទុកជាមុន។"
-              : "Content avoids promises of financial outcomes or guaranteed savings."
+            t("shared.pages_editorial_policy.content_avoids_promises_of_financial_outcomes_or_guaranteed_savings")
           }}
         </li>
       </ul>
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">{{ isKhmer ? "ការកែតម្រូវ និងបច្ចុប្បន្នភាព" : "Corrections and updates" }}</h2>
+      <h2 class="text-lg font-semibold">{{ t("shared.pages_editorial_policy.corrections_and_updates") }}</h2>
       <p class="text-gray-700 dark:text-white/75">
         {{
-          isKhmer
-            ? "ប្រសិនបើមាតិកាណាមិនច្បាស់លាស់ ហួសសម័យ ឬមិនត្រឹមត្រូវ ChlatWork នឹងធ្វើបច្ចុប្បន្នភាពទំព័រនោះ និងកែលម្អឧទាហរណ៍ ដើម្បីជៀសវាងការភ័ន្តច្រឡំដដែលៗ។"
-            : "If content is unclear, outdated, or incorrect, ChlatWork updates the page and improves examples to prevent repeated confusion."
+          t("shared.pages_editorial_policy.if_content_is_unclear_outdated_or_incorrect_chlat_work")
         }}
       </p>
       <p class="text-gray-700 dark:text-white/75">
-        {{ isKhmer ? "អ្នកអាចផ្ញើសំណើរសុំកែតម្រូវបានតាមរយៈ " : "You can send correction requests through the " }}
+        {{ t("shared.pages_editorial_policy.you_can_send_correction_requests_through_the") }}
         <NuxtLink
           to="/contact"
           class="font-medium text-gray-900 underline dark:text-white"
         >
-          {{ isKhmer ? "ទំព័រទំនាក់ទំនង" : "Contact page" }}
+          {{ t("shared.pages_privacy_policy.contact_page") }}
         </NuxtLink>
-        {{ isKhmer ? "។" : "." }}
+        {{ t("shared.pages_privacy_policy.message") }}
       </p>
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold">{{ isKhmer ? "ឯករាជ្យភាពនៃវិចារណកថា" : "Editorial independence" }}</h2>
+      <h2 class="text-lg font-semibold">{{ t("shared.pages_editorial_policy.editorial_independence") }}</h2>
       <p class="text-gray-700 dark:text-white/75">
         {{
-          isKhmer
-            ? "ការសម្រេចចិត្តលើមាតិកាគឺផ្អែកលើអត្ថប្រយោជន៍ និងភាពត្រឹមត្រូវសម្រាប់អ្នកប្រើប្រាស់។ ការផ្សាយពាណិជ្ជកម្មមិនកំណត់ទិសដៅ ឬការពិតនៃមគ្គុទ្ទេសក៍ឧបករណ៍ ឬទំព័រគោលការណ៍ឡើយ។"
-            : "Content decisions are based on user usefulness and accuracy. Advertising does not determine the factual direction of tool guides or policy pages."
+          t("shared.pages_editorial_policy.content_decisions_are_based_on_user_usefulness_and_accuracy")
         }}
       </p>
     </section>

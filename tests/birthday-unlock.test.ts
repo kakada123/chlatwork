@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -11,6 +12,7 @@ import { momentBirthdayAccessHeaders, momentBirthdayCookieName, setMomentBirthda
 const filename = "app/components/moments/BirthdayUnlockGate.vue";
 const compiled = compileScript(parse(readFileSync(filename, "utf8"), { filename }).descriptor, { id: filename, inlineTemplate: true });
 const code = ts.transpileModule(compiled.content, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
+  .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
   .replace(/from ["'](vue|lucide-vue-next)["']/g, (_match, name) => `from ${JSON.stringify(import.meta.resolve(name))}`);
 const Gate = (await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`)).default;
 

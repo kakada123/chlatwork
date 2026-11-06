@@ -1,3 +1,4 @@
+import { translateMessage, type AppLanguage } from "./i18n.ts";
 import {
   buildPaybackKhrRemainderMeta,
   buildPaybackPeople,
@@ -128,24 +129,25 @@ export function calculateJekLuy(
   currency: JekLuyCurrency,
   remainderMode: PaybackKhrRemainderMode = "LEFTOVER_ONLY",
   remainderPayer = "",
+  locale: AppLanguage = "km",
 ) {
   if (!isCurrency(currency) || !hasValidParticipants(participants) || !["LEFTOVER_ONLY", "ASSIGN_TO_PERSON"].includes(remainderMode))
-    throw new JekLuyInputError("សូមបញ្ចូលអ្នកចូលរួមយ៉ាងតិច ២ នាក់ ហើយកុំឱ្យទិន្នន័យស្ទួន។");
+    throw new JekLuyInputError(translateMessage(locale, "native.jekluy.errors.participants"));
 
   const entries = participants.map((person, index) => {
-    if (!person.name.trim()) throw new JekLuyInputError(`សូមបញ្ចូលឈ្មោះអ្នកទី ${index + 1}។`, person.id, "name");
+    if (!person.name.trim()) throw new JekLuyInputError(translateMessage(locale, "native.jekluy.errors.name", { index: index + 1 }), person.id, "name");
     try {
       // IDs are the existing engine's keys: identical display names must never merge two friends.
       return parsePaybackRows([{ name: person.id, amount: normalizeAmount(person.amount, currency) }])[0]!;
     } catch {
       throw new JekLuyInputError(currency === "KHR"
-        ? "សូមបញ្ចូលលុយជាចំនួនរៀលពេញ ចាប់ពី ០ ឡើងទៅ។"
-        : "សូមបញ្ចូលលុយដុល្លារ ចាប់ពី ០ ឡើងទៅ និងក្បៀសមិនលើស ២ ខ្ទង់។", person.id, "amount");
+        ? translateMessage(locale, "native.jekluy.errors.riel")
+        : translateMessage(locale, "native.jekluy.errors.dollar"), person.id, "amount");
     }
   });
   const totalCents = entries.reduce((sum, entry) => sum + entry.paidCents!, 0n);
   if (totalCents > MAX_MONEY_AMOUNT_CENTS)
-    throw new JekLuyInputError("លុយសរុបច្រើនពេក។ សូមពិនិត្យចំនួនលុយម្តងទៀត។");
+    throw new JekLuyInputError(translateMessage(locale, "native.jekluy.errors.total"));
 
   const firstId = participants[0]!.id;
   // Match PayBack: leave the rounded-off KHR amount separate unless someone explicitly covers it.
@@ -222,28 +224,30 @@ export function formatJekLuyMoney(cents: bigint, currency: JekLuyCurrency): stri
   return currency === "KHR" ? `${formatted.replace(/[៛\s]/g, "")}៛` : formatted;
 }
 
-export function jekluyEmptySettlementMessage(result: JekLuyResult): string {
-  if (result.totalCents === 0n) return "មិនទាន់មានអ្នកចេញលុយទេ។ អ្នកដែលមិនបានចេញលុយ អាចទុកជា ០ បាន។";
-  if (result.roundingAdjustments.length) return "មិនបាច់ផ្ទេរលុយទេ បន្ទាប់ពីបង្គត់ត្រឹម ១០០៛។";
-  if (result.remainderCents > 0n && !result.remainderPersonId)
-    return "មិនមានលុយត្រូវសងគ្នាតាមចំណែកដែលបានបង្គត់ទេ។ សំណល់នៅដាច់ដោយឡែក។";
-  return "គ្រប់គ្នាចេញលុយស្មើគ្នាហើយ មិនបាច់សងគ្នាទេ។";
+export function jekluyEmptySettlementMessage(result: JekLuyResult, locale: AppLanguage = "km"): string {
+  const key = result.totalCents === 0n ? "zero" : result.roundingAdjustments.length ? "rounded"
+    : result.remainderCents > 0n && !result.remainderPersonId ? "remainder" : "equal";
+  return translateMessage(locale, `native.jekluy.empty.${key}`);
 }
 
-export function jekluySummary(result: JekLuyResult, completedIds: string[] = []): string {
+export function jekluySummary(result: JekLuyResult, completedIds: string[] = [], locale: AppLanguage = "km"): string {
   const money = (amount: bigint) => formatJekLuyMoney(amount, result.currency);
+  const message = (key: string, params?: Record<string, unknown>) => translateMessage(locale, `native.jekluy.summary.${key}`, params);
   return [
-    "ចែកលុយ 💸",
-    `សរុប៖ ${money(result.totalCents)} · ${result.people.length} នាក់`,
-    ...(result.currency === "KHR" ? [`ចំណែកម្នាក់ៗ៖ ${money(result.baseShareCents)}`] : []),
-    ...result.people.map((person) => `${person.name}៖ បានចេញ ${money(person.paidCents)} · ចំណែក ${money(person.shareCents)}`),
+    message("title"),
+    message("total", { amount: money(result.totalCents), count: result.people.length }),
+    ...(result.currency === "KHR" ? [message("share", { amount: money(result.baseShareCents) })] : []),
+    ...result.people.map((person) => message("person", { name: person.name, paid: money(person.paidCents), share: money(person.shareCents) })),
     ...(result.remainderCents > 0n ? [result.remainderPersonId
-      ? `សំណល់៖ ${money(result.remainderCents)} · គិតលើ ${result.people.find((person) => person.id === result.remainderPersonId)!.name}`
-      : `សំណល់ដាច់ដោយឡែក៖ ${money(result.remainderCents)} (មិនទាន់បែងចែក)`] : []),
+      ? message("assignedRemainder", { amount: money(result.remainderCents), name: result.people.find((person) => person.id === result.remainderPersonId)!.name })
+      : message("separateRemainder", { amount: money(result.remainderCents) })] : []),
     "",
-    ...(result.transfers.length ? result.transfers.map((transfer) => `${completedIds.includes(transfer.id) ? "✓ សងរួច៖ " : ""}${transfer.fromName} ត្រូវសង ${transfer.toName} ${money(transfer.amountCents)}`) : [jekluyEmptySettlementMessage(result)]),
-    ...(result.roundingAdjustments.length ? ["", "ការបង្គត់លុយសងជាឯកតា ១០០៛៖",
-      ...result.roundingAdjustments.map((transfer) => `${transfer.fromName} → ${transfer.toName}៖ ${money(transfer.exactAmountCents)} → ${money(transfer.amountCents)}`)] : []),
+    ...(result.transfers.length ? result.transfers.map((transfer) => message("transfer", {
+      paid: completedIds.includes(transfer.id) ? message("paidPrefix") : "", from: transfer.fromName, to: transfer.toName, amount: money(transfer.amountCents),
+    })) : [jekluyEmptySettlementMessage(result, locale)]),
+    ...(result.roundingAdjustments.length ? ["", message("roundingTitle"), ...result.roundingAdjustments.map((transfer) => message("roundingTransfer", {
+      from: transfer.fromName, to: transfer.toName, exact: money(transfer.exactAmountCents), rounded: money(transfer.amountCents),
+    }))] : []),
   ].join("\n");
 }
 

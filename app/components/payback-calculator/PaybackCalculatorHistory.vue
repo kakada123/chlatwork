@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { History, RotateCcw, Trash2 } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -50,19 +54,19 @@ function formatTotal(item: PaybackHistoryItem) {
       </div>
       <div>
         <h2 id="payback-history-title" class="font-bold">
-          {{ isKhmer ? "ប្រវត្តិគណនា" : "Calculation history" }}
+          {{ t("products.payback.calculation_history") }}
         </h2>
         <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-          {{ isKhmer ? "បើកការគណនាដែលបានរក្សាទុកក្នុងគណនីរបស់អ្នកឡើងវិញ។" : "Reopen a calculation saved to your account." }}
+          {{ t("products.payback.reopen_a_calculation_saved_to_your_account") }}
         </p>
       </div>
     </div>
 
     <p v-if="props.loading" class="mt-5 text-sm text-slate-500 dark:text-white/50" role="status">
-      {{ isKhmer ? "កំពុងផ្ទុកប្រវត្តិ…" : "Loading history…" }}
+      {{ t("products.payback.loading_history") }}
     </p>
     <div v-else-if="props.items.length === 0" class="payback-subtle mt-5 rounded-xl p-4 text-sm text-slate-600 dark:text-white/60">
-      {{ isKhmer ? "មិនទាន់មានការគណនាដែលបានរក្សាទុកនៅឡើយទេ។ គណនាចប់ រួចជ្រើស \"រក្សាទុកប្រវត្តិ\"។" : "No saved calculations yet. Complete a calculation, then choose “Save history”." }}
+      {{ t("products.payback.no_saved_calculations_yet_complete_a_calculation_then_choose_save_history") }}
     </div>
     <ul v-else class="payback-panel mt-5 divide-y overflow-hidden rounded-xl border">
       <li v-for="item in props.items" :key="item.id" class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -70,7 +74,7 @@ function formatTotal(item: PaybackHistoryItem) {
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
             <strong class="text-sm">{{ formatTotal(item) }}</strong>
             <span class="text-xs text-slate-500 dark:text-white/45">
-              {{ isKhmer ? `${item.participantCount} នាក់` : `${item.participantCount} people` }}
+              {{ t("products.payback.participant_count_people", { participant_count: item.participantCount }) }}
             </span>
             <span class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-white/10 dark:text-white/55">{{ item.currency }}</span>
           </div>
@@ -80,9 +84,9 @@ function formatTotal(item: PaybackHistoryItem) {
         </div>
         <div class="flex shrink-0 gap-2">
           <button type="button" class="payback-secondary inline-flex h-9 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-semibold" @click="emit('load', item)">
-            <RotateCcw class="h-3.5 w-3.5" aria-hidden="true" /> {{ isKhmer ? "បើកឡើងវិញ" : "Reopen" }}
+            <RotateCcw class="h-3.5 w-3.5" aria-hidden="true" /> {{ t("products.payback.reopen") }}
           </button>
-          <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10" :disabled="props.deletingId === item.id" :aria-label="`Delete calculation from ${formatCreatedAt(item.createdAt)}`" @click="emit('remove', item)">
+          <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:border-red-400/25 dark:text-red-300 dark:hover:bg-red-400/10" :disabled="props.deletingId === item.id" :aria-label="`${t(&quot;products.payback.delete_calculation_from&quot;)} ${formatCreatedAt(item.createdAt)}`" @click="emit('remove', item)">
             <Trash2 class="h-4 w-4" aria-hidden="true" />
           </button>
         </div>

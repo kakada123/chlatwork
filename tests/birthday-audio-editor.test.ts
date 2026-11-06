@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -43,6 +44,7 @@ const compiled = compileScript(descriptor, { id: "birthday-audio-editor-test", i
 const source = ts.transpileModule(compiled.content, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 }).outputText
+  .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
   .replace(/from ["']vue["']/g, `from ${JSON.stringify(import.meta.resolve("vue"))}`)
   .replace(/from ["']~\/lib\/birthday-audio["']/g, `from ${JSON.stringify(new URL("../app/lib/birthday-audio.ts", import.meta.url).href)}`)
   .replace(/from ["']~\/composables\/useBirthdayAudioCatalog["']/g, `from ${JSON.stringify(`data:text/javascript;base64,${Buffer.from(catalogModule).toString("base64")}`)}`)

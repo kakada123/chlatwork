@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Gift, Heart } from "lucide-vue-next";
 import MomentExperience from "~/components/moments/MomentExperience.vue";
 import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
@@ -12,6 +13,8 @@ definePageMeta({ layout: false });
 
 const route = useRoute();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+
+const { t } = useAppI18n(isKhmer);
 const publicCopy = computed(() => copy.value.publicPage);
 const slug = computed(() => String(route.params.slug || ""));
 const {
@@ -49,10 +52,10 @@ async function unlockBirthday(birthday: { day: number; month: number }) {
   } catch (failure) {
     const status = (failure as { statusCode?: number; response?: { status?: number } })?.statusCode ?? (failure as { response?: { status?: number } })?.response?.status;
     birthdayError.value = status === 403
-      ? (locale.value === "km" ? "ថ្ងៃខែនេះមិនទាន់ត្រូវទេ។ សូមព្យាយាមម្ដងទៀត។" : "That birthday doesn’t match. Try again.")
+      ? (t("products.moments.that_birthday_doesnt_match_try_again"))
       : status === 429
-        ? (locale.value === "km" ? "សូមរង់ចាំបន្តិច រួចព្យាយាមម្ដងទៀត។" : "Please wait a moment before trying again.")
-        : (locale.value === "km" ? "មិនអាចបើកបានទេ។ សូមព្យាយាមម្ដងទៀត។" : "We couldn’t open this birthday. Please try again.");
+        ? (t("products.moments.please_wait_a_moment_before_trying_again"))
+        : (t("products.moments.we_couldnt_open_this_birthday_please_try_again"));
   } finally { unlockingBirthday.value = false; }
 }
 let timer: ReturnType<typeof setInterval> | null = null;

@@ -4,17 +4,17 @@
       <div data-reveal class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div class="max-w-3xl">
           <p class="text-sm font-bold uppercase text-cyan-700 dark:text-cyan-200/90">
-            Featured Projects
+            {{ t("shared.components_portfolio_portfolio_projects.featured_projects") }}
           </p>
           <h2 class="mt-3 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-            Systems built around business workflows.
+            {{ t("shared.components_portfolio_portfolio_projects.systems_built_around_business_workflows") }}
           </h2>
         </div>
         <a
           href="#contact"
           class="inline-flex h-11 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-5 text-sm font-bold text-slate-900 shadow-sm shadow-sky-100/60 transition hover:-translate-y-0.5 hover:bg-white dark:border-white/20 dark:bg-slate-950/55 dark:text-white dark:shadow-none dark:hover:bg-slate-900/85"
         >
-          Discuss a project
+          {{ t("shared.components_portfolio_portfolio_projects.discuss_a_project") }}
         </a>
       </div>
 
@@ -37,7 +37,7 @@
               />
             </div>
             <span class="rounded-full border border-sky-100 bg-sky-50/80 px-3 py-1 text-xs font-bold text-slate-500 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-400">
-              Case Study
+              {{ t("shared.components_portfolio_portfolio_projects.case_study") }}
             </span>
           </div>
 
@@ -62,7 +62,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { PortfolioProject } from "~/data/portfolio";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   projects: PortfolioProject[];

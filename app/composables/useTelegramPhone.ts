@@ -1,6 +1,10 @@
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { AuthUser } from "~/composables/useAuth";
 
+
+
 export function useTelegramPhone() {
+  const { t } = useAppI18n();
   const { user } = useAuth();
   const available = ref(false);
   const saving = ref(false);
@@ -9,10 +13,10 @@ export function useTelegramPhone() {
   const enabled = computed(() => Boolean(user.value?.phone));
   const disabled = computed(() => saving.value || (!enabled.value && !available.value));
   const description = computed(() => {
-    if (saving.value) return "Waiting for phone sharing…";
-    if (enabled.value) return "Saved to your profile. Turn off to remove it from ChlatWork.";
-    if (!available.value) return "Optional — open ChlatWork in Telegram to share your phone.";
-    return "Optional — share your Telegram phone number with ChlatWork.";
+    if (saving.value) return t("shared.telegram_phone.waiting_for_phone_sharing");
+    if (enabled.value) return t("shared.telegram_phone.saved_to_your_profile_turn_off_to_remove_it");
+    if (!available.value) return t("shared.telegram_phone.optional_open_chlat_work_in_telegram_to_share_your");
+    return t("shared.telegram_phone.optional_share_your_telegram_phone_number_with_chlat_work");
   });
   let disposed = false;
 
@@ -36,7 +40,7 @@ export function useTelegramPhone() {
         await $fetch("/api/auth/phone", { method: "DELETE" });
         if (!disposed && user.value?.id === accountId) {
           user.value = { ...user.value, phone: null };
-          status.value = "Phone number removed from ChlatWork. Telegram keeps its own copy.";
+          status.value = "shared.telegram_phone.phone_number_removed_from_chlat_work_telegram_keeps_its";
         }
         return;
       }
@@ -50,7 +54,7 @@ export function useTelegramPhone() {
       });
       if (disposed || user.value?.id !== accountId) return;
       if (!shared) {
-        status.value = "Phone sharing skipped. You can keep using ChlatWork.";
+        status.value = "shared.telegram_phone.phone_sharing_skipped_you_can_keep_using_chlat_work";
         return;
       }
       for (let attempt = 0; attempt < 8; attempt++) {
@@ -59,19 +63,24 @@ export function useTelegramPhone() {
         if (disposed || user.value?.id !== accountId || response.user.id !== accountId) return;
         if (response.user.phone) {
           user.value = response.user;
-          status.value = "Phone number saved to your ChlatWork profile.";
+          status.value = "shared.telegram_phone.phone_number_saved_to_your_chlat_work_profile";
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      status.value = "Phone sharing is not confirmed yet. Refresh this page shortly to check.";
+      status.value = "shared.telegram_phone.phone_sharing_is_not_confirmed_yet_refresh_this_page";
     } catch {
-      if (!disposed) error.value = "Could not update phone sharing. Please refresh and try again.";
+      if (!disposed) error.value = "shared.telegram_phone.could_not_update_phone_sharing_please_refresh_and_try";
     } finally {
       if (permissionTimeout) clearTimeout(permissionTimeout);
       saving.value = false;
     }
   }
 
-  return { enabled, disabled, description, error, status, toggle };
+  return {
+    enabled, disabled, description,
+    error: computed(() => error.value ? t(error.value) : ""),
+    status: computed(() => status.value ? t(status.value) : ""),
+    toggle,
+  };
 }

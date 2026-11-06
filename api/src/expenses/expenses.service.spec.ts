@@ -178,6 +178,62 @@ describe('filtered expense entries', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
+  it.each([
+    {
+      name: 'preset Food',
+      entries: [{ category: 'Food', customCategory: null }],
+      key: 'Food',
+    },
+    {
+      name: 'custom Food',
+      entries: [{ category: '__custom__', customCategory: 'Food' }],
+      key: undefined,
+    },
+    {
+      name: 'mixed Food',
+      entries: [
+        { category: 'Food', customCategory: null },
+        { category: '__custom__', customCategory: 'Food' },
+      ],
+      key: undefined,
+    },
+    {
+      name: 'custom then preset Food',
+      entries: [
+        { category: '__custom__', customCategory: 'Food' },
+        { category: 'Food', customCategory: null },
+      ],
+      key: undefined,
+    },
+  ])(
+    'retains safe category provenance for $name without changing totals',
+    async ({ entries, key }) => {
+      tx.expenseEntry.groupBy.mockResolvedValue(
+        entries.map((category) => ({
+          ...category,
+          type: 'EXPENSE',
+          entryDate: new Date('2026-11-01T00:00:00Z'),
+          _sum: { amount: new Prisma.Decimal('1') },
+          _count: { _all: 1 },
+        })),
+      );
+      const result = await service.getSummary(
+        'owner',
+        '2026-11-01',
+        '2026-11-30',
+      );
+      expect(result.categoryBreakdown).toEqual([
+        {
+          category: 'Food',
+          total: entries.length,
+          percent: 100,
+          ...(key ? { categoryKey: key } : {}),
+        },
+      ]);
+      expect(result.totalSpent).toBe(entries.length);
+    },
+  );
+
   it('builds decimal-safe category totals without fetching individual entries', async () => {
     tx.expenseEntry.groupBy.mockResolvedValue([
       {

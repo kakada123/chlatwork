@@ -308,7 +308,7 @@ test("daily Telegram voting keeps per-day history and owner insights", () => {
   assert.match(service, /getPollInsights/);
   assert.match(service, /resetTodayTelegramVote/);
   assert.match(scheduler, /FOR UPDATE OF schedule SKIP LOCKED/);
-  assert.match(telegramBot, /'dailyvote', 'votetime', 'voteduration', 'resettodayvote', 'stopdailyvote'/);
+  assert.match(telegramBot, /'dailyvote',\s*'votetime',\s*'voteduration',\s*'resettodayvote',\s*'stopdailyvote'/);
   assert.match(telegramBot, /configureDailyTelegramVote/);
   assert.match(results, /managerCopy\.mostSelected/);
   assert.match(results, /result\.voters\.join/);
@@ -340,7 +340,7 @@ test("published Moment surfaces are unlisted and validate image content", () => 
   assert.match(service, /canvas\.encode\('webp', 82\)/);
   assert.match(service, /MAX_ACTIVE_MOMENTS = 3/);
   assert.match(service, /randomBytes\(8\)/);
-  assert.match(service, /where: \{ id: momentId, creatorId: userId \}/);
+  assert.match(service, /where: \{ id: momentId, creatorId: userId, groupWorkspaceId: null \}/);
   assert.match(service, /MomentBlockType\.SECRET/);
   assert.match(sql, /CREATE TABLE "moment_blocks"/);
   assert.match(sql, /"content" BYTEA/);
@@ -494,11 +494,11 @@ test("Invitation Moments collect private RSVP responses end to end", () => {
   const locales = readProjectFile("app/data/moment-locales.ts");
   assert.match(
     locales,
-    /INVITATION: \{[\s\S]*?message:\s*"យើងខ្ញុំមានសេចក្តីរីករាយ/,
+    /INVITATION: \{[\s\S]*?translateMessage\("km", "products\.moments\.default_story\.invitation\.message"/,
   );
   assert.match(
     locales,
-    /INVITATION: \{[\s\S]*?message:\s*"We would be delighted/,
+    /INVITATION: \{[\s\S]*?translateMessage\("en", "products\.moments\.default_story\.invitation\.message"/,
   );
 });
 
@@ -545,7 +545,7 @@ test("personalized invitation guest links keep names private and connect RSVP id
   assert.match(manager, /localizeMomentPath\(`\/i\/\$\{guest\.token\}`\)/);
 });
 
-test("Moment language stays scoped and follows shared links", () => {
+test("Moment editor uses the shared language while public pages retain their language control", () => {
   const creator = readProjectFile("app/components/moments/MomentCreator.vue");
   const viewer = readProjectFile("app/pages/m/[slug].vue");
   const manager = readProjectFile("app/pages/moments/index.vue");
@@ -553,23 +553,18 @@ test("Moment language stays scoped and follows shared links", () => {
   const siteLanguage = readProjectFile("app/composables/useLanguage.ts");
   const login = readProjectFile("app/components/auth/AuthLoginDialog.vue");
 
-  assert.match(creator, /<MomentLanguageToggle/);
-  assert.match(
-    creator,
-    /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
-  );
+  assert.doesNotMatch(creator, /<MomentLanguageToggle/);
   assert.match(
     viewer,
     /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
   );
-  assert.match(
-    manager,
-    /import MomentLanguageToggle from "~\/components\/moments\/MomentLanguageToggle\.vue"/,
-  );
+  assert.doesNotMatch(manager, /<MomentLanguageToggle/);
   assert.match(creator, /localizeMomentPath\(`\/m\/\$\{slug\}`\)/);
   assert.match(viewer, /<MomentExperience :moment="moment" :locale="locale"/);
   assert.match(viewer, /:dark="moment\.theme === 'ELEGANT'"/);
-  assert.match(language, /query\.lang = "km"/);
-  assert.match(siteLanguage, /const ENABLE_KHMER_LOCALIZATION = false/);
-  assert.match(login, /ចូលគណនីដើម្បីបន្ត/);
+  assert.match(language, /query\.lang = nextLocale/);
+  assert.match(language, /locale: appLocale.*useLanguage\(\)/);
+  assert.doesNotMatch(language, /useCookie[^\n]*\("moment-locale"/);
+  assert.match(siteLanguage, /const ENABLE_KHMER_LOCALIZATION = true/);
+  assert.match(login, /sign_in_to_continue/);
 });

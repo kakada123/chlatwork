@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { translateMessage } from "~/lib/i18n";
+import { useAppI18n } from "~/composables/useAppI18n";
 import type {
   Security,
   PrintTheme,
   PosterSize,
 } from "~/lib/wifi-qr";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
@@ -37,44 +41,44 @@ const shopName = defineModel<string>("shopName", { default: "" });
 const tagline = defineModel<string>("tagline", { default: "" });
 
 const khmerHeadline = defineModel<string>("khmerHeadline", {
-  default: "ស្កេនដើម្បីភ្ជាប់ Wi-Fi",
+  default: () => translateMessage("km", "tools.wifiQr.poster.headlineKhmer"),
 });
 const enHeadline = defineModel<string>("enHeadline", {
-  default: "Scan to connect to Wi-Fi",
+  default: () => translateMessage("en", "tools.wifiQr.poster.headlineEnglish"),
 });
 </script>
 
 <template>
   <div class="space-y-3 rounded-2xl border bg-white p-4 shadow-sm">
     <div>
-      <label class="text-sm font-medium">{{ isKhmer ? "ឈ្មោះ Wi-Fi (SSID)" : "Wi-Fi Name (SSID)" }}</label>
+      <label class="text-sm font-medium">{{ t("tools.wifiQr.wiFiNameSsid") }}</label>
       <input
         v-model="ssid"
         class="mt-1 h-11 w-full rounded-xl border px-3"
-        placeholder="e.g. ChlatCafe"
+        :placeholder="t(&quot;tools.wifiQr.eGChlatCafe&quot;)"
       />
     </div>
 
     <div class="grid gap-3 sm:grid-cols-2">
       <div>
-        <label class="text-sm font-medium">{{ isKhmer ? "ប្រព័ន្ធសុវត្ថិភាព" : "Security" }}</label>
+        <label class="text-sm font-medium">{{ t("tools.wifiQr.security") }}</label>
         <ModernSelect
           v-model="security"
           class="mt-1 h-11 w-full rounded-xl border px-3"
         >
           <option value="WPA">WPA / WPA2</option>
           <option value="WEP">WEP</option>
-          <option value="nopass">{{ isKhmer ? "គ្មានពាក្យសម្ងាត់" : "No password" }}</option>
+          <option value="nopass">{{ t("tools.wifiQr.noPassword") }}</option>
         </ModernSelect>
       </div>
 
       <div>
-        <label class="text-sm font-medium">{{ isKhmer ? "ពាក្យសម្ងាត់" : "Password" }}</label>
+        <label class="text-sm font-medium">{{ t("tools.wifiQr.password") }}</label>
         <input
           v-model="password"
           :disabled="security === 'nopass'"
           class="mt-1 h-11 w-full rounded-xl border px-3 disabled:bg-gray-100"
-          placeholder="e.g. 12345678"
+          :placeholder="t(&quot;tools.wifiQr.eG12345678&quot;)"
         />
       </div>
     </div>
@@ -82,12 +86,12 @@ const enHeadline = defineModel<string>("enHeadline", {
     <div class="flex flex-wrap gap-4">
       <label class="flex items-center gap-2 text-sm">
         <input type="checkbox" v-model="hidden" />
-        {{ isKhmer ? "បណ្ដាញលាក់ឈ្មោះ" : "Hidden network" }}
+        {{ t("tools.wifiQr.hiddenNetwork") }}
       </label>
 
       <label class="flex items-center gap-2 text-sm">
         <input type="checkbox" v-model="printMode" />
-        {{ isKhmer ? "ផ្ទាំង Poster សម្រាប់បោះពុម្ព" : "Print template" }}
+        {{ t("tools.wifiQr.printTemplate") }}
       </label>
     </div>
 
@@ -95,39 +99,39 @@ const enHeadline = defineModel<string>("enHeadline", {
     <div v-if="printMode" class="rounded-2xl border bg-gray-50 p-3 space-y-3">
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "ឈ្មោះហាង (ស្រេចចិត្ត)" : "Shop name (optional)" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.shopNameOptional") }}</label>
           <input
             v-model="shopName"
             class="mt-1 h-11 w-full rounded-xl border px-3"
-            placeholder="e.g. ChlatCafe"
+            :placeholder="t(&quot;tools.wifiQr.eGChlatCafe&quot;)"
           />
         </div>
 
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "ពាក្យស្លោក (ស្រេចចិត្ត)" : "Tagline (optional)" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.taglineOptional") }}</label>
           <input
             v-model="tagline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
-            placeholder="e.g. Thanks for visiting!"
+            :placeholder="t(&quot;tools.wifiQr.eGThanksForVisiting&quot;)"
           />
         </div>
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "រចនាប័ទ្ម" : "Style" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.style") }}</label>
           <ModernSelect
             v-model="theme"
             class="mt-1 h-11 w-full rounded-xl border px-3"
           >
-            <option value="cute">{{ isKhmer ? "គួរឱ្យស្រលាញ់ (Cute)" : "Cute" }}</option>
-            <option value="modern">{{ isKhmer ? "ទាន់សម័យ (Modern)" : "Modern" }}</option>
-            <option value="minimal">{{ isKhmer ? "សាមញ្ញ (Minimal)" : "Minimal" }}</option>
+            <option value="cute">{{ t("tools.wifiQr.cute") }}</option>
+            <option value="modern">{{ t("tools.wifiQr.modern") }}</option>
+            <option value="minimal">{{ t("tools.wifiQr.minimal") }}</option>
           </ModernSelect>
         </div>
 
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "ទំហំ Poster" : "Poster size" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.posterSize") }}</label>
           <ModernSelect
             v-model="posterSize"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -145,18 +149,18 @@ const enHeadline = defineModel<string>("enHeadline", {
             v-model="showPassword"
             :disabled="security === 'nopass'"
           />
-          {{ isKhmer ? "បង្ហាញពាក្យសម្ងាត់" : "Show password" }}
+          {{ t("tools.wifiQr.showPassword") }}
         </label>
 
         <label class="flex items-center gap-2 text-sm">
           <input type="checkbox" v-model="showDontShare" />
-          {{ isKhmer ? "កំណត់សម្គាល់ \"ហាមចែករំលែក\"" : "“Don’t share” note" }}
+          {{ t("tools.wifiQr.donTShareNote") }}
         </label>
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "ចំណងជើងភាសាខ្មែរ" : "Khmer headline" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.khmerHeadline") }}</label>
           <input
             v-model="khmerHeadline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -164,7 +168,7 @@ const enHeadline = defineModel<string>("enHeadline", {
         </div>
 
         <div>
-          <label class="text-sm font-medium">{{ isKhmer ? "ចំណងជើងភាសាអង់គ្លេស" : "English headline" }}</label>
+          <label class="text-sm font-medium">{{ t("tools.wifiQr.englishHeadline") }}</label>
           <input
             v-model="enHeadline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -182,7 +186,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('print-poster')"
         >
-          {{ isKhmer ? "បោះពុម្ព" : "Print" }}
+          {{ t("tools.wifiQr.print") }}
         </button>
 
         <button
@@ -190,7 +194,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('export-poster')"
         >
-          {{ isKhmer ? "ទាញយក Poster" : "Export PNG" }}
+          {{ t("tools.wifiQr.exportPng") }}
         </button>
       </div>
 
@@ -201,7 +205,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!props.payload"
           @click="emit('copy-payload')"
         >
-          {{ isKhmer ? "ចម្លង" : "Copy" }}
+          {{ t("tools.wifiQr.copy") }}
         </button>
 
         <a
@@ -210,7 +214,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :download="props.qrFileName"
           class="rounded-xl border px-4 py-2 text-sm font-semibold text-center"
         >
-          {{ isKhmer ? "ទាញយក" : "Download" }}
+          {{ t("tools.wifiQr.download") }}
         </a>
 
         <button
@@ -219,7 +223,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('generate-qr-png')"
         >
-          {{ isKhmer ? "បង្កើត PNG" : "Generate PNG" }}
+          {{ t("tools.wifiQr.generatePng") }}
         </button>
       </div>
 
@@ -229,11 +233,11 @@ const enHeadline = defineModel<string>("enHeadline", {
         :disabled="!props.payload"
         @click="emit('share-qr')"
       >
-        {{ isKhmer ? "ចែករំលែក / រក្សាទុក" : "Share / Save" }}
+        {{ t("tools.wifiQr.shareSave") }}
       </button>
 
       <p class="mt-2 text-xs text-gray-500">
-        {{ isKhmer ? "គន្លឹះ៖ លើ iPhone ចុច Share → Save Image ដើម្បីរក្សាទុកក្នុងរូបថត។" : "Tip: On iPhone, tap Share → Save Image." }}
+        {{ t("tools.wifiQr.tipOnIPhoneTapShareSaveImage") }}
       </p>
     </div>
   </div>

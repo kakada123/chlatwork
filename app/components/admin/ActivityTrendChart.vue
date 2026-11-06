@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import type { DailyAdminActivity } from "~/lib/admin-dashboard";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 const props = defineProps<{ days: DailyAdminActivity[] }>();
 const descriptionId = useId();
@@ -43,38 +48,38 @@ const labelIndices = computed(() => {
   return [...new Set(Array.from({ length: count }, (_, index) =>
     Math.round((index * (props.days.length - 1)) / Math.max(1, count - 1))))];
 });
-const dateLabel = (date: string) => new Intl.DateTimeFormat("en-US", {
+const dateLabel = (date: string) => new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
   month: "short", day: "numeric", timeZone: "UTC",
 }).format(new Date(`${date}T00:00:00Z`));
-const countLabel = (value: number) => new Intl.NumberFormat("en-US", {
+const countLabel = (value: number) => new Intl.NumberFormat(t("shared.components_admin_activity_dashboard.en_us"), {
   notation: "compact", maximumFractionDigits: 1,
 }).format(value);
 const description = computed(() => props.days.map((day) =>
-  `${dateLabel(day.date)}: ${day.opens} opens, ${day.completions} completed actions, ${day.activeUsers} active users.`).join(" "));
+  t("shared.components_admin_activity_trend_chart.opens_completed_actions_active_users", { dateLabelDayDate: dateLabel(day.date), dayOpens: day.opens, dayCompletions: day.completions, dayActiveUsers: day.activeUsers })).join(" "));
 </script>
 
 <template>
   <div class="activity-trend">
-    <div class="trend-legend" aria-label="Chart legend">
-      <span><i class="legend-opens" />Tool opens</span>
-      <span><i class="legend-completions" />Completed actions</span>
-      <span class="trend-timezone">UTC days</span>
+    <div class="trend-legend" :aria-label="t(&quot;shared.components_admin_activity_trend_chart.chart_legend&quot;)">
+      <span><i class="legend-opens" />{{ t("shared.components_admin_activity_dashboard.tool_opens") }}</span>
+      <span><i class="legend-completions" />{{ t("shared.components_admin_activity_dashboard.completed_actions") }}</span>
+      <span class="trend-timezone">{{ t("shared.components_admin_activity_trend_chart.utc_days") }}</span>
     </div>
-    <svg v-if="hasActivity" ref="chart" :viewBox="`0 0 ${viewport.width} ${viewport.height}`" role="img" aria-label="Daily activity chart" :aria-describedby="descriptionId" class="trend-svg">
+    <svg v-if="hasActivity" ref="chart" :viewBox="`0 0 ${viewport.width} ${viewport.height}`" role="img" :aria-label="t(&quot;shared.components_admin_activity_trend_chart.daily_activity_chart&quot;)" :aria-describedby="descriptionId" class="trend-svg">
       <desc :id="descriptionId">{{ description }}</desc>
       <g v-for="tick in ticks" :key="tick.y" class="trend-axis">
         <line x1="40" :x2="viewport.width - 12" :y1="tick.y" :y2="tick.y" />
         <text x="30" :y="tick.y + 4" text-anchor="end">{{ countLabel(tick.value) }}</text>
       </g>
       <g v-for="(day, index) in props.days" :key="day.date">
-        <title>{{ dateLabel(day.date) }}: {{ day.opens }} opens · {{ day.completions }} completed · {{ day.activeUsers }} users</title>
+        <title>{{ dateLabel(day.date) }}: {{ day.opens }} {{ t("shared.components_admin_activity_trend_chart.opens") }} {{ day.completions }} {{ t("shared.components_admin_activity_trend_chart.completed") }} {{ day.activeUsers }} {{ t("shared.components_admin_activity_trend_chart.users") }}</title>
         <rect :x="x(index) - barWidth / 2" :y="y(day.opens)" :width="barWidth" :height="baseline - y(day.opens)" rx="2" class="trend-bar" />
       </g>
       <path :d="completionPath" fill="none" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" class="trend-line" />
       <circle v-if="props.days.length === 1" :cx="x(0)" :cy="y(props.days[0]!.completions)" r="3" class="trend-point" />
       <text v-for="index in labelIndices" :key="index" :x="x(index)" :y="viewport.height - 7" :text-anchor="index === 0 ? 'start' : index === props.days.length - 1 ? 'end' : 'middle'" class="trend-date">{{ dateLabel(props.days[index]!.date) }}</text>
     </svg>
-    <div v-else class="trend-empty">No activity in this period.</div>
+    <div v-else class="trend-empty">{{ t("shared.components_admin_activity_trend_chart.no_activity_in_this_period") }}</div>
   </div>
 </template>
 

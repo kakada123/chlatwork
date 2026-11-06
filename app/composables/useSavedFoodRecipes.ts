@@ -8,6 +8,7 @@ export function useSavedFoodRecipes(
   const scope = () => (options.shared ? "shared" : owner());
   const recipes = ref<KhmerRecipe[]>([]);
   const isLoading = ref(false);
+  // Store fallback keys so an existing alert follows a later interface-language change.
   const errorMessage = ref<string | null>(null);
   const cursor = ref<string | undefined>();
   const hasMore = computed(() => Boolean(scope() && cursor.value));
@@ -72,7 +73,7 @@ export function useSavedFoodRecipes(
     } catch {
       if (version === revision && account === scope())
         errorMessage.value =
-          "មិនអាចផ្ទុករូបមន្តដែលបានរក្សាទុកបានទេ។ សូមសាកម្ដងទៀត។";
+          "products.food.errors.saved_recipes";
     } finally {
       if (version === revision && account === scope()) {
         isLoading.value = false;

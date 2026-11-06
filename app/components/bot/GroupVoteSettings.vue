@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   groupApi,
   type GroupDetails,
   type VoteInput,
 } from "~/services/group-workspaces.service";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 const props = defineProps<{ group: GroupDetails }>();
 let active = true;
 onBeforeUnmount(() => {
@@ -13,10 +18,10 @@ const emit = defineEmits<{ changed: [notice?: string]; denied: [] }>();
 const { epoch, state } = useBotSession();
 const form = reactive<VoteInput>({
   expectedVersion: props.group.workspaceVersion,
-  question: props.group.poll?.question ?? "What’s for lunch?",
+  question: props.group.poll?.question ?? t("shared.components_bot_group_vote_settings.what_s_for_lunch"),
   options: props.group.poll?.options.map((option) => ({ ...option })) ?? [
-    { label: "Option 1" },
-    { label: "Option 2" },
+    { label: t("shared.components_bot_group_vote_settings.option_1") },
+    { label: t("shared.components_bot_group_vote_settings.option_2") },
   ],
   timeZone: props.group.poll?.schedule?.timeZone ?? "Asia/Phnom_Penh",
   sendHour: props.group.poll?.schedule?.sendHour ?? 10,
@@ -38,15 +43,15 @@ const visible = computed(() =>
 function remove(index: number) {
   if (
     form.options.length > 2 &&
-    window.confirm(`Delete “${form.options[index]?.label}” and its votes?`)
+    window.confirm(t("shared.components_bot_group_vote_settings.delete_and_its_votes", { indexLabel: form.options[index]?.label }))
   )
     form.options.splice(index, 1);
 }
 function failed(cause: any) {
   error.value =
     (cause?.statusCode ?? cause?.status) === 409
-      ? "This group changed. Refresh and review the latest choices before saving."
-      : "Could not save. Refresh before trying again.";
+      ? t("shared.components_bot_group_vote_settings.this_group_changed_refresh_and_review_the_latest_choices")
+      : t("shared.components_bot_group_vote_settings.could_not_save_refresh_before_trying_again");
   stale.value = true;
   if ([401, 403].includes(cause?.statusCode ?? cause?.status)) emit("denied");
 }
@@ -55,7 +60,7 @@ async function save() {
   if (
     props.group.poll?.schedule?.enabled &&
     !form.enabled &&
-    !window.confirm(`Stop daily voting in ${props.group.title}?`)
+    !window.confirm(t("shared.components_bot_group_vote_settings.stop_daily_voting_in", { groupTitle: props.group.title }))
   )
     return;
   const session = epoch.value;
@@ -97,12 +102,12 @@ async function upload(event: Event, optionId?: string) {
   )
     return;
   if (image.size > 10 * 1024 * 1024) {
-    error.value = "Choose an image up to 10 MB.";
+    error.value = t("shared.components_bot_group_vote_settings.choose_an_image_up_to_10_mb");
     return;
   }
   if (
     !window.confirm(
-      "Upload this image? Save any choice edits first; the form will refresh after uploading.",
+      t("shared.components_bot_group_vote_settings.upload_this_image_save_any_choice_edits_first_the"),
     )
   )
     return;
@@ -127,7 +132,7 @@ async function upload(event: Event, optionId?: string) {
 function resetUnavailableReason() {
   const round = props.group.poll?.currentRound;
   if (!round)
-    return "No voting round is open. Start one with /startvote in the bot’s private chat.";
+    return t("shared.components_bot_group_vote_settings.no_voting_round_is_open_start_one_with_startvote");
   const today = new Intl.DateTimeFormat("en-CA", {
     timeZone: props.group.poll?.schedule?.timeZone ?? "Asia/Phnom_Penh",
     year: "numeric",
@@ -135,7 +140,7 @@ function resetUnavailableReason() {
     day: "2-digit",
   }).format(new Date());
   if (round.voteDate?.slice(0, 10) !== today)
-    return "This is an earlier day’s vote. Start today’s vote with /startvote in the bot’s private chat.";
+    return t("shared.components_bot_group_vote_settings.this_is_an_earlier_day_s_vote_start_today");
   return "";
 }
 async function reset() {
@@ -151,7 +156,7 @@ async function reset() {
     busy.value ||
     stale.value ||
     !window.confirm(
-      `Clear today’s votes and reopen voting in ${props.group.title} with a fresh timer? This cannot be undone.`,
+      t("shared.components_bot_group_vote_settings.clear_today_s_votes_and_reopen_voting_in_with", { groupTitle: props.group.title }),
     )
   )
     return;
@@ -169,8 +174,8 @@ async function reset() {
       emit(
         "changed",
         result.deliveryPending
-          ? "Votes reset and voting reopened. Telegram delivery is pending; the bot will retry automatically."
-          : "Votes reset and voting reopened with a fresh timer.",
+          ? t("shared.components_bot_group_vote_settings.votes_reset_and_voting_reopened_telegram_delivery_is_pending")
+          : t("shared.components_bot_group_vote_settings.votes_reset_and_voting_reopened_with_a_fresh_timer"),
       );
   } catch (cause) {
     if (active && session === epoch.value) failed(cause);
@@ -184,10 +189,10 @@ async function reset() {
     class="space-y-5 rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900"
     @submit.prevent="save"
   >
-    <h2 class="font-semibold">Voting in {{ group.title }}</h2>
+    <h2 class="font-semibold">{{ t("shared.components_bot_group_vote_settings.voting_in") }} {{ group.title }}</h2>
     <fieldset :disabled="busy || stale" class="space-y-4 disabled:opacity-60">
       <label class="block text-sm"
-        >Question<input
+        >{{ t("shared.components_bot_group_vote_settings.question") }}<input
           v-model="form.question"
           required
           maxlength="240"
@@ -195,8 +200,8 @@ async function reset() {
       ><input
         v-model="search"
         type="search"
-        placeholder="Search choices"
-        aria-label="Search choices"
+        :placeholder="t(&quot;shared.components_bot_group_vote_settings.search_choices&quot;)"
+        :aria-label="t(&quot;shared.components_bot_group_vote_settings.search_choices&quot;)"
         class="w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 dark:border-slate-700"
       />
       <div
@@ -209,7 +214,7 @@ async function reset() {
             v-model="option.label"
             required
             maxlength="120"
-            :aria-label="`Choice ${index + 1}`"
+            :aria-label="t(&quot;shared.components_bot_group_vote_settings.choice&quot;, { index: index + 1 })"
             class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-transparent px-3 py-2 dark:border-slate-600"
           /><button
             type="button"
@@ -217,17 +222,17 @@ async function reset() {
             class="text-sm text-rose-600 disabled:opacity-40"
             @click="remove(index)"
           >
-            Delete
+            {{ t("shared.common.delete") }}
           </button>
         </div>
         <img
           v-if="option.imageUrl"
           :src="option.imageUrl"
-          :alt="`${option.label} image`"
+          :alt="t(&quot;shared.components_bot_group_vote_settings.image&quot;, { optionLabel: option.label })"
           class="h-24 w-24 rounded-lg object-cover"
         />
         <label v-if="option.id" class="block text-xs text-violet-600"
-          >{{ option.imageId ? "Replace choice image" : "Add choice image"
+          >{{ option.imageId ? t("shared.components_bot_group_vote_settings.replace_choice_image") : t("shared.components_bot_group_vote_settings.add_choice_image")
           }}<input
             type="file"
             accept="image/jpeg,image/png,image/webp"
@@ -235,7 +240,7 @@ async function reset() {
             @change="upload($event, option.id)"
         /></label>
         <p v-else class="text-xs text-slate-500">
-          Save this choice before adding an image.
+          {{ t("shared.components_bot_group_vote_settings.save_this_choice_before_adding_an_image") }}
         </p>
       </div>
       <button
@@ -244,11 +249,11 @@ async function reset() {
         class="text-sm font-medium text-violet-600 disabled:opacity-40"
         @click="form.options.push({ label: '' })"
       >
-        + Add choice
+        {{ t("shared.components_bot_group_vote_settings.add_choice") }}
       </button>
       <div class="grid grid-cols-2 gap-3">
         <label class="text-sm"
-          >Hour<input
+          >{{ t("shared.components_bot_group_vote_settings.hour") }}<input
             v-model.number="form.sendHour"
             type="number"
             min="0"
@@ -256,7 +261,7 @@ async function reset() {
             required
             class="mt-1 w-full rounded-xl border bg-transparent p-2 dark:border-slate-700" /></label
         ><label class="text-sm"
-          >Minute<input
+          >{{ t("shared.components_bot_group_vote_settings.minute") }}<input
             v-model.number="form.sendMinute"
             type="number"
             min="0"
@@ -264,13 +269,13 @@ async function reset() {
             required
             class="mt-1 w-full rounded-xl border bg-transparent p-2 dark:border-slate-700" /></label
         ><label class="col-span-2 text-sm"
-          >Timezone<input
+          >{{ t("shared.components_bot_group_vote_settings.timezone") }}<input
             v-model="form.timeZone"
             required
             maxlength="64"
             class="mt-1 w-full rounded-xl border bg-transparent p-2 dark:border-slate-700" /></label
         ><label class="col-span-2 text-sm"
-          >Round duration (minutes)<input
+          >{{ t("shared.components_bot_group_vote_settings.round_duration_minutes") }}<input
             v-model.number="form.durationMinutes"
             type="number"
             min="1"
@@ -284,7 +289,7 @@ async function reset() {
           v-model="form.enabled"
           type="checkbox"
           class="size-4 accent-violet-600"
-        />Send this poll daily</label
+        />{{ t("shared.components_bot_group_vote_settings.send_this_poll_daily") }}</label
       >
     </fieldset>
     <p v-if="error" role="alert" class="text-sm text-rose-600">{{ error }}</p>
@@ -293,7 +298,7 @@ async function reset() {
         :disabled="busy || stale"
         class="rounded-xl bg-violet-600 px-4 py-2 text-white disabled:opacity-50"
       >
-        {{ busy ? "Saving…" : "Save voting" }}</button
+        {{ busy ? t("shared.common.saving") : t("shared.components_bot_group_vote_settings.save_voting") }}</button
       ><button
         type="button"
         :disabled="busy || stale || Boolean(resetUnavailableReason())"
@@ -303,15 +308,14 @@ async function reset() {
         class="text-sm text-rose-600 disabled:opacity-50"
         @click="reset"
       >
-        Reset &amp; reopen voting
+        {{ t("shared.components_bot_group_vote_settings.reset_reopen_voting") }}
       </button>
     </div>
     <p
       v-if="!resetUnavailableReason()"
       class="text-sm text-slate-500 dark:text-slate-400"
     >
-      Clears today’s votes and starts a fresh timer. You can reset and reopen
-      multiple times a day.
+      {{ t("shared.components_bot_group_vote_settings.clears_today_s_votes_and_starts_a_fresh_timer") }}
     </p>
     <!-- Only today's round can be reset; earlier days remain in history. -->
     <p

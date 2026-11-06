@@ -1,6 +1,9 @@
+import { translateMessage } from "./i18n.ts";
+
 export interface FoodQuickPreset {
   id: string;
   icon: string;
+  labelKey: string;
   labelKm: string;
   labelEn: string;
   peopleCount: number;
@@ -26,18 +29,18 @@ const keep = new Set([
 function preset(
   id: string,
   icon: string,
-  labelKm: string,
-  labelEn: string,
   peopleCount: number,
   cap: number,
   filters: FoodQuickPreset["filters"],
   mode: FoodQuickPreset["mode"] = "dine-out",
 ): FoodQuickPreset {
+  const labelKey = `products.food.quick_presets.${id.replaceAll("-", "_")}`;
   return {
     id,
     icon,
-    labelKm,
-    labelEn,
+    labelKey,
+    labelKm: translateMessage("km", labelKey),
+    labelEn: translateMessage("en", labelKey),
     peopleCount,
     totalBudget: peopleCount * cap,
     mode,
@@ -50,8 +53,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "after-work-drinks",
     "🍻",
-    "ចេញពីធ្វើការ ផឹកអី?",
-    "After-work drinks",
     3,
     10,
     {
@@ -67,8 +68,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "after-work-date",
     "🌇",
-    "ចេញពីធ្វើការ ណាត់ជួប",
-    "After-work date",
     2,
     20,
     {
@@ -80,7 +79,7 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
       vibes: ["cozy", "romantic"],
     },
   ),
-  preset("budget-drinks", "🥂", "ផឹកអី ថវិកាតិច", "Drinks on a budget", 3, 5, {
+  preset("budget-drinks", "🥂", 3, 5, {
     who: "friends",
     eventOccasion: "drinking-and-food",
     budgetRange: "student-budget-2-5",
@@ -91,8 +90,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "street-food-chill",
     "🍢",
-    "ម្ហូបតាមផ្លូវ អង្គុយលេង",
-    "Street food & drinks",
     3,
     5,
     {
@@ -104,7 +101,7 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
       vibes: ["outdoor-breeze", "group-friendly"],
     },
   ),
-  preset("solo-lunch", "🍚", "បាយថ្ងៃត្រង់ ម្នាក់ឯង", "Easy solo lunch", 1, 5, {
+  preset("solo-lunch", "🍚", 1, 5, {
     who: "solo",
     eventOccasion: "quick-meal",
     mealWindow: "lunch-11-am-2-pm",
@@ -114,8 +111,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "student-lunch",
     "🎒",
-    "អាហារនិស្សិត សន្សំលុយ",
-    "Student budget",
     2,
     5,
     {
@@ -129,8 +124,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "office-lunch",
     "💼",
-    "បាយថ្ងៃត្រង់ ជាមួយក្រុម",
-    "Office team lunch",
     4,
     10,
     {
@@ -145,8 +138,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "quick-breakfast",
     "☀️",
-    "អាហារពេលព្រឹក ឆាប់រហ័ស",
-    "Quick breakfast",
     1,
     1.99,
     {
@@ -157,14 +148,14 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
       restaurantTypes: ["breakfast-restaurant"],
     },
   ),
-  preset("cafe-work", "☕", "កាហ្វេ អង្គុយធ្វើការ", "Coffee & focus", 1, 5, {
+  preset("cafe-work", "☕", 1, 5, {
     who: "solo",
     budgetRange: "student-budget-2-5",
     foodTypes: ["coffee"],
     restaurantTypes: ["work-friendly-cafe"],
     vibes: ["work-friendly", "quiet-and-peaceful"],
   }),
-  preset("family-dinner", "👨‍👩‍👧", "បាយល្ងាច ជុំគ្រួសារ", "Family dinner", 4, 10, {
+  preset("family-dinner", "👨‍👩‍👧", 4, 10, {
     who: "family",
     eventOccasion: "family-dinner",
     mealWindow: "dinner-7-10-pm",
@@ -175,8 +166,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "romantic-dinner",
     "🕯️",
-    "អាហារល្ងាច រ៉ូមែនទិក",
-    "Romantic dinner",
     2,
     35,
     {
@@ -191,8 +180,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "rainy-hotpot",
     "🍲",
-    "មេឃភ្លៀង ញ៉ាំស៊ុបក្តៅ",
-    "Rainy-day hotpot",
     3,
     10,
     {
@@ -207,8 +194,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "vegetarian-lunch",
     "🥗",
-    "បាយថ្ងៃត្រង់ បួស",
-    "Vegetarian lunch",
     1,
     5,
     {
@@ -222,8 +207,6 @@ export const FOOD_QUICK_PRESETS: FoodQuickPreset[] = [
   preset(
     "budget-cooking",
     "👩‍🍳",
-    "ធ្វើម្ហូបផ្ទះ សន្សំលុយ",
-    "Cook something affordable",
     1,
     5,
     {

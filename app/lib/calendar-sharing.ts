@@ -1,3 +1,4 @@
+import { translateMessage } from "./i18n.ts";
 import {
   calendarDateKey,
   ENGLISH_MONTHS,
@@ -69,28 +70,20 @@ export function getCalendarDetailMeta(
   event: CalendarEvent | null,
   khmer: boolean,
 ) {
+  const locale = khmer ? "km" : "en";
   const date = calendarDateLabel(day, khmer);
   const name = event
     ? khmer
       ? event.nameKm
       : event.nameEn
-    : khmer
-      ? "ប្រតិទិនខ្មែរ"
-      : "Khmer Calendar";
+    : translateMessage(locale, "shared.calendar_metadata.calendar_name");
   const occasions = (event ? [event] : day.events)
     .map((item) => (khmer ? item.nameKm : item.nameEn))
     .join(" · ");
-  const kind =
-    event?.kind === "public-holiday"
-      ? khmer
-        ? "ថ្ងៃឈប់សម្រាកផ្លូវការ"
-        : "Cambodian public holiday"
-      : khmer
-        ? "ចន្ទគតិខ្មែរ និងពិធីបុណ្យ"
-        : "Khmer lunar date, celebrations and observances";
+  const kind = translateMessage(locale, event?.kind === "public-holiday" ? "shared.calendar_metadata.public_holiday" : "shared.calendar_metadata.lunar_occasions");
   return {
-    title: `${name} · ${date} | ChlatWork`,
-    description: `${date} · ${kind}${occasions ? ` · ${occasions}` : ""}${event?.estimated ? (khmer ? " · ប៉ាន់ស្មាន" : " · Estimated date") : ""}`,
+    title: translateMessage(locale, "shared.calendar_metadata.title", { name, date }),
+    description: translateMessage(locale, "shared.calendar_metadata.description", { date, kind, occasions: occasions ? ` · ${occasions}` : "", estimated: event?.estimated ? translateMessage(locale, "shared.calendar_metadata.estimated_suffix") : "" }),
   };
 }
 

@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { X } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import QuickExpenseForm from "./QuickExpenseForm.vue";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = defineProps<{
   row: ExpenseRow;
@@ -102,16 +108,16 @@ onBeforeUnmount(() => {
                 {{ row.date }}
               </p>
               <h2 :id="titleId" class="mt-1 text-2xl font-black">
-                {{ row.type === "income" ? "Edit income" : "Edit expense" }}
+                {{ row.type === "income" ? t("products.expenses.edit_income") : t("products.expenses.edit_expense") }}
               </h2>
               <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-                Update the details, then save your changes.
+                {{ t("products.expenses.update_the_details_then_save_your_changes") }}
               </p>
             </div>
             <button
               type="button"
               :disabled="busy"
-              aria-label="Close entry editor"
+              :aria-label="t(&quot;products.common.close_entry_editor&quot;)"
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-white/50 dark:hover:bg-white/10"
               @click="close"
             >
@@ -124,7 +130,7 @@ onBeforeUnmount(() => {
               :initial-row="row"
               :currency="currency"
               :busy="busy"
-              submit-label="Save changes"
+              :submit-label="t(&quot;products.moments.save_changes&quot;)"
               @submit="emit('save', $event)"
             />
           </fieldset>
@@ -133,7 +139,7 @@ onBeforeUnmount(() => {
             role="alert"
             class="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-400/10 dark:text-red-300"
           >
-            {{ error }}
+            {{ productText(error) }}
           </p>
           <button
             type="button"
@@ -141,7 +147,7 @@ onBeforeUnmount(() => {
             class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-600 disabled:opacity-50 dark:border-white/15 dark:text-white/65"
             @click="close"
           >
-            Cancel
+            {{ t("products.common.cancel") }}
           </button>
         </div>
       </div>

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeBotCode } from "~/lib/bot-ui-copy";
+const { isKhmer } = useLanguage();
 import {
   getBotUsers,
   getBotOverview,
@@ -9,8 +12,10 @@ import {
 } from "~/services/bot-admin.service";
 import { creatorCreditRequestError } from "~/lib/creator-credit-display";
 
+const { t } = useAppI18n();
+
 definePageMeta({ middleware: ["auth", "admin"] });
-useSeoMeta({ title: "Bot Admin | ChlatWork", robots: "noindex, nofollow" });
+useSeoMeta({ title: () => t("shared.pages_admin_bots.bot_admin_chlat_work"), robots: "noindex, nofollow" });
 const { user } = useAuth();
 const search = ref("");
 const bot = ref<BotKind | "">("");
@@ -26,23 +31,23 @@ const detailLoading = ref(false);
 const error = ref("");
 let listVersion = 0;
 let detailVersion = 0;
-const tabs = [
-  { id: "access", label: "Access" },
-  { id: "credits", label: "Credits & limits" },
+const tabs = computed(() => [
+  { id: "access", label: t("shared.components_bot_group_overview.access") },
+  { id: "credits", label: t("shared.components_layout_product_navigation.credits_limits") },
   { id: "khqr", label: "KHQR" },
-  { id: "activity", label: "Activity" },
-] as const;
+  { id: "activity", label: t("shared.components_admin_activity_dashboard.activity") },
+] as const);
 const cards = computed(() => [
-  { label: "Pending approval", value: count("PENDING"), status: "PENDING" },
-  { label: "Approved users", value: count("APPROVED"), status: "APPROVED" },
+  { label: t("shared.pages_admin_bots.pending_approval"), value: count("PENDING"), status: "PENDING" },
+  { label: t("shared.pages_admin_bots.approved_users"), value: count("APPROVED"), status: "APPROVED" },
   {
-    label: "Active in 24h",
+    label: t("shared.pages_admin_bots.active_in_24h"),
     value:
       overview.value?.activity.reduce((sum, row) => sum + row.active, 0) ?? 0,
     status: "",
   },
   {
-    label: "AI credits · 24h",
+    label: t("shared.pages_admin_bots.ai_credits_24h"),
     value:
       overview.value?.usage.reduce((sum, row) => sum + row.credits, 0) ?? 0,
     status: "",
@@ -86,7 +91,7 @@ async function load(page = 1) {
     if (version === listVersion && authorized(actorId))
       error.value = creatorCreditRequestError(
         cause,
-        "Could not load Bot Admin.",
+        t("shared.pages_admin_bots.could_not_load_bot_admin"),
       );
   } finally {
     if (version === listVersion) loading.value = false;
@@ -107,7 +112,7 @@ async function select(id: string, preserveTab = false) {
     if (version === detailVersion && authorized(actorId))
       error.value = creatorCreditRequestError(
         cause,
-        "Could not load this user.",
+        t("shared.pages_admin_bots.could_not_load_this_user"),
       );
   } finally {
     if (version === detailVersion) detailLoading.value = false;
@@ -154,21 +159,21 @@ onMounted(() => void load());
         >
           Creator + ChlatWork
         </p>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight">Bot Admin</h1>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight">{{ t("shared.components_layout_product_navigation.bot_admin") }}</h1>
         <p class="mt-2 text-sm text-slate-500 dark:text-white/55">
-          One place for approvals, shared credits, and personal KHQR.
+          {{ t("shared.pages_admin_bots.one_place_for_approvals_shared_credits_and_personal_khqr") }}
         </p>
       </div>
       <div class="flex gap-3 text-sm font-medium">
         <NuxtLink
           to="/admin"
           class="rounded-xl border border-slate-200 px-4 py-2 dark:border-white/10"
-          >Analytics</NuxtLink
+          >{{ t("shared.pages_admin_bots.analytics") }}</NuxtLink
         >
         <NuxtLink
           to="/admin/tools"
           class="rounded-xl border border-slate-200 px-4 py-2 dark:border-white/10"
-          >Tool controls</NuxtLink
+          >{{ t("shared.pages_admin_bots.tool_controls") }}</NuxtLink
         >
       </div>
     </header>
@@ -190,8 +195,7 @@ onMounted(() => void load());
       </button>
     </div>
     <p class="text-xs text-slate-500">
-      Activity counts bot memberships; shared accounts appear once in the user
-      list. {{ failures }} failed AI requests in 24h.
+      {{ t("shared.pages_admin_bots.activity_counts_bot_memberships_shared_accounts_appear_once_in") }} {{ failures }} {{ t("shared.pages_admin_bots.failed_ai_requests_in_24h") }}
     </p>
     <section
       class="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]"
@@ -201,39 +205,39 @@ onMounted(() => void load());
         @submit.prevent="load()"
       >
         <label class="min-w-48 flex-1 text-xs font-semibold"
-          >Find a Telegram user
+          >{{ t("shared.pages_admin_bots.find_a_telegram_user") }}
           <input
             v-model="search"
             type="search"
             maxlength="100"
-            placeholder="Name, @username, or Telegram ID"
+            :placeholder="t(&quot;shared.pages_admin_bots.name_username_or_telegram_id&quot;)"
             class="mt-2 w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-normal dark:border-white/15"
           />
         </label>
         <label class="text-xs font-semibold"
-          >Bot
+          >{{ t("shared.components_bot_group_overview.bot") }}
           <ModernSelect
             v-model="bot"
             class="mt-2 block rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-normal dark:border-white/15"
             @change="load()"
           >
-            <option value="">Both bots</option>
+            <option value="">{{ t("shared.pages_admin_bots.both_bots") }}</option>
             <option value="CREATOR">Creator</option>
             <option value="CHLATWORK">ChlatWork</option>
           </ModernSelect>
         </label>
         <label class="text-xs font-semibold"
-          >Status
+          >{{ t("shared.common.status") }}
           <ModernSelect
             v-model="status"
             class="mt-2 block rounded-xl border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-normal dark:border-white/15"
             @change="load()"
           >
-            <option value="">All users</option>
-            <option value="PENDING">Pending approval</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="SUSPENDED">Suspended</option>
+            <option value="">{{ t("shared.pages_admin_bots.all_users") }}</option>
+            <option value="PENDING">{{ t("shared.pages_admin_bots.pending_approval") }}</option>
+            <option value="APPROVED">{{ t("shared.pages_admin_bots.approved") }}</option>
+            <option value="REJECTED">{{ t("shared.pages_admin_bots.rejected") }}</option>
+            <option value="SUSPENDED">{{ t("shared.pages_admin_bots.suspended") }}</option>
           </ModernSelect>
         </label>
         <button
@@ -241,7 +245,7 @@ onMounted(() => void load());
           :disabled="loading"
           class="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
-          {{ loading ? "Loading…" : "Search" }}
+          {{ loading ? t("shared.common.loading") : t("shared.common.search") }}
         </button>
       </form>
       <p
@@ -257,11 +261,11 @@ onMounted(() => void load());
             class="bg-slate-50 text-xs text-slate-500 dark:bg-white/5 dark:text-white/50"
           >
             <tr>
-              <th class="px-5 py-3">User</th>
-              <th class="px-5 py-3">Approval</th>
-              <th class="px-5 py-3">Bot permissions</th>
-              <th class="px-5 py-3">Shared credits</th>
-              <th class="px-5 py-3"><span class="sr-only">Actions</span></th>
+              <th class="px-5 py-3">{{ t("shared.common.user") }}</th>
+              <th class="px-5 py-3">{{ t("shared.pages_admin_bots.approval") }}</th>
+              <th class="px-5 py-3">{{ t("shared.pages_admin_bots.bot_permissions") }}</th>
+              <th class="px-5 py-3">{{ t("shared.pages_admin_bots.shared_credits") }}</th>
+              <th class="px-5 py-3"><span class="sr-only">{{ t("shared.common.actions") }}</span></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-white/10">
@@ -271,20 +275,20 @@ onMounted(() => void load());
               class="hover:bg-slate-50 dark:hover:bg-white/[0.02]"
             >
               <td class="px-5 py-4">
-                <p class="font-semibold">{{ item.name || "Telegram user" }}</p>
+                <p class="font-semibold">{{ item.name || t("shared.pages_admin_bots.telegram_user") }}</p>
                 <p class="mt-1 text-xs text-slate-500">
                   {{ item.username ? `@${item.username} · ` : ""
                   }}{{ item.telegramId }}
                 </p>
                 <span v-if="!item.isActive" class="text-xs text-red-600"
-                  >Website account inactive</span
+                  >{{ t("shared.pages_admin_bots.website_account_inactive") }}</span
                 >
               </td>
               <td class="px-5 py-4">
                 <span
                   :class="badge(item.status)"
                   class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                  >{{ item.status }}</span
+                  >{{ localizeBotCode(item.status, t("shared.components_admin_bot_group_workspaces.en")) }}</span
                 >
               </td>
               <td class="px-5 py-4">
@@ -315,7 +319,7 @@ onMounted(() => void load());
                   class="rounded-lg border border-slate-200 px-3 py-1.5 font-medium dark:border-white/15"
                   @click="select(item.userId)"
                 >
-                  Manage<span class="sr-only">
+                  {{ t("shared.common.manage") }}<span class="sr-only">
                     {{ item.name || item.telegramId }}</span
                   >
                 </button>
@@ -327,15 +331,14 @@ onMounted(() => void load());
           v-if="!loading && !list?.items.length"
           class="p-10 text-center text-sm text-slate-500"
         >
-          No users match these filters. New requests appear after a private
-          /start.
+          {{ t("shared.pages_admin_bots.no_users_match_these_filters_new_requests_appear_after") }}
         </p>
       </div>
       <footer
         v-if="list"
         class="flex items-center justify-between border-t border-slate-100 px-5 py-4 text-xs text-slate-500 dark:border-white/10"
       >
-        <p>{{ list.total }} users · Page {{ list.page }}</p>
+        <p>{{ list.total }} {{ t("shared.pages_admin_bots.users_page") }} {{ list.page }}</p>
         <div class="flex gap-3">
           <button
             type="button"
@@ -343,14 +346,14 @@ onMounted(() => void load());
             class="rounded-lg border px-3 py-2 disabled:opacity-30 dark:border-white/15"
             @click="load(list.page - 1)"
           >
-            Previous</button
+            {{ t("shared.common.previous") }}</button
           ><button
             type="button"
             :disabled="loading || list.page * list.pageSize >= list.total"
             class="rounded-lg border px-3 py-2 disabled:opacity-30 dark:border-white/15"
             @click="load(list.page + 1)"
           >
-            Next
+            {{ t("shared.common.next") }}
           </button>
         </div>
       </footer>
@@ -358,7 +361,7 @@ onMounted(() => void load());
     <section
       v-if="details || detailLoading"
       class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-7 dark:border-white/10 dark:bg-white/[0.03]"
-      aria-label="Selected Telegram user"
+      :aria-label="t(&quot;shared.pages_admin_bots.selected_telegram_user&quot;)"
       :aria-busy="detailLoading"
     >
       <p
@@ -366,13 +369,13 @@ onMounted(() => void load());
         role="status"
         class="py-10 text-center text-sm text-slate-500"
       >
-        Loading user…
+        {{ t("shared.pages_admin_bots.loading_user") }}
       </p>
       <template v-else-if="details">
         <header class="flex items-start justify-between gap-4">
           <div>
             <h2 class="text-xl font-bold">
-              {{ details.profile.name || "Telegram user" }}
+              {{ details.profile.name || t("shared.pages_admin_bots.telegram_user") }}
             </h2>
             <p class="mt-1 text-xs text-slate-500">
               {{
@@ -388,15 +391,15 @@ onMounted(() => void load());
               class="text-violet-600 dark:text-violet-300"
               @click="select(details.profile.userId, true)"
             >
-              Refresh</button
+              {{ t("shared.common.refresh") }}</button
             ><button type="button" class="text-slate-500" @click="close">
-              Close
+              {{ t("shared.common.close") }}
             </button>
           </div>
         </header>
         <nav
           class="my-6 flex flex-wrap gap-2 border-b border-slate-100 pb-3 dark:border-white/10"
-          aria-label="User management sections"
+          :aria-label="t(&quot;shared.pages_admin_bots.user_management_sections&quot;)"
         >
           <button
             v-for="item in tabs"
@@ -438,21 +441,21 @@ onMounted(() => void load());
             >
               <p class="font-semibold">{{ membership.bot }}</p>
               <p class="mt-2 text-xs text-slate-500">
-                Private start:
+                {{ t("shared.pages_admin_bots.private_start") }}
                 {{
                   membership.firstPrivateStartedAt
                     ? new Date(
                         membership.firstPrivateStartedAt,
                       ).toLocaleString()
-                    : "Not recorded"
+                    : t("shared.pages_admin_bots.not_recorded")
                 }}
               </p>
               <p class="mt-1 text-xs text-slate-500">
-                Last activity:
+                {{ t("shared.pages_admin_bots.last_activity") }}
                 {{
                   membership.lastActivityAt
                     ? new Date(membership.lastActivityAt).toLocaleString()
-                    : "Not recorded"
+                    : t("shared.pages_admin_bots.not_recorded")
                 }}
               </p>
             </div>
@@ -465,7 +468,7 @@ onMounted(() => void load());
             >
               <div class="flex flex-wrap justify-between gap-2">
                 <p class="font-semibold">
-                  {{ entry.action.replaceAll("_", " ") }}
+                  {{ localizeBotCode(entry.action, t("shared.components_admin_bot_group_workspaces.en")).replaceAll("_", " ") }}
                   <span v-if="entry.bot" class="font-normal text-slate-500"
                     >· {{ entry.bot }}</span
                   >
@@ -481,18 +484,18 @@ onMounted(() => void load());
                 v-if="entry.details.status"
                 class="mt-1 text-xs text-slate-500"
               >
-                {{ entry.details.previousStatus }} → {{ entry.details.status }}
+                {{ localizeBotCode(entry.details.previousStatus, t("shared.components_admin_bot_group_workspaces.en")) }} → {{ localizeBotCode(entry.details.status, t("shared.components_admin_bot_group_workspaces.en")) }}
               </p>
               <p
                 v-if="entry.actorId"
                 class="mt-2 break-all text-xs text-slate-400"
               >
-                Actor {{ entry.actorId }}
+                {{ t("shared.pages_admin_bots.actor") }} {{ entry.actorId }}
               </p>
             </li>
           </ol>
           <p v-if="!details.audit.length" class="text-sm text-slate-500">
-            No activity recorded yet.
+            {{ t("shared.pages_admin_bots.no_activity_recorded_yet") }}
           </p>
         </div>
       </template>

@@ -1,3 +1,4 @@
+import { hasTranslation, translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -66,4 +67,15 @@ test("vegetarian shortcuts add their diet without removing existing allergy cons
     FOOD_QUICK_PRESETS.find((preset) => preset.id === "budget-cooking")!,
   );
   assert.equal(cooking.mode, "cook-at-home");
+});
+
+
+test("quick preset labels use catalog keys without changing the filter identifiers", () => {
+  for (const preset of FOOD_QUICK_PRESETS) {
+    assert.equal(preset.labelKey, `products.food.quick_presets.${preset.id.replaceAll("-", "_")}`);
+    for (const locale of ["en", "km"] as const) assert.equal(hasTranslation(locale, preset.labelKey), true);
+    assert.equal(preset.labelEn, translateMessage("en", preset.labelKey));
+    assert.equal(preset.labelKm, translateMessage("km", preset.labelKey));
+    assert.equal(validFoodFilters(preset.filters), true);
+  }
 });

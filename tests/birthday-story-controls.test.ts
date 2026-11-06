@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -11,6 +12,7 @@ const filename = "app/components/moments/BirthdayStoryEditor.vue";
 const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
 const compiled = compileScript(descriptor, { id: "birthday-story-editor-test", inlineTemplate: true });
 const source = ts.transpileModule(compiled.content, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
+  .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
   .replace(/from ["']vue["']/g, `from ${JSON.stringify(import.meta.resolve("vue"))}`)
   .replace(/from ["']~\/lib\/birthday-story["']/g, `from ${JSON.stringify(new URL("../app/lib/birthday-story.ts", import.meta.url).href)}`)
   .replace(/from ["']~\/lib\/birthday-story-editor["']/g, `from ${JSON.stringify(new URL("../app/lib/birthday-story-editor.ts", import.meta.url).href)}`);

@@ -31,6 +31,7 @@ export function useFoodMenuCatalog() {
   const isLoading = ref(false),
     isLoadingMore = ref(false),
     hasLoaded = ref(false),
+    // Store fallback keys so an existing alert follows a later interface-language change.
     errorMessage = ref<string | null>(null);
   const cursor = ref<string | undefined>(),
     activeSignature = ref("");
@@ -99,7 +100,7 @@ export function useFoodMenuCatalog() {
       seen.clear();
     } catch {
       if (key === signature())
-        errorMessage.value = "មិនអាចផ្ទុកបញ្ជីមុខម្ហូបបានទេ។ សូមសាកម្ដងទៀត។";
+        errorMessage.value = "products.food.errors.catalog";
     } finally {
       isLoading.value = false;
       drain();
@@ -134,7 +135,7 @@ export function useFoodMenuCatalog() {
           : undefined;
     } catch {
       if (key === signature())
-        errorMessage.value = "មិនអាចផ្ទុកមុខម្ហូបបន្ថែមបានទេ។ ចុចសាកម្ដងទៀត។";
+        errorMessage.value = "products.food.errors.catalog_more";
     } finally {
       isLoadingMore.value = false;
       drain();

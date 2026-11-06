@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
+import { localizeBusinessService } from "~/data/services-km";
 import { BUSINESS_SERVICES, TELEGRAM_CONTACT } from "~/data/services";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
+const services = computed(() => BUSINESS_SERVICES.map(service => localizeBusinessService(service, t("shared.components_admin_bot_group_workspaces.en"))));
 
 const title = computed(() =>
-  isKhmer.value ? "តម្លៃសេវាកម្ម - វិក្កយបត្រ ChlatWork" : "ChlatWork Pricing - Invoice Tools",
+  t("shared.pages_pricing.chlat_work_pricing_invoice_tools"),
 );
 const description = computed(() =>
-  isKhmer.value
-    ? "តម្លៃចាប់ផ្តើមសមរម្យសម្រាប់សេវាកម្មអាជីវកម្ម ChlatWork រួមមានកម្មវិធីបង្កើតវិក្កយបត្រ និងបង្កាន់ដៃ។ សូមផ្ញើសារតាម Telegram ជាមុនដើម្បីបញ្ជាក់ទំហំការងារ។"
-    : "Simple starter pricing for ChlatWork business services with invoice and receipt generators. Message on Telegram first to confirm scope.",
+  t("shared.pages_pricing.simple_starter_pricing_for_chlat_work_business_services_with"),
 );
 
 useSeoMeta({
@@ -36,19 +39,17 @@ useHead({
       class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm shadow-sky-100/80 dark:!border-slate-800 dark:!bg-slate-900 dark:shadow-black/20 sm:p-8"
     >
       <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-        {{ isKhmer ? "តម្លៃសេវាកម្ម" : "Pricing" }}
+        {{ t("shared.layouts_default.pricing") }}
       </p>
       <h1
         class="mt-3 max-w-4xl text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl"
       >
-        {{ isKhmer ? "ឧបករណ៍សម្រាប់អាជីវកម្មខ្នាតតូច ជាមួយនឹងតម្លៃចាប់ផ្តើមច្បាស់លាស់។" : "Small business tools with clear starter pricing." }}
+        {{ t("shared.pages_pricing.small_business_tools_with_clear_starter_pricing") }}
       </h1>
       <p
         class="mt-4 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300"
       >
-        {{ isKhmer
-          ? "ជ្រើសរើសសេវាកម្មចាប់ផ្តើម ផ្ញើព័ត៌មានលម្អិតតាម Telegram និងបញ្ជាក់ទំហំការងារមុនពេលទូទាត់។ ChlatWork មិនទាន់ប្រើប្រព័ន្ធទូទាត់អនឡាញសម្រាប់សេវាកម្មទាំងនេះនៅឡើយទេ។"
-          : "Choose a starter service, send the details on Telegram, and confirm the scope before any payment. ChlatWork does not use online checkout for these services yet."
+        {{ t("shared.pages_pricing.choose_a_starter_service_send_the_details_on_telegram")
         }}
       </p>
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -58,14 +59,14 @@ useHead({
           rel="noopener noreferrer"
           class="inline-flex h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
         >
-          {{ isKhmer ? "ផ្ញើសារតាម Telegram" : "Message on Telegram" }}
+          {{ t("shared.components_business_business_cta.message_on_telegram") }}
         </a>
       </div>
     </header>
 
-    <section class="grid gap-4 lg:grid-cols-3" aria-label="Service pricing">
+    <section class="grid gap-4 lg:grid-cols-3" :aria-label="t(&quot;shared.pages_pricing.service_pricing&quot;)">
       <article
-        v-for="service in BUSINESS_SERVICES"
+        v-for="service in services"
         :key="service.slug"
         class="flex flex-col rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
@@ -107,13 +108,13 @@ useHead({
             rel="noopener noreferrer"
             class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
           >
-            {{ isKhmer ? "ផ្ញើសារតាម Telegram" : "Message on Telegram" }}
+            {{ t("shared.components_business_business_cta.message_on_telegram") }}
           </a>
           <NuxtLink
             :to="service.route"
             class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-5 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
           >
-            {{ isKhmer ? "មើលព័ត៌មានលម្អិត" : "View details" }}
+            {{ t("shared.pages_pricing.view_details") }}
           </NuxtLink>
         </div>
       </article>
@@ -123,37 +124,37 @@ useHead({
       class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
     >
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
-        {{ isKhmer ? "របៀបបញ្ជាក់តម្លៃ" : "How pricing is confirmed" }}
+        {{ t("shared.pages_pricing.how_pricing_is_confirmed") }}
       </h2>
       <div class="mt-4 grid gap-3 md:grid-cols-3">
         <div
           class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
         >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "១. ផ្ញើព័ត៌មានការងារ" : "1. Send the workflow" }}
+            {{ t("shared.pages_pricing.1_send_the_workflow") }}
           </h3>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            {{ isKhmer ? "ចែករំលែក menu គំរូវិក្កយបត្រ តារាង ឬ screenshot របស់អ្នកតាម Telegram។" : "Share your menu, invoice sample, spreadsheet, or screenshots on Telegram." }}
+            {{ t("shared.pages_pricing.share_your_menu_invoice_sample_spreadsheet_or_screenshots_on") }}
           </p>
         </div>
         <div
           class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
         >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "២. បញ្ជាក់ទំហំការងារ" : "2. Confirm the scope" }}
+            {{ t("shared.pages_pricing.2_confirm_the_scope") }}
           </h3>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            {{ isKhmer ? "ChlatWork នឹងបញ្ជាក់អំពីទំហំការងារ រយៈពេលបញ្ចប់ និងតម្លៃចុងក្រោយ។" : "ChlatWork confirms the smallest useful version, delivery time, and final price." }}
+            {{ t("shared.pages_pricing.chlat_work_confirms_the_smallest_useful_version_delivery_time") }}
           </p>
         </div>
         <div
           class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:!border-slate-800 dark:bg-slate-900/70"
         >
           <h3 class="text-sm font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "៣. បង្កើត និងប្រគល់ជូន" : "3. Build and hand off" }}
+            {{ t("shared.pages_pricing.3_build_and_hand_off") }}
           </h3>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            {{ isKhmer ? "អ្នកពិនិត្យមើលលទ្ធផលជាមួយទិន្នន័យគំរូ មុនពេលប្រគល់ការងារចុងក្រោយ។" : "You review the result with sample data before the final handoff." }}
+            {{ t("shared.pages_pricing.you_review_the_result_with_sample_data_before_the") }}
           </p>
         </div>
       </div>

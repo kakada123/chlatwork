@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { getStarterGuideKm } from "~/data/starter-guides-km";
+import { localizeDeveloperGuide } from "~/data/developer-guides-km";
+import { localizePost } from "~/data/posts-km";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { ChevronRight, Search, X } from "lucide-vue-next";
 import { ENABLED_TOOLS } from "~/lib/tool-registry";
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
@@ -23,6 +28,9 @@ import { openPrivacyCookieSettings } from "~/lib/cookie-notice";
 import { filterTools, searchTextMatches } from "~/lib/tool-search";
 import { CREATOR_TOOLS, getCreatorToolByRoute } from "~/data/creator-tools";
 
+const { t } = useAppI18n();
+
+
 const { canShowAds } = useAdVisibility();
 
 type HeaderSearchResult = {
@@ -34,155 +42,156 @@ type HeaderSearchResult = {
   searchText: string;
 };
 
-const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
+const SITE_SEARCH_PAGES = computed<HeaderSearchResult[]>(() => [
   {
     key: "page-home",
-    title: "Home",
-    description: "Explore ChlatWork tools, categories, and popular workflows.",
+    title: t("shared.components_layout_mobile_bottom_nav.home"),
+    description: t("shared.site_search.page_home_description"),
     path: "/",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "home ChlatWork online tools popular tools categories",
   },
   {
     key: "page-tools",
-    title: "All Tools",
-    description: "Browse every available ChlatWork tool.",
+    title: t("shared.site_search.page_tools_title"),
+    description: t("shared.site_search.page_tools_description"),
     path: "/tools",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "all tools directory utilities pdf developer tools",
   },
   {
     key: "page-creator",
-    title: "ChlatWork Creator",
-    description: "Create social posts, scripts, hooks, Khmer content, and video content packs.",
+    title: t("shared.site_search.page_creator_title"),
+    description: t("shared.site_search.page_creator_description"),
     path: "/creator",
-    label: "Creator",
+    label: t("shared.site_search.label_creator"),
     searchText: "creator AI Khmer post script hook subtitle caption content pack Cambodia",
   },
   {
     key: "page-developer-commands",
-    title: "Developer Command Hub",
-    description: "Search, customize, and copy Docker, Git, NestJS, Linux, database, and framework commands.",
+    title: t("shared.site_search.page_developer_commands_title"),
+    description: t("shared.site_search.page_developer_commands_description"),
     path: "/developer-commands",
-    label: "Developer",
+    label: t("shared.home.developer"),
     searchText: "commands docker git nestjs npm pnpm yarn bun postgres redis linux nginx ssh network laravel vite typeorm pm2 github cli",
   },
   {
     key: "page-moments-create",
-    title: "ChlatWork Moments",
-    description: "Create an interactive celebration page with photos, a message, counter, and secret surprise.",
+    title: t("shared.site_search.page_moments_create_title"),
+    description: t("shared.site_search.page_moments_create_description"),
     path: "/moments/create",
-    label: "Moments",
+    label: t("shared.layouts_default.moments"),
     searchText: "birthday anniversary love friendship celebration greeting photos surprise QR share",
   },
   {
     key: "page-developer-guides",
-    title: "Developer Guides",
-    description: "Production runbooks for Ubuntu, NestJS, Docker, AWS, PostgreSQL, Redis, Nginx, and SSL.",
+    title: t("shared.layouts_default.developer_guides"),
+    description: t("shared.site_search.page_developer_guides_description"),
     path: "/developer-guides",
-    label: "Developer",
+    label: t("shared.home.developer"),
     searchText: "deployment guides production ubuntu nestjs pm2 nginx ssl docker compose aws ec2 postgresql redis security",
   },
   {
     key: "page-guides",
-    title: "Guides",
-    description: "Browse practical guides for ChlatWork tools and workflows.",
+    title: t("shared.layouts_default.guides"),
+    description: t("shared.site_search.page_guides_description"),
     path: "/guides",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "guides tutorials help how to instructions",
   },
   {
     key: "page-posts",
-    title: "Posts",
-    description: "Read ChlatWork technology and business briefings.",
+    title: t("shared.pages_posts_index.posts"),
+    description: t("shared.site_search.page_posts_description"),
     path: "/posts",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "posts news daily briefing AI technology business Cambodia markets",
   },
   {
     key: "page-about",
-    title: "About ChlatWork",
-    description: "Learn about ChlatWork and its browser-based tools.",
+    title: t("shared.pages_about.about_chlat_work"),
+    description: t("shared.site_search.page_about_description"),
     path: "/about",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "about ChlatWork company website mission",
   },
   {
     key: "page-contact",
-    title: "Contact",
-    description: "Contact ChlatWork for questions, support, or services.",
+    title: t("shared.common.contact"),
+    description: t("shared.site_search.page_contact_description"),
     path: "/contact",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "contact support message Telegram email help",
   },
   {
     key: "page-editorial-policy",
-    title: "Editorial Policy",
-    description: "Read the standards used for ChlatWork content and guides.",
+    title: t("shared.layouts_default.editorial_policy"),
+    description: t("shared.site_search.page_editorial_policy_description"),
     path: "/editorial-policy",
-    label: "Policy",
+    label: t("shared.site_search.label_policy"),
     searchText: "editorial policy content standards review",
   },
   {
     key: "page-privacy",
-    title: "Privacy Policy",
-    description: "Review how ChlatWork handles privacy and data.",
+    title: t("shared.layouts_default.privacy_policy"),
+    description: t("shared.site_search.page_privacy_description"),
     path: "/privacy-policy",
-    label: "Policy",
+    label: t("shared.site_search.label_policy"),
     searchText: "privacy policy data processing personal information",
   },
   {
     key: "page-terms",
-    title: "Terms",
-    description: "Read the terms for using ChlatWork.",
+    title: t("shared.components_layout_product_navigation.terms"),
+    description: t("shared.site_search.page_terms_description"),
     path: "/terms",
-    label: "Policy",
+    label: t("shared.site_search.label_policy"),
     searchText: "terms conditions legal use",
   },
   {
     key: "page-cookies",
-    title: "Cookie Policy",
-    description: "Review ChlatWork cookie and local-storage information.",
+    title: t("shared.layouts_default.cookie_policy"),
+    description: t("shared.site_search.page_cookies_description"),
     path: "/cookies",
-    label: "Policy",
+    label: t("shared.site_search.label_policy"),
     searchText: "cookies cookie settings local storage analytics",
   },
   {
     key: "page-disclaimer",
-    title: "Disclaimer",
-    description: "Read the ChlatWork website and tool disclaimer.",
+    title: t("shared.layouts_default.disclaimer"),
+    description: t("shared.site_search.page_disclaimer_description"),
     path: "/disclaimer",
-    label: "Policy",
+    label: t("shared.site_search.label_policy"),
     searchText: "disclaimer limitations legal information",
   },
   {
     key: "page-buy-me-coffee",
-    title: "Buy Me a Coffee",
-    description: "Support the continued development of ChlatWork.",
+    title: t("shared.site_search.page_buy_me_coffee_title"),
+    description: t("shared.site_search.page_buy_me_coffee_description"),
     path: "/buy-me-coffee",
-    label: "Page",
+    label: t("shared.site_search.label_page"),
     searchText: "support donate donation coffee",
   },
-];
+]);
 
-const { categoryLabel, copy, homePath, isKhmer, languageLabel, localizeTool, switchLanguage } = useLanguage();
+const { categoryLabel, copy, homePath, isKhmer, languageLabel, localizeTool, localizeDirectoryCategory, locale, switchLanguage } = useLanguage();
+const { productText } = useProductCopy();
 const footerMenuGroups = computed(() => [
   {
-    title: isKhmer.value ? "គេហទំព័រ" : "Site",
-    ariaLabel: "Footer site links",
+    title: t("shared.layouts_default.site"),
+    ariaLabel: t("shared.layouts_default.footer_site_links"),
     items: [
       { label: copy.value.footer.about, to: "/about" },
       { label: copy.value.footer.contact, to: "/contact" },
-      { label: isKhmer.value ? "មេរៀន" : "Guides", to: "/guides" },
-      { label: isKhmer.value ? "អត្ថបទ" : "Posts", to: "/posts" },
-      { label: isKhmer.value ? "ប្លង់គេហទំព័រ" : "Sitemap", href: "/sitemap.xml" },
+      { label: t("shared.layouts_default.guides"), to: "/guides" },
+      { label: t("shared.pages_posts_index.posts"), to: "/posts" },
+      { label: t("shared.layouts_default.sitemap"), href: "/sitemap.xml" },
     ],
   },
   {
-    title: isKhmer.value ? "គោលការណ៍" : "Policies",
-    ariaLabel: "Footer policy links",
+    title: t("shared.layouts_default.policies"),
+    ariaLabel: t("shared.layouts_default.footer_policy_links"),
     items: [
-      { label: isKhmer.value ? "គោលការណ៍វិចារណកថា" : "Editorial policy", to: "/editorial-policy" },
+      { label: t("shared.components_tools_tool_content_layout.editorial_policy"), to: "/editorial-policy" },
       { label: copy.value.footer.privacy, to: "/privacy-policy" },
       { label: copy.value.footer.terms, to: "/terms" },
       { label: copy.value.footer.cookies, to: "/cookies" },
@@ -190,8 +199,8 @@ const footerMenuGroups = computed(() => [
     ],
   },
   {
-    title: isKhmer.value ? "ជំនួយ និងការគាំទ្រ" : "Support",
-    ariaLabel: "Footer support links",
+    title: t("shared.layouts_default.support"),
+    ariaLabel: t("shared.layouts_default.footer_support_links"),
     items: [
       { label: copy.value.footer.cookieNotice, action: "cookie-settings" },
       { label: copy.value.footer.coffee, to: "/buy-me-coffee" },
@@ -211,13 +220,13 @@ const headerSearchInput = ref<HTMLInputElement | null>(null);
 const mobileHeaderSearchInput = ref<HTMLInputElement | null>(null);
 const headerSearchButton = ref<HTMLButtonElement | null>(null);
 const headerSearchLabel = computed(() =>
-  isKhmer.value ? "ស្វែងរកក្នុង ChlatWork" : "Search ChlatWork",
+  t("shared.components_layout_mobile_app_header.search_chlat_work"),
 );
 const headerSearchActionLabel = computed(() =>
-  isKhmer.value ? "ស្វែងរក" : "Search",
+  t("shared.common.search"),
 );
 const closeHeaderSearchLabel = computed(() =>
-  isKhmer.value ? "បិទការស្វែងរក" : "Close search",
+  t("shared.layouts_default.close_search"),
 );
 const headerSearchResults = computed(() => {
   const query = headerToolSearch.value.trim();
@@ -241,13 +250,13 @@ const headerSearchResults = computed(() => {
     searchTextMatches(getStarterGuideSearchText(guide), query),
   ).map((guide) => ({
     key: `starter-guide-${guide.slug}`,
-    title: guide.title,
-    description: guide.metaDescription,
+    title: isKhmer.value ? getStarterGuideKm(guide.slug)?.title ?? guide.title : guide.title,
+    description: isKhmer.value ? getStarterGuideKm(guide.slug)?.metaDescription ?? guide.metaDescription : guide.metaDescription,
     path: guide.path,
-    label: "Guide",
+    label: t("shared.layouts_default.guide"),
     searchText: "",
   }));
-  const developerGuideResults = DEVELOPER_GUIDES.filter((guide) =>
+  const developerGuideResults = DEVELOPER_GUIDES.map(guide => localizeDeveloperGuide(guide, locale.value)).filter((guide) =>
     searchTextMatches(
       [guide.title, guide.summary, guide.metaDescription, ...guide.topics].join(" "),
       query,
@@ -257,10 +266,10 @@ const headerSearchResults = computed(() => {
     title: guide.title,
     description: guide.summary,
     path: guide.path,
-    label: "Developer Guide",
+    label: t("shared.layouts_default.developer_guide"),
     searchText: "",
   }));
-  const postResults = POSTS.filter((post) =>
+  const postResults = POSTS.map(post => localizePost(post, locale.value)).filter((post) =>
     searchTextMatches(
       [
         post.title,
@@ -279,10 +288,10 @@ const headerSearchResults = computed(() => {
     title: post.title,
     description: post.description,
     path: post.path,
-    label: "Post",
+    label: t("shared.layouts_default.post"),
     searchText: "",
   }));
-  const categoryResults = TOOL_DIRECTORY_CATEGORIES.filter((category) => {
+  const categoryResults = TOOL_DIRECTORY_CATEGORIES.map(localizeDirectoryCategory).filter((category) => {
     const availableTools = getToolsForDirectoryCategory(category).filter((tool) =>
       websiteEnabled(tool.key),
     );
@@ -301,23 +310,23 @@ const headerSearchResults = computed(() => {
     title: category.title,
     description: category.description,
     path: category.path,
-    label: "Category",
+    label: t("shared.layouts_default.category"),
     searchText: "",
   }));
   const creatorResults: HeaderSearchResult[] = CREATOR_TOOLS.filter((tool) =>
     creatorEnabled(tool.id) && searchTextMatches(
-      [tool.title, tool.shortTitle, tool.description, tool.category, tool.route].join(" "),
+      [tool.title, productText(tool.title), tool.shortTitle, productText(tool.shortTitle), tool.description, productText(tool.description), tool.category, tool.route].join(" "),
       query,
     ),
   ).map((tool) => ({
     key: `creator-${tool.id}`,
-    title: tool.title,
-    description: tool.description,
+    title: productText(tool.title),
+    description: productText(tool.description),
     path: tool.route,
-    label: "Creator",
+    label: t("shared.site_search.label_creator"),
     searchText: "",
   }));
-  const pageResults = SITE_SEARCH_PAGES.filter((page) =>
+  const pageResults = SITE_SEARCH_PAGES.value.filter((page) =>
     (page.path !== "/developer-commands" || websiteEnabled("developer-commands")) && searchTextMatches(
       [page.title, page.description, page.path, page.searchText].join(" "),
       query,
@@ -499,40 +508,40 @@ const mobilePageTitle = computed(() => {
   if (route.path.startsWith("/account/link")) return "ChlatWork Link";
   if (route.path === "/creator") return "Creator";
   const creatorTool = getCreatorToolByRoute(route.path);
-  if (creatorTool) return creatorTool.shortTitle;
+  if (creatorTool) return productText(creatorTool.shortTitle);
 
   const tool = localizedEnabledTools.value.find((item) => item.route === route.path);
   if (tool) return tool.name;
 
   const category = TOOL_DIRECTORY_CATEGORIES.find((item) => item.path === route.path);
-  if (category) return category.shortTitle;
+  if (category) return localizeDirectoryCategory(category).shortTitle;
 
   const exactTitles: Record<string, string> = {
-    "/about": "About",
-    "/admin": "Admin activity",
-    "/buy-me-coffee": "Support ChlatWork",
-    "/contact": "Contact",
-    "/cookies": "Cookie Policy",
-    "/developer-commands": "Command Hub",
-    "/developer-guides": "Developer Guides",
-    "/disclaimer": "Disclaimer",
-    "/editorial-policy": "Editorial Policy",
-    "/guides": "Guides",
-    "/login": "Sign in",
-    "/moments": "My Moments",
-    "/moments/create": "Create a Moment",
-    "/portfolio": "Portfolio",
-    "/posts": "Posts",
-    "/pricing": "Pricing",
-    "/privacy-policy": "Privacy Policy",
-    "/services/invoice-generator": "Invoice Service",
-    "/terms": "Terms",
+    "/about": t("shared.common.about"),
+    "/admin": t("shared.layouts_default.admin_activity"),
+    "/buy-me-coffee": t("shared.layouts_default.support_chlat_work"),
+    "/contact": t("shared.common.contact"),
+    "/cookies": t("shared.layouts_default.cookie_policy"),
+    "/developer-commands": t("shared.components_landing_landing_developer_section.command_hub"),
+    "/developer-guides": t("shared.layouts_default.developer_guides"),
+    "/disclaimer": t("shared.layouts_default.disclaimer"),
+    "/editorial-policy": t("shared.layouts_default.editorial_policy"),
+    "/guides": t("shared.layouts_default.guides"),
+    "/login": t("shared.common.sign_in"),
+    "/moments": t("shared.components_layout_product_navigation.my_moments"),
+    "/moments/create": t("shared.components_layout_product_navigation.create_a_moment"),
+    "/portfolio": t("shared.layouts_default.portfolio"),
+    "/posts": t("shared.pages_posts_index.posts"),
+    "/pricing": t("shared.layouts_default.pricing"),
+    "/privacy-policy": t("shared.layouts_default.privacy_policy"),
+    "/services/invoice-generator": t("shared.layouts_default.invoice_service"),
+    "/terms": t("shared.components_layout_product_navigation.terms"),
   };
   if (exactTitles[route.path]) return exactTitles[route.path];
-  if (route.path.startsWith("/developer-guides/")) return "Developer Guide";
-  if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return "Guide";
+  if (route.path.startsWith("/developer-guides/")) return t("shared.layouts_default.developer_guide");
+  if (route.path.startsWith("/guides/") || route.path.startsWith("/how-to-")) return t("shared.layouts_default.guide");
   if (route.path.startsWith("/moment/")) return "Moment";
-  if (route.path.startsWith("/posts/")) return "Post";
+  if (route.path.startsWith("/posts/")) return t("shared.layouts_default.post");
   return "ChlatWork";
 });
 const mobileBackPath = computed(() => {
@@ -551,7 +560,11 @@ const showQuickExpenseNavigationSlot = computed(() => Boolean(
   && quickExpenseEnabled.value,
 ));
 function getStarterGuideSearchText(guide: StarterGuide) {
+  const khmerGuide = getStarterGuideKm(guide.slug);
   return [
+    khmerGuide?.title ?? "",
+    khmerGuide?.summary ?? "",
+    khmerGuide?.metaDescription ?? "",
     guide.title,
     guide.metaTitle,
     guide.metaDescription,
@@ -636,7 +649,7 @@ watch(
       v-if="!domainProduct && showSharedMobileHeader"
       :title="mobilePageTitle"
       :back-to="mobileBackPath"
-      :back-aria-label="mobileHeaderReturnsToAccount ? 'Back to Account' : 'Go back'"
+      :back-aria-label="mobileHeaderReturnsToAccount ? t(&quot;shared.layouts_default.back_to_account&quot;) : t(&quot;shared.components_layout_mobile_app_header.go_back&quot;)"
       @search="toggleHeaderSearch"
     />
 
@@ -661,7 +674,7 @@ watch(
 
           <!-- Desktop Navigation -->
           <nav class="hidden items-center gap-1 text-sm sm:flex">
-            <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">{{ isKhmer ? "តំណភ្ជាប់" : "Link" }}</NuxtLink>
+            <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">{{ t("shared.layouts_default.link") }}</NuxtLink>
             <NuxtLink
               to="/tools"
               class="rounded-lg px-3 py-2 font-medium transition"
@@ -674,28 +687,28 @@ watch(
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/creator') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              {{ isKhmer ? "បង្កើតមាតិកា" : "Creator" }}
+              {{ t("shared.layouts_default.creator") }}
             </NuxtLink>
             <NuxtLink
               to="/guides"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/guides') || route.path.startsWith('/developer-guides') ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              {{ isKhmer ? "មេរៀន" : "Guides" }}
+              {{ t("shared.layouts_default.guides") }}
             </NuxtLink>
             <NuxtLink
               :to="linkTo('/moments/create')"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/moments') ? 'bg-rose-50 text-rose-700 dark:bg-rose-300/10 dark:text-rose-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              {{ isKhmer ? "អនុស្សាវរីយ៍" : "Moments" }}
+              {{ t("shared.layouts_default.moments") }}
             </NuxtLink>
             <NuxtLink
               to="/about"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path === '/about' ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              {{ isKhmer ? "អំពីយើង" : "About" }}
+              {{ t("shared.common.about") }}
             </NuxtLink>
 
             <NuxtLink
@@ -704,7 +717,7 @@ watch(
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/admin') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              Admin
+              {{ t("shared.components_admin_activity_dashboard.admin") }}
             </NuxtLink>
 
           </nav>
@@ -797,8 +810,8 @@ watch(
             v-if="visibleAuthUser"
             to="/account"
             class="hidden h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-sky-50 text-sm font-semibold text-sky-700 transition hover:border-sky-300 hover:bg-sky-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-cyan-300/10 dark:text-cyan-200 dark:hover:bg-cyan-300/15"
-            aria-label="Open account"
-            title="Account"
+            :aria-label="t(&quot;shared.components_landing_mobile_landing_page.open_account&quot;)"
+            :title="t(&quot;shared.common.account&quot;)"
           >
             <img
               v-if="authUser.avatarUrl && !headerAvatarFailed"
@@ -815,8 +828,8 @@ watch(
             v-else
             type="button"
             class="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:inline-flex dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10"
-            aria-label="Sign in"
-            title="Sign in"
+            :aria-label="t(&quot;shared.common.sign_in&quot;)"
+            :title="t(&quot;shared.common.sign_in&quot;)"
             @click="showHeaderLogin = true"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -832,7 +845,7 @@ watch(
             :title="languageLabel"
             @click="switchLanguage"
           >
-            {{ isKhmer ? 'EN' : 'ខ្មែរ' }}
+            {{ t("shared.components_landing_mobile_landing_page.message") }}
           </button>
 
           <button
@@ -963,7 +976,7 @@ watch(
             </div>
 
             <div v-else>
-              <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-white/45">Quick destinations</p>
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-white/45">{{ t("shared.layouts_default.quick_destinations") }}</p>
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <NuxtLink v-for="destination in SITE_SEARCH_PAGES.slice(0, 8)" :key="destination.key" :to="destination.path" class="flex min-h-16 items-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white" @click="closeHeaderSearch()">
                   {{ destination.title }}
@@ -1001,7 +1014,7 @@ watch(
           <div
             v-if="currentToolGuide?.tool && route.path !== '/tools/expense-tracker'"
             class="mb-3 flex justify-end"
-            aria-label="Tool actions"
+            :aria-label="t(&quot;shared.layouts_default.tool_actions&quot;)"
           >
             <ToolFavoriteButton
               :tool-key="currentToolGuide.tool.key"
@@ -1054,7 +1067,7 @@ watch(
             ChlatWork
           </p>
           <p class="hidden leading-6 text-gray-500 dark:text-white/60 sm:block">
-            {{ isKhmer ? "ChlatWork ផ្ដល់ឧបករណ៍អនឡាញងាយស្រួលសម្រាប់ឯកសារ រូបភាព QR code បាកូដ កាលបរិច្ឆេទ និងការងារប្រចាំថ្ងៃ។" : "ChlatWork provides simple online tools for documents, images, QR codes, barcodes, dates, and productivity." }}
+            {{ t("shared.layouts_default.chlat_work_provides_simple_online_tools_for_documents_images") }}
           </p>
           <p class="text-xs text-gray-400 dark:text-white/40">
             © 2026 ChlatWork.

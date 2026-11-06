@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { ImagePlus, LoaderCircle, Sparkles, X } from "lucide-vue-next";
 import type {
   CreatorGenerationState,
   CreatorVideoStage,
 } from "~/composables/useCreatorTool";
 import type { CreatorToolDefinition } from "~/data/creator-tools";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = defineProps<{
   tool: CreatorToolDefinition;
@@ -90,7 +96,7 @@ const toneOptions = computed(() => {
 const durationLabel = computed(() => {
   if (!props.videoDuration) return undefined;
   const total = Math.round(props.videoDuration);
-  return `${Math.floor(total / 60)}m ${total % 60}s`;
+  return `${Math.floor(total / 60)} ${t("products.creator.min")} ${total % 60} ${t("products.creator.sec")}`;
 });
 
 function chooseImage(event: Event) {
@@ -107,7 +113,7 @@ function chooseImage(event: Event) {
         <label
           :for="`creator-input-${tool.id}`"
           class="text-sm font-semibold text-slate-900 dark:text-white"
-          >{{ tool.inputLabel }}</label
+          >{{ productText(tool.inputLabel) }}</label
         >
         <span
           v-if="tool.inputType === 'text'"
@@ -116,7 +122,7 @@ function chooseImage(event: Event) {
           }}<template v-if="tool.maxInputLength">
             / {{ tool.maxInputLength.toLocaleString() }}</template
           >
-          characters</span
+          {{ t("products.creator.characters") }}</span
         >
       </div>
 
@@ -126,7 +132,7 @@ function chooseImage(event: Event) {
         v-model="text"
         rows="7"
         class="mt-2 min-h-40 w-full resize-y rounded-2xl border border-slate-200 bg-white p-3.5 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:placeholder:text-white/30 dark:focus:border-cyan-300/50 dark:focus:ring-cyan-300/15"
-        :placeholder="tool.inputPlaceholder"
+        :placeholder="productText(tool.inputPlaceholder)"
         :maxlength="tool.maxInputLength"
         :disabled="busy"
       />
@@ -170,17 +176,17 @@ function chooseImage(event: Event) {
           <p
             class="truncate text-sm font-semibold text-slate-900 dark:text-white"
           >
-            {{ imageFile?.name || "Add an optional reference image" }}
+            {{ imageFile?.name || t("products.creator.add_an_optional_reference_image") }}
           </p>
           <p class="mt-0.5 text-xs text-slate-500 dark:text-white/50">
-            JPG, PNG, or WebP
+            {{ t("products.creator.jpg_png_or_web_p") }}
           </p>
         </div>
         <button
           v-if="imageFile"
           type="button"
           class="grid size-10 place-items-center rounded-xl text-slate-500 hover:bg-white hover:text-red-600 dark:text-white/50 dark:hover:bg-white/[0.08] dark:hover:text-red-300"
-          aria-label="Remove reference image"
+          :aria-label="t(&quot;products.common.remove_reference_image&quot;)"
           :disabled="busy"
           @click="imageFile = null"
         >
@@ -193,7 +199,7 @@ function chooseImage(event: Event) {
           :disabled="busy"
           @click="imageInput?.click()"
         >
-          Choose
+          {{ t("products.common.choose") }}
         </button>
       </div>
     </div>
@@ -202,28 +208,28 @@ function chooseImage(event: Event) {
       v-if="tool.config.includes('platform')"
       id="creator-platform"
       v-model="platform"
-      label="Platform"
+      :label="t(&quot;products.common.platform&quot;)"
       :options="platformOptions"
     />
     <CreatorOptionSelector
       v-if="tool.config.includes('language')"
       id="creator-language"
       v-model="language"
-      label="Language"
+      :label="t(&quot;products.creator.language&quot;)"
       :options="languageOptions"
     />
     <CreatorOptionSelector
       v-if="tool.config.includes('tone')"
       id="creator-tone"
       v-model="tone"
-      label="Tone"
+      :label="t(&quot;products.creator.tone&quot;)"
       :options="toneOptions"
     />
     <CreatorOptionSelector
       v-if="tool.config.includes('video-length')"
       id="creator-video-length"
       v-model="videoLength"
-      label="Video length"
+      :label="t(&quot;products.common.video_length&quot;)"
       :options="videoLengthOptions"
     />
     <div
@@ -233,7 +239,7 @@ function chooseImage(event: Event) {
       <label
         for="creator-custom-length"
         class="text-sm font-semibold text-slate-900 dark:text-white"
-        >Custom seconds</label
+        >{{ t("products.creator.custom_seconds") }}</label
       >
       <input
         id="creator-custom-length"
@@ -248,29 +254,28 @@ function chooseImage(event: Event) {
       v-if="tool.config.includes('goal')"
       id="creator-goal"
       v-model="goal"
-      label="Goal"
+      :label="t(&quot;products.common.goal&quot;)"
       :options="goalOptions"
     />
     <CreatorOptionSelector
       v-if="tool.config.includes('shortness')"
       id="creator-shortness"
       v-model="shortness"
-      label="Output style"
+      :label="t(&quot;products.common.output_style&quot;)"
       :options="shortnessOptions"
     />
     <CreatorOptionSelector
       v-if="tool.config.includes('subtitle-style')"
       id="creator-subtitle-style"
       v-model="subtitleStyle"
-      label="Subtitle style"
+      :label="t(&quot;products.common.subtitle_style&quot;)"
       :options="subtitleStyleOptions"
     />
     <p
       v-if="tool.config.includes('subtitle-style')"
       class="text-xs leading-5 text-slate-500 dark:text-white/50"
     >
-      Short phrases show one phrase at a time. Original segments keep the
-      transcript's longer timing groups.
+      {{ t("products.creator.subtitle_style_hint") }}
     </p>
 
     <div
@@ -283,7 +288,7 @@ function chooseImage(event: Event) {
       "
       role="alert"
     >
-      {{ errorMessage }}
+      {{ productText(errorMessage) }}
     </div>
 
     <div class="border-t border-slate-200 pt-4 dark:border-white/10">
@@ -304,14 +309,13 @@ function chooseImage(event: Event) {
           aria-hidden="true"
         />
         <Sparkles v-else class="size-4" aria-hidden="true" />
-        {{ busy ? "Creating…" : tool.submitLabel }}
+        {{ busy ? t("products.creator.creating") : productText(tool.submitLabel) }}
         <span v-if="!busy" class="font-normal opacity-75"
-          >· {{ estimatedCredits }} credits</span
+          >· {{ estimatedCredits }} {{ t("products.creator.credits") }}</span
         >
       </button>
       <p class="mt-2 text-xs leading-5 text-slate-400 dark:text-white/35">
-        Your balance and final cost are always confirmed by the server before
-        processing.
+        {{ t("products.creator.balance_confirmation_notice") }}
       </p>
     </div>
   </form>

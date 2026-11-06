@@ -1,3 +1,4 @@
+import { useAppI18n } from "~/composables/useAppI18n";
 export type FavoriteKind = "TOOL" | "COMMAND";
 
 interface FavoritesResponse {
@@ -12,7 +13,10 @@ interface FavoriteMutationResponse {
 // Network requests belong to one running app, not Nuxt's serialized hydration state.
 const favoriteReads = new WeakMap<object, { userId: string; promise: Promise<void> }>();
 
+
+
 export function useAccountFavorites() {
+  const { t } = useAppI18n();
   const app = useNuxtApp();
   const { user, isReady: authReady, fetchMe } = useAuth();
   const route = useRoute();
@@ -75,7 +79,7 @@ export function useAccountFavorites() {
         if (user.value?.id !== userId || favoriteReads.get(app) !== request) return;
         favoriteToolKeys.value = [];
         favoriteCommandIds.value = [];
-        favoriteError.value = "Favorites could not be loaded from your account. Please try again.";
+        favoriteError.value = "shared.account_favorites.favorites_could_not_be_loaded_from_your_account_please";
       } finally {
         if (favoriteReads.get(app) === request) {
           favoriteReads.delete(app);
@@ -123,7 +127,7 @@ export function useAccountFavorites() {
       return true;
     } catch {
       if (user.value?.id === userId) {
-        favoriteError.value = "Your favorite was not saved. Please try again.";
+        favoriteError.value = "shared.account_favorites.your_favorite_was_not_saved_please_try_again";
       }
       return false;
     } finally {
@@ -146,7 +150,7 @@ export function useAccountFavorites() {
     favoriteToolKeys,
     favoriteCommandIds,
     favoritesReady,
-    favoriteError,
+    favoriteError: computed(() => favoriteError.value ? t(favoriteError.value) : ""),
     loadFavorites,
     setFavorite,
     isFavoriteSaving,

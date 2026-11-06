@@ -1,3 +1,7 @@
+import { localizeMessageTree, translateMessage } from "../lib/i18n";
+import type { ToolGuide, ToolGuideExample } from "./tool-guides";
+import { TOOL_GUIDE_EXAMPLES_KM } from "./tool-guide-examples-km";
+
 export type ToolGuideKm = {
   heroTitle?: string;
   heroDescription?: string;
@@ -8,1203 +12,1207 @@ export type ToolGuideKm = {
   tips: string[];
   commonMistakes?: string[];
   faqs: Array<{ question: string; answer: string }>;
+  privacy?: string[];
+  practicalExamples?: ToolGuideExample[];
+  metaTitle?: string;
+  metaDescription?: string;
 };
 
-export const TOOL_GUIDES_KM: Record<string, ToolGuideKm> = {
-  qr: {
-    heroTitle: "របៀបបង្កើត QR Code ឥតគិតថ្លៃ",
-    heroDescription: "បំប្លែងតំណភ្ជាប់ (URL) ឬអត្ថបទឱ្យទៅជាកូដ QR ដែលអាចស្កេនបានយ៉ាងងាយស្រួល និងទាញយកជា PNG ឬ SVG សម្រាប់បោះពុម្ព។",
-    whatIs: [
-      "ឧបករណ៍បង្កើត QR Code ជួយអ្នកបង្កើតកូដ QR យ៉ាងរហ័សសម្រាប់គេហទំព័រ តំណភ្ជាប់ ទំនាក់ទំនង ឬអត្ថបទផ្សេងៗ។",
-      "កូដទាំងអស់ត្រូវបានបង្កើតឡើងភ្លាមៗនៅក្នុង browser របស់អ្នកប្រកបដោយសុវត្ថិភាព និងអាចទាញយកជារូបភាព PNG ឬ SVG ច្បាស់ល្អ។",
+export const TOOL_GUIDES_KM: Record<string, ToolGuideKm> = localizeMessageTree({
+  "qr": {
+    "heroTitle": "catalog.tool_guides.qr.hero_title",
+    "heroDescription": "catalog.tool_guides.qr.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.qr.what_is.0",
+      "catalog.tool_guides.qr.what_is.1"
     ],
-    steps: [
-      "បញ្ចូលតំណភ្ជាប់ (URL) ឬអត្ថបទដែលអ្នកចង់បង្កើតជា QR Code។",
-      "ជ្រើសរើសទំហំ និងកម្រិតកែតម្រូវកំហុស (Error Correction) តាមតម្រូវការ។",
-      "ពិនិត្យមើលកូដ QR ដែលបានបង្កើតក្នុងផ្ទាំងមើលជាមុន។",
-      "សាកល្បងស្កេនជាមួយទូរសព្ទ ដើម្បីផ្ទៀងផ្ទាត់ថាតំណភ្ជាប់ដំណើរការត្រឹមត្រូវ។",
-      "ចុចប៊ូតុងទាញយកដើម្បីរក្សាទុកជារូបភាព PNG ឬ SVG។",
+    "steps": [
+      "catalog.tool_guides.qr.steps.0",
+      "catalog.tool_guides.qr.steps.1",
+      "catalog.tool_guides.qr.steps.2",
+      "catalog.tool_guides.qr.steps.3",
+      "catalog.tool_guides.qr.steps.4"
     ],
-    whyUse: [
-      "ដំណើរការរហ័ស និងឥតគិតថ្លៃ ១០០%។",
-      "មិនមានការកំណត់ចំនួនដង ឬផុតកំណត់នៃកូដ QR ឡើយ (Static QR)។",
-      "ដំណើរការលើ browser ផ្ទាល់ គ្មានការរក្សាទុកទិន្នន័យលើ server ទេ។",
-      "គាំទ្រទាំងការទាញយកជា PNG សម្រាប់ចែករំលែក និង SVG សម្រាប់ការបោះពុម្ព។",
+    "whyUse": [
+      "catalog.tool_guides.qr.why_use.0",
+      "catalog.tool_guides.qr.why_use.1",
+      "catalog.tool_guides.qr.why_use.2",
+      "catalog.tool_guides.qr.why_use.3"
     ],
-    useCases: [
-      "បង្កើត QR code សម្រាប់ menu ម្ហូបក្នុងភោជនីយដ្ឋាន ឬហាងកាហ្វេ។",
-      "ដាក់លើនាមប័ណ្ណ (Name card) ផ្លាកសញ្ញា ឬខិត្តប័ណ្ណផ្សព្វផ្សាយ។",
-      "ចែករំលែកតំណភ្ជាប់ទំព័រ Facebook, Telegram ឬគេហទំព័រអាជីវកម្ម។",
-      "ដាក់លើស្លាកផលិតផលសម្រាប់ការទូទាត់ ឬការណែនាំ។",
+    "useCases": [
+      "catalog.tool_guides.qr.use_cases.0",
+      "catalog.tool_guides.qr.use_cases.1",
+      "catalog.tool_guides.qr.use_cases.2",
+      "catalog.tool_guides.qr.use_cases.3"
     ],
-    tips: [
-      "ជៀសវាងដាក់តំណភ្ជាប់វែងពេក ព្រោះវានឹងធ្វើឱ្យក្រឡាកូដ QR តូចល្អិតពិបាកស្កេន។",
-      "ទុកគែមពណ៌សជុំវិញកូដ QR (Quiet zone) ឱ្យបានគ្រប់គ្រាន់នៅពេលបោះពុម្ព។",
-      "សាកល្បងស្កេនជាមួយទូរសព្ទច្រើនម៉ូឌែល និងក្នុងពន្លឺផ្សេងគ្នា។",
+    "tips": [
+      "catalog.tool_guides.qr.tips.0",
+      "catalog.tool_guides.qr.tips.1",
+      "catalog.tool_guides.qr.tips.2"
     ],
-    commonMistakes: [
-      "បោះពុម្ពកូដ QR តូចពេក ឬគ្មានគែមសជុំវិញ ធ្វើឱ្យកាមេរ៉ាពិបាកចាប់។",
-      "មិនបានសាកល្បងស្កេនមុនពេលយកទៅបោះពុម្ពលើផ្លាកធំៗ។",
-      "ប្រើប្រាស់ពណ៌កូដ និងផ្ទៃខាងក្រោយដែលខ្វះកម្រិតពណ៌ផ្ទុយ (Contrast)។",
+    "commonMistakes": [
+      "catalog.tool_guides.qr.common_mistakes.0",
+      "catalog.tool_guides.qr.common_mistakes.1",
+      "catalog.tool_guides.qr.common_mistakes.2"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើកូដ QR ដែលបង្កើតហើយមានថ្ងៃផុតកំណត់ដែរឬទេ?",
-        answer: "អត់ទេ! កូដ QR នេះជាប្រភេទ Static QR Code មានន័យថាទិន្នន័យត្រូវបានបង្កប់ផ្ទាល់ក្នុងរូបភាព ដូច្នេះវានឹងដំណើរការរហូតដោយគ្មានថ្ងៃផុតកំណត់ឡើយ។",
+        "question": "catalog.tool_guides.qr.faqs.0.question",
+        "answer": "catalog.tool_guides.qr.faqs.0.answer"
       },
       {
-        question: "តើខ្ញុំអាចប្រើកូដ QR នេះសម្រាប់អាជីវកម្មបានទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចយកទៅប្រើក្នុងអាជីវកម្ម ការបោះពុម្ពផ្សាយ ឬកិច្ចការផ្ទាល់ខ្លួនបានដោយសេរី និងឥតគិតថ្លៃ។",
+        "question": "catalog.tool_guides.qr.faqs.1.question",
+        "answer": "catalog.tool_guides.qr.faqs.1.answer"
       },
       {
-        question: "តើទម្រង់រូបភាព PNG និង SVG ខុសគ្នាយ៉ាងណា?",
-        answer: "PNG ស័ក្តិសមសម្រាប់ការចែករំលែកលើទូរសព្ទ បណ្តាញសង្គម ឬគេហទំព័រ។ រីឯ SVG ជា vector មិនបែករូបភាពឡើយ ស័ក្តិសមបំផុតសម្រាប់ការបោះពុម្ពលើផ្ទាំងធំៗ។",
-      },
-    ],
+        "question": "catalog.tool_guides.qr.faqs.2.question",
+        "answer": "catalog.tool_guides.qr.faqs.2.answer"
+      }
+    ]
   },
   "wifi-qr": {
-    heroTitle: "របៀបបង្កើត Wi-Fi QR Code",
-    heroDescription: "បង្កើតកូដ QR សម្រាប់ភ្ជាប់ Wi-Fi ដោយស្វ័យប្រវត្តិ ជួយភ្ញៀវ និងអតិថិជនភ្ជាប់អ៊ីនធឺណិតបានភ្លាមៗដោយមិនបាច់វាយលេខសម្ងាត់។",
-    whatIs: [
-      "ឧបករណ៍បង្កើត Wi-Fi QR Code ជួយអ្នកបង្កើតកូដ QR សម្រាប់ភ្ជាប់បណ្តាញ Wi-Fi ដោយស្វ័យប្រវត្តិ។",
-      "ភ្ញៀវ ឬអតិថិជនគ្រាន់តែបើកកាមេរ៉ាទូរសព្ទស្កេន នោះទូរសព្ទនឹងភ្ជាប់ទៅ Wi-Fi ភ្លាមៗដោយមិនបាច់វាយលេខសម្ងាត់ឡើយ។",
+    "heroTitle": "catalog.tool_guides.wifi_qr.hero_title",
+    "heroDescription": "catalog.tool_guides.wifi_qr.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.wifi_qr.what_is.0",
+      "catalog.tool_guides.wifi_qr.what_is.1"
     ],
-    steps: [
-      "បញ្ចូលឈ្មោះបណ្តាញ Wi-Fi (SSID) ឱ្យបានត្រឹមត្រូវ។",
-      "ជ្រើសរើសប្រភេទសុវត្ថិភាព (ភាគច្រើនជា WPA/WPA2)។",
-      "បញ្ចូលពាក្យសម្ងាត់ Wi-Fi របស់អ្នក។",
-      "ពិនិត្យមើលកូដ QR ដែលបានបង្កើត ហើយសាកល្បងស្កេនភ្ជាប់។",
-      "ទាញយករូបភាព និងបោះពុម្ពដាក់តាំងក្នុងហាង ឬផ្ទះរបស់អ្នក។",
+    "steps": [
+      "catalog.tool_guides.wifi_qr.steps.0",
+      "catalog.tool_guides.wifi_qr.steps.1",
+      "catalog.tool_guides.wifi_qr.steps.2",
+      "catalog.tool_guides.wifi_qr.steps.3",
+      "catalog.tool_guides.wifi_qr.steps.4"
     ],
-    whyUse: [
-      "ងាយស្រួល និងរហ័ស ភ្ញៀវមិនបាច់សួរ ឬវាយលេខសម្ងាត់វែងៗ។",
-      "ទិន្នន័យសម្ងាត់ត្រូវបានដំណើរការក្នុងម៉ាស៊ីនអ្នកប៉ុណ្ណោះ គ្មានការផ្ញើទៅ server ក្រៅឡើយ។",
-      "ជួយសម្រួលដល់អតិថិជនក្នុងហាងកាហ្វេ ភោជនីយដ្ឋាន ឬការិយាល័យ។",
+    "whyUse": [
+      "catalog.tool_guides.wifi_qr.why_use.0",
+      "catalog.tool_guides.wifi_qr.why_use.1",
+      "catalog.tool_guides.wifi_qr.why_use.2"
     ],
-    useCases: [
-      "ដាក់តាំងលើតុ ឬជញ្ជាំងក្នុងហាងកាហ្វេ និងភោជនីយដ្ឋាន។",
-      "ដាក់ក្នុងបន្ទប់ទទួលភ្ញៀវការិយាល័យ ឬកន្លែងធ្វើការ Co-working Space។",
-      "ប្រើប្រាស់ក្នុងគេហដ្ឋានផ្ទាល់ខ្លួនសម្រាប់ទទួលភ្ញៀវមកលេង។",
+    "useCases": [
+      "catalog.tool_guides.wifi_qr.use_cases.0",
+      "catalog.tool_guides.wifi_qr.use_cases.1",
+      "catalog.tool_guides.wifi_qr.use_cases.2"
     ],
-    tips: [
-      "ពិនិត្យមើលអក្សរតូច-ធំនៃឈ្មោះ Wi-Fi និងលេខសម្ងាត់ឱ្យបានច្បាស់លាស់។",
-      "ប្រសិនបើបណ្តាញ Wi-Fi របស់អ្នកលាក់ឈ្មោះ (Hidden Network) សូមធីកជម្រើសលាក់បណ្តាញ។",
+    "tips": [
+      "catalog.tool_guides.wifi_qr.tips.0",
+      "catalog.tool_guides.wifi_qr.tips.1"
     ],
-    commonMistakes: [
-      "វាយខុសឈ្មោះបណ្តាញ Wi-Fi ឬលេខសម្ងាត់ ធ្វើឱ្យស្កេនជាប់តែភ្ជាប់មិនចូល។",
-      "ជ្រើសរើសប្រភេទសុវត្ថិភាពខុសពីការកំណត់របស់ Router Wi-Fi។",
+    "commonMistakes": [
+      "catalog.tool_guides.wifi_qr.common_mistakes.0",
+      "catalog.tool_guides.wifi_qr.common_mistakes.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើទូរសព្ទណាខ្លះអាចស្កេនភ្ជាប់ Wi-Fi បាន?",
-        answer: "ទូរសព្ទស្មាតហ្វូនទំនើបស្ទើរតែទាំងអស់ រួមទាំង iPhone (iOS 11 ឡើង) និង Android (Android 10 ឡើង) អាចប្រើកាមេរ៉ាស្កេនភ្ជាប់បានភ្លាមៗ។",
+        "question": "catalog.tool_guides.wifi_qr.faqs.0.question",
+        "answer": "catalog.tool_guides.wifi_qr.faqs.0.answer"
       },
       {
-        question: "តើលេខសម្ងាត់ Wi-Fi របស់ខ្ញុំមានសុវត្ថិភាពដែរឬទេ?",
-        answer: "បាទ/ចាស! ការបង្កើតកូដធ្វើឡើងក្នុង browser របស់អ្នកផ្ទាល់ គ្មានការរក្សាទុក ឬបញ្ជូនលេខសម្ងាត់ទៅកន្លែងណាឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.wifi_qr.faqs.1.question",
+        "answer": "catalog.tool_guides.wifi_qr.faqs.1.answer"
+      }
+    ]
   },
-  barcode: {
-    heroTitle: "របៀបបង្កើត Barcode ឥតគិតថ្លៃ",
-    heroDescription: "បង្កើត Barcode ស្តង់ដារ (Code 128, EAN-13, UPC) សម្រាប់ផលិតផល សន្និធិ និងការគ្រប់គ្រងស្តុកទំនិញយ៉ាងរហ័ស។",
-    whatIs: [
-      "ឧបករណ៍បង្កើត Barcode ជួយអ្នកបង្កើតបាកូដស្តង់ដារអន្តរជាតិជាច្រើនប្រភេទដូចជា Code 128, EAN-13, UPC និង Code 39។",
-      "ស័ក្តិសមបំផុតសម្រាប់ម្ចាស់អាជីវកម្មខ្នាតតូច អ្នកគ្រប់គ្រងឃ្លាំង និងអ្នកលក់រាយដែលត្រូវការដាក់ស្លាកផលិតផល។",
+  "barcode": {
+    "heroTitle": "catalog.tool_guides.barcode.hero_title",
+    "heroDescription": "catalog.tool_guides.barcode.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.barcode.what_is.0",
+      "catalog.tool_guides.barcode.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើសប្រភេទ Barcode (ឧទាហរណ៍៖ Code 128 សម្រាប់លេខ/អក្សរទូទៅ ឬ EAN-13 សម្រាប់ទំនិញលក់រាយ)។",
-      "បញ្ចូលលេខកូដទំនិញ ឬអត្ថបទ។",
-      "ពិនិត្យមើលរូបរាងបាកូដដែលបានបង្ហាញ។",
-      "ទាញយកជារូបភាព PNG ឬ SVG សម្រាប់យកទៅបោះពុម្ព។",
+    "steps": [
+      "catalog.tool_guides.barcode.steps.0",
+      "catalog.tool_guides.barcode.steps.1",
+      "catalog.tool_guides.barcode.steps.2",
+      "catalog.tool_guides.barcode.steps.3"
     ],
-    whyUse: [
-      "គាំទ្រទ្រង់ទ្រាយបាកូដស្តង់ដារពេញនិយមបំផុតលើពិភពលោក។",
-      "អាចទាញយកជា SVG ច្បាស់ល្អ មិនបែកនៅពេលបោះពុម្ព។",
-      "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ មិនគិតថ្លៃសេវា។",
+    "whyUse": [
+      "catalog.tool_guides.barcode.why_use.0",
+      "catalog.tool_guides.barcode.why_use.1",
+      "catalog.tool_guides.barcode.why_use.2"
     ],
-    useCases: [
-      "ដាក់ស្លាកតម្លៃ និងកូដទំនិញក្នុងហាងលក់រាយ ឬផ្សារតូចៗ។",
-      "គ្រប់គ្រងលេខកូដសម្ភារៈក្នុងឃ្លាំង ឬស្តុកទំនិញ។",
-      "បង្កើតបាកូដសម្រាប់កាតសមាជិក ឬសំបុត្រចូលរួមកម្មវិធី។",
+    "useCases": [
+      "catalog.tool_guides.barcode.use_cases.0",
+      "catalog.tool_guides.barcode.use_cases.1",
+      "catalog.tool_guides.barcode.use_cases.2"
     ],
-    tips: [
-      "សម្រាប់ EAN-13 ត្រូវប្រាកដថាអ្នកបញ្ចូលលេខ ១២ ឬ ១៣ ខ្ទង់ឱ្យបានត្រឹមត្រូវ។",
-      "បោះពុម្ពលើផ្ទៃពណ៌ស ឬភ្លឺ ដើម្បីឱ្យម៉ាស៊ីនស្កេនបាកូដចាប់បានល្អ។",
+    "tips": [
+      "catalog.tool_guides.barcode.tips.0",
+      "catalog.tool_guides.barcode.tips.1"
     ],
-    commonMistakes: [
-      "បញ្ចូលតួអក្សរទៅក្នុងប្រភេទបាកូដដែលទទួលតែលេខ (ដូចជា EAN-13 ឬ UPC)។",
-      "បោះពុម្ពបាកូដតូចពេក ឬស្រវាំង ដែលធ្វើឱ្យម៉ាស៊ីនស្កេនអានមិនចេញ។",
+    "commonMistakes": [
+      "catalog.tool_guides.barcode.common_mistakes.0",
+      "catalog.tool_guides.barcode.common_mistakes.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំគួរជ្រើសរើសប្រភេទ Barcode មួយណា?",
-        answer: "Code 128 ជាជម្រើសល្អបំផុតសម្រាប់លេខកូដទូទៅ ស្តុកឃ្លាំង និងស្លាកសម្ភារៈ ព្រោះវាគាំទ្រទាំងលេខ និងអក្សរ។ ចំណែក EAN-13 ប្រើសម្រាប់ទំនិញលក់រាយស្តង់ដារ។",
-      },
-    ],
+        "question": "catalog.tool_guides.barcode.faqs.0.question",
+        "answer": "catalog.tool_guides.barcode.faqs.0.answer"
+      }
+    ]
   },
   "scan-qr": {
-    heroTitle: "របៀបស្កេន QR Code តាម Browser",
-    heroDescription: "ស្កេនកូដ QR តាមរយៈកាមេរ៉ាទូរសព្ទ កុំព្យូទ័រ ឬផ្ទុកឡើងរូបភាពដោយផ្ទាល់ដោយមិនចាំបាច់ដំឡើងកម្មវិធីបន្ថែម។",
-    whatIs: [
-      "ឧបករណ៍ស្កេន QR Code អនុញ្ញាតឱ្យអ្នកអានទិន្នន័យក្នុងកូដ QR យ៉ាងរហ័សតាមកាមេរ៉ា ឬតាមរយៈការផ្ទុកឡើងរូបភាពដែលមានកូដ QR។",
-      "ដំណើរការផ្ទាល់ក្នុង browser ដោយសុវត្ថិភាព មិនបញ្ជូនរូបភាពរបស់អ្នកទៅកាន់ server ក្រៅឡើយ។",
+    "heroTitle": "catalog.tool_guides.scan_qr.hero_title",
+    "heroDescription": "catalog.tool_guides.scan_qr.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.scan_qr.what_is.0",
+      "catalog.tool_guides.scan_qr.what_is.1"
     ],
-    steps: [
-      "ផ្តល់សិទ្ធិប្រើប្រាស់កាមេរ៉ា ឬជ្រើសរើសរូបភាពពីឧបករណ៍របស់អ្នក។",
-      "តម្រង់កាមេរ៉ាទៅកាន់កូដ QR ឬរង់ចាំប្រព័ន្ធអានរូបភាព។",
-      "មើលលទ្ធផលដែលបានបង្ហាញ (តំណភ្ជាប់ អត្ថបទ ឬទិន្នន័យផ្សេងៗ)។",
-      "ចុចបើកតំណភ្ជាប់ ឬចម្លង (Copy) ទិន្នន័យដើម្បីប្រើប្រាស់។",
+    "steps": [
+      "catalog.tool_guides.scan_qr.steps.0",
+      "catalog.tool_guides.scan_qr.steps.1",
+      "catalog.tool_guides.scan_qr.steps.2",
+      "catalog.tool_guides.scan_qr.steps.3"
     ],
-    whyUse: [
-      "មិនបាច់ដំឡើងកម្មវិធីស្កេនពី App Store ឬ Play Store ដែលមានផ្ទាំងពាណិជ្ជកម្មច្រើន។",
-      "អាចស្កេនរូបភាព QR ដែលរក្សាទុកក្នុងទូរសព្ទ ឬកុំព្យូទ័របានយ៉ាងស្រួល។",
-      "ការពារសុវត្ថិភាព ដោយបង្ហាញតំណភ្ជាប់ពេញលេញមុននឹងចុចចូល។",
+    "whyUse": [
+      "catalog.tool_guides.scan_qr.why_use.0",
+      "catalog.tool_guides.scan_qr.why_use.1",
+      "catalog.tool_guides.scan_qr.why_use.2"
     ],
-    useCases: [
-      "ស្កេនតំណភ្ជាប់ ឬព័ត៌មានពីឯកសារ រូបថតអេក្រង់ (Screenshot) ឬក្រដាសបោះពុម្ព។",
-      "ផ្ទៀងផ្ទាត់តំណភ្ជាប់ក្នុងកូដ QR មុនពេលបើកលើទូរសព្ទ។",
+    "useCases": [
+      "catalog.tool_guides.scan_qr.use_cases.0",
+      "catalog.tool_guides.scan_qr.use_cases.1"
     ],
-    tips: [
-      "ធានាថាពន្លឺគ្រប់គ្រាន់នៅពេលស្កេនតាមកាមេរ៉ា។",
-      "ប្រសិនបើកូដ QR ក្នុងរូបថតស្រវាំង សូមសាកល្បងថតសារជាថ្មីឱ្យកាន់តែច្បាស់។",
+    "tips": [
+      "catalog.tool_guides.scan_qr.tips.0",
+      "catalog.tool_guides.scan_qr.tips.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើរូបភាពរបស់ខ្ញុំត្រូវបានផ្ញើទៅ server ដែរឬទេ?",
-        answer: "អត់ទេ! ការវិភាគ និងអានកូដ QR ទាំងអស់ដំណើរការក្នុង browser របស់អ្នកផ្ទាល់ ១០០%។",
-      },
-    ],
+        "question": "catalog.tool_guides.scan_qr.faqs.0.question",
+        "answer": "catalog.tool_guides.scan_qr.faqs.0.answer"
+      }
+    ]
   },
   "scan-barcode": {
-    heroTitle: "របៀបស្កេន Barcode តាម Browser",
-    heroDescription: "អានបាកូដផលិតផល និងទំនិញតាមរយៈកាមេរ៉ា ឬរូបភាពបានយ៉ាងរហ័ស គាំទ្រទាំង UPC, EAN, Code 128 និងប្រភេទជាច្រើនទៀត។",
-    whatIs: [
-      "ឧបករណ៍ស្កេនបាកូដជួយអ្នកអានលេខកូដទំនិញ និងផលិតផលតាមរយៈកាមេរ៉ាឧបករណ៍ ឬការបញ្ចូលរូបភាព។",
-      "ងាយស្រួលផ្ទៀងផ្ទាត់លេខកូដទំនិញដោយមិនបាច់ប្រើម៉ាស៊ីនស្កេនបាកូដដែលមានតម្លៃថ្លៃ។",
+    "heroTitle": "catalog.tool_guides.scan_barcode.hero_title",
+    "heroDescription": "catalog.tool_guides.scan_barcode.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.scan_barcode.what_is.0",
+      "catalog.tool_guides.scan_barcode.what_is.1"
     ],
-    steps: [
-      "បើកកាមេរ៉ាឧបករណ៍ ឬជ្រើសរើសរូបភាពបាកូដដែលអ្នកបានថត។",
-      "តម្រង់បន្ទាត់ស្កេនឱ្យកាត់ចំកណ្តាលនៃឆ្នូតបាកូដ។",
-      "ប្រព័ន្ធនឹងអានលេខកូដ និងបង្ហាញលើអេក្រង់ភ្លាមៗ។",
-      "ចម្លងលេខកូដដើម្បីស្វែងរកព័ត៌មានទំនិញ ឬបញ្ចូលក្នុងបញ្ជី។",
+    "steps": [
+      "catalog.tool_guides.scan_barcode.steps.0",
+      "catalog.tool_guides.scan_barcode.steps.1",
+      "catalog.tool_guides.scan_barcode.steps.2",
+      "catalog.tool_guides.scan_barcode.steps.3"
     ],
-    whyUse: [
-      "ប្រើប្រាស់ទូរសព្ទ ឬកុំព្យូទ័ររបស់អ្នកជំនួសម៉ាស៊ីនស្កេនបាកូដ។",
-      "ឥតគិតថ្លៃ និងដំណើរការលឿនរហ័ស។",
-      "ជួយសម្រួលការត្រួតពិនិត្យទំនិញក្នុងស្តុកយ៉ាងមានប្រសិទ្ធភាព។",
+    "whyUse": [
+      "catalog.tool_guides.scan_barcode.why_use.0",
+      "catalog.tool_guides.scan_barcode.why_use.1",
+      "catalog.tool_guides.scan_barcode.why_use.2"
     ],
-    useCases: [
-      "ត្រួតពិនិត្យលេខកូដផលិតផល និងស្តុកទំនិញក្នុងហាង។",
-      "ផ្ទៀងផ្ទាត់បាកូដលើក្បាលវិក្កយបត្រ ឬកញ្ចប់បញ្ញើ។",
+    "useCases": [
+      "catalog.tool_guides.scan_barcode.use_cases.0",
+      "catalog.tool_guides.scan_barcode.use_cases.1"
     ],
-    tips: [
-      "កាន់ទូរសព្ទឱ្យនឹង ហើយតម្រង់បន្ទាត់ឱ្យស្របនឹងឆ្នូតបាកូដ។",
+    "tips": [
+      "catalog.tool_guides.scan_barcode.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើអាចស្កេនបាកូដប្រភេទណាខ្លះបាន?",
-        answer: "គាំទ្រប្រភេទបាកូដស្តង់ដារទូទៅរួមមាន EAN-13, UPC-A, Code 128, Code 39 និង ITF។",
-      },
-    ],
+        "question": "catalog.tool_guides.scan_barcode.faqs.0.question",
+        "answer": "catalog.tool_guides.scan_barcode.faqs.0.answer"
+      }
+    ]
   },
   "image-compress": {
-    heroTitle: "របៀបបង្រួមទំហំរូបភាព (Image Compressor)",
-    heroDescription: "បន្ថយទំហំឯកសាររូបភាព JPEG, PNG, និង WebP ដោយមិនបាត់បង់គុណភាពច្បាស់ ដើម្បីងាយស្រួលផ្ទុកឡើង ឬផ្ញើតាមអ៊ីនធឺណិត។",
-    whatIs: [
-      "ឧបករណ៍បង្រួមទំហំរូបភាព ជួយអ្នកបន្ថយទំហំ file រូបថត (KB/MB) ឱ្យនៅតូចជាងមុនច្រើនដង ដោយរក្សាគុណភាពរូបភាពឱ្យនៅតែច្បាស់ល្អ។",
-      "ដំណើរការលើម៉ាស៊ីនរបស់អ្នកផ្ទាល់ មិនមានការ upload រូបភាពទៅ server ក្រៅឡើយ ដែលជួយរក្សាការសម្ងាត់បានខ្ពស់បំផុត។",
+    "heroTitle": "catalog.tool_guides.image_compress.hero_title",
+    "heroDescription": "catalog.tool_guides.image_compress.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.image_compress.what_is.0",
+      "catalog.tool_guides.image_compress.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើស ឬអូសទម្លាក់រូបភាព (JPEG, PNG, WebP) ចូលក្នុងប្រអប់។",
-      "កែសម្រួលកម្រិតគុណភាព ឬទំហំដែលអ្នកចង់បាន។",
-      "ពិនិត្យមើលការប្រៀបធៀបរូបភាពដើម និងរូបភាពដែលបានបង្រួមរួច។",
-      "ចុចទាញយកដើម្បីរក្សាទុករូបភាពដែលបានបង្រួម។",
+    "steps": [
+      "catalog.tool_guides.image_compress.steps.0",
+      "catalog.tool_guides.image_compress.steps.1",
+      "catalog.tool_guides.image_compress.steps.2",
+      "catalog.tool_guides.image_compress.steps.3"
     ],
-    whyUse: [
-      "ជួយសន្សំទំហំផ្ទុកទិន្នន័យលើទូរសព្ទ ឬកុំព្យូទ័រ។",
-      "ធ្វើឱ្យគេហទំព័រដើរលឿនជាងមុន នៅពេលប្រើរូបភាពដែលមានទំហំតូច។",
-      "ងាយស្រួលផ្ញើតាម Email ឬ Telegram ដោយមិនស៊ីអ៊ីនធឺណិតច្រើន។",
-      "ឯកជនភាពខ្ពស់ រូបភាពមិនចាកចេញពីកុំព្យូទ័ររបស់អ្នកឡើយ។",
+    "whyUse": [
+      "catalog.tool_guides.image_compress.why_use.0",
+      "catalog.tool_guides.image_compress.why_use.1",
+      "catalog.tool_guides.image_compress.why_use.2",
+      "catalog.tool_guides.image_compress.why_use.3"
     ],
-    useCases: [
-      "បង្រួមរូបថតមុនពេល Upload ដាក់ពាក្យស្នើសុំការងារ ឬអាហារូបករណ៍។",
-      "រៀបចំរូបភាពផលិតផលសម្រាប់ដាក់លក់លើគេហទំព័រ ឬបណ្តាញសង្គម។",
-      "បន្ថយទំហំរូបថតដើម្បីផ្ញើតាមអ៊ីមែល ឬកម្មវិធីជជែកកម្សាន្ត។",
+    "useCases": [
+      "catalog.tool_guides.image_compress.use_cases.0",
+      "catalog.tool_guides.image_compress.use_cases.1",
+      "catalog.tool_guides.image_compress.use_cases.2"
     ],
-    tips: [
-      "សម្រាប់រូបថតធម្មជាតិ ឬមនុស្ស កម្រិតគុណភាព 75-80% ផ្តល់ទំហំតូចល្អ និងគុណភាពនៅតែច្បាស់។",
-      "បំប្លែងទៅជា WebP ប្រសិនបើអ្នកចង់បានទំហំតូចបំផុតសម្រាប់គេហទំព័រ។",
+    "tips": [
+      "catalog.tool_guides.image_compress.tips.0",
+      "catalog.tool_guides.image_compress.tips.1"
     ],
-    commonMistakes: [
-      "កំណត់គុណភាពទាបពេក (ក្រោម 40%) ធ្វើឱ្យរូបភាពស្រវាំង ឬបែកក្រឡា។",
-      "លុបរូបភាពដើមចោលមុនពេលពិនិត្យមើលគុណភាពរូបភាពដែលបានបង្រួមរួច។",
+    "commonMistakes": [
+      "catalog.tool_guides.image_compress.common_mistakes.0",
+      "catalog.tool_guides.image_compress.common_mistakes.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើមានការកំណត់ចំនួនរូបភាពដែលត្រូវបង្រួមដែរឬទេ?",
-        answer: "គ្មានការកំណត់ឡើយ! អ្នកអាចបង្រួមរូបភាពបានដោយសេរី និងគ្មានដែនកំណត់។",
+        "question": "catalog.tool_guides.image_compress.faqs.0.question",
+        "answer": "catalog.tool_guides.image_compress.faqs.0.answer"
       },
       {
-        question: "តើឧបករណ៍នេះមានសុវត្ថិភាពសម្រាប់រូបថតឯកជនដែរឬទេ?",
-        answer: "បាទ/ចាស! ការបង្រួមរូបភាពដំណើរការក្នុង browser របស់អ្នកសុទ្ធសាធ គ្មានរូបភាពណាត្រូវបានបញ្ជូនទៅ server ក្រៅឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.image_compress.faqs.1.question",
+        "answer": "catalog.tool_guides.image_compress.faqs.1.answer"
+      }
+    ]
   },
   "image-to-pdf": {
-    heroTitle: "របៀបបំប្លែងរូបភាពទៅជា PDF (Image to PDF)",
-    heroDescription: "បំប្លែងរូបភាពច្រើនសន្លឹក (JPG, PNG, WebP) ទៅជាឯកសារ PDF តែមួយដោយឥតគិតថ្លៃ និងមានរបៀបរៀបរយ។",
-    whatIs: [
-      "ឧបករណ៍បំប្លែងរូបភាពទៅជា PDF ជួយអ្នកប្រមូលផ្ដុំរូបថត ឬឯកសារស្កេនច្រើនសន្លឹក បញ្ចូលគ្នាជាសៀវភៅ PDF តែមួយយ៉ាងងាយស្រួល។",
-      "ដំណើរការដោយផ្ទាល់លើ browser របស់អ្នក មិនបាច់បារម្ភពីរឿងបែកធ្លាយឯកសារសម្ងាត់។",
+    "heroTitle": "catalog.tool_guides.image_to_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.image_to_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.image_to_pdf.what_is.0",
+      "catalog.tool_guides.image_to_pdf.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើស ឬអូសទម្លាក់រូបភាពដែលអ្នកចង់បំប្លែងចូលក្នុងប្រអប់។",
-      "រៀបចំលំដាប់លំដោយនៃទំព័រតាមការចង់បាន។",
-      "កំណត់ទំហំទំព័រ (ដូចជា A4) និងទិសដៅក្រដាស (បញ្ឈរ ឬផ្ដេក)។",
-      "ចុចប៊ូតុងបង្កើត PDF ហើយទាញយកឯកសារជាការស្រេច។",
+    "steps": [
+      "catalog.tool_guides.image_to_pdf.steps.0",
+      "catalog.tool_guides.image_to_pdf.steps.1",
+      "catalog.tool_guides.image_to_pdf.steps.2",
+      "catalog.tool_guides.image_to_pdf.steps.3"
     ],
-    whyUse: [
-      "បញ្ចូលរូបភាពច្រើនចូលគ្នាជាឯកសារ PDF តែមួយយ៉ាងមានរបៀបរៀបរយ។",
-      "ងាយស្រួលដាក់ពាក្យស្នើសុំការងារ អាហារូបករណ៍ ឬផ្ញើរបាយការណ៍។",
-      "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ លឿនរហ័ស និងមានសុវត្ថិភាព។",
+    "whyUse": [
+      "catalog.tool_guides.image_to_pdf.why_use.0",
+      "catalog.tool_guides.image_to_pdf.why_use.1",
+      "catalog.tool_guides.image_to_pdf.why_use.2"
     ],
-    useCases: [
-      "បញ្ចូលរូបថតកិច្ចសន្យា វិក្កយបត្រ ឬបង្កាន់ដៃទៅជា PDF។",
-      "រៀបចំរូបថតកិច្ចការសាលា ឬមេរៀនផ្ញើជូនលោកគ្រូអ្នកគ្រូ។",
-      "បង្កើតកាតាឡុកផលិតផលសាមញ្ញពីបណ្តុំរូបថតទំនិញ។",
+    "useCases": [
+      "catalog.tool_guides.image_to_pdf.use_cases.0",
+      "catalog.tool_guides.image_to_pdf.use_cases.1",
+      "catalog.tool_guides.image_to_pdf.use_cases.2"
     ],
-    tips: [
-      "រៀបចំរូបភាពតាមលំដាប់ទំព័រដែលចង់បានមុននឹងចុចបង្កើត PDF។",
-      "ជ្រើសរើសទំហំក្រដាស A4 ប្រសិនបើអ្នកគ្រោងនឹងបោះពុម្ពចេញមកក្រៅ។",
+    "tips": [
+      "catalog.tool_guides.image_to_pdf.tips.0",
+      "catalog.tool_guides.image_to_pdf.tips.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំអាចបញ្ចូលរូបភាពប៉ុន្មានសន្លឹកបាន?",
-        answer: "អ្នកអាចបញ្ចូលរូបភាពបានច្រើនសន្លឹកតាមតម្រូវការ ដោយប្រព័ន្ធដំណើរការលើទំហំអង្គចងចាំនៃឧបករណ៍របស់អ្នក។",
-      },
-    ],
+        "question": "catalog.tool_guides.image_to_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.image_to_pdf.faqs.0.answer"
+      }
+    ]
   },
   "pdf-to-jpg": {
-    heroTitle: "របៀបបំប្លែង PDF ទៅជារូបភាព (PDF to Image)",
-    heroDescription: "បំប្លែងទំព័រឯកសារ PDF នីមួយៗឱ្យទៅជារូបភាព JPG ឬ PNG ច្បាស់ល្អដោយឥតគិតថ្លៃ។",
-    whatIs: [
-      "ឧបករណ៍បំប្លែង PDF ទៅជា JPG អនុញ្ញាតឱ្យអ្នកទាញយកទំព័រនៃឯកសារ PDF ជារូបភាពដាច់ដោយឡែកពីគ្នា ដើម្បីងាយស្រួលចែករំលែក ឬប្រើប្រាស់។",
-      "គាំទ្រការទាញយករូបភាពទំព័រនីមួយៗ ឬទាញយកទាំងអស់ក្នុងពេលតែមួយ។",
+    "heroTitle": "catalog.tool_guides.pdf_to_jpg.hero_title",
+    "heroDescription": "catalog.tool_guides.pdf_to_jpg.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.pdf_to_jpg.what_is.0",
+      "catalog.tool_guides.pdf_to_jpg.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើសឯកសារ PDF ដែលអ្នកចង់បំប្លែង។",
-      "ជ្រើសរើសទម្រង់រូបភាពដែលចង់បាន (JPG ឬ PNG)។",
-      "ពិនិត្យមើលការបង្ហាញរូបភាពនៃទំព័រនីមួយៗ។",
-      "ទាញយករូបភាពទំព័រដែលអ្នកត្រូវការ។",
+    "steps": [
+      "catalog.tool_guides.pdf_to_jpg.steps.0",
+      "catalog.tool_guides.pdf_to_jpg.steps.1",
+      "catalog.tool_guides.pdf_to_jpg.steps.2",
+      "catalog.tool_guides.pdf_to_jpg.steps.3"
     ],
-    whyUse: [
-      "ងាយស្រួលចែករំលែកទំព័រ PDF លើបណ្តាញសង្គម ឬ Telegram ដោយមិនបាច់ផ្ញើទាំងមូល។",
-      "ស្រង់យករូបភាព ឬដ្យាក្រាមចេញពីឯកសារ PDF។",
-      "ដំណើរការក្នុង browser គ្មានការរក្សាទុកឯកសារលើ server ទេ។",
+    "whyUse": [
+      "catalog.tool_guides.pdf_to_jpg.why_use.0",
+      "catalog.tool_guides.pdf_to_jpg.why_use.1",
+      "catalog.tool_guides.pdf_to_jpg.why_use.2"
     ],
-    useCases: [
-      "ចែករំលែកវិញ្ញាបនបត្រ ឬលិខិតសរសើរជារូបភាពលើ Facebook/LinkedIn។",
-      "បង្ហាញផ្ទាំងរូបភាព ឬ Infographic ពី PDF លើគេហទំព័រ។",
+    "useCases": [
+      "catalog.tool_guides.pdf_to_jpg.use_cases.0",
+      "catalog.tool_guides.pdf_to_jpg.use_cases.1"
     ],
-    tips: [
-      "ជ្រើសរើស PNG សម្រាប់ឯកសារដែលមានអត្ថបទច្រើន ដើម្បីឱ្យអក្សរច្បាស់ល្អ។",
+    "tips": [
+      "catalog.tool_guides.pdf_to_jpg.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើគុណភាពរូបភាពដែលបំប្លែងចេញមកច្បាស់កម្រិតណា?",
-        answer: "រូបភាពត្រូវបានបំប្លែងក្នុងកម្រិតគុណភាពខ្ពស់ ធានាថាអត្ថបទ និងក្រាហ្វិកនៅតែច្បាស់ល្អដូចក្នុងឯកសារ PDF ដើម។",
-      },
-    ],
+        "question": "catalog.tool_guides.pdf_to_jpg.faqs.0.question",
+        "answer": "catalog.tool_guides.pdf_to_jpg.faqs.0.answer"
+      }
+    ]
   },
   "merge-pdf": {
-    heroTitle: "របៀបបញ្ចូលឯកសារ PDF ចូលគ្នា (Merge PDF)",
-    heroDescription: "បញ្ចូលឯកសារ PDF ច្រើនចូលគ្នាជាឯកសារតែមួយយ៉ាងរហ័ស ងាយស្រួល និងមានសុវត្ថិភាព។",
-    whatIs: [
-      "ឧបករណ៍បញ្ចូល PDF ជួយអ្នកច្របាច់បញ្ចូលឯកសារ PDF ច្រើនដាច់ដោយឡែកពីគ្នា ឱ្យក្លាយជាឯកសារ PDF តែមួយដែលមានរបៀបរៀបរយ។",
-      "អ្នកអាចតម្រៀបលំដាប់ឯកសារបានតាមចិត្តមុននឹងបញ្ចូលគ្នា។",
+    "heroTitle": "catalog.tool_guides.merge_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.merge_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.merge_pdf.what_is.0",
+      "catalog.tool_guides.merge_pdf.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើស ឬអូសឯកសារ PDF ទាំងអស់ដែលចង់បញ្ចូលគ្នា។",
-      "អូសរៀបចំលំដាប់ឯកសារតាមអ្វីដែលអ្នកចង់ឱ្យបង្ហាញមុន-ក្រោយ។",
-      "ចុចប៊ូតុង «បញ្ចូល PDF» (Merge)។",
-      "ទាញយកឯកសារ PDF ថ្មីដែលបានច្របាច់បញ្ចូលគ្នារួចរាល់។",
+    "steps": [
+      "catalog.tool_guides.merge_pdf.steps.0",
+      "catalog.tool_guides.merge_pdf.steps.1",
+      "catalog.tool_guides.merge_pdf.steps.2",
+      "catalog.tool_guides.merge_pdf.steps.3"
     ],
-    whyUse: [
-      "បង្រួបបង្រួមរបាយការណ៍ វិក្កយបត្រ ឬឯកសារគម្រោងច្រើនចូលតែមួយ។",
-      "ងាយស្រួលផ្ញើតាមអ៊ីមែល មិនបាច់ភ្ជាប់ file ច្រើនពេក។",
-      "ឥតគិតថ្លៃ និងមានសុវត្ថិភាពខ្ពស់ គ្មានការផ្ញើឯកសារចេញក្រៅ។",
+    "whyUse": [
+      "catalog.tool_guides.merge_pdf.why_use.0",
+      "catalog.tool_guides.merge_pdf.why_use.1",
+      "catalog.tool_guides.merge_pdf.why_use.2"
     ],
-    useCases: [
-      "បញ្ចូលប្រវត្តិរូបសង្ខេប (CV) ជាមួយលិខិតបញ្ជាក់ និងសញ្ញាបត្រ។",
-      "បញ្ចូលវិក្កយបត្រប្រចាំខែចូលគ្នាក្នុងរបាយការណ៍ហិរញ្ញវត្ថុតែមួយ។",
+    "useCases": [
+      "catalog.tool_guides.merge_pdf.use_cases.0",
+      "catalog.tool_guides.merge_pdf.use_cases.1"
     ],
-    tips: [
-      "ពិនិត្យមើលលំដាប់ឯកសារឱ្យបានត្រឹមត្រូវមុននឹងចុចបញ្ចូលគ្នា។",
+    "tips": [
+      "catalog.tool_guides.merge_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើមានការកំណត់ទំហំឯកសារ PDF ដែរឬទេ?",
-        answer: "ដោយសារដំណើរការផ្ទាល់លើ browser របស់អ្នក វាអាចដំណើរការឯកសារទំហំរាប់សិបមេហ្គាបៃបានយ៉ាងរលូន។",
-      },
-    ],
+        "question": "catalog.tool_guides.merge_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.merge_pdf.faqs.0.answer"
+      }
+    ]
   },
   "split-pdf": {
-    heroTitle: "របៀបបំបែកឯកសារ PDF (Split PDF)",
-    heroDescription: "បំបែកទំព័រ PDF ស្រង់យកទំព័រជាក់លាក់ ឬបំបែកឯកសារធំឱ្យទៅជាឯកសារតូចៗជាច្រើន។",
-    whatIs: [
-      "ឧបករណ៍បំបែក PDF ជួយអ្នកកាត់យកទំព័រដែលត្រូវការចេញពីឯកសារ PDF ធំ ឬបំបែកសៀវភៅ PDF ឱ្យទៅជាផ្នែកតូចៗតាមជំពូក។",
+    "heroTitle": "catalog.tool_guides.split_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.split_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.split_pdf.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសឯកសារ PDF ដែលអ្នកចង់បំបែក។",
-      "បញ្ចូលលេខទំព័រដែលចង់ស្រង់យក (ឧទាហរណ៍៖ 1-5, 8, 11-13)។",
-      "ពិនិត្យមើលទំព័រដែលបានជ្រើសរើស។",
-      "ចុចប៊ូតុងបំបែក និងទាញយកឯកសារ PDF ថ្មី។",
+    "steps": [
+      "catalog.tool_guides.split_pdf.steps.0",
+      "catalog.tool_guides.split_pdf.steps.1",
+      "catalog.tool_guides.split_pdf.steps.2",
+      "catalog.tool_guides.split_pdf.steps.3"
     ],
-    whyUse: [
-      "កាត់យកតែទំព័រដែលចាំបាច់ដើម្បីផ្ញើជូនអ្នកដទៃ។",
-      "កាត់បន្ថយទំហំឯកសារដោយដកទំព័រដែលមិនត្រូវការចេញ។",
+    "whyUse": [
+      "catalog.tool_guides.split_pdf.why_use.0",
+      "catalog.tool_guides.split_pdf.why_use.1"
     ],
-    useCases: [
-      "ស្រង់យកកិច្ចសន្យាទំព័រហត្ថលេខាជាក់លាក់។",
-      "បំបែកជំពូកសៀវភៅសិក្សាធំៗឱ្យទៅជាឯកសារមេរៀននីមួយៗ។",
+    "useCases": [
+      "catalog.tool_guides.split_pdf.use_cases.0",
+      "catalog.tool_guides.split_pdf.use_cases.1"
     ],
-    tips: [
-      "ប្រើសញ្ញាក្បៀស (,) សម្រាប់ទំព័រដាច់ដោយឡែក និងសញ្ញាដក (-) សម្រាប់ជួរទំព័រ (ដូចជា 1-3, 5)។",
+    "tips": [
+      "catalog.tool_guides.split_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើទំព័រដើមនៃឯកសាររបស់ខ្ញុំនឹងត្រូវបាត់បង់ដែរឬទេ?",
-        answer: "អត់ទេ! ឯកសារដើមរបស់អ្នកនៅលើកុំព្យូទ័រមិនត្រូវបានប៉ះពាល់ឡើយ ប្រព័ន្ធគ្រាន់តែបង្កើត file ថ្មីមួយទៀតសម្រាប់អ្នកប៉ុណ្ណោះ។",
-      },
-    ],
+        "question": "catalog.tool_guides.split_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.split_pdf.faqs.0.answer"
+      }
+    ]
   },
   "compress-pdf": {
-    heroTitle: "របៀបបន្ថយទំហំ PDF (Compress PDF)",
-    heroDescription: "បង្រួមទំហំឯកសារ PDF ឱ្យតូចជាងមុន ដើម្បីងាយស្រួលផ្ញើតាមអ៊ីមែល ឬ Upload ចូលប្រព័ន្ធ។",
-    whatIs: [
-      "ឧបករណ៍បន្ថយទំហំ PDF ជួយកាត់បន្ថយទំហំមេកាបៃ (MB) នៃឯកសារ PDF ដោយរក្សាអត្ថបទ និងក្រាហ្វិកឱ្យនៅតែអាចអានបានយ៉ាងច្បាស់។",
+    "heroTitle": "catalog.tool_guides.compress_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.compress_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.compress_pdf.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសឯកសារ PDF ដែលអ្នកចង់បង្រួម។",
-      "ជ្រើសរើសកម្រិតនៃការបង្រួមទំហំ។",
-      "ចុចប៊ូតុងបង្រួមទំហំ។",
-      "ទាញយកឯកសារ PDF ដែលមានទំហំស្រាលជាងមុន។",
+    "steps": [
+      "catalog.tool_guides.compress_pdf.steps.0",
+      "catalog.tool_guides.compress_pdf.steps.1",
+      "catalog.tool_guides.compress_pdf.steps.2",
+      "catalog.tool_guides.compress_pdf.steps.3"
     ],
-    whyUse: [
-      "ជួយឱ្យឯកសារអាច Upload ចូលប្រព័ន្ធដែលកំណត់ទំហំ (ដូចជាក្រោម 2MB ឬ 5MB)។",
-      "សន្សំទំហំផ្ទុក និងងាយស្រួលផ្ញើជូនដៃគូការងារ។",
+    "whyUse": [
+      "catalog.tool_guides.compress_pdf.why_use.0",
+      "catalog.tool_guides.compress_pdf.why_use.1"
     ],
-    useCases: [
-      "បង្រួមឯកសារស្នើសុំការងារ ឬឯកសារដេញថ្លៃមុនពេលផ្ញើតាមប្រព័ន្ធ Online។",
-      "បន្ថយទំហំរបាយការណ៍ស្កេនដែលធ្ងន់ពេក។",
+    "useCases": [
+      "catalog.tool_guides.compress_pdf.use_cases.0",
+      "catalog.tool_guides.compress_pdf.use_cases.1"
     ],
-    tips: [
-      "ពិនិត្យអត្ថបទ និងរូបភាពបន្ទាប់ពីបង្រួម ដើម្បីធានាថាគុណភាពឆ្លើយតបនឹងតម្រូវការរបស់អ្នក។",
+    "tips": [
+      "catalog.tool_guides.compress_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើការបង្រួមធ្វើឱ្យអត្ថបទស្រវាំងដែរឬទេ?",
-        answer: "អត្ថបទក្នុង PDF ជា vector ដូច្នេះវានឹងនៅតែច្បាស់ល្អដដែល ការបង្រួមផ្ដោតសំខាន់លើការបង្កើនប្រសិទ្ធភាពនៃរូបភាពដែលបានបង្កប់។",
-      },
-    ],
+        "question": "catalog.tool_guides.compress_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.compress_pdf.faqs.0.answer"
+      }
+    ]
   },
   "remove-pdf-pages": {
-    heroTitle: "របៀបលុបទំព័រ PDF ចេញ",
-    heroDescription: "លុបទំព័រដែលមិនត្រូវការ ទំព័រទទេ ឬទំព័រខុសចេញពីឯកសារ PDF យ៉ាងរហ័ស។",
-    whatIs: [
-      "ឧបករណ៍លុបទំព័រ PDF អនុញ្ញាតឱ្យអ្នកជ្រើសរើស និងលុបទំព័រលើស ទំព័រខុស ឬទំព័រទទេចេញពីឯកសារយ៉ាងងាយស្រួល។",
+    "heroTitle": "catalog.tool_guides.remove_pdf_pages.hero_title",
+    "heroDescription": "catalog.tool_guides.remove_pdf_pages.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.remove_pdf_pages.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសឯកសារ PDF របស់អ្នក។",
-      "ចុចលើទំព័រណាដែលអ្នកចង់លុបចេញ ឬវាយលេខទំព័រ។",
-      "ចុចប៊ូតុងលុបទំព័រដែលបានជ្រើសរើស។",
-      "ទាញយកឯកសារ PDF ថ្មីដែលបានសម្អាតរួចរាល់។",
+    "steps": [
+      "catalog.tool_guides.remove_pdf_pages.steps.0",
+      "catalog.tool_guides.remove_pdf_pages.steps.1",
+      "catalog.tool_guides.remove_pdf_pages.steps.2",
+      "catalog.tool_guides.remove_pdf_pages.steps.3"
     ],
-    whyUse: [
-      "សម្អាតឯកសារស្កេនដែលមានទំព័រទទេជាប់មកជាមួយ។",
-      "ដកទំព័រព័ត៌មានដែលមិនពាក់ព័ន្ធចេញមុនពេលចែករំលែក។",
+    "whyUse": [
+      "catalog.tool_guides.remove_pdf_pages.why_use.0",
+      "catalog.tool_guides.remove_pdf_pages.why_use.1"
     ],
-    useCases: [
-      "លុបទំព័រផ្សាយពាណិជ្ជកម្ម ឬទំព័រគម្របដែលមិនចង់បាន។",
-      "កែសម្រួលឯកសារកិច្ចសន្យាដោយដកទំព័រព្រាងចេញ។",
+    "useCases": [
+      "catalog.tool_guides.remove_pdf_pages.use_cases.0",
+      "catalog.tool_guides.remove_pdf_pages.use_cases.1"
     ],
-    tips: [
-      "ពិនិត្យមើលរូបភាពតូចៗនៃទំព័រនីមួយៗឱ្យច្បាស់មុននឹងបញ្ជាក់ការលុប។",
+    "tips": [
+      "catalog.tool_guides.remove_pdf_pages.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំអាចទាញយកទំព័រដែលបានលុបត្រឡប់មកវិញបានទេ?",
-        answer: "ប្រសិនបើអ្នកច្រឡំលុប អ្នកគ្រាន់តែ refresh ទំព័រ ឬបញ្ចូលឯកសារដើមមកម្តងទៀតជាការស្រេច។",
-      },
-    ],
+        "question": "catalog.tool_guides.remove_pdf_pages.faqs.0.question",
+        "answer": "catalog.tool_guides.remove_pdf_pages.faqs.0.answer"
+      }
+    ]
   },
   "reorder-pdf-pages": {
-    heroTitle: "របៀបតម្រៀបទំព័រ PDF ឡើងវិញ",
-    heroDescription: "ផ្លាស់ប្តូរលំដាប់ទំព័រ PDF អូសប្តូរទីតាំងទំព័រមុខ-ក្រោយតាមចិត្តចង់។",
-    whatIs: [
-      "ឧបករណ៍តម្រៀបទំព័រ PDF ជួយអ្នករៀបចំលំដាប់លំដោយនៃទំព័រក្នុងឯកសារឡើងវិញ តាមរយៈការអូសទម្លាក់រូបភាពតូចៗនៃទំព័រនីមួយៗ។",
+    "heroTitle": "catalog.tool_guides.reorder_pdf_pages.hero_title",
+    "heroDescription": "catalog.tool_guides.reorder_pdf_pages.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.reorder_pdf_pages.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសឯកសារ PDF របស់អ្នក។",
-      "ចុចហើយអូសទំព័រទៅកាន់ទីតាំងថ្មីដែលត្រឹមត្រូវ។",
-      "ពិនិត្យលំដាប់លំដោយចុងក្រោយ។",
-      "ចុចរក្សាទុក និងទាញយកឯកសារ PDF ថ្មី។",
+    "steps": [
+      "catalog.tool_guides.reorder_pdf_pages.steps.0",
+      "catalog.tool_guides.reorder_pdf_pages.steps.1",
+      "catalog.tool_guides.reorder_pdf_pages.steps.2",
+      "catalog.tool_guides.reorder_pdf_pages.steps.3"
     ],
-    whyUse: [
-      "កែតម្រូវទំព័រដែលស្កេនច្រឡំលំដាប់ ឬក្រឡាប់ចាក់។",
-      "រៀបចំរចនាសម្ព័ន្ធឯកសារឡើងវិញឱ្យសមស្របតាមតម្រូវការ។",
+    "whyUse": [
+      "catalog.tool_guides.reorder_pdf_pages.why_use.0",
+      "catalog.tool_guides.reorder_pdf_pages.why_use.1"
     ],
-    useCases: [
-      "រៀបចំលំដាប់ទំព័រនៃឯកសារកិច្ចសន្យា ឬសំណុំបែបបទ។",
-      "កែសម្រួលលំដាប់ស្លាយបទបង្ហាញក្នុង PDF។",
+    "useCases": [
+      "catalog.tool_guides.reorder_pdf_pages.use_cases.0",
+      "catalog.tool_guides.reorder_pdf_pages.use_cases.1"
     ],
-    tips: [
-      "អាចបង្វិលទំព័រ (Rotate) ផងដែរប្រសិនបើមានទំព័រណាមួយផ្កាប់ចុះក្រោម។",
+    "tips": [
+      "catalog.tool_guides.reorder_pdf_pages.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើឧបករណ៍នេះដំណើរការលើទូរសព្ទដៃបានទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចប្រើម្រាមដៃអូសប្តូរទីតាំងទំព័រលើអេក្រង់ទូរសព្ទបានយ៉ាងងាយស្រួល។",
-      },
-    ],
+        "question": "catalog.tool_guides.reorder_pdf_pages.faqs.0.question",
+        "answer": "catalog.tool_guides.reorder_pdf_pages.faqs.0.answer"
+      }
+    ]
   },
   "html-to-pdf": {
-    heroTitle: "របៀបបំប្លែងកូដ HTML ទៅជា PDF",
-    heroDescription: "បំប្លែងកូដ HTML និង CSS ឱ្យទៅជាឯកសារ PDF យ៉ាងស្រស់ស្អាត និងរក្សាទម្រង់បានល្អ។",
-    whatIs: [
-      "ឧបករណ៍បំប្លែង HTML ទៅជា PDF ជួយអ្នកអភិវឌ្ឍន៍ (Developers) និងអ្នកបង្កើតមាតិកា បំប្លែងកូដ HTML ឱ្យក្លាយជាឯកសារ PDF ដែលអាចបោះពុម្ពបាន។",
+    "heroTitle": "catalog.tool_guides.html_to_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.html_to_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.html_to_pdf.what_is.0"
     ],
-    steps: [
-      "បិទភ្ជាប់កូដ HTML និង CSS របស់អ្នកចូលក្នុងប្រអប់កូដ។",
-      "ពិនិត្យមើលផ្ទាំងបង្ហាញលទ្ធផលជាមុន (Live Preview)។",
-      "ចុចប៊ូតុងបំប្លែង និងទាញយកឯកសារ PDF។",
+    "steps": [
+      "catalog.tool_guides.html_to_pdf.steps.0",
+      "catalog.tool_guides.html_to_pdf.steps.1",
+      "catalog.tool_guides.html_to_pdf.steps.2"
     ],
-    whyUse: [
-      "បង្កើតរបាយការណ៍ វិក្កយបត្រ ឬសំបុត្រដែលរចនាដោយកូដ HTML យ៉ាងងាយស្រួល។",
-      "សាកល្បងមើលរចនាបថបោះពុម្ព (Print Style) របស់ទំព័រវេបសាយ។",
+    "whyUse": [
+      "catalog.tool_guides.html_to_pdf.why_use.0",
+      "catalog.tool_guides.html_to_pdf.why_use.1"
     ],
-    useCases: [
-      "បង្កើតវិក្កយបត្រអតិថិជនចេញពី Template HTML។",
-      "បំប្លែងតារាងទិន្នន័យវេបសាយទៅជាឯកសារ PDF សម្រាប់ចែករំលែក។",
+    "useCases": [
+      "catalog.tool_guides.html_to_pdf.use_cases.0",
+      "catalog.tool_guides.html_to_pdf.use_cases.1"
     ],
-    tips: [
-      "ប្រើប្រាស់ CSS media print ដើម្បីកំណត់ទម្រង់ទំព័រឱ្យសមស្របនឹងទំហំក្រដាស A4។",
+    "tips": [
+      "catalog.tool_guides.html_to_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើឧបករណ៍នេះគាំទ្រពុម្ពអក្សរខ្មែរដែរឬទេ?",
-        answer: "បាទ/ចាស! គាំទ្រពុម្ពអក្សរខ្មែរយូនីកូដស្តង់ដារយ៉ាងពេញលេញ។",
-      },
-    ],
+        "question": "catalog.tool_guides.html_to_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.html_to_pdf.faqs.0.answer"
+      }
+    ]
   },
   "text-to-pdf": {
-    heroTitle: "របៀបបំប្លែងអត្ថបទទៅជា PDF (Text to PDF)",
-    heroDescription: "បំប្លែងកំណត់ចំណាំ ឬអត្ថបទធម្មតាឱ្យទៅជាឯកសារ PDF ស្អាត និងងាយស្រួលអាន។",
-    whatIs: [
-      "ឧបករណ៍បំប្លែងអត្ថបទទៅជា PDF ជួយអ្នកបំប្លែងអត្ថបទធម្មតា (Plain Text) កំណត់ត្រា ឬសេចក្តីព្រាង ឱ្យក្លាយជាឯកសារ PDF ផ្លូវការដែលមានទម្រង់ត្រឹមត្រូវ។",
+    "heroTitle": "catalog.tool_guides.text_to_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.text_to_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.text_to_pdf.what_is.0"
     ],
-    steps: [
-      "វាយបញ្ចូល ឬបិទភ្ជាប់អត្ថបទរបស់អ្នកក្នុងប្រអប់សរសេរ។",
-      "ជ្រើសរើសទំហំពុម្ពអក្សរ គម្លាតបន្ទាត់ និងទំហំក្រដាស។",
-      "ចុចប៊ូតុងបង្កើត PDF និងទាញយកឯកសារ។",
+    "steps": [
+      "catalog.tool_guides.text_to_pdf.steps.0",
+      "catalog.tool_guides.text_to_pdf.steps.1",
+      "catalog.tool_guides.text_to_pdf.steps.2"
     ],
-    whyUse: [
-      "ងាយស្រួល និងរហ័ស មិនចាំបាច់បើកកម្មវិធី Word ធំៗឡើយ។",
-      "ស័ក្តិសមសម្រាប់បង្កើតឯកសារអាន ឬកំណត់ហេតុប្រជុំរហ័ស។",
+    "whyUse": [
+      "catalog.tool_guides.text_to_pdf.why_use.0",
+      "catalog.tool_guides.text_to_pdf.why_use.1"
     ],
-    useCases: [
-      "បំប្លែងកំណត់ចំណាំមេរៀនទៅជា PDF សម្រាប់បោះពុម្ព។",
-      "បង្កើតឯកសារណែនាំ ឬលក្ខខណ្ឌសេវាកម្មសាមញ្ញ។",
+    "useCases": [
+      "catalog.tool_guides.text_to_pdf.use_cases.0",
+      "catalog.tool_guides.text_to_pdf.use_cases.1"
     ],
-    tips: [
-      "ប្រើបន្ទាត់ដកឃ្លាដើម្បីបំបែកកថាខណ្ឌឱ្យមានសណ្តាប់ធ្នាប់ល្អ។",
+    "tips": [
+      "catalog.tool_guides.text_to_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើគាំទ្រភាសាខ្មែរដែរឬទេ?",
-        answer: "បាទ/ចាស! អត្ថបទជាភាសាខ្មែរត្រូវបានបង្ហាញដោយពុម្ពអក្សរស្អាត និងត្រឹមត្រូវតាមក្បួនយូនីកូដ។",
-      },
-    ],
+        "question": "catalog.tool_guides.text_to_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.text_to_pdf.faqs.0.answer"
+      }
+    ]
   },
   "invoice-to-pdf": {
-    heroTitle: "របៀបបង្កើតវិក្កយបត្រជា PDF (Invoice Generator)",
-    heroDescription: "បង្កើតវិក្កយបត្រជំនួញអាជីព គណនាតម្លៃ និងពន្ធដោយស្វ័យប្រវត្តិ រួចទាញយកជា PDF ភ្លាមៗ។",
-    whatIs: [
-      "ឧបករណ៍បង្កើតវិក្កយបត្រ ជួយម្ចាស់អាជីវកម្ម និងអ្នកធ្វើការឯករាជ្យ (Freelancers) បង្កើតវិក្កយបត្រទូទាត់ប្រាក់ប្រកបដោយវិជ្ជាជីវៈ ឆាប់រហ័ស និងឥតគិតថ្លៃ។",
+    "heroTitle": "catalog.tool_guides.invoice_to_pdf.hero_title",
+    "heroDescription": "catalog.tool_guides.invoice_to_pdf.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.invoice_to_pdf.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលព័ត៌មានក្រុមហ៊ុន និងព័ត៌មានអតិថិជនរបស់អ្នក។",
-      "បន្ថែមមុខទំនិញ ឬសេវាកម្ម បរិមាណ និងតម្លៃក្នុងមួយឯកតា។",
-      "កំណត់អត្រាបញ្ចុះតម្លៃ ឬពន្ធ (បើមាន) ប្រព័ន្ធនឹងគណនាសរុបស្វ័យប្រវត្តិ។",
-      "ចុចទាញយកវិក្កយបត្រជាឯកសារ PDF សម្រាប់ផ្ញើជូនអតិថិជន។",
+    "steps": [
+      "catalog.tool_guides.invoice_to_pdf.steps.0",
+      "catalog.tool_guides.invoice_to_pdf.steps.1",
+      "catalog.tool_guides.invoice_to_pdf.steps.2",
+      "catalog.tool_guides.invoice_to_pdf.steps.3"
     ],
-    whyUse: [
-      "រចនាសម្ព័ន្ធវិក្កយបត្រស្អាត មានរបៀប និងឆ្លុះបញ្ចាំងពីវិជ្ជាជីវៈខ្ពស់។",
-      "គណនាប្រាក់សរុបដោយស្វ័យប្រវត្តិ ជៀសវាងការបូកលេខខុស។",
-      "ឥតគិតថ្លៃ និងមិនចាំបាច់ចុះឈ្មោះប្រើប្រាស់។",
+    "whyUse": [
+      "catalog.tool_guides.invoice_to_pdf.why_use.0",
+      "catalog.tool_guides.invoice_to_pdf.why_use.1",
+      "catalog.tool_guides.invoice_to_pdf.why_use.2"
     ],
-    useCases: [
-      "ចេញវិក្កយបត្រទូទាត់ថ្លៃទំនិញ ឬគម្រោងការងារ freelance។",
-      "ចេញបង្កាន់ដៃទូទាត់សម្រាប់សេវាកម្មប្រចាំខែ។",
+    "useCases": [
+      "catalog.tool_guides.invoice_to_pdf.use_cases.0",
+      "catalog.tool_guides.invoice_to_pdf.use_cases.1"
     ],
-    tips: [
-      "បញ្ចូលលេខគណនីធនាគារ (KHQR ឬ Bakong) របស់អ្នកក្នុងកំណត់សម្គាល់ ដើម្បីឱ្យអតិថិជនងាយស្រួលផ្ទេរប្រាក់។",
+    "tips": [
+      "catalog.tool_guides.invoice_to_pdf.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំអាចបន្ថែមរូប Logo ក្រុមហ៊ុនបានទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចផ្ទុកឡើងរូប Logo អាជីវកម្មរបស់អ្នកដើម្បីឱ្យបង្ហាញលើក្បាលវិក្កយបត្របាន។",
-      },
-    ],
+        "question": "catalog.tool_guides.invoice_to_pdf.faqs.0.question",
+        "answer": "catalog.tool_guides.invoice_to_pdf.faqs.0.answer"
+      }
+    ]
   },
   "password-generator": {
-    heroTitle: "របៀបបង្កើតពាក្យសម្ងាត់រឹងមាំ និងមានសុវត្ថិភាព",
-    heroDescription: "បង្កើតពាក្យសម្ងាត់ចៃដន្យដែលមានសុវត្ថិភាពខ្ពស់ ពិបាកទាយ ឬ hack ដំណើរការលើ browser ដោយសុវត្ថិភាព ១០០%។",
-    whatIs: [
-      "ឧបករណ៍បង្កើតពាក្យសម្ងាត់ជួយអ្នកបង្កើតពាក្យសម្ងាត់ចៃដន្យ (Random Passwords) ដែលមានកម្រិតសុវត្ថិភាពខ្ពស់ រួមបញ្ចូលអក្សរធំ អក្សរតូច លេខ និងសញ្ញាពិសេស។",
-      "ពាក្យសម្ងាត់ទាំងអស់ត្រូវបានបង្កើតឡើងក្នុង browser ផ្ទាល់ គ្មានការផ្ញើ ឬរក្សាទុកក្នុងប្រព័ន្ធឡើយ។",
+    "heroTitle": "catalog.tool_guides.password_generator.hero_title",
+    "heroDescription": "catalog.tool_guides.password_generator.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.password_generator.what_is.0",
+      "catalog.tool_guides.password_generator.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើសប្រវែងពាក្យសម្ងាត់ដែលអ្នកចង់បាន (ណែនាំយ៉ាងតិច ១២ ទៅ ១៦ តួ)។",
-      "ជ្រើសរើសប្រភេទតួអក្សរ (អក្សរធំ អក្សរតូច លេខ សញ្ញាពិសេស)។",
-      "ចុចប៊ូតុង «បង្កើតថ្មី» (Generate) ដើម្បីទទួលបានពាក្យសម្ងាត់ចៃដន្យ។",
-      "ចុចចម្លង (Copy) ដើម្បីយកទៅប្រើប្រាស់ក្នុងគណនីរបស់អ្នក។",
+    "steps": [
+      "catalog.tool_guides.password_generator.steps.0",
+      "catalog.tool_guides.password_generator.steps.1",
+      "catalog.tool_guides.password_generator.steps.2",
+      "catalog.tool_guides.password_generator.steps.3"
     ],
-    whyUse: [
-      "ការពារគណនីរបស់អ្នកពីការ Hack ឬការទាយពាក្យសម្ងាត់ (Brute-force attacks)។",
-      "ជៀសវាងការប្រើពាក្យសម្ងាត់ដដែលៗសម្រាប់ច្រើនគណនី។",
-      "សុវត្ថិភាពដាច់ខាត គ្មានអ្នកណាអាចមើលឃើញពាក្យសម្ងាត់របស់អ្នកឡើយ។",
+    "whyUse": [
+      "catalog.tool_guides.password_generator.why_use.0",
+      "catalog.tool_guides.password_generator.why_use.1",
+      "catalog.tool_guides.password_generator.why_use.2"
     ],
-    useCases: [
-      "បង្កើតពាក្យសម្ងាត់សម្រាប់គណនីធនាគារ អ៊ីមែល ឬបណ្តាញសង្គម។",
-      "បង្កើត password សម្រាប់ Wi-Fi Router ឬប្រព័ន្ធគ្រប់គ្រងទិន្នន័យ។",
+    "useCases": [
+      "catalog.tool_guides.password_generator.use_cases.0",
+      "catalog.tool_guides.password_generator.use_cases.1"
     ],
-    tips: [
-      "រក្សាទុកពាក្យសម្ងាត់របស់អ្នកក្នុងកម្មវិធីគ្រប់គ្រងពាក្យសម្ងាត់ (Password Manager) ដែលមានសុវត្ថិភាព។",
-      "ជៀសវាងការប្រើព័ត៌មានផ្ទាល់ខ្លួនដូចជា ថ្ងៃខែឆ្នាំកំណើត ឬឈ្មោះ ធ្វើជាពាក្យសម្ងាត់។",
+    "tips": [
+      "catalog.tool_guides.password_generator.tips.0",
+      "catalog.tool_guides.password_generator.tips.1"
     ],
-    commonMistakes: [
-      "ប្រើប្រាស់ពាក្យសម្ងាត់ខ្លីពេក (ក្រោម ៨ តួអក្សរ)។",
-      "កត់ពាក្យសម្ងាត់ទុកលើក្រដាស ឬផ្ញើតាមឆាតដែលគ្មានសុវត្ថិភាព។",
+    "commonMistakes": [
+      "catalog.tool_guides.password_generator.common_mistakes.0",
+      "catalog.tool_guides.password_generator.common_mistakes.1"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ ChlatWork រក្សាទុកពាក្យសម្ងាត់ដែលបានបង្កើតដែរឬទេ?",
-        answer: "ដាច់ខាតមិនរក្សាទុកឡើយ! ពាក្យសម្ងាត់ត្រូវបានបង្កើតឡើងភ្លាមៗលើឧបករណ៍របស់អ្នក គ្មានការផ្ញើទៅ server ណាមួយឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.password_generator.faqs.0.question",
+        "answer": "catalog.tool_guides.password_generator.faqs.0.answer"
+      }
+    ]
   },
   "khmer-unicode-fixer": {
-    heroTitle: "របៀបកែសម្រួលអក្សរខ្មែរយូនីកូដ (Khmer Unicode Fixer)",
-    heroDescription: "ជួសជុលអក្សរខ្មែរដែលខូច ជើងអក្សរត្រួតគ្នា ស្រះលើ-ក្រោមខុសលំដាប់ ឬអក្សរដែលវាយច្រឡំ ឱ្យត្រឹមត្រូវតាមក្បួនវេយ្យាករណ៍ឡើងវិញ។",
-    whatIs: [
-      "ឧបករណ៍ជួសជុលអក្សរខ្មែរយូនីកូដ ជួយកែសម្រួលលំដាប់តួអក្សរខ្មែរដែលវាយខុស កែបញ្ហាស្រះត្រួតគ្នា ជើងអក្សរបាត់ ឬបញ្ហាពុម្ពអក្សរដែលបង្ហាញមិនត្រឹមត្រូវលើទូរសព្ទ និងកុំព្យូទ័រ។",
+    "heroTitle": "catalog.tool_guides.khmer_unicode_fixer.hero_title",
+    "heroDescription": "catalog.tool_guides.khmer_unicode_fixer.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.khmer_unicode_fixer.what_is.0"
     ],
-    steps: [
-      "ចម្លងអត្ថបទខ្មែរដែលមានបញ្ហា ហើយបិទភ្ជាប់ (Paste) ចូលក្នុងប្រអប់បញ្ចូលអត្ថបទ។",
-      "ចុចប៊ូតុង «កែសម្រួលអត្ថបទ»។",
-      "ពិនិត្យមើលលទ្ធផលដែលបានកែសម្រួលរួចក្នុងប្រអប់លទ្ធផល។",
-      "ចុចចម្លង (Copy) អត្ថបទដែលត្រឹមត្រូវយកទៅប្រើប្រាស់។",
+    "steps": [
+      "catalog.tool_guides.khmer_unicode_fixer.steps.0",
+      "catalog.tool_guides.khmer_unicode_fixer.steps.1",
+      "catalog.tool_guides.khmer_unicode_fixer.steps.2",
+      "catalog.tool_guides.khmer_unicode_fixer.steps.3"
     ],
-    whyUse: [
-      "ដោះស្រាយបញ្ហាស្រះ ឬជើងអក្សរដែលជាន់គ្នា ឬរត់ខុសកន្លែង។",
-      "ធ្វើឱ្យអត្ថបទខ្មែរអាចស្វែងរកបាន (Searchable) ត្រឹមត្រូវតាមស្តង់ដារយូនីកូដ។",
-      "សន្សំពេលវេលា មិនចាំបាច់អង្គុយវាយអត្ថបទឡើងវិញពីដើម។",
+    "whyUse": [
+      "catalog.tool_guides.khmer_unicode_fixer.why_use.0",
+      "catalog.tool_guides.khmer_unicode_fixer.why_use.1",
+      "catalog.tool_guides.khmer_unicode_fixer.why_use.2"
     ],
-    useCases: [
-      "កែសម្រួលអត្ថបទចាស់ៗដែលចម្លងចេញពីឯកសារ Word ឬ PDF ចាស់។",
-      "ជួសជុលអត្ថបទដែលទាញចេញពីប្រព័ន្ធស្កេនរូបភាព (OCR)។",
-      "រៀបចំអត្ថបទសម្រាប់បោះពុម្ពសៀវភៅ ឬអត្ថបទស្រាវជ្រាវផ្លូវការ។",
+    "useCases": [
+      "catalog.tool_guides.khmer_unicode_fixer.use_cases.0",
+      "catalog.tool_guides.khmer_unicode_fixer.use_cases.1",
+      "catalog.tool_guides.khmer_unicode_fixer.use_cases.2"
     ],
-    tips: [
-      "ផ្ទៀងផ្ទាត់ពាក្យបច្ចេកទេស ឬពាក្យកម្របន្ទាប់ពីកែសម្រួលរួច ដើម្បីធានាភាពសុក្រឹត ១០០%។",
+    "tips": [
+      "catalog.tool_guides.khmer_unicode_fixer.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើឧបករណ៍នេះអាចជួសជុលពុម្ពអក្សរ Legacy (Limon/ABC) បានទេ?",
-        answer: "ឧបករណ៍នេះផ្ដោតសំខាន់លើការរៀបចំលំដាប់តួអក្សរយូនីកូដ (Khmer Unicode Normalization) ឱ្យត្រឹមត្រូវតាមក្បួនវេយ្យាករណ៍ និងស្តង់ដារអន្តរជាតិ។",
-      },
-    ],
+        "question": "catalog.tool_guides.khmer_unicode_fixer.faqs.0.question",
+        "answer": "catalog.tool_guides.khmer_unicode_fixer.faqs.0.answer"
+      }
+    ]
   },
   "payback-calculator": {
-    heroTitle: "របៀបចែកលុយ និងគណនាការទូទាត់ (PayBack Calculator)",
-    heroDescription: "គណនាការចែកលុយចំណាយជាក្រុមពេលដើរលេង ឬញ៉ាំបាយ រកឃើញអ្នកណាត្រូវសងអ្នកណា និងចំនួនប៉ុន្មានយ៉ាងរហ័ស និងច្បាស់លាស់។",
-    whatIs: [
-      "ឧបករណ៍គណនា PayBack ជួយសម្រួលការបែងចែកប្រាក់ចំណាយក្នុងចំណោមមិត្តភក្តិ ក្រុមការងារ ឬសមាជិកគ្រួសារ បន្ទាប់ពីដំណើរកម្សាន្ត ការញ៉ាំអាហារ ឬការទិញសម្ភារៈរួមគ្នា។",
-      "ប្រព័ន្ធនឹងគណនាផ្លូវផ្ទេរប្រាក់ដែលតិចជំហានបំផុត (Minimizing transactions) ដូច្នេះគ្មានការផ្ទេរលុយវល់ទៅវិញទៅមកឡើយ។",
+    "heroTitle": "catalog.tool_guides.payback_calculator.hero_title",
+    "heroDescription": "catalog.tool_guides.payback_calculator.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.payback_calculator.what_is.0",
+      "catalog.tool_guides.payback_calculator.what_is.1"
     ],
-    steps: [
-      "បញ្ចូលឈ្មោះសមាជិកដែលបានចូលរួម។",
-      "បញ្ចូលចំណាយនីមួយៗ ដោយបញ្ជាក់ថាអ្នកណាជាអ្នកចេញលុយមុន និងអ្នកណាខ្លះដែលត្រូវចែករំលែកចំណាយនោះ។",
-      "ពិនិត្យមើលតារាងលទ្ធផលទូទាត់ «អ្នកណាត្រូវសងអ្នកណា និងចំនួនប៉ុន្មាន»។",
-      "ចម្លងរបាយការណ៍សង្ខេបដើម្បីផ្ញើចូលក្នុងគ្រុប Telegram ឬ Messenger។",
+    "steps": [
+      "catalog.tool_guides.payback_calculator.steps.0",
+      "catalog.tool_guides.payback_calculator.steps.1",
+      "catalog.tool_guides.payback_calculator.steps.2",
+      "catalog.tool_guides.payback_calculator.steps.3"
     ],
-    whyUse: [
-      "មិនបាច់ឈឺក្បាលអង្គុយគិតលេខ ឬធ្វើតារាង Excel ស្មុគស្មាញ។",
-      "កាត់បន្ថយចំនួនដងនៃការផ្ទេរប្រាក់ឱ្យនៅតិចបំផុត។",
-      "តម្លាភាព និងច្បាស់លាស់គ្រប់កាក់គ្រប់សេន គ្មានការយល់ច្រឡំ។",
+    "whyUse": [
+      "catalog.tool_guides.payback_calculator.why_use.0",
+      "catalog.tool_guides.payback_calculator.why_use.1",
+      "catalog.tool_guides.payback_calculator.why_use.2"
     ],
-    useCases: [
-      "ដំណើរកម្សាន្តដើរលេងចុងសប្តាហ៍ជាក្រុមទៅកំពត ឬសៀមរាប។",
-      "ការជួបជុំញ៉ាំបាយថ្ងៃត្រង់ ឬពិធីជប់លៀងជាមួយមិត្តរួមការងារ។",
-      "ការចែករំលែកថ្លៃឈ្នួលផ្ទះ ថ្លៃទឹក និងភ្លើងក្នុងចំណោមអ្នកស្នាក់នៅជាមួយគ្នា។",
+    "useCases": [
+      "catalog.tool_guides.payback_calculator.use_cases.0",
+      "catalog.tool_guides.payback_calculator.use_cases.1",
+      "catalog.tool_guides.payback_calculator.use_cases.2"
     ],
-    tips: [
-      "អាចបញ្ចូលចំណាយបានទាំងប្រាក់ដុល្លារ ($) និងប្រាក់រៀល (៛)។",
+    "tips": [
+      "catalog.tool_guides.payback_calculator.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "ប្រសិនបើសមាជិកម្នាក់មិនបានញ៉ាំមុខម្ហូបមួយមុខ តើអាចដកគាត់ចេញបានទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចជ្រើសរើសច្បាស់លាស់ថាចំណាយនីមួយៗត្រូវចែករំលែកជាមួយសមាជិកណាខ្លះបានយ៉ាងងាយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.payback_calculator.faqs.0.question",
+        "answer": "catalog.tool_guides.payback_calculator.faqs.0.answer"
+      }
+    ]
   },
   "expense-tracker": {
-    heroTitle: "របៀបតាមដានចំណូលចំណាយប្រចាំថ្ងៃ (Expense Tracker)",
-    heroDescription: "កត់ត្រា និងគ្រប់គ្រងចំណូលចំណាយប្រចាំថ្ងៃរបស់អ្នក ដឹងច្បាស់ពីលំហូរសាច់ប្រាក់ និងសន្សំប្រាក់បានកាន់តែច្រើន។",
-    whatIs: [
-      "កម្មវិធីតាមដានចំណាយ ជួយអ្នកកត់ត្រារាល់ចំណូល និងចំណាយប្រចាំថ្ងៃតាមប្រភេទ (ម្ហូបអាហារ ការធ្វើដំណើរ ការទិញទំនិញ ។ល។) ជាមួយនឹងក្រាហ្វិកវិភាគងាយយល់។",
+    "heroTitle": "catalog.tool_guides.expense_tracker.hero_title",
+    "heroDescription": "catalog.tool_guides.expense_tracker.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.expense_tracker.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសប្រភេទប្រតិបត្តិការ (ចំណាយ ឬ ចំណូល)។",
-      "បញ្ចូលចំនួនទឹកប្រាក់ និងជ្រើសរើសប្រភេទ (Category)។",
-      "បន្ថែមការពិពណ៌នាខ្លីៗ ឬកាលបរិច្ឆេទ។",
-      "ចុចរក្សាទុក និងពិនិត្យមើលតារាងសង្ខេបប្រចាំខែរបស់អ្នក។",
+    "steps": [
+      "catalog.tool_guides.expense_tracker.steps.0",
+      "catalog.tool_guides.expense_tracker.steps.1",
+      "catalog.tool_guides.expense_tracker.steps.2",
+      "catalog.tool_guides.expense_tracker.steps.3"
     ],
-    whyUse: [
-      "ជួយគ្រប់គ្រងហិរញ្ញវត្ថុផ្ទាល់ខ្លួនឱ្យកាន់តែរឹងមាំ។",
-      "ដឹងច្បាស់ថាអ្នកបានចំណាយលុយច្រើនលើអ្វីខ្លះក្នុងមួយខែៗ។",
-      "ទិន្នន័យមានសុវត្ថិភាព និងងាយស្រួលចូលមើលគ្រប់ពេល។",
+    "whyUse": [
+      "catalog.tool_guides.expense_tracker.why_use.0",
+      "catalog.tool_guides.expense_tracker.why_use.1",
+      "catalog.tool_guides.expense_tracker.why_use.2"
     ],
-    useCases: [
-      "តាមដានចំណាយផ្ទាល់ខ្លួនរបស់សិស្ស និស្សិត ឬបុគ្គលិកធ្វើការ។",
-      "គ្រប់គ្រងថវិកាចំណាយក្នុងគ្រួសារប្រចាំខែ។",
+    "useCases": [
+      "catalog.tool_guides.expense_tracker.use_cases.0",
+      "catalog.tool_guides.expense_tracker.use_cases.1"
     ],
-    tips: [
-      "កត់ត្រាភ្លាមៗបន្ទាប់ពីចំណាយ ដើម្បីជៀសវាងការភ្លេច។",
+    "tips": [
+      "catalog.tool_guides.expense_tracker.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើទិន្នន័យចំណាយរបស់ខ្ញុំត្រូវបានរក្សាទុកនៅឯណា?",
-        answer: "ទិន្នន័យត្រូវបានរក្សាទុកដោយសុវត្ថិភាពនៅក្នុងគណនីរបស់អ្នក ធានាថាមានតែអ្នកម្នាក់គត់ដែលអាចចូលមើលបាន។",
-      },
-    ],
+        "question": "catalog.tool_guides.expense_tracker.faqs.0.question",
+        "answer": "catalog.tool_guides.expense_tracker.faqs.0.answer"
+      }
+    ]
   },
   "json-formatter": {
-    heroTitle: "របៀបរៀបចំ និងផ្ទៀងផ្ទាត់ JSON (JSON Formatter & Validator)",
-    heroDescription: "រៀបចំកូដ JSON ឱ្យមានរបៀប (Prettify) បង្រួមឱ្យខ្លី (Minify) និងពិនិត្យកំហុស Syntax ដោយស្វ័យប្រវត្តិ។",
-    whatIs: [
-      "ឧបករណ៍ JSON Formatter ជួយអ្នកបង្កើតកម្មវិធី (Developers) ក្នុងការរៀបចំកូដ JSON ដែលរញ៉េរញ៉ៃឱ្យមានរបៀប ងាយស្រួលអាន ពិនិត្យកំហុស Syntax និងបំប្លែងទម្រង់បានរហ័ស។",
+    "heroTitle": "catalog.tool_guides.json_formatter.hero_title",
+    "heroDescription": "catalog.tool_guides.json_formatter.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.json_formatter.what_is.0"
     ],
-    steps: [
-      "បិទភ្ជាប់កូដ JSON របស់អ្នកចូលក្នុងផ្ទាំងកូដ។",
-      "ចុចប៊ូតុង «Format / Prettify» ដើម្បីរៀបចំកូដឱ្យមានបន្ទាត់ និងឃ្លាស្អាត។",
-      "ប្រសិនបើមានកំហុស ប្រព័ន្ធនឹងបង្ហាញទីតាំងបន្ទាត់ដែលមានបញ្ហា។",
-      "ចុចចម្លង (Copy) ឬទាញយកឯកសារ JSON ដែលបានកែសម្រួលរួច។",
+    "steps": [
+      "catalog.tool_guides.json_formatter.steps.0",
+      "catalog.tool_guides.json_formatter.steps.1",
+      "catalog.tool_guides.json_formatter.steps.2",
+      "catalog.tool_guides.json_formatter.steps.3"
     ],
-    whyUse: [
-      "ស្វែងរកកំហុសក្នុងទិន្នន័យ JSON បានយ៉ាងលឿន (ដូចជាខ្វះក្បៀស ឬសញ្ញាសម្រង់)។",
-      "ងាយស្រួលអានរចនាសម្ព័ន្ធទិន្នន័យ API។",
-      "ដំណើរការលើម៉ាស៊ីនផ្ទាល់ សុវត្ថិភាពសម្រាប់ទិន្នន័យសម្ងាត់។",
+    "whyUse": [
+      "catalog.tool_guides.json_formatter.why_use.0",
+      "catalog.tool_guides.json_formatter.why_use.1",
+      "catalog.tool_guides.json_formatter.why_use.2"
     ],
-    useCases: [
-      "ពិនិត្យ និង Debug ទិន្នន័យដែលទទួលបានពី REST API។",
-      "រៀបចំឯកសារ Configuration សម្រាប់កម្មវិធី ឬគម្រោងកូដ។",
+    "useCases": [
+      "catalog.tool_guides.json_formatter.use_cases.0",
+      "catalog.tool_guides.json_formatter.use_cases.1"
     ],
-    tips: [
-      "ប្រើជម្រើស Minify ដើម្បីបង្រួមកូដ JSON ឱ្យនៅមួយបន្ទាត់សម្រាប់សន្សំទំហំផ្ញើតាម Network។",
+    "tips": [
+      "catalog.tool_guides.json_formatter.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើទិន្នន័យ JSON របស់ខ្ញុំមានសុវត្ថិភាពទេ?",
-        answer: "បាទ/ចាស! ការផ្ទៀងផ្ទាត់ និងរៀបចំកូដធ្វើឡើងក្នុង browser របស់អ្នកផ្ទាល់ ១០០%។",
-      },
-    ],
+        "question": "catalog.tool_guides.json_formatter.faqs.0.question",
+        "answer": "catalog.tool_guides.json_formatter.faqs.0.answer"
+      }
+    ]
   },
   "jwt-decoder": {
-    heroTitle: "របៀបឌិកូដ JWT Token (JWT Decoder)",
-    heroDescription: "ពិនិត្យមើល Header, Payload, និង Claims នៃ JSON Web Token ដោយសុវត្ថិភាពក្នុង browser របស់អ្នក។",
-    whatIs: [
-      "ឧបករណ៍ JWT Decoder ជួយអ្នកឌិកូដ និងអានទិន្នន័យខាងក្នុង JSON Web Token (Header និង Payload) ដោយមិនចាំបាច់ផ្ញើតូខិនទៅកាន់ server ក្រៅឡើយ។",
+    "heroTitle": "catalog.tool_guides.jwt_decoder.hero_title",
+    "heroDescription": "catalog.tool_guides.jwt_decoder.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.jwt_decoder.what_is.0"
     ],
-    steps: [
-      "បិទភ្ជាប់ខ្សែអក្សរ JWT Token ចូលក្នុងប្រអប់បញ្ចូល។",
-      "ពិនិត្យមើលទិន្នន័យ Header, Payload និងទិន្នន័យកាលបរិច្ឆេទផុតកំណត់ (Expiration)។",
-      "ផ្ទៀងផ្ទាត់ Claims ដូចជា User ID, Role, និងសិទ្ធិផ្សេងៗ។",
+    "steps": [
+      "catalog.tool_guides.jwt_decoder.steps.0",
+      "catalog.tool_guides.jwt_decoder.steps.1",
+      "catalog.tool_guides.jwt_decoder.steps.2"
     ],
-    whyUse: [
-      "សុវត្ថិភាពដាច់ខាត៖ មិនដូចគេហទំព័រដទៃទេ ឧបករណ៍របស់យើងដំណើរការក្នុង browser ផ្ទាល់ មិនបញ្ជូន token សម្ងាត់របស់អ្នកទៅកន្លែងណាឡើយ។",
-      "បង្ហាញកាលបរិច្ឆេទផុតកំណត់នៃ Token ជាទម្រង់ម៉ោងធម្មជាតិងាយយល់។",
+    "whyUse": [
+      "catalog.tool_guides.jwt_decoder.why_use.0",
+      "catalog.tool_guides.jwt_decoder.why_use.1"
     ],
-    useCases: [
-      "Debug បញ្ហាចូលគណនី និងសិទ្ធិ Authentication/Authorization ក្នុង Web/App។",
-      "ពិនិត្យមើលថាតើ Token ផុតកំណត់ហើយឬនៅ។",
+    "useCases": [
+      "catalog.tool_guides.jwt_decoder.use_cases.0",
+      "catalog.tool_guides.jwt_decoder.use_cases.1"
     ],
-    tips: [
-      "កុំចែករំលែក Token ដែលមានសិទ្ធិ Admin ឬ Token ពិតប្រាកដលើកុំព្យូទ័រសាធារណៈ។",
+    "tips": [
+      "catalog.tool_guides.jwt_decoder.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើឧបករណ៍នេះអាចផ្ទៀងផ្ទាត់ Signature បានទេ?",
-        answer: "ឧបករណ៍នេះផ្ដោតលើការ Decode និងពិនិត្យ Payload ដោយសុវត្ថិភាពក្នុង browser មិនទាមទារ Secret Key របស់អ្នកឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.jwt_decoder.faqs.0.question",
+        "answer": "catalog.tool_guides.jwt_decoder.faqs.0.answer"
+      }
+    ]
   },
-  base64: {
-    heroTitle: "របៀប Encode និង Decode Base64",
-    heroDescription: "បំប្លែងអត្ថបទ ឬឯកសារទៅជា Base64 និងបំប្លែង Base64 ត្រឡប់មកជាអត្ថបទដើមវិញយ៉ាងរហ័ស។",
-    whatIs: [
-      "ឧបករណ៍ Base64 Encoder/Decoder ជួយអ្នកបំប្លែងអត្ថបទធម្មតា ឬទិន្នន័យគោលពីរឱ្យទៅជាខ្សែអក្សរ Base64 និងបំប្លែងត្រឡប់មកវិញដោយសុវត្ថិភាពក្នុង browser។",
+  "base64": {
+    "heroTitle": "catalog.tool_guides.base64.hero_title",
+    "heroDescription": "catalog.tool_guides.base64.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.base64.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសមុខងារ «Encode» (បំប្លែងជា Base64) ឬ «Decode» (បំប្លែងមកអត្ថបទដើម)។",
-      "បញ្ចូលអត្ថបទរបស់អ្នកក្នុងប្រអប់បញ្ចូល។",
-      "មើលលទ្ធផលដែលបានបង្ហាញភ្លាមៗក្នុងប្រអប់ខាងក្រោម។",
-      "ចុចប៊ូតុងចម្លង (Copy) ដើម្បីយកទៅប្រើ។",
+    "steps": [
+      "catalog.tool_guides.base64.steps.0",
+      "catalog.tool_guides.base64.steps.1",
+      "catalog.tool_guides.base64.steps.2",
+      "catalog.tool_guides.base64.steps.3"
     ],
-    whyUse: [
-      "គាំទ្រតួអក្សរខ្មែរ និង UTF-8 ពេញលេញ មិនបាត់បង់ជើង ឬស្រះឡើយ។",
-      "ដំណើរការរហ័សលើម៉ាស៊ីនផ្ទាល់។",
+    "whyUse": [
+      "catalog.tool_guides.base64.why_use.0",
+      "catalog.tool_guides.base64.why_use.1"
     ],
-    useCases: [
-      "បំប្លែងទិន្នន័យសម្រាប់ប្រើប្រាស់ក្នុង API, Data URL, ឬ Header។",
-      "អានទិន្នន័យដែលត្រូវបាន encode ជា Base64 ក្នុងប្រព័ន្ធបច្ចេកវិទ្យា។",
+    "useCases": [
+      "catalog.tool_guides.base64.use_cases.0",
+      "catalog.tool_guides.base64.use_cases.1"
     ],
-    tips: [
-      "ប្រាកដថាជ្រើសរើសជម្រើស UTF-8 នៅពេលបំប្លែងអត្ថបទដែលមានភាសាខ្មែរ។",
+    "tips": [
+      "catalog.tool_guides.base64.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ Base64 ជាការបម្លែងកូដសម្ងាត់ (Encryption) មែនទេ?",
-        answer: "មិនមែនទេ! Base64 គ្រាន់តែជាទម្រង់ Encode ទិន្នន័យឱ្យស្រួលបញ្ជូនប៉ុណ្ណោះ មិនមែនជាការការពារសុវត្ថិភាពទិន្នន័យឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.base64.faqs.0.question",
+        "answer": "catalog.tool_guides.base64.faqs.0.answer"
+      }
+    ]
   },
   "url-encoder": {
-    heroTitle: "របៀប Encode និង Decode URL",
-    heroDescription: "បំប្លែងតួអក្សរពិសេស និងអក្សរខ្មែរក្នុងតំណភ្ជាប់ URL ឱ្យត្រូវតាមស្តង់ដារ Percent-encoding។",
-    whatIs: [
-      "ឧបករណ៍ URL Encoder/Decoder ជួយបំប្លែងតំណភ្ជាប់ (URL) ដែលមានតួអក្សរខ្មែរ ឬសញ្ញាពិសេសឱ្យទៅជាទម្រង់ស្តង់ដារ Percent-encoding និងបំប្លែងតំណភ្ជាប់ដែល encode រួចឱ្យមកជាអក្សរធម្មជាតិងាយអានវិញ។",
+    "heroTitle": "catalog.tool_guides.url_encoder.hero_title",
+    "heroDescription": "catalog.tool_guides.url_encoder.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.url_encoder.what_is.0"
     ],
-    steps: [
-      "បិទភ្ជាប់តំណភ្ជាប់ ឬអត្ថបទចូលក្នុងប្រអប់។",
-      "ជ្រើសរើស Encode ឬ Decode។",
-      "ចម្លងលទ្ធផលដែលទទួលបាន។",
+    "steps": [
+      "catalog.tool_guides.url_encoder.steps.0",
+      "catalog.tool_guides.url_encoder.steps.1",
+      "catalog.tool_guides.url_encoder.steps.2"
     ],
-    whyUse: [
-      "ជៀសវាងបញ្ហាតំណភ្ជាប់ខូចនៅពេលផ្ញើតាមប្រព័ន្ធ ឬដាក់ក្នុងកូដ។",
-      "ងាយស្រួលអាន URL វែងៗដែលមានសញ្ញា % ច្រើន។",
+    "whyUse": [
+      "catalog.tool_guides.url_encoder.why_use.0",
+      "catalog.tool_guides.url_encoder.why_use.1"
     ],
-    useCases: [
-      "រៀបចំ Query Parameter សម្រាប់ហៅ Web API។",
-      "អានតំណភ្ជាប់ខ្មែរដែលត្រូវគេ encode។",
+    "useCases": [
+      "catalog.tool_guides.url_encoder.use_cases.0",
+      "catalog.tool_guides.url_encoder.use_cases.1"
     ],
-    tips: [
-      "ប្រើប្រាស់ encodeURIComponent សម្រាប់ប៉ារ៉ាម៉ែត្រនីមួយៗ និង encodeURI សម្រាប់តំណភ្ជាប់ទាំងមូល។",
+    "tips": [
+      "catalog.tool_guides.url_encoder.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "ហេតុអ្វីបានជាអក្សរខ្មែរក្នុង URL ប្រែជាសញ្ញា % ច្រើន?",
-        answer: "ដោយសារ browser ប្រើស្តង់ដារ Percent-encoding ដើម្បីបំប្លែងតួអក្សរក្រៅពីអក្សរឡាតាំង ឱ្យម៉ាស៊ីនបម្រើការ (Web Server) អាចយល់បានត្រឹមត្រូវ។",
-      },
-    ],
+        "question": "catalog.tool_guides.url_encoder.faqs.0.question",
+        "answer": "catalog.tool_guides.url_encoder.faqs.0.answer"
+      }
+    ]
   },
   "regex-tester": {
-    heroTitle: "របៀបសាកល្បង Regular Expression (Regex Tester)",
-    heroDescription: "សាកល្បង និងផ្ទៀងផ្ទាត់លំនាំកូដ Regex ជាមួយនឹងការបង្ហាញពណ៌ និងការពន្យល់លម្អិត។",
-    whatIs: [
-      "ឧបករណ៍ Regex Tester ជួយអ្នកបង្កើតកម្មវិធីសាកល្បងរូបមន្ត Regular Expression ជាមួយអត្ថបទគំរូ ព្រមទាំងបង្ហាញការផ្គូផ្គង (Matches) និងក្រុម (Groups) ភ្លាមៗក្នុងពេលជាក់ស្តែង។",
+    "heroTitle": "catalog.tool_guides.regex_tester.hero_title",
+    "heroDescription": "catalog.tool_guides.regex_tester.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.regex_tester.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលរូបមន្ត Regex របស់អ្នក (ឧទាហរណ៍៖ ^[a-z0-9]+$)។",
-      "ជ្រើសរើស Flags ដូចជា g (global), i (case-insensitive)។",
-      "បញ្ចូលអត្ថបទគំរូដើម្បីសាកល្បង។",
-      "ពិនិត្យមើលលទ្ធផលផ្គូផ្គងដែលបានគូសពណ៌លើអេក្រង់។",
+    "steps": [
+      "catalog.tool_guides.regex_tester.steps.0",
+      "catalog.tool_guides.regex_tester.steps.1",
+      "catalog.tool_guides.regex_tester.steps.2",
+      "catalog.tool_guides.regex_tester.steps.3"
     ],
-    whyUse: [
-      "សន្សំពេលវេលាពីការសរសេរកូដសាកល្បងក្នុង Terminal ឬ IDE។",
-      "បង្ហាញលទ្ធផលជាក់ស្តែងក្នុងពេលកំពុងវាយកូដ។",
+    "whyUse": [
+      "catalog.tool_guides.regex_tester.why_use.0",
+      "catalog.tool_guides.regex_tester.why_use.1"
     ],
-    useCases: [
-      "ផ្ទៀងផ្ទាត់ទម្រង់អ៊ីមែល លេខទូរសព្ទ ឬទម្រង់ពាក្យសម្ងាត់។",
-      "ស្វែងរក និងស្រង់យកពាក្យជាក់លាក់ចេញពីអត្ថបទវែង។",
+    "useCases": [
+      "catalog.tool_guides.regex_tester.use_cases.0",
+      "catalog.tool_guides.regex_tester.use_cases.1"
     ],
-    tips: [
-      "ប្រុងប្រយ័ត្ននឹងតួអក្សរពិសេសដូចជា . * + ? [ ] ( ) ដែលត្រូវប្រើសញ្ញា \\ (Backslash) នៅពីមុខ។",
+    "tips": [
+      "catalog.tool_guides.regex_tester.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ Regex នេះប្រើម៉ាស៊ីន (Engine) មួយណា?",
-        answer: "ប្រើប្រាស់ JavaScript RegExp Engine ដែលមានស្រាប់នៅក្នុង browser របស់អ្នក។",
-      },
-    ],
+        "question": "catalog.tool_guides.regex_tester.faqs.0.question",
+        "answer": "catalog.tool_guides.regex_tester.faqs.0.answer"
+      }
+    ]
   },
   "uuid-generator": {
-    heroTitle: "របៀបបង្កើត UUID / GUID ដោយចៃដន្យ",
-    heroDescription: "បង្កើតកូដសម្គាល់ UUID v4 ចៃដន្យជាច្រើនក្នុងពេលតែមួយ ប្រកបដោយភាពសុក្រឹតខ្ពស់ និងឥតគិតថ្លៃ។",
-    whatIs: [
-      "ឧបករណ៍បង្កើត UUID ជួយអ្នកបង្កើតកូដសម្គាល់សកល (Universally Unique Identifier) កំណែ Version 4 ដែលធានាថាមិនជាន់គ្នាឡើយ សម្រាប់ប្រើប្រាស់ក្នុង Database ឬប្រព័ន្ធកុំព្យូទ័រ។",
+    "heroTitle": "catalog.tool_guides.uuid_generator.hero_title",
+    "heroDescription": "catalog.tool_guides.uuid_generator.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.uuid_generator.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសចំនួន UUID ដែលអ្នកចង់បង្កើត (ឧទាហរណ៍៖ 1, 5, 10, 50)។",
-      "ជ្រើសរើសទម្រង់អក្សរតូច ឬអក្សរធំ និងសញ្ញាដក (-)។",
-      "ចុចប៊ូតុងបង្កើតថ្មី និងចម្លងលទ្ធផលយកទៅប្រើ។",
+    "steps": [
+      "catalog.tool_guides.uuid_generator.steps.0",
+      "catalog.tool_guides.uuid_generator.steps.1",
+      "catalog.tool_guides.uuid_generator.steps.2"
     ],
-    whyUse: [
-      "ប្រើប្រាស់ cryptographic randomness (crypto.randomUUID) ធានាភាពចៃដន្យខ្ពស់បំផុត។",
-      "អាចបង្កើតម្តងបានច្រើនកូដ និងចម្លងទាំងអស់ក្នុងមួយចុច។",
+    "whyUse": [
+      "catalog.tool_guides.uuid_generator.why_use.0",
+      "catalog.tool_guides.uuid_generator.why_use.1"
     ],
-    useCases: [
-      "បង្កើត Primary Key សម្រាប់តារាងទិន្នន័យ (Database ID)។",
-      "បង្កើត Session ID ឬ Token សម្រាប់តាមដានប្រតិបត្តិការ។",
+    "useCases": [
+      "catalog.tool_guides.uuid_generator.use_cases.0",
+      "catalog.tool_guides.uuid_generator.use_cases.1"
     ],
-    tips: [
-      "UUID v4 មានឱកាសជាន់គ្នាជិតសូន្យ ដូច្នេះវាមានសុវត្ថិភាពខ្ពស់បំផុតសម្រាប់ប្រព័ន្ធធំៗ។",
+    "tips": [
+      "catalog.tool_guides.uuid_generator.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ UUID v4 ជាអ្វី?",
-        answer: "UUID v4 គឺជាលេខកូដសម្គាល់ ១២៨ ប៊ីតដែលបង្កើតឡើងដោយចៃដន្យ មានទម្រង់ជា ៣២ តួអក្សរ hex បំបែកដោយសញ្ញាដកជា ៥ ក្រុម (៨-៤-៤-៤-១២)។",
-      },
-    ],
+        "question": "catalog.tool_guides.uuid_generator.faqs.0.question",
+        "answer": "catalog.tool_guides.uuid_generator.faqs.0.answer"
+      }
+    ]
   },
   "unix-timestamp": {
-    heroTitle: "របៀបបំប្លែង Unix Timestamp",
-    heroDescription: "បំប្លែងពេលវេលា Epoch Unix Timestamp ទៅជាកាលបរិច្ឆេទធម្មជាតិ និងបំប្លែងកាលបរិច្ឆេទមកជា Timestamp វិញ។",
-    whatIs: [
-      "ឧបករណ៍ Unix Timestamp ជួយអ្នកបំប្លែងវិនាទី ឬមីលីវិនាទីនៃ Unix Epoch ទៅជាកាលបរិច្ឆេទ និងពេលវេលាជាក់ស្តែងតាមតំបន់ម៉ោងនៅកម្ពុជា (ICT, UTC+7) ឬ UTC។",
+    "heroTitle": "catalog.tool_guides.unix_timestamp.hero_title",
+    "heroDescription": "catalog.tool_guides.unix_timestamp.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.unix_timestamp.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលលេខ Timestamp ឬជ្រើសរើសកាលបរិច្ឆេទពីប្រតិទិន។",
-      "ប្រព័ន្ធនឹងបង្ហាញលទ្ធផលបំប្លែងភ្លាមៗទាំងតាមម៉ោងក្នុងស្រុក និងម៉ោងអន្តរជាតិ UTC។",
-      "ចុចចម្លងតម្លៃដែលអ្នកត្រូវការ។",
+    "steps": [
+      "catalog.tool_guides.unix_timestamp.steps.0",
+      "catalog.tool_guides.unix_timestamp.steps.1",
+      "catalog.tool_guides.unix_timestamp.steps.2"
     ],
-    whyUse: [
-      "ងាយស្រួលត្រួតពិនិត្យកំណត់ហេតុប្រព័ន្ធ (Server Logs) និងទិន្នន័យ Database។",
-      "បង្ហាញម៉ោងបច្ចុប្បន្នជា Timestamp ក្នុងពេលជាក់ស្តែង។",
+    "whyUse": [
+      "catalog.tool_guides.unix_timestamp.why_use.0",
+      "catalog.tool_guides.unix_timestamp.why_use.1"
     ],
-    useCases: [
-      "បំប្លែងទិន្នន័យ created_at / updated_at ចេញពី Database។",
-      "គណនាពេលវេលាផុតកំណត់នៃ Token ឬ Cookie។",
+    "useCases": [
+      "catalog.tool_guides.unix_timestamp.use_cases.0",
+      "catalog.tool_guides.unix_timestamp.use_cases.1"
     ],
-    tips: [
-      "ចំណាំថា Timestamp ប្រវែង ១០ ខ្ទង់គិតជាវិនាទី រីឯ ១៣ ខ្ទង់គិតជាមីលីវិនាទី (JavaScript)។",
+    "tips": [
+      "catalog.tool_guides.unix_timestamp.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ Unix Epoch ចាប់ផ្តើមពីពេលណា?",
-        answer: "Unix Epoch ចាប់ផ្តើមរាប់ពីថ្ងៃទី ១ ខែមករា ឆ្នាំ ១៩៧០ វេលាម៉ោង 00:00:00 UTC។",
-      },
-    ],
+        "question": "catalog.tool_guides.unix_timestamp.faqs.0.question",
+        "answer": "catalog.tool_guides.unix_timestamp.faqs.0.answer"
+      }
+    ]
   },
   "cron-explainer": {
-    heroTitle: "របៀបពន្យល់ និងសរសេរកូដ Cron Job (Cron Explainer)",
-    heroDescription: "បកប្រែកូដកំណត់ពេលវេលា Cron Expression ឱ្យទៅជាភាសាមនុស្សធម្មតាងាយយល់ និងបង្កើតកាលវិភាគការងារស្វ័យប្រវត្តិ។",
-    whatIs: [
-      "ឧបករណ៍ Cron Explainer ជួយអ្នកអភិវឌ្ឍន៍បកប្រែខ្សែអក្សរ Cron Expression (ដូចជា */15 * * * *) ទៅជាពាក្យពន្យល់ធម្មតាយ៉ាងច្បាស់លាស់ ព្រមទាំងបង្ហាញកាលវិភាគប្រតិបត្តិការលើកក្រោយៗទៀត។",
+    "heroTitle": "catalog.tool_guides.cron_explainer.hero_title",
+    "heroDescription": "catalog.tool_guides.cron_explainer.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.cron_explainer.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលកូដ Cron ៥ ឬ ៦ ខ្ទង់របស់អ្នក។",
-      "អានការពន្យល់ជាភាសាសាមញ្ញដែលប្រព័ន្ធបង្ហាញ។",
-      "ពិនិត្យមើលកាលបរិច្ឆេទ និងពេលវេលាដែលកូដនេះនឹងដំណើរការនៅជុំបន្ទាប់។",
+    "steps": [
+      "catalog.tool_guides.cron_explainer.steps.0",
+      "catalog.tool_guides.cron_explainer.steps.1",
+      "catalog.tool_guides.cron_explainer.steps.2"
     ],
-    whyUse: [
-      "ជៀសវាងការកំណត់កាលវិភាគខុស ដែលអាចប៉ះពាល់ដល់ការដំណើរការរបស់ម៉ាស៊ីន Server។",
-      "ងាយស្រួលរៀន និងស្វែងយល់អំពីរចនាសម្ព័ន្ធរបស់ Cron Syntax។",
+    "whyUse": [
+      "catalog.tool_guides.cron_explainer.why_use.0",
+      "catalog.tool_guides.cron_explainer.why_use.1"
     ],
-    useCases: [
-      "កំណត់កាលវិភាគ Backup ទិន្នន័យប្រចាំថ្ងៃ ឬផ្ញើអ៊ីមែលប្រចាំសប្តាហ៍។",
-      "ត្រួតពិនិត្យកាលវិភាគ Task Scheduler ក្នុង Linux ឬ GitHub Actions។",
+    "useCases": [
+      "catalog.tool_guides.cron_explainer.use_cases.0",
+      "catalog.tool_guides.cron_explainer.use_cases.1"
     ],
-    tips: [
-      "ប្រើប្រាស់ផ្ទាំងជម្រើសគំរូ (Presets) ដើម្បីទទួលបានកូដពេញនិយមដូចជា «រៀងរាល់ម៉ោង» ឬ «រៀងរាល់ពាក់កណ្តាលអធ្រាត្រ»។",
+    "tips": [
+      "catalog.tool_guides.cron_explainer.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើ Cron ៥ ខ្ទង់តំណាងឱ្យអ្វីខ្លះ?",
-        answer: "ខ្ទង់ទាំង ៥ តំណាងឱ្យ៖ នាទី (0-59), ម៉ោង (0-23), ថ្ងៃក្នុងខែ (1-31), ខែ (1-12), និងថ្ងៃក្នុងសប្តាហ៍ (0-6)។",
-      },
-    ],
+        "question": "catalog.tool_guides.cron_explainer.faqs.0.question",
+        "answer": "catalog.tool_guides.cron_explainer.faqs.0.answer"
+      }
+    ]
   },
   "hash-generator": {
-    heroTitle: "របៀបបង្កើត Hash (MD5, SHA-1, SHA-256)",
-    heroDescription: "បង្កើត Hash សម្ងាត់សម្រាប់អត្ថបទ ឬឯកសារ ដោយប្រើក្បួនដោះស្រាយ SHA-256, SHA-512, MD5 ក្នុង browser របស់អ្នក។",
-    whatIs: [
-      "ឧបករណ៍បង្កើត Hash ជួយអ្នកគណនាតម្លៃ Hash នៃអត្ថបទ ឬទិន្នន័យ ដើម្បីផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវនៃឯកសារ (Checksum) និងការពារការកែប្រែទិន្នន័យ។",
+    "heroTitle": "catalog.tool_guides.hash_generator.hero_title",
+    "heroDescription": "catalog.tool_guides.hash_generator.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.hash_generator.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលអត្ថបទដែលអ្នកចង់បង្កើត Hash ក្នុងប្រអប់។",
-      "ជ្រើសរើសក្បួនដោះស្រាយ (Algorithm) ដូចជា SHA-256, SHA-1 ឬ MD5។",
-      "ចម្លងតម្លៃ Hash ដែលទទួលបាន។",
+    "steps": [
+      "catalog.tool_guides.hash_generator.steps.0",
+      "catalog.tool_guides.hash_generator.steps.1",
+      "catalog.tool_guides.hash_generator.steps.2"
     ],
-    whyUse: [
-      "ប្រើប្រាស់ Web Cryptography API ផ្ទាល់ក្នុង browser ធានាសុវត្ថិភាពខ្ពស់ និងល្បឿនលឿន។",
-      "មិនមានការបញ្ជូនទិន្នន័យសម្ងាត់របស់អ្នកទៅកាន់បណ្តាញអ៊ីនធឺណិតឡើយ។",
+    "whyUse": [
+      "catalog.tool_guides.hash_generator.why_use.0",
+      "catalog.tool_guides.hash_generator.why_use.1"
     ],
-    useCases: [
-      "ផ្ទៀងផ្ទាត់ Checksum នៃឯកសារទាញយក។",
-      "បង្កើត Hash សម្រាប់ប្រៀបធៀបទិន្នន័យក្នុងប្រព័ន្ធ។",
+    "useCases": [
+      "catalog.tool_guides.hash_generator.use_cases.0",
+      "catalog.tool_guides.hash_generator.use_cases.1"
     ],
-    tips: [
-      "សម្រាប់សុវត្ថិភាពទំនើប សូមជ្រើសរើសប្រើប្រាស់ SHA-256 ឬខ្ពស់ជាងនេះ ជៀសវាង MD5 សម្រាប់រឿងសុវត្ថិភាព។",
+    "tips": [
+      "catalog.tool_guides.hash_generator.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើគេអាចបំប្លែង Hash ត្រឡប់មកជាអត្ថបទដើមវិញបានទេ?",
-        answer: "អត់ទេ! Hash គឺជាមុខងារផ្លូវមួយ (One-way function) ដែលមិនអាចបំប្លែងត្រឡប់ក្រោយបានឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.hash_generator.faqs.0.question",
+        "answer": "catalog.tool_guides.hash_generator.faqs.0.answer"
+      }
+    ]
   },
   "youtube-downloader": {
-    heroTitle: "របៀបទាញយកវីដេអូ YouTube (YouTube Downloader)",
-    heroDescription: "រក្សាទុកវីដេអូ YouTube សាធារណៈ ឬវីដេអូផ្ទាល់ខ្លួនរបស់អ្នកជាឯកសារ MP4 សម្រាប់ទស្សនាពេលគ្មានអ៊ីនធឺណិត។",
-    whatIs: [
-      "ឧបករណ៍ YouTube Downloader ជួយអ្នករក្សាទុកវីដេអូដែលអ្នកជាម្ចាស់ ឬមានការអនុញ្ញាតស្របច្បាប់ ពី YouTube មកកាន់ឧបករណ៍របស់អ្នកសម្រាប់ទស្សនាពេលគ្មានអ៊ីនធឺណិត។",
+    "heroTitle": "catalog.tool_guides.youtube_downloader.hero_title",
+    "heroDescription": "catalog.tool_guides.youtube_downloader.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.youtube_downloader.what_is.0"
     ],
-    steps: [
-      "ចម្លងតំណភ្ជាប់ (URL) នៃវីដេអូ YouTube។",
-      "បិទភ្ជាប់តំណភ្ជាប់ចូលក្នុងប្រអប់ស្វែងរក។",
-      "ជ្រើសរើសកម្រិតគុណភាពវីដេអូដែលចង់បាន។",
-      "ចុចប៊ូតុងទាញយកដើម្បីរក្សាទុកក្នុងឧបករណ៍របស់អ្នក។",
+    "steps": [
+      "catalog.tool_guides.youtube_downloader.steps.0",
+      "catalog.tool_guides.youtube_downloader.steps.1",
+      "catalog.tool_guides.youtube_downloader.steps.2",
+      "catalog.tool_guides.youtube_downloader.steps.3"
     ],
-    whyUse: [
-      "ទស្សនាវីដេអូមេរៀន ឬឯកសារសំខាន់ៗនៅពេលធ្វើដំណើរ ឬគ្មានអ៊ីនធឺណិត។",
-      "មិនមានផ្ទាំងពាណិជ្ជកម្មរំខាន ឬមេរោគ។",
+    "whyUse": [
+      "catalog.tool_guides.youtube_downloader.why_use.0",
+      "catalog.tool_guides.youtube_downloader.why_use.1"
     ],
-    useCases: [
-      "រក្សាទុកវីដេអូបង្រៀនសម្រាប់រៀនបន្ថែមនៅផ្ទះ។",
-      "ទាញយកវីដេអូដែលខ្លួនឯងបានផលិតទុកជាឯកសារបម្រុង (Backup)។",
+    "useCases": [
+      "catalog.tool_guides.youtube_downloader.use_cases.0",
+      "catalog.tool_guides.youtube_downloader.use_cases.1"
     ],
-    tips: [
-      "គោរពសិទ្ធិអ្នកនិពន្ធ និងច្បាប់កម្មសិទ្ធិបញ្ញាជានិច្ច។",
+    "tips": [
+      "catalog.tool_guides.youtube_downloader.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំអាចទាញយកវីដេអូដែលមានកម្មសិទ្ធិបញ្ញាបានទេ?",
-        answer: "អ្នកគួរទាញយកតែវីដេអូដែលអ្នកជាម្ចាស់កម្មសិទ្ធិ ឬវីដេអូដែលមានអាជ្ញាបណ្ណ Creative Commons ឬទទួលបានការអនុញ្ញាតប៉ុណ្ណោះ។",
-      },
-    ],
+        "question": "catalog.tool_guides.youtube_downloader.faqs.0.question",
+        "answer": "catalog.tool_guides.youtube_downloader.faqs.0.answer"
+      }
+    ]
   },
-  calculator: {
-    heroTitle: "របៀបប្រើប្រាស់ម៉ាស៊ីនគិតលេខអនឡាញ (Online Calculator)",
-    heroDescription: "គណនាលេខ បូក ដក គុណ ចែក និងភាគរយយ៉ាងរហ័ស ងាយស្រួលប្រើលើទូរសព្ទ និងកុំព្យូទ័រ។",
-    whatIs: [
-      "ម៉ាស៊ីនគិតលេខអនឡាញ ជួយអ្នកគណនាលេខទូទៅ បូក ដក គុណ ចែក និងភាគរយ (%) យ៉ាងរហ័ស ជាមួយនឹងប្រវត្តិគណនាច្បាស់លាស់។",
+  "calculator": {
+    "heroTitle": "catalog.tool_guides.calculator.hero_title",
+    "heroDescription": "catalog.tool_guides.calculator.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.calculator.what_is.0"
     ],
-    steps: [
-      "ចុចលើប៊ូតុងលេខ ឬប្រើក្តារចុចកុំព្យូទ័ររបស់អ្នក។",
-      "ជ្រើសរើសប្រមាណវិធី (+, -, ×, ÷)។",
-      "ចុចសញ្ញាស្មើ (=) ដើម្បីទទួលបានលទ្ធផល។",
-      "ចុច C ឬ AC ដើម្បីសម្អាតការគណនា។",
+    "steps": [
+      "catalog.tool_guides.calculator.steps.0",
+      "catalog.tool_guides.calculator.steps.1",
+      "catalog.tool_guides.calculator.steps.2",
+      "catalog.tool_guides.calculator.steps.3"
     ],
-    whyUse: [
-      "គាំទ្រការវាយបញ្ចូលតាមក្តារចុចកុំព្យូទ័រផ្ទាល់។",
-      "រក្សាប្រវត្តិគណនា ងាយស្រួលផ្ទៀងផ្ទាត់ឡើងវិញ។",
-      "ដំណើរការរលូនលើទូរសព្ទដៃ។",
+    "whyUse": [
+      "catalog.tool_guides.calculator.why_use.0",
+      "catalog.tool_guides.calculator.why_use.1",
+      "catalog.tool_guides.calculator.why_use.2"
     ],
-    useCases: [
-      "គណនាការទិញទំនិញ ឬចំណាយប្រចាំថ្ងៃ។",
-      "គណនាការបញ្ចុះតម្លៃ និងភាគរយចំណេញ។",
+    "useCases": [
+      "catalog.tool_guides.calculator.use_cases.0",
+      "catalog.tool_guides.calculator.use_cases.1"
     ],
-    tips: [
-      "អ្នកអាចប្រើគ្រាប់ចុច Enter ជំនួសសញ្ញាស្មើ (=) និង Backspace ដើម្បីលុបលេខចុងក្រោយ។",
+    "tips": [
+      "catalog.tool_guides.calculator.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើម៉ាស៊ីនគិតលេខនេះមានប្រវត្តិគណនាទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចពិនិត្យមើលប្រវត្តិគណនាកន្លងមកបានយ៉ាងងាយនៅផ្នែកចំហៀង។",
-      },
-    ],
+        "question": "catalog.tool_guides.calculator.faqs.0.question",
+        "answer": "catalog.tool_guides.calculator.faqs.0.answer"
+      }
+    ]
   },
-  stopwatch: {
-    heroTitle: "របៀបប្រើប្រាស់នាឡិកាកំណត់ម៉ោង (Online Stopwatch)",
-    heroDescription: "វាស់វែងពេលវេលាយ៉ាងសុក្រឹត កត់ត្រាជុំ (Lap times) និងគ្រប់គ្រងពេលវេលាបានយ៉ាងល្អឥតខ្ចោះ។",
-    whatIs: [
-      "នាឡិកាកំណត់ម៉ោងអនឡាញ ជួយអ្នកវាស់វែងពេលវេលាជាក់ស្តែងរហូតដល់កម្រិតមីលីវិនាទី រួមទាំងការកត់ត្រាជុំម៉ោង (Laps) សម្រាប់ការហាត់ប្រាណ ការសិក្សា ឬការងារ។",
+  "stopwatch": {
+    "heroTitle": "catalog.tool_guides.stopwatch.hero_title",
+    "heroDescription": "catalog.tool_guides.stopwatch.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.stopwatch.what_is.0"
     ],
-    steps: [
-      "ចុចប៊ូតុង «ចាប់ផ្តើម» (Start) ដើម្បីដំណើរការនាឡិកា។",
-      "ចុចប៊ូតុង «ជុំ» (Lap) ដើម្បីកត់ត្រាពេលនៃជុំនីមួយៗ។",
-      "ចុច «ផ្អាក» (Pause) ឬ «កំណត់ឡើងវិញ» (Reset) ដើម្បីសម្អាត។",
+    "steps": [
+      "catalog.tool_guides.stopwatch.steps.0",
+      "catalog.tool_guides.stopwatch.steps.1",
+      "catalog.tool_guides.stopwatch.steps.2"
     ],
-    whyUse: [
-      "វាស់ម៉ោងបានសុក្រឹតបំផុត និងមិនស៊ីថ្មទូរសព្ទ។",
-      "គាំទ្រការបញ្ជាដោយគ្រាប់ចុច Spacebar លើកុំព្យូទ័រ។",
-      "កត់ត្រាជុំបានច្រើន និងបង្ហាញភាពខុសគ្នារវាងជុំនីមួយៗ។",
+    "whyUse": [
+      "catalog.tool_guides.stopwatch.why_use.0",
+      "catalog.tool_guides.stopwatch.why_use.1",
+      "catalog.tool_guides.stopwatch.why_use.2"
     ],
-    useCases: [
-      "វាស់ម៉ោងរត់ប្រណាំង ហែលទឹក ឬហាត់ប្រាណ។",
-      "កំណត់ម៉ោងអានសៀវភៅ ឬធ្វើតេស្តប្រឡង។",
-      "តាមដានរយៈពេលធ្វើបទបង្ហាញ ឬកិច្ចប្រជុំ។",
+    "useCases": [
+      "catalog.tool_guides.stopwatch.use_cases.0",
+      "catalog.tool_guides.stopwatch.use_cases.1",
+      "catalog.tool_guides.stopwatch.use_cases.2"
     ],
-    tips: [
-      "ចុចគ្រាប់ចុច Spacebar លើក្តារចុច ដើម្បីចាប់ផ្តើម ឬផ្អាកបានភ្លាមៗ។",
+    "tips": [
+      "catalog.tool_guides.stopwatch.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "ប្រសិនបើខ្ញុំបិទផ្ទាំង browser តើម៉ោងនៅដើរទេ?",
-        answer: "ដើម្បីរក្សាការវាស់ម៉ោងឱ្យបន្តដំណើរការ សូមកុំបិទផ្ទាំងទំព័រនេះ។",
-      },
-    ],
+        "question": "catalog.tool_guides.stopwatch.faqs.0.question",
+        "answer": "catalog.tool_guides.stopwatch.faqs.0.answer"
+      }
+    ]
   },
   "text-to-voice": {
-    heroTitle: "របៀបបំប្លែងអត្ថបទទៅជាសំឡេង (Text to Speech)",
-    heroDescription: "អានអត្ថបទជាភាសាខ្មែរ និងអង់គ្លេសដោយសំឡេងធម្មជាតិ អាចទាញយកជាឯកសារសំឡេងបាន។",
-    whatIs: [
-      "ឧបករណ៍បំប្លែងអត្ថបទទៅជាសំឡេង ជួយអានអត្ថបទជាភាសាខ្មែរ និងភាសាផ្សេងៗទៀត ដោយប្រើប្រាស់សំឡេងធម្មជាតិ និងបច្ចេកវិទ្យាសំយោគសំឡេងកម្រិតខ្ពស់។",
+    "heroTitle": "catalog.tool_guides.text_to_voice.hero_title",
+    "heroDescription": "catalog.tool_guides.text_to_voice.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.text_to_voice.what_is.0"
     ],
-    steps: [
-      "វាយ ឬបិទភ្ជាប់អត្ថបទដែលអ្នកចង់ឱ្យអានក្នុងប្រអប់។",
-      "ជ្រើសរើសសំឡេង និងកែសម្រួលល្បឿននៃការអាន។",
-      "ចុចប៊ូតុង «ចាក់សំឡេង» ដើម្បីស្តាប់។",
-      "ទាញយកឯកសារសំឡេងប្រសិនបើត្រូវការ។",
+    "steps": [
+      "catalog.tool_guides.text_to_voice.steps.0",
+      "catalog.tool_guides.text_to_voice.steps.1",
+      "catalog.tool_guides.text_to_voice.steps.2",
+      "catalog.tool_guides.text_to_voice.steps.3"
     ],
-    whyUse: [
-      "ជួយសម្រួលដល់ការអានអត្ថបទវែងៗ ឬព័ត៌មាន។",
-      "ជួយដល់អ្នកដែលមានបញ្ហាក្នុងការមើល ឬពិការភ្នែក។",
-      "បង្កើតសំឡេងអត្ថាធិប្បាយសម្រាប់វីដេអូខ្លីៗលើ TikTok ឬ Facebook Reels។",
+    "whyUse": [
+      "catalog.tool_guides.text_to_voice.why_use.0",
+      "catalog.tool_guides.text_to_voice.why_use.1",
+      "catalog.tool_guides.text_to_voice.why_use.2"
     ],
-    useCases: [
-      "ស្តាប់អត្ថបទព័ត៌មាន ឬសៀវភៅពេលកំពុងធ្វើដំណើរ។",
-      "បង្កើតសំឡេងណែនាំក្នុងវីដេអូមាតិកា។",
+    "useCases": [
+      "catalog.tool_guides.text_to_voice.use_cases.0",
+      "catalog.tool_guides.text_to_voice.use_cases.1"
     ],
-    tips: [
-      "ប្រើសញ្ញាក្បៀស និងខណ្ឌឱ្យបានត្រឹមត្រូវដើម្បីឱ្យការបញ្ចេញសំឡេងមានចង្វាក់សមរម្យ។",
+    "tips": [
+      "catalog.tool_guides.text_to_voice.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើឧបករណ៍នេះគាំទ្រសំឡេងភាសាខ្មែរបានល្អទេ?",
-        answer: "បាទ/ចាស! គាំទ្រការបញ្ចេញសំឡេងអក្សរខ្មែរយ៉ាងច្បាស់លាស់ និងត្រឹមត្រូវតាមសូរសព្ទ។",
-      },
-    ],
+        "question": "catalog.tool_guides.text_to_voice.faqs.0.question",
+        "answer": "catalog.tool_guides.text_to_voice.faqs.0.answer"
+      }
+    ]
   },
   "chlatwork-link": {
-    heroTitle: "របៀបបង្កើតទំព័រ Link ផ្ទាល់ខ្លួន (ChlatWork Link)",
-    heroDescription: "បង្កើតទំព័រប្រមូលផ្ដុំតំណភ្ជាប់ (Bio Link) សម្រាប់ដាក់លើ TikTok, Instagram, Facebook ជាមួយស្ទីលស្រស់ស្អាត។",
-    whatIs: [
-      "ChlatWork Link ជួយអ្នកបង្កើតទំព័រប្រវត្តិរូបតំណភ្ជាប់ (Link in Bio) ផ្ទាល់ខ្លួន ដើម្បីចែករំលែកបណ្តាញសង្គម ទំនាក់ទំនង ហាងទំនិញ ឬផលប័ត្រការងាររបស់អ្នកក្នុងតំណភ្ជាប់តែមួយ។",
+    "heroTitle": "catalog.tool_guides.chlatwork_link.hero_title",
+    "heroDescription": "catalog.tool_guides.chlatwork_link.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.chlatwork_link.what_is.0"
     ],
-    steps: [
-      "ជ្រើសរើសឈ្មោះគណនី Link ផ្ទាល់ខ្លួនរបស់អ្នក (ឧទាហរណ៍៖ link.chlatwork.com/ឈ្មោះអ្នក)។",
-      "បញ្ចូលរូបភាព Profile និងព័ត៌មានជីវប្រវត្តិខ្លីៗ។",
-      "បន្ថែមតំណភ្ជាប់ទៅកាន់ Telegram, Facebook, TikTok, គេហទំព័រ ឬលេខទូរសព្ទ។",
-      "ជ្រើសរើសពណ៌ និងស្ទីលរចនាដែលអ្នកចូលចិត្ត។",
-      "ចម្លង Link យកទៅដាក់លើ Profile Bio បណ្តាញសង្គមរបស់អ្នក។",
+    "steps": [
+      "catalog.tool_guides.chlatwork_link.steps.0",
+      "catalog.tool_guides.chlatwork_link.steps.1",
+      "catalog.tool_guides.chlatwork_link.steps.2",
+      "catalog.tool_guides.chlatwork_link.steps.3",
+      "catalog.tool_guides.chlatwork_link.steps.4"
     ],
-    whyUse: [
-      "ដោះស្រាយបញ្ហា TikTok ឬ Instagram អនុញ្ញាតឱ្យដាក់តែ ១ Link ក្នុង Bio។",
-      "បង្កើតបានទំព័រស្អាត និងទំនើបដោយឥតគិតថ្លៃ ១០០%។",
-      "មានកូដ QR ផ្ទាល់ខ្លួនសម្រាប់បង្ហាញលើតុ ឬនាមប័ណ្ណ។",
+    "whyUse": [
+      "catalog.tool_guides.chlatwork_link.why_use.0",
+      "catalog.tool_guides.chlatwork_link.why_use.1",
+      "catalog.tool_guides.chlatwork_link.why_use.2"
     ],
-    useCases: [
-      "អ្នកបង្កើតមាតិកា (Creators/Influencers) ដែលចង់ចែករំលែកឆានែលច្រើន។",
-      "អាជីវកម្មអនឡាញដែលចង់ប្រមូលផ្ដុំ Link ឆាត តារាងតម្លៃ និងផែនទីទីតាំង។",
+    "useCases": [
+      "catalog.tool_guides.chlatwork_link.use_cases.0",
+      "catalog.tool_guides.chlatwork_link.use_cases.1"
     ],
-    tips: [
-      "ដាក់តំណភ្ជាប់ណាដែលសំខាន់បំផុតនៅផ្នែកខាងលើគេបង្អស់។",
+    "tips": [
+      "catalog.tool_guides.chlatwork_link.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើខ្ញុំអាចកែសម្រួលតំណភ្ជាប់នៅពេលក្រោយបានទេ?",
-        answer: "បាទ/ចាស! អ្នកអាចចូលកែប្រែ បន្ថែម ឬលុបតំណភ្ជាប់បានគ្រប់ពេលវេលា។",
-      },
-    ],
+        "question": "catalog.tool_guides.chlatwork_link.faqs.0.question",
+        "answer": "catalog.tool_guides.chlatwork_link.faqs.0.answer"
+      }
+    ]
   },
   "lucky-draw": {
-    heroTitle: "របៀបចាប់ឆ្នោតផ្សងសំណាង (Lucky Draw)",
-    heroDescription: "កម្មវិធីចាប់ឆ្នោតជ្រើសរើសឈ្មោះ ឬលេខដោយចៃដន្យ តម្លាភាព និងយុត្តិធម៌សម្រាប់កម្មវិធីជួបជុំ និងការចែករង្វាន់។",
-    whatIs: [
-      "កម្មវិធីចាប់ឆ្នោត Lucky Draw ជួយអ្នកចាប់រង្វាន់ជ្រើសរើសអ្នកឈ្នះដោយចៃដន្យ (Random Picker) ប្រកបដោយតម្លាភាព យុត្តិធម៌ និងមានចលនាអបអរសាទរដ៏រស់រវើក។",
+    "heroTitle": "catalog.tool_guides.lucky_draw.hero_title",
+    "heroDescription": "catalog.tool_guides.lucky_draw.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.lucky_draw.what_is.0"
     ],
-    steps: [
-      "បញ្ចូលបញ្ជីឈ្មោះ ឬលេខសម្គាល់របស់អ្នកចូលរួម (មួយជួរឈ្មោះមួយ)។",
-      "ជ្រើសរើសចំនួនរង្វាន់ ឬអ្នកឈ្នះដែលត្រូវចាប់។",
-      "ចុចប៊ូតុង «ចាប់ឆ្នោត» ដើម្បីដំណើរការចលនាចាប់រង្វាន់។",
-      "មើលលទ្ធផលអ្នកឈ្នះដែលបានបង្ហាញលើអេក្រង់។",
+    "steps": [
+      "catalog.tool_guides.lucky_draw.steps.0",
+      "catalog.tool_guides.lucky_draw.steps.1",
+      "catalog.tool_guides.lucky_draw.steps.2",
+      "catalog.tool_guides.lucky_draw.steps.3"
     ],
-    whyUse: [
-      "យុត្តិធម៌ និងតម្លាភាព ១០០% ដោយប្រើក្បួនគណិតវិទ្យាចៃដន្យពិតប្រាកដ។",
-      "ចលនារស់រវើក និងមានសំឡេងអបអរសាទរជួយបង្កើតបរិយាកាសរីករាយ។",
-      "ងាយស្រួលប្រើប្រាស់លើទូរសព្ទ ឬបញ្ចាំងលើ Projector ធំ។",
+    "whyUse": [
+      "catalog.tool_guides.lucky_draw.why_use.0",
+      "catalog.tool_guides.lucky_draw.why_use.1",
+      "catalog.tool_guides.lucky_draw.why_use.2"
     ],
-    useCases: [
-      "ពិធីជប់លៀងឆ្លងឆ្នាំ (Year End Party) របស់ក្រុមហ៊ុន ឬសាលារៀន។",
-      "ការចាប់រង្វាន់ផ្សាយផ្ទាល់ (Live Stream) លើ Facebook ឬ TikTok។",
-      "ការចាប់ឆ្នោតជ្រើសរើសអ្នកធ្វើបទបង្ហាញក្នុងថ្នាក់រៀន។",
+    "useCases": [
+      "catalog.tool_guides.lucky_draw.use_cases.0",
+      "catalog.tool_guides.lucky_draw.use_cases.1",
+      "catalog.tool_guides.lucky_draw.use_cases.2"
     ],
-    tips: [
-      "អាចជ្រើសរើសមិនឱ្យអ្នកដែលឈ្នះហើយត្រូវបានចាប់ម្តងទៀត។",
+    "tips": [
+      "catalog.tool_guides.lucky_draw.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើមានការកំណត់ចំនួនឈ្មោះអ្នកចូលរួមទេ?",
-        answer: "អ្នកអាចបញ្ចូលឈ្មោះអ្នកចូលរួមបានរាប់ពាន់នាក់ដោយគ្មានបញ្ហា។",
-      },
-    ],
+        "question": "catalog.tool_guides.lucky_draw.faqs.0.question",
+        "answer": "catalog.tool_guides.lucky_draw.faqs.0.answer"
+      }
+    ]
   },
   "kla-klok": {
-    heroTitle: "របៀបលេងហ្គេមខ្លាឃ្លោក (Kla Klok)",
-    heroDescription: "លេងល្បែងប្រជាប្រិយខ្មែរខ្លាឃ្លោកកម្សាន្តសប្បាយជាមួយមិត្តភក្តិ 3D dice animation ពោរពេញដោយភាពរីករាយ។",
-    whatIs: [
-      "ហ្គេមខ្លាឃ្លោកបែបឌីជីថល នាំមកនូវល្បែងប្រជាប្រិយខ្មែរប្រពៃណីមកលើអេក្រង់ទូរសព្ទរបស់អ្នក ជាមួយនឹងចលនាគ្រាប់ឡុកឡាក់ 3D និងសំឡេងក្រឡុកដ៏ជក់ចិត្ត សម្រាប់លេងកម្សាន្តក្នុងឱកាសជួបជុំ។",
+    "heroTitle": "catalog.tool_guides.kla_klok.hero_title",
+    "heroDescription": "catalog.tool_guides.kla_klok.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.kla_klok.what_is.0"
     ],
-    steps: [
-      "រៀបចំជួបជុំជាមួយមិត្តភក្តិ ឬក្រុមគ្រួសារ។",
-      "ចុចប៊ូតុង «ក្រឡុក» ដើម្បីក្រឡុកគ្រាប់ឡុកឡាក់ទាំងបី។",
-      "បើកចានដើម្បីមើលលទ្ធផលគ្រាប់ឡុកឡាក់ដែលចេញ។",
+    "steps": [
+      "catalog.tool_guides.kla_klok.steps.0",
+      "catalog.tool_guides.kla_klok.steps.1",
+      "catalog.tool_guides.kla_klok.steps.2"
     ],
-    whyUse: [
-      "កម្សាន្តសប្បាយជាមួយមិត្តភក្តិ និងក្រុមគ្រួសារក្នុងឱកាសបុណ្យចូលឆ្នាំ ឬជួបជុំ។",
-      "ចលនាគ្រាប់ឡុកឡាក់ 3D និងសំឡេងក្រឡុកប្រាកដនិយម។",
-      "មិនចាំបាច់មានចាន ឬគ្រាប់ឡុកឡាក់ផ្ទាល់ខ្លួន អាចលេងលើទូរសព្ទបានគ្រប់ទីកន្លែង។",
+    "whyUse": [
+      "catalog.tool_guides.kla_klok.why_use.0",
+      "catalog.tool_guides.kla_klok.why_use.1",
+      "catalog.tool_guides.kla_klok.why_use.2"
     ],
-    useCases: [
-      "លេងកម្សាន្តក្នុងឱកាសពិធីបុណ្យចូលឆ្នាំខ្មែរ ឬភ្ជុំបិណ្ឌ។",
-      "ការជួបជុំគ្រួសារ និងមិត្តភក្តិ។",
+    "useCases": [
+      "catalog.tool_guides.kla_klok.use_cases.0",
+      "catalog.tool_guides.kla_klok.use_cases.1"
     ],
-    tips: [
-      "បើកសំឡេងទូរសព្ទដើម្បីទទួលបានបទពិសោធន៍សំឡេងក្រឡុកចានកាន់តែជក់ចិត្ត។",
+    "tips": [
+      "catalog.tool_guides.kla_klok.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើហ្គេមនេះបង្កើតឡើងក្នុងគោលបំណងអ្វី?",
-        answer: "ហ្គេមនេះបង្កើតឡើងសម្រាប់តែគោលបំណងកម្សាន្តប្រពៃណីតែប៉ុណ្ណោះ មិនមែនសម្រាប់ការភ្នាល់លុយកាក់ឡើយ។",
-      },
-    ],
+        "question": "catalog.tool_guides.kla_klok.faqs.0.question",
+        "answer": "catalog.tool_guides.kla_klok.faqs.0.answer"
+      }
+    ]
   },
   "khmer-calendar": {
-    heroTitle: "របៀបប្រើប្រាស់ប្រតិទិនចន្ទគតិខ្មែរ (Khmer Calendar)",
-    heroDescription: "ពិនិត្យមើលថ្ងៃខែឆ្នាំខ្មែរ ថ្ងៃសីល ថ្ងៃពេញបូណ៌មី និងកាលវិភាគថ្ងៃឈប់សម្រាកបុណ្យជាតិផ្លូវការនៅកម្ពុជា។",
-    whatIs: [
-      "ប្រតិទិនចន្ទគតិខ្មែរ ជួយអ្នកពិនិត្យមើលថ្ងៃខែឆ្នាំខ្មែរ ថ្ងៃសីល ថ្ងៃពេញបូណ៌មី និងកាលវិភាគថ្ងៃឈប់សម្រាកបុណ្យជាតិផ្លូវការនៅកម្ពុជា។",
-      "គណនាថ្ងៃខែតាមក្បួនចន្ទគតិខ្មែរពិតប្រាកដ រួមទាំងឆ្នាំសត្វ ព.ស. និងរាសីចក្រ។",
+    "heroTitle": "catalog.tool_guides.khmer_calendar.hero_title",
+    "heroDescription": "catalog.tool_guides.khmer_calendar.hero_description",
+    "whatIs": [
+      "catalog.tool_guides.khmer_calendar.what_is.0",
+      "catalog.tool_guides.khmer_calendar.what_is.1"
     ],
-    steps: [
-      "ជ្រើសរើសខែ ឬឆ្នាំដែលអ្នកចង់ពិនិត្យមើល។",
-      "ចុចលើថ្ងៃនីមួយៗដើម្បីមើលព័ត៌មានលម្អិតនៃថ្ងៃចន្ទគតិ ថ្ងៃសីល ឬបុណ្យជាតិ។",
+    "steps": [
+      "catalog.tool_guides.khmer_calendar.steps.0",
+      "catalog.tool_guides.khmer_calendar.steps.1"
     ],
-    whyUse: [
-      "ដឹងច្បាស់ពីថ្ងៃសីល និងថ្ងៃបុណ្យប្រពៃណីជាតិខ្មែរ។",
-      "កាលវិភាគថ្ងៃឈប់សម្រាកផ្លូវការផ្ទៀងផ្ទាត់តាមអនុក្រឹត្យរាជរដ្ឋាភិបាល។",
-      "ដំណើរការរហ័ស និងច្បាស់លាស់។",
+    "whyUse": [
+      "catalog.tool_guides.khmer_calendar.why_use.0",
+      "catalog.tool_guides.khmer_calendar.why_use.1",
+      "catalog.tool_guides.khmer_calendar.why_use.2"
     ],
-    useCases: [
-      "រៀបចំគម្រោងឈប់សម្រាក និងដំណើរកម្សាន្តប្រចាំឆ្នាំ។",
-      "ពិនិត្យថ្ងៃសីលសម្រាប់ធ្វើបុណ្យទាន ឬសមាធិ។",
-      "ស្វែងរកថ្ងៃខែខ្មែរសម្រាប់រៀបចំពិធីមង្គលការ ឬឡើងផ្ទះ។",
+    "useCases": [
+      "catalog.tool_guides.khmer_calendar.use_cases.0",
+      "catalog.tool_guides.khmer_calendar.use_cases.1",
+      "catalog.tool_guides.khmer_calendar.use_cases.2"
     ],
-    tips: [
-      "ចុចលើថ្ងៃឈប់សម្រាកដើម្បីមើលឈ្មោះបុណ្យជាផ្លូវការ និងចំនួនថ្ងៃឈប់។",
+    "tips": [
+      "catalog.tool_guides.khmer_calendar.tips.0"
     ],
-    faqs: [
+    "faqs": [
       {
-        question: "តើកាលវិភាគថ្ងៃឈប់សម្រាកនេះមានភាពសុក្រឹតកម្រិតណា?",
-        answer: "កាលវិភាគថ្ងៃឈប់សម្រាកផ្លូវការត្រូវបានផ្ទៀងផ្ទាត់ដោយផ្ទាល់ជាមួយអនុក្រឹត្យប្រតិទិនឈប់សម្រាកការងាររបស់រាជរដ្ឋាភិបាលកម្ពុជា។",
-      },
-    ],
-  },
-};
+        "question": "catalog.tool_guides.khmer_calendar.faqs.0.question",
+        "answer": "catalog.tool_guides.khmer_calendar.faqs.0.answer"
+      }
+    ]
+  }
+}, "km");
 
 export function getToolGuideKm(
   key: string,
@@ -1212,49 +1220,104 @@ export function getToolGuideKm(
   fallbackDescKm?: string,
 ): ToolGuideKm {
   if (TOOL_GUIDES_KM[key]) {
-    return TOOL_GUIDES_KM[key];
+    const guide = TOOL_GUIDES_KM[key];
+    return {
+      ...guide,
+      privacy: GUIDE_PRIVACY_KM[key] ?? [translateMessage("km", "catalog.common.local_processing")],
+      practicalExamples: TOOL_GUIDE_EXAMPLES_KM[key],
+      metaTitle: `${guide.heroTitle ?? fallbackNameKm ?? key} | ChlatWork`,
+      metaDescription: guide.heroDescription ?? fallbackDescKm,
+    };
   }
 
   const name = fallbackNameKm || key;
-  const desc = fallbackDescKm || `ឧបករណ៍ជំនួយការងារ ${name} ប្រកបដោយភាពរហ័ស និងងាយស្រួលប្រើប្រាស់។`;
+  const desc = fallbackDescKm || translateMessage("km", "catalog.common.description", { name });
 
   return {
-    heroTitle: `របៀបប្រើប្រាស់ ${name}`,
+    heroTitle: translateMessage("km", "catalog.common.title", { name }),
     heroDescription: desc,
     whatIs: [
-      `ឧបករណ៍ ${name} ជួយសម្រួលដល់កិច្ចការងាររបស់អ្នកឱ្យកាន់តែឆាប់រហ័ស និងមានប្រសិទ្ធភាពខ្ពស់។`,
-      "ដំណើរការដោយផ្ទាល់លើ browser របស់អ្នកប្រកបដោយសុវត្ថិភាព មិនមានការរក្សាទុកទិន្នន័យឯកជនលើ server ក្រៅឡើយ។",
+      translateMessage("km", "catalog.common.introduction", { name }),
+      translateMessage("km", "catalog.common.check_processing"),
     ],
     steps: [
-      `បើកឧបករណ៍ ${name} និងបញ្ចូលទិន្នន័យ ឬឯកសារដែលត្រូវការ។`,
-      "កែសម្រួលជម្រើស និងការកំណត់តាមតម្រូវការជាក់ស្តែង។",
-      "ពិនិត្យមើលលទ្ធផលដែលបានបង្ហាញលើអេក្រង់។",
-      "ទាញយក ឬចម្លងលទ្ធផលយកទៅប្រើប្រាស់ជាការស្រេច។",
+      translateMessage("km", "catalog.common.open_tool", { name }),
+      translateMessage("km", "catalog.common.adjust_options"),
+      translateMessage("km", "catalog.common.review_output"),
+      translateMessage("km", "catalog.common.download_output"),
     ],
     whyUse: [
-      "ដំណើរការរហ័ស ងាយស្រួលប្រើប្រាស់ និងឥតគិតថ្លៃ ១០០%។",
-      "ដំណើរការផ្ទាល់ក្នុង browser រក្សាការសម្ងាត់ខ្ពស់បំផុត។",
-      "មិនចាំបាច់ដំឡើងកម្មវិធីបន្ថែមលើកុំព្យូទ័រ ឬទូរសព្ទឡើយ។",
+      translateMessage("km", "catalog.common.benefit"),
+      translateMessage("km", "catalog.common.processing_guidance"),
+      translateMessage("km", "catalog.common.no_installation"),
     ],
     useCases: [
-      "សម្រួលកិច្ចការងារប្រចាំថ្ងៃ និងបង្កើនល្បឿននៃការបំពេញភារកិច្ច។",
-      "ប្រើប្រាស់សម្រាប់ការសិក្សា អាជីវកម្ម ឬកិច្ចការផ្ទាល់ខ្លួន។",
+      translateMessage("km", "catalog.common.daily_work"),
+      translateMessage("km", "catalog.common.use_cases"),
     ],
     tips: [
-      "ពិនិត្យមើលព័ត៌មានលម្អិតមុនពេលទាញយក ឬចែករំលែកបន្ត។",
+      translateMessage("km", "catalog.common.verify_details"),
     ],
     commonMistakes: [
-      "មិនបានពិនិត្យផ្ទៀងផ្ទាត់លទ្ធផលមុនពេលយកទៅប្រើប្រាស់ផ្លូវការ។",
+      translateMessage("km", "catalog.common.common_mistake"),
     ],
     faqs: [
       {
-        question: `តើឧបករណ៍ ${name} ឥតគិតថ្លៃពិតមែនទេ?`,
-        answer: "បាទ/ចាស! ឧបករណ៍ទាំងអស់របស់ ChlatWork ត្រូវបានផ្តល់ជូនសម្រាប់ការប្រើប្រាស់ដោយឥតគិតថ្លៃ និងគ្មានការគិតថ្លៃលាក់កំបាំងឡើយ។",
+        question: translateMessage("km", "catalog.common.free_question", { name }),
+        answer: translateMessage("km", "catalog.common.free_answer"),
       },
       {
-        question: "តើទិន្នន័យរបស់ខ្ញុំមានសុវត្ថិភាពដែរឬទេ?",
-        answer: "បាទ/ចាស! ការដំណើរការទាំងអស់ធ្វើឡើងក្នុង browser របស់អ្នកផ្ទាល់ គ្មានទិន្នន័យឯកជនណាត្រូវបានផ្ញើចេញក្រៅឡើយ។",
+        question: translateMessage("km", "catalog.common.privacy_question"),
+        answer: translateMessage("km", "catalog.common.privacy_answer"),
       },
     ],
+  };
+}
+
+const GUIDE_PRIVACY_KM: Record<string, string[]> = localizeMessageTree({
+  "khmer-calendar": [
+    "catalog.tool_privacy.khmer_calendar.0"
+  ],
+  "youtube-downloader": [
+    "catalog.tool_privacy.youtube_downloader.0",
+    "catalog.tool_privacy.youtube_downloader.1",
+    "catalog.tool_privacy.youtube_downloader.2"
+  ],
+  "chlatwork-link": [
+    "catalog.tool_privacy.chlatwork_link.0",
+    "catalog.tool_privacy.chlatwork_link.1",
+    "catalog.tool_privacy.chlatwork_link.2"
+  ],
+  "text-to-voice": [
+    "catalog.tool_privacy.text_to_voice.0",
+    "catalog.tool_privacy.text_to_voice.1"
+  ],
+  "expense-tracker": [
+    "catalog.tool_privacy.expense_tracker.0",
+    "catalog.tool_privacy.expense_tracker.1"
+  ],
+  "payback-calculator": [
+    "catalog.tool_privacy.payback_calculator.0",
+    "catalog.tool_privacy.payback_calculator.1"
+  ],
+  "lucky-draw": [
+    "catalog.tool_privacy.lucky_draw.0",
+    "catalog.tool_privacy.lucky_draw.1"
+  ]
+}, "km");
+
+/** Project all guide copy together so metadata and visible content use the same language. */
+export function localizeToolGuide(guide: ToolGuide, locale: "en" | "km", tool = guide.tool): ToolGuide {
+  if (locale === "en") return guide;
+  const copy = getToolGuideKm(guide.tool.key, tool.name, tool.description);
+  return {
+    ...guide, ...copy,
+    heroTitle: copy.heroTitle ?? tool.name,
+    heroDescription: copy.heroDescription ?? tool.description,
+    metaTitle: copy.metaTitle ?? `${tool.name} | ChlatWork`,
+    metaDescription: copy.metaDescription ?? tool.description,
+    ctaLabel: translateMessage("km", "catalog.common.open_action"),
+    tool,
+    practicalExamples: copy.practicalExamples ?? guide.practicalExamplesKm ?? [],
   };
 }

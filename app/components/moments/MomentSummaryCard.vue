@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   CalendarClock,
   ExternalLink,
@@ -20,6 +21,8 @@ const props = withDefaults(
 );
 const emit = defineEmits<{ delete: [moment: MomentSummary] }>();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+
+const { t } = useAppI18n(isKhmer);
 const managerCopy = computed(() => copy.value.manager);
 
 const statusKind = computed(() => {
@@ -118,7 +121,7 @@ const createdDate = computed(() =>
       </span>
 
       <NuxtLink v-if="moment.occasion === 'BIRTHDAY' && !moment.groupWorkspaceId" :to="localizeMomentPath(`/moments/${moment.id}/edit`)" class="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-300/10">
-        <Pencil class="h-4 w-4" aria-hidden="true" />{{ isKhmer ? 'កែប្រែ' : 'Edit' }}
+        <Pencil class="h-4 w-4" aria-hidden="true" />{{ t("products.moments.edit_alternative") }}
       </NuxtLink>
       <button
         v-if="deletable && !moment.groupWorkspaceId"

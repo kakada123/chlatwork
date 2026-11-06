@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -242,6 +243,7 @@ test("the app rechecks ad policy on focus and polling, reloads only after revoca
   const module = { exports: {} as any };
   new Function("require", "module", "exports", ...Object.keys(globals), code)(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return { useAppI18n: createI18nStub };
       if (name === "vue") return vue;
       if (name === "~/lib/ad-visibility") return { canShowAdsForUser };
       if (name === "~/data/site-routes")

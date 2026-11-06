@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   Dices,
   Gamepad2,
@@ -14,10 +15,12 @@ import {
 } from "lucide-vue-next";
 import { PRODUCTS } from "~/lib/product-domains";
 import { openQuickExpense, useQuickExpense } from "~/composables/useQuickExpense";
+
+const { t } = useAppI18n();
+
 const { product, config } = useProductDomain();
-const { isKhmer } = useLanguage();
-const momentLanguage = product === "moment" ? useMomentLanguage() : undefined;
-const khmer = computed(() => momentLanguage?.isKhmer.value ?? isKhmer.value);
+const { isKhmer, languageLabel, switchLanguage } = useLanguage();
+const khmer = isKhmer;
 const { isDark, toggleColorMode, nextColorModeLabel } = useColorMode();
 const { user, isReady } = useAuth();
 const { enabled: quickExpenseEnabled } = useQuickExpense();
@@ -49,19 +52,19 @@ const links = computed(() => {
     return [
       {
         to: "/account/link",
-        label: isKhmer.value ? "កែទំព័រ" : "Edit your page",
+        label: t("shared.components_layout_product_navigation.edit_your_page"),
       },
     ];
   if (product === "moment")
     return [
-      { to: "/", label: isKhmer.value ? "បង្កើត Moment" : "Create a Moment" },
+      { to: "/", label: t("shared.components_layout_product_navigation.create_a_moment") },
       {
         to: "/moments",
-        label: isKhmer.value ? "Moments របស់ខ្ញុំ" : "My Moments",
+        label: t("shared.components_layout_product_navigation.my_moments"),
       },
     ];
   if (product === "games")
-    return [{ to: "/kla-klok", label: "ខ្លាឃ្លោក · Kla Klok" }];
+    return [{ to: "/kla-klok", label: t("shared.navigation.kla_klok") }];
   return [];
 });
 function closeMore() {
@@ -107,21 +110,20 @@ onBeforeUnmount(() =>
             class="block text-[10px] font-semibold tracking-wide text-slate-500 dark:text-white/45"
             >ChlatWork</span
           ><span class="block truncate text-base">{{
-            (isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name).replace("ChlatWork ", "")
+            t(productInfo.nameKey).replace("ChlatWork ", "")
           }}</span></span
         >
       </NuxtLink>
       <div class="flex shrink-0 items-center gap-1">
+        <button type="button" class="min-h-11 rounded-xl px-2 text-xs font-semibold text-slate-600 dark:text-white/70" :aria-label="languageLabel" @click="switchLanguage">{{ languageLabel }}</button>
         <NuxtLink
           v-if="product === 'creator'"
           to="/creator/credits"
           class="inline-flex min-h-11 items-center rounded-xl px-2 text-xs font-semibold text-violet-700 dark:text-violet-300"
           >{{
             mobileCreditBalance === null
-              ? khmer
-                ? "ក្រេឌីត"
-                : "Credits"
-              : `${mobileCreditBalance.toLocaleString("en-US")} ${khmer ? "ក្រេឌីត" : "credits"}`
+              ? t("shared.components_layout_product_navigation.credits")
+              : `${mobileCreditBalance.toLocaleString("en-US")} ${t("shared.components_layout_product_navigation.credits_2")}`
           }}</NuxtLink
         >
         <details
@@ -131,13 +133,13 @@ onBeforeUnmount(() =>
         >
           <summary
             class="grid size-11 cursor-pointer list-none place-items-center rounded-xl text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:text-white/60 [&::-webkit-details-marker]:hidden"
-            :aria-label="khmer ? 'ជម្រើសបន្ថែម' : 'More options'"
+            :aria-label="t(&quot;shared.components_layout_product_navigation.more_options&quot;)"
           >
             <MoreHorizontal class="size-5" aria-hidden="true" />
           </summary>
           <nav
             class="absolute right-0 top-full z-50 mt-2 grid max-h-[calc(100dvh-10rem)] w-60 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 text-sm shadow-xl dark:border-white/15 dark:bg-neutral-900"
-            :aria-label="khmer ? 'ជម្រើសកម្មវិធី' : 'Product options'"
+            :aria-label="t(&quot;shared.components_layout_product_navigation.product_options&quot;)"
           >
             <button
               v-if="canQuickExpense"
@@ -146,7 +148,7 @@ onBeforeUnmount(() =>
               aria-haspopup="dialog"
               @click="openExpense"
             >
-              <ReceiptText class="size-4" aria-hidden="true" />{{ khmer ? "បន្ថែមចំណាយ" : "Add expense" }}
+              <ReceiptText class="size-4" aria-hidden="true" />{{ t("shared.components_layout_product_navigation.add_expense") }}
             </button>
             <button
               type="button"
@@ -162,17 +164,17 @@ onBeforeUnmount(() =>
             <a
               :href="config.mainOrigin"
               class="min-h-11 content-center rounded-xl px-3"
-              >{{ khmer ? "កម្មវិធីទាំងអស់" : "All apps" }}</a
+              >{{ t("shared.components_layout_product_navigation.all_apps") }}</a
             >
             <NuxtLink
               to="/privacy-policy"
               class="min-h-11 content-center rounded-xl px-3"
-              >{{ khmer ? "ឯកជនភាព" : "Privacy" }}</NuxtLink
+              >{{ t("shared.components_layout_product_navigation.privacy") }}</NuxtLink
             >
             <NuxtLink
               to="/terms"
               class="min-h-11 content-center rounded-xl px-3"
-              >{{ khmer ? "លក្ខខណ្ឌ" : "Terms" }}</NuxtLink
+              >{{ t("shared.components_layout_product_navigation.terms") }}</NuxtLink
             >
             <template
               v-if="product === 'creator' && isReady && user?.role === 'ADMIN'"
@@ -180,17 +182,17 @@ onBeforeUnmount(() =>
               <NuxtLink
                 to="/creator/admin/credits"
                 class="min-h-11 content-center rounded-xl px-3"
-                >Credits & limits</NuxtLink
+                >{{ t("shared.components_layout_product_navigation.credits_limits") }}</NuxtLink
               >
               <NuxtLink
                 to="/admin/bots"
                 class="min-h-11 content-center rounded-xl px-3"
-                >Bot Admin</NuxtLink
+                >{{ t("shared.components_layout_product_navigation.bot_admin") }}</NuxtLink
               >
               <NuxtLink
                 to="/admin/tools"
                 class="min-h-11 content-center rounded-xl px-3"
-                >Tools & ads</NuxtLink
+                >{{ t("shared.components_layout_product_navigation.tools_ads") }}</NuxtLink
               >
             </template>
           </nav>
@@ -203,11 +205,11 @@ onBeforeUnmount(() =>
       <NuxtLink
         :to="productInfo.home"
         class="min-h-11 content-center font-bold text-sky-700 dark:text-cyan-300"
-        >{{ isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name }}</NuxtLink
+        >{{ t(productInfo.nameKey) }}</NuxtLink
       >
       <nav
         class="flex flex-wrap items-center gap-3 text-sm"
-        :aria-label="isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name"
+        :aria-label="t(productInfo.nameKey)"
       >
         <NuxtLink
           v-for="link in links"
@@ -217,11 +219,12 @@ onBeforeUnmount(() =>
           >{{ link.label }}</NuxtLink
         >
         <NuxtLink to="/account" class="min-h-11 content-center">{{
-          isKhmer ? "គណនី" : "Account"
+          t("shared.common.account")
         }}</NuxtLink>
         <a :href="config.mainOrigin" class="min-h-11 content-center">{{
-          isKhmer ? "កម្មវិធីទាំងអស់" : "All apps"
+          t("shared.components_layout_product_navigation.all_apps")
         }}</a>
+        <button type="button" class="min-h-11 rounded-xl px-2 font-semibold" :aria-label="languageLabel" @click="switchLanguage">{{ languageLabel }}</button>
         <button
           type="button"
           class="min-h-11 px-2"
@@ -237,12 +240,10 @@ onBeforeUnmount(() =>
       class="mx-auto mt-1 hidden max-w-[1244px] text-xs text-slate-600 dark:text-slate-300 sm:block"
     >
       {{
-        isKhmer
-          ? "ទិន្នន័យរក្សាទុកក្នុង browser តាម domain នីមួយៗ។"
-          : "Saved lists and history belong to each browser origin."
+        t("shared.components_layout_product_navigation.saved_lists_and_history_belong_to_each_browser_origin")
       }}
       <a :href="`${config.mainOrigin}/tools/lucky-draw`" class="underline">{{
-        isKhmer ? "បើកបញ្ជីចាស់" : "Open legacy saved lists"
+        t("shared.components_layout_product_navigation.open_legacy_saved_lists")
       }}</a>
     </p>
   </header>

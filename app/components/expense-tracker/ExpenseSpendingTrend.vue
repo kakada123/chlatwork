@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
+import { useProductCopy } from "~/composables/useProductCopy";
+const { isKhmer } = useLanguage();
 import { computed, ref, useId, watch } from "vue";
 import { ChartNoAxesCombined } from "lucide-vue-next";
 import type { ExpenseCurrency } from "~/lib/expense-tracker";
@@ -8,6 +12,10 @@ import {
   type ExpenseTrendMode,
   type ExpenseTrendPoint,
 } from "~/lib/expense-dashboard-view";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = withDefaults(
   defineProps<{
@@ -79,7 +87,7 @@ const labels = computed(() => {
   ];
 });
 function dateLabel(value: string) {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(isKhmer.value ? "km-KH" : "en", {
     month: "short",
     ...(mode.value === "monthly" ? { year: "2-digit" } : { day: "numeric" }),
     timeZone: "UTC",
@@ -92,7 +100,7 @@ const moneyLabel = (value: number) =>
 <template>
   <section
     class="min-w-0 rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
-    aria-label="Spending trend"
+    :aria-label="t(&quot;products.expenses.spending_trend&quot;)"
   >
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <h3
@@ -101,7 +109,7 @@ const moneyLabel = (value: number) =>
         <ChartNoAxesCombined
           class="h-5 w-5 text-sky-600 dark:text-cyan-200"
           aria-hidden="true"
-        />Spending trend
+        />{{ t("products.expenses.spending_trend") }}
       </h3>
       <div
         class="flex items-center gap-3 text-xs text-slate-500 dark:text-white/55"
@@ -110,20 +118,20 @@ const moneyLabel = (value: number) =>
           ><span
             class="h-2 w-2 rounded-full bg-red-400"
             aria-hidden="true"
-          />Spent</span
+          />{{ t("products.expenses.spent") }}</span
         >
         <span v-if="incomeVisible" class="inline-flex items-center gap-1.5"
           ><span
             class="h-2 w-2 rounded-full bg-green-400"
             aria-hidden="true"
-          />Income</span
+          />{{ t("products.expenses.income_alternative") }}</span
         >
-        <span v-else>Income hidden</span>
+        <span v-else>{{ t("products.expenses.income_hidden") }}</span>
       </div>
       <div
         class="inline-flex rounded-lg bg-slate-100 p-0.5 dark:bg-white/5"
         role="group"
-        aria-label="Trend interval"
+        :aria-label="t(&quot;products.common.trend_interval&quot;)"
       >
         <button
           v-for="interval in modes"
@@ -133,7 +141,7 @@ const moneyLabel = (value: number) =>
           class="expense-trend-interval min-h-9 rounded-md px-3 text-xs font-semibold capitalize transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:focus-visible:outline-cyan-200"
           @click="mode = interval"
         >
-          {{ interval }}
+          {{ productText(interval) }}
         </button>
       </div>
     </div>
@@ -141,13 +149,13 @@ const moneyLabel = (value: number) =>
       v-if="series.tooManyPoints"
       class="py-10 text-center text-sm text-slate-500 dark:text-white/50"
     >
-      Choose a weekly or monthly view, or a shorter date range.
+      {{ t("products.expenses.choose_a_weekly_or_monthly_view_or_a_shorter_date_range") }}
     </p>
     <p
       v-else-if="!data.length"
       class="py-10 text-center text-sm text-slate-500 dark:text-white/50"
     >
-      No trend to display for this period.
+      {{ t("products.expenses.no_trend_to_display_for_this_period") }}
     </p>
     <template v-else>
       <svg
@@ -157,9 +165,8 @@ const moneyLabel = (value: number) =>
         class="mt-5 w-full overflow-visible"
       >
         <title :id="titleId">
-          {{ mode }} spending trend from {{ from }} to {{ to }}. Bars show
-          expenses.
-          {{ incomeVisible ? "The line shows income." : "Income is hidden." }}
+          {{ productText(mode) }} {{ t("products.expenses.spending_trend_from") }} {{ from }} {{ t("products.expenses.to") }} {{ to }}{{ t("products.expenses.bars_show_expenses") }}
+          {{ incomeVisible ? t("products.expenses.the_line_shows_income") : t("products.expenses.income_is_hidden") }}
         </title>
         <g v-for="tick in ticks" :key="tick.value">
           <line
@@ -191,9 +198,8 @@ const moneyLabel = (value: number) =>
             opacity="0.85"
           >
             <title>
-              {{ dateLabel(point.date) }}: spent
-              {{ moneyLabel(point.spent) }}<template v-if="incomeVisible">,
-              income {{ moneyLabel(point.income) }}</template>
+              {{ dateLabel(point.date) }}{{ t("products.expenses.spent_alternative") }}
+              {{ moneyLabel(point.spent) }}<template v-if="incomeVisible">{{ t("products.common.income_alternative") }} {{ moneyLabel(point.income) }}</template>
             </title>
           </rect>
         </g>
@@ -230,13 +236,13 @@ const moneyLabel = (value: number) =>
       </svg>
       <table class="sr-only">
         <caption>
-          Spending trend values
+          {{ t("products.expenses.spending_trend_values") }}
         </caption>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Spent</th>
-            <th v-if="incomeVisible">Income</th>
+            <th>{{ t("products.expenses.date") }}</th>
+            <th>{{ t("products.expenses.spent") }}</th>
+            <th v-if="incomeVisible">{{ t("products.expenses.income_alternative") }}</th>
           </tr>
         </thead>
         <tbody>

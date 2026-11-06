@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -26,6 +27,8 @@ test("the rendered screenshot case shows 15,000 riel as the payment and retains 
     },
   };
   const dependencies: Record<string, unknown> = {
+    "~/composables/useAppI18n": { useAppI18n: () => createI18nStub(vue.ref(true)) },
+    "~/composables/useLanguage": { useLanguage: () => ({ isKhmer: vue.ref(true) }) },
     vue, "vue/server-renderer": renderer, "lucide-vue-next": icons, "~/lib/jekluy": jekluy,
     "~/components/ui/ConfirmDialog.vue": { __esModule: true, default: { render: () => null } },
   };

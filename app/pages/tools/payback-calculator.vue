@@ -13,7 +13,7 @@
         v-model:raw="raw"
         :copied="copied"
         :can-copy="settlements.length > 0"
-        :error="error"
+        :error="localizeToolError(error, isKhmer)"
         @copy-result="copyResult"
         @load-example="loadExample"
         @sync-rows-from-raw="syncRowsFromRaw"
@@ -53,49 +53,39 @@
 
     <details
       class="payback-card mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 dark:text-white sm:p-6"
-      :aria-label="isKhmer ? 'របៀបដែលយើងផ្ទៀងផ្ទាត់ឧទាហរណ៍ហិរញ្ញវត្ថុ' : 'How we validate finance examples'"
+      :aria-label="t(&quot;tools.paybackCalculator.howWeValidateFinanceExamples&quot;)"
     >
       <summary class="cursor-pointer text-sm font-bold">
-        {{ isKhmer ? "កំណត់សម្គាល់ភាពត្រឹមត្រូវ និងសុវត្ថិភាព" : "Accuracy and safety notes" }}
+        {{ t("tools.paybackCalculator.accuracyAndSafetyNotes") }}
       </summary>
       <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-white/60">
-        {{ isKhmer
-          ? "ឧទាហរណ៍ PayBack ត្រូវបានពិនិត្យផ្ទៀងផ្ទាត់ជាមួយក្បួនគណនា និងច្បាប់ទូទាត់ប្រាក់យ៉ាងត្រឹមត្រូវមុនពេលផ្សព្វផ្សាយ។ ពួកវាគ្រាន់តែជាឧទាហរណ៍សម្រាប់ការអប់រំប៉ុណ្ណោះ មិនមែនជាការប្រឹក្សាផ្នែកហិរញ្ញវត្ថុទេ។"
-          : "PayBack examples are reviewed against the calculator logic and cent-safe settlement rules before publication. They are educational examples only, not financial advice." }}
+        {{ t("tools.paybackCalculator.payBackExamplesAreReviewedAgainstTheCalculatorLogic") }}
       </p>
       <ul
         class="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600 dark:text-white/60"
       >
         <li>
-          {{ isKhmer
-            ? "ចំនួនទឹកប្រាក់សរុបគំរូទាំងអស់ត្រូវបានត្រួតពិនិត្យឡើងវិញសម្រាប់ភាពត្រឹមត្រូវនៃការបែងចែក និងការបង្គត់លេខ។"
-            : "All sample totals are re-checked for split accuracy and rounding behavior." }}
+          {{ t("tools.paybackCalculator.allSampleTotalsAreReCheckedForSplitAccuracy") }}
         </li>
         <li>
-          {{ isKhmer
-            ? "ឧទាហរណ៍ប្រាក់រៀល (KHR) រួមបញ្ចូលទាំងកំណត់សម្គាល់អំពីការដោះស្រាយលុយសេសសល់ និងអ្នកណាដែលចេញចំណែកសេសសល់នោះ។"
-            : "KHR examples include leftover-handling notes and who covers any remainder." }}
+          {{ t("tools.paybackCalculator.khrExamplesIncludeLeftoverHandlingNotesAndWhoCovers") }}
         </li>
         <li>
-          {{ isKhmer
-            ? "មុនពេលផ្ទេរប្រាក់ជាក់ស្តែង សូមផ្ទៀងផ្ទាត់ថ្លៃសេវាធនាគារ អត្រាប្តូរប្រាក់ និងចំនួនទឹកប្រាក់ចុងក្រោយជាមួយសមាជិកក្រុម។"
-            : "Before real transfers, confirm bank fees, exchange rates, and final amounts with the group." }}
+          {{ t("tools.paybackCalculator.beforeRealTransfersConfirmBankFeesExchangeRatesAnd") }}
         </li>
         <li>
-          {{ isKhmer
-            ? "ប្រសិនបើអ្នកឃើញបញ្ហា សូមស្នើសុំការកែតម្រូវពីទំព័រទំនាក់ទំនង។"
-            : "If you spot an issue, request a correction from the Contact page." }}
+          {{ t("tools.paybackCalculator.ifYouSpotAnIssueRequestACorrectionFrom") }}
         </li>
       </ul>
       <div class="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-sky-700 dark:text-cyan-300">
         <NuxtLink to="/editorial-policy" class="underline">
-          {{ isKhmer ? "គោលការណ៍និពន្ធ" : "Editorial policy" }}
+          {{ t("tools.paybackCalculator.editorialPolicy") }}
         </NuxtLink>
         <NuxtLink to="/disclaimer" class="underline">
-          {{ isKhmer ? "ការមិនទទួលខុសត្រូវ" : "Disclaimer" }}
+          {{ t("tools.paybackCalculator.disclaimer") }}
         </NuxtLink>
         <NuxtLink to="/contact" class="underline">
-          {{ isKhmer ? "ទំនាក់ទំនង" : "Contact" }}
+          {{ t("tools.paybackCalculator.contact") }}
         </NuxtLink>
       </div>
     </details>
@@ -103,6 +93,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import type {
   PaybackCurrency,
   PaybackKhrRemainderMode,
@@ -131,6 +123,8 @@ import {
 } from "~/lib/payback-calculator";
 import { useLanguage } from "~/composables/useLanguage";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
 const route = useRoute();
@@ -154,18 +148,18 @@ type PaybackStoredState = {
   rows: Array<{ name: string; amount: string }>;
 };
 
+
+
+
 useSeoMeta({
-  title: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
-  description:
-    "Split group expenses in USD or KHR, calculate who pays whom, handle Khmer riel rounding, and share the result when needed.",
-  ogTitle: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
-  ogDescription:
-    "Calculate clear payback transfers for restaurant bills, trips, office spending, and shared purchases.",
+  title: () => t("tools.paybackCalculator.metaTitle"),
+  description: () => t("tools.paybackCalculator.metaDescription"),
+  ogTitle: () => t("tools.paybackCalculator.metaOgTitle"),
+  ogDescription: () => t("tools.paybackCalculator.metaOgDescription"),
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: "Payback Calculator - Split Bills in USD or KHR | ChlatWork",
-  twitterDescription:
-    "Split group expenses and calculate who pays whom with USD and KHR support.",
+  twitterTitle: () => t("tools.paybackCalculator.metaTwitterTitle"),
+  twitterDescription: () => t("tools.paybackCalculator.metaTwitterDescription"),
 });
 
 useHead({
@@ -190,18 +184,18 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 const persistenceMessage = computed(() => {
   if (persistenceState.value === "loading") {
-    return isKhmer.value ? "កំពុងផ្ទុកទិន្នន័យ PayBack ដែលបានរក្សាទុក..." : "Loading your saved PayBack data...";
+    return t("tools.paybackCalculator.loadingYourSavedPayBackData");
   }
   if (persistenceState.value === "saving") {
-    return isKhmer.value ? "កំពុងរក្សាទុក..." : "Saving...";
+    return t("tools.paybackCalculator.saving");
   }
   if (persistenceState.value === "failed") {
-    return isKhmer.value ? "មិនអាចរក្សាទុកការផ្លាស់ប្តូរបានទេ។" : "Could not save changes.";
+    return t("tools.paybackCalculator.couldNotSaveChanges");
   }
   if (persistenceState.value === "guest") {
-    return isKhmer.value ? "ចូលគណនីដើម្បីរក្សាទុកទិន្នន័យនេះទៅក្នុងគណនីរបស់អ្នក។" : "Sign in to save this data to your account.";
+    return t("tools.paybackCalculator.signInToSaveThisDataToYourAccount");
   }
-  return isKhmer.value ? "បានរក្សាទុកដោយសុវត្ថិភាពក្នុងគណនីរបស់អ្នក។" : "Saved securely to your account.";
+  return t("tools.paybackCalculator.savedSecurelyToYourAccount");
 });
 
 let copiedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -516,28 +510,28 @@ async function copyResult() {
   }
 
   const lines: string[] = [
-    "PayBack Calculator",
-    `People: ${people.value.length}`,
-    `Total: ${fmt(total.value)}`,
-    `Average: ${fmt(avg.value)}`,
+    t("tools.paybackCalculator.payBackCalculator"),
+    `${t("tools.paybackCalculator.people")} ${people.value.length}`,
+    `${t("tools.paybackCalculator.total")} ${fmt(total.value)}`,
+    `${t("tools.paybackCalculator.average")} ${fmt(avg.value)}`,
   ];
 
   if (currency.value === "KHR" && khrRemainder.value.leftover > 0) {
     lines.push(
-      `KHR leftover: ${formatPaybackExactKhr(khrRemainder.value.leftover)}`,
+      `${t("tools.paybackCalculator.khrLeftover")} ${formatPaybackExactKhr(khrRemainder.value.leftover)}`,
     );
 
     if (
       khrRemainderMode.value === "ASSIGN_TO_PERSON" &&
       khrRemainder.value.assignedTo
     ) {
-      lines.push(`Covered by: ${khrRemainder.value.assignedTo}`);
+      lines.push(`${t("tools.paybackCalculator.coveredBy")} ${khrRemainder.value.assignedTo}`);
     } else {
-      lines.push("Leftover handling: kept separate");
+      lines.push(t("tools.paybackCalculator.leftoverHandlingKeptSeparate"));
     }
   }
 
-  lines.push("", "Who pays who:");
+  lines.push("", t("tools.paybackCalculator.whoPaysWho"));
 
   for (const settlement of settlements.value) {
     lines.push(

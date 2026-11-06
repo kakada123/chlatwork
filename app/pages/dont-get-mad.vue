@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+import { useAppI18n } from "~/composables/useAppI18n";
 import confetti from "canvas-confetti";
 import { createSwatSoundPlayer } from "~/lib/cockroach-sound";
 
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
+
 definePageMeta({ layout: false, blankCanvas: true, pageTransition: false });
 useSeoMeta({
-  title: "កុំខឹងណា 😏 | ChlatWork",
+  title: () => t("native.patience.donTGetMadChlatwork"),
   description:
-    "សាកល្បងភាពអត់ធ្មត់របស់អ្នក ជាមួយប៊ូតុងរត់គេច ការផ្ទុកម្ដងហើយម្ដងទៀត ការផ្ទៀងផ្ទាត់ 3 ជុំ និងតេស្តរំខាន 9 ជំហាន។",
+    () => t("native.patience.testYourPatienceWithARunawayButtonRepeatedLoadingThree"),
   robots: "noindex, nofollow",
 });
-useHead({ htmlAttrs: { lang: "km" } });
+useHead(() => ({ htmlAttrs: { lang: isKhmer.value ? "km" : "en" } }));
 
 type Phase =
   | "start"
@@ -63,7 +68,7 @@ const progress = ref(0);
 const captchaStep = ref(1);
 const captchaTotal = 3;
 const consentChecked = ref(false);
-const consentPrompt = ref("ខ្ញុំនៅតែអត់ធ្មត់បាន");
+const consentPrompt = ref(t("native.patience.iCanStillBePatient"));
 const consentTricked = ref(false);
 const sliderValue = ref(50);
 const sliderTarget = ref(70);
@@ -79,9 +84,9 @@ const sequenceChoices = computed(() => {
   );
 });
 const colorChoices = [
-  { id: "red", label: "ក្រហម", color: "#ef4444" },
-  { id: "blue", label: "ខៀវ", color: "#3b82f6" },
-  { id: "green", label: "បៃតង", color: "#16a34a" },
+  { id: "red", label: t("native.patience.red"), color: "#ef4444" },
+  { id: "blue", label: t("native.patience.blue"), color: "#3b82f6" },
+  { id: "green", label: t("native.patience.green"), color: "#16a34a" },
 ];
 const inkColor = shallowRef(colorChoices[1]!);
 const colorWord = shallowRef(colorChoices[0]!);
@@ -96,20 +101,20 @@ const counterResetAt = ref(3);
 const oppositeStep = ref(0);
 const oppositeTotal = 3;
 const directionChoices = [
-  { id: "up", icon: "↑", label: "ឡើងលើ", opposite: "down" },
-  { id: "right", icon: "→", label: "ទៅស្ដាំ", opposite: "left" },
-  { id: "down", icon: "↓", label: "ចុះក្រោម", opposite: "up" },
-  { id: "left", icon: "←", label: "ទៅឆ្វេង", opposite: "right" },
+  { id: "up", icon: "↑", label: t("native.patience.up"), opposite: "down" },
+  { id: "right", icon: "→", label: t("native.patience.right"), opposite: "left" },
+  { id: "down", icon: "↓", label: t("native.patience.down"), opposite: "up" },
+  { id: "left", icon: "←", label: t("native.patience.left"), opposite: "right" },
 ];
 const oppositePrompts = shallowRef(directionChoices.slice(0, oppositeTotal));
 const directionPrompt = computed(
   () => oppositePrompts.value[oppositeStep.value % oppositeTotal]!,
 );
 const fruitChoices = [
-  { id: "orange", icon: "🍊", label: "ផ្លែក្រូច" },
-  { id: "grape", icon: "🍇", label: "ផ្លែទំពាំងបាយជូរ" },
-  { id: "apple", icon: "🍎", label: "ផ្លែប៉ោម" },
-  { id: "banana", icon: "🍌", label: "ផ្លែចេក" },
+  { id: "orange", icon: "🍊", label: t("native.patience.orange") },
+  { id: "grape", icon: "🍇", label: t("native.patience.grape") },
+  { id: "apple", icon: "🍎", label: t("native.patience.apple") },
+  { id: "banana", icon: "🍌", label: t("native.patience.banana") },
 ];
 // The answer grid differs from the pattern so remembering it requires more than reading across.
 const memoryPattern = shallowRef([
@@ -127,7 +132,7 @@ const sizeChoices = shallowRef([
 const largestNumber = computed(() =>
   Math.max(...sizeChoices.value.map((choice) => choice.value)),
 );
-const status = ref("តេស្តខ្លីមួយ។ ប្រហែលជាខ្លីមែន។");
+const status = ref(t("native.patience.aShortTestProbablyShortAnyway"));
 const playground = ref<HTMLElement | null>(null);
 const runaway = ref<HTMLButtonElement | null>(null);
 const stageHeading = ref<HTMLElement | null>(null);
@@ -150,24 +155,24 @@ const loadingStage = computed(() =>
 const stageTitle = computed(
   () =>
     ({
-      start: "សាកល្បងភាពអត់ធ្មត់របស់អ្នក",
-      question: "តើអ្នកអត់ធ្មត់មែនទេ?",
-      loading: "កំពុងតេស្តភាពអត់ធ្មត់…",
-      unstable: "ការតភ្ជាប់មិនស្ថិតស្ថេរ",
-      "retry-loading": "តោះ! ចាប់ផ្ដើមម្ដងទៀត។",
-      captcha: "បញ្ជាក់ថាអ្នកជាមនុស្ស",
-      consent: "ធីកតែមួយប៉ុណ្ណោះ",
-      color: "អានពណ៌ កុំអានពាក្យ",
-      slider: "រំកិលឲ្យចំលេខ",
-      sequence: "ចុចលេខតាមលំដាប់",
-      typing: "វាយឃ្លាតែម្ដង… ប្រហែល",
-      counter: "ចុចឲ្យគ្រប់ចំនួន",
-      opposite: "ជ្រើសទិសផ្ទុយ",
-      memory: "ចងចាំរូបទាំងបី",
-      size: "លេខធំ អក្សរតូច",
-      annoyed: "នៅសល់សំណួរមួយទៀត",
-      honest: "អរគុណដែលឆ្លើយត្រង់ 😂",
-      result: "ពិន្ទុភាពអត់ធ្មត់របស់អ្នក",
+      start: t("native.patience.testYourPatience"),
+      question: t("native.patience.areYouReallyPatient"),
+      loading: t("native.patience.testingYourPatience"),
+      unstable: t("native.patience.unstableConnection"),
+      "retry-loading": t("native.patience.letSStartAgain"),
+      captcha: t("native.patience.proveYouReHuman"),
+      consent: t("native.patience.justOneCheckbox"),
+      color: t("native.patience.readTheColorNotTheWord"),
+      slider: t("native.patience.moveToTheRightNumber"),
+      sequence: t("native.patience.clickTheNumbersInOrder"),
+      typing: t("native.patience.typeThePhraseOnceProbably"),
+      counter: t("native.patience.clickEnoughTimes"),
+      opposite: t("native.patience.chooseTheOppositeDirection"),
+      memory: t("native.patience.rememberTheThreePictures"),
+      size: t("native.patience.bigNumberSmallText"),
+      annoyed: t("native.patience.justOneMoreQuestion"),
+      honest: t("native.patience.thanksForBeingHonest"),
+      result: t("native.patience.yourPatienceScore"),
     })[phase.value],
 );
 const stageIcon = computed(
@@ -196,29 +201,29 @@ const stageIcon = computed(
 const stageLabel = computed(() => {
   const index = challengeOrder.value.indexOf(phase.value as ChallengePhase);
   if (index >= 0)
-    return `តេស្តបន្ថែម ${index + 1}/${challengeOrder.value.length}`;
+    return t("native.patience.extraChallenge", { index: index + 1, challengeOrderLength: challengeOrder.value.length });
   return {
-    start: "តោះ! ចាប់ផ្ដើម",
-    question: "សំណួរទីមួយ",
-    loading: "សូមរង់ចាំ",
-    unstable: "អូ៎ មានបញ្ហាហើយ",
-    "retry-loading": "ម្ដងទៀតហើយ",
-    captcha: "ការផ្ទៀងផ្ទាត់",
-    annoyed: "សំណួរចុងក្រោយ",
-    honest: "ទីបំផុត!",
-    result: "លទ្ធផលរបស់អ្នក",
+    start: t("native.patience.letSBegin"),
+    question: t("native.patience.theFirstQuestion"),
+    loading: t("native.patience.pleaseWait"),
+    unstable: t("native.patience.oopsSomethingWentWrong"),
+    "retry-loading": t("native.patience.hereWeGoAgain"),
+    captcha: t("native.patience.verification"),
+    annoyed: t("native.patience.theFinalQuestion"),
+    honest: t("native.patience.finally"),
+    result: t("native.patience.yourResult"),
   }[phase.value as Exclude<Phase, ChallengePhase>];
 });
 const insects = [
-  { id: "cockroach", icon: "🪳", label: "កន្លាត" },
-  { id: "butterfly", icon: "🦋", label: "មេអំបៅ" },
-  { id: "ladybug", icon: "🐞", label: "សត្វអណ្ដើកមាស" },
-  { id: "bee", icon: "🐝", label: "ឃ្មុំ" },
-  { id: "ant", icon: "🐜", label: "ស្រមោច" },
-  { id: "beetle", icon: "🪲", label: "សត្វស្លាបរឹង" },
-  { id: "mosquito", icon: "🦟", label: "មូស" },
-  { id: "spider", icon: "🕷️", label: "ពីងពាង" },
-  { id: "fly", icon: "🪰", label: "រុយ" },
+  { id: "cockroach", icon: "🪳", label: t("native.patience.cockroach") },
+  { id: "butterfly", icon: "🦋", label: t("native.patience.butterfly") },
+  { id: "ladybug", icon: "🐞", label: t("native.patience.ladybug") },
+  { id: "bee", icon: "🐝", label: t("native.patience.bee") },
+  { id: "ant", icon: "🐜", label: t("native.patience.ant") },
+  { id: "beetle", icon: "🪲", label: t("native.patience.beetle") },
+  { id: "mosquito", icon: "🦟", label: t("native.patience.mosquito") },
+  { id: "spider", icon: "🕷️", label: t("native.patience.spider") },
+  { id: "fly", icon: "🪰", label: t("native.patience.fly") },
 ];
 const captchaTargets = shallowRef(insects.slice(0, captchaTotal));
 const captchaRoundTiles = shallowRef(
@@ -280,10 +285,10 @@ function rotateChallenges() {
   );
   consentPrompt.value = pickDifferent(
     [
-      "ខ្ញុំនៅតែអត់ធ្មត់បាន",
-      "ខ្ញុំមិនទាន់ធុញទេ",
-      "ខ្ញុំត្រៀមខ្លួនបន្តហើយ",
-      "ខ្ញុំនឹងមិនចុះចាញ់ទេ",
+      t("native.patience.iCanStillBePatient"),
+      t("native.patience.iMNotBoredYet"),
+      t("native.patience.iMReadyToContinue"),
+      t("native.patience.iWonTGiveUp"),
     ],
     consentPrompt.value,
   );
@@ -347,8 +352,8 @@ function completeChallenge(message: string) {
       : "annoyed";
   const instruction =
     nextPhase === "annoyed"
-      ? "តេស្តទាំង 9 ចប់ហើយ! នៅសល់សំណួរចុងក្រោយ។"
-      : "តេស្តបន្ទាប់ចាប់ផ្ដើមហើយ។";
+      ? t("native.patience.allNineChallengesAreDoneOneFinalQuestionRemains")
+      : t("native.patience.theNextChallengeHasStarted");
   showFeedback("correct", `${message} ${instruction}`, nextPhase);
 }
 
@@ -386,19 +391,19 @@ function resetTimer() {
         );
       } else if (phase.value === "loading") {
         interruptions.value++;
-        status.value = "ការតភ្ជាប់មិនស្ថិតស្ថេរ។ ចាំយូរហើយ ចាំម្ដងទៀតទៅ!";
+        status.value = t("native.patience.unstableConnectionYouVeWaitedAWhileSoWaitSome");
         enterPhase("unstable");
         ping();
       } else {
-        status.value = "ផ្ទៀងផ្ទាត់តែ 3 ជុំទេ។ លើកនេះមិនបន្ថែមទៀតទេ!";
+        status.value = t("native.patience.onlyThreeVerificationRoundsNoMoreThisTime");
         enterPhase("captcha");
       }
     } else if (phase.value === "unstable" && phaseTicks >= 8) {
       progress.value = 0;
-      status.value = "ត្រូវផ្ទុកម្ដងទៀតពី 0%។";
+      status.value = t("native.patience.youHaveToLoadAgainFrom0");
       enterPhase("retry-loading");
     } else if (phase.value === "honest" && phaseTicks >= 10) {
-      status.value = "ពិន្ទុលេងសើចទេ កុំយកជាការពិតណា។";
+      status.value = t("native.patience.thisScoreIsJustAJokeDonTTakeIt");
       enterPhase("result");
       silence();
     }
@@ -425,18 +430,18 @@ function showFeedback(kind: FeedbackKind, message: string, nextPhase?: Phase) {
   ping();
   if (kind === "correct") {
     // Routine success stays inline so every answer does not require another click.
-    status.value = `ត្រូវហើយ! 🎉 ${message}`;
+    status.value = t("native.patience.correct", { message: message });
     if (nextPhase) enterPhase(nextPhase);
     return;
   }
   const copy = {
     wrong: {
-      title: "ខុសហើយ! 😅",
-      taunt: "ចុចលឿនពេកហើយមែនទេ? សាកម្ដងទៀតទៅ!",
+      title: t("native.patience.wrong"),
+      taunt: t("native.patience.clickedTooQuicklyGiveItAnotherTry"),
     },
     prank: {
-      title: "អ្នកធ្វើត្រូវហើយ 🙃",
-      taunt: "មិនមែនអ្នកខុសទេ តេស្តនេះចេះរំខានប៉ុណ្ណោះ។",
+      title: t("native.patience.youDidItRight"),
+      taunt: t("native.patience.itSNotYourFaultThisTestJustLikesBeing"),
     },
   }[kind];
   status.value = message;
@@ -494,7 +499,7 @@ function startTest() {
   memoryStep.value = 0;
   rotateChallenges();
   interruptions.value = 0;
-  status.value = "តោះ! ចុច «មែនហើយ»។";
+  status.value = t("native.patience.goOnClickYes");
   enterPhase("question");
 }
 
@@ -554,8 +559,8 @@ function moveRunaway() {
   interruptions.value++;
   status.value =
     dodgeCount.value === 4
-      ? "បានហើយ! ប៊ូតុងឈប់រត់ហើយ។"
-      : "ជិតចុចត្រូវហើយ… តែនៅតែអត់បាន!";
+      ? t("native.patience.allRightTheButtonHasStoppedRunning")
+      : t("native.patience.soCloseButYouStillMissed");
   ping();
   return true;
 }
@@ -579,7 +584,7 @@ function answerPatience(event: MouseEvent) {
   // Touch gets the same gag on tap; keyboard and assistive clicks can proceed immediately.
   if (event.detail > 0 && lastPointerType === "touch" && moveRunaway()) return;
   progress.value = 0;
-  status.value = "ចុចបានហើយ! នេះទើបតែជាជំហានងាយទេ។";
+  status.value = t("native.patience.youClickedItThatWasOnlyTheEasyPart");
   ping();
   enterPhase("loading");
 }
@@ -591,7 +596,7 @@ function selectCaptcha(index: number) {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `រូបនេះមិនមែន${target.label}ទេ។ សូមជ្រើសរើស${target.label} ${target.icon}។`,
+      t("native.patience.thatPictureIsnTAPleaseChoose", { targetLabel: target.label, targetIcon: target.icon }),
     );
     return;
   }
@@ -599,12 +604,12 @@ function selectCaptcha(index: number) {
     captchaStep.value++;
     showFeedback(
       "correct",
-      `អ្នកជ្រើសរើស${target.label}ត្រឹមត្រូវ។ ជុំបន្ទាប់ សូមជ្រើសរើស${captchaTarget.value.label} ${captchaTarget.value.icon}។`,
+      t("native.patience.youChoseCorrectlyInTheNextRoundChoose", { targetLabel: target.label, captchaTargetLabel: captchaTarget.value.label, captchaTargetIcon: captchaTarget.value.icon }),
     );
   } else {
     showFeedback(
       "correct",
-      "ផ្ទៀងផ្ទាត់បានគ្រប់ 3 ជុំហើយ។ តេស្តបន្ថែមចាប់ផ្ដើមហើយ។",
+      t("native.patience.allThreeVerificationRoundsAreCompleteTheExtraChallengesHave"),
       challengeOrder.value[0]!,
     );
   }
@@ -619,10 +624,10 @@ function checkConsent() {
     interruptions.value++;
     showFeedback(
       "prank",
-      "អ្នកធីកត្រឹមត្រូវហើយ តែតេស្តបានដោះធីកខ្លួនឯង។ ធីកម្ដងទៀត រួចចុច «បន្តទៅមុខ»។ លើកនេះវាមិនដោះទៀតទេ។",
+      t("native.patience.youCheckedItCorrectlyButTheTestUncheckedItselfCheck"),
     );
   } else if (consentChecked.value) {
-    status.value = "ធីកត្រឹមត្រូវហើយ។ ចុច «បន្តទៅមុខ» ដើម្បីបន្ត។";
+    status.value = t("native.patience.checkedCorrectlyClickContinueToMoveOn");
   }
 }
 
@@ -634,7 +639,7 @@ function submitConsent() {
     !consentChecked.value
   )
     return;
-  completeChallenge("ប្រអប់នៅធីកហើយ។ អ្នកធ្វើត្រឹមត្រូវហើយ!");
+  completeChallenge(t("native.patience.theBoxIsStillCheckedYouDidItRight"));
 }
 
 function selectColor(id: string) {
@@ -643,11 +648,11 @@ function selectColor(id: string) {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `ពាក្យនេះសរសេរថា «${colorWord.value.label}» ប៉ុន្តែអក្សរមានពណ៌${inkColor.value.label}។ សូមជ្រើសប៊ូតុង «${inkColor.value.label}»។`,
+      t("native.patience.theWordSaysButItsInkIsPleaseClick", { colorWordLabel: colorWord.value.label, inkColorLabel: inkColor.value.label }),
     );
     return;
   }
-  completeChallenge(`អក្សរមានពណ៌${inkColor.value.label}។ អ្នកជ្រើសត្រូវហើយ!`);
+  completeChallenge(t("native.patience.theInkIsYouChoseCorrectly", { inkColorLabel: inkColor.value.label }));
 }
 
 function submitSlider() {
@@ -659,7 +664,7 @@ function submitSlider() {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `លេខដែលត្រូវជ្រើសគឺ ${sliderTarget.value}។ រំកិលរហូតលេខខាងលើបង្ហាញ ${sliderTarget.value} រួចចុច «បញ្ជាក់លេខ»។`,
+      t("native.patience.theTargetNumberIsMoveTheSliderUntilItShows", { sliderTarget: sliderTarget.value }),
     );
     return;
   }
@@ -669,11 +674,11 @@ function submitSlider() {
     interruptions.value++;
     showFeedback(
       "prank",
-      `អ្នកជ្រើស ${sliderOriginalTarget.value} ត្រឹមត្រូវហើយ តែតេស្តប្ដូរគោលដៅទៅ ${sliderTarget.value}។ រំកិលទៅ ${sliderTarget.value} រួចចុច «បញ្ជាក់លេខ»។ ប្ដូរតែម្ដងនេះទេ។`,
+      t("native.patience.youChoseCorrectlyButTheTestChangedTheTargetTo", { sliderOriginalTarget: sliderOriginalTarget.value, sliderTarget: sliderTarget.value }),
     );
     return;
   }
-  completeChallenge(`អ្នកជ្រើស ${sliderTarget.value} ត្រឹមត្រូវហើយ។`);
+  completeChallenge(t("native.patience.youChoseCorrectly", { sliderTarget: sliderTarget.value }));
 }
 
 function selectSequence(number: number) {
@@ -683,19 +688,19 @@ function selectSequence(number: number) {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `លំដាប់ត្រឹមត្រូវគឺ ${sequenceOrder.value.join(" → ")}។ តេស្តបានចាប់ផ្ដើមលំដាប់ពីដំបូងវិញហើយ។ សូមចាប់ពីលេខ ${sequenceOrder.value[0]} ម្ដងទៀត។`,
+      t("native.patience.theCorrectOrderIsTheSequenceHasRestartedStartAgain", { sequenceOrderJoin: sequenceOrder.value.join(" → "), sequenceOrder: sequenceOrder.value[0] }),
     );
     return;
   }
   sequenceStep.value++;
   if (sequenceStep.value === sequenceOrder.value.length) {
     completeChallenge(
-      `អ្នកចុចតាមលំដាប់ ${sequenceOrder.value.join(" → ")} ត្រឹមត្រូវហើយ។`,
+      t("native.patience.youClickedInTheCorrectOrder", { sequenceOrderJoin: sequenceOrder.value.join(" → ") }),
     );
   } else {
     showFeedback(
       "correct",
-      `លេខ ${number} ត្រឹមត្រូវ។ បន្ទាប់មកចុចលេខ ${sequenceOrder.value[sequenceStep.value]}។ ប៊ូតុងប្ដូរកន្លែង តែលំដាប់នៅដដែល។`,
+      t("native.patience.isCorrectNextClickTheButtonsMoveButTheOrder", { number: number, sequenceOrderSequenceStep: sequenceOrder.value[sequenceStep.value] }),
     );
   }
 }
@@ -709,7 +714,7 @@ function submitPhrase() {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `ឃ្លាមិនដូចគំរូទេ។ សូមវាយ «${requiredPhrase.value}» រួចចុច «បញ្ជាក់ឃ្លា»។`,
+      t("native.patience.thePhraseDoesnTMatchTypeThenClickConfirmPhrase", { requiredPhrase: requiredPhrase.value }),
     );
     return;
   }
@@ -720,11 +725,11 @@ function submitPhrase() {
     interruptions.value++;
     showFeedback(
       "prank",
-      `អ្នកវាយត្រូវហើយ តែតេស្តលុបឃ្លាចោល។ អក្សរបាត់អស់ហើយ! សូមវាយ «${requiredPhrase.value}» ម្ដងទៀត រួចចុច «បញ្ជាក់ឃ្លា»។ លើកនេះមិនលុបទៀតទេ។`,
+      t("native.patience.youTypedItCorrectlyButTheTestErasedItAll", { requiredPhrase: requiredPhrase.value }),
     );
     return;
   }
-  completeChallenge("ឃ្លារបស់អ្នកត្រឹមត្រូវហើយ។");
+  completeChallenge(t("native.patience.yourPhraseIsCorrect"));
 }
 
 function clickCounter() {
@@ -736,12 +741,12 @@ function clickCounter() {
     interruptions.value++;
     showFeedback(
       "prank",
-      `អ្នកចុចបាន ${counterResetAt.value} ដងត្រឹមត្រូវហើយ តែតេស្តកំណត់ចំនួនទៅ 0 វិញ។ ចុចប៊ូតុង ${counterTotal.value} ដងទៀត។ លើកនេះនឹងរាប់គ្រប់។`,
+      t("native.patience.youClickedTimesCorrectlyButTheTestResetTheCount", { counterResetAt: counterResetAt.value, counterTotal: counterTotal.value }),
     );
   } else if (counterClicks.value === counterTotal.value) {
-    completeChallenge(`អ្នកចុចបានគ្រប់ ${counterTotal.value} ដងហើយ។`);
+    completeChallenge(t("native.patience.youCompletedAllClicks", { counterTotal: counterTotal.value }));
   } else {
-    status.value = `ចុចនេះរាប់បានហើយ៖ ${counterClicks.value}/${counterTotal.value}។ នៅសល់ ${counterTotal.value - counterClicks.value} ដងទៀត។`;
+    status.value = t("native.patience.thatClickCountedClicksLeft", { counterClicks: counterClicks.value, counterTotal: counterTotal.value, counterTotalCounterClicks: counterTotal.value - counterClicks.value });
     ping();
   }
 }
@@ -755,17 +760,17 @@ function selectOpposite(id: string) {
     )!;
     showFeedback(
       "wrong",
-      `ព្រួញបង្ហាញទិស «${directionPrompt.value.label}»។ ទិសផ្ទុយគឺ «${answer.label}» ${answer.icon}។ សូមជ្រើសទិសនោះ។`,
+      t("native.patience.theArrowPointsItsOppositeIsChooseThatDirection", { directionPromptLabel: directionPrompt.value.label, answerLabel: answer.label, answerIcon: answer.icon }),
     );
     return;
   }
   oppositeStep.value++;
   if (oppositeStep.value === oppositeTotal) {
-    completeChallenge("អ្នកជ្រើសទិសផ្ទុយត្រឹមត្រូវគ្រប់ 3 ជុំហើយ។");
+    completeChallenge(t("native.patience.youChoseTheOppositeDirectionCorrectlyInAllThreeRounds"));
   } else {
     showFeedback(
       "correct",
-      "អ្នកជ្រើសទិសផ្ទុយត្រឹមត្រូវ។ បន្ទាប់មក មើលព្រួញថ្មី រួចជ្រើសទិសផ្ទុយពីវា។",
+      t("native.patience.correctOppositeDirectionNowLookAtTheNewArrowAnd"),
     );
   }
 }
@@ -780,7 +785,7 @@ function beginMemory() {
     return;
   memoryRevealed.value = false;
   memoryStep.value = 0;
-  status.value = "ចុចរូបតាមលំដាប់ដែលអ្នកបានឃើញ។";
+  status.value = t("native.patience.clickThePicturesInTheOrderYouSawThem");
   ping();
 }
 
@@ -788,7 +793,7 @@ function showMemory() {
   if (!active.value || phase.value !== "memory" || disposed) return;
   memoryRevealed.value = true;
   memoryStep.value = 0;
-  status.value = "មើលម្ដងទៀតបាន។ ចងចាំពីឆ្វេងទៅស្ដាំ។";
+  status.value = t("native.patience.youCanLookAgainRememberTheOrderFromLeftTo");
 }
 
 function selectMemory(id: string) {
@@ -805,17 +810,17 @@ function selectMemory(id: string) {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `រូបបន្ទាប់ត្រូវជា${expected.label} ${expected.icon}។ ឥឡូវលំដាប់បានចាប់ផ្ដើមពីដំបូងវិញហើយ។ ចាប់ពី${memoryPattern.value[0]!.label}ម្ដងទៀត ឬចុច «មើលគំរូម្ដងទៀត»។`,
+      t("native.patience.theNextPictureShouldBeTheSequenceHasRestartedStart", { expectedLabel: expected.label, expectedIcon: expected.icon, memoryPatternLabel: memoryPattern.value[0]!.label }),
     );
     return;
   }
   memoryStep.value++;
   if (memoryStep.value === memoryPattern.value.length) {
-    completeChallenge("អ្នកចងចាំរូបទាំង 3 តាមលំដាប់ត្រឹមត្រូវហើយ។");
+    completeChallenge(t("native.patience.youRememberedAllThreePicturesInTheCorrectOrder"));
   } else {
     showFeedback(
       "correct",
-      `រូបនេះត្រឹមត្រូវ។ អ្នកជ្រើសបាន ${memoryStep.value}/3 ហើយ។ បន្ទាប់មកជ្រើសរូបបន្ទាប់ក្នុងលំដាប់ដែលបានចងចាំ។`,
+      t("native.patience.thatPictureIsCorrectYouVeChosen3ChooseThe", { memoryStep: memoryStep.value }),
     );
   }
 }
@@ -826,22 +831,22 @@ function selectLargest(value: number) {
     interruptions.value++;
     showFeedback(
       "wrong",
-      `លេខ ${largestNumber.value} មានតម្លៃធំជាងលេខផ្សេងៗ។ ទោះអក្សររបស់វាតូចជាងគេ ក៏វាជាចម្លើយត្រឹមត្រូវដែរ។ សូមចុចលេខ ${largestNumber.value}។`,
+      t("native.patience.isLargerThanTheOtherNumbersItsTextMayBe", { largestNumber: largestNumber.value }),
     );
     return;
   }
-  completeChallenge(`លេខ ${largestNumber.value} ជាចម្លើយត្រឹមត្រូវ។`);
+  completeChallenge(t("native.patience.isTheCorrectAnswer", { largestNumber: largestNumber.value }));
 }
 
 function answerNo() {
   if (!active.value || phase.value !== "annoyed" || disposed) return;
-  if (!moveRunaway()) status.value = "នៅតែអត់ធ្មត់? ចុច «មែនហើយ» ពេលធុញហើយណា។";
+  if (!moveRunaway()) status.value = t("native.patience.stillPatientClickYesWhenYouReBored");
 }
 
 function answerAnnoyed() {
   if (!active.value || phase.value !== "annoyed" || disposed) return;
   ping();
-  status.value = "កំពុងគណនាពិន្ទុ… កុំទាន់ទៅណា!";
+  status.value = t("native.patience.calculatingYourScoreDonTLeaveYet");
   enterPhase("honest");
   if (reducedMotion.value || !confettiCanvas.value) return;
   try {
@@ -910,12 +915,12 @@ onBeforeUnmount(() => {
 <template>
   <main
     class="patience-page"
-    lang="km"
+   :lang="isKhmer ? 'km' : 'en'"
     :class="{ 'test-active': active, 'motion-reduced': reducedMotion }"
   >
     <header class="control-bar">
       <NuxtLink to="/" class="brand"
-        >ChlatWork<span>តេស្តភាពអត់ធ្មត់</span></NuxtLink
+        >ChlatWork<span>{{ t("native.patience.patienceTest") }}</span></NuxtLink
       >
       <div class="controls">
         <button
@@ -924,7 +929,7 @@ onBeforeUnmount(() => {
           :aria-pressed="soundEnabled"
           @click="toggleSound"
         >
-          {{ soundEnabled ? "បិទសំឡេង" : "បើកសំឡេង" }}
+          {{ soundEnabled ? t("native.patience.mute") : t("native.patience.enableSound") }}
         </button>
         <button
           type="button"
@@ -932,18 +937,18 @@ onBeforeUnmount(() => {
           :aria-pressed="paused"
           @click="togglePause"
         >
-          {{ paused ? "បន្ត" : "ផ្អាក" }}
+          {{ paused ? t("native.patience.resume") : t("native.patience.pause") }}
         </button>
         <NuxtLink to="/" class="exit"
-          >ចាកចេញ <span aria-hidden="true">↗</span></NuxtLink
+          >{{ t("native.patience.exit") }} <span aria-hidden="true">↗</span></NuxtLink
         >
       </div>
     </header>
-    <section class="test-focus" aria-label="តេស្តភាពអត់ធ្មត់">
+    <section class="test-focus" :aria-label="t(&quot;native.patience.patienceTest&quot;)">
       <div class="challenge">
         <div class="challenge-body">
           <p class="stage-label">
-            {{ paused ? "ផ្អាកសិន យកខ្យល់បន្តិច" : stageLabel }}
+            {{ paused ? t("native.patience.pausedTakeABreath") : stageLabel }}
           </p>
           <span class="stage-icon" aria-hidden="true">{{ stageIcon }}</span>
           <h1 ref="stageHeading" class="stage-title" tabindex="-1">
@@ -951,11 +956,10 @@ onBeforeUnmount(() => {
           </h1>
           <div v-if="phase === 'start'" class="start-stage">
             <p class="stage-copy">
-              ចុចប៊ូតុងខាងក្រោម ដើម្បីសាកល្បង។<br />ចាំមើលថា
-              អ្នកអាចអត់ធ្មត់បានប៉ុន្មាន!
+              {{ t("native.patience.clickTheButtonBelowToGiveItATry") }}<br />{{ t("native.patience.letSSeeHowLongYouCanStayPatient") }}
             </p>
             <button type="button" class="primary-button" @click="startTest">
-              ចាប់ផ្ដើមតេស្ត <span aria-hidden="true">→</span>
+              {{ t("native.patience.startTheTest") }} <span aria-hidden="true">→</span>
             </button>
           </div>
           <div
@@ -974,23 +978,23 @@ onBeforeUnmount(() => {
               @pointerdown="recordPointer"
               @click="answerPatience"
             >
-              មែនហើយ <span aria-hidden="true">☺</span>
+              {{ t("native.patience.yes") }} <span aria-hidden="true">☺</span>
             </button>
-            <span class="target-footer">សាកចុចប៊ូតុងខាងលើទៅ!</span>
+            <span class="target-footer">{{ t("native.patience.tryClickingTheButtonAbove") }}</span>
           </div>
           <div v-else-if="loadingStage" class="loading-stage">
             <div class="loading-label">
               <span>{{
                 phase === "retry-loading"
-                  ? "ផ្ទុកពីដំបូងឡើងវិញ"
-                  : "កំពុងពិនិត្យភាពអត់ធ្មត់"
+                  ? t("native.patience.loadingAgainFromTheBeginning")
+                  : t("native.patience.checkingYourPatience")
               }}</span
               ><strong>{{ progress }}%</strong>
             </div>
             <div
               class="progress-track"
               role="progressbar"
-              aria-label="កំពុងពិនិត្យភាពអត់ធ្មត់"
+              :aria-label="t(&quot;native.patience.checkingYourPatience&quot;)"
               :aria-valuenow="progress"
               :aria-valuemin="0"
               :aria-valuemax="100"
@@ -1000,27 +1004,27 @@ onBeforeUnmount(() => {
             <p class="loading-caption">
               {{
                 phase === "unstable"
-                  ? "សូមរីករាយជាមួយការចាប់ផ្ដើមពីដំបូងវិញ។"
-                  : "ពេលវេលានៅសល់៖ បន្តិចទៀត… ប្រហែល។"
+                  ? t("native.patience.enjoyStartingAllOverAgain")
+                  : t("native.patience.timeRemainingJustALittleLongerProbably")
               }}
             </p>
             <span class="loading-spinner" aria-hidden="true">✳</span>
           </div>
           <div v-else-if="phase === 'captcha'" class="captcha-stage">
             <p class="captcha-count" aria-live="polite">
-              ផ្ទៀងផ្ទាត់ {{ captchaStep }}/{{ captchaTotal }}
+              {{ t("native.patience.verification_2") }} {{ captchaStep }}/{{ captchaTotal }}
             </p>
-            <p class="stage-copy">សូមជ្រើសរើស{{ captchaTarget.label }}។</p>
+            <p class="stage-copy">{{ t("native.patience.pleaseChoose") }}{{ captchaTarget.label }}{{ t("native.patience.period") }}</p>
             <div
               class="captcha-grid"
-              :aria-label="'ជ្រើសរើស' + captchaTarget.label"
+              :aria-label="t(&quot;native.patience.choose&quot;, { captchaTargetLabel: captchaTarget.label })"
             >
               <button
                 v-for="(tile, index) in captchaTiles"
                 :key="index"
                 type="button"
                 :disabled="!active"
-                :aria-label="'រូបទី ' + (index + 1) + '៖ ' + tile.label"
+                :aria-label="t(&quot;native.patience.picture&quot;, { index: (index + 1), tileLabel: tile.label })"
                 @click="selectCaptcha(index)"
               >
                 <span aria-hidden="true">{{ tile.icon }}</span>
@@ -1033,7 +1037,7 @@ onBeforeUnmount(() => {
             @submit.prevent="submitConsent"
           >
             <p class="stage-copy">
-              ធីកប្រអប់ខាងក្រោម រួចចុចបន្ត។ ងាយណាស់មែនទេ?
+              {{ t("native.patience.checkTheBoxBelowThenClickContinueEasyRight") }}
             </p>
             <label class="consent-option">
               <input
@@ -1049,17 +1053,17 @@ onBeforeUnmount(() => {
               class="primary-button"
               :disabled="!active || !consentChecked"
             >
-              បន្តទៅមុខ
+              {{ t("native.patience.continue") }}
             </button>
           </form>
           <div v-else-if="phase === 'color'" class="extra-stage">
-            <p class="stage-copy">សូមជ្រើសរើសពណ៌របស់អក្សរខាងក្រោម។</p>
+            <p class="stage-copy">{{ t("native.patience.chooseTheInkColorOfTheWordBelow") }}</p>
             <p
               class="color-word"
               role="img"
               :style="{ color: inkColor.color }"
               :aria-label="
-                'ពាក្យ «' + colorWord.label + '» មានពណ៌' + inkColor.label
+                t(&quot;native.patience.theWordIsColored&quot;, { colorWordLabel: colorWord.label, inkColorLabel: inkColor.label })
               "
             >
               {{ colorWord.label }}
@@ -1067,7 +1071,7 @@ onBeforeUnmount(() => {
             <div
               class="answer-options"
               role="group"
-              aria-label="ជ្រើសរើសពណ៌អក្សរ"
+              :aria-label="t(&quot;native.patience.chooseTheInkColor&quot;)"
             >
               <button
                 v-for="choice in colorChoices"
@@ -1091,7 +1095,7 @@ onBeforeUnmount(() => {
             @submit.prevent="submitSlider"
           >
             <label for="precision-slider" class="stage-copy slider-label">
-              រំកិលទៅលេខ <strong>{{ sliderTarget }}</strong> រួចចុចបញ្ជាក់។
+              {{ t("native.patience.moveToNumber") }} <strong>{{ sliderTarget }}</strong> {{ t("native.patience.thenClickConfirm") }}
             </label>
             <output for="precision-slider" class="slider-value">{{
               sliderValue
@@ -1107,27 +1111,27 @@ onBeforeUnmount(() => {
               :disabled="!active"
             />
             <button type="submit" class="primary-button" :disabled="!active">
-              បញ្ជាក់លេខ
+              {{ t("native.patience.confirmNumber") }}
             </button>
           </form>
           <div v-else-if="phase === 'sequence'" class="extra-stage">
             <p class="stage-copy">
-              ចុចតាមលំដាប់ {{ sequenceOrder.join(" → ") }}។ កុំចាញ់កន្លែងប៊ូតុង!
+              {{ t("native.patience.clickInThisOrder") }} {{ sequenceOrder.join(" → ") }}{{ t("native.patience.donTBeFooledByTheButtonPositions") }}
             </p>
             <p class="captcha-count" aria-live="polite">
-              ចុចបាន {{ sequenceStep }}/3
+              {{ t("native.patience.clicked") }} {{ sequenceStep }}/3
             </p>
             <div
               class="answer-options number-options"
               role="group"
-              aria-label="ចុចលេខតាមលំដាប់ថយក្រោយ"
+              :aria-label="t(&quot;native.patience.clickTheNumbersInReverseOrder&quot;)"
             >
               <button
                 v-for="number in sequenceChoices"
                 :key="number"
                 type="button"
                 :disabled="!active"
-                :aria-label="'លេខ ' + number"
+                :aria-label="t(&quot;native.patience.number&quot;, { number: number })"
                 @click="selectSequence(number)"
               >
                 {{ number }}
@@ -1140,7 +1144,7 @@ onBeforeUnmount(() => {
             @submit.prevent="submitPhrase"
           >
             <label for="patience-phrase" class="stage-copy slider-label">
-              វាយឃ្លាខាងក្រោមឲ្យដូចគំរូ៖
+              {{ t("native.patience.typeThePhraseBelowExactlyAsShown") }}
               <strong class="phrase-sample">{{ requiredPhrase }}</strong>
             </label>
             <input
@@ -1155,15 +1159,15 @@ onBeforeUnmount(() => {
               :disabled="!active"
             />
             <button type="submit" class="primary-button" :disabled="!active">
-              បញ្ជាក់ឃ្លា
+              {{ t("native.patience.confirmPhrase") }}
             </button>
           </form>
           <div v-else-if="phase === 'counter'" class="extra-stage">
             <p class="stage-copy">
-              ចុចប៊ូតុងឲ្យបាន {{ counterTotal }} ដង។ ចុចពិតៗណា!
+              {{ t("native.patience.clickTheButton") }} {{ counterTotal }} {{ t("native.patience.timesRealClicksPlease") }}
             </p>
             <p class="captcha-count" aria-live="polite">
-              ចុចបាន {{ counterClicks }}/{{ counterTotal }}
+              {{ t("native.patience.clicked") }} {{ counterClicks }}/{{ counterTotal }}
             </p>
             <button
               type="button"
@@ -1171,27 +1175,27 @@ onBeforeUnmount(() => {
               :disabled="!active"
               @click="clickCounter"
             >
-              ចុចទីនេះ
+              {{ t("native.patience.clickHere") }}
             </button>
           </div>
           <div v-else-if="phase === 'opposite'" class="extra-stage">
             <p class="stage-copy">
-              ចុចទិសផ្ទុយពីព្រួញខាងក្រោម។ កុំឲ្យដៃចាញ់ភ្នែក!
+              {{ t("native.patience.chooseTheOppositeDirectionFromTheArrowBelowDonT") }}
             </p>
             <p class="captcha-count" aria-live="polite">
-              ឆ្លើយបាន {{ oppositeStep }}/{{ oppositeTotal }}
+              {{ t("native.patience.answered") }} {{ oppositeStep }}/{{ oppositeTotal }}
             </p>
             <p
               class="direction-prompt"
               role="img"
-              :aria-label="'ព្រួញ ' + directionPrompt.label"
+              :aria-label="t(&quot;native.patience.arrow&quot;, { directionPromptLabel: directionPrompt.label })"
             >
               {{ directionPrompt.icon }}
             </p>
             <div
               class="answer-options direction-options"
               role="group"
-              aria-label="ជ្រើសទិសផ្ទុយពីព្រួញ"
+              :aria-label="t(&quot;native.patience.chooseTheOppositeArrowDirection&quot;)"
             >
               <button
                 v-for="choice in directionChoices"
@@ -1211,14 +1215,14 @@ onBeforeUnmount(() => {
             <p class="stage-copy">
               {{
                 memoryRevealed
-                  ? "ចងចាំរូបពីឆ្វេងទៅស្ដាំ រួចចុចលាក់គំរូ។"
-                  : "ចុចរូបតាមលំដាប់ដើម។ កុំប្ដូរលំដាប់ណា!"
+                  ? t("native.patience.rememberThePicturesFromLeftToRightThenHideThe")
+                  : t("native.patience.clickThePicturesInTheirOriginalOrderDonTChange")
               }}
             </p>
             <div
               class="memory-slots"
               role="group"
-              aria-label="លំដាប់រូបដែលត្រូវចងចាំ"
+              :aria-label="t(&quot;native.patience.pictureSequenceToRemember&quot;)"
             >
               <span
                 v-for="(fruit, index) in memoryPattern"
@@ -1227,7 +1231,7 @@ onBeforeUnmount(() => {
                 :aria-label="
                   memoryRevealed || index < memoryStep
                     ? fruit.label
-                    : 'រូបទី ' + (index + 1) + ' លាក់'
+                    : t(&quot;native.patience.pictureHidden&quot;, { index: (index + 1) })
                 "
               >
                 {{ memoryRevealed || index < memoryStep ? fruit.icon : "?" }}
@@ -1240,16 +1244,16 @@ onBeforeUnmount(() => {
               :disabled="!active"
               @click="beginMemory"
             >
-              ចងចាំហើយ! លាក់គំរូ
+              {{ t("native.patience.gotItHideThePattern") }}
             </button>
             <template v-else>
               <p class="captcha-count" aria-live="polite">
-                ចងចាំបាន {{ memoryStep }}/{{ memoryPattern.length }}
+                {{ t("native.patience.remembered") }} {{ memoryStep }}/{{ memoryPattern.length }}
               </p>
               <div
                 class="answer-options fruit-options"
                 role="group"
-                aria-label="ជ្រើសរូបតាមលំដាប់ដែលបានចងចាំ"
+                :aria-label="t(&quot;native.patience.choosePicturesInTheRememberedOrder&quot;)"
               >
                 <button
                   v-for="fruit in fruitChoices"
@@ -1268,18 +1272,18 @@ onBeforeUnmount(() => {
                 :disabled="!active"
                 @click="showMemory"
               >
-                មើលគំរូម្ដងទៀត
+                {{ t("native.patience.showThePatternAgain") }}
               </button>
             </template>
           </div>
           <div v-else-if="phase === 'size'" class="extra-stage">
             <p class="stage-copy">
-              ជ្រើសលេខដែលមានតម្លៃធំជាងគេ។ ទំហំអក្សរបោកភ្នែកទេ!
+              {{ t("native.patience.chooseTheNumberWithTheLargestValueTheTextSize") }}
             </p>
             <div
               class="answer-options size-options"
               role="group"
-              aria-label="ជ្រើសលេខដែលមានតម្លៃធំបំផុត"
+              :aria-label="t(&quot;native.patience.chooseTheLargestNumber&quot;)"
             >
               <button
                 v-for="choice in sizeChoices"
@@ -1287,7 +1291,7 @@ onBeforeUnmount(() => {
                 type="button"
                 :class="'size-' + choice.size"
                 :disabled="!active"
-                :aria-label="'លេខ ' + choice.value"
+                :aria-label="t(&quot;native.patience.number_2&quot;, { choice: choice.value })"
                 @click="selectLargest(choice.value)"
               >
                 {{ choice.value }}
@@ -1295,26 +1299,26 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div v-else-if="phase === 'honest'" class="honest-stage">
-            <p class="stage-copy">ទីបំផុត មានចម្លើយដែលអាចជឿបានហើយ!</p>
+            <p class="stage-copy">{{ t("native.patience.atLastAnAnswerWeCanBelieve") }}</p>
           </div>
           <div v-else-if="phase === 'result'" class="result-stage">
             <strong>2%</strong>
-            <p class="stage-copy">អ្នកបានដល់ចប់ហើយ។ ស៊ូបានល្អណាស់!</p>
+            <p class="stage-copy">{{ t("native.patience.youMadeItToTheEndNicelyDone") }}</p>
             <button type="button" class="primary-button" @click="startTest">
-              សាកម្ដងទៀត <span aria-hidden="true">↻</span>
+              {{ t("native.patience.tryAgain") }} <span aria-hidden="true">↻</span>
             </button>
           </div>
           <p v-else class="stage-copy">
-            សន្យាថា នេះជាសំណួរចុងក្រោយ។<br />យើងធ្លាប់សន្យាបែបនេះរួចហើយ!
+            {{ t("native.patience.iPromiseThisIsTheFinalQuestion") }}<br />{{ t("native.patience.weVeMadeThatPromiseBefore") }}
           </p>
           <p class="status" role="status" aria-live="polite">
-            {{ paused ? "សម្រាកបន្តិចសិន។ ចុច «បន្ត» ពេលរួចរាល់។" : status }}
+            {{ paused ? t("native.patience.takeAShortBreakClickResumeWhenYouReReady") : status }}
           </p>
         </div>
         <div v-if="phase !== 'start'" class="challenge-footer">
-          <span>រំខាន {{ interruptions }} ដង</span>
+          <span>{{ t("native.patience.interrupted") }} {{ interruptions }} {{ t("native.patience.times") }}</span>
           <button v-if="phase !== 'result'" type="button" @click="startTest">
-            ចាប់ផ្ដើមឡើងវិញ
+            {{ t("native.patience.restart") }}
           </button>
         </div>
       </div>
@@ -1326,11 +1330,11 @@ onBeforeUnmount(() => {
         aria-labelledby="annoyed-title"
         :aria-describedby="paused ? 'paused-popup' : undefined"
       >
-        <p class="stage-label">សំណួរចុងក្រោយហើយណា</p>
+        <p class="stage-label">{{ t("native.patience.theVeryLastQuestion") }}</p>
         <span class="popup-icon" aria-hidden="true">😏</span>
-        <h2 id="annoyed-title">ធុញហើយមែនទេ?</h2>
+        <h2 id="annoyed-title">{{ t("native.patience.boredAlready") }}</h2>
         <p v-if="paused" id="paused-popup" class="stage-copy">
-          ផ្អាកសិន។ ចុច «បន្ត» ពេលរួចរាល់។
+          {{ t("native.patience.pausedClickResumeWhenYouReReady") }}
         </p>
         <div ref="playground" class="playground no-playground">
           <button
@@ -1343,9 +1347,9 @@ onBeforeUnmount(() => {
             @pointerenter="dodge"
             @click="answerNo"
           >
-            អត់ទេ <span aria-hidden="true">🙃</span>
+            {{ t("native.patience.no") }} <span aria-hidden="true">🙃</span>
           </button>
-          <span class="target-footer">ប៊ូតុង «អត់ទេ» ក៏ចេះរត់ដែរ។</span>
+          <span class="target-footer">{{ t("native.patience.theNoButtonCanRunAwayToo") }}</span>
         </div>
         <button
           ref="honestYesButton"
@@ -1354,7 +1358,7 @@ onBeforeUnmount(() => {
           :disabled="!active"
           @click="answerAnnoyed"
         >
-          មែនហើយ! ធុញណាស់!
+          {{ t("native.patience.yesSoBored") }}
         </button>
       </section>
     </div>
@@ -1381,7 +1385,7 @@ onBeforeUnmount(() => {
         autofocus
         @click="acknowledgeFeedback"
       >
-        យល់ហើយ! សាកម្ដងទៀត
+        {{ t("native.patience.gotItLetSTryAgain") }}
       </button>
     </dialog>
     <canvas ref="confettiCanvas" class="confetti-canvas" aria-hidden="true" />

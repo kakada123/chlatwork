@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { ToolGuide } from "~/data/tool-guides";
 import { getToolGuideKm } from "~/data/tool-guides-km";
 import { getRelatedToolsForToolKey } from "~/data/tool-categories";
 import { EDITORIAL_BYLINE } from "~/data/editorial-identity";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
 import ToolDirectoryCard from "~/components/tools/ToolDirectoryCard.vue";
+
+const { t } = useAppI18n();
+
 
 const props = withDefaults(
   defineProps<{
@@ -47,7 +51,7 @@ const useCases = computed(() =>
 const practicalExamples = computed(() =>
   shouldUseKhmerExamples.value
     ? ((
-        props.guide.practicalExamplesKm ?? props.guide.practicalExamples
+        guideKm.value.practicalExamples ?? props.guide.practicalExamplesKm ?? []
       )?.slice(0, 3) ?? [])
     : (props.guide.practicalExamples?.slice(0, 3) ?? []),
 );
@@ -58,46 +62,24 @@ const commonMistakes = computed(() => {
   if (isKhmer.value && guideKm.value?.commonMistakes?.length) {
     return guideKm.value.commonMistakes.slice(0, 6);
   }
-  if (isKhmer.value) {
-    return [
-      "មិនបានពិនិត្យផ្ទៀងផ្ទាត់លទ្ធផលមុនពេលចែករំលែក ឬយកទៅប្រើប្រាស់។",
-      "ប្រើប្រាស់ទិន្នន័យផលិតកម្មពិតប្រាកដក្នុងរូបភាពគំរូ។",
-      "លុបឯកសារដើមចោលមុនពេលបញ្ជាក់ថាទិន្នន័យចុងក្រោយត្រឹមត្រូវ។",
-    ];
-  }
   return props.guide.commonMistakes?.length
     ? props.guide.commonMistakes.slice(0, 6)
-    : [
-        "Skipping the preview and sharing output without checking details.",
-        "Using production data in screenshots or shared examples.",
-        "Deleting originals before confirming the final output is correct.",
-      ];
+    : ["shared.tool_guides.common_mistake_1","shared.tool_guides.common_mistake_2","shared.tool_guides.common_mistake_3"].map(key => t(key));
 });
 const faqs = computed(() =>
   (isKhmer.value && guideKm.value ? guideKm.value.faqs : props.guide.faqs).slice(0, 6),
 );
 
-const outputChecklistKm = [
-  "សាកល្បងគំរូជាក់ស្តែងយ៉ាងហោចមួយដង មុនពេលចែករំលែក ឬបោះពុម្ព។",
-  "បើកផ្ទៀងផ្ទាត់លើឧបករណ៍ ឬកម្មវិធីផ្សេង ដើម្បីបញ្ជាក់ពីភាពត្រូវគ្នា។",
-  "ពិនិត្យឈ្មោះ លេខ កាលបរិច្ឆេទ និងតំណភ្ជាប់ ក្រែងមានកំហុសអក្ខរាវិរុទ្ធ។",
-  "រក្សាទុកឯកសារ ឬអត្ថបទដើម រហូតដល់លទ្ធផលចុងក្រោយត្រូវបានទទួលយក។",
-];
 
-const privacyNotesKm = [
-  "ដំណើរការផ្ទាល់លើ browser របស់អ្នកដោយសុវត្ថិភាព គ្មានការបញ្ជូនទិន្នន័យឯកជនទៅ server ក្រៅឡើយ។",
-  "ពិនិត្យផ្ទៀងផ្ទាត់លទ្ធផលមុនពេលយកទៅប្រើប្រាស់ក្នុងអាជីវកម្ម ការសិក្សា ឬកិច្ចការផ្លូវការ។",
-];
+
+const privacyFallbackKeys = ["shared.tool_guides.privacy_fallback","shared.tool_guides.review_output"];
 
 const privacyNotes = computed(() =>
   isKhmer.value
-    ? privacyNotesKm
+    ? guideKm.value.privacy ?? privacyFallbackKeys.map(key => t(key))
     : props.guide.privacy?.length
       ? props.guide.privacy
-      : [
-          LOCAL_PROCESSING_PRIVACY_NOTE,
-          "Review the output before using it for business, school, customer, or public workflows.",
-        ],
+      : privacyFallbackKeys.map(key => t(key)),
 );
 const relatedTools = computed(() =>
   getRelatedToolsForToolKey(
@@ -107,29 +89,22 @@ const relatedTools = computed(() =>
   ),
 );
 const practicalExamplesTitle = computed(() =>
-  shouldUseKhmerExamples.value
-    ? "ឧទាហរណ៍ប្រើប្រាស់ជាក់ស្តែង"
-    : "Practical examples",
+  t("shared.copy_app_components_tools_ToolContentLayout_vue.practical_examples"),
 );
 const practicalResultPrefix = computed(() =>
-  shouldUseKhmerExamples.value ? "លទ្ធផល៖" : "Result:",
+  t("shared.copy_app_components_tools_ToolContentLayout_vue.result"),
 );
-const reviewedDateLabel = "July 31, 2026";
-const outputChecklist = [
-  "Test at least one real sample before sharing or printing.",
-  "Open the output on another device or app to confirm compatibility.",
-  "Check names, numbers, dates, and links for typing mistakes.",
-  "Keep the original file or text until the final output is accepted.",
-];
+const reviewedDateLabel = computed(() => t("shared.components_tools_tool_content_layout.july_31_2026"));
+const outputChecklistKeys = ["shared.tool_guides.output_check_1","shared.tool_guides.output_check_2","shared.tool_guides.output_check_3","shared.tool_guides.output_check_4"];
 const displayedOutputChecklist = computed(() =>
-  isKhmer.value ? outputChecklistKm : outputChecklist,
+  outputChecklistKeys.map(key => t(key)),
 );
 </script>
 
 <template>
   <section
     class="mx-auto mt-5 w-full max-w-[1180px] space-y-6 text-slate-950 dark:text-white"
-    aria-label="Tool guide content"
+    :aria-label="t(&quot;shared.components_tools_tool_content_layout.tool_guide_content&quot;)"
   >
     <section
       class="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]"
@@ -138,10 +113,10 @@ const displayedOutputChecklist = computed(() =>
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
         <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-          {{ isKhmer ? "ការណែនាំអំពីឧបករណ៍" : "Tool introduction" }}
+          {{ t("shared.components_tools_tool_content_layout.tool_introduction") }}
         </p>
         <h2 class="mt-2 text-2xl font-black">
-          {{ isKhmer ? `លក្ខណៈពិសេសរបស់ ${localizedTool.name}` : `What ${guide.tool.name} does` }}
+          {{ t("shared.components_tools_tool_content_layout.what_does", { toolName: localizedTool.name }) }}
         </h2>
         <div
           class="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-white/65"
@@ -158,12 +133,12 @@ const displayedOutputChecklist = computed(() =>
         <p
           class="text-xs font-bold uppercase text-emerald-700 dark:text-emerald-200"
         >
-          {{ isKhmer ? "ភាពឯកជន និងការដំណើរការ" : "Privacy and processing" }}
+          {{ t("shared.components_tools_tool_content_layout.privacy_and_processing") }}
         </p>
         <h2
           class="mt-2 text-xl font-black text-emerald-950 dark:text-emerald-50"
         >
-          {{ isKhmer ? "របៀបគ្រប់គ្រងទិន្នន័យរបស់អ្នក" : "How your input is handled" }}
+          {{ t("shared.components_tools_tool_content_layout.how_your_input_is_handled") }}
         </h2>
         <ul
           class="mt-4 space-y-3 text-sm leading-6 text-emerald-900/85 dark:text-emerald-100/80"
@@ -183,7 +158,7 @@ const displayedOutputChecklist = computed(() =>
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">{{ isKhmer ? `របៀបប្រើប្រាស់ ${localizedTool.name}` : `How to use ${guide.tool.name}` }}</h2>
+        <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.how_to_use", { toolName: localizedTool.name }) }}</h2>
         <ol class="mt-4 space-y-3">
           <li
             v-for="(step, index) in steps"
@@ -203,7 +178,7 @@ const displayedOutputChecklist = computed(() =>
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">{{ isKhmer ? "ហេតុផលដែលគួរប្រើឧបករណ៍នេះ" : "Why people use this tool" }}</h2>
+        <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.why_people_use_this_tool") }}</h2>
         <ul class="mt-4 space-y-3">
           <li
             v-for="reason in whyUse"
@@ -222,7 +197,7 @@ const displayedOutputChecklist = computed(() =>
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">{{ isKhmer ? "ករណីប្រើប្រាស់ជាក់ស្តែង" : "Practical use cases" }}</h2>
+        <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.practical_use_cases") }}</h2>
         <ul class="mt-4 space-y-3">
           <li
             v-for="useCase in useCases"
@@ -241,7 +216,7 @@ const displayedOutputChecklist = computed(() =>
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">{{ isKhmer ? "បញ្ជីត្រួតពិនិត្យលទ្ធផល" : "Output verification checklist" }}</h2>
+        <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.output_verification_checklist") }}</h2>
         <ul class="mt-4 space-y-3">
           <li
             v-for="item in displayedOutputChecklist"
@@ -261,7 +236,7 @@ const displayedOutputChecklist = computed(() =>
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-xl font-black">{{ isKhmer ? "គន្លឹះ និងកម្រិតកំណត់" : "Tips and limitations" }}</h2>
+      <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.tips_and_limitations") }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <p
           v-for="tip in tips"
@@ -317,7 +292,7 @@ const displayedOutputChecklist = computed(() =>
       class="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-sm dark:border-rose-300/25 dark:bg-rose-300/10"
     >
       <h2 class="text-xl font-black text-rose-950 dark:text-rose-100">
-        {{ isKhmer ? "កំហុសទូទៅដែលគួរជៀសវាង" : "Common mistakes to avoid" }}
+        {{ t("shared.components_tools_tool_content_layout.common_mistakes_to_avoid") }}
       </h2>
       <ul class="mt-4 space-y-3">
         <li
@@ -338,7 +313,7 @@ const displayedOutputChecklist = computed(() =>
       id="faq"
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-xl font-black">{{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}</h2>
+      <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.faq") }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <details
           v-for="faq in faqs"
@@ -357,20 +332,20 @@ const displayedOutputChecklist = computed(() =>
 
     <section
       class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm dark:border-amber-300/25 dark:bg-amber-300/10"
-      aria-label="Trust and transparency"
+      :aria-label="t(&quot;shared.components_tools_tool_content_layout.trust_and_transparency&quot;)"
     >
       <h2 class="text-xl font-black text-amber-950 dark:text-amber-100">
-        {{ isKhmer ? "ទំនុកចិត្ត និងតម្លាភាព" : "Trust and transparency" }}
+        {{ t("shared.components_tools_tool_content_layout.trust_and_transparency") }}
       </h2>
       <p
         class="mt-3 text-sm leading-6 text-amber-900/90 dark:text-amber-100/80"
       >
-        {{ isKhmer ? "មេរៀន និងការណែនាំឧបករណ៍របស់ ChlatWork គឺសម្រាប់ជាព័ត៌មានអប់រំ និងជំនួយការងារទូទៅ។ សម្រាប់ការសម្រេចចិត្តសំខាន់ៗលើផ្នែកហិរញ្ញវត្ថុ ច្បាប់ ពន្ធ ឬវេជ្ជសាស្ត្រ សូមផ្ទៀងផ្ទាត់ជាមួយអ្នកជំនាញដែលមានសមត្ថកិច្ច។" : "ChlatWork tool guides are educational. For money, legal, tax, medical, or compliance-critical decisions, verify details with qualified professionals and confirm final outputs before use." }}
+        {{ t("shared.components_tools_tool_content_layout.chlat_work_tool_guides_are_educational_for_money_legal") }}
       </p>
       <p
         class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75"
       >
-        Checked against the ChlatWork editorial policy. Last updated:
+        {{ t("shared.components_tools_tool_content_layout.checked_against_the_chlat_work_editorial_policy_last_updated") }}
         {{ reviewedDateLabel }}.
       </p>
       <p class="mt-1 text-xs text-amber-900/80 dark:text-amber-100/75">
@@ -381,25 +356,25 @@ const displayedOutputChecklist = computed(() =>
           to="/editorial-policy"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          {{ isKhmer ? "គោលការណ៍វិចារណកថា" : "Editorial policy" }}
+          {{ t("shared.components_tools_tool_content_layout.editorial_policy") }}
         </NuxtLink>
         <NuxtLink
           to="/disclaimer"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          {{ isKhmer ? "ការបដិសេធ" : "Disclaimer" }}
+          {{ t("shared.components_tools_tool_content_layout.disclaimer") }}
         </NuxtLink>
         <NuxtLink
           to="/contact"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          {{ isKhmer ? "ស្នើសុំការកែសម្រួល" : "Request a correction" }}
+          {{ t("shared.components_tools_tool_content_layout.request_a_correction") }}
         </NuxtLink>
       </div>
     </section>
 
     <section v-if="showRelated && relatedTools.length" class="space-y-3">
-      <h2 class="text-xl font-black">{{ isKhmer ? "ឧបករណ៍ពាក់ព័ន្ធ" : "Related tools" }}</h2>
+      <h2 class="text-xl font-black">{{ t("shared.components_tools_tool_content_layout.related_tools") }}</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ToolDirectoryCard
           v-for="tool in relatedTools"

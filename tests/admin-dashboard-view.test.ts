@@ -12,7 +12,7 @@ async function loadComponent(filename: string): Promise<string> {
   const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
   const compiled = compileScript(descriptor, { id: filename, inlineTemplate: true });
   const autoImports = compiled.bindings.computed ? "" : 'import { computed } from "vue";\n';
-  let source = ts.transpileModule(autoImports + compiled.content, {
+  let source = ts.transpileModule('const useLanguage = () => ({ isKhmer: ref(false) });\n' + autoImports + compiled.content, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
   }).outputText;
   for (const match of [...source.matchAll(/from ["']([^"']+\.vue)["']/g)]) {
@@ -21,6 +21,7 @@ async function loadComponent(filename: string): Promise<string> {
       : new URL(match[1], new URL(`../${filename}`, import.meta.url)).pathname;
     source = source.replace(match[0], `from ${JSON.stringify(await loadComponent(path))}`);
   }
+  source = source.replace(/import \{ useAppI18n \} from ["']~\/composables\/useAppI18n["'];/g, `import { createI18nStub as useAppI18n } from ${JSON.stringify(new URL("./helpers/i18n-stubs.ts", import.meta.url).href)};`);
   source = source.replace(/from ["'](vue|lucide-vue-next)["']/g, (_match, name) =>
     `from ${JSON.stringify(import.meta.resolve(name))}`);
   const url = `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;

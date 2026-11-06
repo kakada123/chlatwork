@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
@@ -102,7 +105,7 @@ function handleDrop(event: DragEvent) {
       <span
         class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 group-hover:text-white dark:bg-slate-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-slate-800 dark:group-hover:text-white"
       >
-        {{ isKhmer ? "ជ្រើសរើសឯកសារ" : "Choose files" }}
+        {{ t("tools.pdf.chooseFiles") }}
       </span>
     </button>
   </div>

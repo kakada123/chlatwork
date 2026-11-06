@@ -1,9 +1,11 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import * as vue from "vue";
 import { compileScript, compileTemplate, parse } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
+import * as botUiCopy from "../app/lib/bot-ui-copy.ts";
 import * as display from "../app/lib/creator-credit-display.ts";
 
 const profile = {
@@ -55,12 +57,15 @@ function harness(
     onMounted: (fn: () => void) => mounted.push(fn),
     onBeforeUnmount: () => {},
     useAuth: () => ({ user: session }),
+    useLanguage: () => ({ isKhmer: vue.ref(false) }),
     definePageMeta: () => {},
     useSeoMeta: () => {},
   };
   const requireMock = (name: string) => {
+    if (name === "~/composables/useAppI18n") return { useAppI18n: createI18nStub };
     if (name === "vue") return vue;
     if (name === "~/lib/creator-credit-display") return display;
+    if (name === "~/lib/bot-ui-copy") return botUiCopy;
     if (name.startsWith("~/services/")) return services;
     throw new Error(`Unexpected dependency ${name}`);
   };

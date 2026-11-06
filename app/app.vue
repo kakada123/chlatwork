@@ -16,7 +16,7 @@
     <aside
       v-if="canShowAds"
       class="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-0 lg:order-1"
-      :aria-label="isKhmer ? 'ពាណិជ្ជកម្ម' : 'Advertisement'"
+      :aria-label="t(&quot;shared.components_ads_native_ad_client.advertisement&quot;)"
     >
       <div class="lg:sticky lg:top-3">
         <AdsBannerAd :key="route.path" placement="footer" />
@@ -30,9 +30,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Analytics } from "@vercel/analytics/nuxt";
 import { getPublisherRobots } from "~/data/site-routes";
 import { canShowAdsForUser } from "~/lib/ad-visibility";
+
+const { t } = useAppI18n();
 
 const { copy, isKhmer } = useLanguage();
 useColorMode();
@@ -77,7 +80,7 @@ const siteUrl = domainConfig.mainOrigin;
 const ogImage = `${siteUrl}/og-home.png?v=20261104`;
 const localizedTitle = computed(() => copy.value.metaTitle);
 const localizedDescription = computed(() => copy.value.metaDescription);
-const htmlLocale = computed(() => (isKhmer.value ? "km" : "en"));
+const htmlLocale = computed(() => (t("shared.components_admin_bot_group_workspaces.en")));
 const normalizedPath = computed(() =>
   sourcePath.value,
 );
@@ -133,8 +136,7 @@ useHead(() => ({
             publisher: {
               "@id": `${siteUrl}#organization`,
             },
-            description:
-              "ChlatWork provides simple online tools for documents, images, QR codes, barcodes, dates, and productivity.",
+            description: localizedDescription.value,
           },
         ],
       }),

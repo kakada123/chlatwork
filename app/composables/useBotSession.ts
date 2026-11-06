@@ -1,3 +1,4 @@
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   groupApi,
   type BotSession,
@@ -5,7 +6,10 @@ import {
 } from "~/services/group-workspaces.service";
 export type BotSessionState =
   "loading" | "ready" | "pending" | "error" | "outside-telegram";
+
+
 export function useBotSession() {
+  const { t } = useAppI18n();
   const auth = useAuth();
   const state = useState<BotSessionState>("bot:state", () => "loading");
   const session = useState<BotSession | null>("bot:session", () => null);
@@ -52,7 +56,7 @@ export function useBotSession() {
       if (version === epoch.value) {
         clear();
         error.value =
-          "Your Telegram session could not be verified. Reopen the bot or try again.";
+          "shared.bot_session.your_telegram_session_could_not_be_verified_reopen_the";
       }
     }
   }
@@ -65,7 +69,7 @@ export function useBotSession() {
       if (version === epoch.value) await initialize(kind);
     } catch {
       if (version === epoch.value)
-        error.value = "Could not request approval. Please try again.";
+        error.value = "shared.bot_session.could_not_request_approval_please_try_again";
     }
   }
   watch(
@@ -81,7 +85,7 @@ export function useBotSession() {
     managerStatus,
     bot,
     epoch,
-    error,
+    error: computed(() => error.value ? t(error.value) : ""),
     initialize,
     requestManagerAccess,
     clear,

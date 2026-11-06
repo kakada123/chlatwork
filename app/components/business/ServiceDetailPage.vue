@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeBusinessService } from "~/data/services-km";
 import {
   BUSINESS_SERVICES,
   TELEGRAM_CONTACT,
@@ -6,14 +8,17 @@ import {
 } from "~/data/services";
 import { useLanguage } from "~/composables/useLanguage";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
 const props = defineProps<{
   service: BusinessService;
 }>();
 
+const service = computed(() => localizeBusinessService(props.service, t("shared.components_admin_bot_group_workspaces.en")));
 const relatedServices = computed(() =>
-  BUSINESS_SERVICES.filter((service) => service.slug !== props.service.slug),
+  BUSINESS_SERVICES.filter((service) => service.slug !== props.service.slug).map(service => localizeBusinessService(service, t("shared.components_admin_bot_group_workspaces.en"))),
 );
 </script>
 
@@ -31,7 +36,7 @@ const relatedServices = computed(() =>
               to="/pricing"
               class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
             >
-              {{ isKhmer ? "មើលតម្លៃសេវាកម្ម" : "View pricing" }}
+              {{ t("shared.components_business_service_detail_page.view_pricing") }}
             </NuxtLink>
             <p
               class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300"
@@ -54,7 +59,7 @@ const relatedServices = computed(() =>
             <span
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 dark:!border-slate-800 dark:bg-slate-900/70 dark:text-slate-300"
             >
-              {{ isKhmer ? `ចាប់ពី ${service.startingPrice}` : `From ${service.startingPrice}` }}
+              {{ t("shared.components_business_service_detail_page.from", { serviceStartingPrice: service.startingPrice }) }}
             </span>
             <span
               class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 dark:!border-slate-800 dark:bg-slate-900/70 dark:text-slate-300"
@@ -70,13 +75,13 @@ const relatedServices = computed(() =>
               rel="noopener noreferrer"
               class="inline-flex h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
             >
-              {{ isKhmer ? "ផ្ញើសារតាម Telegram" : "Message on Telegram" }}
+              {{ t("shared.components_business_business_cta.message_on_telegram") }}
             </a>
             <NuxtLink
               to="/pricing"
               class="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-6 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
             >
-              {{ isKhmer ? "ប្រៀបធៀបសេវាកម្ម" : "Compare services" }}
+              {{ t("shared.components_business_service_detail_page.compare_services") }}
             </NuxtLink>
           </div>
         </div>
@@ -85,7 +90,7 @@ const relatedServices = computed(() =>
           class="rounded-2xl border border-green-100 bg-green-50 p-5 dark:!border-green-900/50 dark:bg-green-950/30"
         >
           <h2 class="text-sm font-black text-green-950 dark:text-green-300">
-            {{ isKhmer ? "អ្វីដែលអ្នកទទួលបាន" : "What you get" }}
+            {{ t("shared.components_business_service_detail_page.what_you_get") }}
           </h2>
           <ul class="mt-4 space-y-3">
             <li
@@ -103,9 +108,7 @@ const relatedServices = computed(() =>
           <p
             class="mt-5 text-sm leading-6 text-green-900/75 dark:text-green-300"
           >
-            {{ isKhmer
-              ? "មិនទាន់មានការទូទាត់ប្រាក់តាមអនឡាញនៅឡើយទេ។ ទំហំការងារ ការប្រគល់ និងការទូទាត់ ត្រូវបានបញ្ជាក់ដោយផ្ទាល់តាម Telegram ជាមុន។"
-              : "No online checkout yet. Scope, delivery, and payment are confirmed manually on Telegram first." }}
+            {{ t("shared.components_business_service_detail_page.no_online_checkout_yet_scope_delivery_and_payment_are") }}
           </p>
         </aside>
       </div>
@@ -116,7 +119,7 @@ const relatedServices = computed(() =>
         class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
-          {{ isKhmer ? "រួមបញ្ចូលក្នុងសេវាកម្មនេះ" : "Included in this service" }}
+          {{ t("shared.components_business_service_detail_page.included_in_this_service") }}
         </h2>
         <ul class="mt-4 space-y-3">
           <li
@@ -137,7 +140,7 @@ const relatedServices = computed(() =>
         class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
       >
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
-          {{ isKhmer ? "ស័ក្តិសមបំផុតសម្រាប់" : "Best fit" }}
+          {{ t("shared.components_business_service_detail_page.best_fit") }}
         </h2>
         <ul class="mt-4 space-y-3">
           <li
@@ -159,7 +162,7 @@ const relatedServices = computed(() =>
       class="rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm dark:!border-slate-800 dark:!bg-slate-900"
     >
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
-        {{ isKhmer ? "របៀបចាប់ផ្តើមការងារ" : "How the work starts" }}
+        {{ t("shared.components_business_service_detail_page.how_the_work_starts") }}
       </h2>
       <ol class="mt-4 grid gap-3 md:grid-cols-2">
         <li
@@ -179,7 +182,7 @@ const relatedServices = computed(() =>
 
     <section v-if="relatedServices.length > 0" class="space-y-3">
       <h2 class="text-xl font-black text-slate-950 dark:text-white">
-        {{ isKhmer ? "សេវាកម្មផ្សេងទៀតរបស់ ChlatWork" : "Other ChlatWork services" }}
+        {{ t("shared.components_business_service_detail_page.other_chlat_work_services") }}
       </h2>
       <div class="grid gap-3 md:grid-cols-2">
         <NuxtLink
@@ -197,7 +200,7 @@ const relatedServices = computed(() =>
             {{ relatedService.description }}
           </p>
           <p class="mt-3 text-xs font-bold text-sky-700 dark:text-cyan-300">
-            {{ isKhmer ? `ចាប់ពី ${relatedService.startingPrice}` : `From ${relatedService.startingPrice}` }}
+            {{ t("shared.components_business_service_detail_page.from_2", { relatedServiceStartingPrice: relatedService.startingPrice }) }}
           </p>
         </NuxtLink>
       </div>

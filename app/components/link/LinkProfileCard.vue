@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ArrowUpRight, Link2 } from "lucide-vue-next";
 import draggable from "vuedraggable";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
 import { LINK_THEMES } from "~/lib/link-profile";
 import LinkPlatformIcon from "./LinkPlatformIcon.vue";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 const props = defineProps<{
@@ -92,10 +96,10 @@ const links = computed(() =>
           referrerpolicy="no-referrer"
         />
         <span v-else aria-hidden="true">{{
-          (profile.displayName || "You").slice(0, 1).toUpperCase()
+          (profile.displayName || t("products.links.you")).slice(0, 1).toUpperCase()
         }}</span>
       </div>
-      <h1>{{ profile.displayName || (isKhmer ? "ឈ្មោះរបស់អ្នក" : "Your name") }}</h1>
+      <h1>{{ profile.displayName || (t("products.links.your_name")) }}</h1>
       <p v-if="profile.headline" class="link-headline">
         {{ profile.headline }}
       </p>
@@ -117,14 +121,14 @@ const links = computed(() =>
             type="button"
             class="link-button"
             :class="`button-${profile.buttonStyle}`"
-            :aria-label="`Reorder ${link.title || (isKhmer ? 'តំណភ្ជាប់របស់អ្នក' : 'Your link')}`"
+            :aria-label="`${t(&quot;products.links.reorder&quot;)} ${link.title || (t(&quot;products.links.your_link&quot;))}`"
             :aria-disabled="disabled"
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
             @keydown.alt.up.prevent="movePreviewLink(link, -1)"
             @keydown.alt.down.prevent="movePreviewLink(link, 1)"
           >
             <LinkPlatformIcon :url="link.url" class="link-icon" />
-            <span>{{ link.title || (isKhmer ? "តំណភ្ជាប់របស់អ្នក" : "Your link") }}</span>
+            <span>{{ link.title || (t("products.links.your_link")) }}</span>
             <ArrowUpRight class="link-arrow" aria-hidden="true" />
           </button>
         </template>
@@ -140,21 +144,21 @@ const links = computed(() =>
           rel="noopener noreferrer nofollow ugc"
           class="link-button"
           :class="`button-${profile.buttonStyle}`"
-          :aria-label="`${link.title}${/^https?:/i.test(link.url) ? ' (opens in a new tab)' : ''}`"
+          :aria-label="`${link.title}${/^https?:/i.test(link.url) ? t(&quot;products.common.opens_in_a_new_tab&quot;) : ''}`"
           @click="!preview && emit('click', link)"
         >
           <LinkPlatformIcon :url="link.url" class="link-icon" /><span>{{
-            link.title || (isKhmer ? "តំណភ្ជាប់របស់អ្នក" : "Your link")
+            link.title || (t("products.links.your_link"))
           }}</span
           ><ArrowUpRight class="link-arrow" aria-hidden="true" />
         </component>
       </div>
       <p v-if="preview && !links.length" class="link-empty">
-        {{ isKhmer ? "តំណភ្ជាប់របស់អ្នកនឹងបង្ហាញនៅទីនេះ។" : "Your links will appear here." }}
+        {{ t("products.links.your_links_will_appear_here") }}
       </p>
       <slot />
       <NuxtLink v-if="profile.showBranding" to="/link" class="link-brand"
-        ><Link2 :size="16" aria-hidden="true" /> Made with ChlatWork</NuxtLink
+        ><Link2 :size="16" aria-hidden="true" /> {{ t("products.links.made_with_chlat_work") }}</NuxtLink
       >
     </div>
   </div>

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import type { PdfToolFaq } from "~/data/pdf-tools";
+
+const { t } = useAppI18n();
 
 defineProps<{
   howItWorks: string[];
@@ -11,7 +15,7 @@ defineProps<{
 <template>
   <section class="grid gap-4 lg:grid-cols-3">
     <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.06]">
-      <h2 class="text-lg font-black text-slate-950 dark:text-white">How to use</h2>
+      <h2 class="text-lg font-black text-slate-950 dark:text-white">{{ t("tools.pdf.howToUse") }}</h2>
       <ol class="mt-3 space-y-2 text-sm text-slate-600 dark:text-white/65">
         <li v-for="(item, index) in howItWorks" :key="item" class="flex gap-3">
           <span class="font-black text-sky-700 dark:text-cyan-300">{{ index + 1 }}.</span>
@@ -24,7 +28,7 @@ defineProps<{
       v-if="useCases?.length"
       class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-lg font-black text-slate-950 dark:text-white">Example use cases</h2>
+      <h2 class="text-lg font-black text-slate-950 dark:text-white">{{ t("tools.pdf.exampleUseCases") }}</h2>
       <ul class="mt-3 space-y-2 text-sm text-slate-600 dark:text-white/65">
         <li v-for="item in useCases" :key="item" class="flex gap-3">
           <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
@@ -34,7 +38,7 @@ defineProps<{
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.06]">
-      <h2 class="text-lg font-black text-slate-950 dark:text-white">FAQ</h2>
+      <h2 class="text-lg font-black text-slate-950 dark:text-white">{{ t("tools.pdf.faq") }}</h2>
       <div class="mt-3 space-y-3">
         <details
           v-for="item in faq"

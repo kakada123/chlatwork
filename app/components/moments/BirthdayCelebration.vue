@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import confetti, { type ConfettiCannon } from "canvas-confetti";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+
+
 
 const props = withDefaults(defineProps<{ preview?: boolean; locale?: "en" | "km"; autoCelebrate?: boolean; showControls?: boolean }>(), {
   preview: false,
@@ -8,6 +11,7 @@ const props = withDefaults(defineProps<{ preview?: boolean; locale?: "en" | "km"
   autoCelebrate: true,
   showControls: true,
 });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const canvas = ref<HTMLCanvasElement | null>(null);
 const reducedMotion = ref(true);
 const pageHidden = ref(false);
@@ -18,11 +22,9 @@ let motionPreference: MediaQueryList | undefined;
 let generation = 0;
 let disposed = false;
 
-const copy = computed(() => props.locale === "km" ? {
-  celebrate: "អបអរថ្ងៃកំណើត", celebrating: "កំពុងអបអរ…", greeting: "រីករាយថ្ងៃកំណើត! 🎉",
-} : {
-  celebrate: "Celebrate", celebrating: "Celebrating…", greeting: "Happy birthday! 🎉",
-});
+const copy = computed(() => ({
+  celebrate: t("products.moments.birthday_celebration.celebrate"), celebrating: t("products.moments.birthday_celebration.celebrating"), greeting: t("products.moments.birthday_celebration.greeting"),
+}));
 
 function stopBurst() {
   generation++;

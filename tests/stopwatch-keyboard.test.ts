@@ -1,3 +1,4 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -29,7 +30,7 @@ function openPage() {
     module,
     exports: module.exports,
     require: (name: string) =>
-      name === "~/lib/stopwatch" ? stopwatch : require(name),
+      name === "~/lib/stopwatch" ? stopwatch : name === "~/composables/useAppI18n" ? appI18nStub : require(name),
     ...vue,
     window,
     useSeoMeta: () => {},

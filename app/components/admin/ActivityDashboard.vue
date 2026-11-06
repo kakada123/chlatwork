@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, nextTick, ref, useId } from "vue";
 import {
   Activity, ArrowLeft, ArrowUpRight, BarChart3, Bot, CheckCircle2,
@@ -8,6 +9,10 @@ import {
 import ActivityTrendChart from "./ActivityTrendChart.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import type { AdminAnalytics, AdminUserSummary, AnalyticsRange } from "~/lib/admin-dashboard";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 const props = withDefaults(defineProps<{
   analytics: AdminAnalytics | null;
@@ -22,37 +27,37 @@ const section = ref<Section>("overview");
 const khqrVisited = ref(false);
 const heading = ref<HTMLElement | null>(null);
 const contentId = useId();
-const menu = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "tools", label: "Tools", icon: Wrench },
-  { id: "users", label: "Users", icon: Users },
-  { id: "activity", label: "Activity", icon: Activity },
-  { id: "khqr", label: "Member KHQR", icon: QrCode },
-] as const;
-const ranges = [
-  { value: "7d", label: "7 days" },
-  { value: "30d", label: "30 days" },
-  { value: "90d", label: "90 days" },
-] as const;
+const menu = computed(() => [
+  { id: "overview", label: t("shared.components_admin_activity_dashboard.overview"), icon: LayoutDashboard },
+  { id: "tools", label: t("shared.common.tools"), icon: Wrench },
+  { id: "users", label: t("shared.common.users"), icon: Users },
+  { id: "activity", label: t("shared.components_admin_activity_dashboard.activity"), icon: Activity },
+  { id: "khqr", label: t("shared.components_admin_activity_dashboard.member_khqr"), icon: QrCode },
+] as const);
+const ranges = computed(() => [
+  { value: "7d", label: t("shared.components_admin_activity_dashboard.7_days") },
+  { value: "30d", label: t("shared.components_admin_activity_dashboard.30_days") },
+  { value: "90d", label: t("shared.components_admin_activity_dashboard.90_days") },
+] as const);
 // A range change can leave the previous response in useFetch until its replacement arrives.
 const analytics = computed(() => props.analytics?.range === props.range ? props.analytics : null);
 const sectionTitle = computed(() => ({
-  overview: "Activity dashboard", tools: "Most used tools", users: "Most active users",
-  activity: "Recent activity", khqr: "Member KHQR",
+  overview: t("shared.components_admin_activity_dashboard.activity_dashboard"), tools: t("shared.components_admin_activity_dashboard.most_used_tools"), users: t("shared.components_admin_activity_dashboard.most_active_users"),
+  activity: t("shared.components_admin_activity_dashboard.recent_activity"), khqr: t("shared.components_admin_activity_dashboard.member_khqr"),
 })[section.value]);
 const sectionDescription = computed(() => ({
-  overview: "A clear view of how people use ChlatWork.",
-  tools: "Top 10 tools by opens in the selected period.",
-  users: "Top 8 users by tool activity in the selected period.",
-  activity: "The latest 50 tool events in the selected period.",
-  khqr: "Manage Telegram group members and their QR images.",
+  overview: t("shared.components_admin_activity_dashboard.a_clear_view_of_how_people_use_chlat_work"),
+  tools: t("shared.components_admin_activity_dashboard.top_10_tools_by_opens_in_the_selected_period"),
+  users: t("shared.components_admin_activity_dashboard.top_8_users_by_tool_activity_in_the_selected"),
+  activity: t("shared.components_admin_activity_dashboard.the_latest_50_tool_events_in_the_selected_period"),
+  khqr: t("shared.components_admin_activity_dashboard.manage_telegram_group_members_and_their_qr_images"),
 })[section.value]);
 const cards = computed(() => [
-  { label: "Total users", value: analytics.value?.overview.totalUsers, icon: Users, tone: "sky", note: "All-time accounts" },
-  { label: "Active users", value: analytics.value?.overview.activeUsers, icon: Activity, tone: "emerald", note: "Selected period" },
-  { label: "Tool opens", value: analytics.value?.overview.toolOpens, icon: BarChart3, tone: "cyan", note: "Selected period" },
-  { label: "Completed actions", value: analytics.value?.overview.completions, icon: CheckCircle2, tone: "violet", note: "Selected period" },
-  { label: "New users", value: analytics.value?.overview.newUsers, icon: UserRoundPlus, tone: "amber", note: "Selected period" },
+  { label: t("shared.components_admin_activity_dashboard.total_users"), value: analytics.value?.overview.totalUsers, icon: Users, tone: "sky", note: t("shared.components_admin_activity_dashboard.all_time_accounts") },
+  { label: t("shared.components_admin_activity_dashboard.active_users"), value: analytics.value?.overview.activeUsers, icon: Activity, tone: "emerald", note: t("shared.components_admin_activity_dashboard.selected_period") },
+  { label: t("shared.components_admin_activity_dashboard.tool_opens"), value: analytics.value?.overview.toolOpens, icon: BarChart3, tone: "cyan", note: t("shared.components_admin_activity_dashboard.selected_period") },
+  { label: t("shared.components_admin_activity_dashboard.completed_actions"), value: analytics.value?.overview.completions, icon: CheckCircle2, tone: "violet", note: t("shared.components_admin_activity_dashboard.selected_period") },
+  { label: t("shared.components_admin_activity_dashboard.new_users"), value: analytics.value?.overview.newUsers, icon: UserRoundPlus, tone: "amber", note: t("shared.components_admin_activity_dashboard.selected_period") },
 ]);
 const opens = computed(() => analytics.value?.overview.toolOpens ?? 0);
 const completions = computed(() => analytics.value?.overview.completions ?? 0);
@@ -63,15 +68,15 @@ const eventMixStyle = computed(() => ({
     : "var(--dashboard-border)",
 }));
 const maxToolOpens = computed(() => Math.max(1, ...(analytics.value?.topTools.map((tool) => tool.opens) ?? [])));
-const number = (value: number | undefined) => value === undefined ? "—" : new Intl.NumberFormat("en-US").format(value);
+const number = (value: number | undefined) => value === undefined ? "—" : new Intl.NumberFormat(isKhmer.value ? "km-KH" : "en-US").format(value);
 const tool = (key: string) => props.toolCatalog.find((item) => item.key === key);
 const toolName = (key: string) => tool(key)?.name ?? key.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
 const toolRoute = (key: string) => tool(key)?.route ?? "/tools";
-const userLabel = (user: AdminUserSummary) => user.name || user.email || `User ${user.id.slice(0, 8)}`;
+const userLabel = (user: AdminUserSummary) => user.name || user.email || `${t("shared.common.user")} ${user.id.slice(0, 8)}`;
 const initials = (user: AdminUserSummary) => userLabel(user).split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase();
-const dateTime = (value: string | null) => value ? new Intl.DateTimeFormat("en-US", {
+const dateTime = (value: string | null) => value ? new Intl.DateTimeFormat(isKhmer.value ? "km-KH" : "en-US", {
   month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
-}).format(new Date(value)) : "No activity";
+}).format(new Date(value)) : t("shared.components_admin_activity_dashboard.no_activity");
 
 async function selectSection(value: Section) {
   section.value = value;
@@ -86,18 +91,18 @@ async function selectSection(value: Section) {
   <div class="admin-dashboard">
     <header class="dashboard-navigation">
       <div class="dashboard-topbar">
-        <NuxtLink to="/" class="dashboard-brand" aria-label="Back to ChlatWork">
+        <NuxtLink to="/" class="dashboard-brand" :aria-label="t(&quot;shared.components_admin_activity_dashboard.back_to_chlat_work&quot;)">
           <span class="dashboard-brand-icon"><ShieldCheck :size="20" aria-hidden="true" /></span>
-          <span>ChlatWork <span class="dashboard-brand-divider">/</span> <strong>Admin</strong></span>
+          <span>ChlatWork <span class="dashboard-brand-divider">/</span> <strong>{{ t("shared.components_admin_activity_dashboard.admin") }}</strong></span>
         </NuxtLink>
         <div class="dashboard-links">
-          <NuxtLink to="/admin/bots" class="dashboard-link" aria-label="Open Bot Admin"><Bot :size="16" aria-hidden="true" /><span>Bot Admin</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
-          <NuxtLink to="/admin/tools" class="dashboard-link" aria-label="Manage tools and ads"><Settings2 :size="16" aria-hidden="true" /><span>Tools & ads</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
-          <NuxtLink to="/account" class="dashboard-account-link" aria-label="Back to account"><ArrowLeft :size="16" aria-hidden="true" /><span>Account</span></NuxtLink>
+          <NuxtLink to="/admin/bots" class="dashboard-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.open_bot_admin&quot;)"><Bot :size="16" aria-hidden="true" /><span>{{ t("shared.components_layout_product_navigation.bot_admin") }}</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
+          <NuxtLink to="/admin/tools" class="dashboard-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.manage_tools_and_ads&quot;)"><Settings2 :size="16" aria-hidden="true" /><span>{{ t("shared.components_layout_product_navigation.tools_ads") }}</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
+          <NuxtLink to="/account" class="dashboard-account-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.back_to_account&quot;)"><ArrowLeft :size="16" aria-hidden="true" /><span>{{ t("shared.common.account") }}</span></NuxtLink>
         </div>
       </div>
-      <nav class="dashboard-menu" aria-label="Admin menu">
-        <button v-for="item in menu" :key="item.id" type="button" :aria-label="`Show ${item.label}`" :aria-pressed="section === item.id" :aria-controls="contentId" class="dashboard-menu-item" @click="selectSection(item.id)">
+      <nav class="dashboard-menu" :aria-label="t(&quot;shared.components_admin_activity_dashboard.admin_menu&quot;)">
+        <button v-for="item in menu" :key="item.id" type="button" :aria-label="t(&quot;shared.components_admin_activity_dashboard.show&quot;, { itemLabel: item.label })" :aria-pressed="section === item.id" :aria-controls="contentId" class="dashboard-menu-item" @click="selectSection(item.id)">
           <component :is="item.icon" :size="16" aria-hidden="true" />{{ item.label }}
         </button>
       </nav>
@@ -110,17 +115,17 @@ async function selectSection(value: Section) {
           <p>{{ sectionDescription }}</p>
         </div>
         <div v-if="section !== 'khqr'" class="dashboard-filters">
-          <div class="dashboard-range" role="group" aria-label="Analytics date range">
-            <button v-for="range in ranges" :key="range.value" type="button" :aria-label="`Show ${range.label}`" :aria-pressed="props.range === range.value" @click="emit('rangeChange', range.value)">{{ range.label }}</button>
+          <div class="dashboard-range" role="group" :aria-label="t(&quot;shared.components_admin_activity_dashboard.analytics_date_range&quot;)">
+            <button v-for="range in ranges" :key="range.value" type="button" :aria-label="t(&quot;shared.components_admin_activity_dashboard.show_2&quot;, { rangeLabel: range.label })" :aria-pressed="props.range === range.value" @click="emit('rangeChange', range.value)">{{ range.label }}</button>
           </div>
-          <button type="button" class="dashboard-refresh" aria-label="Refresh dashboard" :disabled="props.loading" @click="emit('refresh')"><RefreshCw :size="17" :class="{ 'animate-spin': props.loading }" aria-hidden="true" /></button>
+          <button type="button" class="dashboard-refresh" :aria-label="t(&quot;shared.components_admin_activity_dashboard.refresh_dashboard&quot;)" :disabled="props.loading" @click="emit('refresh')"><RefreshCw :size="17" :class="{ 'animate-spin': props.loading }" aria-hidden="true" /></button>
         </div>
       </div>
 
-      <div v-if="props.failed && section !== 'khqr'" role="alert" class="dashboard-error">Dashboard activity could not be loaded. Refresh the page or try again shortly.</div>
+      <div v-if="props.failed && section !== 'khqr'" role="alert" class="dashboard-error">{{ t("shared.components_admin_activity_dashboard.dashboard_activity_could_not_be_loaded_refresh_the_page") }}</div>
 
       <div v-if="section === 'overview'" class="dashboard-overview" :aria-busy="props.loading">
-        <section class="dashboard-kpis" aria-label="Activity overview">
+        <section class="dashboard-kpis" :aria-label="t(&quot;shared.components_admin_activity_dashboard.activity_overview&quot;)">
           <article v-for="card in cards" :key="card.label" class="dashboard-kpi">
             <div class="dashboard-kpi-label"><span :title="card.label">{{ card.label }}</span><component :is="card.icon" :size="16" :class="`dashboard-tone-${card.tone}`" aria-hidden="true" /></div>
             <strong>{{ number(card.value) }}</strong><span class="dashboard-kpi-note">{{ card.note }}</span>
@@ -129,68 +134,68 @@ async function selectSection(value: Section) {
 
         <div class="dashboard-charts">
           <section class="dashboard-panel dashboard-trend" aria-labelledby="admin-trend-title">
-            <div class="dashboard-panel-heading"><h2 id="admin-trend-title">Daily activity</h2><span v-if="analytics" class="dashboard-updated">{{ dateTime(analytics.generatedAt) }}</span></div>
-            <p v-if="!analytics" role="status" class="dashboard-placeholder">{{ props.loading ? 'Loading activity…' : props.failed ? 'Activity unavailable.' : 'No analytics available.' }}</p>
+            <div class="dashboard-panel-heading"><h2 id="admin-trend-title">{{ t("shared.components_admin_activity_dashboard.daily_activity") }}</h2><span v-if="analytics" class="dashboard-updated">{{ dateTime(analytics.generatedAt) }}</span></div>
+            <p v-if="!analytics" role="status" class="dashboard-placeholder">{{ props.loading ? t("shared.components_admin_activity_dashboard.loading_activity") : props.failed ? t("shared.components_admin_activity_dashboard.activity_unavailable") : t("shared.components_admin_activity_dashboard.no_analytics_available") }}</p>
             <ActivityTrendChart v-else :days="analytics.dailyActivity" />
           </section>
           <section class="dashboard-panel dashboard-event-mix" aria-labelledby="admin-event-mix-title">
-            <div class="dashboard-panel-heading"><h2 id="admin-event-mix-title">Event mix</h2><BarChart3 :size="16" aria-hidden="true" /></div>
+            <div class="dashboard-panel-heading"><h2 id="admin-event-mix-title">{{ t("shared.components_admin_activity_dashboard.event_mix") }}</h2><BarChart3 :size="16" aria-hidden="true" /></div>
             <div v-if="analytics" class="dashboard-mix-content">
-              <div class="dashboard-donut" :style="eventMixStyle" role="img" :aria-label="`Event mix: ${opens} tool opens and ${completions} completed actions`"><div><strong>{{ number(eventCount) }}</strong><span>Total events</span></div></div>
-              <div class="dashboard-mix-legend"><p><i class="mix-opens" /><span>Tool opens</span><strong>{{ number(opens) }}</strong></p><p><i class="mix-completions" /><span>Completed</span><strong>{{ number(completions) }}</strong></p></div>
+              <div class="dashboard-donut" :style="eventMixStyle" role="img" :aria-label="t(&quot;shared.components_admin_activity_dashboard.event_mix_tool_opens_and_completed_actions&quot;, { opens: opens, completions: completions })"><div><strong>{{ number(eventCount) }}</strong><span>{{ t("shared.components_admin_activity_dashboard.total_events") }}</span></div></div>
+              <div class="dashboard-mix-legend"><p><i class="mix-opens" /><span>{{ t("shared.components_admin_activity_dashboard.tool_opens") }}</span><strong>{{ number(opens) }}</strong></p><p><i class="mix-completions" /><span>{{ t("shared.components_admin_activity_dashboard.completed") }}</span><strong>{{ number(completions) }}</strong></p></div>
             </div>
-            <p v-else class="dashboard-placeholder">{{ props.loading ? 'Loading activity…' : 'No analytics available.' }}</p>
+            <p v-else class="dashboard-placeholder">{{ props.loading ? t("shared.components_admin_activity_dashboard.loading_activity") : t("shared.components_admin_activity_dashboard.no_analytics_available") }}</p>
           </section>
         </div>
 
         <div class="dashboard-previews">
           <section class="dashboard-panel" aria-labelledby="admin-top-tools-title">
-            <div class="dashboard-panel-heading"><h2 id="admin-top-tools-title">Most used tools</h2><button type="button" class="dashboard-view-all" @click="selectSection('tools')">View all<ChevronRight :size="14" aria-hidden="true" /></button></div>
+            <div class="dashboard-panel-heading"><h2 id="admin-top-tools-title">{{ t("shared.components_admin_activity_dashboard.most_used_tools") }}</h2><button type="button" class="dashboard-view-all" @click="selectSection('tools')">{{ t("shared.common.view_all") }}<ChevronRight :size="14" aria-hidden="true" /></button></div>
             <div v-if="analytics?.topTools.length" class="dashboard-preview-list">
               <div v-for="tool in analytics.topTools.slice(0, 3)" :key="tool.toolKey" class="dashboard-tool-preview"><span class="dashboard-tool-name">{{ toolName(tool.toolKey) }}</span><span class="dashboard-tool-track"><span :style="{ width: `${(tool.opens / maxToolOpens) * 100}%` }" /></span><strong>{{ number(tool.opens) }}</strong></div>
             </div>
-            <p v-else class="dashboard-empty">{{ !analytics ? 'No analytics available.' : 'No tool activity in this period.' }}</p>
+            <p v-else class="dashboard-empty">{{ !analytics ? t("shared.components_admin_activity_dashboard.no_analytics_available") : t("shared.components_admin_activity_dashboard.no_tool_activity_in_this_period") }}</p>
           </section>
           <section class="dashboard-panel" aria-labelledby="admin-recent-title">
-            <div class="dashboard-panel-heading"><h2 id="admin-recent-title">Recent activity</h2><button type="button" class="dashboard-view-all" @click="selectSection('activity')">View all<ChevronRight :size="14" aria-hidden="true" /></button></div>
+            <div class="dashboard-panel-heading"><h2 id="admin-recent-title">{{ t("shared.components_admin_activity_dashboard.recent_activity") }}</h2><button type="button" class="dashboard-view-all" @click="selectSection('activity')">{{ t("shared.common.view_all") }}<ChevronRight :size="14" aria-hidden="true" /></button></div>
             <div v-if="analytics?.recentActivity.length" class="dashboard-preview-list">
-              <div v-for="item in analytics.recentActivity.slice(0, 3)" :key="item.id" class="dashboard-event-preview"><span class="dashboard-event-dot" :class="{ 'is-complete': item.event === 'COMPLETE' }" /><span><strong>{{ userLabel(item.user) }}</strong><span>{{ toolName(item.toolKey) }}</span></span><span class="dashboard-event-type">{{ item.event === 'COMPLETE' ? 'Completed' : 'Opened' }}</span></div>
+              <div v-for="item in analytics.recentActivity.slice(0, 3)" :key="item.id" class="dashboard-event-preview"><span class="dashboard-event-dot" :class="{ 'is-complete': item.event === 'COMPLETE' }" /><span><strong>{{ userLabel(item.user) }}</strong><span>{{ toolName(item.toolKey) }}</span></span><span class="dashboard-event-type">{{ item.event === 'COMPLETE' ? t("shared.components_admin_activity_dashboard.completed") : t("shared.components_admin_activity_dashboard.opened") }}</span></div>
             </div>
-            <p v-else class="dashboard-empty">{{ !analytics ? 'No analytics available.' : 'No recent activity in this period.' }}</p>
+            <p v-else class="dashboard-empty">{{ !analytics ? t("shared.components_admin_activity_dashboard.no_analytics_available") : t("shared.components_admin_activity_dashboard.no_recent_activity_in_this_period") }}</p>
           </section>
         </div>
       </div>
 
-      <section v-else-if="section === 'tools'" class="dashboard-detail dashboard-panel" aria-label="Most used tools" tabindex="0">
+      <section v-else-if="section === 'tools'" class="dashboard-detail dashboard-panel" :aria-label="t(&quot;shared.components_admin_activity_dashboard.most_used_tools&quot;)" tabindex="0">
         <template v-if="analytics?.topTools.length">
           <NuxtLink v-for="(tool, index) in analytics.topTools" :key="tool.toolKey" :to="toolRoute(tool.toolKey)" class="dashboard-tool-row">
             <span class="dashboard-rank">{{ index + 1 }}</span><span class="dashboard-tool-icon"><ToolIcon :name="tool.toolKey" class="size-5" /></span>
-            <span class="dashboard-row-copy"><strong>{{ toolName(tool.toolKey) }}</strong><span>{{ number(tool.uniqueUsers) }} users · {{ number(tool.completions) }} completed</span></span>
-            <span class="dashboard-row-count"><strong>{{ number(tool.opens) }}</strong><span>opens</span></span><ArrowUpRight :size="16" aria-hidden="true" />
+            <span class="dashboard-row-copy"><strong>{{ toolName(tool.toolKey) }}</strong><span>{{ t("shared.components_admin_activity_dashboard.users_completed", { toolUniqueUsers: number(tool.uniqueUsers), toolCompletions: number(tool.completions) }) }}</span></span>
+            <span class="dashboard-row-count"><strong>{{ number(tool.opens) }}</strong><span>{{ t("shared.components_admin_activity_dashboard.opens") }}</span></span><ArrowUpRight :size="16" aria-hidden="true" />
           </NuxtLink>
         </template>
-        <p v-else class="dashboard-placeholder">{{ props.loading ? 'Loading activity…' : analytics ? 'No tool activity in this period.' : 'No analytics available.' }}</p>
+        <p v-else class="dashboard-placeholder">{{ props.loading ? t("shared.components_admin_activity_dashboard.loading_activity") : analytics ? t("shared.components_admin_activity_dashboard.no_tool_activity_in_this_period") : t("shared.components_admin_activity_dashboard.no_analytics_available") }}</p>
       </section>
 
-      <section v-else-if="section === 'users'" class="dashboard-detail dashboard-panel" aria-label="Most active users" tabindex="0">
+      <section v-else-if="section === 'users'" class="dashboard-detail dashboard-panel" :aria-label="t(&quot;shared.components_admin_activity_dashboard.most_active_users&quot;)" tabindex="0">
         <div v-for="user in analytics?.topUsers ?? []" :key="user.id" class="dashboard-user-row">
           <span class="dashboard-avatar"><img v-if="user.avatarUrl" :src="user.avatarUrl" alt="" referrerpolicy="no-referrer" /><span v-else>{{ initials(user) }}</span></span>
-          <span class="dashboard-row-copy"><strong>{{ userLabel(user) }}</strong><span>{{ user.email || dateTime(user.lastActiveAt) }}</span></span><span class="dashboard-row-count"><strong>{{ number(user.activityCount) }}</strong><span>events</span></span>
+          <span class="dashboard-row-copy"><strong>{{ userLabel(user) }}</strong><span>{{ user.email || dateTime(user.lastActiveAt) }}</span></span><span class="dashboard-row-count"><strong>{{ number(user.activityCount) }}</strong><span>{{ t("shared.components_admin_activity_dashboard.events") }}</span></span>
         </div>
-        <p v-if="!analytics?.topUsers.length" class="dashboard-placeholder">{{ props.loading ? 'Loading activity…' : analytics ? 'No active users in this period.' : 'No analytics available.' }}</p>
+        <p v-if="!analytics?.topUsers.length" class="dashboard-placeholder">{{ props.loading ? t("shared.components_admin_activity_dashboard.loading_activity") : analytics ? t("shared.components_admin_activity_dashboard.no_active_users_in_this_period") : t("shared.components_admin_activity_dashboard.no_analytics_available") }}</p>
       </section>
 
-      <section v-else-if="section === 'activity'" class="dashboard-detail dashboard-panel" aria-label="Recent activity" tabindex="0">
+      <section v-else-if="section === 'activity'" class="dashboard-detail dashboard-panel" :aria-label="t(&quot;shared.components_admin_activity_dashboard.recent_activity&quot;)" tabindex="0">
         <article v-for="item in analytics?.recentActivity ?? []" :key="item.id" class="dashboard-activity-row">
           <span class="dashboard-avatar"><img v-if="item.user.avatarUrl" :src="item.user.avatarUrl" alt="" referrerpolicy="no-referrer" /><span v-else>{{ initials(item.user) }}</span></span>
-          <span class="dashboard-row-copy"><strong>{{ userLabel(item.user) }}</strong><span>{{ toolName(item.toolKey) }}</span></span><span class="dashboard-event-badge" :class="{ 'is-complete': item.event === 'COMPLETE' }">{{ item.event === 'COMPLETE' ? 'Completed' : 'Opened' }}</span><time :datetime="item.createdAt">{{ dateTime(item.createdAt) }}</time>
+          <span class="dashboard-row-copy"><strong>{{ userLabel(item.user) }}</strong><span>{{ toolName(item.toolKey) }}</span></span><span class="dashboard-event-badge" :class="{ 'is-complete': item.event === 'COMPLETE' }">{{ item.event === 'COMPLETE' ? t("shared.components_admin_activity_dashboard.completed") : t("shared.components_admin_activity_dashboard.opened") }}</span><time :datetime="item.createdAt">{{ dateTime(item.createdAt) }}</time>
         </article>
-        <p v-if="!analytics?.recentActivity.length" class="dashboard-placeholder">{{ props.loading ? 'Loading activity…' : analytics ? 'No recent activity in this period.' : 'No analytics available.' }}</p>
+        <p v-if="!analytics?.recentActivity.length" class="dashboard-placeholder">{{ props.loading ? t("shared.components_admin_activity_dashboard.loading_activity") : analytics ? t("shared.components_admin_activity_dashboard.no_recent_activity_in_this_period") : t("shared.components_admin_activity_dashboard.no_analytics_available") }}</p>
       </section>
 
-      <div v-if="khqrVisited" v-show="section === 'khqr'" class="dashboard-detail dashboard-khqr" aria-label="Member KHQR management" tabindex="0"><AdminMemberKhqrManager /></div>
+      <div v-if="khqrVisited" v-show="section === 'khqr'" class="dashboard-detail dashboard-khqr" :aria-label="t(&quot;shared.components_admin_activity_dashboard.member_khqr_management&quot;)" tabindex="0"><AdminMemberKhqrManager /></div>
 
-      <footer class="dashboard-footnote"><ShieldCheck :size="12" aria-hidden="true" /><span>Activity includes only tool names and timestamps—never tool inputs or generated content.</span></footer>
+      <footer class="dashboard-footnote"><ShieldCheck :size="12" aria-hidden="true" /><span>{{ t("shared.components_admin_activity_dashboard.activity_includes_only_tool_names_and_timestamps_never_tool") }}</span></footer>
     </main>
   </div>
 </template>

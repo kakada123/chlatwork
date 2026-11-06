@@ -1,3 +1,4 @@
+import { assertSourceMessage } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -42,7 +43,7 @@ test("post page provides canonical, article metadata, authorship, and disclosure
   assert.match(source, /"@type": "NewsArticle"/);
   assert.match(source, /datePublished/);
   assert.match(source, /EDITORIAL_AUTHOR/);
-  assert.match(source, /Editorial note:/);
+  assertSourceMessage(source, /Editorial note:/);
   assert.match(source, /post\.value\.imagePath/);
   assert.match(source, /currentPost\.imagePath/);
 });

@@ -16,7 +16,7 @@ export type ExpenseDashboardSummary = {
   itemsCount: number;
   totalIncome: number;
   totalSpent: number;
-  categoryBreakdown: { category: string; total: number; percent: number }[];
+  categoryBreakdown: { category: string; categoryKey?: string; total: number; percent: number }[];
   dailyTrend?: ExpenseTrendPoint[];
 };
 

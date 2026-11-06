@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
+const { languageLabel, switchLanguage } = useLanguage();
 import { Moon, Sparkles, Sun, UserRound } from "lucide-vue-next";
 import { getCreatorCredits } from "~/services/creator-ai.service";
 import {
   CREATOR_CATEGORIES,
   getCreatorToolByRoute,
 } from "~/data/creator-tools";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const route = useRoute();
 const { linkTo, product: domainProduct } = useProductDomain();
@@ -65,7 +72,7 @@ onBeforeUnmount(() => {
     <a
       href="#creator-content"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-slate-950"
-      >Skip to Creator content</a
+      >{{ t("products.creator.skip_to_creator_content") }}</a
     >
 
     <LayoutProductNavigation v-if="domainProduct" class="sm:hidden" />
@@ -79,7 +86,7 @@ onBeforeUnmount(() => {
         <NuxtLink
           :to="linkTo('/creator')"
           class="mobile-pressable flex min-h-11 min-w-0 items-center gap-2.5 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-          aria-label="ChlatWork Creator home"
+          :aria-label="t(&quot;products.common.chlat_work_creator_home&quot;)"
         >
           <span
             class="tool-icon-tone tool-icon-tone-violet grid size-10 shrink-0 place-items-center rounded-xl"
@@ -92,12 +99,20 @@ onBeforeUnmount(() => {
               >ChlatWork</span
             >
             <span class="block text-lg font-bold text-[#082552] dark:text-white"
-              >Creator</span
+              >{{ t("products.creator.creator") }}</span
             >
           </span>
         </NuxtLink>
 
         <div class="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            class="mobile-pressable min-h-11 rounded-xl border border-slate-200 px-3 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-white/15"
+            :aria-label="languageLabel"
+            @click="switchLanguage"
+          >
+            {{ languageLabel }}
+          </button>
           <button
             type="button"
             class="mobile-pressable grid size-11 place-items-center rounded-xl border border-slate-200 text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-white/15 dark:text-white/70"
@@ -112,10 +127,10 @@ onBeforeUnmount(() => {
             v-if="signedIn"
             to="/account"
             class="mobile-pressable inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-white/15"
-            aria-label="Open account"
+            :aria-label="t(&quot;products.common.open_account&quot;)"
           >
             <UserRound class="size-5" aria-hidden="true" />
-            <span class="hidden sm:inline">Account</span>
+            <span class="hidden sm:inline">{{ t("products.common.account") }}</span>
           </NuxtLink>
           <button
             v-else
@@ -123,19 +138,19 @@ onBeforeUnmount(() => {
             class="mobile-pressable min-h-11 rounded-xl bg-violet-600 px-3 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:bg-violet-500"
             @click="showLogin = true"
           >
-            Sign in
+            {{ t("products.common.sign_in") }}
           </button>
         </div>
       </div>
       <nav
         class="mx-auto flex max-w-[1244px] gap-1 overflow-x-auto px-4 pb-2 sm:px-6 lg:px-8"
-        aria-label="Creator navigation"
+        :aria-label="t(&quot;products.common.creator_navigation&quot;)"
       >
         <NuxtLink
           to="/creator/credits"
           class="mobile-pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-violet-700 focus-visible:ring-2 focus-visible:ring-violet-500 dark:text-violet-200"
           :aria-current="route.path === '/creator/credits' ? 'page' : undefined"
-          >Credits
+          >{{ t("products.creator.credits_alternative") }}
           <span
             v-if="signedIn && creditBalance !== null"
             class="rounded-lg bg-violet-100 px-2 py-0.5 tabular-nums dark:bg-violet-300/15"
@@ -149,19 +164,19 @@ onBeforeUnmount(() => {
           :aria-current="
             route.path === '/creator/admin/credits' ? 'page' : undefined
           "
-          >Credits & limits</NuxtLink
+          >{{ t("products.creator.credits_limits") }}</NuxtLink
         >
         <NuxtLink
           v-if="signedIn && user?.role === 'ADMIN'"
           to="/admin/bots"
           class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-slate-500 dark:text-white/60"
-          >Bot Admin</NuxtLink
+          >{{ t("products.creator.bot_admin") }}</NuxtLink
         >
         <NuxtLink
           v-if="signedIn && user?.role === 'ADMIN'"
           to="/admin/tools"
           class="mobile-pressable inline-flex min-h-11 shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-slate-500 dark:text-white/60"
-        >Tool availability</NuxtLink>
+        >{{ t("products.creator.tool_availability") }}</NuxtLink>
         <NuxtLink
           v-for="category in CREATOR_CATEGORIES"
           :key="category.id"
@@ -175,7 +190,7 @@ onBeforeUnmount(() => {
           :aria-current="
             activeCategory === category.id ? 'location' : undefined
           "
-          >{{ category.title }}</NuxtLink
+          >{{ productText(category.title) }}</NuxtLink
         >
       </nav>
     </header>
@@ -197,14 +212,14 @@ onBeforeUnmount(() => {
         class="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-3"
       >
         <p>ChlatWork Creator</p>
-        <nav class="flex gap-4" aria-label="Creator policies">
+        <nav class="flex gap-4" :aria-label="t(&quot;products.common.creator_policies&quot;)">
           <NuxtLink
             to="/privacy-policy"
             class="underline-offset-4 hover:underline"
-            >Privacy</NuxtLink
+            >{{ t("products.moments.birthday_wish_generator.privacy") }}</NuxtLink
           >
           <NuxtLink to="/terms" class="underline-offset-4 hover:underline"
-            >Terms</NuxtLink
+            >{{ t("products.creator.terms") }}</NuxtLink
           >
         </nav>
       </div>

@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -21,6 +22,7 @@ function pageHarness({
   autoAcknowledgeFeedback = true,
   fixedQuestions = true,
   randomSeed = 7,
+  locale = "km",
 } = {}) {
   const mounts: (() => void)[] = [];
   const unmounts: (() => void)[] = [];
@@ -47,6 +49,7 @@ function pageHarness({
     randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0;
     return randomState / 4294967296;
   };
+  const interfaceKhmer = vue.ref(locale === "km");
   const globals = {
     Math: seededMath,
     ref: vue.ref,
@@ -83,6 +86,8 @@ function pageHarness({
   new Function("require", "module", "exports", ...Object.keys(globals), source)(
     (name: string) => {
       if (name === "vue") return vue;
+      if (name === "~/composables/useAppI18n") return { useAppI18n: () => createI18nStub(interfaceKhmer) };
+      if (name === "~/composables/useLanguage") return { useLanguage: () => ({ isKhmer: interfaceKhmer }) };
       if (name === "canvas-confetti")
         return {
           __esModule: true,
@@ -1228,4 +1233,24 @@ test("the page compiles client and SSR templates and scoped styles", () => {
     }).errors,
     [],
   );
+});
+
+test("English instructions and feedback preserve the original canonical typing answer", () => {
+  const page = pageHarness({ locale: "en", autoAcknowledgeFeedback: false });
+  try {
+    assert.equal(page.state.stageTitle.value, "Test your patience");
+    assert.equal(page.state.requiredPhrase.value, "ខ្ញុំអត់ធ្មត់");
+    assert.equal(page.state.colorChoices[1].label, "Blue");
+    assert.equal(page.state.insects[0].id, "cockroach");
+    assert.equal(page.state.insects[0].label, "Cockroach");
+    page.state.phase.value = "typing";
+    page.state.typedPhrase.value = "not the canonical phrase";
+    page.state.submitPhrase();
+    assert.equal(page.state.feedback.value.kind, "wrong");
+    assert.equal(page.state.feedback.value.title, "Wrong! 😅");
+    assert.ok(page.state.feedback.value.message.includes(page.state.requiredPhrase.value));
+    assert.match(page.state.feedback.value.message, /Type/);
+  } finally {
+    page.dispose();
+  }
 });

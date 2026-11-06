@@ -1,3 +1,4 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -147,7 +148,7 @@ test("Telegram sends one detailed spending overview at 10 PM", () => {
     "utf8",
   );
 
-  assert.match(account, /Daily spending overview at 10:00 PM/);
+  assertSourceMessage(account, /Daily spending overview at 10:00 PM/);
   assert.match(account, /Intl\.DateTimeFormat\(\)\.resolvedOptions\(\)\.timeZone/);
   assert.match(scheduler, /FOR UPDATE SKIP LOCKED/);
   assert.match(scheduler, /profile\."rangeMode"::text/);
@@ -192,8 +193,8 @@ test("profile provides account-owned Expense Tracker access and status", () => {
 
   assert.match(account, /id="profile-expense-tracker"/);
   assert.match(account, /\/api\/expenses\/state/);
-  assert.match(account, /savedExpenseCount/);
-  assert.match(account, /Quick add on/);
+  assertSourceMessage(account, /savedExpenseCount/);
+  assertSourceMessage(account, /Quick add on/);
   assert.match(account, /to="\/tools\/expense-tracker"/);
   assert.match(account, /chlatwork:quick-expense-saved/);
 });
@@ -215,7 +216,7 @@ test("mobile account UI uses only current profile capabilities", () => {
   const layout = readFileSync("app/layouts/default.vue", "utf8");
   const bottomNav = readFileSync("app/components/layout/MobileBottomNav.vue", "utf8");
 
-  assert.match(account, /Manage your profile, saved work, and tool activity\./);
+  assertSourceMessage(account, /Manage your profile, saved work, and tool activity\./);
   assert.match(account, /id="account-menu-title"/);
   assert.match(account, /openMobileAccountSection\('expenses'\)/);
   assert.match(account, /openMobileAccountSection\('moments'\)/);
@@ -224,17 +225,17 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(account, /openMobileAccountSection\('favorite-tools'\)/);
   assert.match(account, /openMobileAccountSection\('favorite-commands'\)/);
   assert.match(account, /mobileAccountSection === 'expenses' \? 'block' : 'hidden sm:block'/);
-  assert.match(account, /MOBILE_ACCOUNT_SECTION_TITLES/);
-  assert.match(account, /expenses: "Expense Tracker"/);
-  assert.match(account, /moments: "Your Moments"/);
-  assert.match(account, /payback: "PayBack history"/);
-  assert.match(account, /activity: "Tool activity"/);
-  assert.match(account, /"favorite-tools": "Favorite tools"/);
-  assert.match(account, /"favorite-commands": "Favorite commands"/);
-  assert.match(account, /Back to Account from \$\{mobileAccountSectionTitle\}/);
+  assert.match(account, /MOBILE_ACCOUNT_SECTION_KEYS/);
+  assertSourceMessage(account, "Expense Tracker");
+  assertSourceMessage(account, "Your Moments");
+  assertSourceMessage(account, "PayBack history");
+  assertSourceMessage(account, "Tool activity");
+  assertSourceMessage(account, "Favorite tools");
+  assertSourceMessage(account, "Favorite commands");
+  assertTranslatedAttribute(account, "Back to Account from {mobileAccountSectionTitle}");
   assert.match(account, /<h1[^>]*>\{\{ mobileAccountSectionTitle \}\}<\/h1>/);
   assert.doesNotMatch(account, />Back<|>Account menu</);
-  assert.match(account, /aria-label="Expense Tracker"/);
+  assertTranslatedAttribute(account, "Expense Tracker");
   assert.match(account, /class="space-y-3 sm:hidden"/);
   assert.match(account, /@click="openQuickExpense"/);
   assert.match(account, /> Add expense/);
@@ -243,26 +244,27 @@ test("mobile account UI uses only current profile capabilities", () => {
   assert.match(account, /id="profile-favorite-commands" class="sr-only sm:not-sr-only/);
   assert.match(account, /mobileAccountSection \? 'hidden sm:flex' : 'flex'/);
   assert.match(account, />Appearance</);
-  assert.match(account, /Choose how ChlatWork looks/);
-  assert.match(account, /\{\{ isDark \? "Dark" : "Light" \}\}/);
+  assertSourceMessage(account, /Choose how ChlatWork looks/);
+  assertSourceMessage(account, "Dark");
+  assertSourceMessage(account, "Light");
   assert.equal(account.match(/@click="toggleColorMode"/g)?.length, 1);
-  assert.match(account, /aria-label="ChlatWork information"/);
+  assertTranslatedAttribute(account, "ChlatWork information");
   assert.match(account, /accountInformationGroups/);
-  assert.match(account, /label: "About", to: "\/about"/);
-  assert.match(account, /label: "Editorial policy", to: "\/editorial-policy"/);
-  assert.match(account, /label: "Privacy & cookie settings", action: "cookie-settings"/);
-  assert.match(account, /label: "Support ChlatWork", to: "\/buy-me-coffee"/);
+  assertSourceMessage(account, "About");
+  assertSourceMessage(account, "Editorial policy");
+  assertSourceMessage(account, "Privacy & cookie settings");
+  assertSourceMessage(account, "Support ChlatWork");
   assert.match(account, /@click="openPrivacyCookieSettings"/);
   assert.match(account, /query: \{ from: "account" \}/);
   assert.match(account, /:to="accountInformationRoute\(item\.to\)"/);
-  assert.doesNotMatch(account, /aria-label="Mobile primary navigation"/);
+  assert.doesNotMatch(account, /<MobileBottomNav|shared\.components_layout_mobile_bottom_nav\.mobile_primary_navigation/);
   assert.match(layout, /<MobileBottomNav/);
   assert.match(bottomNav, /isAccountActive/);
-  assert.match(bottomNav, /aria-label="Mobile primary navigation"/);
-  assert.match(account, /Sign out from your ChlatWork account/);
+  assertTranslatedAttribute(bottomNav, "Mobile primary navigation");
+  assertSourceMessage(account, /Sign out from your ChlatWork account/);
   assert.match(layout, /routesWithEmbeddedMobileChrome/);
   assert.doesNotMatch(account, /Free Plan|Upgrade to Pro|Billing & Plan|API Keys/);
-  assert.match(account, /Telegram notifications/);
+  assertSourceMessage(account, /Telegram notifications/);
 });
 
 test("account expense summary uses saved decimal-safe tracker calculations", () => {
@@ -273,11 +275,11 @@ test("account expense summary uses saved decimal-safe tracker calculations", () 
   assert.match(account, /getBudgetValue\(state\.budget\)/);
   assert.match(account, /getBudgetRemaining\(budgetValue, totalSpent\)/);
   assert.match(account, /getBudgetPercent\(totalSpent, budgetValue\)/);
-  assert.match(account, /aria-label="Saved expense summary"/);
-  assert.match(account, /Spent · \{\{ expenseSummary\.rangeLabel \}\}/);
-  assert.match(account, /\{\{ expenseState\.budget\.period \}\} budget/);
-  assert.match(account, /Over budget/);
-  assert.match(account, /Remaining/);
+  assertTranslatedAttribute(account, "Saved expense summary");
+  assertSourceMessage(account, /Spent ·/);
+  assertSourceMessage(account, /\{budget_period\} budget/);
+  assertSourceMessage(account, /Over budget/);
+  assertSourceMessage(account, /Remaining/);
   assert.match(account, /<MoneyAmount/);
 });
 
@@ -323,7 +325,7 @@ test("tool inputs stay public while protected results require authentication", (
   const faq = readFileSync("app/components/landing/LandingFaq.vue", "utf8");
   const expense = readFileSync("app/pages/tools/expense-tracker.vue", "utf8");
   const payback = readFileSync("app/pages/tools/payback-calculator.vue", "utf8");
-  assert.match(gate, /Sign in to view your result/);
+  assertSourceMessage(gate, /Sign in to view your result/);
   assert.match(gate, /AuthLoginDialog/);
   assert.match(dialog, /role="dialog"/);
   assert.match(dialog, /AuthSocialAuthButtons/);
@@ -331,7 +333,7 @@ test("tool inputs stay public while protected results require authentication", (
   assert.doesNotMatch(payback, /definePageMeta\(\{ middleware: "auth"/);
   assert.match(expense, /AuthResultAuthGate/);
   assert.match(payback, /AuthResultAuthGate/);
-  assert.match(faq, /open a tool and enter data without an account/);
+  assertSourceMessage(faq, /open a tool and enter data without an account/);
 });
 
 test("already-run auth SQL stays separate from the account-tool update SQL", () => {

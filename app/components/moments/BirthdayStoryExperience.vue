@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import BirthdayMusicPlayer from "~/components/moments/BirthdayMusicPlayer.vue";
 import BirthdayCelebration from "~/components/moments/BirthdayCelebration.vue";
@@ -14,6 +15,8 @@ import { readMomentBlockText } from "~/lib/moments";
 import { MOMENT_COPY } from "~/data/moment-locales";
 import type { MomentBlock, ReadyMoment } from "~/types/moment";
 
+
+
 const props = withDefaults(defineProps<{
   moment: ReadyMoment;
   settings: BirthdayStorySettings;
@@ -21,6 +24,7 @@ const props = withDefaults(defineProps<{
   locale?: "en" | "km";
   externalMusic?: boolean;
 }>(), { preview: false, locale: "en", externalMusic: false });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const hero = computed(() => props.moment.blocks.find((block: MomentBlock) => block.type === "HERO"));
 const title = computed(() => readMomentBlockText(hero.value, "title") || props.moment.title);
 const message = computed(() => readMomentBlockText(props.moment.blocks.find((block: MomentBlock) => block.type === "MESSAGE"), "message"));
@@ -51,13 +55,10 @@ const canContinue = computed(() => {
   if (scene.value === "cake") return extinguished.value.length >= props.settings.cake.candles;
   return true;
 });
-const sceneNames = computed(() => props.locale === "km" ? {
-  gift: "អំណោយសម្រាប់អ្នក", cake: "បួងសួងមួយ", memories: "អនុស្សាវរីយ៍របស់យើង",
-  message: "សំបុត្រសម្រាប់អ្នក", secret: "ការភ្ញាក់ផ្អើលមួយទៀត", celebration: "ដល់ពេលអបអរ",
-} : {
-  gift: "A gift for you", cake: "Make a wish", memories: "Our memories",
-  message: "A letter for you", secret: "One more surprise", celebration: "Time to celebrate",
-});
+const sceneNames = computed(() => ({
+  gift: t("products.moments.birthday_story_experience.gift"), cake: t("products.moments.birthday_story_experience.cake"), memories: t("products.moments.birthday_story_experience.memories"),
+  message: t("products.moments.birthday_story_experience.message"), secret: t("products.moments.birthday_story_experience.secret"), celebration: t("products.moments.birthday_story_experience.celebration"),
+}));
 
 function openGift() {
   if (giftOpened.value) return;
@@ -117,10 +118,10 @@ async function share() {
     try {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(url);
-      shareStatus.value = props.locale === "km" ? "បានចម្លងតំណហើយ។" : "Link copied.";
+      shareStatus.value = t("products.moments.link_copied");
     } catch {
       shareUrl.value = url;
-      shareStatus.value = props.locale === "km" ? "សូមចម្លងតំណខាងក្រោមដើម្បីចែករំលែក។" : "Copy the link below to share this birthday.";
+      shareStatus.value = t("products.moments.copy_the_link_below_to_share_this_birthday");
     }
   } finally { sharing.value = false; }
 }
@@ -146,7 +147,7 @@ onBeforeUnmount(cancelGiftTransition);
     :lang="locale"
   >
     <header class="story-header"><p class="story-recipient">{{ moment.recipientName }}</p><h1>{{ title }}</h1></header>
-    <nav class="story-progress" :aria-label="locale === 'km' ? 'ដំណើររឿង' : 'Story progress'">
+    <nav class="story-progress" :aria-label="t(&quot;products.moments.story_progress&quot;)">
       <ol>
         <li
           v-for="(item, position) in scenes"
@@ -190,13 +191,13 @@ onBeforeUnmount(cancelGiftTransition);
       </div>
       <div class="story-navigation">
         <button type="button" class="story-action" data-action="previous" :disabled="index === 0" @click="move(-1)">
-          {{ locale === 'km' ? '← មុន' : '← Previous' }}
+          {{ t("products.common.previous") }}
         </button>
         <button v-if="index < scenes.length - 1" type="button" class="story-action story-next" data-action="next" :disabled="!canContinue" @click="move(1)">
-          {{ locale === 'km' ? 'បន្ទាប់ →' : 'Next →' }}
+          {{ t("products.common.next_to") }}
         </button>
         <button v-else-if="settings.allowReplay" type="button" class="story-action story-next" data-action="replay" @click="replay">
-          {{ locale === 'km' ? 'ចាប់ផ្ដើមម្ដងទៀត ↻' : 'Replay ↻' }}
+          {{ t("products.moments.replay") }}
         </button>
       </div>
     </section>

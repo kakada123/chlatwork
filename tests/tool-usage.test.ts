@@ -1,3 +1,4 @@
+import { assertSourceMessage } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -61,8 +62,8 @@ test("profile displays and can clear account tool usage", () => {
   const profile = readFileSync("app/pages/account.vue", "utf8");
   const privacy = readFileSync("app/pages/privacy-policy.vue", "utf8");
 
-  assert.match(profile, /Most used tools/);
-  assert.match(profile, /Clear history/);
+  assertSourceMessage(profile, /Most used tools/);
+  assertSourceMessage(profile, /Clear history/);
   assert.match(profile, /getToolUsageSummary/);
-  assert.match(privacy, /does not\s+include tool inputs, generated content, filenames, or URL query values/);
+  assertSourceMessage(privacy, /does not\s+include tool inputs, generated content, filenames, or URL query values/);
 });

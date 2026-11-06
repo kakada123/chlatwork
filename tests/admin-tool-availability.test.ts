@@ -1,3 +1,4 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -20,6 +21,6 @@ test("tool availability rows use accessible auto-saving switches", () => {
 test("a failed auto-save restores the persisted availability state", () => {
   assert.match(
     source,
-    /catch \{[\s\S]*draft\[row\.key\] = row\.enabled;[\s\S]*Could not save/,
+    /catch \{[\s\S]*draft\[row\.key\] = row\.enabled;[\s\S]*saveError\.value = t\(/,
   );
 });

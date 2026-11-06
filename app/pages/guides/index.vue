@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { STARTER_GUIDES } from "~/data/guides";
 import { getStarterGuideKm } from "~/data/starter-guides-km";
 import { BookOpen } from "lucide-vue-next";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
-const title = "ChlatWork Guides - Practical Tool Workflows";
-const description =
-  "Practical guides for QR codes, barcodes, PDF workflows, Khmer Unicode cleanup, and Cambodia-focused tool use.";
+const title = computed(() => t("shared.pages_guides_index.chlat_work_guides_practical_tool_workflows"));
+const description = computed(() => t("shared.pages_guides_index.practical_guides_for_qr_codes_barcodes_pdf_workflows_khmer"));
 
 useSeoMeta({
   title,
@@ -29,10 +31,10 @@ useHead({
   <main class="mx-auto w-full max-w-[1200px] space-y-8 text-slate-950 dark:text-white">
     <header class="border-b border-slate-200 pb-5 dark:border-white/10">
       <h1 class="text-3xl font-black sm:text-4xl">
-        {{ isKhmer ? "មេរៀន និងការណែនាំ" : "Guides" }}
+        {{ t("shared.pages_guides_index.guides") }}
       </h1>
       <p class="mt-2 text-xs text-slate-500 dark:text-white/50">
-        {{ isKhmer ? `មេរៀនអនុវត្តការងារជាក់ស្តែង ${STARTER_GUIDES.length}` : `${STARTER_GUIDES.length} practical workflows` }}
+        {{ t("shared.pages_guides_index.practical_workflows", { STARTERGUIDESLength: STARTER_GUIDES.length }) }}
       </p>
     </header>
 

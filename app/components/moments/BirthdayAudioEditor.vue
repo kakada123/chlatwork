@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 import {
   formatBirthdayAudioTime,
@@ -13,29 +14,11 @@ const props = withDefaults(defineProps<{
   modelValue?: BirthdayAudioClip | null;
   locale?: "en" | "km";
 }>(), { modelValue: null, locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const emit = defineEmits<{ "update:modelValue": [value: BirthdayAudioClip | null] }>();
 
-const messages = {
-  en: {
-    title: "Birthday music", description: "Listen to a track, choose a section, then preview and apply it. Music is optional.",
-    search: "Search tracks", empty: "No tracks found.", preview: "Preview", stop: "Stop", choose: "Choose", chosen: "Chosen",
-    start: "Start (seconds)", end: "End (seconds)", length: "Clip length", trim: "Choose at least 1 second.",
-    previewClip: "Preview selected clip", apply: "Use this clip", beforeApply: "Preview this section before applying it.",
-    selected: "Music for your Moment", none: "No background music selected.", remove: "Remove music",
-    loading: "Loading music…", playing: "Playing preview", error: "Music could not play. Please try again.",
-    catalogError: "The music library could not load.", retry: "Try again",
-  },
-  km: {
-    title: "តន្ត្រីថ្ងៃកំណើត", description: "ស្តាប់បទចម្រៀង ជ្រើសរើសផ្នែកណាមួយ រួចសាកស្តាប់ និងអនុវត្ត។ តន្ត្រីជាជម្រើសបន្ថែម។",
-    search: "ស្វែងរកបទចម្រៀង", empty: "រកមិនឃើញបទចម្រៀង។", preview: "សាកស្តាប់", stop: "បញ្ឈប់", choose: "ជ្រើសរើស", chosen: "បានជ្រើសរើស",
-    start: "ចាប់ផ្តើម (វិនាទី)", end: "បញ្ចប់ (វិនាទី)", length: "រយៈពេលតន្ត្រី", trim: "ជ្រើសរើសយ៉ាងតិច ១ វិនាទី។",
-    previewClip: "សាកស្តាប់ផ្នែកដែលបានជ្រើស", apply: "ប្រើផ្នែកនេះ", beforeApply: "សាកស្តាប់ផ្នែកនេះមុនពេលអនុវត្ត។",
-    selected: "តន្ត្រីសម្រាប់ Moment របស់អ្នក", none: "មិនទាន់បានជ្រើសរើសតន្ត្រីផ្ទៃខាងក្រោយ។", remove: "ដកតន្ត្រីចេញ",
-    loading: "កំពុងផ្ទុកតន្ត្រី…", playing: "កំពុងសាកស្តាប់", error: "មិនអាចចាក់តន្ត្រីបានទេ។ សូមព្យាយាមម្តងទៀត។",
-    catalogError: "មិនអាចផ្ទុកបណ្ណាល័យតន្ត្រីបានទេ។", retry: "ព្យាយាមម្តងទៀត",
-  },
-};
-const copy = computed(() => props.locale === "km" ? messages.km : messages.en);
+
+const copy = computed(() => ({ title: t("products.moments.audio.title"), description: t("products.moments.audio.description"), search: t("products.moments.audio.search"), empty: t("products.moments.audio.empty"), preview: t("products.moments.audio.preview"), stop: t("products.moments.audio.stop"), choose: t("products.moments.audio.choose"), chosen: t("products.moments.audio.chosen"), start: t("products.moments.audio.start"), end: t("products.moments.audio.end"), length: t("products.moments.audio.length"), trim: t("products.moments.audio.trim"), previewClip: t("products.moments.audio.preview_clip"), apply: t("products.moments.audio.apply"), beforeApply: t("products.moments.audio.before_apply"), selected: t("products.moments.audio.selected"), none: t("products.moments.audio.none"), remove: t("products.moments.audio.remove"), loading: t("products.moments.audio.loading"), playing: t("products.moments.audio.playing"), error: t("products.moments.audio.error"), catalogError: t("products.moments.audio.catalog_error"), retry: t("products.moments.audio.retry") }));
 const { tracks, loading: catalogLoading, error: catalogError, refresh: reloadCatalog } = useBirthdayAudioCatalog();
 const inputId = useId();
 const search = ref("");

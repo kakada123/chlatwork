@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   BookOpen,
   CircleUserRound,
@@ -12,17 +13,19 @@ import {
 } from "lucide-vue-next";
 import {
   getProductMobileNavigation,
+  getProductMobileLabelKey,
   isProductMobileItemActive,
   mobileProductTarget,
   type ProductMobileItem,
 } from "~/lib/product-mobile-navigation";
 import { QUICK_EXPENSE_OPEN_EVENT } from "~/composables/useQuickExpense";
 
+const { t } = useAppI18n();
+
 const { product, config } = useProductDomain();
 const route = useRoute();
-const { isKhmer } = useLanguage();
-const momentLanguage = product === "moment" ? useMomentLanguage() : undefined;
-const khmer = computed(() => momentLanguage?.isKhmer.value ?? isKhmer.value);
+const { isKhmer, locale } = useLanguage();
+const khmer = isKhmer;
 const { user, isReady, fetchMe } = useAuth();
 const { websiteEnabled } = useFeatureAvailability();
 const keyboardActive = ref(false);
@@ -52,7 +55,7 @@ function target(item: ProductMobileItem) {
   return mobileProductTarget(
     product!,
     item.to || "/",
-    momentLanguage?.locale.value || "en",
+    locale.value,
   );
 }
 function active(item: ProductMobileItem) {
@@ -96,7 +99,7 @@ onBeforeUnmount(() => {
   <nav
     v-if="product && !keyboardActive"
     class="product-mobile-nav fixed inset-x-0 bottom-0 z-50 flex border-t border-slate-200 bg-white/95 px-2 pt-1 backdrop-blur dark:border-white/10 dark:bg-neutral-950/95 sm:hidden"
-    :aria-label="khmer ? 'រុករកកម្មវិធី' : 'Product navigation'"
+    :aria-label="t(&quot;shared.components_layout_product_mobile_nav.product_navigation&quot;)"
   >
     <template v-for="item in items" :key="item.key">
       <button
@@ -110,7 +113,7 @@ onBeforeUnmount(() => {
           :is="icons[item.icon]"
           class="size-5"
           aria-hidden="true"
-        /><span>{{ khmer ? item.labelKm : item.label }}</span>
+        /><span>{{ t(getProductMobileLabelKey(product, item)) }}</span>
       </button>
       <a
         v-else-if="item.externalPath"
@@ -121,7 +124,7 @@ onBeforeUnmount(() => {
           :is="icons[item.icon]"
           class="size-5"
           aria-hidden="true"
-        /><span>{{ khmer ? item.labelKm : item.label }}</span>
+        /><span>{{ t(getProductMobileLabelKey(product, item)) }}</span>
       </a>
       <NuxtLink
         v-else
@@ -139,7 +142,7 @@ onBeforeUnmount(() => {
           :is="icons[item.icon]"
           class="size-5"
           aria-hidden="true"
-        /><span>{{ khmer ? item.labelKm : item.label }}</span>
+        /><span>{{ t(getProductMobileLabelKey(product, item)) }}</span>
       </NuxtLink>
     </template>
   </nav>

@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "តេស្ត Regex (JavaScript)" : "Regex Tester" }}
+        {{ t("tools.regexTester.regexTester") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "តេស្ត JavaScript Regular Expressions, កំណត់ flags និងពិនិត្យលទ្ធផល match ផ្ទាល់ក្នុង Browser។" : "Test JavaScript regular expressions, toggle flags, and inspect matches." }}
+        {{ t("tools.regexTester.testJavaScriptRegularExpressionsToggleFlagsAndInspect") }}
       </p>
     </div>
 
@@ -14,7 +14,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "លំនាំ Pattern" : "Pattern" }}
+              {{ t("tools.regexTester.pattern") }}
             </label>
             <input
               v-model="pattern"
@@ -25,7 +25,7 @@
 
           <div>
             <p class="mb-2 text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "ជម្រើស Flags" : "Flags" }}
+              {{ t("tools.regexTester.flags") }}
             </p>
             <div class="grid grid-cols-2 gap-2">
               <label
@@ -35,30 +35,30 @@
               >
                 <input v-model="flags[flag.key]" type="checkbox" class="h-4 w-4" />
                 <span class="font-mono">{{ flag.key }}</span>
-                <span class="text-gray-500">{{ flag.label }}</span>
+                <span class="text-gray-500">{{ t(`tools.regexTester.flags.${flag.key}`) }}</span>
               </label>
             </div>
           </div>
 
           <div class="rounded-lg bg-gray-50 p-3 text-sm">
             <p class="font-semibold text-gray-700">
-              {{ isKhmer ? "កន្សោម Regex" : "Expression" }}
+              {{ t("tools.regexTester.expression") }}
             </p>
             <p class="mt-1 break-all font-mono text-gray-600">
               /{{ pattern || "" }}/{{ flagString }}
             </p>
           </div>
-          <p v-if="regexError" class="text-sm text-red-600">{{ regexError }}</p>
+          <p v-if="regexError" class="text-sm text-red-600">{{ localizeToolError(regexError, isKhmer) }}</p>
         </div>
 
         <div class="space-y-2">
           <label class="block text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "អត្ថបទសម្រាប់តេស្ត" : "Test string" }}
+            {{ t("tools.regexTester.testString") }}
           </label>
           <textarea
             v-model="testText"
             class="h-80 w-full resize-y rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-            :placeholder="isKhmer ? 'បិទភ្ជាប់អត្ថបទដើម្បីតេស្ត' : 'Paste text to test'"
+            :placeholder="t(&quot;tools.regexTester.pasteTextToTest&quot;)"
           />
         </div>
       </div>
@@ -67,13 +67,13 @@
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-3 flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold text-gray-900">
-          {{ isKhmer ? "ទិដ្ឋភាព Match" : "Match preview" }}
+          {{ t("tools.regexTester.matchPreview") }}
         </h2>
         <span
           v-if="matches.length"
           class="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100"
         >
-          {{ isKhmer ? `${matches.length} ត្រូវគ្នា` : `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` }}
+          {{ t(matches.length === 1 ? "tools.regexTester.matchCount.one" : "tools.regexTester.matchCount.other", { count: matches.length }) }}
         </span>
       </div>
       <pre
@@ -84,24 +84,24 @@
           >{{ segment.text }}</mark
         ><span v-else>{{ segment.text }}</span></template></pre>
       <p v-if="!matches.length" class="mt-3 text-sm text-gray-500">
-        {{ isKhmer ? "រកមិនឃើញលទ្ធផលត្រូវគ្នាឡើយ។" : "No matches found." }}
+        {{ t("tools.regexTester.noMatchesFound") }}
       </p>
     </section>
 
     <section v-if="matches.length" class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-3 flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold text-gray-900">
-          {{ isKhmer ? `លទ្ធផលត្រូវគ្នា (${matches.length})` : `Matches (${matches.length})` }}
+          {{ t("tools.regexTester.matches", { matchesLength: matches.length }) }}
         </h2>
-        <CopyButton :text="matchesText" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy matches'" />
+        <CopyButton :text="matchesText" :label="t(&quot;tools.regexTester.copyMatches&quot;)" />
       </div>
       <div class="overflow-auto rounded-lg border">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 text-left">
             <tr>
-              <th class="p-2 font-semibold">{{ isKhmer ? "លំដាប់" : "Index" }}</th>
-              <th class="p-2 font-semibold">{{ isKhmer ? "លទ្ធផល" : "Match" }}</th>
-              <th class="p-2 font-semibold">{{ isKhmer ? "ក្រុម (Groups)" : "Groups" }}</th>
+              <th class="p-2 font-semibold">{{ t("tools.regexTester.index") }}</th>
+              <th class="p-2 font-semibold">{{ t("tools.regexTester.match") }}</th>
+              <th class="p-2 font-semibold">{{ t("tools.regexTester.groups") }}</th>
             </tr>
           </thead>
           <tbody>
@@ -120,16 +120,23 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "Regex Tester - ChlatWork",
-  description: "Test JavaScript regular expressions with flags, match highlighting, and groups.",
-  ogTitle: "Regex Tester - ChlatWork",
-  ogDescription: "Browser-based regex tester for JavaScript patterns.",
+  title: () => t("tools.regexTester.metaTitle"),
+  description: () => t("tools.regexTester.metaDescription"),
+  ogTitle: () => t("tools.regexTester.metaOgTitle"),
+  ogDescription: () => t("tools.regexTester.metaOgDescription"),
 });
 
 type FlagKey = "g" | "i" | "m" | "s" | "u";
@@ -144,12 +151,12 @@ const flags = reactive<Record<FlagKey, boolean>>({
   u: false,
 });
 
-const flagRows: Array<{ key: FlagKey; label: string }> = [
-  { key: "g", label: "global" },
-  { key: "i", label: "ignore case" },
-  { key: "m", label: "multiline" },
-  { key: "s", label: "dot all" },
-  { key: "u", label: "unicode" },
+const flagRows: Array<{ key: FlagKey }> = [
+  { key: "g" },
+  { key: "i" },
+  { key: "m" },
+  { key: "s" },
+  { key: "u" },
 ];
 
 const flagString = computed(() =>

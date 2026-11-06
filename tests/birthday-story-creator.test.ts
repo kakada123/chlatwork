@@ -1,3 +1,5 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
+import { productCopyStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -17,6 +19,8 @@ function compile(filename: string): string {
   const { descriptor } = parse(readFileSync(filename, "utf8"), { filename });
   const source = compileScript(descriptor, { id: filename, inlineTemplate: true }).content;
   return ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
+    .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
+    .replace(/from ["']~\/composables\/useProductCopy["']/g, `from ${JSON.stringify(productCopyStubUrl)}`)
     .replace(/from ["']vue["']/g, `from ${JSON.stringify(vue)}`)
     .replace(/from ["'](~\/(?:lib|data)\/[^"']+)["']/g, (_match, path) => `from ${JSON.stringify(new URL(`../app/${path.slice(2)}.ts`, import.meta.url).href)}`);
 }

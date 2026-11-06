@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { getPortfolioCopy } from "~/data/portfolio-km";
 import {
   portfolioAbout,
   portfolioContacts,
@@ -10,11 +12,14 @@ import {
   portfolioWorkingStyle,
 } from "~/data/portfolio";
 
+const { t } = useAppI18n();
+
+const { locale, isKhmer } = useLanguage();
+const portfolioCopy = computed(() => getPortfolioCopy(locale.value));
 const pageEl = ref<HTMLElement | null>(null);
 const siteUrl = "https://chlatwork.com";
-const pageTitle = "Kakada Ngen - Backend & Full-Stack Developer";
-const pageDescription =
-  "Portfolio for Kakada Ngen, a backend-focused full-stack developer building POS systems, APIs, dashboards, microservices, Electron apps, and automation tools.";
+const pageTitle = computed(() => t("shared.pages_portfolio.kakada_ngen_backend_full_stack_developer"));
+const pageDescription = computed(() => t("shared.pages_portfolio.portfolio_for_kakada_ngen_a_backend_focused_full_stack"));
 const pageUrl = `${siteUrl}/portfolio`;
 const ogImage = `${siteUrl}/og-home.png?v=20261104`;
 
@@ -76,14 +81,14 @@ useHead({
     ref="pageEl"
     class="overflow-hidden text-slate-950 dark:text-white"
   >
-    <PortfolioHero :profile="portfolioProfile" :metrics="portfolioMetrics" />
+    <PortfolioHero :profile="portfolioCopy.profile" :metrics="portfolioCopy.metrics" />
     <PortfolioAbout
-      :paragraphs="portfolioAbout"
-      :highlights="portfolioHighlights"
+      :paragraphs="portfolioCopy.about"
+      :highlights="portfolioCopy.highlights"
     />
-    <PortfolioSkills :groups="portfolioSkills" />
-    <PortfolioProjects :projects="portfolioProjects" />
-    <PortfolioWorkingStyle :items="portfolioWorkingStyle" />
-    <PortfolioContact :links="portfolioContacts" />
+    <PortfolioSkills :groups="portfolioCopy.skills" />
+    <PortfolioProjects :projects="portfolioCopy.projects" />
+    <PortfolioWorkingStyle :items="portfolioCopy.workingStyle" />
+    <PortfolioContact :links="portfolioCopy.contacts" />
   </main>
 </template>

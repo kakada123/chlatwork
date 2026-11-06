@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -52,6 +53,7 @@ function harness() {
     watch: vue.watch,
     definePageMeta: () => {},
     useRoute: () => route,
+    useLanguage: () => ({ isKhmer: vue.ref(false) }),
     useBotSession: () => ({
       state,
       epoch,
@@ -71,7 +73,7 @@ function harness() {
       "exports",
       ...Object.keys(globals),
       `${compiled}\nreturn { group, groups, loading, error, load };`,
-    )(() => ({ groupApi: api }), {}, ...Object.values(globals)),
+    )((name: string) => name === "~/composables/useAppI18n" ? { useAppI18n: createI18nStub } : { groupApi: api }, {}, ...Object.values(globals)),
   );
   return {
     page,

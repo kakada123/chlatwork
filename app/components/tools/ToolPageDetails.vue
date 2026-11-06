@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolGuide } from "~/data/tool-guides-km";
 import type { ToolGuide } from "~/data/tool-guides";
 import ToolContentLayout from "~/components/tools/ToolContentLayout.vue";
 import { EDITORIAL_AUTHOR } from "~/data/editorial-identity";
+
+const { t } = useAppI18n();
 
 const props = withDefaults(
   defineProps<{
@@ -18,7 +22,8 @@ const { isKhmer, localizeTool } = useLanguage();
 const { destination } = useProductDomain();
 const localizedTool = computed(() => localizeTool(props.guide.tool));
 const canonicalUrl = computed(() => destination(props.guide.tool.route));
-const faqs = computed(() => props.guide.faqs.slice(0, 6));
+const localizedGuide = computed(() => localizeToolGuide(props.guide, t("shared.components_admin_bot_group_workspaces.en"), localizedTool.value));
+const faqs = computed(() => localizedGuide.value.faqs.slice(0, 6));
 const reviewDate = "2026-07-31";
 const editorialAuthor = {
   "@type": "Person",
@@ -35,11 +40,11 @@ useHead(() => ({
         "@graph": [
           {
             "@type": "SoftwareApplication",
-            name: props.guide.tool.name,
+            name: localizedTool.value.name,
             applicationCategory: props.guide.applicationCategory,
             operatingSystem: "Any",
             url: canonicalUrl.value,
-            description: props.guide.tool.description,
+            description: localizedTool.value.description,
             author: editorialAuthor,
             publisher: {
               "@type": "Organization",
@@ -54,9 +59,9 @@ useHead(() => ({
           },
           {
             "@type": "WebPage",
-            name: props.guide.heroTitle,
+            name: localizedGuide.value.heroTitle,
             url: canonicalUrl.value,
-            description: props.guide.metaDescription,
+            description: localizedGuide.value.metaDescription,
             dateModified: reviewDate,
             author: editorialAuthor,
             isPartOf: {
@@ -95,7 +100,7 @@ useHead(() => ({
     <summary
       class="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-400 dark:text-white/75 dark:hover:bg-white/[0.05] [&::-webkit-details-marker]:hidden sm:px-5"
     >
-      <span class="min-w-0 flex-1">{{ isKhmer ? `អំពី ${localizedTool.name}` : `About ${guide.tool.name}` }}</span>
+      <span class="min-w-0 flex-1">{{ t("shared.components_tools_tool_page_details.about", { toolName: localizedTool.name }) }}</span>
       <span
         aria-hidden="true"
         class="relative grid size-7 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-500 dark:border-white/10 dark:text-white/60"

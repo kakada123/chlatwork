@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
+
+const { t } = useAppI18n();
+
 
 defineProps<{
   currency: ExpenseCurrency;
@@ -16,23 +20,23 @@ defineExpose({ resetQuickForm: () => quickForm.value?.resetForm() });
 <template>
   <section
     class="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-[#101214] sm:p-6"
-    aria-label="Add an expense"
+    :aria-label="t(&quot;products.expenses.add_an_expense&quot;)"
   >
     <div class="mb-5 hidden items-start justify-between gap-3 sm:flex">
       <div>
         <p
           class="text-xs font-black uppercase tracking-[0.18em] text-sky-600 dark:text-cyan-200"
         >
-          Fast entry
+          {{ t("products.expenses.fast_entry") }}
         </p>
         <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">
-          Add an expense
+          {{ t("products.expenses.add_an_expense") }}
         </h2>
         <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
           {{
             signedIn
-              ? "Enter the amount now. Your account saves it automatically."
-              : "Enter the amount now, then sign in to save it."
+              ? t("products.expenses.enter_the_amount_now_your_account_saves_it_automatically")
+              : t("products.expenses.enter_the_amount_now_then_sign_in_to_save_it")
           }}
         </p>
       </div>

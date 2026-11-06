@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, ref } from "vue";
 import { Heart, LoaderCircle } from "lucide-vue-next";
 
+
+
 const props = withDefaults(defineProps<{ recipientName: string; locale?: "en" | "km"; submitting?: boolean; error?: string; preview?: boolean }>(), { locale: "en", submitting: false, error: "", preview: false });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const emit = defineEmits<{ unlock: [value: { day: number; month: number }] }>();
 const birthday = ref("");
 const invalid = ref(false);
-const copy = computed(() => props.locale === "km" ? {
-  wait: `បន្តិចសិន ${props.recipientName}…`, question: "តើថ្ងៃកំណើតរបស់អ្នកជាថ្ងៃណា?", label: "ថ្ងៃ និងខែកំណើត", button: "បើកការភ្ញាក់ផ្អើល", hint: "បញ្ចូលថ្ងៃ និងខែ ដូចជា ០៧/០៦", invalid: "សូមបញ្ចូលថ្ងៃ និងខែត្រឹមត្រូវ (DD/MM)។", loading: "កំពុងបើក…", footer: "បង្កើតដោយ ChlatWork Moments",
-} : { wait: `Wait, ${props.recipientName}…`, question: "When is your birthday?", label: "Birthday day and month", button: "Open my surprise", hint: "Just the day and month, like 07/06", invalid: "Enter a valid birthday as DD/MM.", loading: "Opening…", footer: "Made with ChlatWork Moments" });
+const copy = computed(() => ({ wait: t("products.moments.birthday_unlock_gate.wait", { recipient_name: props.recipientName }), question: t("products.moments.birthday_unlock_gate.question"), label: t("products.moments.birthday_unlock_gate.label"), button: t("products.moments.birthday_unlock_gate.button"), hint: t("products.moments.birthday_unlock_gate.hint"), invalid: t("products.moments.birthday_unlock_gate.invalid"), loading: t("products.moments.birthday_unlock_gate.loading"), footer: t("products.moments.birthday_unlock_gate.footer") }));
 
 function format(event: Event) {
   const input = event.target as HTMLInputElement;

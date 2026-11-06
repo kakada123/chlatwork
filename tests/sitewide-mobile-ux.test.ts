@@ -1,3 +1,4 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -30,13 +31,13 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(header, /sticky top-0/);
   assert.match(header, /min-h-16/);
   assert.match(header, /size-11/);
-  assert.match(header, /props\.backAriaLabel \?\? 'Go back'/);
-  assert.match(header, /aria-label="Search ChlatWork"/);
+  assertTranslatedAttribute(header, "Go back");
+  assertTranslatedAttribute(header, "Search ChlatWork");
   assert.match(header, /flex-1 text-center/);
   assert.doesNotMatch(header, />ChlatWork</);
   assert.doesNotMatch(header, /toggleColorMode|nextColorModeLabel/);
   assert.match(layout, /route\.query\.from === "account"/);
-  assert.match(layout, /:back-aria-label="mobileHeaderReturnsToAccount \? 'Back to Account' : 'Go back'"/);
+  assertTranslatedAttribute(layout, "Back to Account", undefined, "back-aria-label");
 
   assert.match(bottomNav, /fixed inset-x-3/);
   assert.match(bottomNav, /env\(safe-area-inset-bottom\)/);
@@ -80,7 +81,7 @@ test("all page routes inherit the app shell unless they are responsive immersive
 
   for (const path of pages.filter((page) => !layoutFreePages.includes(page))) {
     const page = readFileSync(path, "utf8");
-    assert.doesNotMatch(page, /aria-label="Mobile primary navigation"/, `${path} must use the shared navigation`);
+    assert.doesNotMatch(page, /<MobileBottomNav|shared\.components_layout_mobile_bottom_nav\.mobile_primary_navigation/);
   }
 
   const invitation = readFileSync("app/pages/i/[token].vue", "utf8");
@@ -107,7 +108,7 @@ test("global mobile safeguards contain route content and keep overlays above nav
   assert.match(styles, /overscroll-behavior-inline:\s*contain/);
   assert.match(cookieConsent, /bottom-\[calc\(5\.5rem\+env\(safe-area-inset-bottom\)\)\]/);
   assert.match(layout, /fixed inset-0 z-\[105\]/);
-  assert.match(layout, /Quick destinations/);
+  assertSourceMessage(layout, /Quick destinations/);
   assert.match(layout, /mobile-header-search-input/);
   assert.match(layout, /enterkeyhint="search"/);
   assert.match(layout, /type="submit"/);
@@ -142,7 +143,7 @@ test("mobile navigation uses delayed skeletons and motion-safe app transitions",
   assert.match(skeleton, /MIN_VISIBLE_MS = 240/);
   assert.match(skeleton, /nuxtApp\.hook\("page:start"/);
   assert.match(skeleton, /nuxtApp\.hook\("page:finish"/);
-  assert.match(skeleton, /aria-label="Loading page"/);
+  assertTranslatedAttribute(skeleton, "Loading page");
   assert.match(config, /pageTransition:\s*\{\s*name: "mobile-page",\s*mode: "out-in"/);
   assert.match(styles, /\.mobile-skeleton/);
   assert.match(styles, /@keyframes mobile-skeleton-shimmer/);
@@ -150,7 +151,7 @@ test("mobile navigation uses delayed skeletons and motion-safe app transitions",
   assert.match(styles, /\.mobile-pressable:active/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(home, /recentToolsLoading/);
-  assert.match(home, /aria-label="Loading recent tools"/);
+  assertTranslatedAttribute(home, "Loading recent tools");
   assert.match(tools, /<TransitionGroup name="mobile-grid"/);
   assert.match(chunkRecovery, /addEventListener\("vite:preloadError"/);
   assert.match(chunkRecovery, /event\.preventDefault\(\)/);

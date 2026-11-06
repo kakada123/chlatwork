@@ -4,23 +4,23 @@
       v-if="isNoticeVisible"
       class="fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[70] mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-slate-800 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 dark:text-white sm:inset-x-4 sm:bottom-3 sm:px-4"
       role="region"
-      aria-label="Cookie notice"
+      :aria-label="t(&quot;shared.components_cookie_consent.cookie_notice&quot;)"
     >
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
         <p class="min-w-0 flex-1 text-xs leading-5 text-slate-600 dark:text-white/70 sm:text-sm">
-          {{ isKhmer ? "ChlatWork អាចប្រើប្រាស់ cookies និង local storage សម្រាប់ការចងចាំជម្រើសរបស់អ្នក ការវិភាគទិន្នន័យ និងការផ្សាយពាណិជ្ជកម្ម។ សូមអានគោលការណ៍របស់យើងសម្រាប់ព័ត៌មានលម្អិត។" : "ChlatWork may use cookies and local storage for preferences, analytics, and ads. Read our policies for details and manage cookies in your browser settings." }}
+          {{ t("shared.components_cookie_consent.chlat_work_may_use_cookies_and_local_storage_for") }}
           <NuxtLink
             to="/privacy-policy"
             class="whitespace-nowrap font-semibold text-slate-900 underline underline-offset-2 dark:text-white"
           >
-            {{ isKhmer ? "គោលការណ៍ឯកជនភាព" : "Privacy Policy" }}
+            {{ t("shared.layouts_default.privacy_policy") }}
           </NuxtLink>
           <span class="text-slate-400">·</span>
           <NuxtLink
             to="/cookies"
             class="whitespace-nowrap font-semibold text-slate-900 underline underline-offset-2 dark:text-white"
           >
-            {{ isKhmer ? "គោលការណ៍ Cookie" : "Cookie Policy" }}
+            {{ t("shared.layouts_default.cookie_policy") }}
           </NuxtLink>
         </p>
 
@@ -30,13 +30,13 @@
             class="inline-flex h-8 items-center justify-center rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
             @click="openPrivacyCookieSettings"
           >
-            {{ isKhmer ? "ការកំណត់ឯកជនភាព & cookie" : "Privacy & cookie settings" }}
+            {{ t("shared.components_cookie_consent.privacy_cookie_settings") }}
           </button>
 
           <button
             type="button"
             class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-white/15 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            :aria-label="isKhmer ? 'បិទសេចក្តីជូនដំណឹង cookie' : 'Close cookie notice'"
+            :aria-label="t(&quot;shared.components_cookie_consent.close_cookie_notice&quot;)"
             @click="dismissCookieNotice"
           >
             <span class="text-base leading-none" aria-hidden="true">×</span>
@@ -60,17 +60,17 @@
         <div class="flex items-start justify-between gap-4">
           <div class="space-y-1">
             <h2 id="cookie-settings-title" class="text-base font-semibold">
-              {{ isKhmer ? "ការកំណត់ឯកជនភាព & cookie" : "Privacy & cookie settings" }}
+              {{ t("shared.components_cookie_consent.privacy_cookie_settings") }}
             </h2>
             <p class="text-sm leading-6 text-slate-600 dark:text-white/70">
-              {{ isKhmer ? "ChlatWork ប្រើប្រាស់ local storage សម្រាប់ការចងចាំជម្រើសរបស់អ្នក និងអាចប្រើសេវាកម្មវិភាគទិន្នន័យ ឬពាណិជ្ជកម្ម។ សូមពិនិត្យមើលគោលការណ៍ Cookie របស់យើង និងប្រើការកំណត់លើ browser របស់អ្នកដើម្បីគ្រប់គ្រង cookies។" : "ChlatWork uses local storage for preferences, and may use analytics and ads services. Review our Cookie Policy and use your browser settings to manage cookies and local storage." }}
+              {{ t("shared.components_cookie_consent.chlat_work_uses_local_storage_for_preferences_and_may") }}
             </p>
           </div>
 
           <button
             type="button"
             class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-white/15 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            :aria-label="isKhmer ? 'បិទការកំណត់ឯកជនភាព និង cookie' : 'Close privacy and cookie settings'"
+            :aria-label="t(&quot;shared.components_cookie_consent.close_privacy_and_cookie_settings&quot;)"
             @click="closeCookieSettings"
           >
             <span class="text-base leading-none" aria-hidden="true">×</span>
@@ -79,7 +79,7 @@
 
         <div class="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-white/70">
           <p>
-            {{ isKhmer ? "ការកំណត់កម្មវិធីរុករករបស់អ្នកអនុញ្ញាតឱ្យអ្នកទប់ស្កាត់ លុប ឬកំណត់ cookies និង local storage។ ការបិទពួកវាអាចប៉ះពាល់ដល់មុខងារមួយចំនួននៃគេហទំព័រ។" : "Your browser settings let you block, delete, or limit cookies and local storage. Disabling them may affect some site features." }}
+            {{ t("shared.components_cookie_consent.your_browser_settings_let_you_block_delete_or_limit") }}
           </p>
         </div>
 
@@ -89,7 +89,7 @@
             class="inline-flex h-10 items-center justify-center rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
             @click="closeCookieSettings"
           >
-            {{ isKhmer ? "គោលការណ៍ Cookie" : "Cookie Policy" }}
+            {{ t("shared.layouts_default.cookie_policy") }}
           </NuxtLink>
 
           <button
@@ -97,7 +97,7 @@
             class="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:bg-white dark:text-slate-950 dark:hover:bg-white/80"
             @click="closeCookieSettings"
           >
-            {{ isKhmer ? "រួចរាល់" : "Done" }}
+            {{ t("shared.components_cookie_consent.done") }}
           </button>
         </div>
       </section>
@@ -106,12 +106,15 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
 import {
   COOKIE_NOTICE_OPEN_EVENT,
   COOKIE_SETTINGS_OPEN_EVENT,
   openPrivacyCookieSettings,
 } from "~/lib/cookie-notice";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 

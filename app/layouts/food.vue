@@ -1,15 +1,20 @@
-<script setup lang="ts">
+<script setup lang="ts">import { computed } from "vue";
+
+import { useLanguage } from "~/composables/useLanguage";
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Moon, Sun, Utensils, Compass, ArrowLeft } from "lucide-vue-next";
 import { useColorMode } from "~/composables/useColorMode";
 import { useProductDomain } from "~/composables/useProductDomain";
+const { t } = useAppI18n();
+const { languageLabel, switchLanguage } = useLanguage();
 
 const { isDark, toggleColorMode } = useColorMode();
 const { config, canonical } = useProductDomain();
-const foodTitle = "ChlatWork Food - ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?";
-const foodDescription = "ស្វែងរកភោជនីយដ្ឋានឆ្ងាញ់ៗជិតអ្នក ឬរូបមន្តម្ហូបខ្មែរឆ្ងាញ់ៗ តាមថវិកា និងឱកាសជួបជុំ ដោយឥតគិតថ្លៃ ១០០%";
+const foodTitle = computed(() => (t("products.food.shell.meta_title")));
+const foodDescription = computed(() => (t("products.food.shell.meta_description")));
 // Share crawlers need an absolute, server-rendered image URL on either supported Food URL.
 const shareImage = computed(() => new URL("/images/food/khmer-food-background-v1.jpg", canonical.value).href);
-const shareImageAlt = "Cambodian food: grilled pork with rice, fish amok, and noodle soup";
+const shareImageAlt = computed(() => t("products.food.shell.share_image_alt"));
 
 useSeoMeta({
   title: foodTitle,
@@ -41,7 +46,7 @@ useHead({
 <template>
   <div class="food-shell min-h-dvh bg-[#fafaf9] text-stone-900 transition-colors duration-200 dark:bg-[#0c0f14] dark:text-stone-100" lang="km">
     <a href="#food-content" class="sr-only z-50 rounded-lg bg-white p-3 text-stone-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
-      ទៅកាន់ខ្លឹមសារស្វែងរកម្ហូប
+      {{ t("products.food.shell.skip") }}
     </a>
 
     <!-- Top Navigation Header -->
@@ -57,29 +62,30 @@ useHead({
                 ChlatWork Food
               </h1>
               <span class="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700 dark:bg-orange-950/60 dark:text-orange-400">
-                ឥតគិតថ្លៃ
+                {{ t("products.food.shell.free") }}
               </span>
             </div>
             <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-              ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?
+              {{ t("products.food.page.title") }}
             </p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
+          <button type="button" class="min-h-10 rounded-full border border-stone-200 px-3 text-xs font-semibold dark:border-stone-800" :aria-label="languageLabel" @click="switchLanguage">{{ languageLabel }}</button>
           <a
             :href="config.mainOrigin"
             class="hidden items-center gap-1.5 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:text-stone-300 dark:hover:bg-stone-800 sm:inline-flex"
-            title="ត្រឡប់ទៅទំព័រដើមឆ្លាតវើក"
+            :title="t(&quot;products.food.shell.home_title&quot;)"
           >
             <ArrowLeft class="size-3.5" aria-hidden="true" />
-            <span>ឆ្លាតវើក</span>
+            <span>{{ t("products.food.shell.brand") }}</span>
           </a>
 
           <button
             type="button"
             class="grid size-10 place-items-center rounded-full border border-stone-200 bg-white text-stone-600 transition hover:border-orange-400 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300 dark:hover:border-orange-500"
-            :aria-label="isDark ? 'ប្ដូរទៅពណ៌ភ្លឺ' : 'ប្ដូរទៅពណ៌ងងឹត'"
+            :aria-label="isDark ? t(&quot;products.food.shell.switch_light&quot;) : t(&quot;products.food.shell.switch_dark&quot;)"
             @click="toggleColorMode"
           >
             <Sun v-if="isDark" class="size-4.5" aria-hidden="true" />
@@ -98,7 +104,7 @@ useHead({
     <footer class="mt-12 border-t border-stone-200 bg-white/50 px-4 py-8 text-center text-xs leading-6 text-stone-500 dark:border-stone-800 dark:bg-stone-950/50 dark:text-stone-400 sm:px-6">
       <div class="mx-auto max-w-5xl space-y-2">
         <p>
-          ទិន្នន័យភោជនីយដ្ឋាន និងផែនទីបានមកពី
+          {{ t("products.food.shell.attribution") }}
           <a
             href="https://maps.google.com"
             target="_blank"
@@ -110,14 +116,14 @@ useHead({
           </a>
         </p>
         <p class="text-[11px] text-stone-400 dark:text-stone-500">
-          AI ជួយរើសតាមលក្ខខណ្ឌរបស់អ្នក។ តម្លៃ និងព័ត៌មានហាងអាចផ្លាស់ប្តូរ សូមបញ្ជាក់ជាមួយហាងផ្ទាល់។
+          {{ t("products.food.shell.notice") }}
         </p>
         <div class="pt-2">
           <a
             :href="config.mainOrigin"
             class="inline-flex items-center gap-1 font-semibold text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
           >
-            <span>កម្មវិធីទាំងអស់របស់ឆ្លាតវើក</span>
+            <span>{{ t("products.food.shell.all_apps") }}</span>
           </a>
         </div>
       </div>

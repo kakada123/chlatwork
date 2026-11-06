@@ -7,7 +7,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 
-const quickExpenseCategories = [
+export const quickExpenseCategories = [
   'Food',
   'Coffee',
   'Beer',

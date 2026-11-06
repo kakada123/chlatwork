@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត Barcode" : "Barcode Generator" }}</h1>
+      <h1 class="text-xl font-bold">{{ t("tools.barcode.barcodeGenerator") }}</h1>
       <p class="text-sm text-gray-500">
-        {{ isKhmer ? "បង្កើត barcode CODE128, EAN13, UPC និង CODE39 ពីលេខ ឬអក្សរអង់គ្លេសមូលដ្ឋាន។" : "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters. Enter each value and click Generate to add multiple items." }}
+        {{ t("tools.barcode.generateCode128Ean13UpcAndCode39BarcodesFromNumbers") }}
       </p>
     </div>
 
@@ -14,7 +14,7 @@
       v-model:width="state.width"
       v-model:display-value="state.displayValue"
       :generated="state.generated"
-      :error="state.error"
+      :error="localizeToolError(state.error, isKhmer)"
       @generate="generate"
       @clear="clearAll"
       @download="downloadSvg"
@@ -33,10 +33,10 @@
       class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm"
     >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">{{ isKhmer ? "Barcode ដែលបានបង្កើត" : "Generated barcodes" }}</h2>
+        <h2 class="text-sm font-semibold">{{ t("tools.barcode.generatedBarcodes") }}</h2>
         <p class="text-xs text-gray-500">
           {{ generatedItems.length }}
-          {{ isKhmer ? "កូដ" : (generatedItems.length > 1 ? "items" : "item") }}
+          {{ t(generatedItems.length === 1 ? "tools.barcode.item.one" : "tools.barcode.item.other") }}
         </p>
       </div>
 
@@ -57,7 +57,7 @@
             type="button"
             @click="downloadItemSvg(item.value, item.svg, index)"
           >
-            {{ isKhmer ? "ទាញយក SVG" : "Download SVG" }}
+            {{ t("tools.barcode.downloadSvg") }}
           </button>
         </article>
       </div>
@@ -66,6 +66,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import type { BarcodeGeneratorState } from "~/lib/barcode-generator";
 import {
   buildBarcodeDownloadFileName,
@@ -74,21 +76,23 @@ import {
   validateBarcodeValue,
 } from "~/lib/barcode-generator";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
-  description:
-    "Create CODE128, EAN13, UPC, and CODE39 barcodes from numbers or basic English characters and download a sharp SVG.",
-  ogTitle: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
-  ogDescription:
-    "Generate printable barcode SVG files for labels, stock codes, POS testing, and product workflows.",
+  title: () => t("tools.barcode.metaTitle"),
+  description: () => t("tools.barcode.metaDescription"),
+  ogTitle: () => t("tools.barcode.metaOgTitle"),
+  ogDescription: () => t("tools.barcode.metaOgDescription"),
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/barcode",
   twitterCard: "summary_large_image",
-  twitterTitle: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",
-  twitterDescription:
-    "Create CODE128, EAN13, UPC, and CODE39 barcode SVG files in your browser.",
+  twitterTitle: () => t("tools.barcode.metaTwitterTitle"),
+  twitterDescription: () => t("tools.barcode.metaTwitterDescription"),
 });
 
 type JsBarcodeFn = (element: Element, text: string, options?: any) => void;

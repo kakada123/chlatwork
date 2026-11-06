@@ -115,6 +115,7 @@ export function normalizeExpenseStoredState(value: unknown): ExpenseStoredState 
 
 export type Breakdown = {
   category: string;
+  categoryKey?: string;
   total: number;
   totalCents?: bigint;
   percent: number;
@@ -123,6 +124,7 @@ export type Breakdown = {
 export type ExpenseItem = {
   date: string;
   category: string;
+  categoryKey?: string;
   note: string;
   amount: number;
   amountCents?: bigint;
@@ -443,6 +445,7 @@ export function collectExpenseItems(
       parsedItems.push({
         date,
         category,
+        ...(getPresetCategoriesForExpenseRow(row).includes(row.category) ? { categoryKey: row.category } : {}),
         note,
         amount: moneyCentsToNumber(amountCents),
         amountCents,
@@ -638,7 +641,17 @@ export function buildExpenseBreakdown(
 
   const totals = new Map<string, number>();
   const totalsCents = new Map<string, bigint>();
+  const categoryKeys = new Map<string, string | undefined>();
   for (const item of expenseOnly) {
+    // Once custom data joins a bucket, later preset rows must never relabel it.
+    categoryKeys.set(
+      item.category,
+      totalsCents.has(item.category)
+        ? categoryKeys.get(item.category) === item.categoryKey
+          ? item.categoryKey
+          : undefined
+        : item.categoryKey,
+    );
     const nextTotal =
       (totalsCents.get(item.category) ?? 0n) + getExpenseItemCents(item);
     totalsCents.set(item.category, nextTotal);
@@ -651,6 +664,7 @@ export function buildExpenseBreakdown(
   return [...totals.entries()]
     .map(([category, total]) => ({
       category,
+      ...(categoryKeys.get(category) ? { categoryKey: categoryKeys.get(category) } : {}),
       total,
       totalCents: totalsCents.get(category),
       percent:

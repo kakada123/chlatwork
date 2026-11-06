@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 const { linkTo } = useProductDomain();
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import type { LandingTool } from "~/data/tools";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
+
+const { t } = useAppI18n();
 
 const props = withDefaults(defineProps<{
   tool: LandingTool;
@@ -20,7 +24,7 @@ const props = withDefaults(defineProps<{
     <NuxtLink
       :to="linkTo(tool.route)"
       class="mobile-pressable flex h-full min-h-[138px] flex-col rounded-2xl border border-slate-200 bg-white p-3 pr-9 shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
-      :aria-label="`Continue with ${tool.name}`"
+      :aria-label="t(&quot;shared.components_landing_mobile_home_tool_card.continue_with&quot;, { toolName: tool.name })"
     >
       <span
         class="flex size-10 shrink-0 items-center justify-center rounded-xl"
@@ -48,7 +52,7 @@ const props = withDefaults(defineProps<{
     v-else
     :to="linkTo(tool.route)"
     class="mobile-pressable flex min-h-[108px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-2 text-center shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30 dark:hover:bg-white/[0.08]"
-    :aria-label="`Open ${tool.name}`"
+    :aria-label="t(&quot;shared.components_landing_mobile_home_tool_card.open&quot;, { toolName: tool.name })"
   >
     <span
       class="flex size-10 shrink-0 items-center justify-center rounded-xl"

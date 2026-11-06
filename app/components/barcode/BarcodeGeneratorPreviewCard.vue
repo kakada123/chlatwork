@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import type { BarcodeFormat } from "~/lib/barcode-generator";
+
+const { t } = useAppI18n();
 
 defineProps<{
   generated: boolean;
@@ -18,9 +22,9 @@ defineExpose({
 <template>
   <section class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
     <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold">Preview</h2>
+      <h2 class="text-sm font-semibold">{{ t("tools.barcode.preview") }}</h2>
       <p v-if="generated" class="text-xs text-gray-500">
-        {{ format }} • h{{ height }} • w{{ width }}
+        {{ format }} • {{ t("tools.barcode.h") }}{{ height }} • {{ t("tools.barcode.w") }}{{ width }}
       </p>
     </div>
 
@@ -30,9 +34,7 @@ defineExpose({
       <div class="rounded-xl border bg-white p-4">
         <svg ref="svgEl"></svg>
 
-        <p v-if="!generated" class="mt-3 text-center text-sm text-gray-400">
-          Generate a barcode to preview here.
-        </p>
+        <p v-if="!generated" class="mt-3 text-center text-sm text-gray-400">{{ t("tools.barcode.generateABarcodeToPreviewHere") }}</p>
       </div>
     </div>
   </section>

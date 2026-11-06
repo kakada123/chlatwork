@@ -3,10 +3,10 @@
     <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
       <div data-reveal>
         <p class="text-sm font-bold uppercase text-cyan-700 dark:text-cyan-200/90">
-          About
+          {{ t("shared.common.about") }}
         </p>
         <h2 class="mt-3 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-          Practical software for real operations.
+          {{ t("shared.components_portfolio_portfolio_about.practical_software_for_real_operations") }}
         </h2>
       </div>
 
@@ -34,6 +34,10 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
 defineProps<{
   paragraphs: string[];
   highlights: string[];

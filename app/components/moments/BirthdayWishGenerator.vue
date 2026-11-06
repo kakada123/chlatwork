@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, ref, watch } from "vue";
 import { Check, LoaderCircle, Sparkles } from "lucide-vue-next";
 import ModernSelect from "~/components/ModernSelect.vue";
 import { useBirthdayWishGenerator, type BirthdayWishResult } from "~/composables/useBirthdayWishGenerator";
 
 const props = defineProps<{ recipientName: string; locale: "en" | "km" }>();
+
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const emit = defineEmits<{ apply: [wish: BirthdayWishResult] }>();
 const { user } = useAuth();
 const relationship = ref("friend");
@@ -16,62 +19,45 @@ const includeEmojis = ref(true);
 const context = ref("");
 const applied = ref(false);
 const isKhmer = computed(() => props.locale === "km");
-const copy = computed(() => isKhmer.value ? {
-  heading: "សរសេរពាក្យជូនពរថ្ងៃកំណើតជាមួយ AI",
-  intro: "ជ្រើសរើសទំនាក់ទំនង និងសំនៀង រួចពិនិត្យពាក្យជូនពរមុននឹងប្រើ។",
-  relationship: "ទំនាក់ទំនងជាមួយអ្នកទទួល", customRelationship: "បញ្ជាក់ទំនាក់ទំនង",
-  relationshipPlaceholder: "ឧ. គ្រូបង្រៀន ឬអ្នកណែនាំ", tone: "សំនៀងនៃពាក្យជូនពរ",
-  customTone: "បញ្ជាក់សំនៀងដែលអ្នកចង់បាន", tonePlaceholder: "ឧ. សុភាព និងមានក្តីសង្ឃឹម",
-  language: "ភាសានៃពាក្យជូនពរ", context: "ព័ត៌មានបន្ថែម (មិនចាំបាច់)",
-  includeEmojis: "បន្ថែមអ៊ីម៉ូជីក្នុងពាក្យជូនពរ",
-  contextPlaceholder: "ចែករំលែកអនុស្សាវរីយ៍ គុណសម្បត្តិ ឬអ្វីដែលអ្នកចង់ជូនពរ។",
-  privacy: "បញ្ចូលតែព័ត៌មានដែលអ្នកចង់ចែករំលែកជាមួយសេវា AI។",
-  nameRequired: "បញ្ចូលឈ្មោះអ្នកទទួលមុនសិន។", loginRequired: "ចូលគណនីដើម្បីបង្កើតពាក្យជូនពរជាមួយ AI។",
-  search: "ស្វែងរកជម្រើស…", generate: "បង្កើតពាក្យជូនពរ", generating: "កំពុងសរសេរពាក្យជូនពរ…",
-  regenerate: "បង្កើតម្តងទៀត", preview: "ពិនិត្យពាក្យជូនពរ", mainMessage: "សារជូនពរ",
-  surprise: "សារភ្ញាក់ផ្អើល", surpriseHint: "សារនេះនឹងបង្ហាញក្នុងកាតដែលអ្នកចែករំលែក។",
-  use: "ប្រើពាក្យជូនពរនេះ", applied: "បានប្រើពាក្យជូនពរ", other: "ផ្សេងទៀត (បញ្ជាក់ផ្ទាល់)",
-  authError: "សូមចូលគណនីដើម្បីបង្កើតពាក្យជូនពរ។", rateError: "អ្នកបានស្នើច្រើនដងហើយ។ សូមរង់ចាំមួយនាទី រួចសាកម្តងទៀត។",
-  unavailable: "មិនអាចបង្កើតពាក្យជូនពរបានទេ។ សូមសាកម្តងទៀតនៅពេលក្រោយ។",
-} : {
-  heading: "Write a birthday wish with AI",
-  intro: "Choose a relationship and tone, then review your wish before using it.",
-  relationship: "Relationship to recipient", customRelationship: "Describe the relationship",
-  relationshipPlaceholder: "e.g. teacher or mentor", tone: "Tone of the wish",
-  customTone: "Describe your preferred tone", tonePlaceholder: "e.g. respectful and hopeful",
-  language: "Wish language", context: "Personal details (optional)",
-  includeEmojis: "Include emojis in the wish",
-  contextPlaceholder: "Share a memory, a quality you appreciate, or something to wish for.",
-  privacy: "Only include details you want to share with the AI provider.",
-  nameRequired: "Enter the recipient’s name first.", loginRequired: "Sign in to generate a wish with AI.",
-  search: "Search options…", generate: "Generate a wish", generating: "Writing your wish…",
-  regenerate: "Generate again", preview: "Review your wish", mainMessage: "Birthday message",
-  surprise: "Surprise message", surpriseHint: "This message will be revealed in the card you share.",
-  use: "Use this wish", applied: "Wish applied", other: "Other (describe your own)",
-  authError: "Please sign in to generate a wish.", rateError: "You’ve made several requests. Wait a minute, then try again.",
-  unavailable: "We couldn’t generate a wish. Please try again later.",
-});
+const copy = computed(() => ({
+  heading: t("products.moments.birthday_wish_generator.heading"),
+  intro: t("products.moments.birthday_wish_generator.intro"),
+  relationship: t("products.moments.birthday_wish_generator.relationship"), customRelationship: t("products.moments.birthday_wish_generator.custom_relationship"),
+  relationshipPlaceholder: t("products.moments.birthday_wish_generator.relationship_placeholder"), tone: t("products.moments.birthday_wish_generator.tone"),
+  customTone: t("products.moments.birthday_wish_generator.custom_tone"), tonePlaceholder: t("products.moments.birthday_wish_generator.tone_placeholder"),
+  language: t("products.moments.birthday_wish_generator.language"), context: t("products.moments.birthday_wish_generator.context"),
+  includeEmojis: t("products.moments.birthday_wish_generator.include_emojis"),
+  contextPlaceholder: t("products.moments.birthday_wish_generator.context_placeholder"),
+  privacy: t("products.moments.birthday_wish_generator.privacy"),
+  nameRequired: t("products.moments.birthday_wish_generator.name_required"), loginRequired: t("products.moments.birthday_wish_generator.login_required"),
+  search: t("products.moments.birthday_wish_generator.search"), generate: t("products.moments.birthday_wish_generator.generate"), generating: t("products.moments.birthday_wish_generator.generating"),
+  regenerate: t("products.moments.birthday_wish_generator.regenerate"), preview: t("products.moments.birthday_wish_generator.preview"), mainMessage: t("products.moments.birthday_wish_generator.main_message"),
+  surprise: t("products.moments.birthday_wish_generator.surprise"), surpriseHint: t("products.moments.birthday_wish_generator.surprise_hint"),
+  use: t("products.moments.birthday_wish_generator.use"), applied: t("products.moments.birthday_wish_generator.applied"), other: t("products.moments.birthday_wish_generator.other"),
+  authError: t("products.moments.birthday_wish_generator.auth_error"), rateError: t("products.moments.birthday_wish_generator.rate_error"),
+  unavailable: t("products.moments.birthday_wish_generator.unavailable"),
+}));
 const relationships = [
-  { value: "friend", en: "Friend", km: "មិត្តភក្តិ" },
-  { value: "best friend", en: "Best friend", km: "មិត្តជិតស្និទ្ធ" },
-  { value: "coworker", en: "Coworker", km: "មិត្តរួមការងារ" },
-  { value: "boss", en: "Boss / manager", km: "ប្រធាន / អ្នកគ្រប់គ្រង" },
-  { value: "romantic partner", en: "Couple / partner", km: "គូស្នេហ៍" },
-  { value: "wife", en: "Wife", km: "ភរិយា" },
-  { value: "husband", en: "Husband", km: "ស្វាមី" },
-  { value: "parent", en: "Parent", km: "ឪពុក / ម្តាយ" },
-  { value: "sibling", en: "Sibling", km: "បងប្អូន" },
-  { value: "child", en: "Child", km: "កូន" },
-  { value: "teacher", en: "Teacher / mentor", km: "គ្រូ / អ្នកណែនាំ" },
+  { value: "friend", labelKey: "products.moments.wish.relationships.friend" },
+  { value: "best friend", labelKey: "products.moments.wish.relationships.best_friend" },
+  { value: "coworker", labelKey: "products.moments.wish.relationships.coworker" },
+  { value: "boss", labelKey: "products.moments.wish.relationships.boss" },
+  { value: "romantic partner", labelKey: "products.moments.wish.relationships.romantic_partner" },
+  { value: "wife", labelKey: "products.moments.wish.relationships.wife" },
+  { value: "husband", labelKey: "products.moments.wish.relationships.husband" },
+  { value: "parent", labelKey: "products.moments.wish.relationships.parent" },
+  { value: "sibling", labelKey: "products.moments.wish.relationships.sibling" },
+  { value: "child", labelKey: "products.moments.wish.relationships.child" },
+  { value: "teacher", labelKey: "products.moments.wish.relationships.teacher" },
 ];
 const tones = [
-  { value: "warm", en: "Warm and heartfelt", km: "កក់ក្តៅ និងស្មោះត្រង់" },
-  { value: "funny", en: "Funny and playful", km: "កំប្លែង និងរីករាយ" },
-  { value: "romantic", en: "Romantic", km: "រ៉ូមែនទិក" },
-  { value: "professional", en: "Professional and respectful", km: "វិជ្ជាជីវៈ និងគោរព" },
-  { value: "inspiring", en: "Inspiring", km: "លើកទឹកចិត្ត" },
-  { value: "short and sweet", en: "Short and sweet", km: "ខ្លី និងផ្អែមល្ហែម" },
-  { value: "poetic", en: "Poetic", km: "បែបកំណាព្យ" },
+  { value: "warm", labelKey: "products.moments.wish.tones.warm" },
+  { value: "funny", labelKey: "products.moments.wish.tones.funny" },
+  { value: "romantic", labelKey: "products.moments.wish.tones.romantic" },
+  { value: "professional", labelKey: "products.moments.wish.tones.professional" },
+  { value: "inspiring", labelKey: "products.moments.wish.tones.inspiring" },
+  { value: "short and sweet", labelKey: "products.moments.wish.tones.short_and_sweet" },
+  { value: "poetic", labelKey: "products.moments.wish.tones.poetic" },
 ];
 const { result, loading, error, canGenerate, generate, getApplicableWish } = useBirthdayWishGenerator({
   input: () => ({
@@ -105,14 +91,14 @@ function applyWish() {
       <label class="wish-label">
         <span>{{ copy.relationship }}</span>
         <ModernSelect v-model="relationship" :search-placeholder="copy.search">
-          <option v-for="item in relationships" :key="item.value" :value="item.value">{{ isKhmer ? item.km : item.en }}</option>
+          <option v-for="item in relationships" :key="item.value" :value="item.value">{{ t(item.labelKey) }}</option>
           <option value="custom">{{ copy.other }}</option>
         </ModernSelect>
       </label>
       <label class="wish-label">
         <span>{{ copy.tone }}</span>
         <ModernSelect v-model="tone" :search-placeholder="copy.search">
-          <option v-for="item in tones" :key="item.value" :value="item.value">{{ isKhmer ? item.km : item.en }}</option>
+          <option v-for="item in tones" :key="item.value" :value="item.value">{{ t(item.labelKey) }}</option>
           <option value="custom">{{ copy.other }}</option>
         </ModernSelect>
       </label>
@@ -128,7 +114,7 @@ function applyWish() {
         <span>{{ copy.language }}</span>
         <ModernSelect v-model="language" :search-placeholder="copy.search">
           <option value="km">ខ្មែរ</option>
-          <option value="en">English</option>
+          <option value="en">{{ t("products.common.english") }}</option>
         </ModernSelect>
       </label>
     </div>

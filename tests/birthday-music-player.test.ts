@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -16,7 +17,7 @@ const audioUrl = asUrl(ts.transpileModule(readFileSync("app/lib/birthday-audio.t
 const filename = "app/components/moments/BirthdayMusicPlayer.vue";
 const script = compileScript(parse(readFileSync(filename, "utf8"), { filename }).descriptor, { id: filename, inlineTemplate: true }).content;
 const source = ts.transpileModule(script, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
-  .replace(/from (["'])([^"']+)\1/g, (_, _quote, id) => `from ${JSON.stringify(id === "~/lib/birthday-audio-player" ? playerUrl : id === "~/lib/birthday-audio" ? audioUrl : id === "~/composables/useBirthdayAudioCatalog" ? catalogUrl : import.meta.resolve(id))}`);
+  .replace(/from (["'])([^"']+)\1/g, (_, _quote, id) => `from ${JSON.stringify(id === "~/composables/useAppI18n" ? appI18nStubUrl : id === "~/lib/birthday-audio-player" ? playerUrl : id === "~/lib/birthday-audio" ? audioUrl : id === "~/composables/useBirthdayAudioCatalog" ? catalogUrl : import.meta.resolve(id))}`);
 const MusicPlayer = (await import(asUrl(source))).default;
 class HostNode {
   tag: string; children: HostNode[] = []; parent: HostNode | null = null; props: Record<string, any> = {}; text = ""; volume = 1; muted = false;

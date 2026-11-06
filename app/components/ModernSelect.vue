@@ -1,8 +1,14 @@
 <script setup lang="ts" generic="T = string">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
 import { computed, getCurrentInstance, nextTick, normalizeClass, onBeforeUnmount, onMounted, onUpdated, ref, useAttrs, useId, useSlots, watch } from "vue";
 import { Check, ChevronDown, Search } from "lucide-vue-next";
 import { filterSelectOptions, readSelectOptions, selectValuesEqual, type SelectOption } from "~/lib/modern-select";
 import { getDatePickerPosition } from "~/lib/date-picker-position";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineOptions({ inheritAttrs: false });
 const props = withDefaults(defineProps<{
@@ -14,7 +20,7 @@ const props = withDefaults(defineProps<{
   multiple?: boolean;
   placeholder?: string;
   searchPlaceholder?: string;
-}>(), { disabled: false, required: false, multiple: false, placeholder: "Select an option", searchPlaceholder: "Search options…" });
+}>(), { disabled: false, required: false, multiple: false });
 const emit = defineEmits<{ "update:modelValue": [value: T]; change: [event: Event]; input: [event: Event] }>();
 const attrs = useAttrs();
 const slots = useSlots();
@@ -64,7 +70,7 @@ function selected(option: SelectOption) {
     : selectValuesEqual(nativeModel.value, option.value);
 }
 function selectedLabel(items: SelectOption[]) {
-  return items.filter(selected).map((option) => option.label).join(", ") || props.placeholder;
+  return items.filter(selected).map((option) => option.label).join(", ") || (props.placeholder ?? t("shared.components_modern_select.select_an_option"));
 }
 function refreshLabel() {
   if (attrs["aria-label"] || attrs["aria-labelledby"]) return;
@@ -224,15 +230,15 @@ defineExpose({ focus: () => trigger.value?.focus(), close });
     >
       <span>{{ selectedLabel(renderOptions()) }}</span><ChevronDown class="modern-select-chevron" :class="{ 'is-open': isOpen }" :size="16" aria-hidden="true" />
     </button>
-    <span v-if="invalid" :id="`${generatedId}-error`" role="alert" class="modern-select-error">Please choose an option.</span>
+    <span v-if="invalid" :id="`${generatedId}-error`" role="alert" class="modern-select-error">{{ t("shared.components_modern_select.please_choose_an_option") }}</span>
     <span v-if="isOpen" ref="panel" popover="manual" class="modern-select-popover" :style="panelStyle" @click.stop @keydown.esc.stop.prevent="close()">
-      <span class="modern-select-search"><Search :size="16" aria-hidden="true" /><input ref="search" type="search" :value="query" :placeholder="props.searchPlaceholder" aria-label="Search options" role="combobox" aria-autocomplete="list" aria-expanded="true" :aria-controls="listId" :aria-activedescendant="activeOption() ? `${listId}-${activeOption()!.index}` : undefined" autocomplete="off" @input="handleSearch" @keydown="handleKey" /></span>
+      <span class="modern-select-search"><Search :size="16" aria-hidden="true" /><input ref="search" type="search" :value="query" :placeholder="props.searchPlaceholder ?? t(&quot;shared.components_modern_select.search_options&quot;)" :aria-label="t(&quot;shared.components_modern_select.search_options_2&quot;)" role="combobox" aria-autocomplete="list" aria-expanded="true" :aria-controls="listId" :aria-activedescendant="activeOption() ? `${listId}-${activeOption()!.index}` : undefined" autocomplete="off" @input="handleSearch" @keydown="handleKey" /></span>
       <span :id="listId" role="listbox" :aria-multiselectable="props.multiple || undefined" class="modern-select-options">
         <template v-for="(option, index) in filteredOptions()" :key="option.index">
           <span v-if="option.group && (!index || filteredOptions()[index - 1]?.group !== option.group)" class="modern-select-group">{{ option.group }}</span>
           <button :id="`${listId}-${option.index}`" type="button" role="option" tabindex="-1" :disabled="option.disabled" :aria-selected="selected(option)" class="modern-select-option" :class="{ 'is-selected': selected(option), 'is-active': activeOption()?.index === option.index }" @mouseenter="activeIndex = option.index" @mousedown.prevent @click="choose(option.index)"><span>{{ option.label }}</span><Check v-if="selected(option)" :size="16" aria-hidden="true" /></button>
         </template>
-        <span v-if="!filteredOptions().length" role="status" class="modern-select-empty">No options found.</span>
+        <span v-if="!filteredOptions().length" role="status" class="modern-select-empty">{{ t("shared.components_modern_select.no_options_found") }}</span>
       </span>
     </span>
   </span>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ArrowRight, Check, LoaderCircle, Save } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
 import type {
@@ -8,6 +9,9 @@ import type {
   PaybackPerson,
   PaybackSettlement,
 } from "~/lib/payback-calculator";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -55,10 +59,10 @@ function balanceClass(value: number) {
     <div class="mb-5 flex items-start justify-between gap-4">
       <div>
         <h2 class="font-bold">
-          {{ isKhmer ? "ការទូទាត់សង" : "Settlement" }}
+          {{ t("products.payback.settlement") }}
         </h2>
         <p class="money-summary-muted mt-1 text-sm">
-          {{ isKhmer ? "នេះជាវិធីដែលយុត្តិធម៌បំផុតដើម្បីទូទាត់ក្នុងក្រុម។" : "Here’s the fairest way to balance the group." }}
+          {{ t("products.payback.heres_the_fairest_way_to_balance_the_group") }}
         </p>
       </div>
       <button
@@ -71,28 +75,28 @@ function balanceClass(value: number) {
         <Check v-else-if="props.saveState === 'saved'" class="h-4 w-4" aria-hidden="true" />
         <Save v-else class="h-4 w-4" aria-hidden="true" />
         <span class="hidden sm:inline">
-          {{ props.saveState === 'saved' ? (isKhmer ? 'បានរក្សាទុក' : 'Saved') : (isKhmer ? 'រក្សាទុកប្រវត្តិ' : 'Save history') }}
+          {{ props.saveState === 'saved' ? (t("products.common.saved")) : (t("products.payback.save_history")) }}
         </span>
         <span class="sm:hidden">
-          {{ props.saveState === 'saved' ? (isKhmer ? 'បានរក្សាទុក' : 'Saved') : (isKhmer ? 'រក្សាទុក' : 'Save') }}
+          {{ props.saveState === 'saved' ? (t("products.common.saved")) : (t("products.payback.save")) }}
         </span>
       </button>
     </div>
 
     <p v-if="props.saveState === 'failed'" class="mb-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-200" role="alert">
-      {{ isKhmer ? "មិនអាចរក្សាទុកការគណនានេះបានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not save this calculation. Please try again." }}
+      {{ t("products.payback.could_not_save_this_calculation_please_try_again") }}
     </p>
 
     <div class="grid grid-cols-3 gap-3 sm:gap-4">
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">
-          {{ isKhmer ? "ចំនួនមនុស្ស" : "People" }}
+          {{ t("products.payback.people") }}
         </div>
         <div class="text-lg font-bold">{{ props.people.length }}</div>
       </div>
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">
-          {{ isKhmer ? "បានចំណាយសរុប" : "Total paid" }}
+          {{ t("products.payback.total_paid") }}
         </div>
         <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
           <MoneyAmount :value="props.total" :currency="props.currency" />
@@ -100,7 +104,7 @@ function balanceClass(value: number) {
       </div>
       <div class="money-summary-card-muted min-w-0 rounded-xl border p-3">
         <div class="money-summary-muted text-xs font-semibold uppercase tracking-wide">
-          {{ isKhmer ? "ម្នាក់ត្រូវចេញ" : "Each share" }}
+          {{ t("products.payback.each_share") }}
         </div>
         <div class="min-w-0 truncate text-base font-bold leading-tight sm:text-lg">
           <MoneyAmount :value="props.avg" :currency="props.currency" />
@@ -110,16 +114,16 @@ function balanceClass(value: number) {
 
     <div class="mt-6">
       <h3 class="mb-3 text-sm font-bold">
-        {{ isKhmer ? "តារាងលម្អិតបុគ្គលម្នាក់ៗ" : "Payment breakdown" }}
+        {{ t("products.payback.payment_breakdown") }}
       </h3>
 
       <div class="money-summary-card overflow-auto rounded-xl border">
         <table class="w-full text-sm">
           <thead class="money-summary-card-muted">
             <tr>
-              <th class="p-2 text-left">{{ isKhmer ? "ឈ្មោះ" : "Name" }}</th>
-              <th class="p-2 text-right">{{ isKhmer ? "បានចេញ" : "Paid" }}</th>
-              <th class="p-2 text-right">{{ isKhmer ? "ទទួល / ត្រូវសង" : "Gets / owes" }}</th>
+              <th class="p-2 text-left">{{ t("products.payback.name") }}</th>
+              <th class="p-2 text-right">{{ t("products.payback.paid") }}</th>
+              <th class="p-2 text-right">{{ t("products.payback.gets_owes") }}</th>
             </tr>
           </thead>
           <tbody>
@@ -152,7 +156,7 @@ function balanceClass(value: number) {
 
             <tr v-if="props.people.length === 0">
               <td class="money-summary-muted p-3" colspan="3">
-                {{ isKhmer ? "មិនទាន់មានទិន្នន័យ" : "No data yet." }}
+                {{ t("products.payback.no_data_yet") }}
               </td>
             </tr>
           </tbody>
@@ -162,11 +166,11 @@ function balanceClass(value: number) {
 
     <div class="mt-6">
       <h3 class="mb-3 text-sm font-bold">
-        {{ isKhmer ? "វិធីទូទាត់សងគ្នា" : "Payments to make" }}
+        {{ t("products.payback.payments_to_make") }}
       </h3>
 
       <div v-if="props.settlements.length === 0" class="money-summary-muted text-sm">
-        {{ isKhmer ? "សូមបញ្ចូលយ៉ាងហោចណាស់មនុស្ស ២ នាក់ និងចំនួនទឹកប្រាក់ដើម្បីបង្ហាញការទូទាត់សងគ្នា។" : "Add at least two people and their amounts to see the payments." }}
+        {{ t("products.payback.add_at_least_two_people_and_their_amounts_to_see_the_payments") }}
       </div>
 
       <ul
@@ -182,7 +186,7 @@ function balanceClass(value: number) {
             <span class="min-w-0 truncate font-semibold">{{ settlement.from }}</span>
             <ArrowRight
               class="money-summary-muted h-4 w-4 shrink-0"
-              aria-label="pays"
+              :aria-label="t(&quot;products.common.pays&quot;)"
             />
             <span class="min-w-0 truncate font-semibold">{{ settlement.to }}</span>
           </div>
@@ -202,10 +206,10 @@ function balanceClass(value: number) {
     >
       <div>
         <h3 class="font-semibold">
-          {{ isKhmer ? "កាក់រាយប្រាក់រៀលដែលនៅសល់" : "KHR rounding remainder" }}
+          {{ t("products.payback.khr_rounding_remainder") }}
         </h3>
         <p class="money-summary-body mt-1 text-sm">
-          {{ isKhmer ? "ចំនួនប្រាក់ដែលមិនអាចចែកដាច់នឹង ១០០៛៖" : "Remaining amount that cannot be evenly split by 100៛:" }}
+          {{ t("products.payback.remaining_amount_that_cannot_be_evenly_split_by_100") }}
           <span class="font-semibold">
             <MoneyAmount
               :value="props.khrRemainder.leftover"
@@ -217,7 +221,7 @@ function balanceClass(value: number) {
 
       <div>
         <label class="mb-1 block text-sm font-medium">
-          {{ isKhmer ? "តើចង់ចាត់ចែងកាក់រាយនេះដោយរបៀបណា?" : "How should this leftover be handled?" }}
+          {{ t("products.payback.how_should_this_leftover_be_handled") }}
         </label>
 
         <ModernSelect
@@ -225,17 +229,17 @@ function balanceClass(value: number) {
           class="money-summary-control h-11 w-full rounded-lg border px-3 text-sm"
         >
           <option value="LEFTOVER_ONLY">
-            {{ isKhmer ? "ទុកកាក់រាយដោយឡែក" : "Keep leftover separate" }}
+            {{ t("products.payback.keep_leftover_separate") }}
           </option>
           <option value="ASSIGN_TO_PERSON">
-            {{ isKhmer ? "ឱ្យមនុស្សម្នាក់ជាអ្នករ៉ាប់រង" : "Assign leftover to one person" }}
+            {{ t("products.payback.assign_leftover_to_one_person") }}
           </option>
         </ModernSelect>
       </div>
 
       <div v-if="khrRemainderMode === 'ASSIGN_TO_PERSON'">
         <label class="mb-1 block text-sm font-medium">
-          {{ isKhmer ? "តើនរណាជាអ្នករ៉ាប់រង?" : "Who covers the leftover?" }}
+          {{ t("products.payback.who_covers_the_leftover") }}
         </label>
 
         <ModernSelect
@@ -253,7 +257,7 @@ function balanceClass(value: number) {
       </div>
 
       <p class="money-summary-muted text-xs">
-        {{ isKhmer ? "អនុវត្តតែលើកាក់រាយដែលនៅសល់បន្ទាប់ពីបង្គត់ទៅ ១០០៛ ប៉ុណ្ណោះ។" : "This only affects the small KHR remainder after rounding to 100៛." }}
+        {{ t("products.payback.this_only_affects_the_small_khr_remainder_after_rounding_to_100") }}
       </p>
     </div>
 

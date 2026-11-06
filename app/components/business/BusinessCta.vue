@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeBusinessService } from "~/data/services-km";
 import {
   BUSINESS_SERVICE_BY_SLUG,
   TELEGRAM_CONTACT,
   type BusinessServiceSlug,
 } from "~/data/services";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 const props = withDefaults(
   defineProps<{
@@ -20,14 +26,14 @@ const props = withDefaults(
   },
 );
 
-const service = computed(() => BUSINESS_SERVICE_BY_SLUG[props.serviceSlug]);
+const service = computed(() => localizeBusinessService(BUSINESS_SERVICE_BY_SLUG[props.serviceSlug], t("shared.components_admin_bot_group_workspaces.en")));
 const heading = computed(
-  () => props.title || `Need a business-ready ${service.value.shortName}?`,
+  () => props.title || (t("shared.components_business_business_cta.need_a_business_ready", { serviceShortName: service.value.shortName })),
 );
 const body = computed(
   () =>
     props.description ||
-    `The free tool is useful for quick work. If you need branded setup or a workflow your team can reuse, message ChlatWork on Telegram first.`,
+    (t("shared.components_business_business_cta.the_free_tool_is_useful_for_quick_work_if")),
 );
 </script>
 
@@ -35,12 +41,12 @@ const body = computed(
   <section
     class="mx-auto w-full max-w-[1180px] rounded-2xl border border-slate-200 bg-[#ffffff] p-5 shadow-sm shadow-sky-100/70 dark:!border-slate-800 dark:!bg-slate-900 dark:shadow-black/20"
     :class="compact ? 'space-y-4' : 'space-y-5 sm:p-6'"
-    aria-label="Business service call to action"
+    :aria-label="t(&quot;shared.components_business_business_cta.business_service_call_to_action&quot;)"
   >
     <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
       <div class="space-y-2">
         <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-          ChlatWork services
+          {{ t("shared.components_business_business_cta.chlat_work_services") }}
         </p>
         <h2 class="text-xl font-black text-slate-950 dark:text-white">
           {{ heading }}
@@ -62,13 +68,13 @@ const body = computed(
           rel="noopener noreferrer"
           class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!bg-white dark:text-slate-950 dark:hover:!bg-cyan-100"
         >
-          Message on Telegram
+          {{ t("shared.components_business_business_cta.message_on_telegram") }}
         </a>
         <NuxtLink
           :to="service.route"
           class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-[#ffffff] px-5 text-sm font-bold text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300 dark:!border-slate-800 dark:!bg-slate-900/70 dark:text-white dark:hover:!bg-slate-800"
         >
-          View service
+          {{ t("shared.components_business_business_cta.view_service") }}
         </NuxtLink>
       </div>
     </div>

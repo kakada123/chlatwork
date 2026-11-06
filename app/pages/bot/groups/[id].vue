@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   groupApi,
   type GroupDetails,
   type GroupSummary,
 } from "~/services/group-workspaces.service";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 definePageMeta({ layout: "bot" });
 const route = useRoute();
 const { state, bot, epoch, clear } = useBotSession();
@@ -69,7 +74,7 @@ async function load(activityPage = 1, historyPage = 1) {
     if (current(version, session, id)) {
       erase();
       error.value =
-        "This group could not be opened. Refresh to verify your current permissions.";
+        t("shared.pages_bot_groups_id.this_group_could_not_be_opened_refresh_to_verify");
       if ((cause?.statusCode ?? cause?.status) === 401) clear();
     }
   } finally {
@@ -79,7 +84,7 @@ async function load(activityPage = 1, historyPage = 1) {
 function denied() {
   request++;
   erase();
-  error.value = "Group access changed. Refresh to verify your permissions.";
+  error.value = t("shared.pages_bot_groups_id.group_access_changed_refresh_to_verify_your_permissions");
 }
 function voteChanged(notice?: string) {
   voteNotice.value = notice ?? "";
@@ -106,16 +111,16 @@ onBeforeUnmount(() => {
     <template v-if="state === 'ready'"
       ><BotGroupSwitcher :groups="groups" :selected="group?.workspaceId" />
       <div class="flex items-center justify-between gap-4">
-        <h1 class="text-2xl font-bold">{{ group?.title ?? "Group settings" }}</h1>
+        <h1 class="text-2xl font-bold">{{ group?.title ?? t("shared.pages_bot_groups_id.group_settings") }}</h1>
         <button
           :disabled="loading"
           class="text-sm text-violet-600 disabled:opacity-50"
           @click="load()"
         >
-          Refresh
+          {{ t("shared.common.refresh") }}
         </button>
       </div>
-      <p v-if="loading" role="status">Loading group settings…</p>
+      <p v-if="loading" role="status">{{ t("shared.pages_bot_groups_id.loading_group_settings") }}</p>
       <p v-if="error" role="alert" class="text-rose-600">{{ error }}</p>
       <p
         v-if="voteNotice"

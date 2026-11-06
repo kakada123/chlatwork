@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { CreatorToolDefinition } from "~/data/creator-tools";
+
+const { t } = useAppI18n();
+
 
 defineProps<{
   tool: CreatorToolDefinition;
@@ -22,14 +26,14 @@ defineProps<{
     >
       <section
         class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06] sm:p-5"
-        aria-label="Creator input"
+        :aria-label="t(&quot;products.common.creator_input&quot;)"
       >
         <slot name="input" />
       </section>
       <section
         v-if="hasResult"
         class="min-w-0 lg:sticky lg:top-36"
-        aria-label="Generated result"
+        :aria-label="t(&quot;products.common.generated_result&quot;)"
       >
         <slot name="result" />
       </section>

@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
+const { isKhmer } = useLanguage();
 import {
   hasNonAsciiBarcodeCharacters,
   type BarcodeFormat,
 } from "~/lib/barcode-generator";
+
+const { t } = useAppI18n();
 
 defineProps<{
   generated: boolean;
@@ -65,21 +70,19 @@ const hasUnicodeInput = computed(() =>
 
 <template>
   <section class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
-    <h2 class="text-sm font-semibold">Input</h2>
+    <h2 class="text-sm font-semibold">{{ t("tools.barcode.input") }}</h2>
 
     <div class="grid gap-3 md:grid-cols-2">
       <div class="space-y-2">
         <label
           class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
-        >
-          Value
-        </label>
+        >{{ t("tools.barcode.value") }}</label>
 
         <input
           v-model="currentItem"
           type="text"
           class="h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-          placeholder="e.g. 8851234567890"
+          :placeholder="t(&quot;tools.barcode.eG8851234567890&quot;)"
           @keydown.enter.prevent="handleGenerate"
         />
 
@@ -99,9 +102,7 @@ const hasUnicodeInput = computed(() =>
               type="button"
               class="rounded-md px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
               @click="removeItem(index)"
-            >
-              Remove
-            </button>
+            >{{ t("tools.barcode.remove") }}</button>
           </div>
         </div>
 
@@ -110,67 +111,54 @@ const hasUnicodeInput = computed(() =>
             class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
             type="button"
             @click="handleGenerate"
-          >
-            Generate
-          </button>
+          >{{ t("tools.barcode.generate") }}</button>
 
           <button
             class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
             type="button"
             @click="handleClear"
-          >
-            Clear
-          </button>
+          >{{ t("tools.barcode.clear") }}</button>
 
           <button
             class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             :disabled="!generated"
             @click="emit('download')"
-          >
-            Download SVG
-          </button>
+          >{{ t("tools.barcode.downloadSvg") }}</button>
         </div>
 
         <p v-if="error" class="text-sm text-red-600">
-          {{ error }}
+          {{ localizeToolError(error, isKhmer) }}
         </p>
 
-        <p class="text-xs text-gray-500">
-          Enter a value and click Generate to add it to the list.
-        </p>
+        <p class="text-xs text-gray-500">{{ t("tools.barcode.enterAValueAndClickGenerateToAddIt") }}</p>
 
         <div
           v-if="hasUnicodeInput"
           class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
-        >
-          For Khmer language, QR Code is recommended. Standard barcodes support
-          only numbers and basic English characters.
-          <NuxtLink to="/tools/qr" class="font-semibold underline">
-            Open QR Generator
-          </NuxtLink>
+        >{{ t("tools.barcode.forKhmerLanguageQrCodeIsRecommendedStandardBarcodes") }}<NuxtLink to="/tools/qr" class="font-semibold underline">{{ t("tools.barcode.openQrGenerator") }}</NuxtLink>
         </div>
       </div>
 
       <div class="space-y-3">
-        <h3 class="text-sm font-semibold">Options</h3>
+        <h3 class="text-sm font-semibold">{{ t("tools.barcode.options") }}</h3>
 
         <div
           class="grid gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600 sm:grid-cols-2"
         >
           <div>
-            <p class="font-semibold text-gray-900">Barcode generator</p>
+            <p class="font-semibold text-gray-900">{{ t("tools.barcode.barcodeGenerator_2") }}</p>
             <ul class="mt-2 list-disc space-y-1 pl-4">
-              <li>Numbers and basic English only</li>
-              <li>Good for product codes, SKU, POS item code</li>
+              <li>{{ t("tools.barcode.numbersAndBasicEnglishOnly") }}</li>
+              <li>{{ t("tools.barcode.goodForProductCodesSkuPosItemCode") }}</li>
             </ul>
           </div>
 
           <div>
-            <p class="font-semibold text-gray-900">QR code generator</p>
+            <p class="font-semibold text-gray-900">{{ t("tools.barcode.qrCodeGenerator") }}</p>
             <ul class="mt-2 list-disc space-y-1 pl-4">
-              <li>Supports Khmer, emoji, links, and long text</li>
-              <li>Good for Khmer content</li>
+              <li>{{ t("tools.barcode.supportsKhmerEmojiLinksAndLongText") }}</li>
+              <li>{{ t("tools.barcode.goodForKhmerContent") }}</li>
             </ul>
           </div>
         </div>
@@ -179,9 +167,7 @@ const hasUnicodeInput = computed(() =>
           <div>
             <label
               class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
-            >
-              Format
-            </label>
+            >{{ t("tools.barcode.format") }}</label>
 
             <ModernSelect
               v-model="format"
@@ -197,9 +183,7 @@ const hasUnicodeInput = computed(() =>
           <div>
             <label
               class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
-            >
-              Height
-            </label>
+            >{{ t("tools.barcode.height") }}</label>
 
             <input
               v-model.number="height"
@@ -213,9 +197,7 @@ const hasUnicodeInput = computed(() =>
           <div>
             <label
               class="block text-xs font-semibold uppercase tracking-wide text-gray-500"
-            >
-              Bar width
-            </label>
+            >{{ t("tools.barcode.barWidth") }}</label>
 
             <input
               v-model.number="width"
@@ -228,15 +210,12 @@ const hasUnicodeInput = computed(() =>
 
           <div class="flex items-end gap-2">
             <label class="flex items-center gap-2 text-sm">
-              <input v-model="displayValue" type="checkbox" />
-              Show text
-            </label>
+              <input v-model="displayValue" type="checkbox" />{{ t("tools.barcode.showText") }}</label>
           </div>
         </div>
 
         <p class="text-xs text-gray-500">
-          Tip: Use <b>EAN13</b> for retail codes (12 digits recommended;
-          checksum auto). Use <b>CODE128</b> for ASCII text or numbers.
+          {{ t("tools.barcode.tipUseEan13ForRetailCodes12DigitsRecommended") }}
         </p>
       </div>
     </div>

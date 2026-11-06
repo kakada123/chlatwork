@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "បង្កើតកូដ UUID (v4)" : "UUID Generator" }}
+        {{ t("tools.uuidGenerator.uuidGenerator") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "បង្កើតកូដ UUID v4 ចៃដន្យម្តងមួយ ឬច្រើនក្នុងពេលតែមួយ និងចម្លងជាបញ្ជី។" : "Generate one or many random v4 UUIDs and copy them as a list." }}
+        {{ t("tools.uuidGenerator.generateOneOrManyRandomV4UuidsAndCopy") }}
       </p>
     </div>
 
@@ -13,7 +13,7 @@
       <div class="grid gap-4 md:grid-cols-[220px_1fr]">
         <div class="space-y-2">
           <label class="block text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "ចំនួន" : "Quantity" }}
+            {{ t("tools.uuidGenerator.quantity") }}
           </label>
           <input
             v-model.number="count"
@@ -28,21 +28,21 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="generate"
             >
-              {{ isKhmer ? "បង្កើតថ្មី" : "Generate" }}
+              {{ t("tools.uuidGenerator.generate") }}
             </button>
-            <CopyButton :text="uuidText" :label="isKhmer ? 'ចម្លងទាំងអស់' : 'Copy all'" />
+            <CopyButton :text="uuidText" :label="t(&quot;tools.uuidGenerator.copyAll&quot;)" />
           </div>
         </div>
 
         <div class="space-y-2">
           <label class="block text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "បញ្ជីកូដ UUID v4" : "UUID v4 list" }}
+            {{ t("tools.uuidGenerator.uuidV4List") }}
           </label>
           <textarea
             :value="uuidText"
             readonly
             class="h-96 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            :placeholder="isKhmer ? 'កូដ UUID ដែលបានបង្កើតនឹងបង្ហាញនៅទីនេះ' : 'Generated UUIDs appear here'"
+            :placeholder="t(&quot;tools.uuidGenerator.generatedUuidsAppearHere&quot;)"
           />
         </div>
       </div>
@@ -51,17 +51,23 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { generateUuidV4 } from "~/lib/developer-tools";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "UUID Generator - ChlatWork",
-  description: "Generate v4 UUIDs in bulk and copy them instantly.",
-  ogTitle: "UUID Generator - ChlatWork",
-  ogDescription: "Simple browser-based UUID v4 generator.",
+  title: () => t("tools.uuidGenerator.metaTitle"),
+  description: () => t("tools.uuidGenerator.metaDescription"),
+  ogTitle: () => t("tools.uuidGenerator.metaOgTitle"),
+  ogDescription: () => t("tools.uuidGenerator.metaOgDescription"),
 });
 
 const count = ref(5);

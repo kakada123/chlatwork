@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { CheckCircle2, Plus, ReceiptText, X } from "lucide-vue-next";
 import QuickExpenseForm from "~/components/expense-tracker/QuickExpenseForm.vue";
 import { useAuth } from "~/composables/useAuth";
@@ -17,6 +19,10 @@ import {
   type ExpenseRow,
   type MoneyType,
 } from "~/lib/expense-tracker";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 type QuickExpenseFormHandle = {
   focusAmount: () => void;
@@ -255,9 +261,9 @@ onBeforeUnmount(() => {
     >
       <CheckCircle2 class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
       <span>
-        <span class="block">{{ savedType === "income" ? "Income saved" : "Expense saved" }}</span>
+        <span class="block">{{ savedType === "income" ? t("products.expenses.income_saved") : t("products.expenses.expense_saved") }}</span>
         <span class="mt-1 block text-xs font-medium leading-5 text-white/70 dark:text-slate-600">
-          {{ EXPENSE_SAVE_MOTIVATION }}
+          {{ productText(EXPENSE_SAVE_MOTIVATION) }}
         </span>
       </span>
     </div>
@@ -276,7 +282,7 @@ onBeforeUnmount(() => {
           ? 'bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 size-14 -translate-x-1/2 justify-center rounded-full border-4 border-slate-100/90 p-0 dark:border-[#17191d] sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:translate-x-0 sm:gap-2 sm:rounded-2xl sm:border-0 sm:px-4 sm:py-3'
           : 'bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 min-h-14 gap-2 rounded-2xl px-4 py-3 sm:right-6',
       ]"
-      aria-label="Add expense"
+      :aria-label="t(&quot;products.expenses.add_expense&quot;)"
       aria-haspopup="dialog"
       @click="openDialog"
     >
@@ -284,8 +290,8 @@ onBeforeUnmount(() => {
         <ReceiptText class="h-5 w-5" />
         <Plus class="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-white p-0.5 text-sky-700 dark:bg-slate-950 dark:text-cyan-200" />
       </span>
-      <span class="hidden sm:inline">Quick expense</span>
-      <span v-if="!props.mobileNavigationAction" class="sm:hidden">Add expense</span>
+      <span class="hidden sm:inline">{{ t("products.expenses.quick_expense") }}</span>
+      <span v-if="!props.mobileNavigationAction" class="sm:hidden">{{ t("products.expenses.add_expense") }}</span>
     </button>
   </Transition>
 
@@ -310,14 +316,14 @@ onBeforeUnmount(() => {
           <div class="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-200 dark:bg-white/15 sm:hidden" aria-hidden="true" />
           <div class="mb-5 flex items-start justify-between gap-4">
             <div>
-              <p class="text-xs font-black uppercase tracking-[0.18em] text-sky-600 dark:text-cyan-200">Stay on track</p>
-              <h2 id="quick-expense-dialog-title" class="mt-1 text-2xl font-black text-slate-950 dark:text-white">{{ entryType === "income" ? "Add income" : "Add an expense" }}</h2>
-              <p class="mt-1 text-sm text-slate-500 dark:text-white/50">A quick entry now keeps your money clear later.</p>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-sky-600 dark:text-cyan-200">{{ t("products.expenses.stay_on_track") }}</p>
+              <h2 id="quick-expense-dialog-title" class="mt-1 text-2xl font-black text-slate-950 dark:text-white">{{ entryType === "income" ? t("products.expenses.add_income") : t("products.expenses.add_an_expense") }}</h2>
+              <p class="mt-1 text-sm text-slate-500 dark:text-white/50">{{ t("products.expenses.a_quick_entry_now_keeps_your_money_clear_later") }}</p>
             </div>
             <button
               type="button"
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-50 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
-              :aria-label="entryType === 'income' ? 'Close income entry' : 'Close quick expense'"
+              :aria-label="entryType === 'income' ? t(&quot;products.common.close_income_entry&quot;) : t(&quot;products.common.close_quick_expense&quot;)"
               :disabled="isSaving"
               @click="closeDialog"
             >
@@ -330,12 +336,12 @@ onBeforeUnmount(() => {
             :initial-row="initialRow"
             :currency="currency"
             :busy="isSaving"
-            :submit-label="entryType === 'income' ? 'Save income' : 'Save expense'"
+            :submit-label="entryType === 'income' ? t(&quot;products.common.save_income&quot;) : t(&quot;products.common.save_expense&quot;)"
             @submit="saveQuickExpense"
           />
 
           <p v-if="error" role="alert" class="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-400/10 dark:text-red-300">
-            {{ error }}
+            {{ productText(error) }}
           </p>
         </div>
       </div>

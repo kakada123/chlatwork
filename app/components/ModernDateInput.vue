@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getDatePickerPosition } from "~/lib/date-picker-position";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 type DateInputType = "date" | "datetime-local";
 
@@ -36,7 +42,7 @@ const props = withDefaults(
   {
     type: "date",
     size: "md",
-    ariaLabel: "Choose date",
+
     placement: "bottom",
     minYear: 1900,
     maxYear: 2100,
@@ -59,7 +65,7 @@ const inputSizeClass = computed(() =>
 const monthOptions = computed(() =>
   Array.from({ length: 12 }, (_, index) => ({
     value: index,
-    label: new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+    label: new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), { month: "long" }).format(
       new Date(2000, index, 1),
     ),
   })),
@@ -90,7 +96,7 @@ const displayValue = computed(() => {
   const date = parseValueDate(value.value);
   if (!date) return "";
 
-  const label = new Intl.DateTimeFormat("en-US", {
+  const label = new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -264,7 +270,7 @@ function toDateValue(date: Date) {
   <div ref="rootRef" v-bind="$attrs" class="relative w-full min-w-0">
     <button
       type="button"
-      :aria-label="props.ariaLabel"
+      :aria-label="props.ariaLabel ?? t(&quot;shared.components_modern_date_input.choose_date&quot;)"
       :aria-expanded="isOpen"
       :class="[
         inputSizeClass,
@@ -279,8 +285,8 @@ function toDateValue(date: Date) {
         {{
           displayValue ||
           (props.type === "datetime-local"
-            ? "Select date and time"
-            : "Select date")
+            ? t("shared.components_modern_date_input.select_date_and_time")
+            : t("shared.components_modern_date_input.select_date"))
         }}
       </span>
 
@@ -318,7 +324,7 @@ function toDateValue(date: Date) {
         <div class="grid w-full grid-cols-2 gap-2 sm:flex-1">
           <ModernSelect
             v-model.number="activeMonthIndex"
-            aria-label="Select month"
+            :aria-label="t(&quot;shared.components_modern_date_input.select_month&quot;)"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option
@@ -332,7 +338,7 @@ function toDateValue(date: Date) {
 
           <ModernSelect
             v-model.number="activeYear"
-            aria-label="Select year"
+            :aria-label="t(&quot;shared.components_modern_date_input.select_year&quot;)"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option v-for="year in yearOptions" :key="year" :value="year">
@@ -345,7 +351,7 @@ function toDateValue(date: Date) {
           <button
             type="button"
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            aria-label="Previous month"
+            :aria-label="t(&quot;shared.components_modern_date_input.previous_month&quot;)"
             @click="moveMonth(-1)"
           >
             ‹
@@ -353,7 +359,7 @@ function toDateValue(date: Date) {
           <button
             type="button"
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            aria-label="Next month"
+            :aria-label="t(&quot;shared.components_modern_date_input.next_month&quot;)"
             @click="moveMonth(1)"
           >
             ›
@@ -365,7 +371,7 @@ function toDateValue(date: Date) {
         class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-500 dark:text-white/50"
       >
         <span
-          v-for="(day, index) in ['S', 'M', 'T', 'W', 'T', 'F', 'S']"
+          v-for="(day, index) in ([t(&quot;shared.extra_app_components_ModernDateInput_vue.s&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.m&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.t&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.w&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.t_2&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.f&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.s_2&quot;)])"
           :key="`${day}-${index}`"
           class="py-1"
         >
@@ -401,7 +407,7 @@ function toDateValue(date: Date) {
         class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-white/10 dark:bg-white/[0.05]"
       >
         <span class="text-sm font-medium text-slate-600 dark:text-white/65"
-          >Time</span
+          >{{ t("shared.common.time") }}</span
         >
         <input
           v-model="timeValue"
@@ -419,7 +425,7 @@ function toDateValue(date: Date) {
           class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-white/55 dark:hover:bg-white/10 dark:hover:text-white"
           @click="clearValue"
         >
-          Clear
+          {{ t("shared.common.clear") }}
         </button>
 
         <button
@@ -427,7 +433,7 @@ function toDateValue(date: Date) {
           class="rounded-lg bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
           @click="selectToday"
         >
-          Today
+          {{ t("shared.common.today") }}
         </button>
       </div>
     </div>

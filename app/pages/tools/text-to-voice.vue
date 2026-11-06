@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "អត្ថបទទៅជាសំឡេង" : "Text to Voice" }}
+        {{ t("tools.textToVoice.textToVoice") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "ស្តាប់អត្ថបទជាភាសាខ្មែរ ឬអង់គ្លេស តាមរយៈប្រព័ន្ធសំឡេងអនឡាញ ឬម៉ាស៊ីនសំឡេងលើ browser របស់អ្នក។" : "Listen to Khmer or English text with online audio or your browser voice engine." }}
+        {{ t("tools.textToVoice.listenToKhmerOrEnglishTextWithOnlineAudio") }}
       </p>
     </div>
 
@@ -22,10 +22,10 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label for="text-to-voice-input" class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "អត្ថបទ" : "Text" }}
+              {{ t("tools.textToVoice.text") }}
             </label>
             <span class="shrink-0 text-xs text-gray-400">
-              {{ characterCount }} {{ isKhmer ? "តួអក្សរ" : "characters" }}
+              {{ characterCount }} {{ t("tools.textToVoice.characters") }}
               <span v-if="usesNarakeetVoice">
                 · ~{{ estimatedSpeechSeconds }}s / 10s
               </span>
@@ -43,10 +43,10 @@
 
           <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span class="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1">
-              {{ isKhmer ? "ស្វែងរកឃើញ៖ " : "Detected: " }}{{ detectedLanguageLabel }}
+              {{ t("tools.textToVoice.detected") }}{{ detectedLanguageLabel }}
             </span>
             <span>
-              {{ isKhmer ? "ភាសាខ្មែរ និងអង់គ្លេស ត្រូវបានកំណត់ដោយស្វ័យប្រវត្តិតាមអត្ថបទ។" : "Khmer and English are detected automatically before playback." }}
+              {{ t("tools.textToVoice.khmerAndEnglishAreDetectedAutomaticallyBeforePlayback") }}
             </span>
           </div>
 
@@ -57,7 +57,7 @@
               :disabled="!canSpeak"
               @click="speak"
             >
-              {{ isSpeaking ? (isKhmer ? "ចាក់ឡើងវិញ" : "Restart") : (isKhmer ? "អានសំឡេង" : "Speak") }}
+              {{ isSpeaking ? (t("tools.textToVoice.restart")) : (t("tools.textToVoice.speak")) }}
             </button>
             <button
               type="button"
@@ -65,7 +65,7 @@
               :disabled="!isSpeaking"
               @click="togglePause"
             >
-              {{ isPaused ? (isKhmer ? "បន្ត" : "Resume") : (isKhmer ? "ផ្អាក" : "Pause") }}
+              {{ isPaused ? (t("tools.textToVoice.resume")) : (t("tools.textToVoice.pause")) }}
             </button>
             <button
               type="button"
@@ -73,14 +73,14 @@
               :disabled="!isSpeaking && !isPaused"
               @click="stop"
             >
-              {{ isKhmer ? "បញ្ឈប់" : "Stop" }}
+              {{ t("tools.textToVoice.stop") }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearText"
             >
-              {{ isKhmer ? "សម្អាត" : "Clear" }}
+              {{ t("tools.textToVoice.clear") }}
             </button>
             <button
               v-if="engine === 'online'"
@@ -89,14 +89,14 @@
               :disabled="!canDownload"
               @click="downloadSpeech"
             >
-              {{ isDownloading ? (isKhmer ? "កំពុងទាញយក..." : "Downloading...") : (isKhmer ? "ទាញយក MP3" : "Download MP3") }}
+              {{ isDownloading ? (t("tools.textToVoice.downloading")) : (t("tools.textToVoice.downloadMp3")) }}
             </button>
             <span
               v-else
               class="flex h-10 items-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-500"
-              title="Browser voices only expose local playback, not downloadable audio data."
+              :title="t(&quot;tools.textToVoice.browserVoicesOnlyExposeLocalPlaybackNotDownloadableAudio&quot;)"
             >
-              {{ isKhmer ? "ចាក់ផ្ទាល់លើម៉ាស៊ីនប៉ុណ្ណោះ" : "Local playback only" }}
+              {{ t("tools.textToVoice.localPlaybackOnly") }}
             </span>
           </div>
 
@@ -108,24 +108,24 @@
         <div class="space-y-4 rounded-lg border bg-gray-50 p-4">
           <div class="space-y-2">
             <label for="engine-select" class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "ប្រព័ន្ធសំឡេង" : "Engine" }}
+              {{ t("tools.textToVoice.engine") }}
             </label>
             <ModernSelect
               id="engine-select"
               v-model="engine"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
-              <option value="online">{{ isKhmer ? "សំឡេងអនឡាញ (Online)" : "Online audio" }}</option>
-              <option value="browser">{{ isKhmer ? "សំឡេងក្នុង Browser" : "Browser voice" }}</option>
+              <option value="online">{{ t("tools.textToVoice.onlineAudio") }}</option>
+              <option value="browser">{{ t("tools.textToVoice.browserVoice") }}</option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              {{ isKhmer ? "សំឡេងអនឡាញដំណើរការតាម API និងអាចទាញយកជា MP3។ សំឡេង Browser ដំណើរការផ្ទាល់លើឧបករណ៍។" : "Online mode sends text to the ChlatWork API and can export MP3. Browser voice stays local." }}
+              {{ t("tools.textToVoice.onlineModeSendsTextToTheChlatWorkApi") }}
             </p>
           </div>
 
           <div v-if="engine === 'online'" class="space-y-2">
             <label for="online-voice-select" class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "សំឡេង" : "Voice" }}
+              {{ t("tools.textToVoice.voice") }}
             </label>
             <ModernSelect
               id="online-voice-select"
@@ -140,24 +140,24 @@
                   voice.provider === 'narakeet' && detectedTextLanguage === 'en'
                 "
               >
-                {{ voice.label }}
+                {{ t(`tools.textToVoice.voices.${voice.key}`) }}
               </option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              {{ isKhmer ? "សំឡេង Auto គាំទ្រភាសាខ្មែរ និងអង់គ្លេស។ សំឡេងខ្មែរបន្ថែមគាំទ្រតែភាសាខ្មែរប៉ុណ្ណោះ។" : "Auto voice supports Khmer and English. Extended Khmer voices are Khmer-only." }}
+              {{ t("tools.textToVoice.autoVoiceSupportsKhmerAndEnglishExtendedKhmerVoices") }}
             </p>
           </div>
 
           <div v-if="engine === 'browser'" class="space-y-2">
             <label for="voice-select" class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "សំឡេង" : "Voice" }}
+              {{ t("tools.textToVoice.voice") }}
             </label>
             <ModernSelect
               id="voice-select"
               v-model="selectedVoiceURI"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
-              <option value="">{{ isKhmer ? "សំឡេងលំនាំដើមរបស់ Browser" : "Browser default detected voice" }}</option>
+              <option value="">{{ t("tools.textToVoice.browserDefaultDetectedVoice") }}</option>
               <option
                 v-for="voice in voiceOptions"
                 :key="voice.voiceURI"
@@ -167,14 +167,14 @@
               </option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              {{ isKhmer ? "សំឡេងដែលត្រូវគ្នានឹងភាសាដែលបានកំណត់នឹងបង្ហាញដំបូង។" : "Voices matching the detected language appear first when your browser provides them." }}
+              {{ t("tools.textToVoice.voicesMatchingTheDetectedLanguageAppearFirstWhenYour") }}
             </p>
           </div>
 
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="rate-control" class="text-sm font-semibold text-gray-900">
-                {{ isKhmer ? "ល្បឿន" : "Speed" }}
+                {{ t("tools.textToVoice.speed") }}
               </label>
               <span class="text-xs text-gray-500">{{ rate.toFixed(1) }}x</span>
             </div>
@@ -192,7 +192,7 @@
           <div v-if="engine === 'browser'" class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="pitch-control" class="text-sm font-semibold text-gray-900">
-                {{ isKhmer ? "កម្រិតសំឡេង (Pitch)" : "Pitch" }}
+                {{ t("tools.textToVoice.pitch") }}
               </label>
               <span class="text-xs text-gray-500">{{ pitch.toFixed(1) }}</span>
             </div>
@@ -210,7 +210,7 @@
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="volume-control" class="text-sm font-semibold text-gray-900">
-                {{ isKhmer ? "កម្រិតឮ (Volume)" : "Volume" }}
+                {{ t("tools.textToVoice.volume") }}
               </label>
               <span class="text-xs text-gray-500">{{ Math.round(volume * 100) }}%</span>
             </div>
@@ -231,16 +231,21 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeSpeechError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
+
+
+
 useSeoMeta({
-  title: "Text to Voice Khmer and English - ChlatWork",
-  description:
-    "Read Khmer or English text aloud with automatic language detection, online audio, and browser text-to-speech controls.",
-  ogTitle: "Text to Voice Khmer and English - ChlatWork",
-  ogDescription:
-    "Khmer and English text-to-voice with automatic language detection and online audio support.",
+  title: () => t("tools.textToVoice.metaTitle"),
+  description: () => t("tools.textToVoice.metaDescription"),
+  ogTitle: () => t("tools.textToVoice.metaOgTitle"),
+  ogDescription: () => t("tools.textToVoice.metaOgDescription"),
 });
 
 type SpeechEngine = "online" | "browser";
@@ -258,41 +263,36 @@ const NARAKEET_TTS_CHUNK_LIMIT = MAX_AUDIO_SECONDS * KHMER_GRAPHEMES_PER_SECOND;
 const onlineVoiceOptions = [
   {
     key: "auto",
-    label: "Auto (Khmer / English)",
     provider: "google",
     language: "auto",
   },
   {
     key: "khmer-default",
-    label: "Khmer default",
     provider: "google",
     language: "km",
   },
   {
     key: "english-default",
-    label: "English default",
     provider: "google",
     language: "en",
   },
   {
     key: "khmer-male-graham",
-    label: "Graham - Male Warm Smooth",
     provider: "narakeet",
     language: "km",
   },
   {
     key: "khmer-male-sovath",
-    label: "Sovath - Male",
     provider: "narakeet",
     language: "km",
   },
   {
     key: "khmer-female-nisa",
-    label: "Nisa - Female",
     provider: "narakeet",
     language: "km",
   },
 ] as const;
+
 
 const text = ref(DEFAULT_TEXT);
 const engine = ref<SpeechEngine>("online");
@@ -318,12 +318,11 @@ const detectedLanguageTag = computed(() =>
   detectedTextLanguage.value === "km" ? "km-KH" : "en-US",
 );
 const detectedLanguageLabel = computed(() =>
-  detectedTextLanguage.value === "km" ? "Khmer" : "English",
+  detectedTextLanguage.value === "km" ? (t("tools.textToVoice.khmer")) : (t("tools.textToVoice.english")),
 );
+const detectedErrorLanguageLabel = computed(() => detectedTextLanguage.value === "km" ? "Khmer" : "English");
 const textPlaceholder = computed(() =>
-  detectedTextLanguage.value === "km"
-    ? "សូមបញ្ចូលអត្ថបទភាសាខ្មែរ..."
-    : "Type English text here...",
+  t(detectedTextLanguage.value === "km" ? "tools.textToVoice.placeholder.khmer" : "tools.textToVoice.placeholder.english"),
 );
 const textFontFamily = computed(() =>
   detectedTextLanguage.value === "km" ? KHMER_FONT_STACK : ENGLISH_FONT_STACK,
@@ -350,7 +349,7 @@ const isOverDurationLimit = computed(
 );
 const narakeetDurationLimitMessage = computed(
   () =>
-    `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for this voice.`,
+    t("tools.textToVoice.textIsEstimatedAtSLimitIsSFor", { estimatedSpeechSeconds: estimatedSpeechSeconds.value, MAXAUDIOSECONDS: MAX_AUDIO_SECONDS }),
 );
 const hasOnlineAudioSupport = computed(() => process.client);
 const hasSpeechSupport = computed(
@@ -390,15 +389,15 @@ const message = computed(() => {
   }
 
   if (error.value) {
-    return error.value;
+    return localizeSpeechError(error.value, isKhmer.value);
   }
 
   if (engine.value === "online" && !hasOnlineAudioSupport.value) {
-    return "Online audio is not available in this browser.";
+    return t("tools.textToVoice.onlineAudioIsNotAvailableInThisBrowser");
   }
 
   if (engine.value === "browser" && !hasSpeechSupport.value) {
-    return "Your browser does not support text-to-speech.";
+    return t("tools.textToVoice.yourBrowserDoesNotSupportTextToSpeech");
   }
 
   if (
@@ -406,7 +405,7 @@ const message = computed(() => {
     voices.value.length > 0 &&
     matchingBrowserVoices.value.length === 0
   ) {
-    return `No ${detectedLanguageLabel.value} voice was found. The browser may still read with its default voice.`;
+    return (t("tools.textToVoice.noVoiceWasFoundTheBrowserMayStillRead", { detectedLanguageLabel: detectedLanguageLabel.value }));
   }
 
   if (isOverDurationLimit.value) {
@@ -414,17 +413,17 @@ const message = computed(() => {
   }
 
   if (isPaused.value) {
-    return "Speech is paused.";
+    return t("tools.textToVoice.speechIsPaused");
   }
 
   if (isSpeaking.value) {
     return engine.value === "online"
-      ? `Playing ${detectedLanguageLabel.value} audio ${onlineChunkIndex.value + 1} of ${onlineChunks.value.length}.`
-      : `Speaking ${detectedLanguageLabel.value} text...`;
+      ? (t("tools.textToVoice.playingAudioOf", { detectedLanguageLabel: detectedLanguageLabel.value, onlineChunkIndex: onlineChunkIndex.value + 1, onlineChunksLength: onlineChunks.value.length }))
+      : (t("tools.textToVoice.speakingText", { detectedLanguageLabel: detectedLanguageLabel.value }));
   }
 
   if (isDownloading.value) {
-    return `Preparing MP3 ${downloadProgress.value.current} of ${downloadProgress.value.total}.`;
+    return (t("tools.textToVoice.preparingMp3Of", { downloadProgressCurrent: downloadProgress.value.current, downloadProgressTotal: downloadProgress.value.total }));
   }
 
   return "";
@@ -574,7 +573,7 @@ function speak() {
   }
 
   if (isOverDurationLimit.value) {
-    error.value = narakeetDurationLimitMessage.value;
+    error.value = `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for this voice.`;
     return;
   }
 
@@ -606,7 +605,7 @@ async function playCurrentOnlineChunk() {
   const chunk = onlineChunks.value[onlineChunkIndex.value];
 
   if (!audio || !chunk) {
-    error.value = `Unable to prepare ${detectedLanguageLabel.value} audio.`;
+    error.value = `Unable to prepare ${detectedErrorLanguageLabel.value} audio.`;
     resetSpeechState();
     return;
   }
@@ -620,7 +619,7 @@ async function playCurrentOnlineChunk() {
     audio.src = currentAudioUrl.value;
   } catch (caught: any) {
     error.value =
-      caught?.message || `Unable to load ${detectedLanguageLabel.value} audio.`;
+      caught?.message || `Unable to load ${detectedErrorLanguageLabel.value} audio.`;
     resetSpeechState();
     return;
   }
@@ -633,7 +632,7 @@ async function playCurrentOnlineChunk() {
     isPaused.value = false;
     await audio.play();
   } catch {
-    error.value = `Unable to play ${detectedLanguageLabel.value} audio. Check the internet connection and try again.`;
+    error.value = `Unable to play ${detectedErrorLanguageLabel.value} audio. Check the internet connection and try again.`;
     resetSpeechState();
   }
 }
@@ -657,7 +656,7 @@ function handleOnlineError() {
     return;
   }
 
-  error.value = `Unable to load ${detectedLanguageLabel.value} audio. Check the internet connection and try again.`;
+  error.value = `Unable to load ${detectedErrorLanguageLabel.value} audio. Check the internet connection and try again.`;
   resetSpeechState();
 }
 
@@ -739,7 +738,7 @@ async function downloadSpeech() {
   }
 
   if (isOverDurationLimit.value) {
-    error.value = narakeetDurationLimitMessage.value;
+    error.value = `Text is estimated at ${estimatedSpeechSeconds.value}s. Limit is ${MAX_AUDIO_SECONDS}s for this voice.`;
     return;
   }
 
@@ -773,7 +772,7 @@ async function downloadSpeech() {
   } catch (caught: any) {
     error.value =
       caught?.message ||
-      `Unable to download ${detectedLanguageLabel.value} audio.`;
+      `Unable to download ${detectedErrorLanguageLabel.value} audio.`;
   } finally {
     isDownloading.value = false;
     downloadProgress.value = { current: 0, total: 0 };
@@ -808,7 +807,7 @@ function resumeSpeech() {
         isPaused.value = false;
       })
       .catch(() => {
-        error.value = `Unable to resume ${detectedLanguageLabel.value} audio.`;
+        error.value = `Unable to resume ${detectedErrorLanguageLabel.value} audio.`;
         resetSpeechState();
       });
     return;

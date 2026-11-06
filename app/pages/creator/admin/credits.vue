@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
+import { useProductCopy } from "~/composables/useProductCopy";
+const { isKhmer } = useLanguage();
 import {
   getCreatorCreditAccounts,
   getCreatorCreditAccount,
@@ -12,6 +16,10 @@ import {
   creatorCreditRequestError,
   formatCreditChange,
 } from "~/lib/creator-credit-display";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 definePageMeta({ layout: "creator", middleware: ["auth", "admin"] });
 useSeoMeta({
@@ -252,7 +260,7 @@ async function confirmAdjustment() {
       return;
     if (confirmation.input.userId === confirmation.actorId)
       creditBalance.value = result.balance;
-    successMessage.value = `Saved ${formatCreditChange(confirmation.input.amount)} credits. Balance after this adjustment: ${result.balance.toLocaleString("en-US")}.`;
+    successMessage.value = `${t("products.common.saved")} ${formatCreditChange(confirmation.input.amount)} ${t("products.creator.credits_balance_after_this_adjustment")} ${result.balance.toLocaleString(isKhmer.value ? "km-KH" : "en-US")}.`;
     review.value = null;
     saving.value = false;
     attempted.value = false;
@@ -320,16 +328,15 @@ onBeforeUnmount(() => {
   <main v-if="user?.role === 'ADMIN'" class="mx-auto max-w-[1180px] space-y-6">
     <header>
       <h1 class="text-[#082552] dark:text-white">
-        Manage Creator credits & usage limits
+        {{ t("products.creator.manage_creator_credits_usage_limits") }}
       </h1>
       <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
-        Find an account, review its balance and daily usage, then confirm your
-        changes.
+        {{ t("products.creator.find_an_account_review_its_balance_and_daily_usage_then_confirm_your_changes") }}
       </p>
       <NuxtLink
         to="/creator/credits"
         class="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-violet-700 dark:text-violet-300"
-        >View my credits</NuxtLink
+        >{{ t("products.creator.view_my_credits") }}</NuxtLink
       >
     </header>
     <p
@@ -337,32 +344,32 @@ onBeforeUnmount(() => {
       role="alert"
       class="rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-200"
     >
-      {{ errorMessage }}
+      {{ productText(errorMessage) }}
     </p>
     <p
       v-if="successMessage"
       role="status"
       class="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-200"
     >
-      {{ successMessage }}
+      {{ productText(successMessage) }}
     </p>
 
     <div
       class="grid items-start gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
     >
-      <section class="min-w-0 space-y-4" aria-label="Find an account">
+      <section class="min-w-0 space-y-4" :aria-label="t(&quot;products.common.find_an_account&quot;)">
         <form
           class="flex items-end gap-2"
           @submit.prevent="!locked && loadAccounts(1)"
         >
           <label class="min-w-0 flex-1 text-sm font-semibold"
-            >Name or email
+            >{{ t("products.creator.name_or_email") }}
             <input
               v-model="search"
               type="search"
               maxlength="100"
               :disabled="locked"
-              placeholder="Search accounts"
+              :placeholder="t(&quot;products.common.search_accounts&quot;)"
               class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 font-normal dark:border-white/15 dark:bg-white/[0.04]"
             />
           </label>
@@ -371,7 +378,7 @@ onBeforeUnmount(() => {
             :disabled="locked || loading"
             class="min-h-11 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white disabled:opacity-50"
           >
-            Search
+            {{ t("products.moments.birthday_wish_generator.search") }}
           </button>
         </form>
         <p
@@ -379,17 +386,17 @@ onBeforeUnmount(() => {
           role="status"
           class="text-sm text-slate-500 dark:text-white/50"
         >
-          Loading accounts…
+          {{ t("products.creator.loading_accounts") }}
         </p>
         <template v-else-if="accounts">
           <p class="text-xs text-slate-500 dark:text-white/50">
-            {{ accounts.total.toLocaleString("en-US") }} active accounts
+            {{ accounts.total.toLocaleString("en-US") }} {{ t("products.creator.active_accounts") }}
           </p>
           <p
             v-if="!accounts.items.length"
             class="text-sm text-slate-500 dark:text-white/50"
           >
-            No matching accounts.
+            {{ t("products.creator.no_matching_accounts") }}
           </p>
           <ul class="space-y-2">
             <li v-for="account in accounts.items" :key="account.id">
@@ -407,10 +414,10 @@ onBeforeUnmount(() => {
               >
                 <span class="flex items-start justify-between gap-3"
                   ><strong class="min-w-0 break-words text-sm">{{
-                    account.name || "Unnamed account"
+                    account.name || t("products.creator.unnamed_account")
                   }}</strong
                   ><span class="shrink-0 text-sm font-semibold tabular-nums"
-                    >{{ account.balance.toLocaleString("en-US") }} credits</span
+                    >{{ account.balance.toLocaleString("en-US") }} {{ t("products.creator.credits") }}</span
                   ></span
                 >
                 <span
@@ -420,7 +427,7 @@ onBeforeUnmount(() => {
                 <span
                   v-if="!account.hasWallet"
                   class="mt-2 block text-xs text-amber-700 dark:text-amber-300"
-                  >Creator wallet not started</span
+                  >{{ t("products.creator.creator_wallet_not_started") }}</span
                 >
               </button>
             </li>
@@ -432,10 +439,10 @@ onBeforeUnmount(() => {
               class="min-h-11 rounded-xl border border-slate-200 px-3 disabled:opacity-40 dark:border-white/15"
               @click="loadAccounts(accounts.page - 1)"
             >
-              Previous
+              {{ t("products.common.previous") }}
             </button>
             <span
-              >Page {{ accounts.page }} of
+              >{{ t("products.creator.page") }} {{ accounts.page }} {{ t("products.creator.of") }}
               {{
                 Math.max(1, Math.ceil(accounts.total / accounts.pageSize))
               }}</span
@@ -448,25 +455,25 @@ onBeforeUnmount(() => {
               class="min-h-11 rounded-xl border border-slate-200 px-3 disabled:opacity-40 dark:border-white/15"
               @click="loadAccounts(accounts.page + 1)"
             >
-              Next
+              {{ t("products.creator.next") }}
             </button>
           </div>
         </template>
       </section>
 
-      <section class="min-w-0 space-y-5" aria-label="Account credits">
+      <section class="min-w-0 space-y-5" :aria-label="t(&quot;products.common.account_credits&quot;)">
         <p
           v-if="loadingDetails"
           role="status"
           class="rounded-2xl border border-slate-200 p-6 text-sm dark:border-white/10"
         >
-          Loading credit activity…
+          {{ t("products.creator.loading_credit_activity") }}
         </p>
         <p
           v-else-if="!details"
           class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500 dark:border-white/15 dark:text-white/50"
         >
-          Select an account to manage its credits and daily usage limit.
+          {{ t("products.creator.select_an_account_to_manage_its_credits_and_daily_usage_limit") }}
         </p>
         <template v-else>
           <div
@@ -474,20 +481,20 @@ onBeforeUnmount(() => {
           >
             <header>
               <h2 class="break-words text-lg font-semibold">
-                {{ details.user.name || "Unnamed account" }}
+                {{ details.user.name || t("products.creator.unnamed_account") }}
               </h2>
               <p
                 class="mt-1 break-all text-sm text-slate-500 dark:text-white/50"
               >
-                {{ details.user.email || "No email address" }}
+                {{ details.user.email || t("products.creator.no_email_address") }}
               </p>
               <p
                 class="mt-1 break-all text-xs text-slate-500 dark:text-white/50"
               >
-                Account: {{ details.user.id }}
+                {{ t("products.creator.account") }} {{ details.user.id }}
               </p>
               <p class="mt-4 text-sm">
-                Available balance
+                {{ t("products.creator.available_balance") }}
                 <strong class="ml-2 text-2xl tabular-nums">{{
                   details.user.balance.toLocaleString("en-US")
                 }}</strong>
@@ -497,8 +504,7 @@ onBeforeUnmount(() => {
               v-if="!details.user.hasWallet"
               class="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-300/10 dark:text-amber-200"
             >
-              The first confirmed adjustment sets this account's starting
-              credits. No additional welcome grant will be added later.
+              {{ t("products.creator.the_first_confirmed_adjustment_sets_this_accounts_starting_credits_no_additional_welcome_grant_will_be_added_later") }}
             </p>
             <form
               v-if="!review && !usageReview"
@@ -507,16 +513,16 @@ onBeforeUnmount(() => {
             >
               <div class="grid grid-cols-2 gap-3">
                 <label class="text-sm font-semibold"
-                  >Action<ModernSelect
+                  >{{ t("products.creator.action") }}<ModernSelect
                     v-model="direction"
                     class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 dark:border-white/15 dark:bg-slate-900"
                   >
-                    <option value="add">Add credits</option>
-                    <option value="remove">Remove credits</option>
+                    <option value="add">{{ t("products.creator.add_credits") }}</option>
+                    <option value="remove">{{ t("products.creator.remove_credits") }}</option>
                   </ModernSelect></label
                 >
                 <label class="text-sm font-semibold"
-                  >Credits<input
+                  >{{ t("products.creator.credits_alternative") }}<input
                     v-model="amount"
                     type="number"
                     inputmode="numeric"
@@ -528,13 +534,13 @@ onBeforeUnmount(() => {
                 /></label>
               </div>
               <label class="block text-sm font-semibold"
-                >Reason<textarea
+                >{{ t("products.creator.reason") }}<textarea
                   v-model="reason"
                   minlength="3"
                   maxlength="240"
                   required
                   rows="3"
-                  placeholder="Why are these credits being changed?"
+                  :placeholder="t(&quot;products.common.why_are_these_credits_being_changed&quot;)"
                   class="mt-2 w-full rounded-xl border border-slate-200 bg-transparent p-3 font-normal dark:border-white/15"
                 />
               </label>
@@ -547,16 +553,15 @@ onBeforeUnmount(() => {
                     : 'text-slate-500 dark:text-white/60'
                 "
               >
-                Resulting balance:
-                {{ resultingBalance.toLocaleString("en-US") }} credits. Balance
-                cannot go below zero.
+                {{ t("products.creator.resulting_balance") }}
+                {{ resultingBalance.toLocaleString("en-US") }} {{ t("products.creator.credits_balance_cannot_go_below_zero") }}
               </p>
               <button
                 type="submit"
                 :disabled="!valid"
                 class="min-h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white disabled:opacity-40"
               >
-                Review adjustment
+                {{ t("products.creator.review_adjustment") }}
               </button>
             </form>
             <section
@@ -565,23 +570,23 @@ onBeforeUnmount(() => {
               class="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-300/20 dark:bg-violet-300/10"
             >
               <h3 id="adjustment-review-title" class="font-semibold">
-                Confirm credit adjustment
+                {{ t("products.creator.confirm_credit_adjustment") }}
               </h3>
               <dl class="space-y-2 text-sm">
                 <div class="flex justify-between gap-3">
-                  <dt>Current balance</dt>
+                  <dt>{{ t("products.creator.current_balance") }}</dt>
                   <dd class="font-semibold">
                     {{ review.input.expectedBalance.toLocaleString("en-US") }}
                   </dd>
                 </div>
                 <div class="flex justify-between gap-3">
-                  <dt>Adjustment</dt>
+                  <dt>{{ t("products.creator.adjustment") }}</dt>
                   <dd class="font-semibold">
-                    {{ formatCreditChange(review.input.amount) }}
+                    {{ productText(formatCreditChange(review.input.amount)) }}
                   </dd>
                 </div>
                 <div class="flex justify-between gap-3">
-                  <dt>Resulting balance</dt>
+                  <dt>{{ t("products.creator.resulting_balance_alternative") }}</dt>
                   <dd class="font-semibold">
                     {{
                       (
@@ -591,15 +596,14 @@ onBeforeUnmount(() => {
                   </dd>
                 </div>
                 <div>
-                  <dt class="font-semibold">Reason</dt>
+                  <dt class="font-semibold">{{ t("products.creator.reason") }}</dt>
                   <dd class="mt-1 whitespace-pre-wrap break-words">
                     {{ review.input.reason }}
                   </dd>
                 </div>
               </dl>
               <p class="text-xs text-slate-600 dark:text-white/60">
-                Saving changes this account's balance immediately and records
-                your admin account and reason.
+                {{ t("products.creator.saving_changes_this_accounts_balance_immediately_and_records_your_admin_account_and_reason") }}
               </p>
               <div class="flex flex-wrap gap-2">
                 <button
@@ -610,7 +614,7 @@ onBeforeUnmount(() => {
                 >
                   {{
                     saving
-                      ? "Saving…"
+                      ? t("products.common.saving")
                       : attempted
                         ? "Retry same adjustment"
                         : "Confirm and save"
@@ -622,7 +626,7 @@ onBeforeUnmount(() => {
                   class="min-h-11 rounded-xl border border-violet-200 px-4 text-sm font-semibold dark:border-white/15"
                   @click="review = null"
                 >
-                  Cancel / edit
+                  {{ t("products.creator.cancel_edit") }}
                 </button>
               </div>
             </section>
@@ -632,20 +636,16 @@ onBeforeUnmount(() => {
             class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"
           >
             <h2 id="daily-limit-title" class="text-lg font-semibold">
-              Daily AI usage limit
+              {{ t("products.creator.daily_ai_usage_limit") }}
             </h2>
             <p class="text-sm">
               <strong>{{ details.usage.used.toLocaleString("en-US") }}</strong>
-              / {{ details.usage.limit.toLocaleString("en-US") }} credits used
-              today ·
-              {{ details.usage.remaining.toLocaleString("en-US") }} remaining
+              / {{ details.usage.limit.toLocaleString("en-US") }} {{ t("products.creator.credits_used_today") }}
+              {{ details.usage.remaining.toLocaleString("en-US") }} {{ t("products.creator.remaining") }}
             </p>
             <p class="text-xs text-slate-500 dark:text-white/60">
-              Resets daily at 00:00 UTC (07:00 Cambodia). Next reset:
-              {{ new Date(details.usage.resetsAt).toLocaleString() }}. This
-              allowance controls credits spent per day. Changing it does not add
-              wallet credits or erase today's usage. Request-rate and provider
-              budget safeguards still apply.
+              {{ t("products.creator.resets_daily_at_00_00_utc_07_00_cambodia_next_reset") }}
+              {{ new Date(details.usage.resetsAt).toLocaleString() }}{{ t("products.creator.this_allowance_controls_credits_spent_per_day_changing_it_does_not_add_wallet_credits_or_erase_todays_usage_request_rate_and_provider_budget_safeguards_still_apply") }}
             </p>
             <form v-if="!usageReview" @submit.prevent="startUsageReview">
               <fieldset
@@ -656,16 +656,16 @@ onBeforeUnmount(() => {
                   class="flex min-h-11 items-center gap-2 text-sm font-semibold"
                 >
                   <input v-model="useDefaultLimit" type="checkbox" />
-                  Use default ({{
+                  {{ t("products.creator.use_default") }}{{
                     details.usage.defaultLimit.toLocaleString("en-US")
                   }}
-                  credits/day)
+                  {{ t("products.creator.credits_day") }}
                 </label>
                 <label
                   v-if="!useDefaultLimit"
                   class="block text-sm font-semibold"
                 >
-                  Daily credits
+                  {{ t("products.creator.daily_credits") }}
                   <input
                     v-model="dailyLimit"
                     type="number"
@@ -678,18 +678,18 @@ onBeforeUnmount(() => {
                   />
                   <span
                     class="mt-1 block text-xs font-normal text-slate-500 dark:text-white/60"
-                    >0 blocks new AI usage. Maximum: 100,000 credits/day.</span
+                    >{{ t("products.creator.0_blocks_new_ai_usage_maximum_100_000_credits_day") }}</span
                   >
                 </label>
                 <label class="block text-sm font-semibold">
-                  Reason
+                  {{ t("products.creator.reason") }}
                   <textarea
                     v-model="limitReason"
                     minlength="3"
                     maxlength="240"
                     rows="2"
                     required
-                    placeholder="Why is this daily limit being changed?"
+                    :placeholder="t(&quot;products.common.why_is_this_daily_limit_being_changed&quot;)"
                     class="mt-2 w-full rounded-xl border border-slate-200 bg-transparent p-3 font-normal dark:border-white/15"
                   />
                 </label>
@@ -698,16 +698,16 @@ onBeforeUnmount(() => {
                   :disabled="!validLimit || locked"
                   class="min-h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white disabled:opacity-40"
                 >
-                  Review limit change
+                  {{ t("products.creator.review_limit_change") }}
                 </button>
               </fieldset>
             </form>
             <section
               v-else
-              aria-label="Confirm daily usage limit"
+              :aria-label="t(&quot;products.creator.confirm_daily_usage_limit&quot;)"
               class="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-300/20 dark:bg-violet-300/10"
             >
-              <h3 class="font-semibold">Confirm daily usage limit</h3>
+              <h3 class="font-semibold">{{ t("products.creator.confirm_daily_usage_limit") }}</h3>
               <p class="text-sm">
                 {{ details.user.name || details.user.id }}:
                 {{ details.usage.limit.toLocaleString("en-US") }} →
@@ -717,9 +717,9 @@ onBeforeUnmount(() => {
                     details.usage.defaultLimit
                   ).toLocaleString("en-US")
                 }}
-                credits/day{{
+                {{ t("products.creator.credits_day_alternative") }}{{
                   usageReview.input.dailyCreditLimit === null
-                    ? " (use default)"
+                    ? t("products.creator.use_default_alternative")
                     : ""
                 }}.
               </p>
@@ -730,15 +730,13 @@ onBeforeUnmount(() => {
                 "
                 class="text-sm text-amber-800 dark:text-amber-200"
               >
-                Today's usage already meets or exceeds this limit. New requests
-                will remain blocked today.
+                {{ t("products.creator.todays_usage_already_meets_or_exceeds_this_limit_new_requests_will_remain_blocked_today") }}
               </p>
               <p class="whitespace-pre-wrap break-words text-sm">
                 {{ usageReview.input.reason }}
               </p>
               <p class="text-xs text-slate-600 dark:text-white/60">
-                Saving applies immediately and records your admin account and
-                reason.
+                {{ t("products.creator.saving_applies_immediately_and_records_your_admin_account_and_reason") }}
               </p>
               <div class="flex flex-wrap gap-2">
                 <button
@@ -749,7 +747,7 @@ onBeforeUnmount(() => {
                 >
                   {{
                     saving
-                      ? "Saving…"
+                      ? t("products.common.saving")
                       : attempted
                         ? "Retry same limit change"
                         : "Confirm and save"
@@ -761,13 +759,13 @@ onBeforeUnmount(() => {
                   class="min-h-11 rounded-xl border border-violet-200 px-4 text-sm font-semibold dark:border-white/15"
                   @click="usageReview = null"
                 >
-                  Cancel / edit
+                  {{ t("products.creator.cancel_edit") }}
                 </button>
               </div>
             </section>
             <details v-if="details.usageLimitChanges.length" class="text-sm">
               <summary class="min-h-11 cursor-pointer py-3 font-semibold">
-                Recent limit changes (latest 20)
+                {{ t("products.creator.recent_limit_changes_latest_20") }}
               </summary>
               <ul class="space-y-3">
                 <li
@@ -776,8 +774,8 @@ onBeforeUnmount(() => {
                   class="border-t border-slate-200 pt-3 dark:border-white/10"
                 >
                   <p>
-                    {{ entry.previousLimit ?? "Default" }} →
-                    {{ entry.dailyCreditLimit ?? "Default" }} credits/day ·
+                    {{ entry.previousLimit ?? t("products.creator.default") }} →
+                    {{ entry.dailyCreditLimit ?? t("products.creator.default") }} {{ t("products.creator.credits_day_alternative_2") }}
                     {{ new Date(entry.createdAt).toLocaleString() }}
                   </p>
                   <p class="mt-1 whitespace-pre-wrap break-words">
@@ -786,16 +784,15 @@ onBeforeUnmount(() => {
                   <p
                     class="mt-1 break-all text-xs text-slate-500 dark:text-white/60"
                   >
-                    Admin: {{ entry.adminUserId }}
+                    {{ t("products.creator.admin") }} {{ entry.adminUserId }}
                   </p>
                 </li>
               </ul>
             </details>
           </section>
-          <h2 class="text-lg font-semibold">Recent credit activity</h2>
+          <h2 class="text-lg font-semibold">{{ t("products.creator.recent_credit_activity") }}</h2>
           <p class="text-xs text-slate-500 dark:text-white/50">
-            Latest 50 transactions. Admin changes include the reason and
-            responsible admin account.
+            {{ t("products.creator.latest_50_transactions_admin_changes_include_the_reason_and_responsible_admin_account") }}
           </p>
           <CreatorCreditActivity :transactions="details.transactions" />
         </template>

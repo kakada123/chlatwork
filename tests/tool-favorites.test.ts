@@ -1,3 +1,4 @@
+import { assertSourceMessage } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync, readFileSync } from "node:fs";
@@ -64,7 +65,7 @@ test("profile combines all favorite tools and commands", () => {
   assert.match(page, /import HomeToolCard from "~\/components\/landing\/HomeToolCard\.vue"/);
   assert.match(page, /CommandQuickCard/);
   assert.match(page, /HomeToolCard/);
-  assert.match(page, /Synced securely to your signed-in account/);
+  assertSourceMessage(page, /Synced securely to your signed-in account/);
   assert.doesNotMatch(page, /favoriteTools\.slice|favoriteCommands\.slice/);
 });
 
@@ -102,6 +103,7 @@ test("tool details keep account favorites with the expense action in its dashboa
   assert.match(layout, /:tool-key="currentToolGuide\.tool\.key"/);
   assert.match(layout, /show-label/);
   assert.match(button, /showLabel\?: boolean/);
-  assert.match(button, /"Favorited" : "Favorite"/);
-  assert.match(button, /Sign in to save favorites/);
+  assertSourceMessage(button, "Favorited");
+  assertSourceMessage(button, "Favorite");
+  assertSourceMessage(button, /Sign in to save favorites/);
 });

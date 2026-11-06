@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
 const props = defineProps<{
   hasSharedHeader: boolean;
 }>();
@@ -72,9 +76,9 @@ onBeforeUnmount(() => {
       style="bottom: calc(4.75rem + env(safe-area-inset-bottom))"
       role="status"
       aria-live="polite"
-      aria-label="Loading page"
+      :aria-label="t(&quot;shared.components_layout_mobile_route_skeleton.loading_page&quot;)"
     >
-      <span class="sr-only">Loading page…</span>
+      <span class="sr-only">{{ t("shared.components_layout_mobile_route_skeleton.loading_page_2") }}</span>
       <div class="mx-auto h-full w-full max-w-md overflow-hidden px-4 pt-4" aria-hidden="true">
         <div v-if="!props.hasSharedHeader" class="flex items-center justify-between gap-4">
           <div class="min-w-0 flex-1 space-y-2">

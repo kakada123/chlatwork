@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed } from "vue";
 import type { BirthdayMemory } from "~/lib/birthday-story";
 import type { MomentMedia } from "~/types/moment";
+
+
 const props = withDefaults(defineProps<{ photos: MomentMedia[]; memories: BirthdayMemory[]; index: number; failed: string[]; locale?: "en" | "km" }>(), { locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 defineEmits<{ change: [index: number]; error: [id: string] }>();
 const photo = computed(() => props.photos[props.index]);
 const memory = computed(() => props.memories[props.index]);
@@ -12,15 +16,15 @@ const memory = computed(() => props.memories[props.index]);
   <div class="memories-scene">
     <figure v-if="photo" class="memory-frame">
       <div :key="photo.id" class="memory-image">
-        <img v-if="!failed.includes(photo.id)" :src="photo.url" :alt="memory?.caption || (locale === 'km' ? `អនុស្សាវរីយ៍ទី ${index + 1}` : `Memory ${index + 1}`)" @error="$emit('error', photo.id)" />
-        <p v-else class="memory-unavailable">{{ locale === 'km' ? 'មិនអាចបង្ហាញរូបថតនេះបានទេ។' : 'This photo is unavailable. Your memory is still here.' }}</p>
+        <img v-if="!failed.includes(photo.id)" :src="photo.url" :alt="memory?.caption || (t(&quot;products.moments.memory_value&quot;, { value: index + 1 }))" @error="$emit('error', photo.id)" />
+        <p v-else class="memory-unavailable">{{ t("products.moments.this_photo_is_unavailable_your_memory_is_still_here") }}</p>
       </div>
       <figcaption><p v-if="memory?.caption">{{ memory.caption }}</p><time v-if="memory?.date" :datetime="memory.date">{{ memory.date }}</time></figcaption>
     </figure>
     <div class="memory-navigation">
-      <button type="button" class="story-action" data-action="previous-photo" :disabled="index <= 0" :aria-label="locale === 'km' ? 'រូបថតមុន' : 'Previous photo'" @click="$emit('change', index - 1)">←</button>
+      <button type="button" class="story-action" data-action="previous-photo" :disabled="index <= 0" :aria-label="t(&quot;products.moments.previous_photo&quot;)" @click="$emit('change', index - 1)">←</button>
       <p role="status">{{ index + 1 }} / {{ photos.length }}</p>
-      <button type="button" class="story-action" data-action="next-photo" :disabled="index >= photos.length - 1" :aria-label="locale === 'km' ? 'រូបថតបន្ទាប់' : 'Next photo'" @click="$emit('change', index + 1)">→</button>
+      <button type="button" class="story-action" data-action="next-photo" :disabled="index >= photos.length - 1" :aria-label="t(&quot;products.moments.next_photo&quot;)" @click="$emit('change', index + 1)">→</button>
     </div>
   </div>
 </template>

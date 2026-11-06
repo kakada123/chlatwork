@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ref, watch, computed, nextTick } from "vue";
 import WifiQrForm from "~/components/wifi-qr/WifiQrForm.vue";
 import WifiQrPreview from "~/components/wifi-qr/WifiQrPreview.vue";
@@ -10,6 +11,8 @@ import {
   dataUrlToFile,
   getWifiDisplayPassword,
 } from "~/lib/wifi-qr";
+
+const { t } = useAppI18n();
 
 const ssid = ref("");
 const password = ref("");
@@ -28,8 +31,8 @@ const showPassword = ref(true);
 const showDontShare = ref(true);
 const shopName = ref("");
 const tagline = ref("");
-const khmerHeadline = ref("ស្កេនដើម្បីភ្ជាប់ Wi-Fi");
-const enHeadline = ref("Scan to connect to Wi-Fi");
+const khmerHeadline = ref(t("tools.wifiQr.poster.headlineKhmer"));
+const enHeadline = ref(t("tools.wifiQr.poster.headlineEnglish"));
 
 // ✅ ref to preview component (to grab poster DOM)
 const previewRef = ref<InstanceType<typeof WifiQrPreview> | null>(null);
@@ -201,9 +204,9 @@ watch(
   <div class="mx-auto w-full max-w-[1440px]">
     <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត Wi-Fi QR" : "Wi-Fi QR Generator" }}</h1>
+        <h1 class="text-xl font-bold">{{ t("tools.wifiQr.wiFiQrGenerator") }}</h1>
         <p class="text-sm text-gray-500 truncate">
-          {{ isKhmer ? "បង្កើត Wi-Fi QR សម្រាប់ iOS និង Android ដើម្បីភ្ជាប់ដោយស្កេនភ្លាមៗ។" : "Generate a Wi-Fi QR for iOS + Android. Scan to connect instantly." }}
+          {{ t("tools.wifiQr.generateAWiFiQrForIOsAndroid") }}
         </p>
       </div>
     </div>

@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "URL Encoder / Decoder" : "URL Encoder / Decoder" }}
+        {{ t("tools.urlEncoder.urlEncoderDecoder") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "បំប្លែង និងពន្លាកូដ URL components, query strings និង parameters ក្នុង Browser របស់អ្នក។" : "Encode and decode URL components, query strings, and pasted URL parameters." }}
+        {{ t("tools.urlEncoder.encodeAndDecodeUrlComponentsQueryStringsAndPasted") }}
       </p>
     </div>
 
@@ -14,7 +14,7 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "ទិន្នន័យបញ្ចូល" : "Input" }}
+              {{ t("tools.urlEncoder.input") }}
             </label>
           </div>
           <textarea
@@ -28,38 +28,38 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="run('encode')"
             >
-              {{ isKhmer ? "បំប្លែង (Encode)" : "Encode" }}
+              {{ t("tools.urlEncoder.encode") }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="run('decode')"
             >
-              {{ isKhmer ? "ពន្លា (Decode)" : "Decode" }}
+              {{ t("tools.urlEncoder.decode") }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearAll"
             >
-              {{ isKhmer ? "សម្អាត" : "Clear" }}
+              {{ t("tools.urlEncoder.clear") }}
             </button>
           </div>
-          <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+          <p v-if="error" class="text-sm text-red-600">{{ localizeToolError(error, isKhmer) }}</p>
         </div>
 
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "លទ្ធផល" : "Result" }}
+              {{ t("tools.urlEncoder.result") }}
             </label>
-            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
+            <CopyButton :text="result" :label="t(&quot;tools.urlEncoder.copyResult&quot;)" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-72 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            :placeholder="isKhmer ? 'លទ្ធផលនឹងបង្ហាញនៅទីនេះ' : 'Encoded or decoded result appears here'"
+            :placeholder="t(&quot;tools.urlEncoder.encodedOrDecodedResultAppearsHere&quot;)"
           />
         </div>
       </div>
@@ -67,14 +67,14 @@
 
     <section v-if="queryRows.length" class="rounded-xl border bg-white p-4 shadow-sm">
       <h2 class="mb-3 text-sm font-semibold text-gray-900">
-        {{ isKhmer ? "ប៉ារ៉ាម៉ែត្រ Query ដែលបានពន្លា" : "Decoded query parameters" }}
+        {{ t("tools.urlEncoder.decodedQueryParameters") }}
       </h2>
       <div class="overflow-auto rounded-lg border">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 text-left">
             <tr>
-              <th class="p-2 font-semibold">{{ isKhmer ? "កូនសោ (Key)" : "Key" }}</th>
-              <th class="p-2 font-semibold">{{ isKhmer ? "តម្លៃ (Value)" : "Value" }}</th>
+              <th class="p-2 font-semibold">{{ t("tools.urlEncoder.key") }}</th>
+              <th class="p-2 font-semibold">{{ t("tools.urlEncoder.value") }}</th>
             </tr>
           </thead>
           <tbody>
@@ -90,16 +90,23 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "URL Encoder / Decoder - ChlatWork",
-  description: "Encode and decode URL components and query strings locally.",
-  ogTitle: "URL Encoder / Decoder - ChlatWork",
-  ogDescription: "Developer-friendly URL encoding and decoding.",
+  title: () => t("tools.urlEncoder.metaTitle"),
+  description: () => t("tools.urlEncoder.metaDescription"),
+  ogTitle: () => t("tools.urlEncoder.metaOgTitle"),
+  ogDescription: () => t("tools.urlEncoder.metaOgDescription"),
 });
 
 const input = ref("");

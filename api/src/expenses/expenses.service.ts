@@ -12,7 +12,10 @@ import {
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import type { CreateQuickExpenseDto } from './dto/create-quick-expense.dto';
+import {
+  quickExpenseCategories,
+  type CreateQuickExpenseDto,
+} from './dto/create-quick-expense.dto';
 import type {
   ExpenseRowDto,
   SaveExpenseStateDto,
@@ -90,6 +93,7 @@ export class ExpensesService {
     let income = new Prisma.Decimal(0);
     let itemsCount = 0;
     const categories = new Map<string, Prisma.Decimal>();
+    const categoryKeys = new Map<string, string | undefined>();
     const days = new Map<
       string,
       { spent: Prisma.Decimal; income: Prisma.Decimal }
@@ -115,6 +119,20 @@ export class ExpensesService {
           group.category === '__custom__'
             ? group.customCategory || 'Other'
             : group.category;
+        const presetKey =
+          group.category !== '__custom__' &&
+          quickExpenseCategories.some((preset) => preset === group.category)
+            ? group.category
+            : undefined;
+        // Mixed custom/preset buckets keep their authored label even when the text matches a preset.
+        categoryKeys.set(
+          category,
+          categories.has(category)
+            ? categoryKeys.get(category) === presetKey
+              ? presetKey
+              : undefined
+            : presetKey,
+        );
         categories.set(
           category,
           (categories.get(category) ?? new Prisma.Decimal(0)).add(amount),
@@ -135,6 +153,9 @@ export class ExpensesService {
       categoryBreakdown: [...categories]
         .map(([category, total]) => ({
           category,
+          ...(categoryKeys.get(category)
+            ? { categoryKey: categoryKeys.get(category) }
+            : {}),
           total: total.toNumber(),
           percent: spent.isZero()
             ? 0

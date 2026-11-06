@@ -1,3 +1,5 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
+import { productCopyStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -99,6 +101,8 @@ test("Food mobile observer loads only intersecting available pages, follows view
     code,
   )(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return appI18nStub;
+      if (name === "~/composables/useProductCopy") return productCopyStub;
       if (name === "vue") return framework;
       if (name === "~/composables/useFoodDiscovery")
         return { useFoodDiscovery: () => state };

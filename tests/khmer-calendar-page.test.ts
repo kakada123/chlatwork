@@ -1,3 +1,5 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
+import { translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -35,6 +37,8 @@ function loadPage(
   }).outputText;
   const dependencies: Record<string, unknown> = {
     vue,
+    "~/composables/useAppI18n": { useAppI18n: createI18nStub },
+    "~/lib/i18n": { translateMessage },
     "lucide-vue-next": icons,
     "~/lib/khmer-calendar": calendar,
     "~/lib/calendar-sharing": sharing,

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { createSwatSoundPlayer } from "~/lib/cockroach-sound";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -11,11 +15,10 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Cockroach Screen | ChlatWork",
-  description:
-    "A swarm of cockroaches crawling across a blank screen. Works on your phone or computer.",
-  ogTitle: "Cockroach Screen | ChlatWork",
-  ogDescription: "Cockroaches everywhere. Open it on your phone or computer.",
+  title: () => t("native.cockroach.metaTitle"),
+  description: () => t("native.cockroach.metaDescription"),
+  ogTitle: () => t("native.cockroach.metaOgTitle"),
+  ogDescription: () => t("native.cockroach.metaOgDescription"),
   ogImage: "https://chlatwork.com/cockroach.webp",
   robots: "noindex, nofollow",
 });
@@ -358,7 +361,7 @@ onBeforeUnmount(() => {
     ref="stage"
     class="cockroach-screen"
     :class="{ 'has-flip-flop': slipperReady }"
-    aria-label="Swat crawling cockroaches with a flip-flop"
+    :aria-label="t(&quot;native.cockroach.swatCrawlingCockroachesWithAFlipFlop&quot;)"
     @pointermove="movePointer"
     @pointerenter="movePointer"
     @pointerdown="swat"
@@ -370,11 +373,9 @@ onBeforeUnmount(() => {
     "
     @pointercancel="leavePointer"
   >
-    <h1 class="sr-only">Cockroach screen</h1>
+    <h1 class="sr-only">{{ t("native.cockroach.cockroachScreen") }}</h1>
     <p class="sr-only">
-      Click or tap a cockroach to hit it with the flip-flop. Dead cockroaches
-      stay on the screen. Blood slowly streaks down the glass and leaves lasting
-      splatters. Motion follows your device's reduced-motion setting.
+      {{ t("native.cockroach.clickOrTapACockroachToHitItWithThe") }}
     </p>
     <div
       class="blood-glass"
@@ -401,7 +402,7 @@ onBeforeUnmount(() => {
       aria-live="polite"
       aria-atomic="true"
     >
-      <span>{{ isKhmer ? "វាយងាប់" : "Killed" }}</span>
+      <span>{{ t("native.cockroach.killed") }}</span>
       <strong>{{ deadRoaches.length }}</strong>
     </div>
     <div
@@ -469,9 +470,9 @@ onBeforeUnmount(() => {
     <button
       type="button"
       class="sound-toggle"
-      :aria-label="isKhmer ? 'សំឡេងវាយ' : 'Hit sounds'"
+      :aria-label="t(&quot;native.cockroach.hitSounds&quot;)"
       :aria-pressed="soundEnabled"
-      :title="soundEnabled ? (isKhmer ? 'បិទសំឡេង' : 'Mute hit sounds') : (isKhmer ? 'បើកសំឡេង' : 'Enable hit sounds')"
+      :title="soundEnabled ? (t(&quot;native.cockroach.muteHitSounds&quot;)) : (t(&quot;native.cockroach.enableHitSounds&quot;))"
       @pointerdown.stop
       @pointermove.stop="leavePointer"
       @pointerenter="leavePointer"

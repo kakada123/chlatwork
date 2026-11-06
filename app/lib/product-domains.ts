@@ -1,13 +1,13 @@
 // Pure policy shared by the Nuxt router, server proxy, and deployment tests.
 export const PRODUCTS = {
-  creator: { name: "ChlatWork Creator", nameKm: "ChlatWork បង្កើតមាតិកា", entry: "/creator", home: "/", host: "creator" },
-  link: { name: "ChlatWork Link", nameKm: "ChlatWork តំណភ្ជាប់", entry: "/link", home: "/", host: "link" },
-  moment: { name: "ChlatWork Moments", nameKm: "ChlatWork អនុស្សាវរីយ៍", entry: "/moments/create", home: "/", host: "moment" },
-  expense: { name: "Expense Tracker", nameKm: "តាមដានចំណាយ", entry: "/tools/expense-tracker", home: "/", host: "expense" },
-  draw: { name: "Lucky Draw", nameKm: "ចាប់ឆ្នោត", entry: "/tools/lucky-draw", home: "/", host: "draw" },
-  games: { name: "ChlatWork Games", nameKm: "ChlatWork ហ្គេមកម្សាន្ត", entry: "/tools/kla-klok", home: "/kla-klok", host: "games" },
-  jekluy: { name: "ចែកលុយ", nameKm: "ចែកលុយ", entry: "/jekluy", home: "/", host: "jekluy" },
-  food: { name: "ChlatWork Food", nameKm: "ChlatWork ម្ហូបអាហារ", entry: "/food", home: "/", host: "food" },
+  creator: { nameKey: "catalog.products.creator.name", name: "ChlatWork Creator", nameKm: "ChlatWork បង្កើតមាតិកា", entry: "/creator", home: "/", host: "creator" },
+  link: { nameKey: "catalog.products.link.name", name: "ChlatWork Link", nameKm: "ChlatWork តំណភ្ជាប់", entry: "/link", home: "/", host: "link" },
+  moment: { nameKey: "catalog.products.moment.name", name: "ChlatWork Moments", nameKm: "ChlatWork អនុស្សាវរីយ៍", entry: "/moments/create", home: "/", host: "moment" },
+  expense: { nameKey: "catalog.products.expense.name", name: "Expense Tracker", nameKm: "តាមដានចំណាយ", entry: "/tools/expense-tracker", home: "/", host: "expense" },
+  draw: { nameKey: "catalog.products.draw.name", name: "Lucky Draw", nameKm: "ចាប់ឆ្នោត", entry: "/tools/lucky-draw", home: "/", host: "draw" },
+  games: { nameKey: "catalog.products.games.name", name: "ChlatWork Games", nameKm: "ChlatWork ហ្គេមកម្សាន្ត", entry: "/tools/kla-klok", home: "/kla-klok", host: "games" },
+  jekluy: { nameKey: "catalog.products.jekluy.name", name: "ចែកលុយ", nameKm: "ចែកលុយ", entry: "/jekluy", home: "/", host: "jekluy" },
+  food: { nameKey: "catalog.products.food.name", name: "ChlatWork Food", nameKm: "ChlatWork ម្ហូបអាហារ", entry: "/food", home: "/", host: "food" },
 } as const;
 
 export type Product = keyof typeof PRODUCTS;

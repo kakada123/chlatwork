@@ -59,17 +59,17 @@
           <span class="block text-sm font-semibold text-gray-900 dark:text-white">
             {{
               isPreparingFiles
-                ? "Converting HEIC..."
+                ? (t("tools.imageToPdf.convertingHeic"))
                 : imageCount > 0
-                  ? `${imageCount} image${imageCount > 1 ? "s" : ""} ready`
-                  : "Choose or drop images"
+                  ? (t(imageCount === 1 ? "tools.imageToPdf.readyCount.one" : "tools.imageToPdf.readyCount.other", { count: imageCount }))
+                  : (t("tools.imageToPdf.chooseOrDropImages"))
             }}
           </span>
           <span class="mt-1 block text-xs text-gray-500 dark:text-white/55">
             {{
               isPreparingFiles
-                ? "Please wait while we prepare your files locally."
-                : "JPG, PNG, WebP, and HEIC are supported. Everything stays in your browser."
+                ? (t("tools.imageToPdf.pleaseWaitWhileWePrepareYourFilesLocally"))
+                : (t("tools.imageToPdf.jpgPngWebPAndHeicAreSupportedEverything"))
             }}
           </span>
         </span>
@@ -77,7 +77,7 @@
         <span
           class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800 group-hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-gray-800 dark:group-hover:text-white"
         >
-          {{ isPreparingFiles ? "Processing..." : imageCount > 0 ? "Add more" : "Choose files" }}
+          {{ isPreparingFiles ? (t("tools.imageToPdf.processing")) : imageCount > 0 ? (t("tools.imageToPdf.addMore")) : (t("tools.imageToPdf.chooseFiles")) }}
         </span>
       </div>
     </label>
@@ -89,17 +89,15 @@
         :disabled="!canConvert"
         @click="$emit('convert')"
       >
-        {{ isGenerating ? "Generating..." : "Convert to PDF" }}
+        {{ isGenerating ? (t("tools.imageToPdf.generating")) : (t("tools.imageToPdf.convertToPdf")) }}
       </button>
       <button
         type="button"
         class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.10]"
         @click="$emit('clear')"
-      >
-        Clear
-      </button>
+      >{{ t("tools.imageToPdf.clear") }}</button>
       <p class="text-sm text-gray-500 dark:text-white/55">
-        {{ imageCount }} image{{ imageCount === 1 ? "" : "s" }} selected
+        {{ t(imageCount === 1 ? "tools.imageToPdf.selectedCount.one" : "tools.imageToPdf.selectedCount.other", { count: imageCount }) }}
       </p>
     </div>
 
@@ -107,24 +105,25 @@
       v-if="error"
       class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-200"
     >
-      {{ error }}
+      {{ localizeToolError(error, isKhmer) }}
     </p>
 
     <div
       v-if="imageCount === 0"
       class="rounded-xl border bg-gray-50 p-5 dark:border-white/10 dark:bg-white/[0.04]"
     >
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-        Empty state
-      </h2>
-      <p class="mt-1 text-sm text-gray-500 dark:text-white/55">
-        Upload multiple images, then arrange them inside the PDF page preview.
-      </p>
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ t("tools.imageToPdf.emptyState") }}</h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-white/55">{{ t("tools.imageToPdf.uploadMultipleImagesThenArrangeThemInsideThePdf") }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
+
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
 defineProps<{
   imageCount: number;
   canConvert: boolean;

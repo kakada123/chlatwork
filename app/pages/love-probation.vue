@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import confetti from "canvas-confetti";
+
+const { t } = useAppI18n();
 
 definePageMeta({
   layout: false,
@@ -391,7 +394,7 @@ const enterLovePage = async () => {
             </p>
             <form class="entrance-form" @submit.prevent="verifyAnniversaryDay">
               <label class="sr-only" for="anniversary-day">
-                Anniversary day of the month
+                {{ t("products.private_gallery.anniversary_day_of_the_month") }}
               </label>
               <input
                 id="anniversary-day"
@@ -413,8 +416,8 @@ const enterLovePage = async () => {
                 @input="anniversaryDayError = ''"
               />
               <button class="entrance-answer" type="submit">
-                <span>Unlock 🥰</span>
-                <small>Enter our special day</small>
+                <span>{{ t("products.private_gallery.unlock") }}</span>
+                <small>{{ t("products.private_gallery.enter_our_special_day") }}</small>
               </button>
             </form>
             <p
@@ -426,7 +429,7 @@ const enterLovePage = async () => {
               {{ anniversaryDayError }}
             </p>
             <p id="anniversary-day-hint" class="entrance-hint">
-              Hint: just the day, in two digits 💕
+              {{ t("products.private_gallery.hint_just_the_day_in_two_digits") }}
             </p>
           </template>
 
@@ -442,7 +445,7 @@ const enterLovePage = async () => {
               @click="enterLovePage"
             >
               <span>Me—your cutie Neth 🥰</span>
-              <small>Tap to open my surprise</small>
+              <small>{{ t("products.private_gallery.tap_to_open_my_surprise") }}</small>
             </button>
             <p class="entrance-hint">
               Careful… there is only one correct answer 🤭
@@ -522,26 +525,26 @@ const enterLovePage = async () => {
       <div
         class="countdown"
         aria-live="polite"
-        aria-label="Time until the surprise unlocks"
+        :aria-label="t(&quot;products.common.time_until_the_surprise_unlocks&quot;)"
       >
         <div>
           <strong>{{ countdown.days }}</strong
-          ><span>Days</span>
+          ><span>{{ t("products.private_gallery.days") }}</span>
         </div>
         <span class="countdown-separator">:</span>
         <div>
           <strong>{{ String(countdown.hours).padStart(2, "0") }}</strong>
-          <span>Hours</span>
+          <span>{{ t("products.private_gallery.hours") }}</span>
         </div>
         <span class="countdown-separator">:</span>
         <div>
           <strong>{{ String(countdown.minutes).padStart(2, "0") }}</strong>
-          <span>Minutes</span>
+          <span>{{ t("products.private_gallery.minutes") }}</span>
         </div>
         <span class="countdown-separator">:</span>
         <div>
           <strong>{{ String(countdown.seconds).padStart(2, "0") }}</strong>
-          <span>Seconds</span>
+          <span>{{ t("products.private_gallery.seconds") }}</span>
         </div>
       </div>
 
@@ -674,7 +677,7 @@ const enterLovePage = async () => {
           <strong>There’s more to our story…</strong>
           <small>First photos, silly videos, zoo dates, and little trips 🥰</small>
           <span class="moments-album-action">
-            Tap to open <span aria-hidden="true">→</span>
+            {{ t("products.private_gallery.tap_to_open") }} <span aria-hidden="true">→</span>
           </span>
         </button>
 
@@ -708,7 +711,7 @@ const enterLovePage = async () => {
               <source
                 src="/images/love/moment/trip-to-kampot/trip-to-phnom-tamao-zoo.mov"
               />
-              Your browser cannot play this QuickTime video.
+              {{ t("products.private_gallery.your_browser_cannot_play_this_quick_time_video") }}
             </video>
             <div>
               <small>OUR WILD LITTLE DATE 🐻</small>
@@ -723,7 +726,7 @@ const enterLovePage = async () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Open zoo video ↗
+                {{ t("products.private_gallery.open_zoo_video") }}
               </a>
             </div>
           </article>
@@ -778,7 +781,7 @@ const enterLovePage = async () => {
           >
             <span class="chat-memory-image">
               <img :src="memory.src" :alt="memory.title" loading="lazy" />
-              <span>Open memory ♥</span>
+              <span>{{ t("products.private_gallery.open_memory") }}</span>
             </span>
             <strong>{{ memory.title }}</strong>
             <small>{{ memory.note }}</small>
@@ -854,7 +857,7 @@ const enterLovePage = async () => {
             <span class="gift-box-ribbon"></span>
             <span class="gift-box-bow">♥</span>
           </span>
-          <strong>Tap to unwrap our first gifts</strong>
+          <strong>{{ t("products.private_gallery.tap_to_unwrap_our_first_gifts") }}</strong>
           <small>Something sweet is waiting inside, babee 🎁</small>
         </button>
 
@@ -941,7 +944,7 @@ const enterLovePage = async () => {
           <button
             class="chat-viewer-close"
             type="button"
-            aria-label="Close chat memory"
+            :aria-label="t(&quot;products.common.close_chat_memory&quot;)"
             @click="closeChatMemory"
           >
             ×
@@ -954,13 +957,13 @@ const enterLovePage = async () => {
           </div>
           <div class="chat-viewer-actions">
             <button type="button" @click="showAdjacentChat(-1)">
-              ← Previous
+              {{ t("products.private_gallery.previous_alternative") }}
             </button>
             <span
               >{{ (selectedChatIndex ?? 0) + 1 }} /
               {{ chatMemories.length }}</span
             >
-            <button type="button" @click="showAdjacentChat(1)">Next →</button>
+            <button type="button" @click="showAdjacentChat(1)">{{ t("products.common.next_to") }}</button>
           </div>
         </div>
       </div>
@@ -979,7 +982,7 @@ const enterLovePage = async () => {
           <button
             class="chat-viewer-close movie-viewer-close"
             type="button"
-            aria-label="Close movie memory"
+            :aria-label="t(&quot;products.common.close_movie_memory&quot;)"
             @click="closeMovieMemory"
           >
             ×
@@ -994,14 +997,14 @@ const enterLovePage = async () => {
           </div>
           <div class="chat-viewer-actions movie-viewer-actions">
             <button type="button" @click="showAdjacentMovie(-1)">
-              ← Previous
+              {{ t("products.private_gallery.previous_alternative") }}
             </button>
             <span
               >{{ (selectedMovieIndex ?? 0) + 1 }} /
               {{ movieMemories.length }}</span
             >
             <button type="button" @click="showAdjacentMovie(1)">
-              Next →
+              {{ t("products.common.next_to") }}
             </button>
           </div>
         </div>

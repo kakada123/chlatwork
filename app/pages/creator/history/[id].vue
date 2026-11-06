@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { CREATOR_TOOLS, CREATOR_FEATURE_TO_TOOL } from "~/data/creator-tools";
 import {
   getCreatorHistoryEntry,
   type CreatorHistoryApiItem,
 } from "~/services/creator-ai.service";
 import { containsThaiScript } from "~/lib/creator-output-language";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 definePageMeta({ layout: "creator", middleware: "auth" });
 
@@ -111,15 +117,15 @@ function downloadSrt() {
       to="/creator#creator-recent-title"
       class="inline-flex min-h-11 items-center text-sm font-semibold text-sky-700 underline-offset-4 hover:underline dark:text-cyan-300"
     >
-      ← Back to recent generations
+      {{ t("products.creator.back_to_recent_generations") }}
     </NuxtLink>
     <header>
-      <h1>Generation details</h1>
+      <h1>{{ t("products.creator.generation_details") }}</h1>
       <p
         v-if="entry && tool"
         class="mt-2 text-sm leading-6 text-slate-500 dark:text-white/60"
       >
-        {{ tool.title }} · {{ createdAt }} (Phnom Penh)
+        {{ productText(tool.title) }} · {{ createdAt }} {{ t("products.creator.phnom_penh") }}
       </p>
     </header>
     <section
@@ -128,7 +134,7 @@ function downloadSrt() {
       aria-busy="true"
       class="rounded-2xl border border-slate-200 p-5 text-sm dark:border-white/10"
     >
-      Loading your saved generation…
+      {{ t("products.creator.loading_your_saved_generation") }}
     </section>
     <section
       v-else-if="errorMessage || !result"
@@ -136,14 +142,14 @@ function downloadSrt() {
       class="rounded-2xl border border-slate-200 p-5 text-sm dark:border-white/10"
     >
       <p>
-        {{ errorMessage || "This Creator tool is temporarily unavailable." }}
+        {{ productText(errorMessage || "This Creator tool is temporarily unavailable.") }}
       </p>
       <button
         type="button"
         class="mt-3 min-h-11 rounded-xl bg-violet-600 px-4 font-semibold text-white"
         @click="load"
       >
-        Try again
+        {{ t("products.moments.try_again") }}
       </button>
     </section>
     <CreatorResult

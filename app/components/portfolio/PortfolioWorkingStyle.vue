@@ -6,14 +6,13 @@
       >
         <div data-reveal>
           <p class="text-sm font-bold uppercase text-cyan-700 dark:text-cyan-200/90">
-            Working Style
+            {{ t("shared.components_portfolio_portfolio_working_style.working_style") }}
           </p>
           <h2 class="mt-3 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-            Clean, secure, performant, and maintainable.
+            {{ t("shared.components_portfolio_portfolio_working_style.clean_secure_performant_and_maintainable") }}
           </h2>
           <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">
-            Kakada works from the business rule outward, then keeps the code
-            organized enough for the next feature, teammate, or production issue.
+            {{ t("shared.components_portfolio_portfolio_working_style.kakada_works_from_the_business_rule_outward_then_keeps") }}
           </p>
         </div>
 
@@ -42,7 +41,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { PortfolioWorkingStyle } from "~/data/portfolio";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   items: PortfolioWorkingStyle[];

@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   saveBotQr,
   removeBotQr,
   type BotUserDetails,
 } from "~/services/bot-admin.service";
 import { creatorCreditRequestError } from "~/lib/creator-credit-display";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 const props = defineProps<{ details: BotUserDetails }>();
 const emit = defineEmits<{ saved: [] }>();
 const file = shallowRef<File | null>(null);
@@ -29,7 +34,7 @@ function choose(event: Event) {
     !["image/png", "image/jpeg"].includes(selected.type) ||
     selected.size > 2 * 1024 * 1024
   ) {
-    error.value = "Choose a PNG or JPEG up to 2 MB.";
+    error.value = t("shared.components_admin_bot_user_khqr.choose_a_png_or_jpeg_up_to_2_mb");
     return;
   }
   file.value = selected;
@@ -46,7 +51,7 @@ async function save() {
   } catch (cause) {
     error.value = creatorCreditRequestError(
       cause,
-      "KHQR change failed. The existing image is preserved.",
+      t("shared.components_admin_bot_user_khqr.khqr_change_failed_the_existing_image_is_preserved"),
     );
   } finally {
     saving.value = false;
@@ -56,24 +61,23 @@ async function save() {
 <template>
   <div class="space-y-5">
     <p class="text-sm text-slate-500">
-      User-provided payment image. Bank ownership has not been independently
-      verified. Changes are recorded in audit history.
+      {{ t("shared.components_admin_bot_user_khqr.user_provided_payment_image_bank_ownership_has_not_been") }}
     </p>
     <img
       v-if="preview || details.qrUrl"
       :src="preview || details.qrUrl!"
-      :alt="preview ? 'New KHQR preview' : 'Saved KHQR'"
+      :alt="preview ? t(&quot;shared.components_admin_bot_user_khqr.new_khqr_preview&quot;) : t(&quot;shared.components_admin_bot_user_khqr.saved_khqr&quot;)"
       class="max-h-80 max-w-full rounded-xl border border-slate-200 bg-white object-contain p-3 dark:border-white/10"
     />
     <p
       v-else
       class="rounded-xl bg-slate-50 p-6 text-sm text-slate-500 dark:bg-white/5"
     >
-      No saved KHQR.
+      {{ t("shared.components_admin_bot_user_khqr.no_saved_khqr") }}
     </p>
     <fieldset :disabled="saving" class="space-y-4 disabled:opacity-50">
       <label class="block text-sm font-medium"
-        >Upload / replace KHQR<input
+        >{{ t("shared.components_admin_bot_user_khqr.upload_replace_khqr") }}<input
           type="file"
           accept="image/png,image/jpeg"
           class="mt-2 block w-full text-sm"
@@ -85,7 +89,7 @@ async function save() {
         class="text-sm font-semibold text-red-600"
         @click="removing = true"
       >
-        Remove saved KHQR
+        {{ t("shared.components_admin_bot_user_khqr.remove_saved_khqr") }}
       </button>
       <div
         v-if="file || removing"
@@ -94,8 +98,8 @@ async function save() {
         <p>
           {{
             removing
-              ? "Remove this saved KHQR?"
-              : "Save the preview above as this user’s public group payment image?"
+              ? t("shared.components_admin_bot_user_khqr.remove_this_saved_khqr")
+              : t("shared.components_admin_bot_user_khqr.save_the_preview_above_as_this_user_s_public")
           }}
         </p>
         <button
@@ -103,10 +107,10 @@ async function save() {
           class="rounded-lg bg-violet-600 px-3 py-2 font-semibold text-white"
           @click="save"
         >
-          {{ saving ? "Saving…" : "Confirm" }}
+          {{ saving ? t("shared.common.saving") : t("shared.common.confirm") }}
         </button>
         <button type="button" class="ml-3 px-3 py-2" @click="reset">
-          Cancel
+          {{ t("shared.common.cancel") }}
         </button>
       </div>
     </fieldset>

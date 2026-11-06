@@ -1,54 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
 const route = useRoute();
 const { isKhmer } = useLanguage();
 const siteUrl = "https://chlatwork.com";
 const pageUrl = computed(() => `${siteUrl}${route.path === "/" ? "" : route.path}`);
 const faqs = computed(() =>
-  isKhmer.value
-    ? [
-        {
-          question: "ChlatWork ជាអ្វី?",
-          answer:
-            "ChlatWork គឺជាគេហទំព័រ free online tools សម្រាប់ PDF រូបភាព QR code ការគណនា Khmer tools និង developer tools។",
-        },
-        {
-          question: "ឧបករណ៍ប្រើឥតគិតថ្លៃមែនទេ?",
-          answer:
-            "មែន។ ឧបករណ៍ ChlatWork អាចបើកប្រើបានដោយផ្ទាល់នៅក្នុង browser សម្រាប់ការងារប្រចាំថ្ងៃ។",
-        },
-        {
-          question: "ឯកសារត្រូវ upload ទៅ server ទេ?",
-          answer:
-            "ឧបករណ៍ជាច្រើនដំណើរការឯកសារនៅក្នុង browser នៅពេលអាចធ្វើបាន។ មុខងារខ្លះអាចប្រើ server ប្រសិនបើចាំបាច់។",
-        },
-        {
-          question: "ត្រូវបង្កើតគណនីទេ?",
-          answer:
-            "មិនចាំបាច់មានគណនីសម្រាប់ឧបករណ៍មូលដ្ឋានដែលមាននៅលើ ChlatWork ពេលនេះទេ។",
-        },
-      ]
-    : [
-        {
-          question: "What is ChlatWork?",
-          answer:
-            "ChlatWork is a free online tools website for PDFs, images, QR codes, calculators, Khmer tools, and developer tools.",
-        },
-        {
-          question: "Are the tools free to use?",
-          answer:
-            "Yes. ChlatWork tools are available directly in the browser for everyday work.",
-        },
-        {
-          question: "Do files upload to a server?",
-          answer:
-            "Many tools process files in your browser where possible. Some features may use a server only when needed.",
-        },
-        {
-          question: "Do I need to create an account?",
-          answer:
-            "You can open a tool and enter data without an account. Sign in with Google or Telegram when you want to view protected results or save account-based data.",
-        },
-      ],
+  [{ question: t("shared.copy_app_components_landing_LandingFaq_vue.what_is_chlat_work"), answer: t("shared.copy_app_components_landing_LandingFaq_vue.chlat_work_is_a_free_online_tools_website_for") }, { question: t("shared.copy_app_components_landing_LandingFaq_vue.are_the_tools_free_to_use"), answer: t("shared.copy_app_components_landing_LandingFaq_vue.yes_chlat_work_tools_are_available_directly_in_the") }, { question: t("shared.copy_app_components_landing_LandingFaq_vue.do_files_upload_to_a_server"), answer: t("shared.copy_app_components_landing_LandingFaq_vue.many_tools_process_files_in_your_browser_where_possible") }, { question: t("shared.copy_app_components_landing_LandingFaq_vue.do_i_need_to_create_an_account"), answer: t("shared.copy_app_components_landing_LandingFaq_vue.you_can_open_a_tool_and_enter_data_without") }],
 );
 
 useHead(() => ({
@@ -78,7 +37,7 @@ useHead(() => ({
     <div class="w-full">
       <div>
         <h2 class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-          Common questions
+          {{ t("shared.components_landing_landing_faq.common_questions") }}
         </h2>
       </div>
 

@@ -27,7 +27,7 @@
               ref="winnerDialogRef"
               role="dialog"
               aria-modal="true"
-              aria-label="Lucky draw winner"
+              :aria-label="t(&quot;tools.luckyDraw.luckyDrawWinner&quot;)"
               class="relative max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl outline-none dark:border-white/15 dark:bg-[#101014] sm:p-8"
               @keydown.esc.prevent="closeWinnerDialog"
               @keydown="keepWinnerDialogFocusInside"
@@ -36,7 +36,7 @@
                 ref="winnerDialogCloseRef"
                 type="button"
                 class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-xl text-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
-                aria-label="Close winner dialog"
+                :aria-label="t(&quot;tools.luckyDraw.closeWinnerDialog&quot;)"
                 @click="closeWinnerDialog"
               >
                 ✕
@@ -58,8 +58,8 @@
         <div class="wheel-stage-content relative z-10 flex h-full min-h-0 flex-col">
           <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 class="text-2xl font-black">{{ isKhmer ? "កងវិលចាប់ឆ្នោត" : "Lucky Draw" }}</h1>
-              <p class="draw-intro mt-1 text-sm text-slate-600 dark:text-white/60">{{ isKhmer ? "សាកល្បងបង្វិល ឬបញ្ចូលឈ្មោះរបស់អ្នក។" : "Try a spin, or add your names." }}</p>
+              <h1 class="text-2xl font-black">{{ t("tools.luckyDraw.luckyDraw") }}</h1>
+              <p class="draw-intro mt-1 text-sm text-slate-600 dark:text-white/60">{{ t("tools.luckyDraw.tryASpinOrAddYourNames") }}</p>
 
               <div class="mt-1 text-sm text-slate-500 dark:text-white/50">
                 {{ spinStatus }}
@@ -75,20 +75,20 @@
                 :disabled="isSpinning"
                 @click="toggleNameEditor"
               >
-                {{ isEditingNames ? (isKhmer ? "រួចរាល់" : "Done") : (isKhmer ? "កែប្រែឈ្មោះ" : "Edit names") }}
+                {{ isEditingNames ? (t("tools.luckyDraw.done")) : (t("tools.luckyDraw.editNames")) }}
               </button>
               <button
                 type="button"
                 class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
                 @click="reset"
               >
-                {{ isKhmer ? "កំណត់ឡើងវិញ" : "Reset" }}
+                {{ t("tools.luckyDraw.reset") }}
               </button>
               <button
                 type="button"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
-                :aria-label="soundEnabled ? (isKhmer ? 'បិទសំឡេងកងវិល' : 'Mute wheel sounds') : (isKhmer ? 'បើកសំឡេងកងវិល' : 'Enable wheel sounds')"
-                :title="soundEnabled ? (isKhmer ? 'បិទសំឡេង' : 'Mute sounds') : (isKhmer ? 'បើកសំឡេង' : 'Enable sounds')"
+                :aria-label="soundEnabled ? (t(&quot;tools.luckyDraw.muteWheelSounds&quot;)) : (t(&quot;tools.luckyDraw.enableWheelSounds&quot;))"
+                :title="soundEnabled ? (t(&quot;tools.luckyDraw.muteSounds&quot;)) : (t(&quot;tools.luckyDraw.enableSounds&quot;))"
                 @click="soundEnabled = !soundEnabled"
               >
                 {{ soundEnabled ? "🔊" : "🔇" }}
@@ -98,8 +98,8 @@
                 v-if="isFullscreenSupported"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 dark:border-white/15 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
                 @click="toggleWheelFullscreen"
-                :aria-label="isFullscreen ? (isKhmer ? 'ចាកចេញពីពេញអេក្រង់' : 'Exit fullscreen') : (isKhmer ? 'ពង្រីកពេញអេក្រង់' : 'Enter fullscreen')"
-                :title="isFullscreen ? (isKhmer ? 'ចាកចេញពីពេញអេក្រង់' : 'Exit fullscreen') : (isKhmer ? 'ពង្រីកពេញអេក្រង់' : 'Enter fullscreen')"
+                :aria-label="isFullscreen ? (t(&quot;tools.luckyDraw.exitFullscreen&quot;)) : (t(&quot;tools.luckyDraw.enterFullscreen&quot;))"
+                :title="isFullscreen ? (t(&quot;tools.luckyDraw.exitFullscreen&quot;)) : (t(&quot;tools.luckyDraw.enterFullscreen&quot;))"
               >
                 <svg
                   v-if="!isFullscreen"
@@ -134,7 +134,7 @@
             </div>
           </div>
 
-          <button v-if="product === 'draw'" type="button" class="mb-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 px-3 text-sm font-semibold dark:border-white/15 sm:hidden" :aria-expanded="mobileSettingsOpen" aria-controls="draw-options" @click="mobileSettingsOpen = !mobileSettingsOpen">{{ isKhmer ? "ជម្រើស" : "Options" }} <span aria-hidden="true">{{ mobileSettingsOpen ? '−' : '+' }}</span></button>
+          <button v-if="product === 'draw'" type="button" class="mb-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 px-3 text-sm font-semibold dark:border-white/15 sm:hidden" :aria-expanded="mobileSettingsOpen" aria-controls="draw-options" @click="mobileSettingsOpen = !mobileSettingsOpen">{{ t("tools.luckyDraw.options") }} <span aria-hidden="true">{{ mobileSettingsOpen ? '−' : '+' }}</span></button>
           <div
             id="draw-options"
             :class="[isFullscreen ? 'mb-3 w-fit max-w-full' : 'mb-4 w-full', product === 'draw' && !mobileSettingsOpen ? 'hidden sm:flex' : undefined]"
@@ -142,38 +142,38 @@
           >
             <label class="flex items-center gap-2 font-semibold">
               <input v-model="preventRepeatWinners" type="checkbox" class="h-4 w-4 accent-sky-600" :disabled="isSpinning">
-              {{ isKhmer ? "កុំយកអ្នកឈ្នះដដែល" : "No repeat winners" }}
+              {{ t("tools.luckyDraw.noRepeatWinners") }}
             </label>
             <label class="flex items-center gap-2 font-semibold">
               <input v-model="showWinnerDialog" type="checkbox" class="h-4 w-4 accent-sky-600" :disabled="isSpinning">
-              {{ isKhmer ? "បង្ហាញអ្នកឈ្នះក្នុងផ្ទាំងប្រអប់" : "Show winner in dialog" }}
+              {{ t("tools.luckyDraw.showWinnerInDialog") }}
             </label>
             <label class="flex items-center gap-2 font-semibold">
-              {{ isKhmer ? "ល្បឿនបង្វិល" : "Spin speed" }}
+              {{ t("tools.luckyDraw.spinSpeed") }}
               <ModernSelect
                 v-model="spinSpeed"
                 class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-sky-400 dark:border-white/15 dark:bg-[#17171b]"
                 :disabled="isSpinning"
               >
-                <option value="quick">{{ isKhmer ? "លឿន" : "Quick" }}</option>
-                <option value="standard">{{ isKhmer ? "ធម្មតា" : "Standard" }}</option>
-                <option value="suspense">{{ isKhmer ? "រំភើប" : "Suspense" }}</option>
+                <option value="quick">{{ t("tools.luckyDraw.quick") }}</option>
+                <option value="standard">{{ t("tools.luckyDraw.standard") }}</option>
+                <option value="suspense">{{ t("tools.luckyDraw.suspense") }}</option>
               </ModernSelect>
             </label>
             <label class="flex min-w-[min(100%,18rem)] flex-1 items-center gap-2 font-semibold">
-              <span class="shrink-0">{{ isKhmer ? "កំណត់ចំណាំសម្រាប់ការបង្វិលនេះ" : "Note for this spin" }}</span>
+              <span class="shrink-0">{{ t("tools.luckyDraw.noteForThisSpin") }}</span>
               <input
                 v-model="drawNote"
                 type="text"
                 maxlength="120"
                 class="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-[#17171b] dark:text-white dark:placeholder:text-white/30"
-                :placeholder="isKhmer ? 'ឧ. ហាត់ប្រាណមួយក្បាច់' : 'e.g. Do an exercise'"
+                :placeholder="t(&quot;tools.luckyDraw.eGDoAnExercise&quot;)"
                 :disabled="isSpinning"
               >
             </label>
           </div>
 
-          <p v-if="error" role="alert" class="mb-3 text-sm font-medium text-red-600 dark:text-red-300">{{ error }}</p>
+          <p v-if="error" role="alert" class="mb-3 text-sm font-medium text-red-600 dark:text-red-300">{{ localizeToolError(error, isKhmer) }}</p>
 
           <div
             class="wheel-layout grid min-h-0 flex-1 grid-rows-[auto_auto] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:grid-rows-1"
@@ -195,7 +195,7 @@
                   <svg
                     viewBox="0 0 100 100"
                     class="h-full w-full"
-                    aria-label="Lucky draw wheel"
+                    :aria-label="t(&quot;tools.luckyDraw.luckyDrawWheel&quot;)"
                   >
                     <g :transform="`rotate(${wheelRotation} 50 50)`">
                       <template v-if="wheelSegments.length > 0">
@@ -260,7 +260,7 @@
                       :disabled="!canSpin"
                       @click="runLuckyDraw"
                     >
-                      {{ isSpinning ? "..." : (isKhmer ? "បង្វិល" : "SPIN") }}
+                      {{ isSpinning ? "..." : (t("tools.luckyDraw.spin")) }}
                     </button>
                   </div>
                   </div>
@@ -271,7 +271,7 @@
                 :class="isFullscreen ? 'mt-2' : 'mt-4'"
                 class="wheel-note text-center text-xs leading-5 text-slate-500 dark:text-white/45"
               >
-                <span :class="product === 'draw' ? 'hidden sm:inline' : undefined">{{ isKhmer ? "ភាពចៃដន្យសុវត្ថិភាពលើ Browser · " : "Secure browser randomness · " }}</span>{{ isKhmer ? "ឈ្មោះរក្សាទុកតែលើឧបករណ៍នេះប៉ុណ្ណោះ។" : "Names stay on this device." }}
+                <span :class="product === 'draw' ? 'hidden sm:inline' : undefined">{{ t("tools.luckyDraw.secureBrowserRandomness") }}</span>{{ t("tools.luckyDraw.namesStayOnThisDevice") }}
               </p>
             </div>
 
@@ -282,24 +282,24 @@
               <div v-if="isEditingNames" id="lucky-draw-names" class="mb-4">
                 <div class="mb-2 flex items-center justify-between gap-3">
                   <div>
-                    <h2 class="text-lg font-bold">{{ isKhmer ? "បញ្ជីឈ្មោះរបស់អ្នក" : "Your names" }}</h2>
+                    <h2 class="text-lg font-bold">{{ t("tools.luckyDraw.yourNames") }}</h2>
                   </div>
 
                   <div class="rounded-full bg-sky-50 px-3 py-1 text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-                    {{ isKhmer ? `${participants.length} នាក់` : `${participants.length} ${participants.length === 1 ? "person" : "people"}` }}
+                    {{ t(participants.length === 1 ? "tools.luckyDraw.participantCount.one" : "tools.luckyDraw.participantCount.other", { count: participants.length }) }}
                   </div>
                 </div>
 
-                <label for="lucky-draw-paste" class="mt-3 block text-sm font-semibold">{{ isKhmer ? "បិទភ្ជាប់ឈ្មោះ" : "Paste names" }}</label>
+                <label for="lucky-draw-paste" class="mt-3 block text-sm font-semibold">{{ t("tools.luckyDraw.pasteNames") }}</label>
                 <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/50">
-                  {{ isKhmer ? "ឈ្មោះមួយក្នុងមួយជួរ ឬខណ្ឌដោយសញ្ញាក្បៀស (,)" : "One name per line, or comma-separated." }}
+                  {{ t("tools.luckyDraw.oneNamePerLineOrCommaSeparated") }}
                 </p>
                 <textarea
                   id="lucky-draw-paste"
                   v-model="raw"
                   class="mt-2 h-32 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:bg-black/20 dark:placeholder:text-white/30"
                   :disabled="isSpinning"
-                  :placeholder="isKhmer ? 'វ៉ាន់ ម៉ី\nសុខា លីម\nសុភា គីម\nនីតា ផាន់' : 'Vann Mey\nSokha Lim\nSophea Kim\nNita Phan'"
+                  :placeholder="t(&quot;tools.luckyDraw.vannMeySokhaLimSopheaKimNitaPhan&quot;)"
                 />
                 <button
                   type="button"
@@ -307,22 +307,22 @@
                   :disabled="isSpinning || !raw.trim()"
                   @click="applyRawToRows"
                 >
-                  {{ isKhmer ? "ប្រើបញ្ជីនេះ" : "Use this list" }}
+                  {{ t("tools.luckyDraw.useThisList") }}
                 </button>
 
                 <div
                   v-if="duplicateNames.length"
                   class="mt-3 flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span>{{ isKhmer ? `រកឃើញឈ្មោះស្ទួនចំនួន ${duplicateNames.length}` : `${duplicateNames.length} duplicate ${duplicateNames.length === 1 ? "name" : "names"} found.` }}</span>
+                  <span>{{ t("tools.luckyDraw.duplicateFound", { duplicateNamesLength: duplicateNames.length, nameNames: duplicateNames.length === 1 ? "name" : "names" }) }}</span>
                   <button type="button" class="font-bold underline underline-offset-4" :disabled="isSpinning" @click="removeDuplicates">
-                    {{ isKhmer ? "លុបឈ្មោះស្ទួនចេញ" : "Remove duplicates" }}
+                    {{ t("tools.luckyDraw.removeDuplicates") }}
                   </button>
                 </div>
 
                 <div class="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:text-white/35">
                   <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-                  {{ isKhmer ? "កែសម្រួលឈ្មោះ" : "Edit names" }}
+                  {{ t("tools.luckyDraw.editNames_2") }}
                   <span class="h-px flex-1 bg-slate-200 dark:bg-white/10" />
                 </div>
 
@@ -330,7 +330,7 @@
                   <table class="w-full text-sm">
                     <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-[#17171b]">
                       <tr>
-                        <th class="w-[85%] p-2 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">{{ isKhmer ? "ឈ្មោះ" : "Name" }}</th>
+                        <th class="w-[85%] p-2 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">{{ t("tools.luckyDraw.name") }}</th>
                         <th class="w-[15%] p-2"></th>
                       </tr>
                     </thead>
@@ -346,8 +346,8 @@
                             :ref="(element) => setNameInputRef(element, index)"
                             v-model.trim="row.name"
                             class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 dark:border-white/15 dark:bg-black/20 dark:disabled:bg-white/[0.03] dark:disabled:text-white/35"
-                            :placeholder="isKhmer ? `អ្នកចូលរួមទី ${index + 1}` : `Participant ${index + 1}`"
-                            :aria-label="isKhmer ? `អ្នកចូលរួមទី ${index + 1}` : `Participant ${index + 1}`"
+                            :placeholder="t(&quot;tools.luckyDraw.participant&quot;, { index: index + 1 })"
+                            :aria-label="t(&quot;tools.luckyDraw.participant&quot;, { index: index + 1 })"
                             :disabled="isSpinning"
                           />
                         </td>
@@ -356,7 +356,7 @@
                           <button
                             class="rounded-lg border border-slate-200 px-2 py-2 text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:text-white/50 dark:hover:border-red-300/20 dark:hover:bg-red-300/10 dark:hover:text-red-200"
                             @click="removeRow(index)"
-                            :aria-label="isKhmer ? `លុបជួរទី ${index + 1}` : `Remove row ${index + 1}`"
+                            :aria-label="t(&quot;tools.luckyDraw.removeRow&quot;, { index: index + 1 })"
                             :disabled="isSpinning"
                           >
                             ✕
@@ -366,7 +366,7 @@
 
                       <tr v-if="rows.length === 0">
                         <td colspan="2" class="p-3 text-slate-500 dark:text-white/45">
-                          {{ isKhmer ? "បន្ថែមឈ្មោះដំបូងរបស់អ្នក។" : "Add your first name." }}
+                          {{ t("tools.luckyDraw.addYourFirstName") }}
                         </td>
                       </tr>
                     </tbody>
@@ -380,7 +380,7 @@
                     :disabled="isSpinning"
                   >
                     <span class="text-base leading-none">＋</span>
-                    <span class="truncate">{{ isKhmer ? "បន្ថែមឈ្មោះ" : "Add name" }}</span>
+                    <span class="truncate">{{ t("tools.luckyDraw.addName") }}</span>
                   </button>
 
                   <button
@@ -388,13 +388,13 @@
                     @click="loadExample"
                     :disabled="isSpinning"
                   >
-                    <span class="truncate">{{ isKhmer ? "ផ្ទុកគំរូ" : "Load example" }}</span>
+                    <span class="truncate">{{ t("tools.luckyDraw.loadExample") }}</span>
                   </button>
 
                 </div>
 
                 <p class="mt-4 text-xs leading-5 text-slate-500 dark:text-white/45">
-                  {{ isKhmer ? "រក្សាទុកលើឧបករណ៍នេះ។" : "Saved on this device." }}
+                  {{ t("tools.luckyDraw.savedOnThisDevice") }}
                 </p>
               </div>
 
@@ -411,28 +411,28 @@
 
               <div v-if="winnerHistory.length" class="mt-4 rounded-xl border border-slate-200 p-3 dark:border-white/10">
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                  <h2 class="font-bold">{{ isKhmer ? "ប្រវត្តិអ្នកឈ្នះ" : "Winner history" }}</h2>
+                  <h2 class="font-bold">{{ t("tools.luckyDraw.winnerHistory") }}</h2>
                   <div class="flex flex-wrap items-center gap-1.5">
                     <button
                       type="button"
                       class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
                       @click="copyWinnerList"
                     >
-                      {{ winnerListCopied ? (isKhmer ? "បានចម្លងបញ្ជី" : "List copied") : (isKhmer ? "ចម្លងបញ្ជី" : "Copy list") }}
+                      {{ winnerListCopied ? (t("tools.luckyDraw.listCopied")) : (t("tools.luckyDraw.copyList")) }}
                     </button>
                     <button
                       type="button"
                       class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-sky-700 transition hover:bg-sky-50 dark:border-white/15 dark:text-cyan-200 dark:hover:bg-white/[0.06]"
                       @click="exportWinnerList"
                     >
-                      {{ isKhmer ? "ទាញយកជា CSV" : "Export CSV" }}
+                      {{ t("tools.luckyDraw.exportCsv") }}
                     </button>
                     <button
                       type="button"
                       class="px-1.5 py-1.5 text-xs font-bold text-slate-500 underline underline-offset-4 hover:text-red-600 dark:text-white/45 dark:hover:text-red-300"
                       @click="clearWinnerHistory"
                     >
-                      {{ isKhmer ? "សម្អាត" : "Clear" }}
+                      {{ t("tools.luckyDraw.clear") }}
                     </button>
                   </div>
                 </div>
@@ -454,14 +454,14 @@
 
               <div v-if="!isEditingNames" class="mt-4 max-h-80 overflow-auto">
                 <div class="mb-2 flex items-center justify-between gap-2">
-                  <h2 class="font-semibold">{{ isKhmer ? "នៅលើកងវិលនេះ" : "On this wheel" }}</h2>
+                  <h2 class="font-semibold">{{ t("tools.luckyDraw.onThisWheel") }}</h2>
                   <button
                     type="button"
                     class="text-sm font-bold text-sky-700 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-40 dark:text-cyan-200"
                     :disabled="isSpinning"
                     @click="toggleNameEditor"
                   >
-                    {{ isKhmer ? "កែប្រែឈ្មោះ" : "Edit names" }}
+                    {{ t("tools.luckyDraw.editNames") }}
                   </button>
                 </div>
 
@@ -469,7 +469,7 @@
                   v-if="participants.length === 0"
                   class="text-sm text-slate-500 dark:text-white/45"
                 >
-                  {{ isKhmer ? "មិនទាន់មានអ្នកចូលរួមនៅឡើយទេ។" : "No participants yet." }}
+                  {{ t("tools.luckyDraw.noParticipantsYet") }}
                 </div>
 
                 <div v-else class="grid grid-cols-1 gap-2">
@@ -489,7 +489,7 @@
             </div>
 
             <p class="sr-only" aria-live="polite">
-              {{ lastWinner ? (isKhmer ? `អ្នកឈ្នះគឺ ${lastWinner}` : `Winner is ${lastWinner}`) : (isKhmer ? "មិនទាន់មានអ្នកឈ្នះនៅឡើយទេ" : "No winner yet") }}
+              {{ lastWinner ? (t("tools.luckyDraw.winnerIs", { lastWinner: lastWinner })) : (t("tools.luckyDraw.noWinnerYet")) }}
             </p>
           </div>
         </div>
@@ -499,6 +499,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import type { ComponentPublicInstance } from "vue";
 import type { LuckyDrawSession, WinnerHistoryEntry } from "~/lib/lucky-draw";
 import LuckyDrawWinnerResult from "~/components/tools/LuckyDrawWinnerResult.vue";
@@ -514,6 +516,8 @@ import {
   parseParticipantText,
 } from "~/lib/lucky-draw";
 import { secureRandomInt } from "~/lib/secure-random";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
@@ -538,18 +542,18 @@ type WheelSegment = {
 type ConfettiLauncher = import("canvas-confetti").ConfettiCannon | null;
 type SpinSpeed = "quick" | "standard" | "suspense";
 
+
+
+
 useSeoMeta({
-  title: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
-  description:
-    "Paste participants, remove duplicates, spin the lucky draw wheel, and pick random winners without repeats. Free, private, and no sign-in required.",
-  ogTitle: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
-  ogDescription:
-    "Pick fair, no-repeat winners with a private visual wheel for giveaways, events, classrooms, and staff activities.",
+  title: () => t("tools.luckyDraw.metaTitle"),
+  description: () => t("tools.luckyDraw.metaDescription"),
+  ogTitle: () => t("tools.luckyDraw.metaOgTitle"),
+  ogDescription: () => t("tools.luckyDraw.metaOgDescription"),
   ogType: "website",
   twitterCard: "summary_large_image",
-  twitterTitle: "Random Winner Picker and Lucky Draw Wheel | ChlatWork",
-  twitterDescription:
-    "Paste names, spin the wheel, and pick no-repeat winners privately in your browser.",
+  twitterTitle: () => t("tools.luckyDraw.metaTwitterTitle"),
+  twitterDescription: () => t("tools.luckyDraw.metaTwitterDescription"),
 });
 
 const { canonical, product } = useProductDomain();
@@ -850,18 +854,14 @@ const canSpin = computed(
 );
 
 const spinStatus = computed(() => {
-  if (isSpinning.value) return isKhmer.value ? "កំពុងជ្រើសរើសអ្នកឈ្នះ…" : "Picking a winner…";
-  if (participants.value.length < 2) return isKhmer.value ? "សូមបន្ថែមយ៉ាងហោចណាស់ 2 នាក់" : "Add at least 2 people";
-  if (eligibleParticipants.value.length === 0) return isKhmer.value ? "អ្នកទាំងអស់គ្នាបានឈ្នះរួចហើយ" : "Everyone has already won";
-  if (eligibleParticipants.value.length === 1) return isKhmer.value ? "នៅសល់តែ 1 នាក់ទៀតប៉ុណ្ណោះដែលមិនទាន់ឈ្នះ" : "Only 1 undrawn participant remains";
+  if (isSpinning.value) return t("tools.luckyDraw.pickingAWinner");
+  if (participants.value.length < 2) return t("tools.luckyDraw.addAtLeast2People");
+  if (eligibleParticipants.value.length === 0) return t("tools.luckyDraw.everyoneHasAlreadyWon");
+  if (eligibleParticipants.value.length === 1) return t("tools.luckyDraw.only1UndrawnParticipantRemains");
   if (preventRepeatWinners.value && winnerHistory.value.length) {
-    return isKhmer.value
-      ? `នៅសល់ ${eligibleParticipants.value.length} នាក់ទៀត`
-      : `${eligibleParticipants.value.length} people remain`;
+    return t("tools.luckyDraw.peopleRemain", { eligibleParticipantsLength: eligibleParticipants.value.length });
   }
-  return isKhmer.value
-    ? `${eligibleParticipants.value.length} នាក់នៅលើកងវិល`
-    : `${eligibleParticipants.value.length} people on the wheel`;
+  return t("tools.luckyDraw.peopleOnTheWheel", { eligibleParticipantsLength: eligibleParticipants.value.length });
 });
 
 const segmentAngle = computed(() => {
@@ -1027,7 +1027,7 @@ function applyRawToRows() {
   const names = parseLines(raw.value);
 
   if (names.length === 0) {
-    error.value = isKhmer.value ? "សូមបិទភ្ជាប់ឈ្មោះត្រឹមត្រូវយ៉ាងហោចណាស់មួយ។" : "Please paste at least one valid name.";
+    error.value = t("tools.luckyDraw.pleasePasteAtLeastOneValidName");
     return;
   }
 
@@ -1112,7 +1112,7 @@ async function copyWinner() {
       winnerCopyTimer = null;
     }, 1500);
   } catch {
-    error.value = isKhmer.value ? "Browser នេះបានទប់ស្កាត់ការចម្លងឈ្មោះអ្នកឈ្នះ។" : "This browser blocked copying the winner name.";
+    error.value = t("tools.luckyDraw.thisBrowserBlockedCopyingTheWinnerName");
   }
 }
 
@@ -1128,7 +1128,7 @@ async function copyWinnerList() {
       winnerListCopyTimer = null;
     }, 1500);
   } catch {
-    error.value = isKhmer.value ? "Browser នេះបានទប់ស្កាត់ការចម្លងបញ្ជីអ្នកឈ្នះ។" : "This browser blocked copying the winner list.";
+    error.value = t("tools.luckyDraw.thisBrowserBlockedCopyingTheWinnerList");
   }
 }
 
@@ -1424,13 +1424,13 @@ async function runLuckyDraw() {
     winnerIndex = secureRandomInt(people.length);
   } catch {
     isSpinning.value = false;
-    error.value = isKhmer.value ? "មុខងារជ្រើសរើសចៃដន្យសុវត្ថិភាពមិនដំណើរការលើ Browser នេះទេ។" : "Secure random selection is not available in this browser.";
+    error.value = t("tools.luckyDraw.secureRandomSelectionIsNotAvailableInThisBrowser");
     return;
   }
   const winnerName = people[winnerIndex];
   if (winnerName === undefined) {
     isSpinning.value = false;
-    error.value = isKhmer.value ? "មិនអាចជ្រើសរើសអ្នកឈ្នះបានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not select a winner. Please try again.";
+    error.value = t("tools.luckyDraw.couldNotSelectAWinnerPleaseTryAgain");
     return;
   }
   const spinDuration = import.meta.client

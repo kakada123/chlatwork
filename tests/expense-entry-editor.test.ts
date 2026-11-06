@@ -1,3 +1,5 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
+import { productCopyStubUrl, languageStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -23,7 +25,7 @@ async function loadComponent(name: string) {
         },
       },
     )
-    .outputText.replace(
+    .outputText.replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`).replace(/from ["']~\/composables\/useProductCopy["']/g, `from ${JSON.stringify(productCopyStubUrl)}`).replace(/from ["']~\/composables\/useLanguage["']/g, `from ${JSON.stringify(languageStubUrl)}`).replace(
       /from ["']vue["']/g,
       `from ${JSON.stringify(import.meta.resolve("vue"))}`,
     )

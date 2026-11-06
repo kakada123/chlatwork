@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { t } = useAppI18n();
 import {
   KLA_KLOK_SYMBOLS,
   getKlaKlokSymbol,
@@ -25,7 +27,7 @@ const spinClass = computed(
       size === 'hero' ? 'kla-die-scene--hero' : 'kla-die-scene--game',
       { 'kla-die-scene--rolling': rolling },
     ]"
-    :aria-label="`${symbol.labelKm} · ${symbol.labelEn}`"
+    :aria-label="t(symbol.labelKey)"
     :aria-busy="rolling || undefined"
   >
     <div class="kla-die-shadow" aria-hidden="true" />
@@ -45,7 +47,7 @@ const spinClass = computed(
         :class="`kla-die-face--${face.id}`"
       >
         <span class="kla-die-glyph">{{ face.glyph }}</span>
-        <span class="kla-die-label">{{ face.labelKm }}</span>
+        <span class="kla-die-label">{{ t(face.labelKey) }}</span>
       </div>
     </div>
   </div>

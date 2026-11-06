@@ -1,3 +1,4 @@
+import { assertSourceMessage } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -92,10 +93,10 @@ test("lucky draw page exposes draw controls and explains its privacy boundary", 
   const tools = readFileSync("app/data/tools.ts", "utf8");
   const iconTones = readFileSync("app/lib/tool-icon-tones.ts", "utf8");
 
-  assert.match(page, /No repeat winners/);
-  assert.match(page, /Winner history/);
-  assert.match(page, /Note for this spin/);
-  assert.match(page, /Show winner in dialog/);
+  assertSourceMessage(page, /No repeat winners/);
+  assertSourceMessage(page, /Winner history/);
+  assertSourceMessage(page, /Note for this spin/);
+  assertSourceMessage(page, /Show winner in dialog/);
   assert.match(page, /role="dialog"/);
   assert.match(page, /aria-modal="true"/);
   assert.match(page, /z-\[140\]/);
@@ -113,9 +114,9 @@ test("lucky draw page exposes draw controls and explains its privacy boundary", 
     /winnerHistory\.value\.push\(\{ name: winnerName, note: winnerNote \}\);\s+drawNote\.value = "";/,
   );
   assert.doesNotMatch(page, /v-model="winner\.note"/);
-  assert.match(page, /Copy list/);
-  assert.match(page, /Export CSV/);
-  assert.match(page, /Secure browser randomness/);
+  assertSourceMessage(page, /Copy list/);
+  assertSourceMessage(page, /Export CSV/);
+  assertSourceMessage(page, /Secure browser randomness/);
   assert.doesNotMatch(page, /Share link|shareLink|buildSharePayload|readSharePayload/);
   assert.match(page, /prefers-reduced-motion: reduce/);
   assert.match(page, /isFullscreen\.value \|\| isWinnerDialogOpen\.value/);

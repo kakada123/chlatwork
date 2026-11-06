@@ -1,6 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts">import { computed } from "vue";
+
+import { useAppI18n } from "~/composables/useAppI18n";
 import { onMounted, ref } from "vue";
+
+
 const props = withDefaults(defineProps<{ revealed: boolean; message: string; locale?: "en" | "km" }>(), { locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const emit = defineEmits<{ reveal: [] }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 const progress = ref(0);
@@ -67,11 +72,11 @@ function end(event: PointerEvent) {
 
 <template>
   <div class="scratch-scene">
-    <p class="story-description">{{ locale === 'km' ? 'កោសកាតដើម្បីរកឃើញការភ្ញាក់ផ្អើលរបស់អ្នក ឬចុចបង្ហាញ។' : 'Scratch the card to discover your surprise, or use Reveal below.' }}</p>
+    <p class="story-description">{{ t("products.moments.scratch_the_card_to_discover_your_surprise_or_use_reveal_below") }}</p>
     <div v-if="!revealed" class="scratch-card"><span aria-hidden="true">🎁</span><canvas ref="canvas" width="640" height="400" aria-hidden="true" @pointerdown="begin" @pointermove="scratch" @pointerup="end" @pointercancel="end" @lostpointercapture="end" /></div>
-    <div v-else class="scratch-message" role="region" :aria-label="locale === 'km' ? 'ការភ្ញាក់ផ្អើលរបស់អ្នក' : 'Your surprise'"><span aria-hidden="true">✨</span><p>{{ message }}</p></div>
+    <div v-else class="scratch-message" role="region" :aria-label="t(&quot;products.moments.your_surprise&quot;)"><span aria-hidden="true">✨</span><p>{{ message }}</p></div>
     <p v-if="!revealed" role="status" class="scratch-progress">{{ progress }}%</p>
-    <button v-if="!revealed" type="button" class="story-action" data-action="reveal-secret" @click="$emit('reveal')">{{ locale === 'km' ? 'បង្ហាញការភ្ញាក់ផ្អើល' : 'Reveal surprise' }}</button>
+    <button v-if="!revealed" type="button" class="story-action" data-action="reveal-secret" @click="$emit('reveal')">{{ t("products.moments.reveal_surprise") }}</button>
   </div>
 </template>
 

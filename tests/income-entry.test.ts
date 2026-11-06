@@ -1,3 +1,5 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
+import { productCopyStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -24,6 +26,8 @@ const authURL = moduleURL(`
 function resolveImports(source: string) {
   return source
     .replace(/import\.meta\.client/g, "true")
+    .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
+    .replace(/from ["']~\/composables\/useProductCopy["']/g, `from ${JSON.stringify(productCopyStubUrl)}`)
     .replace(/from ["']vue["']/g, `from ${JSON.stringify(vueURL)}`)
     .replace(
       /from ["']lucide-vue-next["']/g,

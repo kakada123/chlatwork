@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { translateMessage } from "~/lib/i18n";
+import { useAppI18n } from "~/composables/useAppI18n";
 import CelebrationBrowser from "~/components/khmer-calendar/CelebrationBrowser.vue";
 import CalendarShareButton from "~/components/khmer-calendar/CalendarShareButton.vue";
 import {
@@ -37,19 +39,16 @@ import {
   type CalendarEvent,
 } from "~/data/cambodia-holidays";
 
+
+
 definePageMeta({ layout: false, blankCanvas: true });
-useSeoMeta({
-  title:
-    "ប្រតិទិនខ្មែរ · Khmer Calendar & Cambodia Public Holidays | ChlatWork",
-  description:
-    "A full-screen Khmer calendar with Cambodian public holidays, Chinese New Year, Christmas, Halloween, Valentine’s Day, international celebrations and Khmer lunar dates.",
-  ogTitle: "Khmer Calendar · ប្រតិទិនខ្មែរ | ChlatWork",
-  ogDescription:
-    "Explore Khmer lunar dates, Cambodian festivals and international celebrations in one calendar.",
-});
 
 const route = useRoute();
 const khmer = ref(route.query.lang !== "en");
+const { t } = useAppI18n(khmer);
+useSeoMeta({ title: () => t("tools.khmerCalendar.metaTitle"), description: () => t("tools.khmerCalendar.metaDescription"), ogTitle: () => t("tools.khmerCalendar.metaOgTitle"), ogDescription: () => t("tools.khmerCalendar.metaOgDescription") });
+// Lunar notations remain in Khmer as part of the calendar data in either interface language.
+const lunarText = (key: string, params: Record<string, unknown>) => translateMessage("km", key, params);
 // Nuxt serializes this initial civil date so hydration cannot cross a midnight boundary.
 const today = useState<CalendarDate>("khmer-calendar-today", () =>
   getPhnomPenhToday(),
@@ -79,20 +78,8 @@ const years = Array.from(
   { length: MAX_CALENDAR_YEAR - MIN_CALENDAR_YEAR + 1 },
   (_, index) => MIN_CALENDAR_YEAR + index,
 );
-const months = computed(() => (khmer.value ? KHMER_MONTHS : ENGLISH_MONTHS));
-const weekdays = computed(() =>
-  khmer.value
-    ? KHMER_WEEKDAYS
-    : [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-);
+const months = computed(() => Array.from({ length: 12 }, (_, index) => t(`tools.khmerCalendar.months.${index + 1}`)));
+const weekdays = computed(() => Array.from({ length: 7 }, (_, index) => t(`tools.khmerCalendar.weekdays.${index}`)));
 const cells = computed(() =>
   getCalendarMonth(selected.value.year, selected.value.month),
 );
@@ -139,14 +126,11 @@ const monthHolidayCount = computed(
 );
 const lunarYear = computed(
   () =>
-    `ឆ្នាំ${detail.value.lunar.animalYearName} ${detail.value.lunar.sakName} ព.ស.${toKhmerDigits(detail.value.lunar.beYear)}`,
+    lunarText("tools.khmerCalendar.lunarYear", { animalYear: detail.value.lunar.animalYearName, sakName: detail.value.lunar.sakName, beYear: toKhmerDigits(detail.value.lunar.beYear) }),
 );
 
 function digits(value: number | string) {
   return khmer.value ? toKhmerDigits(value) : String(value);
-}
-function label(km: string, en: string) {
-  return khmer.value ? km : en;
 }
 function eventName(event: CalendarEvent) {
   return khmer.value ? event.nameKm : event.nameEn;
@@ -163,8 +147,8 @@ function lunarLabel(day: CalendarDay) {
 function dayLabel(day: CalendarDay) {
   return [
     `${weekdays.value[day.weekday]} ${digits(day.date.day)} ${months.value[day.date.month - 1]} ${digits(day.date.year)}`,
-    `${lunarLabel(day)} ខែ${day.lunar.monthName}`,
-    day.holyDay ? label("ថ្ងៃសីល", "Buddhist holy day") : "",
+    lunarText("tools.khmerCalendar.lunarMonth", { lunar: lunarLabel(day), month: day.lunar.monthName }),
+    day.holyDay ? t("tools.khmerCalendar.buddhistHolyDay") : "",
     ...day.events.filter(visibleEvent).map(eventName),
   ]
     .filter(Boolean)
@@ -265,10 +249,7 @@ async function toggleFullscreen() {
     syncFullscreen();
   } catch {
     // Mobile browsers and embedded tabs may deny fullscreen; the full-window calendar remains usable.
-    fullscreenError.value = label(
-      "មិនអាចបើកពេញអេក្រង់បានទេ។ អ្នកអាចបន្តប្រើប្រតិទិននេះបាន។",
-      "Fullscreen is unavailable in this browser. You can keep using the full-window calendar.",
-    );
+    fullscreenError.value = t("tools.khmerCalendar.fullscreenIsUnavailableInThisBrowserYouCanKeep");
   }
 }
 let todayTimer: ReturnType<typeof setInterval> | undefined;
@@ -294,21 +275,21 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main ref="calendarRoot" class="khmer-calendar" :lang="khmer ? 'km' : 'en'">
+  <main ref="calendarRoot" class="khmer-calendar" :lang="(khmer ? 'km' : 'en')">
     <header class="calendar-header">
       <div class="brand-row">
         <NuxtLink to="/tools" class="back-link"
           ><ArrowLeft :size="15" aria-hidden="true" /> ChlatWork
-          <span>/ {{ label("ឧបករណ៍", "Tools") }}</span></NuxtLink
+          <span>/ {{ t("tools.khmerCalendar.tools") }}</span></NuxtLink
         >
         <div class="header-actions">
           <button
             type="button"
             class="language-button"
-            :aria-label="khmer ? 'Switch to English' : 'ប្ដូរទៅភាសាខ្មែរ'"
+            :aria-label="t(&quot;tools.khmerCalendar.message&quot;)"
             @click="khmer = !khmer"
           >
-            {{ khmer ? "EN" : "ខ្មែរ" }}
+            {{ t("tools.khmerCalendar.message_2") }}
           </button>
           <button
             v-if="fullscreenSupported"
@@ -316,10 +297,10 @@ onBeforeUnmount(() => {
             class="icon-button"
             :aria-label="
               fullscreen
-                ? label('ចាកចេញពីពេញអេក្រង់', 'Exit fullscreen')
-                : label('បើកពេញអេក្រង់', 'Enter fullscreen')
+                ? t(&quot;tools.khmerCalendar.exitFullscreen&quot;)
+                : t(&quot;tools.khmerCalendar.enterFullscreen&quot;)
             "
-            :title="label('ពេញអេក្រង់', 'Fullscreen')"
+            :title="t(&quot;tools.khmerCalendar.fullscreen&quot;)"
             @click="toggleFullscreen"
           >
             <component
@@ -337,24 +318,18 @@ onBeforeUnmount(() => {
         <div>
           <p class="eyebrow">
             {{
-              label(
-                "កាលបរិច្ឆេទ · ប្រពៃណី · កម្ពុជា",
-                "DATES · TRADITION · CAMBODIA",
-              )
+              t("tools.khmerCalendar.datesTraditionCambodia")
             }}
           </p>
-          <h1>{{ label("ប្រតិទិនខ្មែរ", "Khmer Calendar") }}</h1>
+          <h1>{{ t("tools.khmerCalendar.khmerCalendar") }}</h1>
           <p class="header-description">
             {{
-              label(
-                "ចន្ទគតិខ្មែរ និងពិធីបុណ្យក្នុងស្រុក និងអន្តរជាតិ",
-                "Khmer lunar dates & celebrations around the world",
-              )
+              t("tools.khmerCalendar.khmerLunarDatesCelebrationsAroundTheWorld")
             }}
           </p>
         </div>
         <div class="today-summary">
-          <span>{{ label("ថ្ងៃនេះនៅកម្ពុជា", "TODAY IN CAMBODIA") }}</span
+          <span>{{ t("tools.khmerCalendar.todayInCambodia") }}</span
           ><strong
             >{{ digits(today.day) }} {{ months[today.month - 1] }}
             {{ digits(today.year) }}</strong
@@ -370,7 +345,7 @@ onBeforeUnmount(() => {
       <div class="calendar-workspace">
         <section
           class="month-panel"
-          :aria-label="label('ប្រតិទិនប្រចាំខែ', 'Monthly calendar')"
+          :aria-label="t(&quot;tools.khmerCalendar.monthlyCalendar&quot;)"
         >
           <div class="month-toolbar">
             <div class="month-heading">
@@ -379,13 +354,13 @@ onBeforeUnmount(() => {
             </div>
             <div class="month-controls">
               <button type="button" class="today-button" @click="goToday">
-                {{ label("ថ្ងៃនេះ", "Today") }}
+                {{ t("tools.khmerCalendar.today") }}
               </button>
               <button
                 type="button"
                 class="icon-button"
                 :disabled="!previousMonth"
-                :aria-label="label('ខែមុន', 'Previous month')"
+                :aria-label="t(&quot;tools.khmerCalendar.previousMonth&quot;)"
                 @click="changeMonth(-1)"
               >
                 <ChevronLeft :size="19" aria-hidden="true" />
@@ -394,7 +369,7 @@ onBeforeUnmount(() => {
                 type="button"
                 class="icon-button"
                 :disabled="!nextMonth"
-                :aria-label="label('ខែបន្ទាប់', 'Next month')"
+                :aria-label="t(&quot;tools.khmerCalendar.nextMonth&quot;)"
                 @click="changeMonth(1)"
               >
                 <ChevronRight :size="19" aria-hidden="true" />
@@ -404,13 +379,13 @@ onBeforeUnmount(() => {
           <div class="calendar-options">
             <div class="date-selectors">
               <label class="sr-only" for="calendar-month">{{
-                label("ខែ", "Month")
+                t("tools.khmerCalendar.month")
               }}</label>
               <ModernSelect
                 id="calendar-month"
                 class="w-40"
                 :value="selected.month"
-                :search-placeholder="label('ស្វែងរកខែ…', 'Search months…')"
+                :search-placeholder="t(&quot;tools.khmerCalendar.searchMonths&quot;)"
                 @change="
                   setMonthYear(
                     selected.year,
@@ -427,13 +402,13 @@ onBeforeUnmount(() => {
                 </option>
               </ModernSelect>
               <label class="sr-only" for="calendar-year">{{
-                label("ឆ្នាំ", "Year")
+                t("tools.khmerCalendar.year")
               }}</label>
               <ModernSelect
                 id="calendar-year"
                 class="w-28"
                 :value="selected.year"
-                :search-placeholder="label('ស្វែងរកឆ្នាំ…', 'Search years…')"
+                :search-placeholder="t(&quot;tools.khmerCalendar.searchYears&quot;)"
                 @change="
                   setMonthYear(
                     Number(($event.target as HTMLSelectElement).value),
@@ -448,7 +423,7 @@ onBeforeUnmount(() => {
             </div>
             <label class="observance-toggle"
               ><input v-model="showObservances" type="checkbox" />
-              {{ label("បង្ហាញទិវារំលឹក", "Show observances") }}</label
+              {{ t("tools.khmerCalendar.showObservances") }}</label
             >
           </div>
 
@@ -459,10 +434,7 @@ onBeforeUnmount(() => {
               }}
               ·
               {{
-                label(
-                  "ប្រើគ្រាប់ចុចព្រួញដើម្បីជ្រើសថ្ងៃ",
-                  "Use arrow keys to select a date; Page Up and Page Down to change month",
-                )
+                t("tools.khmerCalendar.useArrowKeysToSelectADatePageUp")
               }}
             </caption>
             <thead>
@@ -550,23 +522,20 @@ onBeforeUnmount(() => {
           <div class="calendar-legend">
             <span
               ><i class="holiday-dot" />{{
-                label("ថ្ងៃឈប់សម្រាក", "Public holiday")
+                t("tools.khmerCalendar.publicHoliday")
               }}</span
             ><span
               ><Flower2 :size="13" class="holy-icon" aria-hidden="true" />{{
-                label("ថ្ងៃសីល", "Buddhist holy day")
+                t("tools.khmerCalendar.buddhistHolyDay")
               }}</span
             ><span
               ><i class="observance-dot" />{{
-                label("ទិវារំលឹក", "Observance")
+                t("tools.khmerCalendar.observance")
               }}</span
             ><small
               >{{ digits(monthHolidayCount) }}
               {{
-                label(
-                  "ថ្ងៃឈប់សម្រាកក្នុងខែនេះ",
-                  "public holiday dates this month",
-                )
+                t("tools.khmerCalendar.publicHolidayDatesThisMonth")
               }}</small
             >
           </div>
@@ -575,12 +544,12 @@ onBeforeUnmount(() => {
         <aside
           class="calendar-sidebar"
           :aria-label="
-            label('ព័ត៌មានថ្ងៃ និងពិធីបុណ្យ', 'Date details and events')
+            t(&quot;tools.khmerCalendar.dateDetailsAndEvents&quot;)
           "
         >
           <section class="selected-card" aria-live="polite" aria-atomic="true">
             <p class="selected-eyebrow">
-              {{ label("ថ្ងៃដែលបានជ្រើសរើស", "SELECTED DATE") }}
+              {{ t("tools.khmerCalendar.selectedDate") }}
             </p>
             <div class="selected-date">
               <strong>{{ digits(selected.day) }}</strong>
@@ -600,31 +569,30 @@ onBeforeUnmount(() => {
             </div>
             <div class="selected-lunar" lang="km">
               <p>
-                ថ្ងៃ{{ KHMER_WEEKDAYS[detail.weekday] }}
-                {{ lunarLabel(detail) }} ខែ{{ detail.lunar.monthName }}
+                {{ lunarText("tools.khmerCalendar.lunarSelected", { weekday: KHMER_WEEKDAYS[detail.weekday], lunar: lunarLabel(detail), month: detail.lunar.monthName }) }}
               </p>
               <p>{{ lunarYear }}</p>
             </div>
             <span v-if="detail.holyDay" class="holy-badge"
               ><Flower2 :size="14" aria-hidden="true" />{{
-                label("ថ្ងៃសីល", "Buddhist holy day")
+                t("tools.khmerCalendar.buddhistHolyDay")
               }}</span
             >
             <details class="year-information">
               <summary>
-                {{ label("ព័ត៌មានឆ្នាំខ្មែរ", "Khmer year details") }}
+                {{ t("tools.khmerCalendar.khmerYearDetails") }}
               </summary>
               <dl class="year-details">
                 <div>
-                  <dt>{{ label("ពុទ្ធសករាជ", "Buddhist Era") }}</dt>
+                  <dt>{{ t("tools.khmerCalendar.buddhistEra") }}</dt>
                   <dd>{{ digits(detail.lunar.beYear) }}</dd>
                 </div>
                 <div>
-                  <dt>{{ label("ឆ្នាំខ្មែរ", "Animal year") }}</dt>
+                  <dt>{{ t("tools.khmerCalendar.animalYear") }}</dt>
                   <dd lang="km">{{ detail.lunar.animalYearName }}</dd>
                 </div>
                 <div>
-                  <dt>{{ label("ស័ក", "Sak cycle") }}</dt>
+                  <dt>{{ t("tools.khmerCalendar.sakCycle") }}</dt>
                   <dd lang="km">{{ detail.lunar.sakName }}</dd>
                 </div>
               </dl>
@@ -633,7 +601,7 @@ onBeforeUnmount(() => {
 
           <div class="selected-date-actions">
             <NuxtLink :to="calendarDetailPath(selected, undefined, khmer)">{{
-              label("មើលព័ត៌មានថ្ងៃនេះ", "View date details")
+              t("tools.khmerCalendar.viewDateDetails")
             }}</NuxtLink>
             <CalendarShareButton
               :path="calendarDetailPath(selected, undefined, khmer)"
@@ -643,16 +611,13 @@ onBeforeUnmount(() => {
           </div>
 
           <section class="day-detail-panel">
-            <h3>{{ label("ពិធីបុណ្យ និងទិវា", "Holidays & observances") }}</h3>
+            <h3>{{ t("tools.khmerCalendar.holidaysObservances") }}</h3>
             <ul v-if="selectedEvents.length" class="selected-events">
               <li v-for="event in selectedEvents" :key="event.id">
                 <span class="event-type" :class="event.kind">{{
                   event.kind === "public-holiday"
-                    ? label("ថ្ងៃឈប់សម្រាក", "Public holiday")
-                    : label(
-                        "ពិធីបុណ្យ / ទិវា · មិនមែនថ្ងៃឈប់សម្រាក",
-                        "Celebration / observance · not a public holiday",
-                      )
+                    ? t("tools.khmerCalendar.publicHoliday")
+                    : t("tools.khmerCalendar.celebrationObservanceNotAPublicHoliday")
                 }}</span>
                 <p>
                   <NuxtLink
@@ -661,7 +626,7 @@ onBeforeUnmount(() => {
                   >
                 </p>
                 <small v-if="event.estimated" class="estimated-note"
-                  >{{ label("ប៉ាន់ស្មាន", "Estimated") }} ·
+                  >{{ t("tools.khmerCalendar.estimated") }} ·
                   {{ khmer ? event.noteKm : event.noteEn }}</small
                 >
                 <CalendarShareButton
@@ -674,21 +639,15 @@ onBeforeUnmount(() => {
             <p v-else class="empty-copy">
               {{
                 schedule.verified
-                  ? label(
-                      "មិនមានថ្ងៃបុណ្យក្នុងបញ្ជីសម្រាប់ថ្ងៃនេះទេ។",
-                      "No listed holiday or observance for this date.",
-                    )
-                  : label(
-                      "មិនទាន់មានបញ្ជីថ្ងៃឈប់សម្រាកផ្លូវការសម្រាប់ឆ្នាំនេះទេ។",
-                      "The official public holiday schedule for this year is not available.",
-                    )
+                  ? t("tools.khmerCalendar.noListedHolidayOrObservanceForThisDate")
+                  : t("tools.khmerCalendar.theOfficialPublicHolidayScheduleForThisYearIs")
               }}
             </p>
           </section>
 
           <section class="month-event-panel">
             <div class="section-heading">
-              <h3>{{ label("ក្នុងខែនេះ", "This month") }}</h3>
+              <h3>{{ t("tools.khmerCalendar.thisMonth") }}</h3>
               <span>{{ digits(monthEvents.length) }}</span>
             </div>
             <ul v-if="monthEvents.length" class="month-event-list">
@@ -714,13 +673,10 @@ onBeforeUnmount(() => {
                     }}<small
                       >{{
                         event.kind === "public-holiday"
-                          ? label("ថ្ងៃឈប់សម្រាក", "Public holiday")
-                          : label(
-                              "ពិធីបុណ្យ / ទិវា",
-                              "Celebration / observance",
-                            )
+                          ? t("tools.khmerCalendar.publicHoliday")
+                          : t("tools.khmerCalendar.celebrationObservance")
                       }}<template v-if="event.estimated">
-                        · {{ label("ប៉ាន់ស្មាន", "Estimated") }}</template
+                        · {{ t("tools.khmerCalendar.estimated") }}</template
                       ></small
                     ></span
                   ><ChevronRight :size="14" aria-hidden="true" />
@@ -729,10 +685,7 @@ onBeforeUnmount(() => {
             </ul>
             <p v-else class="empty-copy">
               {{
-                label(
-                  "មិនមានពិធីបុណ្យក្នុងបញ្ជីសម្រាប់ខែនេះទេ។",
-                  "No listed events this month.",
-                )
+                t("tools.khmerCalendar.noListedEventsThisMonth")
               }}
             </p>
           </section>
@@ -751,36 +704,24 @@ onBeforeUnmount(() => {
             <strong
               >{{ digits(schedule.holidayDayCount ?? 0) }}
               {{
-                label(
-                  "ថ្ងៃឈប់សម្រាកផ្លូវការ ក្នុងឆ្នាំ",
-                  "official public holiday dates in",
-                )
+                t("tools.khmerCalendar.officialPublicHolidayDatesIn")
               }}
               {{ digits(selected.year) }}</strong
             ><span>{{
-              label(
-                "ទិវារំលឹក និងថ្ងៃសីល មិនសុទ្ធតែជាថ្ងៃឈប់សម្រាកទេ។",
-                "Observances and Buddhist holy days do not automatically mean a day off.",
-              )
+              t("tools.khmerCalendar.observancesAndBuddhistHolyDaysDoNotAutomaticallyMean")
             }}</span>
           </p>
           <p v-else class="coverage-notice" role="status">
             <strong>{{
-              label(
-                "មិនទាន់មានបញ្ជីថ្ងៃឈប់សម្រាកផ្លូវការសម្រាប់ឆ្នាំនេះ",
-                "Official holiday schedule unavailable for this year",
-              )
+              t("tools.khmerCalendar.officialHolidayScheduleUnavailableForThisYear")
             }}</strong
             ><span>{{
-              label(
-                "មានទិន្នន័យថ្ងៃឈប់សម្រាកដែលបានផ្ទៀងផ្ទាត់សម្រាប់ឆ្នាំ ២០២៦ និង ២០២៧។ កាលបរិច្ឆេទចន្ទគតិនៅតែអាចមើលបាន។",
-                "Verified public holidays cover 2026 and 2027. Lunar dates remain available for the selected year.",
-              )
+              t("tools.khmerCalendar.verifiedPublicHolidaysCover2026And2027LunarDates")
             }}</span>
           </p>
         </div>
         <div class="source-links">
-          <span>{{ label("ប្រភពផ្លូវការ", "Official sources") }}</span
+          <span>{{ t("tools.khmerCalendar.officialSources") }}</span
           ><a
             v-for="source in schedule.sources"
             :key="source.url"
@@ -789,7 +730,7 @@ onBeforeUnmount(() => {
             rel="noopener noreferrer"
             >{{ source.name }} ↗</a
           ><span v-if="!schedule.sources.length">{{
-            label("ទិន្នន័យចន្ទគតិ · ១៩០០–២១០០", "Lunar calendar · 1900–2100")
+            t("tools.khmerCalendar.lunarCalendar19002100")
           }}</span>
         </div>
       </footer>

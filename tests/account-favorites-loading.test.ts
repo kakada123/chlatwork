@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -19,12 +20,15 @@ function harness({ server = false, hydratedLoading = "", authReady = true } = {}
   const app = {};
   const user = vue.ref<{ id: string } | null>({ id: "account-a" });
   const ready = vue.ref(authReady);
+  const isKhmer = vue.ref(false);
   const states = new Map<string, any>();
   if (hydratedLoading) states.set("account-favorites-loading-user-id", vue.ref(hydratedLoading));
   const loads: ReturnType<typeof deferred<{ toolKeys: string[]; commandIds: string[] }>>[] = [];
   const writes: Array<{ path: string; body: any }> = [];
   const globals = {
     watch: vue.watch,
+    computed: vue.computed,
+    useLanguage: () => ({ isKhmer }),
     useNuxtApp: () => app,
     useAuth: () => ({ user, isReady: ready, fetchMe: async () => user.value }),
     useRoute: () => ({ fullPath: "/account" }),
@@ -45,11 +49,17 @@ function harness({ server = false, hydratedLoading = "", authReady = true } = {}
     navigateTo: async () => {},
   };
   const module = { exports: {} as any };
-  new Function("module", "exports", ...Object.keys(globals), compiled)(module, module.exports, ...Object.values(globals));
+  new Function("require", "module", "exports", ...Object.keys(globals), compiled)(
+    (name: string) => {
+      if (name === "~/composables/useAppI18n") return { useAppI18n: () => createI18nStub(isKhmer) };
+      if (name === "~/composables/useLanguage") return { useLanguage: globals.useLanguage };
+      throw new Error(`Unexpected dependency ${name}`);
+    }, module, module.exports, ...Object.values(globals),
+  );
   const scope = vue.effectScope();
   return {
     create: () => scope.run(() => module.exports.useAccountFavorites()),
-    loads, writes, user, ready, states,
+    loads, writes, user, ready, states, isKhmer,
     async flush() { await vue.nextTick(); await new Promise<void>((resolve) => setImmediate(resolve)); },
     stop: () => scope.stop(),
   };
@@ -173,4 +183,20 @@ test("an unrelated response becomes a load error rather than corrupting both fav
     assert.deepEqual(favorites.favoriteCommandIds.value, []);
     assert.match(favorites.favoriteError.value, /could not be loaded/);
   } finally { h.stop(); }
+});
+
+
+test('an existing favorites error follows language changes without reloading account data', async () => {
+  const fixture = harness();
+  const favorites = fixture.create();
+  try {
+    fixture.loads[0].reject(new Error('offline'));
+    await fixture.flush();
+    assert.match(favorites.favoriteError.value, /could not be loaded/);
+    fixture.isKhmer.value = true;
+    assert.match(favorites.favoriteError.value, /មិនអាចផ្ទុក/);
+    fixture.isKhmer.value = false;
+    assert.match(favorites.favoriteError.value, /could not be loaded/);
+    assert.equal(fixture.loads.length, 1);
+  } finally { fixture.stop(); }
 });

@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { LandingToolCategory } from "~/data/tools";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{
   categories: LandingToolCategory[];
@@ -17,7 +20,7 @@ useLandingReveal(sectionEl);
     <div class="mx-auto w-full">
       <div class="mb-4 flex items-center justify-between gap-3" data-reveal>
         <h2 class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-          {{ isKhmer ? "តើអ្នកចង់ធ្វើអ្វី?" : "What do you need to do?" }}
+          {{ t("shared.components_landing_tool_category_section.what_do_you_need_to_do") }}
         </h2>
       </div>
 

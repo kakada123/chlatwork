@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត QR Code" : "QR Generator" }}</h1>
+      <h1 class="text-xl font-bold">{{ t("tools.qr.qrGenerator") }}</h1>
       <p class="text-sm text-gray-500">
-        {{ isKhmer ? "បង្កើត QR code សម្រាប់អត្ថបទ ឬ URL និងទាញយកជា PNG ដោយផ្ទាល់ក្នុង browser។" : "Generate QR codes for text/URL and download as PNG (no upload, no API). Enter each value and click Generate to add multiple items." }}
+        {{ t("tools.qr.generateQrCodesForTextUrlAndDownloadAs") }}
       </p>
     </div>
 
@@ -14,7 +14,7 @@
       v-model:ec-level="state.ecLevel"
       v-model:auto-generate="state.autoGenerate"
       :generated="state.generated"
-      :error="state.error"
+      :error="localizeToolError(state.error, isKhmer)"
       @generate="generate"
       @clear="clearAll"
       @download="downloadPng"
@@ -33,10 +33,10 @@
       class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm"
     >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">{{ isKhmer ? "QR Code ដែលបានបង្កើត" : "Generated QR codes" }}</h2>
+        <h2 class="text-sm font-semibold">{{ t("tools.qr.generatedQrCodes") }}</h2>
         <p class="text-xs text-gray-500">
           {{ generatedItems.length }}
-          {{ isKhmer ? "កូដ" : (generatedItems.length > 1 ? "items" : "item") }}
+          {{ t(generatedItems.length === 1 ? "tools.qr.item.one" : "tools.qr.item.other") }}
         </p>
       </div>
 
@@ -54,7 +54,7 @@
           >
             <img
               :src="item.dataUrl"
-              :alt="`QR code ${index + 1}`"
+              :alt="t(&quot;tools.qr.qrCode&quot;, { index: index + 1 })"
               class="h-44 w-44"
               loading="lazy"
             />
@@ -64,7 +64,7 @@
             type="button"
             @click="downloadItemPng(item.text, item.dataUrl, index)"
           >
-            {{ isKhmer ? "ទាញយក PNG" : "Download PNG" }}
+            {{ t("tools.qr.downloadPng") }}
           </button>
         </article>
       </div>
@@ -73,6 +73,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import type { QrGeneratorState } from "~/lib/qr-generator";
 import {
   buildQrDownloadFileName,
@@ -80,21 +82,23 @@ import {
   validateQrText,
 } from "~/lib/qr-generator";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "QR Code Generator Online - Free PNG Download | ChlatWork",
-  description:
-    "Generate a QR code for URLs, menus, Telegram links, forms, or plain text and download it as a PNG in your browser.",
-  ogTitle: "QR Code Generator Online - Free PNG Download | ChlatWork",
-  ogDescription:
-    "Create QR codes for menus, links, forms, and notes, then download a PNG you can test and print.",
+  title: () => t("tools.qr.metaTitle"),
+  description: () => t("tools.qr.metaDescription"),
+  ogTitle: () => t("tools.qr.metaOgTitle"),
+  ogDescription: () => t("tools.qr.metaOgDescription"),
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/qr",
   twitterCard: "summary_large_image",
-  twitterTitle: "QR Code Generator Online - Free PNG Download | ChlatWork",
-  twitterDescription:
-    "Generate QR codes for URLs, menus, Telegram links, forms, or plain text in your browser.",
+  twitterTitle: () => t("tools.qr.metaTwitterTitle"),
+  twitterDescription: () => t("tools.qr.metaTwitterDescription"),
 });
 
 type QRCodeLib = typeof import("qrcode");

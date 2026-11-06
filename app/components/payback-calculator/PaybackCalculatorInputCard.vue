@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { ComponentPublicInstance } from "vue";
 import { Plus, Trash2 } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
@@ -7,6 +8,9 @@ import type {
   PaybackInputRow,
 } from "~/lib/payback-calculator";
 import { createEmptyPaybackRow } from "~/lib/payback-calculator";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -129,6 +133,7 @@ watch(currency, (nextCurrency) => {
     row.amount = amount.split(/[.,]/)[0]?.replace(/\D/g, "") ?? "";
   });
 });
+const bulkPlaceholder = computed(() => `${t("products.payback.example")}\nMina 5$\nSreynea : 10$\nJohn 4\nMinea: 0\nReak: 0\nJompa: 38$`);
 </script>
 
 <template>
@@ -136,14 +141,14 @@ watch(currency, (nextCurrency) => {
     <div class="mb-5 flex items-start justify-between gap-4">
       <div>
         <h2 class="font-bold text-slate-950 dark:text-white">
-          {{ isKhmer ? "នរណាបានចេញលុយ?" : "Who paid?" }}
+          {{ t("products.payback.who_paid") }}
         </h2>
         <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
-          {{ isKhmer ? "បញ្ចូលចំនួនទឹកប្រាក់ដែលម្នាក់ៗបានចេញ។" : "Enter each person’s total contribution." }}
+          {{ t("products.payback.enter_each_persons_total_contribution") }}
         </p>
       </div>
 
-      <label class="sr-only" for="payback-currency">Currency</label>
+      <label class="sr-only" for="payback-currency">{{ t("products.payback.currency") }}</label>
       <ModernSelect id="payback-currency" v-model="currency" class="payback-control h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-800 outline-none focus:border-sky-400 dark:text-white">
         <option value="USD">USD</option>
         <option value="KHR">KHR</option>
@@ -155,14 +160,14 @@ watch(currency, (nextCurrency) => {
         <thead class="payback-subtle text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">
           <tr>
             <th class="w-[48%] p-2 text-left sm:w-[55%]">
-              {{ isKhmer ? "ឈ្មោះ" : "Person" }}
+              {{ t("products.payback.person") }}
             </th>
 
             <th class="w-[38%] p-2 text-right sm:w-[35%]">
-              {{ isKhmer ? `បានចេញ (${currency})` : `Paid (${currency})` }}
+              {{ t("products.payback.paid_currency", { currency: currency }) }}
             </th>
 
-            <th class="w-[14%] p-2 sm:w-[10%]"><span class="sr-only">Actions</span></th>
+            <th class="w-[14%] p-2 sm:w-[10%]"><span class="sr-only">{{ t("products.payback.actions") }}</span></th>
           </tr>
         </thead>
 
@@ -179,7 +184,7 @@ watch(currency, (nextCurrency) => {
                 type="text"
                 autocomplete="off"
                 class="payback-control h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:text-white dark:placeholder:text-white/30"
-                :placeholder="isKhmer ? 'ឈ្មោះ' : 'Name'"
+                :placeholder="t(&quot;products.payback.name&quot;)"
               />
             </td>
 
@@ -200,7 +205,7 @@ watch(currency, (nextCurrency) => {
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-white/35 dark:hover:bg-red-400/10 dark:hover:text-red-300"
                 type="button"
                 :disabled="rows.length === 1"
-                :aria-label="`Remove row ${index + 1}`"
+                :aria-label="`${t(&quot;products.payback.remove_row&quot;)} ${index + 1}`"
                 @click="removeRow(index)"
               >
                 <Trash2 class="h-4 w-4" aria-hidden="true" />
@@ -210,7 +215,7 @@ watch(currency, (nextCurrency) => {
 
           <tr v-if="rows.length === 0">
             <td class="p-3 text-gray-500" colspan="3">
-              {{ isKhmer ? "មិនទាន់មានជួរទិន្នន័យ។ ចុច \"បន្ថែមមនុស្ស\"។" : "No rows yet. Click “Add row”." }}
+              {{ t("products.payback.no_rows_yet_click_add_row") }}
             </td>
           </tr>
         </tbody>
@@ -223,7 +228,7 @@ watch(currency, (nextCurrency) => {
         type="button"
         @click="addRow"
       >
-        <Plus class="h-4 w-4" aria-hidden="true" /> <span>{{ isKhmer ? "បន្ថែមមនុស្ស" : "Add person" }}</span>
+        <Plus class="h-4 w-4" aria-hidden="true" /> <span>{{ t("products.payback.add_person") }}</span>
       </button>
 
       <button
@@ -250,7 +255,7 @@ watch(currency, (nextCurrency) => {
           <path d="M8 17h5" />
         </svg>
 
-        <span class="truncate">{{ isKhmer ? "សាកល្បងឧទាហរណ៍" : "Try example" }}</span>
+        <span class="truncate">{{ t("products.payback.try_example") }}</span>
       </button>
 
       <button
@@ -286,26 +291,20 @@ watch(currency, (nextCurrency) => {
         </svg>
 
         <span class="truncate">
-          {{ props.copied ? (isKhmer ? "បានចម្លង" : "Copied") : (isKhmer ? "ចម្លងលទ្ធផល" : "Copy result") }}
+          {{ props.copied ? (t("products.payback.copied")) : (t("products.payback.copy_result")) }}
         </span>
       </button>
     </div>
 
     <details class="payback-subtle mt-4 rounded-xl p-4">
       <summary class="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-950 dark:text-white/60 dark:hover:text-white">
-        {{ isKhmer ? "ឬបិទភ្ជាប់ជាបញ្ជីអត្ថបទ" : "Paste a list instead" }}
+        {{ t("products.payback.paste_a_list_instead") }}
       </summary>
 
       <textarea
         v-model="raw"
         class="mt-3 h-36 w-full rounded-xl border border-slate-200 bg-white p-3 font-mono text-sm text-slate-950 outline-none focus:border-sky-400 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
-        placeholder="Example:
-Mina 5$
-Sreynea : 10$
-John 4
-Minea: 0
-Reak: 0
-Jompa: 38$"
+        :placeholder="bulkPlaceholder"
       />
 
       <div class="mt-2 flex gap-2">
@@ -333,7 +332,7 @@ Jompa: 38$"
             <path d="m9 14 2 2 4-4" />
           </svg>
 
-          <span>{{ isKhmer ? "ប្រើបញ្ជីនេះ" : "Use this list" }}</span>
+          <span>{{ t("products.payback.use_this_list") }}</span>
         </button>
       </div>
     </details>

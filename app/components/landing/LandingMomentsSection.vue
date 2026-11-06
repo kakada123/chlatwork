@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ArrowRight, Gift, Heart, Images, Sparkles } from "lucide-vue-next";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 </script>
 
 <template>
@@ -20,36 +25,34 @@ import { ArrowRight, Gift, Heart, Images, Sparkles } from "lucide-vue-next";
           id="moments-home-title"
           class="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl"
         >
-          Create a little place on the internet for someone special.
+          {{ t("shared.components_landing_landing_moments_section.create_a_little_place_on_the_internet_for_someone") }}
         </h2>
         <p
           class="mt-4 max-w-xl text-sm leading-7 text-slate-600 dark:text-white/65"
         >
-          Turn a few photos and your own words into an interactive birthday,
-          anniversary, friendship, or celebration page—complete with a hidden
-          surprise.
+          {{ t("shared.components_landing_landing_moments_section.turn_a_few_photos_and_your_own_words_into") }}
         </p>
         <div
           class="mt-6 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 dark:text-white/65"
         >
           <span
             class="rounded-full bg-white px-3 py-1.5 shadow-sm dark:bg-white/10"
-            >4 beautiful themes</span
+            >{{ t("shared.components_landing_landing_moments_section.4_beautiful_themes") }}</span
           >
           <span
             class="rounded-full bg-white px-3 py-1.5 shadow-sm dark:bg-white/10"
-            >Private share link</span
+            >{{ t("shared.components_landing_landing_moments_section.private_share_link") }}</span
           >
           <span
             class="rounded-full bg-white px-3 py-1.5 shadow-sm dark:bg-white/10"
-            >QR included</span
+            >{{ t("shared.components_landing_landing_moments_section.qr_included") }}</span
           >
         </div>
         <NuxtLink
           to="/moments/create"
           class="mt-7 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-rose-600/15 transition hover:-translate-y-0.5 hover:bg-rose-700"
         >
-          Create a Moment <ArrowRight class="h-4 w-4" aria-hidden="true" />
+          {{ t("shared.components_layout_product_navigation.create_a_moment") }} <ArrowRight class="h-4 w-4" aria-hidden="true" />
         </NuxtLink>
       </div>
       <div
@@ -61,10 +64,10 @@ import { ArrowRight, Gift, Heart, Images, Sparkles } from "lucide-vue-next";
           <Gift class="h-6 w-6" aria-hidden="true" />
         </div>
         <p class="text-xs font-bold uppercase tracking-[.15em] text-rose-500">
-          Happy Birthday
+          {{ t("shared.components_landing_landing_moments_section.happy_birthday") }}
         </p>
         <p class="mt-2 font-serif text-3xl leading-tight">
-          For someone wonderful ❤️
+          {{ t("shared.components_landing_landing_moments_section.for_someone_wonderful") }}
         </p>
         <div class="mt-5 grid grid-cols-2 gap-2">
           <div

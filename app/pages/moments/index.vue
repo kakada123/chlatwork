@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Plus } from "lucide-vue-next";
-import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import MomentSummaryCard from "~/components/moments/MomentSummaryCard.vue";
 import MomentInvitationGuests from "~/components/moments/MomentInvitationGuests.vue";
 import MomentVotingResults from "~/components/moments/MomentVotingResults.vue";
@@ -100,7 +99,6 @@ async function resetVotes() {
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <MomentLanguageToggle />
         <NuxtLink
           :to="localizeMomentPath('/moments/create')"
           class="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold text-white hover:bg-rose-700"

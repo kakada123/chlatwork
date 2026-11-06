@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import {
   BROWSER_IMAGE_EXTENSIONS,
   BROWSER_IMAGE_MIME_TYPES,
@@ -13,6 +15,8 @@ import {
   type ImageCodeScanResult,
 } from "~/lib/image-code-scanner";
 
+const { t } = useAppI18n();
+
 const props = defineProps<{
   mode: ImageCodeScanMode;
 }>();
@@ -22,47 +26,27 @@ const { isKhmer } = useLanguage();
 const scannerCopy = computed(() => {
   if (props.mode === "qr") {
     return {
-      title: isKhmer.value ? "ស្កេន QR Code" : "QR Scanner",
-      intro: isKhmer.value
-        ? "បញ្ចូលរូបថត screenshot ឬរូបភាពដើម្បីស្កេន QR code ដោយផ្ទាល់ក្នុង browser។"
-        : "Upload a screenshot, photo, or saved poster to decode a QR code locally in your browser.",
-      hint: isKhmer.value
-        ? "ស័ក្តិសមសម្រាប់ QR screenshot រូបថត menu ផ្ទាំងទូទាត់ និង link។"
-        : "Best for QR screenshots, menu photos, payment posters, and links.",
-      dropLabel: isKhmer.value
-        ? "ជ្រើសរើស ឬទម្លាក់រូបភាព QR"
-        : "Choose or drop a QR image",
-      buttonLabel: isKhmer.value ? "ស្កេន QR" : "Scan QR",
-      emptyTitle: isKhmer.value
-        ? "មិនទាន់មានរូបភាព QR នៅឡើយទេ"
-        : "No QR image loaded yet",
-      emptyText: isKhmer.value
-        ? "ជ្រើសរើសឯកសាររូបភាពដើម្បីស្កេន QR code។ ដំណើរការទាំងមូលរក្សាទុកក្នុង browser របស់អ្នក។"
-        : "Choose a file to read a QR code from an image. The scan stays local in your browser.",
-      resultLabel: isKhmer.value ? "លទ្ធផលទិន្នន័យ QR" : "Decoded QR content",
+      title: t("tools.scanner.qrScanner"),
+      intro: t("tools.scanner.uploadAScreenshotPhotoOrSavedPosterToDecode"),
+      hint: t("tools.scanner.bestForQrScreenshotsMenuPhotosPaymentPostersAnd"),
+      dropLabel: t("tools.scanner.chooseOrDropAQrImage"),
+      buttonLabel: t("tools.scanner.scanQr"),
+      emptyTitle: t("tools.scanner.noQrImageLoadedYet"),
+      emptyText: t("tools.scanner.chooseAFileToReadAQrCodeFrom"),
+      resultLabel: t("tools.scanner.decodedQrContent"),
       formatLabel: "QR Code",
     };
   }
 
   return {
-    title: isKhmer.value ? "ស្កេន Barcode" : "Barcode Scanner",
-    intro: isKhmer.value
-      ? "បញ្ចូលរូបថតស្លាកផលិតផល screenshot ឬរូបភាពដើម្បីអាន barcode ក្នុង browser។"
-      : "Upload a label photo, screenshot, or saved image to decode a barcode locally in your browser.",
-    hint: isKhmer.value
-      ? "ស័ក្តិសមសម្រាប់រូបភាព CODE128, EAN13, UPC និង CODE39។"
-      : "Best for CODE128, EAN13, UPC, and CODE39 images.",
-    dropLabel: isKhmer.value
-      ? "ជ្រើសរើស ឬទម្លាក់រូបភាព Barcode"
-      : "Choose or drop a barcode image",
-    buttonLabel: isKhmer.value ? "ស្កេន Barcode" : "Scan barcode",
-    emptyTitle: isKhmer.value
-      ? "មិនទាន់មានរូបភាព Barcode នៅឡើយទេ"
-      : "No barcode image loaded yet",
-    emptyText: isKhmer.value
-      ? "ជ្រើសរើសឯកសាររូបភាពដើម្បីអាន barcode។ ដំណើរការទាំងមូលរក្សាទុកក្នុង browser របស់អ្នក។"
-      : "Choose a file to read a barcode from an image. The scan stays local in your browser.",
-    resultLabel: isKhmer.value ? "លទ្ធផលទិន្នន័យ Barcode" : "Decoded barcode value",
+    title: t("tools.scanner.barcodeScanner"),
+    intro: t("tools.scanner.uploadALabelPhotoScreenshotOrSavedImageTo"),
+    hint: t("tools.scanner.bestForCode128Ean13UpcAndCode39Images"),
+    dropLabel: t("tools.scanner.chooseOrDropABarcodeImage"),
+    buttonLabel: t("tools.scanner.scanBarcode"),
+    emptyTitle: t("tools.scanner.noBarcodeImageLoadedYet"),
+    emptyText: t("tools.scanner.chooseAFileToReadABarcodeFromAn"),
+    resultLabel: t("tools.scanner.decodedBarcodeValue"),
     formatLabel: "Barcode",
   };
 });
@@ -418,10 +402,10 @@ const cameraFrameStyle = computed(() => ({
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="space-y-1">
           <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
-            {{ isKhmer ? "ប្រភពស្កេន" : "Scan source" }}
+            {{ t("tools.scanner.scanSource") }}
           </h2>
           <p class="text-xs text-slate-500 dark:text-white/55">
-            {{ isKhmer ? "ជ្រើសរើសការបញ្ចូលរូបភាព ឬបើកកាមេរ៉ាស្កេនផ្ទាល់។" : "Use image upload or live camera scanning." }}
+            {{ t("tools.scanner.useImageUploadOrLiveCameraScanning") }}
           </p>
         </div>
 
@@ -436,7 +420,7 @@ const cameraFrameStyle = computed(() => ({
             "
             @click="activeMode = 'upload'"
           >
-            {{ isKhmer ? "រូបភាព" : "Upload image" }}
+            {{ t("tools.scanner.uploadImage") }}
           </button>
 
           <button
@@ -449,7 +433,7 @@ const cameraFrameStyle = computed(() => ({
             "
             @click="activateCameraMode"
           >
-            {{ isKhmer ? "កាមេរ៉ា" : "Camera" }}
+            {{ t("tools.scanner.camera") }}
           </button>
 
           <button
@@ -467,13 +451,9 @@ const cameraFrameStyle = computed(() => ({
             {{
               activeMode === "upload"
                 ? loading
-                  ? isKhmer
-                    ? "កំពុងស្កេន..."
-                    : "Scanning..."
+                  ? t("tools.scanner.scanning")
                   : scannerCopy.buttonLabel
-                : isKhmer
-                  ? "បិទកាមេរ៉ា"
-                  : "Stop camera"
+                : t("tools.scanner.stopCamera")
             }}
           </button>
 
@@ -485,12 +465,8 @@ const cameraFrameStyle = computed(() => ({
           >
             {{
               activeMode === "upload"
-                ? isKhmer
-                  ? "ប្តូររូបភាព"
-                  : "Replace image"
-                : isKhmer
-                  ? "បើកកាមេរ៉ា"
-                  : "Start camera"
+                ? t("tools.scanner.replaceImage")
+                : t("tools.scanner.startCamera")
             }}
           </button>
 
@@ -500,7 +476,7 @@ const cameraFrameStyle = computed(() => ({
             :disabled="!previewUrl && !results.length && !error"
             @click="clearAll"
           >
-            {{ isKhmer ? "សម្អាត" : "Clear" }}
+            {{ t("tools.scanner.clear") }}
           </button>
         </div>
       </div>
@@ -510,7 +486,7 @@ const cameraFrameStyle = computed(() => ({
         class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.04] md:grid-cols-[1fr_auto]"
       >
         <label class="space-y-1 text-xs text-slate-500 dark:text-white/50">
-          {{ isKhmer ? "ឧបករណ៍កាមេរ៉ា" : "Camera device" }}
+          {{ t("tools.scanner.cameraDevice") }}
           <ModernSelect
             v-model="selectedCameraId"
             class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-300 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
@@ -521,7 +497,7 @@ const cameraFrameStyle = computed(() => ({
               :key="device.deviceId || `camera-${index}`"
               :value="device.deviceId"
             >
-              {{ device.label || (isKhmer ? `កាមេរ៉ា ${index + 1}` : `Camera ${index + 1}`) }}
+              {{ device.label || (t("tools.scanner.camera_2", { index: index + 1 })) }}
             </option>
           </ModernSelect>
         </label>
@@ -531,7 +507,7 @@ const cameraFrameStyle = computed(() => ({
           class="self-end rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:bg-white/[0.12]"
           @click="refreshCameraDevices"
         >
-          {{ isKhmer ? "ផ្ទុកកាមេរ៉ាឡើងវិញ" : "Refresh cameras" }}
+          {{ t("tools.scanner.refreshCameras") }}
         </button>
       </div>
 
@@ -573,34 +549,34 @@ const cameraFrameStyle = computed(() => ({
               {{ previewUrl ? selectedFileName : scannerCopy.dropLabel }}
             </p>
             <p class="text-xs text-slate-500 dark:text-white/50">
-              {{ isKhmer ? "អូសទម្លាក់រូបភាពនៅទីនេះ ឬចុចដើម្បីជ្រើសរើសឯកសារ។" : "Drag and drop an image here or click to choose a file." }}
+              {{ t("tools.scanner.dragAndDropAnImageHereOrClickTo") }}
             </p>
           </div>
 
           <span
             class="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition group-hover:bg-slate-800 dark:!bg-white dark:text-slate-950 dark:group-hover:!bg-slate-100"
           >
-            {{ isKhmer ? "ជ្រើសរើសរូបភាព" : "Choose image" }}
+            {{ t("tools.scanner.chooseImage") }}
           </span>
         </div>
       </label>
 
       <p v-if="error" class="text-sm text-red-600 dark:text-red-300">
-        {{ error }}
+        {{ localizeToolError(error, isKhmer) }}
       </p>
 
       <p
         v-if="!supportsNativeScanner"
         class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:border-blue-300/20 dark:bg-blue-300/10 dark:text-blue-100"
       >
-        {{ isKhmer ? "ដំណើរការក្នុងរបៀប compatibility លើកម្មវិធីរុករកនេះ។ ការស្កេននៅតែដំណើរការធម្មតា ប៉ុន្តែល្បឿនអាចយឺតជាង Chromium បន្តិច។" : "Running in compatibility mode for this browser. Scanning still works, but detection may be slower than Chromium." }}
+        {{ t("tools.scanner.runningInCompatibilityModeForThisBrowserScanningStill") }}
       </p>
 
       <p
         v-if="activeMode === 'camera' && !supportsCameraInput"
         class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100"
       >
-        {{ isKhmer ? "កាមេរ៉ាមិនអាចប្រើបាននៅលើកម្មវិធីរុករកនេះទេ។ សូមសាកល្បងលើ Chrome/Safari ជំនាន់ចុងក្រោយតាម HTTPS។" : "Camera is not available in this browser. Try latest Chrome/Safari on HTTPS." }}
+        {{ t("tools.scanner.cameraIsNotAvailableInThisBrowserTryLatest") }}
       </p>
 
       <div
@@ -609,7 +585,7 @@ const cameraFrameStyle = computed(() => ({
       >
         <div class="space-y-3">
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
-            {{ isKhmer ? "ទិដ្ឋភាពមុន" : "Preview" }}
+            {{ t("tools.scanner.preview") }}
           </h3>
           <div
             class="relative flex min-h-[280px] items-center justify-center overflow-hidden rounded-[20px] border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]"
@@ -617,7 +593,7 @@ const cameraFrameStyle = computed(() => ({
             <img
               v-if="activeMode === 'upload' && previewUrl"
               :src="previewUrl"
-              :alt="`Uploaded ${scannerCopy.formatLabel.toLowerCase()} image`"
+              :alt="t(&quot;tools.scanner.uploadedImage&quot;, { scannerCopyFormatLabelToLowerCase: scannerCopy.formatLabel.toLowerCase(), scannerCopyFormatLabel: scannerCopy.formatLabel })"
               class="max-h-[420px] w-full rounded-xl object-contain"
               loading="lazy"
               decoding="async"
@@ -650,13 +626,13 @@ const cameraFrameStyle = computed(() => ({
             v-if="activeMode === 'camera'"
             class="text-xs text-slate-500 dark:text-white/55"
           >
-            {{ isKhmer ? `ដាក់ ${scannerCopy.formatLabel} ក្នុងស៊ុមដើម្បីស្កេនកាន់តែលឿន។` : `Place the ${scannerCopy.formatLabel.toLowerCase()} inside the frame for faster detection.` }}
+            {{ t("tools.scanner.placeTheInsideTheFrameForFasterDetection", { scannerCopyFormatLabelToLowerCase: scannerCopy.formatLabel.toLowerCase(), scannerCopyFormatLabel: scannerCopy.formatLabel }) }}
           </p>
         </div>
 
         <div class="space-y-3">
           <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
-            {{ isKhmer ? "លទ្ធផល" : "Result" }}
+            {{ t("tools.scanner.result") }}
           </h3>
 
           <div
@@ -678,18 +654,18 @@ const cameraFrameStyle = computed(() => ({
 
               <DeveloperToolsCopyButton
                 :text="primaryResult?.rawValue ?? ''"
-                :label="isKhmer ? 'ចម្លង' : 'Copy'"
+                :label="t(&quot;tools.scanner.copy&quot;)"
                 variant="secondary"
               />
             </div>
 
             <div v-if="primaryResult" class="mt-4 space-y-2">
               <p class="text-xs text-slate-500 dark:text-white/50">
-                {{ isKhmer ? "ទម្រង់" : "Format" }}: {{ humanizeFormat(primaryResult.format) }}
+                {{ t("tools.scanner.format") }}: {{ humanizeFormat(primaryResult.format) }}
               </p>
 
               <p class="text-xs text-slate-500 dark:text-white/50">
-                {{ isKhmer ? `ទិន្នន័យដែលរកឃើញ៖ ${results.length}` : `${results.length} decoded item${results.length === 1 ? '' : 's'}` }}
+                {{ t("tools.scanner.decodedItem", { resultsLength: results.length, resultsLengthS: results.length === 1 ? '' : 's' }) }}
               </p>
             </div>
 
@@ -704,32 +680,24 @@ const cameraFrameStyle = computed(() => ({
             <p
               class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/45"
             >
-              {{ isKhmer ? "ព័ត៌មានឯកសារ" : "File info" }}
+              {{ t("tools.scanner.fileInfo") }}
             </p>
             <p
               class="mt-2 break-words text-sm font-semibold text-slate-950 dark:text-white"
             >
               {{
                 activeMode === "upload"
-                  ? selectedFileName || (isKhmer ? "មិនទាន់ជ្រើសរើសឯកសារ" : "No file selected")
+                  ? selectedFileName || (t("tools.scanner.noFileSelected"))
                   : isCameraRunning
-                    ? isKhmer
-                      ? "កាមេរ៉ាកំពុងដំណើរការ"
-                      : "Camera is active"
-                    : isKhmer
-                      ? "កាមេរ៉ាមិនដំណើរការ"
-                      : "Camera is not active"
+                    ? t("tools.scanner.cameraIsActive")
+                    : t("tools.scanner.cameraIsNotActive")
               }}
             </p>
             <p class="mt-1 text-xs text-slate-500 dark:text-white/50">
               {{
                 activeMode === "upload"
-                  ? isKhmer
-                    ? "រូបភាពត្រូវបានស្កេនក្នុង browser របស់អ្នកដោយផ្ទាល់ មិនបញ្ជូនទៅ server ឡើយ។"
-                    : "The image stays local in your browser while it is scanned."
-                  : isKhmer
-                    ? "ទិដ្ឋភាពកាមេរ៉ាត្រូវបានដំណើរការក្នុង browser របស់អ្នកដោយផ្ទាល់។"
-                    : "Camera frames are processed locally in your browser."
+                  ? t("tools.scanner.theImageStaysLocalInYourBrowserWhileIt")
+                  : t("tools.scanner.cameraFramesAreProcessedLocallyInYourBrowser")
               }}
             </p>
           </div>
@@ -743,10 +711,10 @@ const cameraFrameStyle = computed(() => ({
     >
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold text-slate-900 dark:text-white">
-          {{ isKhmer ? "ទិន្នន័យផ្សេងទៀតដែលរកឃើញ" : "Additional decoded items" }}
+          {{ t("tools.scanner.additionalDecodedItems") }}
         </h2>
         <p class="text-xs text-slate-500 dark:text-white/50">
-          {{ isKhmer ? `បន្ថែម ${multipleResults.length} ទៀត` : `${multipleResults.length} more` }}
+          {{ t("tools.scanner.more", { multipleResultsLength: multipleResults.length }) }}
         </p>
       </div>
 
@@ -770,7 +738,7 @@ const cameraFrameStyle = computed(() => ({
 
             <DeveloperToolsCopyButton
               :text="item.rawValue"
-              :label="isKhmer ? 'ចម្លង' : 'Copy'"
+              :label="t(&quot;tools.scanner.copy&quot;)"
               variant="secondary"
             />
           </div>
@@ -786,17 +754,17 @@ const cameraFrameStyle = computed(() => ({
           <h2
             class="text-sm font-semibold uppercase tracking-wide text-white/70"
           >
-            {{ isKhmer ? "របៀបដំណើរការ" : "How it works" }}
+            {{ t("tools.scanner.howItWorks") }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-white/80">
-            {{ isKhmer ? "ជ្រើសរើសរូបភាពច្បាស់ រួចទុកឱ្យ browser អានទិន្នន័យដោយផ្ទាល់ និងចម្លងលទ្ធផលនៅពេលស្កេនរួចរាល់។" : "Choose a clear image, let the browser decode it locally, and copy the result once the code is found." }}
+            {{ t("tools.scanner.chooseAClearImageLetTheBrowserDecodeIt") }}
           </p>
         </div>
 
         <ul class="space-y-2 text-sm leading-6 text-white/75">
           <li>• {{ scannerCopy.hint }}</li>
-          <li>• {{ isKhmer ? "ការស្កេនទាំងអស់រក្សាទុកក្នុងឧបករណ៍របស់អ្នក។" : "The scan stays on your device." }}</li>
-          <li>• {{ isKhmer ? "អ្នកអាចប្តូររូបភាពថ្មីបានគ្រប់ពេល។" : "Replace the image whenever you need a different file." }}</li>
+          <li>• {{ t("tools.scanner.theScanStaysOnYourDevice") }}</li>
+          <li>• {{ t("tools.scanner.replaceTheImageWheneverYouNeedADifferentFile") }}</li>
         </ul>
       </div>
     </section>

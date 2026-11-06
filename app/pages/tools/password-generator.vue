@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "បង្កើតពាក្យសម្ងាត់សុវត្ថិភាព" : "Password Generator" }}
+        {{ t("tools.passwordGenerator.passwordGenerator") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "បង្កើតពាក្យសម្ងាត់ចៃដន្យរឹងមាំ ដោយអាចកំណត់ប្រវែង និងប្រភេទតួអក្សរបានតាមតម្រូវការ។" : "Generate strong random passwords with length and character-set controls." }}
+        {{ t("tools.passwordGenerator.generateStrongRandomPasswordsWithLengthAndCharacterSet") }}
       </p>
     </div>
 
@@ -14,7 +14,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "ប្រវែង" : "Length" }}: {{ options.length }}
+              {{ t("tools.passwordGenerator.length") }}: {{ options.length }}
             </label>
             <input
               v-model.number="options.length"
@@ -49,25 +49,25 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="generate"
             >
-              {{ isKhmer ? "បង្កើតថ្មី" : "Generate" }}
+              {{ t("tools.passwordGenerator.generate") }}
             </button>
-            <CopyButton :text="password" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+            <CopyButton :text="password" :label="t(&quot;tools.passwordGenerator.copy&quot;)" />
           </div>
-          <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+          <p v-if="error" class="text-sm text-red-600">{{ localizeToolError(error, isKhmer) }}</p>
         </div>
 
         <div class="space-y-2">
           <label class="block text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "ពាក្យសម្ងាត់ដែលបានបង្កើត" : "Generated password" }}
+            {{ t("tools.passwordGenerator.generatedPassword") }}
           </label>
           <textarea
             v-model="password"
             readonly
             class="h-64 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            :placeholder="isKhmer ? 'ពាក្យសម្ងាត់ដែលបានបង្កើតនឹងបង្ហាញនៅទីនេះ' : 'Generated password appears here'"
+            :placeholder="t(&quot;tools.passwordGenerator.generatedPasswordAppearsHere&quot;)"
           />
           <p class="text-xs text-gray-500">
-            {{ isKhmer ? "ដំណើរការដោយប្រើ Browser Crypto API ប្រកបដោយសុវត្ថិភាព។" : "Randomness uses the browser crypto API when available." }}
+            {{ t("tools.passwordGenerator.randomnessUsesTheBrowserCryptoApiWhenAvailable") }}
           </p>
         </div>
       </div>
@@ -76,18 +76,24 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { generatePassword } from "~/lib/developer-tools";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "Password Generator - ChlatWork",
-  description:
-    "Generate strong random passwords with customizable length, symbols, numbers, and letter options.",
-  ogTitle: "Password Generator - ChlatWork",
-  ogDescription: "Generate strong random passwords in your browser.",
+  title: () => t("tools.passwordGenerator.metaTitle"),
+  description: () => t("tools.passwordGenerator.metaDescription"),
+  ogTitle: () => t("tools.passwordGenerator.metaOgTitle"),
+  ogDescription: () => t("tools.passwordGenerator.metaOgDescription"),
 });
 
 type PasswordOptionKey = "lowercase" | "uppercase" | "numbers" | "symbols";
@@ -101,10 +107,10 @@ const options = reactive<Record<PasswordOptionKey, boolean> & { length: number }
 });
 
 const optionRows = computed<Array<{ key: PasswordOptionKey; label: string }>>(() => [
-  { key: "lowercase", label: isKhmer.value ? "អក្សរតូច (a-z)" : "Lowercase letters" },
-  { key: "uppercase", label: isKhmer.value ? "អក្សរធំ (A-Z)" : "Uppercase letters" },
-  { key: "numbers", label: isKhmer.value ? "លេខ (0-9)" : "Numbers" },
-  { key: "symbols", label: isKhmer.value ? "និមិត្តសញ្ញា (!@#$)" : "Symbols" },
+  { key: "lowercase", label: t("tools.passwordGenerator.lowercaseLetters") },
+  { key: "uppercase", label: t("tools.passwordGenerator.uppercaseLetters") },
+  { key: "numbers", label: t("tools.passwordGenerator.numbers") },
+  { key: "symbols", label: t("tools.passwordGenerator.symbols") },
 ]);
 
 const password = ref("");

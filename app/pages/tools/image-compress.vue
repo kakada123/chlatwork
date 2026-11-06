@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+
+
+
 useSeoMeta({
-  title: "Image Compressor — ChlatWork",
-  description:
-    "Batch compress JPG, PNG, WebP, HEIC, and HEIF images without uploading. Reduce file size while keeping quality.",
-  ogTitle: "Image Compressor — ChlatWork",
-  ogDescription:
-    "Batch compress JPG, PNG, WebP, HEIC, and HEIF images in your browser.",
+  title: () => t("tools.imageCompress.metaTitle"),
+  description: () => t("tools.imageCompress.metaDescription"),
+  ogTitle: () => t("tools.imageCompress.metaOgTitle"),
+  ogDescription: () => t("tools.imageCompress.metaOgDescription"),
 });
 </script>
 

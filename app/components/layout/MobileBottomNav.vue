@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Home, Search, UserRound, Wrench } from "lucide-vue-next";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -33,7 +37,7 @@ const isAccountActive = computed(
   <nav
     class="fixed inset-x-3 z-50 sm:hidden"
     style="bottom: max(0.5rem, env(safe-area-inset-bottom))"
-    aria-label="Mobile primary navigation"
+    :aria-label="t(&quot;shared.components_layout_mobile_bottom_nav.mobile_primary_navigation&quot;)"
   >
     <div
       class="mx-auto grid max-w-md gap-1 rounded-[2rem] border border-slate-200/80 bg-white/80 p-1.5 shadow-[0_14px_40px_rgba(15,23,42,0.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#17191d]/85 dark:shadow-[0_16px_44px_rgba(0,0,0,0.48)]"
@@ -45,7 +49,7 @@ const isAccountActive = computed(
         :aria-current="isHomeActive ? 'page' : undefined"
       >
         <Home class="size-5 transition-transform" :class="{ 'mobile-nav-icon-active scale-110': isHomeActive }" aria-hidden="true" />
-        {{ isKhmer ? 'ទំព័រដើម' : 'Home' }}
+        {{ t("shared.components_layout_mobile_bottom_nav.home") }}
       </NuxtLink>
 
       <NuxtLink
@@ -54,7 +58,7 @@ const isAccountActive = computed(
         :aria-current="isToolsActive ? 'page' : undefined"
       >
         <Wrench class="size-5 transition-transform" :class="{ 'mobile-nav-icon-active scale-110': isToolsActive }" aria-hidden="true" />
-        {{ isKhmer ? 'ឧបករណ៍' : 'Tools' }}
+        {{ t("shared.common.tools") }}
       </NuxtLink>
 
       <!-- Quick Expense owns the centered circular action above this reserved column. -->
@@ -63,12 +67,12 @@ const isAccountActive = computed(
       <button
         type="button"
         :class="[baseClass, props.searchActive ? activeClass : inactiveClass, 'w-full']"
-        :aria-label="isKhmer ? 'ស្វែងរកក្នុង ChlatWork' : 'Search ChlatWork'"
+        :aria-label="t(&quot;shared.components_layout_mobile_app_header.search_chlat_work&quot;)"
         :aria-pressed="props.searchActive === true"
         @click="emit('search')"
       >
         <Search class="size-5 transition-transform" :class="{ 'scale-110': props.searchActive }" aria-hidden="true" /><!-- > Search -->
-        {{ isKhmer ? 'ស្វែងរក' : 'Search' }}
+        {{ t("shared.common.search") }}
       </button>
 
       <NuxtLink
@@ -77,7 +81,7 @@ const isAccountActive = computed(
         :aria-current="isAccountActive ? 'page' : undefined"
       >
         <UserRound class="size-5 transition-transform" :class="{ 'mobile-nav-icon-active scale-110': isAccountActive }" aria-hidden="true" /><!-- > Account -->
-        {{ isKhmer ? 'គណនី' : 'Account' }}
+        {{ t("shared.common.account") }}
       </NuxtLink>
     </div>
   </nav>

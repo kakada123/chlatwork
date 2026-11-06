@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -22,6 +23,7 @@ function moduleUrl(filename: string): string {
   const output = ts.transpileModule(script, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
     .replace(/from (["'])([^"']+)\1/g, (_, _quote, specifier: string) => {
       let target: string;
+      if (specifier === "~/composables/useAppI18n") return `from ${JSON.stringify(appI18nStubUrl)}`;
       if (specifier.startsWith("~/") || specifier.startsWith(".")) {
         let resolved = specifier.startsWith("~/") ? path.resolve("app", specifier.slice(2)) : path.resolve(path.dirname(filename), specifier);
         if (!path.extname(resolved)) resolved += ".ts";

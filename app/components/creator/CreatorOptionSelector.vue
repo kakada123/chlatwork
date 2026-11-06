@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useProductCopy } from "~/composables/useProductCopy";
+
+const { productText } = useProductCopy();
 const props = defineProps<{
   id: string;
   label: string;
@@ -34,7 +37,7 @@ const emit = defineEmits<{
         :aria-pressed="props.modelValue === option"
         @click="emit('update:modelValue', option)"
       >
-        {{ option }}
+        {{ productText(option === "Engagement" ? "Audience engagement" : option) }}
       </button>
     </div>
   </fieldset>

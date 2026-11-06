@@ -1,3 +1,4 @@
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ref, computed } from "vue";
 import { foodDirectionsUrl } from "~/lib/food-maps";
 import { useFoodResults } from "~/composables/useFoodResults";
@@ -121,6 +122,7 @@ export interface RandomFoodSuggestion {
 }
 
 export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
+  const { t } = useAppI18n();
   const mode = ref<DiscoveryMode>("dine-out");
   const mealTime = ref<MealTime>("lunch");
   const occasion = ref<Occasion>("friends");
@@ -296,7 +298,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
     if (typeof window === "undefined" || !navigator.geolocation) {
       locationError.value = true;
       errorMessage.value =
-        "ឧបករណ៍របស់អ្នកមិនគាំទ្រ Geolocation ទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
+        "products.food.errors.geolocation_unsupported";
       return;
     }
 
@@ -317,7 +319,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         };
-        locationLabel.value = "ទីតាំងបច្ចុប្បន្នរបស់អ្នក (GPS)";
+        locationLabel.value = "products.food.location.current_gps";
         selectedDistrictId.value = "";
         isLocating.value = false;
         locationError.value = false;
@@ -329,13 +331,13 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
         isLocating.value = false;
         locationError.value = true;
         userCoords.value = null;
-        if (!selectedDistrictId.value) locationLabel.value = "សូមជ្រើសរើសតំបន់ជំនួស GPS";
+        if (!selectedDistrictId.value) locationLabel.value = "products.food.location.choose_area";
         if (err.code === err.PERMISSION_DENIED) {
           errorMessage.value =
-            "កម្មវិធីអ៊ីនធឺណិតមិនអនុញ្ញាត GPS ទេ។ អ្នកនៅតែអាចស្វែងរកដោយជ្រើសតំបន់ ឬចុច «ប្រើតំបន់ដែលបានជ្រើស»។ បើចង់ប្រើ GPS សូមបើក Location ក្នុងសិទ្ធិរបស់គេហទំព័រ។";
+            "products.food.errors.geolocation_denied";
         } else {
           errorMessage.value =
-            "មិនអាចកំណត់ទីតាំង GPS បានទេ។ សូមជ្រើសរើសខណ្ឌខាងក្រោម។";
+            "products.food.errors.geolocation_failed";
         }
       },
       { timeout: 8000, enableHighAccuracy: false },
@@ -394,7 +396,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
   }
 
   async function sharePlace(place: RankedPlace) {
-    const text = `🍲 រកឃើញកន្លែងញ៉ាំបាយឆ្ងាញ់តាម ChlatWork Food:\n«${place.name}»\nទីតាំង: ${place.street || place.city}\nទិសដៅ: https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+    const text = t("products.food.share.place", { name: place.name, address: place.street || place.city, lat: place.lat, lng: place.lng });
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
@@ -411,7 +413,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
 
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       await navigator.clipboard.writeText(text);
-      copyNotification.value = "បានចម្លងព័ត៌មានរួចរាល់!";
+      copyNotification.value = "products.food.share.copied";
       setTimeout(() => {
         copyNotification.value = null;
       }, 3000);
@@ -448,7 +450,7 @@ export function useFoodDiscovery(options: { waitForAccount?: boolean } = {}) {
         selectedRecipe.value = recipe;
     } catch {
       if (request === sharedRecipeRequest && accountRevision === discoveryAccountRevision)
-        recipeDetailError.value = "មិនអាចផ្ទុករូបមន្តបានទេ។ សូមចុចមើលម្ដងទៀត។";
+        recipeDetailError.value = "products.food.errors.recipe_detail";
     } finally {
       if (request === sharedRecipeRequest) isSharedRecipeLoading.value = false;
     }

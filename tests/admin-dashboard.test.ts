@@ -1,3 +1,4 @@
+import { assertSourceMessage } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -27,10 +28,10 @@ test("admin dashboard reports aggregate and recent tool activity", () => {
   assert.match(service, /recentActivity/);
   assert.match(service, /COUNT\(DISTINCT "userId"\)/);
   assert.match(page, /middleware: "admin"/);
-  assert.match(dashboard, /Most used tools/);
-  assert.match(dashboard, /Most active users/);
-  assert.match(dashboard, /Recent activity/);
-  assert.match(dashboard, /never tool inputs or generated content/);
+  assertSourceMessage(dashboard, /Most used tools/);
+  assertSourceMessage(dashboard, /Most active users/);
+  assertSourceMessage(dashboard, /Recent activity/);
+  assertSourceMessage(dashboard, /never tool inputs or generated content/);
   assert.match(proxy, /requestAuthenticatedApi\(event, `\/admin\/analytics\?range=\$\{range\}`\)/);
 });
 

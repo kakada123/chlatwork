@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, ref } from "vue";
 import { FOOD_QUICK_PRESETS } from "~/lib/food-quick-presets";
+
+const { t } = useAppI18n();
+
 defineProps<{ active?: string | null; disabled?: boolean }>();
 const emit = defineEmits<{ (event: "select", id: string): void }>();
 const expanded = ref(false);
@@ -10,14 +14,14 @@ const visible = computed(() =>
 </script>
 
 <template>
-  <section class="min-w-0 space-y-3" aria-label="Quick food filters">
+  <section class="min-w-0 space-y-3" :aria-label="t(&quot;products.common.quick_food_filters&quot;)">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div>
         <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100">
-          ថ្ងៃនេះ ចង់ទៅបែបណា?
+          {{ t("products.food.quick.heading") }}
         </h3>
         <p class="mt-1 text-xs text-stone-500">
-          ជ្រើសសិន កែថវិកា និងចំនួនមនុស្ស រួចចុច «ស្នើឱ្យខ្ញុំ»
+          {{ t("products.food.quick.help") }}
         </p>
       </div>
       <button
@@ -26,7 +30,7 @@ const visible = computed(() =>
         :aria-expanded="expanded"
         @click="expanded = !expanded"
       >
-        {{ expanded ? "បង្ហាញតិច" : "មើលបន្ថែម +" }}
+        {{ expanded ? t("products.food.quick.less") : t("products.food.quick.more") }}
       </button>
     </div>
     <div class="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -52,10 +56,8 @@ const visible = computed(() =>
         <span class="min-w-0"
           ><span
             class="block break-words text-xs font-bold leading-relaxed text-stone-800 dark:text-stone-100 sm:text-sm"
-            >{{ preset.labelKm }}</span
-          ><span class="mt-0.5 block break-words text-[11px] text-stone-500">{{
-            preset.labelEn
-          }}</span></span
+            >{{ t(preset.labelKey) }}</span
+          ></span
         >
       </button>
     </div>

@@ -1,12 +1,13 @@
+import { translateMessage } from "./i18n.ts";
 import { secureRandomInt } from "./secure-random.ts";
 
 export const KLA_KLOK_SYMBOLS = [
-  { id: "tiger", labelKm: "ខ្លា", labelEn: "Tiger", glyph: "🐯" },
-  { id: "gourd", labelKm: "ឃ្លោក", labelEn: "Gourd", glyph: "🎃" },
-  { id: "rooster", labelKm: "មាន់", labelEn: "Rooster", glyph: "🐓" },
-  { id: "shrimp", labelKm: "បង្គា", labelEn: "Shrimp", glyph: "🦐" },
-  { id: "crab", labelKm: "ក្ដាម", labelEn: "Crab", glyph: "🦀" },
-  { id: "fish", labelKm: "ត្រី", labelEn: "Fish", glyph: "🐟" },
+  { id: "tiger", labelKey: "products.games.symbols.tiger", labelKm: translateMessage("km", "products.games.symbols.tiger"), labelEn: translateMessage("en", "products.games.symbols.tiger"), glyph: "🐯" },
+  { id: "gourd", labelKey: "products.games.symbols.gourd", labelKm: translateMessage("km", "products.games.symbols.gourd"), labelEn: translateMessage("en", "products.games.symbols.gourd"), glyph: "🎃" },
+  { id: "rooster", labelKey: "products.games.symbols.rooster", labelKm: translateMessage("km", "products.games.symbols.rooster"), labelEn: translateMessage("en", "products.games.symbols.rooster"), glyph: "🐓" },
+  { id: "shrimp", labelKey: "products.games.symbols.shrimp", labelKm: translateMessage("km", "products.games.symbols.shrimp"), labelEn: translateMessage("en", "products.games.symbols.shrimp"), glyph: "🦐" },
+  { id: "crab", labelKey: "products.games.symbols.crab", labelKm: translateMessage("km", "products.games.symbols.crab"), labelEn: translateMessage("en", "products.games.symbols.crab"), glyph: "🦀" },
+  { id: "fish", labelKey: "products.games.symbols.fish", labelKm: translateMessage("km", "products.games.symbols.fish"), labelEn: translateMessage("en", "products.games.symbols.fish"), glyph: "🐟" },
 ] as const;
 
 export type KlaKlokSymbolId = (typeof KLA_KLOK_SYMBOLS)[number]["id"];

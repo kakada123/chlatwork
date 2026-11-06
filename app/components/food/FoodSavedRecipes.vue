@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { onMounted, ref, watch } from "vue";
 import { useAuth } from "~/composables/useAuth";
 import { useSavedFoodRecipes } from "~/composables/useSavedFoodRecipes";
 import type { KhmerRecipe } from "~/composables/useFoodDiscovery";
+
+const { t } = useAppI18n();
+
 const props = defineProps<{ refreshKey: number; initiallyExpanded?: boolean; shared?: boolean }>();
 const emit = defineEmits<{ (event: "open", recipe: KhmerRecipe): void }>();
 const { user, isReady, fetchMe } = useAuth();
@@ -40,21 +44,21 @@ function date(value: string) {
     <summary
       class="cursor-pointer text-sm font-bold text-stone-800 dark:text-stone-100"
     >
-      📚 {{ shared ? 'រូបមន្តសម្រាប់គ្រប់គ្នា' : 'រូបមន្តដែលបានរក្សាទុក' }}
-      <span class="ml-1 font-normal text-stone-500">/ {{ shared ? 'Global recipes' : 'My recipes' }}</span>
+      📚 {{ shared ? t("products.food.saved.public_title") : t("products.food.saved.account_title") }}
+      <span class="ml-1 font-normal text-stone-500">/ {{ shared ? t("products.food.global_recipes") : t("products.food.my_recipes") }}</span>
     </summary>
     <div v-if="expanded" class="mt-4 space-y-3">
-      <p v-if="!shared && !isReady" class="text-sm text-stone-500">កំពុងផ្ទុកគណនី…</p>
+      <p v-if="!shared && !isReady" class="text-sm text-stone-500">{{ t("products.food.saved.loading_account") }}</p>
       <p v-else-if="!shared && !user" class="text-sm leading-relaxed text-stone-500">
-        ចូលគណនីមុនបង្កើតរូបមន្ត ដើម្បីរក្សាទុក និងមើលប្រវត្តិរបស់អ្នកនៅទីនេះ។
+        {{ t("products.food.saved.sign_in_help") }}
         <NuxtLink to="/account" class="font-semibold text-orange-600 underline"
-          >ចូលគណនី</NuxtLink
+          >{{ t("products.food.actions.sign_in") }}</NuxtLink
         >
       </p>
       <template v-else>
         <div class="flex flex-wrap items-center justify-between gap-2">
           <p class="text-xs text-stone-500">
-            {{ shared ? 'រូបមន្ត AI ដែលបានបង្កើតរួច សម្រាប់គ្រប់គ្នា' : 'រូបមន្ត AI របស់គណនីអ្នក' }} · បើកមើលបានដោយមិនបង្កើតឡើងវិញ
+            {{ shared ? t("products.food.saved.public_description") : t("products.food.saved.account_description") }} {{ t("products.food.saved.open_notice") }}
           </p>
           <button
             type="button"
@@ -62,7 +66,7 @@ function date(value: string) {
             class="text-xs font-semibold text-orange-600 disabled:opacity-50"
             @click="refresh"
           >
-            ផ្ទុកឡើងវិញ
+            {{ t("products.food.actions.refresh") }}
           </button>
         </div>
         <p
@@ -70,22 +74,21 @@ function date(value: string) {
           role="alert"
           class="rounded-xl bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
         >
-          {{ errorMessage }}
+          {{ t(errorMessage ?? "") }}
           <button
             type="button"
             :disabled="isLoading"
             class="underline"
             @click="recipes.length && hasMore ? loadMore() : refresh()"
           >
-            សាកម្ដងទៀត
+            {{ t("products.food.actions.retry") }}
           </button>
         </p>
         <p
           v-if="!isLoading && !errorMessage && !recipes.length"
           class="py-3 text-sm text-stone-500"
         >
-          មិនទាន់មានរូបមន្តទេ។
-          រូបមន្តថ្មីរបស់អ្នកនឹងត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ។
+          {{ t("products.food.saved.empty") }}
         </p>
         <div class="grid min-w-0 gap-2 sm:grid-cols-2">
           <button
@@ -99,8 +102,8 @@ function date(value: string) {
               class="block break-words text-sm font-bold text-stone-800 dark:text-stone-100"
               >{{ recipe.nameKm }}</span
             ><span class="mt-1 block text-xs text-stone-500"
-              >{{ recipe.servings }} នាក់ · ≈ ${{ recipe.estimatedCostUsd }} ·
-              {{ recipe.prepTimeMinutes + recipe.cookTimeMinutes }} នាទី</span
+              >{{ recipe.servings }} {{ t("products.food.saved.people_budget_separator") }}{{ recipe.estimatedCostUsd }} ·
+              {{ recipe.prepTimeMinutes + recipe.cookTimeMinutes }} {{ t("products.food.labels.minutes") }}</span
             ><time
               v-if="recipe.savedAt"
               :datetime="recipe.savedAt"
@@ -114,7 +117,7 @@ function date(value: string) {
           class="text-center text-xs text-stone-500"
           aria-live="polite"
         >
-          កំពុងផ្ទុករូបមន្ត…
+          {{ t("products.food.saved.loading") }}
         </p>
         <button
           v-else-if="hasMore"
@@ -122,7 +125,7 @@ function date(value: string) {
           class="rounded-xl border border-orange-200 px-4 py-2 text-xs font-semibold text-orange-600 dark:border-orange-900"
           @click="loadMore"
         >
-          មើលរូបមន្តបន្ថែម
+          {{ t("products.food.saved.more") }}
         </button>
       </template>
     </div>

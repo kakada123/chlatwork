@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import MobileLandingPage from "./MobileLandingPage.vue";
 
 import {
@@ -6,6 +7,8 @@ import {
   LANDING_TOOLS,
   type LandingTool,
 } from "~/data/tools";
+
+const { t } = useAppI18n();
 
 const POPULAR_TOOL_FALLBACK_KEYS = [
   "payback-calculator",
@@ -34,26 +37,37 @@ const popularToolKeys = ref<string[]>(
   POPULAR_TOOL_FALLBACK_KEYS.filter((key) => websiteEnabled(key)).slice(0, POPULAR_TOOL_CARD_COUNT),
 );
 
-const HOME_CATEGORY_COPY: Record<string, Pick<(typeof LANDING_CATEGORIES)[number], "name" | "description">> = {
-  pdf: { name: "Work with PDFs", description: "Merge, split, compress, reorder, and create PDF files." },
-  image: { name: "Prepare images", description: "Compress images and convert them into useful formats." },
-  "qr-barcode": { name: "Create codes", description: "Generate and scan QR codes, Wi-Fi codes, and barcodes." },
-  calculators: { name: "Calculate and track", description: "Split expenses, track spending, and calculate dates." },
-  "khmer-tools": { name: "Khmer and text", description: "Clean Khmer text and listen to written content." },
-  "developer-tools": { name: "Developer utilities", description: "Format, inspect, encode, test, and generate developer data." },
-};
+const HOME_CATEGORY_KEYS = {
+  "pdf": {
+    "name": "shared.home_categories.pdf_name",
+    "description": "shared.home_categories.pdf_description"
+  },
+  "image": {
+    "name": "shared.home_categories.image_name",
+    "description": "shared.home_categories.image_description"
+  },
+  "qr-barcode": {
+    "name": "shared.home_categories.qr_barcode_name",
+    "description": "shared.home_categories.qr_barcode_description"
+  },
+  "calculators": {
+    "name": "shared.home_categories.calculators_name",
+    "description": "shared.home_categories.calculators_description"
+  },
+  "khmer-tools": {
+    "name": "shared.home_categories.khmer_tools_name",
+    "description": "shared.home_categories.khmer_tools_description"
+  },
+  "developer-tools": {
+    "name": "shared.home_categories.developer_tools_name",
+    "description": "shared.home_categories.developer_tools_description"
+  }
+} as const;
 
-const HOME_CATEGORY_COPY_KM: Record<string, Pick<(typeof LANDING_CATEGORIES)[number], "name" | "description">> = {
-  pdf: { name: "ធ្វើការជាមួយ PDF", description: "បញ្ចូល បំបែក បង្រួម រៀបចំលំដាប់ និងបង្កើតឯកសារ PDF។" },
-  image: { name: "រៀបចំរូបភាព", description: "បង្រួមរូបភាព និងបម្លែងវាទៅជាទម្រង់ងាយប្រើ។" },
-  "qr-barcode": { name: "បង្កើត Code", description: "បង្កើត និងស្កេន QR code, Wi-Fi code និង barcode។" },
-  calculators: { name: "គណនា និងតាមដាន", description: "ចែកលុយ តាមដានការចំណាយ និងគណនាកាលបរិច្ឆេទ។" },
-  "khmer-tools": { name: "ឧបករណ៍ភាសាខ្មែរ", description: "កែសម្រួលអត្ថបទខ្មែរ និងអានអត្ថបទជាសំឡេង។" },
-  "developer-tools": { name: "ឧបករណ៍អ្នកអភិវឌ្ឍន៍", description: "រៀបចំ ពិនិត្យ encode សាកល្បង និងបង្កើតទិន្នន័យ dev។" },
-};
+
 
 const currentHomeCategoryCopy = computed(() =>
-  isKhmer.value ? HOME_CATEGORY_COPY_KM : HOME_CATEGORY_COPY,
+  Object.fromEntries(Object.entries(HOME_CATEGORY_KEYS).map(([key, copy]) => [key, { name: t(copy.name), description: t(copy.description) }])) as Record<string, { name: string; description: string }>,
 );
 
 function pickLandingTools(keys: readonly string[]) {
@@ -67,7 +81,7 @@ const popularTools = computed(() =>
   pickLandingTools(popularToolKeys.value).map(localizeTool),
 );
 const landingCategories = computed(() =>
-  LANDING_CATEGORIES.filter((category) => category.key in HOME_CATEGORY_COPY)
+  LANDING_CATEGORIES.filter((category) => category.key in HOME_CATEGORY_KEYS)
     .map((category) => ({ ...category, tools: category.tools.filter((tool) => websiteEnabled(tool.key)) }))
     .filter((category) => category.tools.length > 0)
     .map(localizeCategory)
@@ -116,7 +130,7 @@ onMounted(() => {
   <div
     class="mx-auto w-full max-w-[1200px] pb-24 text-slate-950 transition-colors sm:pb-0 dark:text-white"
   >
-    <h1 class="hidden sm:block sm:sr-only">{{ isKhmer ? "ឧបករណ៍អនឡាញឥតគិតថ្លៃសម្រាប់ការងារប្រចាំថ្ងៃ" : "Free online tools for everyday work" }}</h1>
+    <h1 class="hidden sm:block sm:sr-only">{{ t("shared.components_landing_hero_section.free_online_tools_for_everyday_work") }}</h1>
     <!-- Share the mobile content flow; its in-page header stays mobile-only. -->
     <MobileLandingPage
       :tools="landingTools"

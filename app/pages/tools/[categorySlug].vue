@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   findToolDirectoryCategoryBySlug,
   getToolsForDirectoryCategory,
 } from "~/data/tool-categories";
 import ToolDirectoryCard from "~/components/tools/ToolDirectoryCard.vue";
+
+const { t } = useAppI18n();
 
 const { isKhmer, localizeDirectoryCategory, localizeTool } = useLanguage();
 const route = useRoute();
@@ -26,9 +29,7 @@ const tools = computed(() =>
 const pageTitle = computed(() =>
   localizedCategory.value
     ? `${localizedCategory.value.title} - ChlatWork`
-    : isKhmer.value
-    ? "ឧបករណ៍ - ChlatWork"
-    : "Tools - ChlatWork",
+    : t("tools.categorySlug.toolsChlatWork"),
 );
 const pageDescription = computed(() => localizedCategory.value?.description ?? "");
 const canonicalUrl = computed(() =>
@@ -68,13 +69,13 @@ useHead(() => ({
           {
             "@type": "ListItem",
             position: 1,
-            name: isKhmer.value ? "ឧបករណ៍" : "Tools",
+            name: t("tools.categorySlug.tools"),
             item: `${siteUrl}/tools`,
           },
           {
             "@type": "ListItem",
             position: 2,
-            name: localizedCategory.value?.title ?? (isKhmer.value ? "ប្រភេទឧបករណ៍" : "Tool Category"),
+            name: localizedCategory.value?.title ?? (t("tools.categorySlug.toolCategory")),
             item: canonicalUrl.value,
           },
         ],
@@ -91,7 +92,7 @@ useHead(() => ({
         to="/tools"
         class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex"
       >
-        {{ isKhmer ? "← ឧបករណ៍ទាំងអស់" : "← All tools" }}
+        {{ t("tools.categorySlug.allTools") }}
       </NuxtLink>
 
       <div class="space-y-2">

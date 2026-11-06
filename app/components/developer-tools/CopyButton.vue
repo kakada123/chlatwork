@@ -10,11 +10,15 @@
     :disabled="disabled || !text"
     @click="copy"
   >
-    {{ copied ? "Copied" : label }}
+    {{ copied ? (t("tools.developer.copied")) : (label || t("tools.developer.copy")) }}
   </button>
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
 const props = withDefaults(
   defineProps<{
     text?: string;
@@ -24,7 +28,7 @@ const props = withDefaults(
   }>(),
   {
     text: "",
-    label: "Copy",
+    label: "",
     disabled: false,
     variant: "secondary",
   },

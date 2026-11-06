@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -12,12 +13,19 @@ const source = ts.transpileModule(readFileSync('app/composables/useTelegramPhone
 }).outputText;
 
 function setup({ phone = null, allowed = true, available = true, savedPhone = '+85512345678', fail = false } = {} as any) {
+  const isKhmer = ref(false);
   const user = ref({ id: 'account-123', phone, providers: ['TELEGRAM'] });
   const requests: Array<{ path: string; options: any }> = [];
   let prompts = 0;
   const exports: any = {};
   runInNewContext(source, {
     exports, ref, computed,
+    require: (name: string) => {
+      if (name === "~/composables/useAppI18n") return { useAppI18n: () => createI18nStub(isKhmer) };
+      if (name === "~/composables/useLanguage") return { useLanguage: () => ({ isKhmer }) };
+      throw new Error(`Unexpected dependency ${name}`);
+    },
+    useLanguage: () => ({ isKhmer }),
     useAuth: () => ({ user }),
     onMounted: (fn: () => void) => fn(),
     onScopeDispose: () => {},
@@ -34,7 +42,7 @@ function setup({ phone = null, allowed = true, available = true, savedPhone = '+
     clearTimeout: () => {},
   });
   const setting = exports.useTelegramPhone();
-  return { setting, user, requests, prompts: () => prompts };
+  return { setting, user, requests, isKhmer, prompts: () => prompts };
 }
 
 test('phone sharing defaults off without prompting on page load', () => {
@@ -90,4 +98,16 @@ test('normal browsers cannot enable sharing but can remove a saved phone', async
   const on = setup({ available: false, phone: '+85512345678' });
   await on.setting.toggle();
   assert.equal(on.setting.enabled.value, false);
+});
+
+
+test('changing the app language updates existing phone-sharing messages', async () => {
+  const { setting, isKhmer } = setup({ phone: '+85512345678', fail: true });
+  await setting.toggle();
+  assert.match(setting.error.value, /Could not update/);
+  isKhmer.value = true;
+  assert.match(setting.error.value, /មិនអាចកែ/);
+  assert.match(setting.description.value, /បានរក្សាទុក/);
+  isKhmer.value = false;
+  assert.match(setting.error.value, /Could not update/);
 });

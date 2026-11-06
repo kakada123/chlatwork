@@ -229,14 +229,12 @@ const formattedEventDate = computed(() => {
 });
 
 function formatKhmerEventDate(date: Date) {
-  const weekdays = ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"];
-  const months = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
-  const khmerDigits = (value: number) => String(value).replace(/\d/g, (digit) => "០១២៣៤៥៦៧៨៩"[Number(digit)]!);
-  const hour = date.getHours();
-  const period = hour < 12 ? "ព្រឹក" : "រសៀល";
-  const displayHour = hour % 12 || 12;
-  return `ថ្ងៃ${weekdays[date.getDay()]} ទី${khmerDigits(date.getDate())} ខែ${months[date.getMonth()]} ឆ្នាំ${khmerDigits(date.getFullYear())} ម៉ោង ${khmerDigits(displayHour)}:${khmerDigits(date.getMinutes()).padStart(2, "០")} ${period}`;
+  // Keep local event time and Khmer numerals while Intl owns month/day wording.
+  return new Intl.DateTimeFormat("km-KH-u-nu-khmr", {
+    dateStyle: "full", timeStyle: "short", hour12: true,
+  }).format(date);
 }
+
 const calendarUrl = computed(() => {
   const date = new Date(eventDate.value);
   if (Number.isNaN(date.getTime())) return "";

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 defineProps<{ modelValue: string }>();
@@ -8,7 +11,7 @@ const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 
 <template>
   <div>
-    <label for="developer-command-search" class="sr-only">{{ isKhmer ? "ស្វែងរកពាក្យបញ្ជា developer" : "Search developer commands" }}</label>
+    <label for="developer-command-search" class="sr-only">{{ t("tools.developerCommands.searchDeveloperCommands") }}</label>
     <div class="relative">
       <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400 dark:text-slate-500" aria-hidden="true">⌕</span>
       <input
@@ -17,7 +20,7 @@ const emit = defineEmits<{ "update:modelValue": [value: string] }>();
         :value="modelValue"
         autocomplete="off"
         class="h-11 w-full rounded-xl border border-slate-200/80 bg-white/90 pl-10 pr-20 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-300 focus:ring-2 focus:ring-sky-200/60 dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-cyan-500 dark:focus:ring-cyan-500/20"
-        :placeholder="isKhmer ? 'ស្វែងរកពាក្យបញ្ជា docker, git, port 3000...' : 'restart docker container, undo git commit, check port 3000...'"
+        :placeholder="t(&quot;tools.developerCommands.restartDockerContainerUndoGitCommitCheckPort3000&quot;)"
         @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       />
       <button
@@ -25,7 +28,7 @@ const emit = defineEmits<{ "update:modelValue": [value: string] }>();
         type="button"
         class="absolute inset-y-0 right-2 my-auto h-8 rounded-lg px-2.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
         @click="emit('update:modelValue', '')"
-      >{{ isKhmer ? "សម្អាត" : "Clear" }}</button>
+      >{{ t("tools.developerCommands.clear") }}</button>
     </div>
   </div>
 </template>

@@ -2,17 +2,17 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "ពន្លា JWT Decoder" : "JWT Decoder" }}
+        {{ t("tools.jwtDecoder.jwtDecoder") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "ពន្លា JWT header និង payload claims ដោយផ្ទាល់ក្នុង Browser។ មិនមានការផ្ទៀងផ្ទាត់ signature ឡើយ។" : "Decode JWT header and payload claims locally. Signature verification is not performed." }}
+        {{ t("tools.jwtDecoder.decodeJwtHeaderAndPayloadClaimsLocallySignatureVerification") }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="space-y-3">
         <label class="block text-sm font-semibold text-gray-900">
-          {{ isKhmer ? "កូដ JWT Token" : "JWT token" }}
+          {{ t("tools.jwtDecoder.jwtToken") }}
         </label>
         <textarea
           v-model="token"
@@ -26,30 +26,30 @@
             class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="decode"
           >
-            {{ isKhmer ? "ពន្លា (Decode)" : "Decode" }}
+            {{ t("tools.jwtDecoder.decode") }}
           </button>
           <button
             type="button"
             class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
             @click="clearAll"
           >
-            {{ isKhmer ? "សម្អាត" : "Clear" }}
+            {{ t("tools.jwtDecoder.clear") }}
           </button>
         </div>
 
         <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-          {{ decoded.warning }}
+          {{ t("tools.jwtDecoder.warning") }}
         </div>
 
-        <p v-if="decoded.error" class="text-sm text-red-600">{{ decoded.error }}</p>
+        <p v-if="decoded.error" class="text-sm text-red-600">{{ localizeToolError(decoded.error, isKhmer) }}</p>
       </div>
     </section>
 
     <section v-if="decoded.header || decoded.payload" class="grid gap-4 lg:grid-cols-2">
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-2 flex items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold text-gray-900">Header</h2>
-          <CopyButton :text="decoded.header" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+          <h2 class="text-sm font-semibold text-gray-900">{{ t("tools.jwtDecoder.header") }}</h2>
+          <CopyButton :text="decoded.header" :label="t(&quot;tools.jwtDecoder.copy&quot;)" />
         </div>
         <pre class="max-h-96 overflow-auto rounded-lg bg-gray-50 p-3 font-mono text-sm">{{
           decoded.header
@@ -58,8 +58,8 @@
 
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-2 flex items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold text-gray-900">Payload</h2>
-          <CopyButton :text="decoded.payload" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+          <h2 class="text-sm font-semibold text-gray-900">{{ t("tools.jwtDecoder.payload") }}</h2>
+          <CopyButton :text="decoded.payload" :label="t(&quot;tools.jwtDecoder.copy&quot;)" />
         </div>
         <pre class="max-h-96 overflow-auto rounded-lg bg-gray-50 p-3 font-mono text-sm">{{
           decoded.payload
@@ -72,30 +72,30 @@
       class="rounded-xl border bg-white p-4 shadow-sm"
     >
       <h2 class="mb-3 text-sm font-semibold text-gray-900">
-        {{ isKhmer ? "ព័ត៌មានលម្អិត Token" : "Token details" }}
+        {{ t("tools.jwtDecoder.tokenDetails") }}
       </h2>
       <dl class="grid gap-3 text-sm md:grid-cols-2">
         <div v-if="decoded.expiresAt" class="rounded-lg bg-gray-50 p-3">
           <dt class="font-semibold text-gray-700">
-            {{ isKhmer ? "ផុតកំណត់" : "Expires" }}
+            {{ t("tools.jwtDecoder.expires") }}
           </dt>
-          <dd class="mt-1 break-words text-gray-600">{{ decoded.expiresAt }}</dd>
+          <dd class="mt-1 break-words text-gray-600">{{ localizeJwtDateLabel(decoded.expiresAt, isKhmer) }}</dd>
         </div>
         <div v-if="decoded.issuedAt" class="rounded-lg bg-gray-50 p-3">
           <dt class="font-semibold text-gray-700">
-            {{ isKhmer ? "បង្កើតនៅ" : "Issued at" }}
+            {{ t("tools.jwtDecoder.issuedAt") }}
           </dt>
-          <dd class="mt-1 break-words text-gray-600">{{ decoded.issuedAt }}</dd>
+          <dd class="mt-1 break-words text-gray-600">{{ localizeJwtDateLabel(decoded.issuedAt, isKhmer) }}</dd>
         </div>
         <div v-if="decoded.notBefore" class="rounded-lg bg-gray-50 p-3">
           <dt class="font-semibold text-gray-700">
-            {{ isKhmer ? "មិនទាន់មានសុពលភាពមុន" : "Not before" }}
+            {{ t("tools.jwtDecoder.notBefore") }}
           </dt>
-          <dd class="mt-1 break-words text-gray-600">{{ decoded.notBefore }}</dd>
+          <dd class="mt-1 break-words text-gray-600">{{ localizeJwtDateLabel(decoded.notBefore, isKhmer) }}</dd>
         </div>
         <div v-if="decoded.signature" class="rounded-lg bg-gray-50 p-3">
           <dt class="font-semibold text-gray-700">
-            {{ isKhmer ? "ផ្នែក Signature" : "Signature segment" }}
+            {{ t("tools.jwtDecoder.signatureSegment") }}
           </dt>
           <dd class="mt-1 break-words font-mono text-gray-600">{{ decoded.signature }}</dd>
         </div>
@@ -105,18 +105,24 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError, localizeJwtDateLabel } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeJwt, type JwtDecodeResult } from "~/lib/developer-tools";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "JWT Decoder - ChlatWork",
-  description:
-    "Decode JWT header and payload claims locally with expiry, issued-at, and not-before details.",
-  ogTitle: "JWT Decoder - ChlatWork",
-  ogDescription: "Decode JWTs locally. Signature verification is not performed.",
+  title: () => t("tools.jwtDecoder.metaTitle"),
+  description: () => t("tools.jwtDecoder.metaDescription"),
+  ogTitle: () => t("tools.jwtDecoder.metaOgTitle"),
+  ogDescription: () => t("tools.jwtDecoder.metaOgDescription"),
 });
 
 const token = ref("");

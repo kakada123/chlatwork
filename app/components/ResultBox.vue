@@ -4,7 +4,7 @@
       v-if="error"
       class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-300/20 dark:bg-red-400/10 dark:text-red-100"
     >
-      {{ error }}
+      {{ localizeToolError(error, isKhmer) }}
     </div>
 
     <div
@@ -16,9 +16,7 @@
       "
     >
       <div class="flex items-center justify-between gap-2">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50">
-          Result
-        </p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50">{{ t("tools.result.result") }}</p>
 
         <button
           v-if="text"
@@ -26,7 +24,7 @@
           @click="onCopy"
           class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.12] dark:hover:text-white"
         >
-          {{ copied ? "Copied" : "Copy" }}
+          {{ copied ? (t("tools.result.copied")) : (t("tools.result.copy")) }}
         </button>
       </div>
 
@@ -35,14 +33,17 @@
         class="mt-2 whitespace-pre-wrap break-words text-sm text-slate-950 dark:text-white"
         >{{ text }}</pre
       >
-      <p v-else class="mt-2 text-sm text-slate-400 dark:text-white/40">
-        Nothing yet — run a calculation to see output here.
-      </p>
+      <p v-else class="mt-2 text-sm text-slate-400 dark:text-white/40">{{ t("tools.result.nothingYetRunACalculationToSeeOutputHere") }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
+
+const { t } = useAppI18n();
+const { isKhmer } = useLanguage();
 const props = defineProps<{
   text?: string;
   error?: string;

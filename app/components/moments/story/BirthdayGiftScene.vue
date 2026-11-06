@@ -1,16 +1,21 @@
-<script setup lang="ts">
-withDefaults(defineProps<{ opened: boolean; teaser: string; locale?: "en" | "km" }>(), { locale: "en" });
+<script setup lang="ts">import { computed } from "vue";
+
+import { useAppI18n } from "~/composables/useAppI18n";
+
+
+const props = withDefaults(defineProps<{ opened: boolean; teaser: string; locale?: "en" | "km" }>(), { locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 defineEmits<{ open: [] }>();
 </script>
 
 <template>
   <div class="gift-scene" :class="{ 'is-open': opened }">
-    <p class="story-description">{{ teaser || (locale === 'km' ? 'មានការភ្ញាក់ផ្អើលមួយសម្រាប់អ្នក។' : 'A little surprise, made just for you.') }}</p>
-    <button type="button" class="gift-box" data-action="open-gift" :aria-label="locale === 'km' ? 'បើកអំណោយ' : 'Open your gift'" :aria-pressed="opened" :disabled="opened" @click="$emit('open')">
+    <p class="story-description">{{ teaser || (t("products.moments.a_little_surprise_made_just_for_you")) }}</p>
+    <button type="button" class="gift-box" data-action="open-gift" :aria-label="t(&quot;products.moments.open_your_gift&quot;)" :aria-pressed="opened" :disabled="opened" @click="$emit('open')">
       <span class="gift-lid" aria-hidden="true"><i /></span><span class="gift-base" aria-hidden="true"><i /></span>
       <span class="gift-sparkle" aria-hidden="true">✨</span>
     </button>
-    <p class="story-description" role="status">{{ opened ? (locale === 'km' ? 'អំណោយបានបើកហើយ! តោះបន្ត។' : 'Your gift is open! Let’s see what’s inside.') : (locale === 'km' ? 'ចុចខ្សែបូដើម្បីបើកអំណោយ' : 'Tap the ribbon to open your gift') }}</p>
+    <p class="story-description" role="status">{{ opened ? (t("products.moments.your_gift_is_open_lets_see_whats_inside")) : (t("products.moments.tap_the_ribbon_to_open_your_gift")) }}</p>
   </div>
 </template>
 

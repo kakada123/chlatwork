@@ -1,13 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Image to PDF Converter</h1>
-      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-white/60">
-        Convert JPG, PNG, WebP, and HEIC images into one clean PDF file instantly.
-      </p>
-      <p class="mt-2 text-xs font-medium text-gray-400 dark:text-white/45">
-        Drag images inside the preview to change PDF order.
-      </p>
+      <h1 class="text-xl font-bold">{{ t("tools.imageToPdf.imageToPdfConverter") }}</h1>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-white/60">{{ t("tools.imageToPdf.convertJpgPngWebPAndHeicImagesInto") }}</p>
+      <p class="mt-2 text-xs font-medium text-gray-400 dark:text-white/45">{{ t("tools.imageToPdf.dragImagesInsideThePreviewToChangePdfOrder") }}</p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
@@ -79,9 +75,13 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import ToolPageDetails from "~/components/tools/ToolPageDetails.vue";
 import { useImageToPdfTool } from "~/composables/useImageToPdfTool";
 import { findToolGuideByToolRoute } from "~/data/tool-guides";
+
+const { t } = useAppI18n();
 
 const {
   pages,
@@ -112,19 +112,19 @@ const {
 } = useImageToPdfTool();
 const toolGuide = findToolGuideByToolRoute("/tools/image-to-pdf");
 
+
+
+
 useSeoMeta({
-  title: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
-  description:
-    "Convert JPG, PNG, WebP, and HEIC images into one PDF. Reorder pages, choose page size and margins, then download locally.",
-  ogTitle: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
-  ogDescription:
-    "Create one clean PDF from photos, scans, receipts, screenshots, or product images directly in your browser.",
+  title: () => t("tools.imageToPdf.metaTitle"),
+  description: () => t("tools.imageToPdf.metaDescription"),
+  ogTitle: () => t("tools.imageToPdf.metaOgTitle"),
+  ogDescription: () => t("tools.imageToPdf.metaOgDescription"),
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/image-to-pdf",
   twitterCard: "summary_large_image",
-  twitterTitle: "Image to PDF Converter - JPG, PNG, WebP, HEIC | ChlatWork",
-  twitterDescription:
-    "Convert images into one ordered PDF with page size, orientation, and margin controls.",
+  twitterTitle: () => t("tools.imageToPdf.metaTwitterTitle"),
+  twitterDescription: () => t("tools.imageToPdf.metaTwitterDescription"),
 });
 
 useHead({

@@ -217,12 +217,12 @@ test("summary markup has mobile overflow guards for extreme values", () => {
     "utf8",
   );
 
-  assert.match(source, /Total spent/);
-  assert.match(source, /Enter your budget/);
+  assert.match(source, /products\.expenses\.total_spent/);
+  assert.match(source, /products\.common\.enter_your_budget/);
   assert.match(source, /min-w-0/);
   assert.match(source, /truncate/);
   assert.match(source, /<MoneyAmount/);
-  assert.match(source, /Spending by category/);
+  assert.match(source, /products\.expenses\.spending_by_category/);
   assert.match(source, /:value="category\.total"/);
   assert.doesNotMatch(source, /Top expenses/);
 });
@@ -247,10 +247,10 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
 
   assert.match(page, /@click="openQuickExpense"/);
   assert.doesNotMatch(page, /<ExpenseTrackerInputCard|<QuickExpenseForm/);
-  assert.match(account, /Quick Expense button/);
-  assert.match(account, /aria-label="Show Quick Expense button"/);
+  assert.match(account, /shared\.pages_account\.quick_expense_button/);
+  assert.match(account, /shared\.pages_account\.show_quick_expense_button/);
   assert.doesNotMatch(page, /Enable quick expense button/);
-  assert.match(page, /Expense saved to your account/);
+  assert.match(page, /tools\.expenseTracker\.expenseSavedToYourAccount/);
   assert.match(page, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(header, /<header class="mb-6 hidden sm:block">/);
   assert.match(form, /fieldset class="min-w-0 max-w-full overflow-hidden"/);
@@ -260,17 +260,17 @@ test("expense dashboard keeps quick entry and responsive financial controls", ()
   assert.match(form, /hidden w-full max-w-full gap-2 sm:grid sm:grid-cols-6/);
   assert.match(form, /ref="categoryPicker".*sm:hidden/);
   assert.match(form, /selectMobileCategory\(item\)/);
-  assert.match(form, /aria-label="Choose custom category"/);
-  assert.match(form, /Enter your category/);
-  assert.match(form, /Add note \(optional\)/);
-  assert.match(form, /Remove note/);
+  assert.match(form, /products\.common\.choose_custom_category/);
+  assert.match(form, /products\.common\.enter_your_category/);
+  assert.match(form, /products\.expenses\.add_note_optional/);
+  assert.match(form, /products\.expenses\.remove_note/);
   assert.match(form, /showOptionalNote/);
   assert.match(form, /mobileNoteInput\.value\?\.focus\(\)/);
   assert.match(form, /showOptionalNote\.value = false;[\s\S]*note\.value = ""/);
   assert.match(form, /desktop-note/);
   assert.match(form, /mobile-note/);
   assert.match(form, /row\.customCategory = customCategory\.value\.trim\(\)/);
-  assert.match(form, /aria-label="Search categories"/);
+  assert.match(form, /products\.common\.search_categories/);
   assert.match(form, /sm:hidden"\n      :disabled="props.busy"/);
   assert.match(form, /group hidden rounded-2xl/);
   assert.doesNotMatch(page, /Show a floating Add expense button/);
@@ -319,12 +319,12 @@ test("quick expense floating action is opt-in, authenticated, and appends throug
   assert.match(fab, /mobileNavigationAction/);
   assert.match(fab, /props\.overlayActive \? 'z-\[110\]' : 'z-\[90\]'/);
   assert.match(fab, /left-1\/2 size-14 -translate-x-1\/2/);
-  assert.match(fab, /<span v-if="!props\.mobileNavigationAction" class="sm:hidden">Add expense<\/span>/);
+  assert.match(fab, /products\.expenses\.add_expense/);
   assert.doesNotMatch(fab, /route\.path !== "\/tools\/expense-tracker"/);
   assert.match(fab, /import QuickExpenseForm from "~\/components\/expense-tracker\/QuickExpenseForm\.vue"/);
   assert.match(fab, /import \{ useAuth \} from "~\/composables\/useAuth"/);
-  assert.match(fab, /Stay on track/);
-  assert.match(fab, /A quick entry now keeps your money clear later\./);
+  assert.match(fab, /products\.expenses\.stay_on_track/);
+  assert.match(fab, /products\.expenses\.a_quick_entry_now_keeps_your_money_clear_later/);
   assert.match(fab, /EXPENSE_SAVE_MOTIVATION/);
   assert.match(fab, /role="dialog"/);
   assert.match(fab, /window\.visualViewport\?\.addEventListener\("resize"/);

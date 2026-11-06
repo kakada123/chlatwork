@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, ref } from "vue";
 import { calendarDetailPath, parseCalendarDate } from "~/lib/calendar-sharing";
 import {
@@ -14,7 +15,17 @@ import {
 } from "~/lib/khmer-calendar";
 
 const props = defineProps<{ year: number; khmer: boolean }>();
+const { t } = useAppI18n(computed(() => props.khmer));
 const emit = defineEmits<{ select: [date: CalendarDate] }>();
+const categoryLabelKeys: Record<string, string> = {
+  "cambodian": "shared.calendar_categories.cambodian",
+  "chinese": "shared.calendar_categories.chinese",
+  "international": "shared.calendar_categories.international",
+  "family": "shared.calendar_categories.family",
+  "buddhist": "shared.calendar_categories.buddhist",
+  "christian": "shared.calendar_categories.christian",
+  "muslim": "shared.calendar_categories.muslim"
+};
 const search = ref("");
 const category = ref("all");
 const yearEvents = computed(() => getCalendarYearEvents(props.year));
@@ -42,9 +53,6 @@ const eventGroups = computed(() =>
     ),
   })).filter((group) => group.events.length),
 );
-function label(km: string, en: string) {
-  return props.khmer ? km : en;
-}
 function digits(value: number | string) {
   return props.khmer ? toKhmerDigits(value) : value;
 }
@@ -62,14 +70,11 @@ function eventPath(date: string, id: string) {
     <summary>
       <span
         ><strong>{{
-          label(
-            "ពិធីបុណ្យ និងឱកាសពិសេសពេញមួយឆ្នាំ",
-            "Festivals & special occasions throughout the year",
-          )
+          t("shared.calendar.festivals_special_occasions_throughout_the_year")
         }}</strong
         ><small
           >{{ digits(filteredEvents.length) }}
-          {{ label("ព្រឹត្តិការណ៍ ក្នុងឆ្នាំ", "events in") }}
+          {{ t("shared.calendar.events_in") }}
           {{ digits(year) }}</small
         ></span
       ><span aria-hidden="true">＋</span>
@@ -77,48 +82,42 @@ function eventPath(date: string, id: string) {
     <div class="browser-body">
       <p class="scope-note">
         {{
-          label(
-            "រួមមានពិធីបុណ្យកម្ពុជា ចិន សាសនា គ្រួសារ និងទិវាអន្តរជាតិសំខាន់ៗ។ ការប្រារព្ធអាចខុសគ្នាតាមសហគមន៍។ បញ្ជីនេះមិនរួមបញ្ចូលគ្រប់ពិធីតូចៗក្នុងតំបន់ទាំងអស់ទេ។",
-            "Includes Cambodian, Chinese, religious, family and major international occasions. Practices vary by community; this broad catalog does not cover every local ceremony.",
-          )
+          t("shared.calendar.includes_cambodian_chinese_religious_family_and_major_international_occasions")
         }}
       </p>
       <div class="browser-filters">
         <label
-          >{{ label("ស្វែងរកពិធីបុណ្យ", "Find a celebration")
+          >{{ t("shared.calendar.find_a_celebration")
           }}<input
             v-model="search"
             type="search"
             :placeholder="
-              label(
-                'ឧ. ណូអែល, Halloween, 2026-12',
-                'e.g. Christmas, ចូលឆ្នាំ, 2026-12',
-              )
+              t(&quot;shared.calendar.e_g_christmas_2026_12&quot;)
             "
         /></label>
         <label
-          >{{ label("ប្រភេទ", "Category")
+          >{{ t("shared.layouts_default.category")
           }}<ModernSelect
             v-model="category"
             class="w-full"
-            :search-placeholder="label('ស្វែងរកប្រភេទ…', 'Search categories…')"
+            :search-placeholder="t(&quot;shared.calendar.search_categories&quot;)"
           >
-            <option value="all">{{ label("ទាំងអស់", "All occasions") }}</option>
+            <option value="all">{{ t("shared.calendar.all_occasions") }}</option>
             <option value="public-holiday">
-              {{ label("ថ្ងៃឈប់សម្រាកផ្លូវការ", "Official public holidays") }}
+              {{ t("shared.calendar.official_public_holidays") }}
             </option>
             <option
               v-for="item in CELEBRATION_CATEGORIES"
               :key="item.key"
               :value="item.key"
             >
-              {{ khmer ? item.km : item.en }}
+              {{ t(categoryLabelKeys[item.key]!) }}
             </option>
           </ModernSelect></label
         >
       </div>
       <p class="result-count" role="status">
-        {{ digits(filteredEvents.length) }} {{ label("លទ្ធផល", "results") }}
+        {{ digits(filteredEvents.length) }} {{ t("shared.calendar.results") }}
       </p>
       <div v-if="eventGroups.length" class="annual-events">
         <section v-for="group in eventGroups" :key="group.month">
@@ -137,13 +136,10 @@ function eventPath(date: string, id: string) {
                   ><small :class="event.kind"
                     >{{
                       event.kind === "public-holiday"
-                        ? label("ថ្ងៃឈប់សម្រាកផ្លូវការ", "Public holiday")
-                        : label(
-                            "ពិធីបុណ្យ / ទិវារំលឹក",
-                            "Celebration / observance",
-                          )
+                        ? t("shared.calendar.public_holiday")
+                        : t("shared.calendar.celebration_observance")
                     }}<template v-if="event.estimated">
-                      · {{ label("ប៉ាន់ស្មាន", "Estimated") }}</template
+                      · {{ t("shared.calendar.estimated") }}</template
                     ></small
                   ><span v-if="event.noteEn" class="occasion-note">{{
                     khmer ? event.noteKm : event.noteEn
@@ -154,7 +150,7 @@ function eventPath(date: string, id: string) {
                 :to="eventPath(event.date, event.id)"
                 class="occasion-details"
                 >{{
-                  label("ព័ត៌មាន និងចែករំលែក", "Details & share")
+                  t("shared.calendar.details_share")
                 }}
                 ↗</NuxtLink
               >
@@ -164,14 +160,11 @@ function eventPath(date: string, id: string) {
       </div>
       <p v-else class="scope-note">
         {{
-          label(
-            "មិនមានលទ្ធផល។ សាកល្បងពាក្យផ្សេង ឬជ្រើសប្រភេទទាំងអស់។",
-            "No matching occasions. Try another search or choose All occasions.",
-          )
+          t("shared.calendar.no_matching_occasions_try_another_search_or_choose_all")
         }}
       </p>
       <div class="celebration-sources">
-        <span>{{ label("ប្រភព និងឯកសារយោង", "Sources & references") }}</span
+        <span>{{ t("shared.calendar.sources_references") }}</span
         ><a
           v-for="source in CELEBRATION_SOURCES"
           :key="source.url"

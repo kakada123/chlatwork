@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createRenderer, createSSRApp, h, nextTick, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
-import { ModernSelect } from "./helpers/load-modern-select.ts";
+import { ModernSelect, modernSelectIsKhmer } from "./helpers/load-modern-select.ts";
 
 class HostNode extends EventTarget {
   tag: string;
@@ -234,4 +234,28 @@ test("clearing a controlled model does not resurrect its previous local selectio
     assert.match(trigger.textContent, /Select an option/);
     assert.doesNotMatch(trigger.textContent, /Coffee/);
   } finally { view.unmount(); }
+});
+
+test("language changes update picker defaults without changing option values", async () => {
+  const view = await mountSelect(null);
+  try {
+    modernSelectIsKhmer.value = true;
+    await nextTick();
+    const trigger = view.nodes().find(node => node.props.class === "modern-select-trigger")!;
+    assert.match(trigger.textContent, /ជ្រើសរើសជម្រើសមួយ/);
+    await view.open();
+    const search = view.nodes().find(node => node.tag === "input")!;
+    assert.equal(search.props["aria-label"], "ស្វែងរកជម្រើស");
+    await view.search("missing choice");
+    assert.ok(view.nodes().some(node => node.textContent.includes("រកមិនឃើញជម្រើស។")));
+    modernSelectIsKhmer.value = false;
+    await nextTick();
+    assert.equal(search.props["aria-label"], "Search options");
+    await view.search("Coffee");
+    await view.choose("Coffee");
+    assert.equal(view.model.value, "coffee");
+  } finally {
+    modernSelectIsKhmer.value = false;
+    view.unmount();
+  }
 });

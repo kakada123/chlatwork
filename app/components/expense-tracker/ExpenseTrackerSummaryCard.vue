@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { computed, ref, useId } from "vue";
 import {
   ArrowUpRight,
@@ -24,6 +26,10 @@ import type {
 } from "~/lib/expense-tracker";
 import type { ExpenseTrendPoint } from "~/lib/expense-dashboard-view";
 import ExpenseSpendingTrend from "./ExpenseSpendingTrend.vue";
+
+const { t } = useAppI18n();
+
+const { productText, productCategoryText } = useProductCopy();
 
 const props = withDefaults(
   defineProps<{
@@ -115,7 +121,7 @@ const categorySlices = computed(() => {
 });
 const chartDescription = computed(() =>
   props.categoryBreakdown
-    .map((category) => `${category.category}: ${category.percent.toFixed(1)}%`)
+    .map((category) => `${productCategoryText(category.category, category.categoryKey)}: ${category.percent.toFixed(1)}%`)
     .join(", "),
 );
 const statusLabel = computed(() =>
@@ -124,25 +130,25 @@ const statusLabel = computed(() =>
 const metrics = computed(() => [
   {
     key: "income",
-    label: "Income",
+    label: t("products.expenses.income_alternative"),
     value: props.totalIncome,
     icon: Wallet,
     tone: "text-emerald-600 dark:text-emerald-300",
     surface: "bg-emerald-500/10",
-    note: "Received this period",
+    note: t("products.expenses.received_this_period"),
   },
   {
     key: "spent",
-    label: "Total spent",
+    label: t("products.expenses.total_spent"),
     value: props.totalSpent,
     icon: ShoppingCart,
     tone: "text-red-500 dark:text-red-300",
     surface: "bg-red-500/10",
-    note: "Daily average",
+    note: t("products.expenses.daily_average"),
   },
   {
     key: "net",
-    label: "Net balance",
+    label: t("products.expenses.net_balance"),
     value: props.netBalance,
     icon: Database,
     tone:
@@ -150,16 +156,16 @@ const metrics = computed(() => [
         ? "text-red-500 dark:text-red-300"
         : "text-sky-600 dark:text-cyan-200",
     surface: "bg-sky-500/10 dark:bg-cyan-200/10",
-    note: "Income − spent",
+    note: t("products.expenses.income_spent"),
   },
   {
     key: "items",
-    label: "Entries",
+    label: t("products.expenses.entries_alternative"),
     value: props.itemsCount,
     icon: List,
     tone: "text-sky-600 dark:text-cyan-200",
     surface: "bg-sky-500/10 dark:bg-cyan-200/10",
-    note: "In the selected period",
+    note: t("products.expenses.in_the_selected_period"),
   },
 ]);
 </script>
@@ -168,7 +174,7 @@ const metrics = computed(() => [
   <div class="min-w-0 space-y-4 text-slate-950 dark:text-white">
     <div
       class="grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4"
-      aria-label="Expense overview totals"
+      :aria-label="t(&quot;products.common.expense_overview_totals&quot;)"
     >
       <section
         v-for="metric in metrics"
@@ -180,7 +186,7 @@ const metrics = computed(() => [
         <button
           v-if="metric.key === 'income' || metric.key === 'net'"
           type="button"
-          :aria-label="`${isMetricVisible(metric.key) ? 'Hide' : 'Show'} ${metric.label.toLowerCase()}`"
+          :aria-label="`${isMetricVisible(metric.key) ? t(&quot;products.common.hide&quot;) : t(&quot;products.common.show&quot;)} ${metric.label.toLocaleLowerCase()}`"
           :aria-pressed="isMetricVisible(metric.key)"
           :aria-controls="`${metricValueId}-${metric.key}`"
           class="absolute left-2 top-1.5 flex size-8 shrink-0 items-center justify-center rounded-xl text-sky-600 transition hover:bg-sky-500/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:text-cyan-200 dark:hover:bg-cyan-200/10 dark:focus-visible:outline-cyan-200 sm:static sm:size-11 sm:bg-sky-500/10 dark:sm:bg-cyan-200/10"
@@ -207,9 +213,9 @@ const metrics = computed(() => [
           >
             <span class="sm:hidden">{{
               metric.key === "spent"
-                ? "Spent"
+                ? t("products.expenses.spent")
                 : metric.key === "net"
-                  ? "Net"
+                  ? t("products.expenses.net")
                   : metric.label
             }}</span
             ><span class="hidden sm:inline">{{ metric.label }}</span>
@@ -228,7 +234,7 @@ const metrics = computed(() => [
           >
             <span
               v-if="!isMetricVisible(metric.key)"
-              :aria-label="`${metric.label} hidden`"
+              :aria-label="`${metric.label} ${t(&quot;products.common.hidden&quot;)}`"
               >••••</span
             >
             <span v-else-if="metric.key === 'items'">{{ metric.value }}</span>
@@ -252,22 +258,22 @@ const metrics = computed(() => [
       <fieldset
         :disabled="busy"
         class="min-w-0 rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
-        aria-label="Budget"
+        :aria-label="t(&quot;products.expenses.budget&quot;)"
       >
         <div class="flex items-center justify-between gap-3">
           <h3 class="flex items-center gap-2 text-base font-bold">
             <Target
               class="h-5 w-5 text-sky-600 dark:text-cyan-200"
               aria-hidden="true"
-            />Budget
+            />{{ t("products.expenses.budget") }}
           </h3>
           <ModernSelect
             v-model="budget.period"
-            aria-label="Budget period"
+            :aria-label="t(&quot;products.common.budget_period&quot;)"
             class="h-9 rounded-lg bg-slate-100 px-2.5 text-xs font-semibold dark:bg-white/5"
           >
-            <option value="monthly">Monthly</option>
-            <option value="weekly">Weekly</option>
+            <option value="monthly">{{ t("products.expenses.monthly_alternative") }}</option>
+            <option value="weekly">{{ t("products.expenses.weekly_alternative") }}</option>
           </ModernSelect>
         </div>
         <div class="mt-4 grid min-w-0 grid-cols-2 gap-4 sm:block">
@@ -275,14 +281,14 @@ const metrics = computed(() => [
             <label
               :for="budgetAmountId"
               class="mb-1.5 block text-xs text-slate-500 dark:text-white/55"
-              >Budget amount</label
+              >{{ t("products.expenses.budget_amount") }}</label
             >
             <input
               :id="budgetAmountId"
               v-model.trim="budget.amount"
               inputmode="decimal"
               class="h-9 w-full min-w-0 rounded-lg border border-transparent bg-transparent text-xl font-bold outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 dark:focus:border-cyan-200 dark:focus:ring-cyan-200/10 sm:h-11 sm:rounded-xl sm:border-slate-200 sm:px-3 sm:text-lg dark:sm:border-white/10"
-              placeholder="Enter your budget"
+              :placeholder="t(&quot;products.common.enter_your_budget&quot;)"
             />
           </div>
           <div
@@ -290,7 +296,7 @@ const metrics = computed(() => [
           >
             <p class="text-xs text-slate-500 dark:text-white/55">
               {{
-                budgetRemaining < 0 && budgetValue ? "Over budget" : "Remaining"
+                budgetRemaining < 0 && budgetValue ? t("products.expenses.over_budget") : t("products.expenses.remaining")
               }}
             </p>
             <p
@@ -311,7 +317,7 @@ const metrics = computed(() => [
         </div>
         <div class="mt-4 hidden grid-cols-2 gap-4 sm:grid">
           <div class="min-w-0">
-            <p class="text-xs text-slate-500 dark:text-white/55">Spent</p>
+            <p class="text-xs text-slate-500 dark:text-white/55">{{ t("products.expenses.spent") }}</p>
             <p class="mt-1 truncate text-xl font-bold">
               <MoneyAmount :value="totalSpent" :currency="currency" />
             </p>
@@ -319,7 +325,7 @@ const metrics = computed(() => [
           <div class="min-w-0">
             <p class="text-xs text-slate-500 dark:text-white/55">
               {{
-                budgetRemaining < 0 && budgetValue ? "Over budget" : "Remaining"
+                budgetRemaining < 0 && budgetValue ? t("products.expenses.over_budget") : t("products.expenses.remaining")
               }}
             </p>
             <p
@@ -341,7 +347,7 @@ const metrics = computed(() => [
         <div class="mt-4 flex items-center gap-3">
           <div
             role="progressbar"
-            aria-label="Budget used"
+            :aria-label="t(&quot;products.common.budget_used&quot;)"
             :aria-valuenow="Math.min(100, Math.max(0, budgetPercent))"
             aria-valuemin="0"
             aria-valuemax="100"
@@ -365,9 +371,9 @@ const metrics = computed(() => [
         <div
           class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs"
         >
-          <span :class="budgetStatus.text">{{ statusLabel }}</span
+          <span :class="budgetStatus.text">{{ productText(statusLabel) }}</span
           ><span class="text-slate-400 dark:text-white/40"
-            >For the selected date range</span
+            >{{ t("products.expenses.for_the_selected_date_range") }}</span
           >
         </div>
       </fieldset>
@@ -383,23 +389,23 @@ const metrics = computed(() => [
 
     <section
       class="min-w-0 rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
-      aria-label="Spending by category"
+      :aria-label="t(&quot;products.expenses.spending_by_category&quot;)"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h3 class="flex items-center gap-2 text-base font-bold">
           <ChartPie
             class="h-5 w-5 text-sky-600 dark:text-cyan-200"
             aria-hidden="true"
-          />Spending by category
+          />{{ t("products.expenses.spending_by_category") }}
         </h3>
         <ModernSelect
           v-model="categorySort"
-          aria-label="Sort categories"
+          :aria-label="t(&quot;products.common.sort_categories&quot;)"
           class="h-9 rounded-lg bg-slate-100 px-2.5 text-xs font-semibold dark:bg-white/5"
         >
-          <option value="highest">Highest first</option>
-          <option value="lowest">Lowest first</option>
-          <option value="name">Name A–Z</option>
+          <option value="highest">{{ t("products.expenses.highest_first") }}</option>
+          <option value="lowest">{{ t("products.expenses.lowest_first") }}</option>
+          <option value="name">{{ t("products.expenses.name_a_z") }}</option>
         </ModernSelect>
       </div>
       <div
@@ -412,12 +418,12 @@ const metrics = computed(() => [
           <svg
             viewBox="0 0 200 200"
             role="img"
-            aria-label="Category breakdown chart"
+            :aria-label="t(&quot;products.common.category_breakdown_chart&quot;)"
             :aria-labelledby="chartTitleId"
             class="h-full w-full"
           >
             <title :id="chartTitleId">
-              Spending by category donut chart. {{ chartDescription }}
+              {{ t("products.expenses.spending_by_category_donut_chart") }} {{ chartDescription }}
             </title>
             <circle
               v-if="categorySlices.length === 1"
@@ -449,7 +455,7 @@ const metrics = computed(() => [
               ><MoneyAmount :value="totalSpent" :currency="currency" /></span
             ><span
               class="mt-1 text-[9px] text-slate-500 dark:text-white/50 sm:text-[11px]"
-              >Total spent</span
+              >{{ t("products.expenses.total_spent") }}</span
             >
           </div>
         </div>
@@ -474,7 +480,7 @@ const metrics = computed(() => [
               <span
                 :title="category.category"
                 class="min-w-0 truncate flex-1 text-[11px] font-medium sm:text-sm"
-                >{{ category.category }}</span
+                >{{ productCategoryText(category.category, category.categoryKey) }}</span
               >
               <span
                 class="shrink-0 text-[11px] font-semibold tabular-nums sm:text-sm"
@@ -496,8 +502,8 @@ const metrics = computed(() => [
           >
             {{
               showAllCategories
-                ? "Show fewer categories"
-                : "View all categories"
+                ? t("products.expenses.show_fewer_categories")
+                : t("products.expenses.view_all_categories")
             }}<ChevronRight
               class="size-3.5"
               :class="showAllCategories ? '-rotate-90' : 'rotate-90'"
@@ -507,7 +513,7 @@ const metrics = computed(() => [
         </div>
       </div>
       <p v-else class="py-6 text-sm text-slate-500 dark:text-white/50">
-        Add expenses to see spending by category.
+        {{ t("products.expenses.add_expenses_to_see_spending_by_category") }}
       </p>
     </section>
 
@@ -520,14 +526,14 @@ const metrics = computed(() => [
       <slot name="entries" />
       <section
         class="rounded-2xl bg-white p-4 ring-1 ring-slate-200/80 dark:bg-[#101214] dark:ring-white/[0.08] sm:p-5"
-        aria-label="Expense insights"
+        :aria-label="t(&quot;products.common.expense_insights&quot;)"
       >
         <div class="flex items-center justify-between gap-3">
           <h3 class="flex items-center gap-2 text-base font-bold">
             <Lightbulb
               class="h-5 w-5 text-sky-600 dark:text-cyan-200"
               aria-hidden="true"
-            />Insights &amp; tips
+            />{{ t("products.expenses.insights_tips") }}
           </h3>
           <button
             type="button"
@@ -535,7 +541,7 @@ const metrics = computed(() => [
             class="flex min-h-9 items-center gap-1 text-xs font-semibold text-sky-700 dark:text-cyan-200 sm:hidden"
             @click="showAllInsights = !showAllInsights"
           >
-            {{ showAllInsights ? "Less" : "More"
+            {{ showAllInsights ? t("products.expenses.less") : t("products.expenses.more")
             }}<ChevronDown
               class="size-3.5"
               :class="showAllInsights ? 'rotate-180' : ''"
@@ -554,7 +560,7 @@ const metrics = computed(() => [
             /></span>
             <div class="min-w-0">
               <h4 class="text-sm font-semibold">
-                Biggest category: {{ categoryBreakdown[0]?.category }}
+                {{ t("products.expenses.biggest_category") }} {{ productCategoryText(categoryBreakdown[0]?.category ?? "", categoryBreakdown[0]?.categoryKey) }}
               </h4>
               <p
                 class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/55"
@@ -563,8 +569,7 @@ const metrics = computed(() => [
                   :value="categoryBreakdown[0]?.total ?? 0"
                   :currency="currency"
                 />
-                spent · {{ categoryBreakdown[0]?.percent.toFixed(0) }}% of this
-                period.
+                {{ t("products.expenses.spent_alternative") }} {{ categoryBreakdown[0]?.percent.toFixed(0) }}{{ t("products.expenses.of_this_period") }}
               </p>
             </div>
           </div>
@@ -582,7 +587,7 @@ const metrics = computed(() => [
             /></span>
             <div>
               <h4 class="text-sm font-semibold">
-                {{ budgetValue ? statusLabel : "Set your budget" }}
+                {{ budgetValue ? productText(statusLabel) : t("products.expenses.set_your_budget") }}
               </h4>
               <p
                 class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/55"
@@ -594,11 +599,11 @@ const metrics = computed(() => [
                   />
                   {{
                     budgetRemaining < 0
-                      ? "over your budget."
-                      : "left in your budget."
+                      ? t("products.expenses.over_your_budget")
+                      : t("products.expenses.left_in_your_budget")
                   }}</template
                 ><template v-else
-                  >Add a budget amount to track your spending.</template
+                  >{{ t("products.expenses.add_a_budget_amount_to_track_your_spending") }}</template
                 >
               </p>
             </div>
@@ -612,10 +617,9 @@ const metrics = computed(() => [
               ><CalendarDays class="h-4 w-4" aria-hidden="true"
             /></span>
             <div>
-              <h4 class="text-sm font-semibold">Average daily spending</h4>
+              <h4 class="text-sm font-semibold">{{ t("products.expenses.average_daily_spending") }}</h4>
               <p class="mt-1 text-xs text-slate-500 dark:text-white/55">
-                <MoneyAmount :value="dailyAvg" :currency="currency" /> per day
-                in this date range.
+                <MoneyAmount :value="dailyAvg" :currency="currency" /> {{ t("products.expenses.per_day_in_this_date_range") }}
               </p>
             </div>
           </div>
@@ -624,7 +628,7 @@ const metrics = computed(() => [
           class="mt-4 text-xs leading-5 text-slate-400 dark:text-white/40"
           :class="showAllInsights ? 'block' : 'hidden sm:block'"
         >
-          Keep categories consistent to make your spending easier to compare.
+          {{ t("products.expenses.keep_categories_consistent_to_make_your_spending_easier_to_compare") }}
         </p>
       </section>
     </div>
@@ -638,7 +642,7 @@ const metrics = computed(() => [
         <ChartNoAxesCombined
           class="size-4 text-sky-600 dark:text-cyan-200"
           aria-hidden="true"
-        />Spending trend<ChevronDown
+        />{{ t("products.expenses.spending_trend") }}<ChevronDown
           class="ml-auto size-4"
           aria-hidden="true"
         />

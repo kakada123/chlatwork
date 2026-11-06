@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
 import { formatFileSize } from "~/lib/pdf-tools";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
@@ -18,9 +21,9 @@ defineEmits<{
 <template>
   <div class="space-y-2">
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-sm font-bold text-slate-950 dark:text-white">{{ isKhmer ? "ឯកសារដែលបានជ្រើសរើស" : "Selected files" }}</h2>
+      <h2 class="text-sm font-bold text-slate-950 dark:text-white">{{ t("tools.pdf.selectedFiles") }}</h2>
       <span class="text-xs text-slate-500 dark:text-white/50">
-        {{ isKhmer ? `ឯកសារចំនួន ${files.length}` : `${files.length} file${files.length === 1 ? "" : "s"}` }}
+        {{ t("tools.pdf.file", { filesLength: files.length, filesLengthS: files.length === 1 ? "" : "s" }) }}
       </span>
     </div>
 
@@ -28,7 +31,7 @@ defineEmits<{
       v-if="files.length === 0"
       class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/55"
     >
-      {{ isKhmer ? "មិនទាន់មានឯកសារត្រូវបានជ្រើសរើសនៅឡើយទេ។" : "No files selected yet." }}
+      {{ t("tools.pdf.noFilesSelectedYet") }}
     </div>
 
     <ul v-else class="space-y-2">
@@ -59,7 +62,7 @@ defineEmits<{
             :disabled="index === 0"
             @click="$emit('move', index, -1)"
           >
-            {{ isKhmer ? "ឡើងលើ" : "Up" }}
+            {{ t("tools.pdf.up") }}
           </button>
           <button
             type="button"
@@ -67,7 +70,7 @@ defineEmits<{
             :disabled="index === files.length - 1"
             @click="$emit('move', index, 1)"
           >
-            {{ isKhmer ? "ចុះក្រោម" : "Down" }}
+            {{ t("tools.pdf.down") }}
           </button>
         </span>
 
@@ -76,7 +79,7 @@ defineEmits<{
           class="h-9 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-300/20 dark:bg-red-300/10 dark:text-red-100"
           @click="$emit('remove', index)"
         >
-          {{ isKhmer ? "លុប" : "Remove" }}
+          {{ t("tools.pdf.remove") }}
         </button>
       </li>
     </ul>

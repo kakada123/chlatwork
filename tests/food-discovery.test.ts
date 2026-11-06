@@ -1,3 +1,5 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
+import { translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -31,6 +33,7 @@ function discovery(
       code,
     )(
       (name: string) => {
+        if (name === "~/composables/useAppI18n") return appI18nStub;
         if (name === "vue") return vue;
         if (name === "~/lib/food-maps") return maps;
         if (name === "~/lib/food-history") return history;
@@ -93,11 +96,15 @@ test("district search reports Google quota errors without blaming GPS or filters
   });
   state.onDistrictChange("tuol-kork");
   await state.getRecommendations();
-  assert.match(state.errorMessage.value, /Google Places/);
+  assert.equal(state.errorMessage.value, "products.food.errors.google_places_quota");
+  assert.match(translateMessage("en", state.errorMessage.value), /Google Places/);
+  assert.match(translateMessage("km", state.errorMessage.value), /Google Places/);
   assert.equal(state.selectedDistrictId.value, "tuol-kork");
   assert.equal(state.isLoading.value, false);
   await state.fetchRandomPick();
-  assert.match(state.errorMessage.value, /Google Places/);
+  assert.equal(state.errorMessage.value, "products.food.errors.google_places_quota");
+  assert.match(translateMessage("en", state.errorMessage.value), /Google Places/);
+  assert.match(translateMessage("km", state.errorMessage.value), /Google Places/);
 });
 
 test("a quota failure while loading more preserves restaurants and stops automatic pagination", async () => {
@@ -113,7 +120,9 @@ test("a quota failure while loading more preserves restaurants and stops automat
   });
   await state.getRecommendations();
   await state.loadMorePlaces();
-  assert.match(state.errorMessage.value, /Google Places/);
+  assert.equal(state.errorMessage.value, "products.food.errors.google_places_quota");
+  assert.match(translateMessage("en", state.errorMessage.value), /Google Places/);
+  assert.match(translateMessage("km", state.errorMessage.value), /Google Places/);
   assert.equal(state.places.value[0].id, "google:existing-place");
   assert.equal(state.paginationError.value, true);
   assert.equal(state.canAutoLoadMore.value, false);

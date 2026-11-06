@@ -1,3 +1,4 @@
+import * as i18n from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -5,7 +6,7 @@ import * as vue from "vue";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as jekluy from "../app/lib/jekluy.ts";
 
-function session(options: { saved?: string; denied?: boolean; navigator?: object } = {}) {
+function session(options: { saved?: string; denied?: boolean; navigator?: object; khmer?: boolean } = {}) {
   const mounted: (() => void)[] = [];
   let saved = options.saved ?? null;
   const storage = {
@@ -22,12 +23,15 @@ function session(options: { saved?: string; denied?: boolean; navigator?: object
   new Function("require", "module", "exports", code)((name: string) => {
     if (name === "vue") return { ...vue, onMounted: (fn: () => void) => mounted.push(fn) };
     if (name === "../lib/jekluy.ts") return jekluy;
+    if (name === "../lib/i18n.ts") return i18n;
     throw new Error(`Unexpected dependency: ${name}`);
   }, module, module.exports);
   const scope = vue.effectScope();
-  const state = scope.run(() => module.exports.useJekLuy());
+  const language = vue.ref(options.khmer ?? true);
+  const state = scope.run(() => module.exports.useJekLuy(language));
   return {
     state,
+    language,
     mount: () => mounted.forEach((fn) => fn()),
     saved: () => saved,
     close() {
@@ -200,4 +204,22 @@ test("KHR uses PayBack's separate leftover, persists explicit assignment and inv
     restored.state.draft.value.remainderMode = "LEFTOVER_ONLY";
     assert.deepEqual(restored.state.completedIds.value, []);
   } finally { restored.close(); }
+});
+
+test("JekLuy validation and device-storage notices follow the interface language without changing the draft", async () => {
+  const app = session({ denied: true, khmer: false });
+  try {
+    app.mount();
+    assert.match(app.state.storageMessage.value, /Could not read/);
+    fill(app.state);
+    app.state.draft.value.participants[0].amount = "invalid";
+    const original = JSON.stringify(app.state.draft.value);
+    assert.match(app.state.error.value.message, /whole riel amount/);
+    app.language.value = true;
+    assert.match(app.state.storageMessage.value, /[\u1780-\u17ff]/);
+    assert.match(app.state.error.value.message, /[\u1780-\u17ff]/);
+    assert.equal(JSON.stringify(app.state.draft.value), original);
+  } finally {
+    app.close();
+  }
 });

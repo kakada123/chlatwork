@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { t } = useAppI18n();
 defineProps<{
   covered: boolean;
   rolling: boolean;
@@ -29,14 +31,14 @@ defineProps<{
       <div class="kla-bowl-cover" aria-hidden="true">
         <div class="kla-bowl-knob" />
         <div class="kla-bowl-cover-body">
-          <span class="kla-bowl-mark">ខ្លាឃ្លោក</span>
+          <span class="kla-bowl-mark">{{ t("products.games.name") }}</span>
         </div>
         <div class="kla-bowl-cover-rim" />
       </div>
     </div>
 
     <span class="kla-bowl-state">
-      {{ rolling ? "កំពុងក្រឡុកចាន…" : covered ? "គ្រាប់នៅក្រោមគម្រប 👀" : "បើកចានហើយ! ✨" }}
+      {{ rolling ? t("products.games.board.rolling") : covered ? t("products.games.bowl.covered") : t("products.games.bowl.revealed") }}
     </span>
   </div>
 </template>

@@ -1,10 +1,19 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { EDITORIAL_AUTHOR, EDITORIAL_BYLINE } from "~/data/editorial-identity";
+import { localizePost } from "~/data/posts-km";
 import { findPostByPath } from "~/data/posts";
+
+const { t } = useAppI18n();
+
+const { isKhmer, locale } = useLanguage();
 
 const route = useRoute();
 const siteUrl = "https://chlatwork.com";
-const post = computed(() => findPostByPath(route.path));
+const post = computed(() => {
+  const source = findPostByPath(route.path);
+  return source ? localizePost(source, locale.value) : null;
+});
 const canonicalUrl = computed(() =>
   post.value ? `${siteUrl}${post.value.path}` : `${siteUrl}/posts`,
 );
@@ -18,15 +27,15 @@ watchEffect(() => {
   if (!post.value) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Post not found",
+      statusMessage: t("shared.pages_posts_post_slug.post_not_found"),
     });
   }
 });
 
 useSeoMeta({
-  title: computed(() => post.value?.title ?? "Post — ChlatWork"),
+  title: computed(() => post.value?.title ?? (t("shared.pages_posts_post_slug.post_chlat_work"))),
   description: computed(() => post.value?.description ?? ""),
-  ogTitle: computed(() => post.value?.title ?? "Post — ChlatWork"),
+  ogTitle: computed(() => post.value?.title ?? (t("shared.pages_posts_post_slug.post_chlat_work"))),
   ogDescription: computed(() => post.value?.description ?? ""),
   ogType: "article",
   ogUrl: canonicalUrl,
@@ -35,7 +44,7 @@ useSeoMeta({
   ogImageHeight: 630,
   ogImageAlt: computed(() => post.value?.imageAlt ?? "ChlatWork"),
   twitterCard: "summary_large_image",
-  twitterTitle: computed(() => post.value?.title ?? "Post — ChlatWork"),
+  twitterTitle: computed(() => post.value?.title ?? (t("shared.pages_posts_post_slug.post_chlat_work"))),
   twitterDescription: computed(() => post.value?.description ?? ""),
   twitterImage: socialImageUrl,
   twitterImageAlt: computed(() => post.value?.imageAlt ?? "ChlatWork"),
@@ -93,12 +102,12 @@ useHead(() => {
         to="/posts"
         class="inline-flex text-sm font-bold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
       >
-        All posts
+        {{ t("shared.pages_posts_post_slug.all_posts") }}
       </NuxtLink>
 
       <div class="space-y-4">
         <p class="text-xs font-bold uppercase tracking-[0.18em] text-sky-700 dark:text-cyan-300">
-          Daily Briefing
+          {{ t("shared.pages_posts_post_slug.daily_briefing") }}
         </p>
         <h1 class="text-4xl font-black leading-tight sm:text-6xl">
           {{ post.title }}
@@ -109,11 +118,11 @@ useHead(() => {
       </div>
 
       <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-white/50">
-        <span>{{ EDITORIAL_BYLINE }}</span>
+        <span>{{ t("shared.editorial.byline", { author: EDITORIAL_AUTHOR.name }) }}</span>
         <span aria-hidden="true">•</span>
         <time :datetime="post.publishedAt">{{ post.displayDate }}</time>
         <span aria-hidden="true">•</span>
-        <span>{{ post.readingMinutes }} min read</span>
+        <span>{{ post.readingMinutes }} {{ t("shared.pages_posts_post_slug.min_read") }}</span>
       </div>
 
       <figure class="overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 shadow-xl dark:border-white/10">
@@ -159,7 +168,7 @@ useHead(() => {
 
         <div class="rounded-2xl border border-sky-200 bg-sky-50 p-5 dark:border-cyan-300/20 dark:bg-cyan-300/10">
           <h3 class="font-black text-sky-950 dark:text-cyan-100">
-            Why it matters
+            {{ t("shared.pages_posts_post_slug.why_it_matters") }}
           </h3>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-7 text-sky-900/85 dark:text-cyan-100/80">
             <li v-for="item in section.whyItMatters" :key="item">{{ item }}</li>
@@ -170,14 +179,14 @@ useHead(() => {
 
     <section class="grid gap-5 md:grid-cols-2">
       <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.06]">
-        <h2 class="text-xl font-black">⚡ Developer Watch</h2>
+        <h2 class="text-xl font-black">{{ t("shared.pages_posts_post_slug.developer_watch") }}</h2>
         <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-white/65">
           <li v-for="item in post.developerWatch" :key="item">{{ item }}</li>
         </ul>
       </div>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.06]">
-        <h2 class="text-xl font-black">🔒 Security Watch</h2>
+        <h2 class="text-xl font-black">{{ t("shared.pages_posts_post_slug.security_watch") }}</h2>
         <ul class="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600 dark:text-white/65">
           <li v-for="item in post.securityWatch" :key="item">{{ item }}</li>
         </ul>
@@ -185,7 +194,7 @@ useHead(() => {
     </section>
 
     <section class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.06]">
-      <h2 class="text-2xl font-black">📈 Market Snapshot</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.pages_posts_post_slug.market_snapshot") }}</h2>
       <ul class="mt-4 space-y-3">
         <li
           v-for="item in post.marketSnapshot"
@@ -199,7 +208,7 @@ useHead(() => {
     </section>
 
     <section class="rounded-3xl bg-slate-950 p-6 text-white sm:p-8">
-      <h2 class="text-2xl font-black">Key Takeaways</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.pages_posts_post_slug.key_takeaways") }}</h2>
       <ol class="mt-5 space-y-3">
         <li
           v-for="(item, index) in post.keyTakeaways"
@@ -215,7 +224,7 @@ useHead(() => {
     </section>
 
     <aside class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-7 text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100/80">
-      <strong class="font-black">Editorial note:</strong>
+      <strong class="font-black">{{ t("shared.pages_posts_post_slug.editorial_note") }}</strong>
       {{ post.editorialNote }}
     </aside>
   </main>

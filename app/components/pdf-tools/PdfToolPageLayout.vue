@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { PdfToolDef } from "~/data/pdf-tools";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{
   tool: PdfToolDef;
@@ -10,8 +13,8 @@ const localizedTool = computed(() => localizeTool(props.tool));
 
 const parentDirectory = computed(() =>
   props.tool.category === "Developer Tools"
-    ? { label: isKhmer.value ? "ឧបករណ៍អ្នកអភិវឌ្ឍន៍" : "Developer tools", path: "/tools/developer-tools" }
-    : { label: isKhmer.value ? "ឧបករណ៍ PDF" : "PDF tools", path: "/tools/pdf" },
+    ? { label: t("tools.pdf.developerTools"), path: "/tools/developer-tools" }
+    : { label: t("tools.pdf.pdfTools"), path: "/tools/pdf" },
 );
 </script>
 

@@ -1,3 +1,6 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
+import { productCopyStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -21,6 +24,8 @@ function catalog(fetcher: (...args: any[]) => Promise<unknown>) {
   const module = { exports: {} as any };
   new Function("require", "module", "exports", "$fetch", code)(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return appI18nStub;
+      if (name === "~/composables/useProductCopy") return productCopyStub;
       if (name === "vue") return vue;
       throw new Error(name);
     },
@@ -81,6 +86,8 @@ test("food ideas show cooking instructions only for matched recipes and retain b
   const module = { exports: {} as any };
   new Function("require", "module", "exports", code)(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return appI18nStub;
+      if (name === "~/composables/useProductCopy") return productCopyStub;
       if (name === "vue") return vue;
       if (name === "~/composables/useFoodMenuCatalog")
         return { useFoodMenuCatalog: () => state };
@@ -97,8 +104,8 @@ test("food ideas show cooking instructions only for matched recipes and retain b
   assert.match(articles[0], /View how to cook/);
   assert.doesNotMatch(articles[1], /View how to cook/);
   for (const article of articles) {
-    assert.match(article, /រកហាងនៅជិត/);
-    assert.match(article, /បង្កើតរូបមន្ត AI/);
+    assert.match(article, /Find nearby restaurants/);
+    assert.match(article, /Create an AI recipe/);
   }
 });
 
@@ -182,4 +189,19 @@ test("failed catalog pages preserve results and disable infinite retry until an 
   state.category.value = "NOODLES";
   await state.loadMore();
   assert.equal(calls, 2);
+});
+
+
+test("an existing catalog error follows the interface language without retrying the request", async () => {
+  let requests = 0;
+  const state = catalog(async () => { requests++; throw new Error("Offline"); });
+  await state.search();
+  const locale = vue.ref(false);
+  const { t } = createI18nStub(locale);
+  const alert = vue.computed(() => t(state.errorMessage.value ?? ""));
+  assert.match(alert.value, /Could not load the food catalog/);
+  locale.value = true;
+  assert.match(alert.value, /មិនអាចផ្ទុកបញ្ជីមុខម្ហូប/);
+  assert.equal(state.errorMessage.value, "products.food.errors.catalog");
+  assert.equal(requests, 1);
 });

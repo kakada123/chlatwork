@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { LoaderCircle, Volume2, VolumeX } from "lucide-vue-next";
 import { readBirthdayAudioClip, type BirthdayAudioClip } from "~/lib/birthday-audio";
 import { createBirthdayAudioPlayer, type BirthdayAudioState } from "~/lib/birthday-audio-player";
 
 const props = withDefaults(defineProps<{ clip: BirthdayAudioClip; locale?: "en" | "km"; autoPlay?: boolean }>(), { locale: "en", autoPlay: true });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const audio = ref<HTMLAudioElement | null>(null);
 const state = ref<BirthdayAudioState>("paused");
 const selection = computed(() => readBirthdayAudioClip(props.clip));
@@ -12,7 +14,7 @@ const selection = computed(() => readBirthdayAudioClip(props.clip));
 const source = computed(() => selection.value ? `/api/moments/birthday-audio/${selection.value.trackId}` : "");
 const fragmentSource = computed(() => selection.value ? `${source.value}#t=${selection.value.startMs / 1000},${selection.value.endMs / 1000}` : "");
 const busy = computed(() => state.value === "playing" || state.value === "loading");
-const label = computed(() => props.locale === "km" ? (busy.value ? "បិទតន្ត្រី" : "បើកតន្ត្រី") : (busy.value ? "Turn music off" : "Turn music on"));
+const label = computed(() => t(busy.value ? "products.moments.music.turn_off" : "products.moments.music.turn_on"));
 let player: ReturnType<typeof createBirthdayAudioPlayer> | undefined;
 let manuallyPaused = false;
 let mounted = false;

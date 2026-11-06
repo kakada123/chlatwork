@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import {
   ArrowRight,
   Download,
@@ -20,6 +22,10 @@ import type {
   CreatorGenerationResult,
   CreatorResultSection,
 } from "~/services/creator-ai.service";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = defineProps<{
   tool: CreatorToolDefinition;
@@ -124,10 +130,10 @@ const allText = computed(() => {
         /></span>
         <div>
           <h2 class="text-base font-semibold text-slate-900 dark:text-white">
-            {{ isKhmer ? "កំពុងបង្កើតលទ្ធផលរបស់អ្នក" : "Creating your result" }}
+            {{ t("products.creator.creating_your_result") }}
           </h2>
           <p class="mt-1 text-xs text-slate-500 dark:text-white/50">
-            {{ isKhmer ? "សូមកុំទាន់បិទទំព័រនេះ។ ការដាក់ស្នើស្ទួនត្រូវបានបិទ។" : "Keep this page open. Duplicate submissions are disabled." }}
+            {{ t("products.creator.keep_this_page_open_duplicate_submissions_are_disabled") }}
           </p>
         </div>
       </div>
@@ -144,13 +150,13 @@ const allText = computed(() => {
       role="alert"
       class="rounded-2xl border border-slate-200 p-5 text-sm dark:border-white/10"
     >
-      <p>{{ CREATOR_OUTPUT_BLOCKED_MESSAGE }}</p>
+      <p>{{ productText(CREATOR_OUTPUT_BLOCKED_MESSAGE) }}</p>
       <button
         type="button"
         class="mt-3 min-h-11 rounded-xl bg-violet-600 px-4 font-semibold text-white"
         @click="emit('regenerate')"
       >
-        {{ isKhmer ? "បង្កើតលទ្ធផលថ្មី" : "Generate a new result" }}
+        {{ t("products.creator.generate_a_new_result") }}
       </button>
     </section>
 
@@ -166,13 +172,13 @@ const allText = computed(() => {
           <p
             class="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-300"
           >
-            {{ isKhmer ? "រួចរាល់" : "Ready" }}
+            {{ t("products.creator.ready") }}
           </p>
           <h2 class="mt-1 text-lg font-semibold text-slate-950 dark:text-white">
             {{ result.title }}
           </h2>
         </div>
-        <CopyButton :text="allText" label="Copy all" variant="primary" />
+        <CopyButton :text="allText" :label="t(&quot;products.common.copy_all&quot;)" variant="primary" />
       </header>
 
       <div
@@ -182,7 +188,7 @@ const allText = computed(() => {
         <div
           class="sidebar-scrollbar-hidden flex gap-1 overflow-x-auto"
           role="tablist"
-          aria-label="Result sections"
+          :aria-label="t(&quot;products.common.result_sections&quot;)"
         >
           <button
             v-for="section in editableSections"
@@ -209,7 +215,7 @@ const allText = computed(() => {
           role="alert"
           class="text-sm text-red-600 dark:text-red-300"
         >
-          {{ editError }}
+          {{ productText(editError) }}
         </p>
         <template v-if="result.items?.length">
           <article
@@ -251,7 +257,7 @@ const allText = computed(() => {
                     class="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#082552] px-3 text-xs font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-cyan-300 dark:text-slate-950"
                     @click="emit('useIdea', 'script', item.content)"
                   >
-                    Create Script
+                    {{ t("products.creator.create_script") }}
                     <ArrowRight class="size-3.5" aria-hidden="true" />
                   </button>
                   <button
@@ -259,7 +265,7 @@ const allText = computed(() => {
                     class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70"
                     @click="emit('useIdea', 'post', item.content)"
                   >
-                    Create Post
+                    {{ t("products.creator.create_post") }}
                   </button>
                 </div>
               </div>
@@ -332,7 +338,7 @@ const allText = computed(() => {
             @click="editing = !editing"
           >
             <PenLine class="size-4" aria-hidden="true" />{{
-              editing ? "Done editing" : "Edit"
+              editing ? t("products.creator.done_editing") : t("products.common.edit")
             }}
           </button>
           <button
@@ -341,7 +347,7 @@ const allText = computed(() => {
             class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
             @click="emit('regenerate')"
           >
-            <RotateCcw class="size-4" aria-hidden="true" />Regenerate
+            <RotateCcw class="size-4" aria-hidden="true" />{{ t("products.creator.regenerate") }}
           </button>
           <button
             v-if="
@@ -352,7 +358,7 @@ const allText = computed(() => {
             class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/70 dark:hover:bg-white/[0.10]"
             @click="emit('variation')"
           >
-            <Sparkles class="size-4" aria-hidden="true" />New variation
+            <Sparkles class="size-4" aria-hidden="true" />{{ t("products.creator.new_variation") }}
           </button>
           <button
             v-if="!historyView && tool.id === 'khmer-grammar'"
@@ -360,7 +366,7 @@ const allText = computed(() => {
             class="min-h-11 rounded-xl bg-[#082552] px-3.5 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-cyan-300 dark:text-slate-950"
             @click="emit('replace')"
           >
-            Replace original
+            {{ t("products.creator.replace_original") }}
           </button>
           <button
             v-if="result.srt"
@@ -368,7 +374,7 @@ const allText = computed(() => {
             class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#082552] px-3.5 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-cyan-300 dark:text-slate-950"
             @click="emit('downloadSrt')"
           >
-            <Download class="size-4" aria-hidden="true" />Download .srt
+            <Download class="size-4" aria-hidden="true" />{{ t("products.creator.download_srt") }}
           </button>
         </div>
       </footer>

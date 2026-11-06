@@ -1,3 +1,5 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
+import { productCopyStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -17,7 +19,10 @@ function component(path: string, globals: Record<string, unknown>, imports: Reco
   }).outputText;
   const framework = { ...vue, withAsyncContext: (work: () => unknown) => [work(), () => {}] };
   const dependencies: Record<string, unknown> = {
+    "~/composables/useAppI18n": appI18nStub,
     vue: framework,
+    "~/composables/useProductCopy": productCopyStub,
+    "~/composables/useLanguage": { useLanguage: () => ({ isKhmer: vue.ref(false) }) },
     "lucide-vue-next": new Proxy({}, { get: () => ({}) }),
     "~/lib/product-mobile-navigation": navigation,
     "~/lib/link-profile": profile,

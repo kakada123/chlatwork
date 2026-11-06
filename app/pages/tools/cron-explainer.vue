@@ -2,17 +2,17 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "ពន្យល់កូដ Cron Expression" : "Cron Expression Explainer" }}
+        {{ t("tools.cronExplainer.cronExpressionExplainer") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "ពន្យល់ពីអត្ថន័យនៃ Cron ៥ ខ្ទង់ និងបង្ហាញកាលវិភាគដំណើរការ ៥ លើកបន្ទាប់។" : "Explain standard 5-field cron expressions and preview the next five local run times." }}
+        {{ t("tools.cronExplainer.explainStandard5FieldCronExpressionsAndPreviewThe") }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="space-y-3">
         <label class="block text-sm font-semibold text-gray-900">
-          {{ isKhmer ? "កូដ Cron expression" : "Cron expression" }}
+          {{ t("tools.cronExplainer.cronExpression") }}
         </label>
         <input
           v-model="expression"
@@ -27,7 +27,7 @@
             class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="explain"
           >
-            {{ isKhmer ? "ពន្យល់" : "Explain" }}
+            {{ t("tools.cronExplainer.explain") }}
           </button>
           <button
             v-for="example in examples"
@@ -41,9 +41,9 @@
         </div>
 
         <p class="text-xs text-gray-500">
-          {{ isKhmer ? "គាំទ្រ ៥ ខ្ទង់៖ នាទី ម៉ោង ថ្ងៃនៃខែ ខែ និងថ្ងៃនៃសប្តាហ៍។" : "Supports 5 fields: minute, hour, day of month, month, day of week." }}
+          {{ t("tools.cronExplainer.supports5FieldsMinuteHourDayOfMonthMonth") }}
         </p>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="text-sm text-red-600">{{ localizeToolError(error, isKhmer) }}</p>
       </div>
     </section>
 
@@ -51,7 +51,7 @@
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-3 flex h-10 items-center">
           <h2 class="text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "ការពន្យល់" : "Explanation" }}
+            {{ t("tools.cronExplainer.explanation") }}
           </h2>
         </div>
         <ul class="space-y-2 text-sm text-gray-700">
@@ -60,20 +60,20 @@
             :key="line"
             class="rounded-lg bg-gray-50 px-3 py-2"
           >
-            {{ line }}
+            {{ localizeCronLine(line, isKhmer) }}
           </li>
         </ul>
         <p class="mt-3 text-xs text-gray-500">
-          {{ isKhmer ? "នៅពេលថ្ងៃនៃខែ និងថ្ងៃនៃសប្តាហ៍ត្រូវបានកំណត់ នោះនឹងប្រើលក្ខខណ្ឌ OR ដូចប្រព័ន្ធ Cron ទូទៅ។" : "When both day-of-month and day-of-week are restricted, this uses common cron OR matching." }}
+          {{ t("tools.cronExplainer.whenBothDayOfMonthAndDayOfWeek") }}
         </p>
       </div>
 
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-3 flex h-10 items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "កាលវិភាគ ៥ លើកបន្ទាប់" : "Next 5 run times" }}
+            {{ t("tools.cronExplainer.next5RunTimes") }}
           </h2>
-          <CopyButton :text="runsText" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+          <CopyButton :text="runsText" :label="t(&quot;tools.cronExplainer.copy&quot;)" />
         </div>
         <ol class="space-y-2 text-sm text-gray-700">
           <li
@@ -90,17 +90,24 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError, localizeCronLine } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { getNextCronRuns } from "~/lib/developer-tools";
 
+const { t } = useAppI18n();
+
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "Cron Expression Explainer - ChlatWork",
-  description: "Explain cron expressions and preview the next five run times.",
-  ogTitle: "Cron Expression Explainer - ChlatWork",
-  ogDescription: "Cron expression explanation and next run previews.",
+  title: () => t("tools.cronExplainer.metaTitle"),
+  description: () => t("tools.cronExplainer.metaDescription"),
+  ogTitle: () => t("tools.cronExplainer.metaOgTitle"),
+  ogDescription: () => t("tools.cronExplainer.metaOgDescription"),
 });
 
 const expression = ref("*/5 * * * *");
@@ -108,10 +115,10 @@ const explanation = ref<string[]>([]);
 const runs = ref<Date[]>([]);
 const error = ref("");
 const examples = computed(() => [
-  { label: isKhmer.value ? "រៀងរាល់ ៥ នាទី" : "Every 5 min", value: "*/5 * * * *" },
-  { label: isKhmer.value ? "រាល់ថ្ងៃ ម៉ោង ៩ ព្រឹក" : "Daily 9 AM", value: "0 9 * * *" },
-  { label: isKhmer.value ? "ថ្ងៃធ្វើការ" : "Weekdays", value: "0 9 * * 1-5" },
-  { label: isKhmer.value ? "រៀងរាល់ខែ" : "Monthly", value: "0 0 1 * *" },
+  { label: t("tools.cronExplainer.every5Min"), value: "*/5 * * * *" },
+  { label: t("tools.cronExplainer.daily9Am"), value: "0 9 * * *" },
+  { label: t("tools.cronExplainer.weekdays"), value: "0 9 * * 1-5" },
+  { label: t("tools.cronExplainer.monthly"), value: "0 0 1 * *" },
 ]);
 
 const runsText = computed(() => runs.value.map((run) => formatRun(run)).join("\n"));
@@ -133,7 +140,7 @@ function loadExample(value: string) {
 }
 
 function formatRun(date: Date) {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat((isKhmer.value ? "km-KH" : "en-US"), {
     dateStyle: "medium",
     timeStyle: "medium",
   }).format(date);

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed } from "vue";
 import type { RankedPlace } from "~/composables/useFoodDiscovery";
 import { foodMapEmbedUrl, foodMapSearchUrl } from "~/lib/food-maps";
+const { t } = useAppI18n();
 
 const props = defineProps<{
   places: RankedPlace[];
@@ -46,7 +48,7 @@ const externalUrl = computed(() =>
       class="flex h-72 flex-col items-center justify-center gap-3 px-6 text-center sm:h-96"
     >
       <p class="text-sm text-stone-600 dark:text-stone-300">
-        មើលទីតាំង និងព័ត៌មានហាងនៅលើ Google Maps
+        {{ t("products.food.map.details") }}
       </p>
       <a
         :href="externalUrl"
@@ -54,7 +56,7 @@ const externalUrl = computed(() =>
         rel="noopener noreferrer"
         class="rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
       >
-        បើក Google Maps
+        {{ t("products.food.map.open") }}
       </a>
     </div>
   </div>

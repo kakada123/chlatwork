@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -15,7 +16,7 @@ async function renderShell(path: string, canShowAds: boolean) {
   const module = { exports: {} as any };
   const code = ts.transpileModule(compiled.code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   new Function("require", "module", "exports", code)(() => vue, module, module.exports);
-  const context = { route: { path, meta: {} }, canShowAds, isKhmer: false };
+  const context = { route: { path, meta: {} }, canShowAds, isKhmer: false, t: createI18nStub().t };
   const app = vue.createSSRApp({ render: () => module.exports.render(context, []) });
   for (const name of ["Analytics", "AdsDesktopAd", "AdsSmartLinkAd", "CookieConsent"]) app.component(name, () => null);
   app.component("AdsBannerAd", () => vue.h("div", { class: "test-banner" }, "Advertisement"));

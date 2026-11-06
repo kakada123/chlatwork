@@ -1,21 +1,26 @@
-<script setup lang="ts">
-withDefaults(defineProps<{ recipient: string; reactions: boolean; reaction: string; shareStatus: string; shareUrl: string; locale?: "en" | "km" }>(), { locale: "en" });
+<script setup lang="ts">import { computed } from "vue";
+
+import { useAppI18n } from "~/composables/useAppI18n";
+
+
+const props = withDefaults(defineProps<{ recipient: string; reactions: boolean; reaction: string; shareStatus: string; shareUrl: string; locale?: "en" | "km" }>(), { locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 defineEmits<{ react: [value: string]; share: []; celebrate: [] }>();
 </script>
 
 <template>
   <div class="final-scene">
     <div class="final-heart" aria-hidden="true">🎉</div>
-    <p class="final-greeting">{{ locale === 'km' ? `រីករាយថ្ងៃកំណើត ${recipient}!` : `Happy birthday, ${recipient}!` }}</p>
-    <p class="story-description">{{ locale === 'km' ? 'សូមឱ្យឆ្នាំនេះពោរពេញដោយសេចក្ដីស្រឡាញ់ និងអនុស្សាវរីយ៍ល្អៗ។' : 'Here’s to a year full of love and beautiful memories.' }}</p>
-    <button type="button" class="story-action" data-action="celebrate" @click="$emit('celebrate')">{{ locale === 'km' ? 'អបអរ 🎉' : 'Celebrate 🎉' }}</button>
-    <div v-if="reactions" class="story-reactions" :aria-label="locale === 'km' ? 'ការឆ្លើយតបរបស់អ្នក' : 'Your reaction'" role="group">
+    <p class="final-greeting">{{ t("products.moments.happy_birthday_recipient", { recipient: recipient }) }}</p>
+    <p class="story-description">{{ t("products.moments.heres_to_a_year_full_of_love_and_beautiful_memories") }}</p>
+    <button type="button" class="story-action" data-action="celebrate" @click="$emit('celebrate')">{{ t("products.moments.final_scene.celebrate") }}</button>
+    <div v-if="reactions" class="story-reactions" :aria-label="t(&quot;products.moments.your_reaction&quot;)" role="group">
       <button v-for="item in [{ id: 'heart', emoji: '❤️', en: 'Love it', km: 'ស្រឡាញ់' }, { id: 'smile', emoji: '🥰', en: 'Feeling happy', km: 'រីករាយ' }, { id: 'party', emoji: '🎉', en: 'Celebrate', km: 'អបអរ' }]" :key="item.id" type="button" class="story-action" :data-action="`reaction-${item.id}`" :aria-label="locale === 'km' ? item.km : item.en" :aria-pressed="reaction === item.id" @click="$emit('react', item.id)">{{ item.emoji }}</button>
     </div>
-    <p v-if="reactions" class="reaction-note" role="status">{{ locale === 'km' ? 'ការឆ្លើយតបនេះបង្ហាញតែលើឧបករណ៍នេះ ហើយមិនផ្ញើទៅម្ចាស់ទេ។' : 'Your reaction stays only on this device for this visit; it isn’t sent to the creator.' }}</p>
-    <button type="button" class="story-action" data-action="share" @click="$emit('share')">{{ locale === 'km' ? 'ចែករំលែកថ្ងៃកំណើតនេះ' : 'Share this birthday' }}</button>
+    <p v-if="reactions" class="reaction-note" role="status">{{ t("products.moments.your_reaction_stays_only_on_this_device_for_this_visit_it_isnt_sent_to_the_creator") }}</p>
+    <button type="button" class="story-action" data-action="share" @click="$emit('share')">{{ t("products.moments.share_this_birthday") }}</button>
     <p v-if="shareStatus" class="share-status" role="status">{{ shareStatus }}</p>
-    <label v-if="shareUrl" class="share-fallback">{{ locale === 'km' ? 'ចម្លងតំណនេះ' : 'Copy this link' }}<input type="text" :value="shareUrl" readonly @focus="($event.target as HTMLInputElement).select()" /></label>
+    <label v-if="shareUrl" class="share-fallback">{{ t("products.moments.copy_this_link") }}<input type="text" :value="shareUrl" readonly @focus="($event.target as HTMLInputElement).select()" /></label>
   </div>
 </template>
 

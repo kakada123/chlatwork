@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { findStarterGuideByPath } from "~/data/guides";
 import { getStarterGuideKm } from "~/data/starter-guides-km";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 const route = useRoute();
@@ -9,6 +12,8 @@ const guide = computed(() => findStarterGuideByPath(route.path));
 const guideKm = computed(() =>
   guide.value ? getStarterGuideKm(guide.value.slug) : null,
 );
+const metaTitle = computed(() => isKhmer.value ? guideKm.value?.metaTitle ?? guideKm.value?.title ?? t("shared.guides.fallback_title") : guide.value?.metaTitle ?? t("shared.guides.fallback_title"));
+const metaDescription = computed(() => isKhmer.value ? guideKm.value?.metaDescription ?? guideKm.value?.summary ?? "" : guide.value?.metaDescription ?? "");
 const canonicalUrl = computed(() =>
   guide.value ? `${siteUrl}${guide.value.path}` : `${siteUrl}/guides`,
 );
@@ -17,22 +22,22 @@ watchEffect(() => {
   if (!guide.value) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Guide not found",
+      statusMessage: t("shared.pages_guides_guide_slug.guide_not_found"),
     });
   }
 });
 
 useSeoMeta({
-  title: computed(() => guide.value?.metaTitle ?? "Guide - ChlatWork"),
-  description: computed(() => guide.value?.metaDescription ?? ""),
-  ogTitle: computed(() => guide.value?.metaTitle ?? "Guide - ChlatWork"),
-  ogDescription: computed(() => guide.value?.metaDescription ?? ""),
+  title: metaTitle,
+  description: metaDescription,
+  ogTitle: metaTitle,
+  ogDescription: metaDescription,
   ogType: "article",
   ogUrl: canonicalUrl,
   ogImage: `${siteUrl}/og-home.png?v=20261104`,
   twitterCard: "summary_large_image",
-  twitterTitle: computed(() => guide.value?.metaTitle ?? "Guide - ChlatWork"),
-  twitterDescription: computed(() => guide.value?.metaDescription ?? ""),
+  twitterTitle: metaTitle,
+  twitterDescription: metaDescription,
   twitterImage: `${siteUrl}/og-home.png?v=20261104`,
 });
 
@@ -59,8 +64,8 @@ useHead(() => {
           "@graph": [
             {
               "@type": "Article",
-              headline: currentGuide.title,
-              description: currentGuide.metaDescription,
+              headline: isKhmer.value ? guideKm.value?.title ?? currentGuide.title : currentGuide.title,
+              description: metaDescription.value,
               url: canonicalUrl.value,
               mainEntityOfPage: canonicalUrl.value,
               publisher: {
@@ -71,7 +76,7 @@ useHead(() => {
             },
             {
               "@type": "FAQPage",
-              mainEntity: currentGuide.faqs.map((faq) => ({
+              mainEntity: (isKhmer.value ? guideKm.value?.faqs ?? currentGuide.faqs : currentGuide.faqs).map((faq) => ({
                 "@type": "Question",
                 name: faq.question,
                 acceptedAnswer: {
@@ -98,11 +103,11 @@ useHead(() => {
         to="/guides"
         class="inline-flex text-sm font-bold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
       >
-        {{ isKhmer ? "← មេរៀនទាំងអស់" : "All guides" }}
+        {{ t("shared.pages_guides_guide_slug.all_guides") }}
       </NuxtLink>
       <div class="space-y-3">
         <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-          {{ isKhmer ? "ការណែនាំ ChlatWork" : "ChlatWork Guide" }}
+          {{ t("shared.pages_guides_guide_slug.chlat_work_guide") }}
         </p>
         <h1 class="text-3xl font-black leading-tight sm:text-5xl">
           {{ isKhmer && guideKm ? guideKm.title : guide.title }}
@@ -116,13 +121,13 @@ useHead(() => {
           :to="guide.primaryTool.path"
           class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
         >
-          {{ isKhmer && guideKm ? `បើក ${guideKm.primaryToolLabel}` : `Open ${guide.primaryTool.label}` }}
+          {{ t("shared.components_landing_mobile_home_tool_card.open", { toolName: isKhmer && guideKm ? guideKm.primaryToolLabel : guide.primaryTool.label }) }}
         </NuxtLink>
         <NuxtLink
           to="/tools"
           class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
         >
-          {{ isKhmer ? "រកមើលឧបករណ៍ទាំងអស់" : "Browse tools" }}
+          {{ t("shared.pages_guides_guide_slug.browse_tools") }}
         </NuxtLink>
       </div>
     </header>
@@ -130,7 +135,7 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">{{ isKhmer ? "ជំហានអនុវត្ត" : "Steps" }}</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.pages_guides_guide_slug.steps") }}</h2>
       <ol class="mt-4 space-y-3">
         <li
           v-for="(step, index) in (isKhmer && guideKm ? guideKm.steps : guide.steps)"
@@ -175,7 +180,7 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">{{ isKhmer ? "ឧទាហរណ៍" : "Examples" }}</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.pages_guides_guide_slug.examples") }}</h2>
       <ul class="mt-4 space-y-3">
         <li
           v-for="example in (isKhmer && guideKm ? guideKm.examples : guide.examples)"
@@ -191,7 +196,7 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">{{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.components_tools_tool_content_layout.faq") }}</h2>
       <div class="mt-4 space-y-3">
         <details
           v-for="faq in (isKhmer && guideKm ? guideKm.faqs : guide.faqs)"
@@ -209,7 +214,7 @@ useHead(() => {
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-2xl font-black">{{ isKhmer ? "ឧបករណ៍ពាក់ព័ន្ធ" : "Related tools" }}</h2>
+      <h2 class="text-2xl font-black">{{ t("shared.components_tools_tool_content_layout.related_tools") }}</h2>
       <div class="grid gap-3 sm:grid-cols-2">
         <NuxtLink
           v-for="tool in guide.relatedTools"

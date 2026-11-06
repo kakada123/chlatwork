@@ -1,3 +1,4 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -56,6 +57,8 @@ for (const dedicatedDomain of [false, true]) {
       code,
     )(
       (name: string) => {
+        if (name === "~/composables/useAppI18n") return appI18nStub;
+        if (name === "~/composables/useLanguage") return { useLanguage: () => ({ languageLabel: vue.ref("English"), switchLanguage() {} }) };
         if (name === "vue") return vue;
         if (name === "~/composables/useColorMode")
           return {

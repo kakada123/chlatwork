@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeBotCode } from "~/lib/bot-ui-copy";
+const { isKhmer } = useLanguage();
 import {
   adjustCreatorCredits,
   updateCreatorUsageLimit,
@@ -10,6 +13,8 @@ import {
   creatorCreditRequestError,
   formatCreditChange,
 } from "~/lib/creator-credit-display";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{ details: BotUserDetails }>();
 const emit = defineEmits<{ saved: [] }>();
@@ -64,7 +69,7 @@ function prepare() {
     pending.value = {
       key: crypto.randomUUID(),
       actorId: user.value?.id ?? "",
-      summary: `Credit balance: ${credits.user.balance} → ${credits.user.balance + change}`,
+      summary: `${t("shared.components_admin_bot_user_credits.credit_balance")}: ${credits.user.balance} → ${credits.user.balance + change}`,
       change: {
         kind: "balance",
         body: {
@@ -87,7 +92,7 @@ function prepare() {
     pending.value = {
       key: crypto.randomUUID(),
       actorId: user.value?.id ?? "",
-      summary: `Daily limit: ${credits.usage.override ?? "default"} → ${next ?? "default"}`,
+      summary: `${t("shared.components_admin_bot_user_credits.daily_limit")}: ${credits.usage.override ?? t("shared.components_admin_bot_user_credits.default")} → ${next ?? t("shared.components_admin_bot_user_credits.default")}`,
       change: {
         kind: "limit",
         body: {
@@ -120,7 +125,7 @@ async function confirm() {
   } catch (cause) {
     error.value = creatorCreditRequestError(
       cause,
-      "Could not save. Refresh and review the current balance or limit.",
+      t("shared.components_admin_bot_user_credits.could_not_save_refresh_and_review_the_current_balance"),
     );
   } finally {
     saving.value = false;
@@ -132,13 +137,13 @@ async function confirm() {
   <div v-if="details.credits" class="space-y-6">
     <div class="grid gap-3 sm:grid-cols-3">
       <div class="rounded-xl bg-violet-50 p-4 dark:bg-violet-400/10">
-        <p class="text-xs text-slate-500">Shared balance</p>
+        <p class="text-xs text-slate-500">{{ t("shared.components_admin_bot_user_credits.shared_balance") }}</p>
         <p class="mt-1 text-2xl font-bold">
           {{ details.credits.user.balance }}
         </p>
       </div>
       <div class="rounded-xl bg-slate-50 p-4 dark:bg-white/5">
-        <p class="text-xs text-slate-500">Used today</p>
+        <p class="text-xs text-slate-500">{{ t("shared.components_admin_bot_user_credits.used_today") }}</p>
         <p class="mt-1 text-2xl font-bold">
           {{ details.credits.usage.used }}
           <span class="text-sm font-normal text-slate-500"
@@ -147,16 +152,14 @@ async function confirm() {
         </p>
       </div>
       <div class="rounded-xl bg-slate-50 p-4 dark:bg-white/5">
-        <p class="text-xs text-slate-500">Remaining today</p>
+        <p class="text-xs text-slate-500">{{ t("shared.components_admin_bot_user_credits.remaining_today") }}</p>
         <p class="mt-1 text-2xl font-bold">
           {{ details.credits.usage.remaining }}
         </p>
       </div>
     </div>
     <p class="text-xs text-slate-500">
-      Both bots use this wallet and daily limit. ChlatWork assistant, voice and
-      receipt requests cost 1 credit each; Creator keeps its existing prices.
-      Split, voting and KHQR are free.
+      {{ t("shared.components_admin_bot_user_credits.both_bots_use_this_wallet_and_daily_limit_chlat") }}
     </p>
     <form class="space-y-4" @submit.prevent="prepare">
       <fieldset
@@ -164,47 +167,47 @@ async function confirm() {
         class="space-y-4 disabled:opacity-60"
       >
         <label class="block text-sm font-medium"
-          >Action
+          >{{ t("shared.components_admin_bot_user_credits.action") }}
           <ModernSelect
             v-model="kind"
             class="mt-2 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
           >
-            <option value="balance">Adjust credits / refund</option>
-            <option value="limit">Set daily limit</option>
+            <option value="balance">{{ t("shared.components_admin_bot_user_credits.adjust_credits_refund") }}</option>
+            <option value="limit">{{ t("shared.components_admin_bot_user_credits.set_daily_limit") }}</option>
           </ModernSelect>
         </label>
         <div v-if="kind === 'balance'" class="flex gap-3">
           <ModernSelect
             v-model="direction"
-            aria-label="Credit direction"
+            :aria-label="t(&quot;shared.components_admin_bot_user_credits.credit_direction&quot;)"
             class="rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
           >
-            <option :value="1">Add / refund</option>
-            <option :value="-1">Deduct</option>
+            <option :value="1">{{ t("shared.components_admin_bot_user_credits.add_refund") }}</option>
+            <option :value="-1">{{ t("shared.components_admin_bot_user_credits.deduct") }}</option>
           </ModernSelect>
           <input
             v-model="amount"
-            aria-label="Credits"
+            :aria-label="t(&quot;shared.components_layout_product_navigation.credits&quot;)"
             type="number"
             min="1"
             max="100000"
             step="1"
             required
-            placeholder="Credits"
+            :placeholder="t(&quot;shared.components_layout_product_navigation.credits&quot;)"
             class="min-w-0 flex-1 rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-white/15"
           />
         </div>
         <div v-else class="space-y-3 text-sm">
           <label class="flex items-center gap-2"
-            ><input v-model="defaultLimit" type="checkbox" /> Use default ({{
+            ><input v-model="defaultLimit" type="checkbox" /> {{ t("shared.components_admin_bot_user_credits.use_default") }}{{
               details.credits.usage.defaultLimit
             }}
-            credits/day)</label
+            {{ t("shared.components_admin_bot_user_credits.credits_day") }}</label
           >
           <input
             v-if="!defaultLimit"
             v-model="limit"
-            aria-label="Daily credit limit"
+            :aria-label="t(&quot;shared.components_admin_bot_user_credits.daily_credit_limit&quot;)"
             type="number"
             min="0"
             max="100000"
@@ -214,7 +217,7 @@ async function confirm() {
           />
         </div>
         <label class="block text-sm font-medium"
-          >Reason
+          >{{ t("shared.common.reason") }}
           <textarea
             v-model="reason"
             rows="2"
@@ -228,7 +231,7 @@ async function confirm() {
           type="submit"
           class="rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white"
         >
-          Review change
+          {{ t("shared.components_admin_bot_user_access.review_change") }}
         </button>
       </fieldset>
       <div
@@ -243,7 +246,7 @@ async function confirm() {
           class="rounded-lg bg-violet-600 px-3 py-2 text-white disabled:opacity-50"
           @click="confirm"
         >
-          {{ saving ? "Saving…" : "Confirm adjustment" }}
+          {{ saving ? t("shared.common.saving") : t("shared.components_admin_bot_user_credits.confirm_adjustment") }}
         </button>
         <button
           type="button"
@@ -251,7 +254,7 @@ async function confirm() {
           class="ml-3 px-3 py-2"
           @click="pending = null"
         >
-          Cancel
+          {{ t("shared.common.cancel") }}
         </button>
       </div>
       <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
@@ -259,25 +262,25 @@ async function confirm() {
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm">
         <caption class="mb-3 text-left font-semibold">
-          Recent credit history
+          {{ t("shared.components_admin_bot_user_credits.recent_credit_history") }}
         </caption>
         <thead class="text-xs text-slate-500">
           <tr>
-            <th class="py-2">Event</th>
-            <th class="py-2">Change</th>
-            <th class="py-2">Balance</th>
-            <th class="py-2">Reason / feature</th>
+            <th class="py-2">{{ t("shared.components_admin_bot_user_credits.event") }}</th>
+            <th class="py-2">{{ t("shared.components_admin_bot_user_credits.change") }}</th>
+            <th class="py-2">{{ t("shared.components_admin_bot_user_credits.balance") }}</th>
+            <th class="py-2">{{ t("shared.components_admin_bot_user_credits.reason_feature") }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-white/10">
           <tr v-for="entry in details.credits.transactions" :key="entry.id">
             <td class="py-3">
-              <p>{{ entry.type }}</p>
+              <p>{{ localizeBotCode(entry.type, t("shared.components_admin_bot_group_workspaces.en")) }}</p>
               <time class="text-xs text-slate-500">{{
                 new Date(entry.createdAt).toLocaleString()
               }}</time>
             </td>
-            <td>{{ formatCreditChange(entry.amount) }}</td>
+            <td>{{ entry.amount === 0 ? t("shared.credits.no_balance_change") : formatCreditChange(entry.amount) }}</td>
             <td>{{ entry.balanceAfter }}</td>
             <td>{{ entry.reason || entry.feature || "—" }}</td>
           </tr>
@@ -287,21 +290,21 @@ async function confirm() {
         v-if="!details.credits.transactions.length"
         class="py-4 text-sm text-slate-500"
       >
-        No credit transactions yet.
+        {{ t("shared.components_admin_bot_user_credits.no_credit_transactions_yet") }}
       </p>
     </div>
     <div
       v-if="details.credits.usageLimitChanges.length"
       class="space-y-2 text-sm"
     >
-      <h3 class="font-semibold">Daily limit history</h3>
+      <h3 class="font-semibold">{{ t("shared.components_admin_bot_user_credits.daily_limit_history") }}</h3>
       <p
         v-for="entry in details.credits.usageLimitChanges"
         :key="entry.id"
         class="rounded-lg bg-slate-50 p-3 dark:bg-white/5"
       >
-        {{ entry.previousLimit ?? "Default" }} →
-        {{ entry.dailyCreditLimit ?? "Default" }} · {{ entry.reason }}
+        {{ entry.previousLimit ?? t("shared.common.default") }} →
+        {{ entry.dailyCreditLimit ?? t("shared.common.default") }} · {{ entry.reason }}
         <time class="block text-xs text-slate-500">{{
           new Date(entry.createdAt).toLocaleString()
         }}</time>
@@ -309,6 +312,6 @@ async function confirm() {
     </div>
   </div>
   <p v-else class="text-sm text-slate-500">
-    This website account is inactive. Credit edits are unavailable.
+    {{ t("shared.components_admin_bot_user_credits.this_website_account_is_inactive_credit_edits_are_unavailable") }}
   </p>
 </template>

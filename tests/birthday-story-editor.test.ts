@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createBirthdayStorySettings } from "../app/lib/birthday-story.ts";

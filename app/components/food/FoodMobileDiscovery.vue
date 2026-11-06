@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed, nextTick, ref, watch } from "vue";
 import {
   ArrowLeft,
@@ -10,6 +11,9 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-vue-next";
+
+const { t } = useAppI18n();
+
 
 type Panel = "steps" | "search" | "results" | "catalog" | "saved" | "advanced";
 type Filters = Record<string, string | string[]>;
@@ -45,31 +49,31 @@ const step = ref(0),
   menuOpen = ref(false);
 const heading = ref<HTMLElement | null>(null),
   searchInput = ref<HTMLInputElement | null>(null);
-const questions = [
-  "ចង់ញ៉ាំអី?",
-  "ញ៉ាំពេលណា?",
-  "ថវិកាប៉ុន្មាន?",
-  "ប៉ុន្មាននាក់?",
-  "ញ៉ាំម្ដុំណា?",
-];
-const shortSteps = ["ម្ហូប", "ពេល", "ថវិកា", "មនុស្ស", "ទីតាំង"];
-const foods = [
-  { label: "អ្វីក៏បាន", icon: "✨", value: "" },
-  { label: "បាយ", icon: "🍚", value: "បាយ" },
-  { label: "គុយទាវ", icon: "🍜", value: "គុយទាវ" },
-  { label: "សាច់អាំង", icon: "🍢", value: "សាច់អាំង" },
-  { label: "ស៊ុប / Hotpot", icon: "🍲", value: "hotpot" },
-  { label: "កាហ្វេ", icon: "☕", value: "កាហ្វេ" },
-  { label: "បង្អែម", icon: "🍧", value: "បង្អែម" },
-  { label: "ភីហ្សា", icon: "🍕", value: "pizza" },
-];
-const meals = [
-  { label: "ព្រឹក", icon: "🌤️", value: "breakfast" },
-  { label: "ថ្ងៃត្រង់", icon: "☀️", value: "lunch" },
-  { label: "សម្រន់", icon: "🧋", value: "snack" },
-  { label: "ល្ងាច", icon: "🌙", value: "dinner" },
-  { label: "ពេលណាក៏បាន", icon: "🕒", value: "any" },
-] as const;
+const questions = computed(() => ([
+  t("products.food.discovery.food_question"),
+  t("products.food.discovery.meal_question"),
+  t("products.food.discovery.budget_question"),
+  t("products.food.discovery.people_question"),
+  t("products.food.discovery.area_question"),
+]));
+const shortSteps = computed(() => ([t("products.food.discovery.food_step"), t("products.food.discovery.time_step"), t("products.food.discovery.budget_step"), t("products.food.discovery.people_step"), t("products.food.discovery.location_step")]));
+const foods = computed(() => ([
+  { label: t("products.food.discovery.any_food"), icon: "✨", value: "" },
+  { label: t("products.food.labels.rice"), icon: "🍚", value: "បាយ" },
+  { label: t("products.food.labels.noodles"), icon: "🍜", value: "គុយទាវ" },
+  { label: t("products.food.labels.grilled_meat"), icon: "🍢", value: "សាច់អាំង" },
+  { label: t("products.food.labels.hotpot"), icon: "🍲", value: "hotpot" },
+  { label: t("products.food.labels.coffee"), icon: "☕", value: "កាហ្វេ" },
+  { label: t("products.food.labels.dessert"), icon: "🍧", value: "បង្អែម" },
+  { label: t("products.food.labels.pizza"), icon: "🍕", value: "pizza" },
+]));
+const meals = computed(() => ([
+  { label: t("products.food.meals.breakfast"), icon: "🌤️", value: "breakfast" },
+  { label: t("products.food.meals.lunch"), icon: "☀️", value: "lunch" },
+  { label: t("products.food.meals.snack"), icon: "🧋", value: "snack" },
+  { label: t("products.food.meals.dinner"), icon: "🌙", value: "dinner" },
+  { label: t("products.food.meals.any"), icon: "🕒", value: "any" },
+] as const));
 const flexible = computed(
   () => props.filters.budgetType === "flexible-no-fixed-budget",
 );
@@ -84,13 +88,13 @@ const valid = computed(
         props.totalBudget > 0 &&
         props.totalBudget <= 10000)),
 );
-const menuItems = [
-  { panel: "steps", label: "ជ្រើសមួយជំហានម្ដង", icon: "✨" },
-  { panel: "results", label: "មើលលទ្ធផល", icon: "📍" },
-  { panel: "catalog", label: "បញ្ជីមុខម្ហូប", icon: "🍱" },
-  { panel: "saved", label: "រូបមន្តរក្សាទុក", icon: "📚" },
-  { panel: "advanced", label: "តម្រង និងជម្រើសរហ័ស", icon: "⚙️" },
-] as const;
+const menuItems = computed(() => ([
+  { panel: "steps", label: t("products.food.nav.guided"), icon: "✨" },
+  { panel: "results", label: t("products.food.nav.results"), icon: "📍" },
+  { panel: "catalog", label: t("products.food.nav.catalog"), icon: "🍱" },
+  { panel: "saved", label: t("products.food.nav.saved"), icon: "📚" },
+  { panel: "advanced", label: t("products.food.nav.advanced"), icon: "⚙️" },
+] as const));
 function open(panel: Panel) {
   menuOpen.value = false;
   emit("update:panel", panel);
@@ -159,7 +163,7 @@ watch(
   >
     <nav
       class="relative z-30 flex items-center gap-2"
-      aria-label="Food navigation"
+      :aria-label="t(&quot;products.common.food_navigation&quot;)"
     >
       <button
         type="button"
@@ -167,7 +171,7 @@ watch(
         class="mobile-nav"
         @click="open('steps')"
       >
-        ✨ ជ្រើសម្ហូប
+        {{ t("products.food.discovery.choose_food") }}
       </button>
       <button
         type="button"
@@ -175,7 +179,7 @@ watch(
         class="mobile-nav"
         @click="open('search')"
       >
-        <Search class="size-4" /> ស្វែងរក
+        <Search class="size-4" /> {{ t("products.food.actions.search") }}
       </button>
       <button
         type="button"
@@ -186,7 +190,7 @@ watch(
       >
         <X v-if="menuOpen" class="size-4" /><Menu v-else class="size-4" /><span
           class="sr-only"
-          >ម៉ឺនុយ / Menu</span
+          >{{ t("products.food.menu") }}</span
         >
       </button>
       <div
@@ -212,15 +216,15 @@ watch(
     <section
       v-if="panel === 'steps' || panel === 'search'"
       class="rounded-3xl border border-orange-100 bg-white/95 p-4 shadow-sm dark:border-stone-700 dark:bg-stone-900"
-      :aria-label="panel === 'steps' ? 'Guided food discovery' : 'Search food'"
+      :aria-label="panel === 'steps' ? t(&quot;products.common.guided_food_discovery&quot;) : t(&quot;products.common.search_food&quot;)"
     >
       <div
         class="mb-5 grid grid-cols-2 gap-2 rounded-xl bg-stone-100 p-1 dark:bg-stone-800"
       >
         <button
           v-for="option in [
-            { value: 'dine-out', label: '🍽️ ញ៉ាំនៅក្រៅ' },
-            { value: 'cook-at-home', label: '👩‍🍳 ធ្វើនៅផ្ទះ' },
+            { value: 'dine-out', label: t(&quot;products.food.discovery.dine_out&quot;) },
+            { value: 'cook-at-home', label: t(&quot;products.food.discovery.cook_home&quot;) },
           ]"
           :key="option.value"
           type="button"
@@ -239,7 +243,7 @@ watch(
       </div>
 
       <template v-if="panel === 'steps'">
-        <nav class="mb-5 grid grid-cols-5 gap-1" aria-label="Discovery steps">
+        <nav class="mb-5 grid grid-cols-5 gap-1" :aria-label="t(&quot;products.common.discovery_steps&quot;)">
           <button
             v-for="(label, index) in shortSteps"
             :key="label"
@@ -262,7 +266,7 @@ watch(
         <p
           class="text-[11px] font-semibold text-orange-600 dark:text-orange-400"
         >
-          ជំហាន {{ step + 1 }} / 5
+          {{ t("products.food.discovery.step") }} {{ step + 1 }} / 5
         </p>
         <h2
           ref="heading"
@@ -288,13 +292,13 @@ watch(
             </button>
           </div>
           <label class="block text-xs text-stone-500"
-            ><span>ឬបញ្ចូលមុខម្ហូបផ្សេង</span
+            ><span>{{ t("products.food.discovery.other_food") }}</span
             ><input
               :value="keyword"
               maxlength="120"
               type="search"
               class="mobile-input mt-1"
-              placeholder="ឧ. បាយសាច់ជ្រូក"
+              :placeholder="t(&quot;products.food.discovery.food_example&quot;)"
               :disabled="disabled"
               @input="chooseFood(($event.target as HTMLInputElement).value)"
           /></label>
@@ -322,7 +326,7 @@ watch(
               :disabled="disabled"
               @click="budgetBasis('per-person')"
             >
-              ក្នុងម្នាក់
+              {{ t("products.food.discovery.per_person") }}
             </button>
             <button
               type="button"
@@ -331,7 +335,7 @@ watch(
               :disabled="disabled"
               @click="budgetBasis('total-group-budget')"
             >
-              សរុបក្រុម
+              {{ t("products.food.discovery.group_total") }}
             </button>
           </div>
           <div class="grid grid-cols-3 gap-2">
@@ -355,29 +359,29 @@ watch(
               :disabled="disabled"
               @click="chooseBudget(null)"
             >
-              មិនកំណត់
+              {{ t("products.food.discovery.any") }}
             </button>
           </div>
           <p class="text-xs text-stone-500">
             {{
               flexible
-                ? "មិនកំណត់ថវិកា"
+                ? t("products.food.discovery.no_budget_limit")
                 : filters.budgetRange
                   ? budgetLabel || filters.budgetRange
                   : perPerson
-                    ? "ថវិកាអតិបរមាក្នុងម្នាក់ (USD)"
-                    : "ថវិកាអតិបរមាសម្រាប់ក្រុមទាំងមូល (USD)"
+                    ? t("products.food.discovery.person_budget_label")
+                    : t("products.food.discovery.group_budget_label")
             }}
           </p>
           <details class="text-xs text-stone-500">
-            <summary class="cursor-pointer py-2">កំណត់ថវិកាផ្ទាល់</summary>
+            <summary class="cursor-pointer py-2">{{ t("products.food.discovery.custom_budget") }}</summary>
             <input
               :value="totalBudget"
               type="number"
               min="0.01"
               max="10000"
               step="0.01"
-              aria-label="Custom budget in USD"
+              :aria-label="t(&quot;products.common.custom_budget_in_usd&quot;)"
               class="mobile-input mt-1"
               :disabled="disabled"
               @input="
@@ -397,12 +401,12 @@ watch(
               :disabled="disabled"
               @click="emit('change', { peopleCount: count })"
             >
-              {{ count === 1 ? "ម្នាក់ឯង" : `${count} នាក់` }}
+              {{ count === 1 ? t("products.food.discovery.alone") : t("products.food.discovery.people_count", { value: count }) }}
             </button>
           </div>
           <details class="text-xs text-stone-500">
             <summary class="cursor-pointer py-2">
-              ចំនួនផ្សេង (1–50 នាក់)
+              {{ t("products.food.discovery.other_count") }}
             </summary>
             <input
               :value="peopleCount"
@@ -410,7 +414,7 @@ watch(
               min="1"
               max="50"
               step="1"
-              aria-label="Number of people"
+              :aria-label="t(&quot;products.common.number_of_people&quot;)"
               class="mobile-input mt-1"
               :disabled="disabled"
               @input="
@@ -432,7 +436,7 @@ watch(
             @click="emit('locate')"
           >
             <Compass class="size-5 text-orange-500" /><span>{{
-              locating ? "កំពុងរកទីតាំង…" : "ប្រើទីតាំងបច្ចុប្បន្ន"
+              locating ? t("products.food.discovery.locating") : t("products.food.discovery.current_location")
             }}</span
             ><Check v-if="hasCoords" class="ml-auto size-4 text-orange-600" />
           </button>
@@ -441,7 +445,7 @@ watch(
           </p>
           <label
             class="block text-xs font-semibold text-stone-600 dark:text-stone-300"
-            ><span>ឬជ្រើសតំបន់នៅភ្នំពេញ</span
+            ><span>{{ t("products.food.discovery.select_area_help") }}</span
             ><ModernSelect
               :value="districtId"
               class="mobile-input mt-2"
@@ -450,7 +454,7 @@ watch(
                 emit('district', ($event.target as HTMLSelectElement).value)
               "
             >
-              <option value="" disabled>ជ្រើសតំបន់</option>
+              <option value="" disabled>{{ t("products.food.discovery.select_area") }}</option>
               <option
                 v-for="district in districts"
                 :key="district.id"
@@ -466,9 +470,9 @@ watch(
             class="min-h-11 text-left text-xs font-semibold text-orange-600 underline underline-offset-4 dark:text-orange-400"
             :disabled="disabled"
             @click="emit('district', districtId)"
-          >ប្រើតំបន់ដែលបានជ្រើសជំនួស GPS</button>
+          >{{ t("products.food.discovery.area_instead_gps") }}</button>
           <p v-if="mode === 'cook-at-home'" class="text-xs text-stone-500">
-            រូបមន្តអាចបង្កើតបានដោយមិនប្រើ GPS។
+            {{ t("products.food.discovery.no_gps_recipe") }}
           </p>
         </div>
         <p
@@ -476,7 +480,7 @@ watch(
           role="alert"
           class="mt-3 text-xs text-amber-700 dark:text-amber-300"
         >
-          សូមជ្រើសចំនួនមនុស្ស 1–50 និងថវិកាត្រឹមត្រូវ។
+          {{ t("products.food.discovery.invalid_count_budget") }}
         </p>
         <div
           class="mt-5 flex gap-2 border-t border-stone-100 pt-4 dark:border-stone-800"
@@ -485,7 +489,7 @@ watch(
             type="button"
             class="mobile-choice justify-center px-4"
             :disabled="step === 0 || disabled"
-            aria-label="Previous step"
+            :aria-label="t(&quot;products.common.previous_step&quot;)"
             @click="goStep(step - 1)"
           >
             <ArrowLeft class="size-4" />
@@ -499,9 +503,9 @@ watch(
             {{
               step === 4
                 ? mode === "cook-at-home"
-                  ? "បង្កើតរូបមន្ត ✨"
-                  : "មើលហាងដែលត្រូវគ្នា"
-                : "បន្ទាប់"
+                  ? t("products.food.discovery.create_recipe")
+                  : t("products.food.discovery.matching_places")
+                : t("products.food.discovery.next")
             }}<ArrowRight class="size-4" />
           </button>
         </div>
@@ -512,16 +516,16 @@ watch(
         @submit.prevent="!disabled && !locating && valid && emit('submit')"
       >
         <h2 class="text-xl font-black text-stone-900 dark:text-stone-100">
-          ស្វែងរកមុខម្ហូប
+          {{ t("products.food.discovery.search_food") }}
         </h2>
         <label class="block text-xs text-stone-500"
-          >មុខម្ហូប ឬប្រភេទម្ហូប<input
+          >{{ t("products.food.discovery.food_type") }}<input
             ref="searchInput"
             :value="keyword"
             type="search"
             maxlength="120"
             class="mobile-input mt-2"
-            placeholder="ឧ. គុយទាវ, BBQ, កាហ្វេ…"
+            :placeholder="t(&quot;products.food.discovery.search_example&quot;)"
             :disabled="disabled"
             @input="chooseFood(($event.target as HTMLInputElement).value)"
         /></label>
@@ -538,21 +542,21 @@ watch(
           </button>
         </div>
         <p class="text-xs text-stone-500">
-          {{ peopleCount }} នាក់ · {{ locationLabel }}
+          {{ peopleCount }} {{ t("products.food.discovery.people_separator") }} {{ locationLabel }}
         </p>
         <button
           type="submit"
           class="min-h-12 w-full rounded-xl bg-orange-600 text-sm font-bold text-white disabled:opacity-50"
           :disabled="disabled || locating || !valid"
         >
-          {{ mode === "cook-at-home" ? "បង្កើតរូបមន្ត ✨" : "ស្វែងរកហាង" }}
+          {{ mode === "cook-at-home" ? t("products.food.discovery.create_recipe") : t("products.food.discovery.search_places") }}
         </button>
         <button
           type="button"
           class="flex min-h-11 items-center gap-2 text-xs font-semibold text-orange-600 dark:text-orange-400"
           @click="open('advanced')"
         >
-          <SlidersHorizontal class="size-4" />កែថវិកា ទីតាំង និងតម្រង
+          <SlidersHorizontal class="size-4" />{{ t("products.food.discovery.edit_filters") }}
         </button>
       </form>
     </section>
@@ -566,14 +570,14 @@ watch(
           class="min-h-11 px-2 text-xs font-semibold text-orange-600 dark:text-orange-400"
           @click="open('steps')"
         >
-          កែជម្រើស
+          {{ t("products.food.discovery.edit_choices") }}
         </button>
       </div>
       <p
         v-if="panel === 'results'"
         class="truncate text-xs text-stone-500 dark:text-stone-400"
       >
-        {{ keyword || "គ្រប់មុខម្ហូប" }} · {{ locationLabel }}
+        {{ keyword || t("products.food.discovery.all_food") }} · {{ locationLabel }}
       </p>
     </div>
   </div>

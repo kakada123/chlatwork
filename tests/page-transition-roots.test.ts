@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -55,7 +56,7 @@ function pageTemplate(path: string, context: Record<string, unknown>) {
     module.exports,
   );
   return vue.defineComponent({
-    render: () => module.exports.render(context, []),
+    render: () => module.exports.render({ isKhmer: false, t: createI18nStub().t, ...context }, []),
   });
 }
 

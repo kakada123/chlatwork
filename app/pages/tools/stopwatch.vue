@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Flag, Pause, Play, RotateCcw, Timer } from "lucide-vue-next";
 import {
   createStopwatch,
@@ -10,12 +11,16 @@ import {
   startStopwatch,
 } from "~/lib/stopwatch";
 
+const { t } = useAppI18n();
+
+
+
+
 useSeoMeta({
-  title: "Online Stopwatch with Lap Times - ChlatWork",
-  description:
-    "Measure elapsed time with a free online stopwatch. Start, pause, resume, reset, and record split and total lap times.",
-  ogTitle: "Online Stopwatch - ChlatWork",
-  ogDescription: "A simple stopwatch with lap times, right in your browser.",
+  title: () => t("tools.stopwatch.metaTitle"),
+  description: () => t("tools.stopwatch.metaDescription"),
+  ogTitle: () => t("tools.stopwatch.metaOgTitle"),
+  ogDescription: () => t("tools.stopwatch.metaOgDescription"),
 });
 
 const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(true);
@@ -27,16 +32,10 @@ const hasSession = computed(
 );
 const status = computed(() =>
   running.value
-    ? isKhmer.value
-      ? "កំពុងដំណើរការ"
-      : "Running"
+    ? t("tools.stopwatch.running")
     : hasSession.value
-    ? isKhmer.value
-      ? "បានផ្អាក"
-      : "Paused"
-    : isKhmer.value
-    ? "រួចរាល់"
-    : "Ready",
+    ? t("tools.stopwatch.paused")
+    : t("tools.stopwatch.ready"),
 );
 const recentLaps = computed(() => [...stopwatch.laps].reverse());
 let frame: number | null = null;
@@ -109,17 +108,17 @@ onBeforeUnmount(() => {
       <div class="mb-3 flex items-center gap-2 text-sky-700 dark:text-cyan-200">
         <Timer class="size-5" aria-hidden="true" />
         <span class="text-xs font-bold uppercase tracking-widest"
-          >{{ isKhmer ? "កាលបរិច្ឆេទ និងពេលវេលា" : "Date & Time" }}</span
+          >{{ t("tools.stopwatch.dateTime") }}</span
         >
       </div>
-      <h1 class="text-2xl font-bold sm:text-3xl">{{ isKhmer ? "នាឡិកាវាស់ស្ទង់" : "Stopwatch" }}</h1>
+      <h1 class="text-2xl font-bold sm:text-3xl">{{ t("tools.stopwatch.stopwatch") }}</h1>
       <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
-        {{ isKhmer ? "វាស់ស្ទង់ពេលវេលា ចុចផ្អាក និងកត់ត្រាជុំនីមួយៗបានយ៉ាងងាយស្រួល។" : "Track your time. Pause when you need to, and capture every lap." }}
+        {{ t("tools.stopwatch.trackYourTimePauseWhenYouNeedToAnd") }}
       </p>
     </header>
 
     <section
-      aria-label="Stopwatch controls"
+      :aria-label="t(&quot;tools.stopwatch.stopwatchControls&quot;)"
       class="rounded-3xl border border-slate-200 bg-white px-4 py-8 text-center shadow-sm dark:border-white/10 dark:bg-white/[0.06] sm:p-10"
     >
       <p
@@ -136,13 +135,13 @@ onBeforeUnmount(() => {
       <p
         role="timer"
         aria-live="off"
-        aria-label="Elapsed time"
+        :aria-label="t(&quot;tools.stopwatch.elapsedTime&quot;)"
         class="my-5 font-mono text-[clamp(1.5rem,6.5vw,4rem)] font-semibold leading-tight tracking-tight tabular-nums"
       >
         {{ formatStopwatchTime(elapsedMs) }}
       </p>
       <p class="text-xs text-slate-400 dark:text-white/40">
-        {{ isKhmer ? "ម៉ោង : នាទី : វិនាទី . ភាគរយវិនាទី" : "Hours : Minutes : Seconds . Hundredths" }}
+        {{ t("tools.stopwatch.hoursMinutesSecondsHundredths") }}
       </p>
 
       <div class="mx-auto mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
@@ -156,7 +155,7 @@ onBeforeUnmount(() => {
             class="size-4 shrink-0"
             aria-hidden="true"
           />
-          {{ running ? (isKhmer ? "ផ្អាក" : "Pause") : hasSession ? (isKhmer ? "បន្ត" : "Resume") : (isKhmer ? "ចាប់ផ្តើម" : "Start") }}
+          {{ running ? (t("tools.stopwatch.pause")) : hasSession ? (t("tools.stopwatch.resume")) : (t("tools.stopwatch.start")) }}
         </button>
         <button
           type="button"
@@ -165,7 +164,7 @@ onBeforeUnmount(() => {
           @click="addLap"
         >
           <Flag class="size-4 shrink-0" aria-hidden="true" />
-          {{ isKhmer ? "ចាប់ជុំ" : "Lap" }}
+          {{ t("tools.stopwatch.lap") }}
         </button>
         <button
           type="button"
@@ -174,11 +173,11 @@ onBeforeUnmount(() => {
           @click="reset"
         >
           <RotateCcw class="size-4 shrink-0" aria-hidden="true" />
-          {{ isKhmer ? "កំណត់ឡើងវិញ" : "Reset" }}
+          {{ t("tools.stopwatch.reset") }}
         </button>
       </div>
       <p class="mt-4 text-xs text-slate-500 dark:text-white/50">
-        {{ isKhmer ? "ចុច Space ដើម្បីចាប់ផ្តើម ផ្អាក ឬបន្ត។" : "Press Space to start, pause, or resume." }}
+        {{ t("tools.stopwatch.pressSpaceToStartPauseOrResume") }}
       </p>
     </section>
 
@@ -189,26 +188,24 @@ onBeforeUnmount(() => {
       <div
         class="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-white/10 sm:px-6"
       >
-        <h2 id="stopwatch-laps-heading" class="text-sm font-bold">{{ isKhmer ? "កំណត់ត្រាជុំ" : "Lap times" }}</h2>
+        <h2 id="stopwatch-laps-heading" class="text-sm font-bold">{{ t("tools.stopwatch.lapTimes") }}</h2>
         <span role="status" class="text-xs text-slate-500 dark:text-white/50"
-          >{{ stopwatch.laps.length }} {{ isKhmer ? "ជុំ" : "recorded" }}</span
+          >{{ stopwatch.laps.length }} {{ t("tools.stopwatch.recorded") }}</span
         >
       </div>
       <div v-if="recentLaps.length" class="max-h-80 overflow-auto">
         <table class="w-full text-left text-xs sm:text-sm">
-          <caption class="sr-only">
-            Lap splits and total elapsed times, newest first
-          </caption>
+          <caption class="sr-only">{{ t("tools.stopwatch.lapSplitsAndTotalElapsedTimesNewestFirst") }}</caption>
           <thead
             class="sticky top-0 bg-slate-50 text-slate-500 dark:bg-slate-900 dark:text-white/60"
           >
             <tr>
-              <th scope="col" class="px-3 py-3 font-medium sm:px-6">{{ isKhmer ? "ជុំ" : "Lap" }}</th>
+              <th scope="col" class="px-3 py-3 font-medium sm:px-6">{{ t("tools.stopwatch.lap_2") }}</th>
               <th scope="col" class="px-3 py-3 text-right font-medium sm:px-6">
-                {{ isKhmer ? "រយៈពេលជុំ" : "Split" }}
+                {{ t("tools.stopwatch.split") }}
               </th>
               <th scope="col" class="px-3 py-3 text-right font-medium sm:px-6">
-                {{ isKhmer ? "សរុប" : "Total" }}
+                {{ t("tools.stopwatch.total") }}
               </th>
             </tr>
           </thead>
@@ -237,14 +234,9 @@ onBeforeUnmount(() => {
       <p
         v-else
         class="px-6 py-10 text-center text-sm text-slate-500 dark:text-white/50"
-      >
-        Start the stopwatch, then tap Lap to record a split.
-      </p>
+      >{{ t("tools.stopwatch.startTheStopwatchThenTapLapToRecordA") }}</p>
     </section>
 
-    <p class="text-center text-xs leading-6 text-slate-400 dark:text-white/40">
-      Keep this page open. Resetting, refreshing, or leaving the page clears
-      your session.
-    </p>
+    <p class="text-center text-xs leading-6 text-slate-400 dark:text-white/40">{{ t("tools.stopwatch.keepThisPageOpenResettingRefreshingOrLeavingThe") }}</p>
   </div>
 </template>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { AppLocale } from "~/composables/useLanguage";
 import { useLanguage } from "~/composables/useLanguage";
+
+
+const { isKhmer } = useLanguage();
 
 interface GoogleCredentialResponse { credential?: string }
 
@@ -20,6 +24,7 @@ declare global {
 const { currentLocale } = useLanguage();
 const props = defineProps<{ locale?: AppLocale }>();
 const activeLocale = computed(() => props.locale ?? currentLocale.value);
+const { t } = useAppI18n(activeLocale);
 const emit = defineEmits<{ success: []; error: [message: string] }>();
 const config = useRuntimeConfig();
 const { loginWithGoogle, loginWithTelegram, startTelegramCodeLogin } = useAuth();
@@ -28,25 +33,7 @@ const googleClientId = computed(() => config.public.googleClientId);
 const telegramClientId = computed(() => config.public.telegramClientId);
 const isMiniAppAuthenticating = ref(false);
 const authCopy = computed(() =>
-  activeLocale.value === "km"
-    ? {
-        divider: "ឬបន្តជាមួយ",
-        googleMissing: "មិនទាន់បានកំណត់ Google login",
-        telegram: "បន្តជាមួយ Telegram",
-        telegramMissing: "មិនទាន់បានកំណត់ Telegram login",
-        loadError: "មិនអាចបើក social login បានទេ",
-        tokenError: "Google មិនបានផ្តល់ ID token ទេ",
-        loginError: "មិនអាចចូលគណនីបានទេ។ សូមព្យាយាមម្តងទៀត។",
-      }
-    : {
-        divider: "Or continue with",
-        googleMissing: "Google login is not configured",
-        telegram: "Continue with Telegram",
-        telegramMissing: "Telegram login is not configured",
-        loadError: "Unable to load social login",
-        tokenError: "Google did not return an ID token",
-        loginError: "Unable to sign in. Please try again.",
-      },
+  ({ divider: t("shared.copy_app_components_auth_SocialAuthButtons_vue.or_continue_with"), googleMissing: t("shared.copy_app_components_auth_SocialAuthButtons_vue.google_login_is_not_configured"), telegram: t("shared.copy_app_components_auth_SocialAuthButtons_vue.continue_with_telegram"), telegramMissing: t("shared.copy_app_components_auth_SocialAuthButtons_vue.telegram_login_is_not_configured"), loadError: t("shared.copy_app_components_auth_SocialAuthButtons_vue.unable_to_load_social_login"), tokenError: t("shared.copy_app_components_auth_SocialAuthButtons_vue.google_did_not_return_an_id_token"), loginError: t("shared.copy_app_components_auth_SocialAuthButtons_vue.unable_to_sign_in_please_try_again") }),
 );
 
 function loadScript(id: string, src: string) {
@@ -120,7 +107,7 @@ onMounted(async () => {
 <template>
   <div class="mt-6 space-y-3">
     <p v-if="isMiniAppAuthenticating" role="status" class="rounded-xl bg-sky-50 px-4 py-3 text-center text-sm font-semibold text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-      {{ activeLocale === 'km' ? "កំពុងផ្ទៀងផ្ទាត់គណនី Telegram របស់អ្នក…" : "Verifying your Telegram account…" }}
+      {{ t("shared.components_auth_social_auth_buttons.verifying_your_telegram_account") }}
     </p>
     <template v-else>
     <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-gray-500">

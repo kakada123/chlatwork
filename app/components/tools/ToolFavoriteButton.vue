@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Heart, LoaderCircle } from "lucide-vue-next";
+
+const { t } = useAppI18n();
 
 const props = withDefaults(
   defineProps<{ toolKey: string; toolName: string; showLabel?: boolean }>(),
@@ -8,27 +11,28 @@ const props = withDefaults(
 const { isKhmer } = useLanguage();
 const { user, isReady: authReady } = useAuth();
 const { favoritesReady, favoriteError, isFavorite, toggleFavorite, isFavoriteSaving } = useToolFavorites();
+const localizedFavoriteError = computed(() => favoriteError.value);
 const favorite = computed(() => isFavorite(props.toolKey));
 const saving = computed(() => isFavoriteSaving(props.toolKey));
 const saveFailed = ref(false);
 const actionTitle = computed(() => {
-  if (saveFailed.value && favoriteError.value) return favoriteError.value;
+  if (saveFailed.value && favoriteError.value) return localizedFavoriteError.value;
   if (!authReady.value || !favoritesReady.value)
-    return isKhmer.value ? "កំពុងផ្ទុកឧបករណ៍សំណព្វ" : "Loading account favorites";
+    return t("shared.components_tools_tool_favorite_button.loading_account_favorites");
   if (!user.value)
-    return isKhmer.value ? "ចូលគណនីដើម្បីរក្សាទុកឧបករណ៍សំណព្វ" : "Sign in to save favorites";
+    return t("shared.components_tools_tool_favorite_button.sign_in_to_save_favorites");
   return favorite.value
-    ? (isKhmer.value ? "លុបចេញពីឧបករណ៍សំណព្វ" : "Remove from favorites")
-    : (isKhmer.value ? "រក្សាទុកក្នុងឧបករណ៍សំណព្វ" : "Save to favorites");
+    ? (t("shared.components_tools_tool_favorite_button.remove_from_favorites"))
+    : (t("shared.components_tools_tool_favorite_button.save_to_favorites"));
 });
 const actionAriaLabel = computed(() => {
   if (!authReady.value || !favoritesReady.value)
-    return isKhmer.value ? `កំពុងផ្ទុក ${props.toolName}` : `Loading favorites for ${props.toolName}`;
+    return t("shared.components_tools_tool_favorite_button.loading_favorites_for", { toolName: props.toolName });
   if (!user.value)
-    return isKhmer.value ? `ចូលគណនីដើម្បីរក្សាទុក ${props.toolName}` : `Sign in to save ${props.toolName} to favorites`;
+    return t("shared.components_tools_tool_favorite_button.sign_in_to_save_to_favorites", { toolName: props.toolName });
   return favorite.value
-    ? (isKhmer.value ? `លុប ${props.toolName} ចេញពីឧបករណ៍សំណព្វ` : `Remove ${props.toolName} from favorites`)
-    : (isKhmer.value ? `រក្សាទុក ${props.toolName} ក្នុងឧបករណ៍សំណព្វ` : `Save ${props.toolName} to favorites`);
+    ? (t("shared.components_tools_tool_favorite_button.remove_from_favorites_2", { toolName: props.toolName }))
+    : (t("shared.components_tools_tool_favorite_button.save_to_favorites_2", { toolName: props.toolName }));
 });
 
 async function handleToggle() {
@@ -57,8 +61,8 @@ async function handleToggle() {
     <LoaderCircle v-if="saving" class="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
     <Heart v-else class="h-3.5 w-3.5" :class="favorite ? 'fill-current' : ''" aria-hidden="true" />
     <span v-if="showLabel" class="text-xs font-semibold">
-      {{ saving ? (isKhmer ? "កំពុងរក្សាទុក…" : "Saving…") : isKhmer ? (favorite ? "បានរក្សាទុក" : "សំណព្វ") : (favorite ? "Favorited" : "Favorite") }}
+      {{ saving ? (t("shared.common.saving")) : (favorite) ? t("shared.extra_app_components_tools_ToolFavoriteButton_vue.favorited") : t("shared.extra_app_components_tools_ToolFavoriteButton_vue.favorite") }}
     </span>
-    <span v-if="saveFailed" class="sr-only" role="alert">{{ favoriteError }}</span>
+    <span v-if="saveFailed" class="sr-only" role="alert">{{ localizedFavoriteError }}</span>
   </button>
 </template>

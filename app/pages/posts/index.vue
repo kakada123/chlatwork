@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizePost } from "~/data/posts-km";
 import { POSTS } from "~/data/posts";
 
-const title = "ChlatWork Posts — Technology and Business Briefings";
-const description =
-  "ChlatWork editorial posts covering AI, software development, business, Cambodia's technology ecosystem, security, and markets.";
+const { t } = useAppI18n();
+
+const { isKhmer, locale } = useLanguage();
+
+const posts = computed(() => POSTS.map(post => localizePost(post, locale.value)));
+const title = computed(() => t("shared.pages_posts_index.chlat_work_posts_technology_and_business_briefings"));
+const description = computed(() => t("shared.pages_posts_index.chlat_work_editorial_posts_covering_ai_software_development_business"));
 
 useSeoMeta({
   title,
@@ -25,13 +31,13 @@ useHead({
 <template>
   <main class="mx-auto w-full max-w-[1120px] space-y-8">
     <header class="border-b border-slate-200 pb-5 dark:border-white/10">
-      <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">Posts</h1>
-      <p class="mt-2 text-xs text-slate-500 dark:text-white/50">{{ POSTS.length }} briefings</p>
+      <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">{{ t("shared.pages_posts_index.posts") }}</h1>
+      <p class="mt-2 text-xs text-slate-500 dark:text-white/50">{{ POSTS.length }} {{ t("shared.pages_posts_index.briefings") }}</p>
     </header>
 
     <section class="grid gap-5">
       <NuxtLink
-        v-for="post in POSTS"
+        v-for="post in posts"
         :key="post.slug"
         :to="post.path"
         class="group grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-colors hover:border-sky-400 hover:bg-sky-50/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08] sm:grid-cols-[220px_1fr] sm:items-center"
@@ -49,13 +55,13 @@ useHead({
           <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50">
             <time :datetime="post.publishedAt">{{ post.displayDate }}</time>
             <span aria-hidden="true">•</span>
-            <span>{{ post.readingMinutes }} min read</span>
+            <span>{{ post.readingMinutes }} {{ t("shared.pages_posts_post_slug.min_read") }}</span>
           </div>
           <h2 class="mt-2 text-xl font-black text-slate-950 transition group-hover:text-sky-700 dark:text-white dark:group-hover:text-cyan-200">
             {{ post.title }}
           </h2>
           <span class="mt-3 inline-flex text-sm font-bold text-sky-700 dark:text-cyan-300">
-            Read briefing →
+            {{ t("shared.pages_posts_index.read_briefing") }}
           </span>
         </div>
       </NuxtLink>

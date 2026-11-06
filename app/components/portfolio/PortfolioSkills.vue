@@ -3,10 +3,10 @@
     <div class="mx-auto max-w-7xl">
       <div data-reveal class="max-w-3xl">
         <p class="text-sm font-bold uppercase text-cyan-700 dark:text-cyan-200/90">
-          Skills
+          {{ t("shared.components_portfolio_portfolio_skills.skills") }}
         </p>
         <h2 class="mt-3 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-          Backend-first, full-stack when the product needs it.
+          {{ t("shared.components_portfolio_portfolio_skills.backend_first_full_stack_when_the_product_needs_it") }}
         </h2>
       </div>
 
@@ -47,7 +47,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { PortfolioSkillGroup } from "~/data/portfolio";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   groups: PortfolioSkillGroup[];

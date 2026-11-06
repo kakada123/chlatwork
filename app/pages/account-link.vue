@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import {
   ArrowDown,
   ArrowUp,
@@ -27,6 +29,10 @@ import { prepareMomentImage } from "~/lib/moment-image";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
 import { useLanguage } from "~/composables/useLanguage";
 
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
+
 const { isKhmer } = useLanguage();
 
 // A standalone explicit route avoids nesting the existing account page around this editor.
@@ -42,7 +48,7 @@ definePageMeta({
     ),
 });
 useSeoMeta({
-  title: "Your page | ChlatWork Link",
+  title: () => `${t("products.links.your_page")} | ChlatWork Link`,
   robots: "noindex, nofollow",
 });
 const route = useRoute();
@@ -54,16 +60,16 @@ watch(() => route.fullPath, () => { mobilePreviewOpen.value = false; });
 onBeforeUnmount(() => { mobilePreviewOpen.value = false; });
 const { user } = useAuth();
 const tabList = [
-  { id: "profile", labelEn: "Profile", labelKm: "ប្រវត្តិរូប" },
-  { id: "links", labelEn: "Links", labelKm: "តំណភ្ជាប់" },
-  { id: "appearance", labelEn: "Appearance", labelKm: "រូបរាង" },
-  { id: "share", labelEn: "Share", labelKm: "ចែករំលែក" },
-  { id: "analytics", labelEn: "Analytics", labelKm: "ស្ថិតិ" },
+  { id: "profile", labelKey: "products.links.tabs.profile" },
+  { id: "links", labelKey: "products.links.tabs.links" },
+  { id: "appearance", labelKey: "products.links.tabs.appearance" },
+  { id: "share", labelKey: "products.links.tabs.share" },
+  { id: "analytics", labelKey: "products.links.tabs.analytics" },
 ];
 const tabs = computed(() =>
   tabList.map((tab) => ({
     id: tab.id,
-    label: isKhmer.value ? tab.labelKm : tab.labelEn,
+    label: t(tab.labelKey),
   })),
 );
 const section = computed(() => String(route.params.section || "profile"));
@@ -156,7 +162,7 @@ onBeforeRouteLeave((to) => {
   if (
     !to.path.startsWith("/account/link") &&
     dirty.value &&
-    !window.confirm("Leave without saving your changes?")
+    !window.confirm(t("products.links.leave_without_saving_your_changes"))
   )
     return false;
 });
@@ -296,7 +302,7 @@ async function refreshAnalytics() {
     <NuxtLink
       to="/account"
       class="mb-6 hidden items-center gap-2 text-sm text-slate-500 dark:text-white/60 sm:inline-flex"
-      ><ArrowLeft :size="16" /> Account</NuxtLink
+      ><ArrowLeft :size="16" /> {{ t("products.common.account") }}</NuxtLink
     >
     <header class="mb-8 flex flex-wrap items-center justify-between gap-5">
       <div>
@@ -306,10 +312,10 @@ async function refreshAnalytics() {
           <Link2 :size="18" /> ChlatWork Link
         </p>
         <h1 class="text-3xl font-bold tracking-tight">
-          <span v-if="product === 'link'" class="sm:hidden">Your page</span><span :class="product === 'link' ? 'hidden sm:inline' : undefined">Your corner of the internet.</span>
+          <span v-if="product === 'link'" class="sm:hidden">{{ t("products.links.your_page") }}</span><span :class="product === 'link' ? 'hidden sm:inline' : undefined">{{ t("products.links.your_corner_of_the_internet") }}</span>
         </h1>
         <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
-          Choose your style. Add your links. Share anywhere.
+          {{ t("products.links.choose_your_style_add_your_links_share_anywhere") }}
         </p>
       </div>
       <span
@@ -319,26 +325,26 @@ async function refreshAnalytics() {
             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300'
             : 'bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60'
         "
-        >{{ saved?.isPublished ? (isKhmer ? "បានបោះផ្សាយ" : "Published") : (isKhmer ? "ព្រាង" : "Draft") }}</span
+        >{{ saved?.isPublished ? (t("products.links.published")) : (t("products.links.draft")) }}</span
       >
     </header>
-    <div v-if="product === 'link'" class="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-white/5 sm:hidden" role="group" :aria-label="isKhmer ? 'ផ្ទាំងកែសម្រួល' : 'Editor view'">
-      <button type="button" class="min-h-11 rounded-xl text-sm font-semibold" :class="!mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="!mobilePreviewOpen" aria-controls="link-editor-form" @click="mobilePreviewOpen = false">{{ isKhmer ? "កែសម្រួលទំព័រ" : "Edit page" }}</button>
-      <button type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold" :class="mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="mobilePreviewOpen" aria-controls="link-editor-preview" @click="mobilePreviewOpen = true"><Eye :size="16" aria-hidden="true" />{{ isKhmer ? "មើលជាមុន" : "Preview" }}</button>
+    <div v-if="product === 'link'" class="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-white/5 sm:hidden" role="group" :aria-label="t(&quot;products.links.editor_view&quot;)">
+      <button type="button" class="min-h-11 rounded-xl text-sm font-semibold" :class="!mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="!mobilePreviewOpen" aria-controls="link-editor-form" @click="mobilePreviewOpen = false">{{ t("products.links.edit_page") }}</button>
+      <button type="button" class="flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold" :class="mobilePreviewOpen ? 'bg-white shadow-sm dark:bg-white/10' : 'text-slate-500'" :aria-pressed="mobilePreviewOpen" aria-controls="link-editor-preview" @click="mobilePreviewOpen = true"><Eye :size="16" aria-hidden="true" />{{ t("products.moments.birthday_wish_generator.preview") }}</button>
     </div>
     <div
       v-if="failure"
       class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
       role="alert"
     >
-      {{ failure }}
+      {{ productText(failure) }}
       <button
         v-if="loadError"
         type="button"
         class="ml-2 underline"
         @click="reloadNuxtApp()"
       >
-        {{ isKhmer ? "ព្យាយាមម្តងទៀត" : "Retry" }}
+        {{ t("products.links.retry") }}
       </button>
     </div>
     <p
@@ -346,7 +352,7 @@ async function refreshAnalytics() {
       class="mb-5 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-300"
       role="status"
     >
-      <Check :size="18" />{{ message }}
+      <Check :size="18" />{{ productText(message) }}
     </p>
     <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section
@@ -356,7 +362,7 @@ async function refreshAnalytics() {
       >
         <nav
           class="mb-7 flex gap-1 overflow-x-auto border-b border-slate-100 pb-3 dark:border-white/10"
-          aria-label="Profile editor sections"
+          :aria-label="t(&quot;products.common.profile_editor_sections&quot;)"
         >
           <NuxtLink
             v-for="tab in tabs"
@@ -375,53 +381,52 @@ async function refreshAnalytics() {
         <fieldset :disabled="busy || !!loadError" class="min-w-0 space-y-6">
           <template v-if="section === 'profile'">
             <label
-              >Username<input
+              >{{ t("products.links.username") }}<input
                 v-model="draft.slug"
                 maxlength="40"
                 placeholder="kakada"
                 autocapitalize="none"
                 spellcheck="false"
               /><small
-                >{{ destination(`/u/${draft.slug || 'your-name'}`).replace(/^https?:\/\//, '') }} · 3–40 letters,
-                numbers, - or _</small
+                >{{ destination(`/u/${draft.slug || 'your-name'}`).replace(/^https?:\/\//, '') }} {{ t("products.links.3_40_letters_numbers_or") }}</small
               ></label
             >
             <label
-              >Display name<input
+              >{{ t("products.links.display_name") }}<input
                 v-model="draft.displayName"
                 maxlength="100"
                 placeholder="Ngen Kakada"
             /></label>
             <label
-              >Headline<input
+              >{{ t("products.links.headline") }}<input
                 v-model="draft.headline"
                 maxlength="160"
-                placeholder="Backend Developer"
+                :placeholder="t(&quot;products.links.backend_developer&quot;)"
             /></label>
             <label
-              >Bio<textarea
+              >{{ t("products.links.bio") }}<textarea
                 v-model="draft.bio"
                 maxlength="320"
                 rows="3"
-                placeholder="Building useful stuff."
+                :placeholder="t(&quot;products.common.building_useful_stuff&quot;)"
               /><small>{{ draft.bio.length }}/320</small></label
             >
             <div>
-              <p class="field-label">Profile photo</p>
+              <p class="field-label">{{ t("products.links.profile_photo") }}</p>
               <label class="upload-button"
-                ><Upload :size="16" /> Upload photo<input
+                ><Upload :size="16" /> {{ t("products.links.upload_photo") }}<input
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                   :disabled="!saved"
                   @change="upload($event, 'avatar')" /></label
               ><small>{{
                 saved
-                  ? "Photos upload immediately, including on published pages."
-                  : "Save your profile before uploading photos."
+                  ? t("products.links.photos_upload_immediately_including_on_published_pages")
+                  : t("products.links.save_your_profile_before_uploading_photos")
               }}</small>
             </div>
             <label
-              >Or use an image URL<input
+              >{{ t("products.links.or_use_an_image_url") }}<input
                 :value="
                   draft.hasAvatarUpload && !avatarChanged
                     ? ''
@@ -443,30 +448,30 @@ async function refreshAnalytics() {
                 avatarChanged = true;
               "
             >
-              Remove profile photo
+              {{ t("products.links.remove_profile_photo") }}
             </button>
             <label
-              >SEO title<input
+              >{{ t("products.links.seo_title") }}<input
                 v-model="draft.seoTitle"
                 maxlength="100"
-                placeholder="Defaults to your display name"
+                :placeholder="t(&quot;products.common.defaults_to_your_display_name&quot;)"
             /></label>
             <label
-              >SEO description<textarea
+              >{{ t("products.links.seo_description") }}<textarea
                 v-model="draft.seoDescription"
                 maxlength="200"
                 rows="2"
-                placeholder="Defaults to your bio or headline"
+                :placeholder="t(&quot;products.common.defaults_to_your_bio_or_headline&quot;)"
               />
             </label>
           </template>
           <template v-if="section === 'links'">
             <div class="flex items-center justify-between gap-3">
               <div>
-                <h2 class="text-lg font-semibold">Your links</h2>
-                <small>Drag the handle or use the arrows to reorder.</small>
+                <h2 class="text-lg font-semibold">{{ t("products.links.your_links") }}</h2>
+                <small>{{ t("products.links.drag_the_handle_or_use_the_arrows_to_reorder") }}</small>
                 <small>
-                  New links appear here first and on your shared page last.
+                  {{ t("products.links.new_links_appear_here_first_and_on_your_shared_page_last") }}
                 </small>
               </div>
               <button
@@ -475,15 +480,14 @@ async function refreshAnalytics() {
                 :disabled="editorLinks.length >= 50"
                 @click="addLink"
               >
-                <Plus :size="16" /> Add link
+                <Plus :size="16" /> {{ t("products.links.add_link") }}
               </button>
             </div>
             <p
               v-if="!editorLinks.length"
               class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500 dark:border-white/20"
             >
-              Add your first link. Websites, social profiles, email, and phone
-              links are welcome.
+              {{ t("products.links.add_your_first_link_websites_social_profiles_email_and_phone_links_are_welcome") }}
             </p>
             <ClientOnly
               ><draggable
@@ -502,34 +506,34 @@ async function refreshAnalytics() {
                       <button
                         type="button"
                         class="drag-handle cursor-grab touch-none p-1 text-slate-400"
-                        aria-label="Drag to reorder"
+                        :aria-label="t(&quot;products.common.drag_to_reorder&quot;)"
                       >
                         <GripVertical :size="20" /></button
                       ><LinkPlatformIcon
                         :url="element.url"
                         class="size-5"
                       /><span class="flex-1 text-xs text-slate-500"
-                        >Link {{ editorLinks.indexOf(element) + 1 }}</span
+                        >{{ t("products.links.link") }} {{ editorLinks.indexOf(element) + 1 }}</span
                       ><label class="enabled-label"
                         ><input v-model="element.isEnabled" type="checkbox" />
-                        Enabled</label
+                        {{ t("products.links.enabled") }}</label
                       ><button
                         type="button"
                         class="p-2 text-red-500"
-                        :aria-label="`Remove link ${editorLinks.indexOf(element) + 1}`"
+                        :aria-label="`${t(&quot;products.links.remove_link&quot;)} ${editorLinks.indexOf(element) + 1}`"
                         @click="removeLink(element.editorKey)"
                       >
                         <Trash2 :size="16" />
                       </button>
                     </div>
                     <label
-                      >Button title<input
+                      >{{ t("products.links.button_title") }}<input
                         v-model="element.title"
                         :id="`link-title-${element.editorKey}`"
                         maxlength="80"
-                        placeholder="My Instagram" /></label
+                        :placeholder="t(&quot;products.common.my_instagram&quot;)" /></label
                     ><label class="mt-3"
-                      >URL<input
+                      >{{ t("products.links.url") }}<input
                         v-model="element.url"
                         maxlength="2048"
                         placeholder="https://… · mailto:… · tel:…"
@@ -541,7 +545,7 @@ async function refreshAnalytics() {
                         type="button"
                         :disabled="editorLinks.indexOf(element) === 0"
                         class="reorder-button"
-                        :aria-label="`Move link ${editorLinks.indexOf(element) + 1} up`"
+                        :aria-label="`${t(&quot;products.links.move_link&quot;)} ${editorLinks.indexOf(element) + 1} ${t(&quot;products.common.up&quot;)}`"
                         @click="moveLink(element.editorKey, -1)"
                       >
                         <ArrowUp :size="15" /></button
@@ -551,7 +555,7 @@ async function refreshAnalytics() {
                           editorLinks.indexOf(element) === editorLinks.length - 1
                         "
                         class="reorder-button"
-                        :aria-label="`Move link ${editorLinks.indexOf(element) + 1} down`"
+                        :aria-label="`${t(&quot;products.links.move_link&quot;)} ${editorLinks.indexOf(element) + 1} ${t(&quot;products.common.down&quot;)}`"
                         @click="moveLink(element.editorKey, 1)"
                       >
                         <ArrowDown :size="15" />
@@ -560,18 +564,17 @@ async function refreshAnalytics() {
                 ></template> </draggable
               ><template #fallback
                 ><p class="text-sm text-slate-500">
-                  Loading your links…
+                  {{ t("products.links.loading_your_links") }}
                 </p></template
               ></ClientOnly
             >
             <small
-              >{{ editorLinks.length }}/50 links. Changes appear publicly after
-              saving.</small
+              >{{ editorLinks.length }}{{ t("products.links.50_links_changes_appear_publicly_after_saving") }}</small
             >
           </template>
           <template v-if="section === 'appearance'">
             <div>
-              <h2 class="mb-4 text-lg font-semibold">Pick a starting point</h2>
+              <h2 class="mb-4 text-lg font-semibold">{{ t("products.links.pick_a_starting_point") }}</h2>
               <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <button
                   v-for="theme in LINK_THEMES"
@@ -588,23 +591,23 @@ async function refreshAnalytics() {
                         background: theme.dark ? '#ffffff50' : '#ffffff',
                         borderRadius: '5px',
                       }" /></span
-                  >{{ theme.name }}
+                  >{{ productText(theme.name) }}
                 </button>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <label
-                >Background<ModernSelect v-model="draft.backgroundMode">
-                  <option value="preset">Theme preset</option>
-                  <option value="solid">Solid color</option>
-                  <option value="gradient">Gradient</option>
-                  <option value="image">Photo</option>
+                >{{ t("products.links.background") }}<ModernSelect v-model="draft.backgroundMode">
+                  <option value="preset">{{ t("products.links.theme_preset") }}</option>
+                  <option value="solid">{{ t("products.links.solid_color") }}</option>
+                  <option value="gradient">{{ t("products.links.gradient") }}</option>
+                  <option value="image">{{ t("products.links.photo") }}</option>
                 </ModernSelect></label
               ><label
-                >Color mode<ModernSelect v-model="draft.colorMode">
-                  <option value="preset">From theme</option>
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
+                >{{ t("products.links.color_mode") }}<ModernSelect v-model="draft.colorMode">
+                  <option value="preset">{{ t("products.links.from_theme") }}</option>
+                  <option value="light">{{ t("products.links.light") }}</option>
+                  <option value="dark">{{ t("products.links.dark") }}</option>
                 </ModernSelect></label
               >
             </div>
@@ -613,11 +616,11 @@ async function refreshAnalytics() {
               class="grid grid-cols-2 gap-4"
             >
               <label
-                >Background color<input
+                >{{ t("products.links.background_color") }}<input
                   v-model="draft.backgroundColor"
                   type="color" /></label
               ><label v-if="draft.backgroundMode === 'gradient'"
-                >Gradient color<input
+                >{{ t("products.links.gradient_color") }}<input
                   v-model="draft.gradientColor"
                   type="color"
               /></label>
@@ -625,19 +628,19 @@ async function refreshAnalytics() {
             <template v-if="draft.backgroundMode === 'image'"
               ><div>
                 <label class="upload-button"
-                  ><Upload :size="16" /> Upload background<input
+                  ><Upload :size="16" /> {{ t("products.links.upload_background") }}<input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                     :disabled="!saved"
                     @change="upload($event, 'background')" /></label
                 ><small>{{
                   saved
-                    ? "Photos upload immediately. Save to apply the photo background style."
-                    : "Save your profile before uploading photos."
+                    ? t("products.links.photos_upload_immediately_save_to_apply_the_photo_background_style")
+                    : t("products.links.save_your_profile_before_uploading_photos")
                 }}</small>
               </div>
               <label
-                >Or use a background URL<input
+                >{{ t("products.links.or_use_a_background_url") }}<input
                   :value="
                     draft.hasBackgroundUpload && !backgroundChanged
                       ? ''
@@ -660,41 +663,39 @@ async function refreshAnalytics() {
                   backgroundChanged = true;
                 "
               >
-                Remove background photo
+                {{ t("products.links.remove_background_photo") }}
               </button></template
             >
             <div class="grid grid-cols-2 gap-4">
               <label
-                >Font<ModernSelect v-model="draft.font">
-                  <option value="sans">Modern</option>
-                  <option value="serif">Editorial</option>
-                  <option value="mono">Monospace</option>
+                >{{ t("products.links.font") }}<ModernSelect v-model="draft.font">
+                  <option value="sans">{{ t("products.food.filters.modern") }}</option>
+                  <option value="serif">{{ t("products.links.editorial") }}</option>
+                  <option value="mono">{{ t("products.links.monospace") }}</option>
                 </ModernSelect></label
               ><label
-                >Card radius<ModernSelect v-model="draft.radius">
-                  <option value="rounded">Rounded</option>
-                  <option value="pill">Pill</option>
-                  <option value="square">Square</option>
+                >{{ t("products.links.card_radius") }}<ModernSelect v-model="draft.radius">
+                  <option value="rounded">{{ t("products.links.rounded") }}</option>
+                  <option value="pill">{{ t("products.links.pill") }}</option>
+                  <option value="square">{{ t("products.links.square") }}</option>
                 </ModernSelect></label
               >
             </div>
             <label
-              >Button style<ModernSelect v-model="draft.buttonStyle">
-                <option value="solid">Solid</option>
-                <option value="outline">Outline</option>
-                <option value="glass">Glass / blur</option>
+              >{{ t("products.links.button_style") }}<ModernSelect v-model="draft.buttonStyle">
+                <option value="solid">{{ t("products.links.solid") }}</option>
+                <option value="outline">{{ t("products.links.outline") }}</option>
+                <option value="glass">{{ t("products.links.glass_blur") }}</option>
               </ModernSelect></label
             >
             <label class="enabled-label"
-              ><input v-model="draft.showBranding" type="checkbox" /> Show “Made
-              with ChlatWork”</label
+              ><input v-model="draft.showBranding" type="checkbox" /> {{ t("products.links.show_made_with_chlat_work") }}</label
             >
           </template>
           <template v-if="section === 'share'"
-            ><h2 class="text-lg font-semibold">Share your page</h2>
+            ><h2 class="text-lg font-semibold">{{ t("products.links.share_your_page") }}</h2>
             <p v-if="dirty" class="text-sm text-amber-700 dark:text-amber-300">
-              Save your changes before sharing. This URL points to your last
-              published page.
+              {{ t("products.links.save_your_changes_before_sharing_this_url_points_to_your_last_published_page") }}
             </p>
             <LinkShare
               :url="savedUrl"
@@ -703,29 +704,27 @@ async function refreshAnalytics() {
           /></template>
           <template v-if="section === 'analytics'"
             ><div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Page activity</h2>
+              <h2 class="text-lg font-semibold">{{ t("products.links.page_activity") }}</h2>
               <button
                 type="button"
                 class="secondary-button"
                 @click="refreshAnalytics"
               >
-                Refresh
+                {{ t("products.common.refresh") }}
               </button>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="stat">
-                <small>Profile views</small
+                <small>{{ t("products.links.profile_views") }}</small
                 ><strong>{{ (saved?.viewCount || 0).toLocaleString() }}</strong>
               </div>
               <div class="stat">
-                <small>Link clicks</small
+                <small>{{ t("products.links.link_clicks") }}</small
                 ><strong>{{ totalClicks.toLocaleString() }}</strong>
               </div>
             </div>
             <p class="text-xs text-slate-500 dark:text-white/60">
-              Aggregate counts since creation, including repeat visits. Deleted
-              links are removed from click totals. No visitor identities are
-              stored.
+              {{ t("products.links.aggregate_counts_since_creation_including_repeat_visits_deleted_links_are_removed_from_click_totals_no_visitor_identities_are_stored") }}
             </p>
             <div
               v-for="link in saved?.links || []"
@@ -735,7 +734,7 @@ async function refreshAnalytics() {
               <LinkPlatformIcon :url="link.url" class="size-5 shrink-0" /><span
                 class="min-w-0 flex-1 break-words text-sm"
                 >{{ link.title
-                }}<small v-if="!link.isEnabled">Disabled</small></span
+                }}<small v-if="!link.isEnabled">{{ t("products.links.disabled") }}</small></span
               ><strong class="text-sm">{{
                 (link.clickCount || 0).toLocaleString()
               }}</strong>
@@ -753,9 +752,9 @@ async function refreshAnalytics() {
           >
             {{
               busy
-                ? "Saving…"
+                ? t("products.common.saving")
                 : saved?.isPublished
-                  ? "Save changes"
+                  ? t("products.moments.save_changes")
                   : "Save draft"
             }}</button
           ><button
@@ -765,7 +764,7 @@ async function refreshAnalytics() {
             :disabled="busy || !!loadError"
             @click="save(true)"
           >
-            Publish page</button
+            {{ t("products.links.publish_page") }}</button
           ><button
             v-else
             type="button"
@@ -773,9 +772,9 @@ async function refreshAnalytics() {
             :disabled="busy || !!loadError"
             @click="save(false)"
           >
-            Unpublish</button
+            {{ t("products.links.unpublish") }}</button
           ><span v-if="dirty" class="text-xs text-amber-600 dark:text-amber-300"
-            >Unsaved changes</span
+            >{{ t("products.links.unsaved_changes") }}</span
           >
         </div>
       </section>
@@ -783,12 +782,12 @@ async function refreshAnalytics() {
         id="link-editor-preview"
         class="mx-auto w-full max-w-[360px] lg:sticky lg:top-6"
         :class="{ 'mobile-editor-hidden': product === 'link' && !mobilePreviewOpen }"
-        aria-label="Live mobile preview"
+        :aria-label="t(&quot;products.links.live_mobile_preview&quot;)"
       >
         <p
           class="mb-4 text-center text-xs font-semibold uppercase tracking-[.16em] text-slate-400"
         >
-          Live mobile preview
+          {{ t("products.links.live_mobile_preview") }}
         </p>
         <div
           class="overflow-hidden rounded-[38px] border-[8px] border-slate-900 shadow-2xl"
@@ -802,11 +801,9 @@ async function refreshAnalytics() {
           />
         </div>
         <p class="mt-4 text-center text-xs text-slate-500 dark:text-white/60">
-          {{ isKhmer
-            ? "អូសតំណភ្ជាប់មើលជាមុន ឬប្រើ Alt + ↑/↓ ដើម្បីរៀបចំលំដាប់ឡើងវិញ។ រក្សាទុកដើម្បីធ្វើបច្ចុប្បន្នភាពទំព័រចែករំលែករបស់អ្នក។"
-            : "Drag preview links or use Alt + ↑/↓ to reorder. Save to update your shared page." }}
+          {{ t("products.links.drag_preview_links_or_use_alt_to_reorder_save_to_update_your_shared_page") }}
         </p>
-        <button v-if="product === 'link'" type="button" class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold dark:border-white/15 sm:hidden" @click="mobilePreviewOpen = false">{{ isKhmer ? "បន្តកែសម្រួល" : "Continue editing" }}</button>
+        <button v-if="product === 'link'" type="button" class="mt-4 min-h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold dark:border-white/15 sm:hidden" @click="mobilePreviewOpen = false">{{ t("products.links.continue_editing") }}</button>
       </aside>
     </div>
   </main>

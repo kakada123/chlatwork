@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,7 +18,6 @@ import {
 import MomentExperience from "~/components/moments/MomentExperience.vue";
 import ModernSelect from "~/components/ModernSelect.vue";
 import BirthdayUnlockGate from "~/components/moments/BirthdayUnlockGate.vue";
-import MomentLanguageToggle from "~/components/moments/MomentLanguageToggle.vue";
 import BirthdayAudioEditor from "~/components/moments/BirthdayAudioEditor.vue";
 import BirthdayWishGenerator from "~/components/moments/BirthdayWishGenerator.vue";
 import BirthdayStoryEditor from "~/components/moments/BirthdayStoryEditor.vue";
@@ -53,6 +54,9 @@ const loadedEditStatus = ref<"DRAFT" | "PUBLISHED">("PUBLISHED");
 let editLoadGeneration = 0;
 const { user, isReady, fetchMe } = useAuth();
 const { locale, copy, isKhmer, localizeMomentPath } = useMomentLanguage();
+
+const { t } = useAppI18n(isKhmer);
+const { productText } = useProductCopy(isKhmer);
 const creatorCopy = computed(() => copy.value.creator);
 const step = ref(1);
 const birthdayStage = ref<BirthdayWizardStage>("recipient");
@@ -109,7 +113,6 @@ const visibleSteps = computed(() =>
 );
 const progressStep = computed(() => visibleSteps.value.indexOf(step.value) + 1);
 const storyEnabled = computed(() => draft.occasion === "BIRTHDAY" && draft.birthdayStory?.enabled === true);
-const birthdayText = (en: string, km: string) => isKhmer.value ? km : en;
 const birthdayWizard = computed(() => draft.occasion === "BIRTHDAY");
 const birthdayStages = computed(() => getBirthdayWizardStages(storyEnabled.value));
 const birthdayStageIndex = computed(() => birthdayStages.value.indexOf(birthdayStage.value));
@@ -118,11 +121,11 @@ const canGoBack = computed(() => birthdayWizard.value ? birthdayStageIndex.value
 const activePhoto = computed(() => photos.value.find(photo => photo.id === activePhotoId.value) ?? photos.value[0]);
 const activePhotoIndex = computed(() => photos.value.findIndex(photo => photo.id === activePhoto.value?.id));
 const birthdayStageLabels = computed<Record<BirthdayWizardStage, string>>(() => ({
-  recipient: birthdayText("Recipient & mode", "អ្នកទទួល និងរបៀប"), template: birthdayText("Birthday template", "គំរូថ្ងៃកំណើត"),
-  scenes: birthdayText("Story scenes", "ឈុតរឿងរ៉ាវ"), music: birthdayText("Music", "តន្ត្រី"), cake: birthdayText("Birthday cake", "នំខួបកំណើត"),
-  photos: birthdayText("Photo memories", "រូបភាពអនុស្សាវរីយ៍"), wish: birthdayText("AI birthday wish (optional)", "សារជូនពរដោយ AI (ជាជម្រើស)"),
-  message: birthdayText("Personal message", "សារផ្ទាល់ខ្លួន"), secret: birthdayText("Secret surprise (optional)", "ការភ្ញាក់ផ្អើលសម្ងាត់ (ជាជម្រើស)"),
-  unlock: birthdayText("Birthday unlock & schedule", "ដោះសោថ្ងៃកំណើត និងកំណត់ពេល"), preview: birthdayText("Preview & publish", "មើលជាមុន និងផ្សព្វផ្សាយ"),
+  recipient: t("products.moments.recipient_mode"), template: t("products.moments.birthday_template"),
+  scenes: t("products.moments.story_scenes"), music: t("products.moments.music"), cake: t("products.moments.birthday_cake"),
+  photos: t("products.moments.photo_memories"), wish: t("products.moments.ai_birthday_wish_optional"),
+  message: t("products.moments.personal_message"), secret: t("products.moments.secret_surprise_optional"),
+  unlock: t("products.moments.birthday_unlock_schedule"), preview: t("products.moments.preview_publish"),
 }));
 function validateBirthdayStage(stage: BirthdayWizardStage): string {
   if (stage === "recipient" && !draft.recipientName.trim()) return creatorCopy.value.errors.recipient;
@@ -130,7 +133,7 @@ function validateBirthdayStage(stage: BirthdayWizardStage): string {
   if (stage === "message" && !draft.title.trim()) return creatorCopy.value.errors.title;
   if (stage === "message" && !draft.message.trim()) return creatorCopy.value.errors.message;
   if (stage === "unlock") {
-    if (birthdayUnlockEnabled.value && !parseBirthdayUnlock(birthdayUnlockDay.value, birthdayUnlockMonth.value)) return birthdayText("Enter a valid birthday as DD / MM.", "សូមបញ្ចូលថ្ងៃកំណើតត្រឹមត្រូវជា DD / MM។");
+    if (birthdayUnlockEnabled.value && !parseBirthdayUnlock(birthdayUnlockDay.value, birthdayUnlockMonth.value)) return t("products.moments.enter_a_valid_birthday_as_dd_mm");
     return getMomentFormError(draft, photos.value.length, locale.value);
   }
   return "";
@@ -238,17 +241,17 @@ function unlockBirthdayPreview(value: { day: number; month: number }) {
   if (expected && expected.day === value.day && expected.month === value.month) {
     birthdayPreviewOpened.value = true;
     birthdayPreviewError.value = "";
-  } else birthdayPreviewError.value = locale.value === "km" ? "ថ្ងៃខែនេះមិនទាន់ត្រូវទេ។ សូមព្យាយាមម្ដងទៀត។" : "That birthday doesn’t match. Try again.";
+  } else birthdayPreviewError.value = t("products.moments.that_birthday_doesnt_match_try_again");
 }
 const isPublishing = computed(
   () => publishState.value !== "idle" && publishState.value !== "done",
 );
 const progressLabel = computed(() => {
   if (isEditing.value) {
-    if (isPublishing.value) return birthdayText("Saving changes…", "កំពុងរក្សាទុកការកែប្រែ…");
+    if (isPublishing.value) return t("products.moments.saving_changes");
     return loadedEditStatus.value === "DRAFT"
-      ? birthdayText("Save & publish", "រក្សាទុក និងផ្សព្វផ្សាយ")
-      : birthdayText("Save changes", "រក្សាទុកការកែប្រែ");
+      ? t("products.moments.save_publish")
+      : t("products.moments.save_changes");
   }
   if (publishState.value === "creating") return creatorCopy.value.creating;
   if (publishState.value === "uploading")
@@ -569,7 +572,7 @@ async function publishMoment() {
       );
     publishState.value = "idle";
     formError.value = error instanceof Error && error.message === BIRTHDAY_EDIT_TOO_LARGE
-      ? birthdayText("New photos are too large to save together. Try fewer or smaller photos.", "រូបថតថ្មីមានទំហំធំពេកសម្រាប់រក្សាទុករួមគ្នា។ សូមសាកល្បងរូបថតតិច ឬតូចជាងនេះ។")
+      ? t("products.moments.new_photos_are_too_large_to_save_together_try_fewer_or_smaller_photos")
       : getRequestError(error);
   }
 }
@@ -597,7 +600,7 @@ async function loadExistingMoment() {
     publishedSlug.value = "";
     step.value = 1;
   } catch {
-    if (generation === editLoadGeneration) editError.value = birthdayText("This birthday Moment could not be opened for editing. Sign in as its creator and try again.", "មិនអាចបើក Moment ថ្ងៃកំណើតនេះដើម្បីកែប្រែបានទេ។ សូមចូលគណនីអ្នកបង្កើត ហើយសាកល្បងម្ដងទៀត។");
+    if (generation === editLoadGeneration) editError.value = t("products.moments.this_birthday_moment_could_not_be_opened_for_editing_sign_in_as_its_creator_and_try_again");
   } finally {
     if (generation === editLoadGeneration) editLoading.value = false;
   }
@@ -684,18 +687,15 @@ onBeforeUnmount(() => {
     :class="{ 'is-khmer': isKhmer, 'moment-product-mobile': product === 'moment', 'birthday-wizard': birthdayWizard && publishState !== 'done' && !editLoading && !editError }"
     :lang="isKhmer ? 'km' : 'en'"
   >
-    <div class="language-toolbar">
-      <MomentLanguageToggle />
-    </div>
     <section v-if="editLoading" class="creator-card" role="status" aria-live="polite">
       <LoaderCircle class="h-6 w-6 animate-spin" aria-hidden="true" />
-      <p class="mt-3">{{ birthdayText('Opening your birthday Moment…', 'កំពុងបើក Moment ថ្ងៃកំណើតរបស់អ្នក…') }}</p>
+      <p class="mt-3">{{ t("products.moments.opening_your_birthday_moment") }}</p>
     </section>
     <section v-else-if="editError" class="creator-card">
-      <p role="alert" class="error-message">{{ editError }}</p>
+      <p role="alert" class="error-message">{{ productText(editError) }}</p>
       <div class="mt-4 flex flex-wrap gap-2">
-        <button type="button" class="primary-button" @click="loadExistingMoment">{{ birthdayText('Try again', 'សាកល្បងម្ដងទៀត') }}</button>
-        <button v-if="!user" type="button" class="secondary-button" @click="showLogin = true">{{ birthdayText('Sign in', 'ចូលគណនី') }}</button>
+        <button type="button" class="primary-button" @click="loadExistingMoment">{{ t("products.moments.try_again") }}</button>
+        <button v-if="!user" type="button" class="secondary-button" @click="showLogin = true">{{ t("products.common.sign_in") }}</button>
       </div>
     </section>
     <section v-else-if="publishState === 'done'" class="success-card">
@@ -703,8 +703,8 @@ onBeforeUnmount(() => {
         <Check class="h-8 w-8" aria-hidden="true" />
       </div>
       <p class="creator-eyebrow">{{ creatorCopy.readyEyebrow }}</p>
-      <h1>{{ isEditing ? birthdayText('Changes saved', 'ការកែប្រែបានរក្សាទុក') : creatorCopy.readyTitle }}</h1>
-      <p class="success-copy">{{ isEditing ? birthdayText('Your updated birthday Moment is ready to share with the same link.', 'Moment ថ្ងៃកំណើតដែលបានកែប្រែរួច អាចចែករំលែកតាមតំណដដែល។') : creatorCopy.readyCopy }}</p>
+      <h1>{{ isEditing ? t("products.moments.changes_saved") : creatorCopy.readyTitle }}</h1>
+      <p class="success-copy">{{ isEditing ? t("products.moments.your_updated_birthday_moment_is_ready_to_share_with_the_same_link") : creatorCopy.readyCopy }}</p>
       <div class="share-panel">
         <img
           :src="qrDataUrl"
@@ -756,7 +756,7 @@ onBeforeUnmount(() => {
           <Sparkles class="h-4 w-4" aria-hidden="true" />
           {{ creatorCopy.eyebrow }}
         </p>
-        <h1>{{ isEditing ? birthdayText('Edit your birthday Moment', 'កែប្រែ Moment ថ្ងៃកំណើតរបស់អ្នក') : creatorCopy.title }}</h1>
+        <h1>{{ isEditing ? t("products.moments.edit_your_birthday_moment") : creatorCopy.title }}</h1>
         <p>{{ creatorCopy.description }}</p>
       </header>
 
@@ -776,11 +776,11 @@ onBeforeUnmount(() => {
         </li>
       </ol>
 
-      <nav v-if="birthdayWizard" class="birthday-wizard-nav" :aria-label="birthdayText('Birthday editor steps', 'ជំហានកែសម្រួលថ្ងៃកំណើត')">
+      <nav v-if="birthdayWizard" class="birthday-wizard-nav" :aria-label="t(&quot;products.moments.birthday_editor_steps&quot;)">
         <p><span class="sr-only">{{ creatorCopy.stepLabel(birthdayStageIndex + 1, birthdayStages.length) }}</span><span aria-hidden="true">{{ birthdayStageIndex + 1 }} / {{ birthdayStages.length }}</span></p>
-        <label for="birthday-wizard-step" class="sr-only">{{ birthdayText('Choose an editor step', 'ជ្រើសរើសជំហានកែសម្រួល') }}</label>
+        <label for="birthday-wizard-step" class="sr-only">{{ t("products.moments.choose_an_editor_step") }}</label>
         <span class="birthday-stage-select">
-          <ModernSelect id="birthday-wizard-step" class="w-full" :value="birthdayStage" :disabled="isPublishing || isPreparingPhotos" :search-placeholder="birthdayText('Find a step…', 'ស្វែងរកជំហាន…')" @change="changeBirthdayStage">
+          <ModernSelect id="birthday-wizard-step" class="w-full" :value="birthdayStage" :disabled="isPublishing || isPreparingPhotos" :search-placeholder="t(&quot;products.moments.find_a_step&quot;)" @change="changeBirthdayStage">
             <option v-for="(stage, index) in birthdayStages" :key="stage" :value="stage">{{ index + 1 }}. {{ birthdayStageLabels[stage] }}</option>
           </ModernSelect>
         </span>
@@ -811,7 +811,7 @@ onBeforeUnmount(() => {
             <input id="host-name" v-model="draft.hostName" maxlength="120" required class="field-input mt-2" :placeholder="creatorCopy.hostNamePlaceholder" autocomplete="organization" />
           </div>
           <details v-if="!isEditing" class="occasion-switcher mt-5" :open="!birthdayWizard">
-            <summary v-if="birthdayWizard">{{ birthdayText('Change occasion', 'ប្ដូរឱកាស') }}</summary>
+            <summary v-if="birthdayWizard">{{ t("products.moments.change_occasion") }}</summary>
           <fieldset class="mt-4">
             <legend class="field-label">{{ creatorCopy.chooseOccasion }}</legend>
             <p class="category-label">{{ creatorCopy.categoryLabel }}</p>
@@ -853,8 +853,8 @@ onBeforeUnmount(() => {
           <p v-if="!birthdayWizard" class="step-label">{{ creatorCopy.stepLabel(progressStep, visibleSteps.length) }}</p>
           <h2 id="step-two-title">{{ creatorCopy.photosTitle }}</h2>
           <p class="step-copy">{{ creatorCopy.photosDescription }}</p>
-          <p v-if="storyEnabled" class="field-help">{{ birthdayText('Photos are optional in Story Mode. Drag photos to reorder them, or use the move buttons.', 'រូបថតជាជម្រើសក្នុងរបៀបរឿងរ៉ាវ។ អូសរូបថតដើម្បីប្ដូរលំដាប់ ឬប្រើប៊ូតុងផ្លាស់ទី។') }}</p>
-          <p v-if="isEditing" class="field-help">{{ birthdayText('New photos must fit within 4 MB together when saving. Existing photos do not count toward this limit.', 'រូបថតថ្មីសរុបត្រូវតូចជាង 4 MB ពេលរក្សាទុក។ រូបថតចាស់មិនរាប់ក្នុងដែនកំណត់នេះទេ។') }}</p>
+          <p v-if="storyEnabled" class="field-help">{{ t("products.moments.photos_are_optional_in_story_mode_drag_photos_to_reorder_them_or_use_the_move_buttons") }}</p>
+          <p v-if="isEditing" class="field-help">{{ t("products.moments.new_photos_must_fit_within_4_mb_together_when_saving_existing_photos_do_not_count_toward_this_limit") }}</p>
           <input
             ref="fileInput"
             type="file"
@@ -887,11 +887,11 @@ onBeforeUnmount(() => {
             }}</span>
           </button>
           <p v-if="photoError" role="alert" class="error-message">
-            {{ photoError }}
+            {{ productText(photoError) }}
           </p>
           <div v-if="photos.length" class="selected-photos" :class="{ 'story-photos': storyEnabled, 'compact-birthday-photos': birthdayWizard }">
             <figure v-for="(photo, index) in photos" :key="photo.id" :draggable="birthdayWizard && !isPublishing" @dragstart="startPhotoDrag($event, photo.id)" @dragend="draggedPhotoId = ''" @dragover.prevent @drop.prevent="dropPhoto($event, index)">
-              <button v-if="birthdayWizard" type="button" class="photo-select-button" :aria-label="birthdayText(`Edit photo ${index + 1}`, `កែប្រែរូបថត ${index + 1}`)" :aria-pressed="activePhoto?.id === photo.id" @click="activePhotoId = photo.id"><img :src="photo.url" :alt="creatorCopy.selectedPhoto(index + 1)" /></button>
+              <button v-if="birthdayWizard" type="button" class="photo-select-button" :aria-label="t(&quot;products.moments.edit_photo_value&quot;, { value: index + 1 })" :aria-pressed="activePhoto?.id === photo.id" @click="activePhotoId = photo.id"><img :src="photo.url" :alt="creatorCopy.selectedPhoto(index + 1)" /></button>
               <img v-else :src="photo.url" :alt="creatorCopy.selectedPhoto(index + 1)" />
               <button class="remove-photo-button"
                 type="button"
@@ -909,14 +909,14 @@ onBeforeUnmount(() => {
           <div v-if="birthdayWizard && activePhoto" class="active-memory-editor">
             <div class="photo-move-actions">
               <strong>{{ creatorCopy.selectedPhoto(activePhotoIndex + 1) }}</strong>
-              <button type="button" :disabled="photos[0]?.id === activePhoto.id" :aria-label="birthdayText(`Move photo ${activePhotoIndex + 1} earlier`, 'ផ្លាស់ទីរូបថតទៅមុន')" @click="movePhoto(activePhoto.id, activePhotoIndex - 1)">↑</button>
-              <button type="button" :disabled="photos.at(-1)?.id === activePhoto.id" :aria-label="birthdayText(`Move photo ${activePhotoIndex + 1} later`, 'ផ្លាស់ទីរូបថតទៅក្រោយ')" @click="movePhoto(activePhoto.id, activePhotoIndex + 1)">↓</button>
+              <button type="button" :disabled="photos[0]?.id === activePhoto.id" :aria-label="t(&quot;products.moments.move_photo_value_earlier&quot;, { value: activePhotoIndex + 1 })" @click="movePhoto(activePhoto.id, activePhotoIndex - 1)">↑</button>
+              <button type="button" :disabled="photos.at(-1)?.id === activePhoto.id" :aria-label="t(&quot;products.moments.move_photo_value_later&quot;, { value: activePhotoIndex + 1 })" @click="movePhoto(activePhoto.id, activePhotoIndex + 1)">↓</button>
             </div>
             <div v-if="storyEnabled" class="memory-fields">
-              <label :for="`memory-caption-${activePhoto.id}`">{{ birthdayText('Caption (optional)', 'ចំណងជើង (ជាជម្រើស)') }}</label>
+              <label :for="`memory-caption-${activePhoto.id}`">{{ t("products.moments.caption_optional") }}</label>
               <textarea :id="`memory-caption-${activePhoto.id}`" v-model="activePhoto.caption" maxlength="200" rows="2" class="field-input" />
               <span class="character-count">{{ activePhoto.caption?.length ?? 0 }} / 200</span>
-              <label :for="`memory-date-${activePhoto.id}`">{{ birthdayText('Memory date (optional)', 'កាលបរិច្ឆេទអនុស្សាវរីយ៍ (ជាជម្រើស)') }}</label>
+              <label :for="`memory-date-${activePhoto.id}`">{{ t("products.moments.memory_date_optional") }}</label>
               <input :id="`memory-date-${activePhoto.id}`" v-model="activePhoto.date" type="date" class="field-input" />
             </div>
           </div>
@@ -942,7 +942,7 @@ onBeforeUnmount(() => {
             <BirthdayAudioEditor v-else-if="birthdayStage === 'music'" v-model="draft.birthdayAudio" :locale="locale" />
             <BirthdayStoryEditor v-else-if="birthdayStage === 'cake' && draft.birthdayStory" v-model="draft.birthdayStory" :locale="locale" section="cake" />
             <template v-else-if="birthdayStage === 'wish'">
-              <p class="field-help mb-3">{{ birthdayText('Create a suggestion, or continue to write your own message.', 'បង្កើតសារណែនាំ ឬបន្តដើម្បីសរសេរសារដោយខ្លួនឯង។') }}</p>
+              <p class="field-help mb-3">{{ t("products.moments.create_a_suggestion_or_continue_to_write_your_own_message") }}</p>
               <BirthdayWishGenerator :recipient-name="draft.recipientName" :locale="locale" @apply="applyBirthdayWish" />
             </template>
             <div v-else-if="birthdayStage === 'message'" id="birthday-message" class="grid gap-4">
@@ -955,17 +955,17 @@ onBeforeUnmount(() => {
               <p class="field-help">{{ creatorCopy.secretHelp }}</p>
             </div>
             <div v-else-if="birthdayStage === 'unlock'" class="birthday-unlock-fields">
-              <label class="birthday-unlock-toggle"><input id="birthday-unlock-enabled" v-model="birthdayUnlockEnabled" type="checkbox" @change="birthdayUnlockTouched = true" /><strong>{{ birthdayText('Ask for the birthday before opening', 'សួរថ្ងៃកំណើតមុនពេលបើក') }}</strong></label>
-              <p class="field-help">{{ birthdayText('Optional: the recipient enters the correct day and month. No birth year is collected.', 'ជាជម្រើស៖ អ្នកទទួលបញ្ចូលថ្ងៃ និងខែត្រឹមត្រូវ។ មិនប្រមូលឆ្នាំកំណើតទេ។') }}</p>
+              <label class="birthday-unlock-toggle"><input id="birthday-unlock-enabled" v-model="birthdayUnlockEnabled" type="checkbox" @change="birthdayUnlockTouched = true" /><strong>{{ t("products.moments.ask_for_the_birthday_before_opening") }}</strong></label>
+              <p class="field-help">{{ t("products.moments.optional_the_recipient_enters_the_correct_day_and_month_no_birth_year_is_collected") }}</p>
               <fieldset v-if="birthdayUnlockEnabled" class="birthday-day-month">
-                <legend class="sr-only">{{ birthdayText('Birthday DD / MM', 'ថ្ងៃកំណើត DD / MM') }}</legend>
-                <div><label for="birthday-unlock-day">{{ birthdayText('Day', 'ថ្ងៃ') }}</label><input id="birthday-unlock-day" :value="birthdayUnlockDay" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="DD" class="field-input" @input="updateBirthdayUnlockPart('day', $event)" @blur="birthdayUnlockDay && (birthdayUnlockDay = birthdayUnlockDay.padStart(2, '0'))" /></div>
+                <legend class="sr-only">{{ t("products.moments.birthday_dd_mm") }}</legend>
+                <div><label for="birthday-unlock-day">{{ t("products.moments.day") }}</label><input id="birthday-unlock-day" :value="birthdayUnlockDay" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="DD" class="field-input" @input="updateBirthdayUnlockPart('day', $event)" @blur="birthdayUnlockDay && (birthdayUnlockDay = birthdayUnlockDay.padStart(2, '0'))" /></div>
                 <span aria-hidden="true">/</span>
-                <div><label for="birthday-unlock-month">{{ birthdayText('Month', 'ខែ') }}</label><input id="birthday-unlock-month" :value="birthdayUnlockMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="MM" class="field-input" @input="updateBirthdayUnlockPart('month', $event)" @blur="birthdayUnlockMonth && (birthdayUnlockMonth = birthdayUnlockMonth.padStart(2, '0'))" /></div>
+                <div><label for="birthday-unlock-month">{{ t("products.moments.month") }}</label><input id="birthday-unlock-month" :value="birthdayUnlockMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="MM" class="field-input" @input="updateBirthdayUnlockPart('month', $event)" @blur="birthdayUnlockMonth && (birthdayUnlockMonth = birthdayUnlockMonth.padStart(2, '0'))" /></div>
               </fieldset>
               <div class="grid gap-4 sm:grid-cols-2 mt-5">
                 <div><label for="special-date" class="field-label">{{ creatorCopy.specialDate }} <span>({{ creatorCopy.optional }})</span></label><input id="special-date" v-model="draft.specialDate" type="date" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.counterHelp }}</p></div>
-                <div><label for="unlock-date" class="field-label">{{ creatorCopy.scheduledUnlock }} <span>({{ creatorCopy.optional }})</span></label><input id="unlock-date" v-model="draft.publishAt" type="datetime-local" :min="isEditing ? undefined : minimumUnlockDate" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.countdownHelp }}</p><p v-if="browserTimezone" class="field-help">{{ birthdayText('Schedule timezone:', 'តំបន់ម៉ោងកំណត់ពេល៖') }} {{ browserTimezone }}</p></div>
+                <div><label for="unlock-date" class="field-label">{{ creatorCopy.scheduledUnlock }} <span>({{ creatorCopy.optional }})</span></label><input id="unlock-date" v-model="draft.publishAt" type="datetime-local" :min="isEditing ? undefined : minimumUnlockDate" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.countdownHelp }}</p><p v-if="browserTimezone" class="field-help">{{ t("products.moments.schedule_timezone") }} {{ browserTimezone }}</p></div>
               </div>
             </div>
           </div>
@@ -976,7 +976,7 @@ onBeforeUnmount(() => {
           <h2 id="step-three-title">{{ draft.occasion === 'VOTING' ? creatorCopy.pollTitle : creatorCopy.storyTitle }}</h2>
           <div class="mt-6 grid gap-5">
             <div v-if="draft.occasion !== 'VOTING'" id="birthday-message">
-              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Personal message', 'សារផ្ទាល់ខ្លួន') }}</h3>
+              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ t("products.moments.personal_message") }}</h3>
               <label for="moment-title" class="field-label">{{
                 creatorCopy.titleLabel
               }}</label
@@ -1057,11 +1057,11 @@ onBeforeUnmount(() => {
                   class="field-input mt-2"
                 />
                 <p class="field-help">{{ creatorCopy.countdownHelp }}</p>
-                <p v-if="browserTimezone" class="field-help">{{ birthdayText('Schedule timezone:', 'តំបន់ម៉ោងកំណត់ពេល៖') }} {{ browserTimezone }}</p>
+                <p v-if="browserTimezone" class="field-help">{{ t("products.moments.schedule_timezone") }} {{ browserTimezone }}</p>
               </div>
             </div>
             <div v-if="draft.occasion !== 'VOTING' && (draft.occasion !== 'BIRTHDAY' || storyEnabled)" id="birthday-secret">
-              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ birthdayText('Secret surprise', 'ការភ្ញាក់ផ្អើលសម្ងាត់') }}</h3>
+              <h3 v-if="storyEnabled" class="birthday-section-heading">{{ t("products.moments.secret_surprise") }}</h3>
               <label for="secret-message" class="field-label">{{
                 creatorCopy.secretLabel
               }} <span v-if="storyEnabled">({{ creatorCopy.optional }})</span></label
@@ -1164,7 +1164,7 @@ onBeforeUnmount(() => {
         </section>
 
         <p v-if="formError" role="alert" class="error-message mt-5">
-          {{ formError }}
+          {{ productText(formError) }}
         </p>
         </div>
         <footer class="form-actions">
@@ -1218,10 +1218,6 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   max-width: 1040px;
   color: #172033;
-}
-.language-toolbar {
-  display: flex;
-  justify-content: flex-end;
 }
 .moments-creator.is-khmer {
   font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
@@ -1868,8 +1864,7 @@ button:disabled {
 
 /* Keep birthday editing in one viewport; dense content scrolls inside its current task only. */
 .birthday-wizard { position: relative; height: 100%; min-height: 0; display: flex; flex-direction: column; }
-.birthday-wizard .language-toolbar { position: absolute; top: 0; right: 0; }
-.birthday-wizard .creator-header { width: 100%; max-width: none; min-height: 2.6rem; padding-right: 7rem; margin: 0 0 .6rem; text-align: left; flex: none; }
+.birthday-wizard .creator-header { width: 100%; max-width: none; min-height: 2.6rem; padding-right: 0; margin: 0 0 .6rem; text-align: left; flex: none; }
 .birthday-wizard .creator-header .creator-eyebrow, .birthday-wizard .creator-header > p:last-child { display: none; }
 .birthday-wizard .creator-header h1 { font-size: clamp(1.3rem, 3vw, 1.75rem) !important; margin: 0; line-height: 1.4; }
 .birthday-wizard-nav { display: flex; gap: .8rem; align-items: center; justify-content: space-between; margin-bottom: .8rem; flex: none; }

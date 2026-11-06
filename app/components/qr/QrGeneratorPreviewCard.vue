@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import type { QrEcLevel } from "~/lib/qr-generator";
+
+const { t } = useAppI18n();
 
 defineProps<{
   generated: boolean;
@@ -18,9 +22,9 @@ defineExpose({
 <template>
   <section class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
     <div class="flex items-center justify-between">
-      <h2 class="text-sm font-semibold">Preview</h2>
+      <h2 class="text-sm font-semibold">{{ t("tools.qr.preview") }}</h2>
       <p v-if="generated" class="text-xs text-gray-500">
-        {{ size }}px • EC {{ ecLevel }} • margin {{ margin }}
+        {{ size }}px • {{ t("tools.qr.ec") }} {{ ecLevel }} • {{ t("tools.qr.margin_2") }} {{ margin }}
       </p>
     </div>
 
@@ -30,9 +34,7 @@ defineExpose({
       <div class="rounded-xl border bg-white p-4">
         <canvas ref="canvasEl"></canvas>
 
-        <p v-if="!generated" class="mt-3 text-center text-sm text-gray-400">
-          Generate a QR code to preview here.
-        </p>
+        <p v-if="!generated" class="mt-3 text-center text-sm text-gray-400">{{ t("tools.qr.generateAQrCodeToPreviewHere") }}</p>
       </div>
     </div>
   </section>

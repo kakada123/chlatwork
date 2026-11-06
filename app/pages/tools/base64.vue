@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Base64 Encoder / Decoder</h1>
+      <h1 class="text-xl font-bold">{{ t("tools.base64.base64EncoderDecoder") }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "បំប្លែងអត្ថបទទៅជា Base64, ពន្លា Base64 មកវិញ ឬបំប្លែងឯកសារទៅជា Base64 ក្នុង Browser របស់អ្នក។" : "Encode text, decode Base64, or convert a local file to Base64 in your browser." }}
+        {{ t("tools.base64.encodeTextDecodeBase64OrConvertALocalFile") }}
       </p>
     </div>
 
@@ -29,7 +29,7 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ mode === "encode" ? (isKhmer ? "អត្ថបទដែលត្រូវបំប្លែង" : "Text to encode") : (isKhmer ? "កូដ Base64 ដែលត្រូវពន្លា" : "Base64 to decode") }}
+              {{ mode === "encode" ? (t("tools.base64.textToEncode")) : (t("tools.base64.base64ToDecode")) }}
             </label>
           </div>
           <textarea
@@ -37,8 +37,8 @@
             class="h-72 w-full resize-y rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             :placeholder="
               mode === 'encode'
-                ? (isKhmer ? 'បិទភ្ជាប់អត្ថបទនៅទីនេះ' : 'Paste text here')
-                : (isKhmer ? 'បិទភ្ជាប់ Base64 នៅទីនេះ' : 'Paste Base64 here')
+                ? (t(&quot;tools.base64.pasteTextHere&quot;))
+                : (t(&quot;tools.base64.pasteBase64Here&quot;))
             "
           />
           <div class="flex flex-wrap gap-2">
@@ -47,14 +47,14 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="runText"
             >
-              {{ mode === "encode" ? (isKhmer ? "បំប្លែង" : "Encode") : (isKhmer ? "ពន្លា" : "Decode") }}
+              {{ mode === "encode" ? (t("tools.base64.encode_2")) : (t("tools.base64.decode_2")) }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearAll"
             >
-              {{ isKhmer ? "សម្អាត" : "Clear" }}
+              {{ t("tools.base64.clear") }}
             </button>
           </div>
         </div>
@@ -62,17 +62,17 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "លទ្ធផល" : "Result" }}
+              {{ t("tools.base64.result") }}
             </label>
-            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
+            <CopyButton :text="result" :label="t(&quot;tools.base64.copyResult&quot;)" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-72 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            :placeholder="isKhmer ? 'លទ្ធផលនឹងបង្ហាញនៅទីនេះ' : 'Result appears here'"
+            :placeholder="t(&quot;tools.base64.resultAppearsHere&quot;)"
           />
-          <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+          <p v-if="error" class="text-sm text-red-600">{{ localizeToolError(error, isKhmer) }}</p>
         </div>
       </div>
 
@@ -80,7 +80,7 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "ឯកសារទៅជា Base64" : "File to Base64" }}
+              {{ t("tools.base64.fileToBase64_2") }}
             </label>
             <button
               v-if="fileName"
@@ -88,7 +88,7 @@
               class="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearFile"
             >
-              {{ isKhmer ? "លុបចេញ" : "Remove" }}
+              {{ t("tools.base64.remove") }}
             </button>
           </div>
 
@@ -135,13 +135,13 @@
 
               <span class="min-w-0 flex-1">
                 <span class="block text-sm font-semibold text-gray-900">
-                  {{ fileName ? (isKhmer ? "បានជ្រើសរើសឯកសារ" : "File selected") : (isKhmer ? "ជ្រើសរើស ឬទម្លាក់ឯកសារនៅទីនេះ" : "Choose or drop a file") }}
+                  {{ fileName ? (t("tools.base64.fileSelected")) : (t("tools.base64.chooseOrDropAFile")) }}
                 </span>
                 <span class="mt-1 block truncate text-xs text-gray-500">
                   {{
                     fileName
                       ? `${fileName} - ${fileSize}`
-                      : LOCAL_PROCESSING_PRIVACY_NOTE
+                      : (t("tools.common.privacyDescription"))
                   }}
                 </span>
               </span>
@@ -149,7 +149,7 @@
               <span
                 class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800"
               >
-                {{ fileName ? (isKhmer ? "ប្តូរឯកសារ" : "Change file") : (isKhmer ? "ជ្រើសរើសឯកសារ" : "Choose file") }}
+                {{ fileName ? (t("tools.base64.changeFile")) : (t("tools.base64.chooseFile")) }}
               </span>
             </div>
           </label>
@@ -158,17 +158,17 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ isKhmer ? "លទ្ធផល Base64" : "Base64 output" }}
+              {{ t("tools.base64.base64Output") }}
             </label>
-            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
+            <CopyButton :text="result" :label="t(&quot;tools.base64.copyResult&quot;)" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-80 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            :placeholder="isKhmer ? 'ជ្រើសរើសឯកសារដើម្បីបង្កើត Base64' : 'Choose a file to generate Base64'"
+            :placeholder="t(&quot;tools.base64.chooseAFileToGenerateBase64&quot;)"
           />
-          <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+          <p v-if="error" class="text-sm text-red-600">{{ localizeToolError(error, isKhmer) }}</p>
         </div>
       </div>
     </section>
@@ -176,26 +176,31 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeBase64ToUtf8, encodeUtf8ToBase64 } from "~/lib/developer-tools";
 import { formatFileLimit } from "~/lib/file-validation";
-import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
+
+
+
 useSeoMeta({
-  title: "Base64 Encoder / Decoder - ChlatWork",
-  description:
-    "Encode text, decode Base64, and convert files to Base64 locally in your browser.",
-  ogTitle: "Base64 Encoder / Decoder - ChlatWork",
-  ogDescription: "Fast, private Base64 encoding and decoding for developers.",
+  title: () => t("tools.base64.metaTitle"),
+  description: () => t("tools.base64.metaDescription"),
+  ogTitle: () => t("tools.base64.metaOgTitle"),
+  ogDescription: () => t("tools.base64.metaOgDescription"),
 });
 
 const tabs = computed(() => [
-  { key: "encode", label: isKhmer.value ? "បំប្លែង (Encode)" : "Encode" },
-  { key: "decode", label: isKhmer.value ? "ពន្លា (Decode)" : "Decode" },
-  { key: "file", label: isKhmer.value ? "ឯកសារទៅ Base64" : "File to Base64" },
+  { key: "encode", label: t("tools.base64.encode") },
+  { key: "decode", label: t("tools.base64.decode") },
+  { key: "file", label: t("tools.base64.fileToBase64") },
 ] as const);
 
 type TabKey = "encode" | "decode" | "file";

@@ -8,14 +8,13 @@
         <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
             <p class="text-sm font-bold uppercase text-cyan-700 dark:text-cyan-100">
-              Contact
+              {{ t("shared.common.contact") }}
             </p>
             <h2 class="mt-3 text-3xl font-black text-slate-950 sm:text-4xl dark:text-white">
-              Build a practical system that can survive real work.
+              {{ t("shared.components_portfolio_portfolio_contact.build_a_practical_system_that_can_survive_real_work") }}
             </h2>
             <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              Reach out for backend systems, POS applications, business
-              dashboards, API integrations, and automation tools.
+              {{ t("shared.components_portfolio_portfolio_contact.reach_out_for_backend_systems_pos_applications_business_dashboards") }}
             </p>
           </div>
 
@@ -44,7 +43,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { PortfolioContactLink } from "~/data/portfolio";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   links: PortfolioContactLink[];

@@ -1,4 +1,5 @@
-import { isExtremeImageResolution } from "~/lib/file-validation";
+import { buildInvoicePdfHtml, getInvoiceColumnCount, getInvoicePdfLabels, type InvoicePdfOptions } from "~/lib/invoice-pdf";
+import { MAX_PDF_PAGE_COUNT, isExtremeImageResolution } from "~/lib/file-validation";
 import { sanitizeHtml } from "~/lib/sanitize-html";
 
 export type PdfPageSizeOption = "a4" | "letter";
@@ -491,7 +492,61 @@ export async function textToPdf(text: string, options: TextToPdfOptions) {
   return doc.output("blob");
 }
 
-export async function invoiceToPdf(input: InvoicePdfInput) {
+async function khmerInvoiceToPdf(input: InvoicePdfInput) {
+  const html = buildInvoicePdfHtml(input, "km");
+  const { jsPDF } = await import("jspdf");
+  const { toJpeg } = await import("html-to-image");
+  const { container, wrapper } = createHtmlPdfRenderNode("");
+  const contentWidth = HTML_TO_PDF_PAGE.width - HTML_TO_PDF_PAGE.padding * 2;
+  const contentHeight = HTML_TO_PDF_PAGE.minHeight - HTML_TO_PDF_PAGE.padding * 2;
+  const columnGap = HTML_TO_PDF_PAGE.padding * 2;
+  const flow = document.createElement("div");
+
+  Object.assign(container.style, {
+    height: `${HTML_TO_PDF_PAGE.minHeight}px`,
+    overflow: "hidden",
+    fontFamily: '"Hanuman", Arial, sans-serif',
+  });
+  Object.assign(flow.style, {
+    width: `${contentWidth}px`,
+    height: `${contentHeight}px`,
+    columnWidth: `${contentWidth}px`,
+    columnGap: `${columnGap}px`,
+    columnFill: "auto",
+  });
+  flow.innerHTML = sanitizeHtml(html);
+  container.appendChild(flow);
+
+  try {
+    // Wait for the bundled Khmer face before measuring columns or capturing shaped text.
+    const fonts = await document.fonts.load('14px "Hanuman"', "វិក្កយបត្រ");
+    if (!fonts.length) throw new Error("The Khmer invoice font could not be loaded. Reload the page and try again.");
+    await waitForHtmlRenderFrame();
+    const pageCount = getInvoiceColumnCount(flow.scrollWidth, contentWidth, columnGap);
+    if (pageCount > MAX_PDF_PAGE_COUNT) throw new Error("The invoice has too many pages to render safely.");
+    const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    for (let page = 0; page < pageCount; page++) {
+      // Browser columns fragment at line boundaries, preserving Khmer glyph shaping across pages.
+      flow.style.transform = `translateX(-${page * HTML_TO_PDF_PAGE.width}px)`;
+      const dataUrl = await toJpeg(container, {
+        quality: 0.95, pixelRatio: 2, backgroundColor: "#ffffff",
+        width: HTML_TO_PDF_PAGE.width, height: HTML_TO_PDF_PAGE.minHeight,
+      });
+      if (page) doc.addPage();
+      doc.addImage(dataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
+    }
+    return doc.output("blob");
+  } finally {
+    wrapper.remove();
+  }
+}
+
+export async function invoiceToPdf(input: InvoicePdfInput, options: InvoicePdfOptions = {}) {
+  if (options.locale === "km") return khmerInvoiceToPdf(input);
+  const labels = getInvoicePdfLabels("en");
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -509,27 +564,27 @@ export async function invoiceToPdf(input: InvoicePdfInput) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(24);
-  doc.text("INVOICE", 48, y);
+  doc.text(labels.title, 48, y);
   doc.setFontSize(11);
-  doc.text(input.companyName || "Company name", pageWidth - 48, y, {
+  doc.text(input.companyName || labels.company, pageWidth - 48, y, {
     align: "right",
   });
 
   y += 42;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text(`Invoice #: ${input.invoiceNumber || "-"}`, 48, y);
-  doc.text(`Date: ${input.date || "-"}`, 48, y + 16);
-  doc.text(`Bill to: ${input.customerName || "Customer name"}`, 48, y + 38);
+  doc.text(`${labels.number}: ${input.invoiceNumber || "-"}`, 48, y);
+  doc.text(`${labels.date}: ${input.date || "-"}`, 48, y + 16);
+  doc.text(`${labels.customer}: ${input.customerName || labels.customerName}`, 48, y + 38);
 
   y += 82;
   doc.setFillColor(243, 244, 246);
   doc.rect(48, y - 18, pageWidth - 96, 28, "F");
   doc.setFont("helvetica", "bold");
-  doc.text("Description", 60, y);
-  doc.text("Qty", 350, y, { align: "right" });
-  doc.text("Price", 440, y, { align: "right" });
-  doc.text("Amount", pageWidth - 60, y, { align: "right" });
+  doc.text(labels.description, 60, y);
+  doc.text(labels.quantity, 350, y, { align: "right" });
+  doc.text(labels.price, 440, y, { align: "right" });
+  doc.text(labels.amount, pageWidth - 60, y, { align: "right" });
 
   doc.setFont("helvetica", "normal");
   y += 28;
@@ -553,25 +608,25 @@ export async function invoiceToPdf(input: InvoicePdfInput) {
   const summaryX = pageWidth - 220;
   const summaryValueX = pageWidth - 60;
 
-  doc.text("Subtotal", summaryX, y);
+  doc.text(labels.subtotal, summaryX, y);
   doc.text(money(subtotal), summaryValueX, y, { align: "right" });
   y += 18;
-  doc.text("Discount", summaryX, y);
+  doc.text(labels.discount, summaryX, y);
   doc.text(`-${money(discount)}`, summaryValueX, y, { align: "right" });
   y += 18;
-  doc.text(`Tax (${input.taxRate || 0}%)`, summaryX, y);
+  doc.text(`${labels.tax} (${input.taxRate || 0}%)`, summaryX, y);
   doc.text(money(tax), summaryValueX, y, { align: "right" });
   y += 22;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
-  doc.text("Total", summaryX, y);
+  doc.text(labels.total, summaryX, y);
   doc.text(money(total), summaryValueX, y, { align: "right" });
 
   if (input.notes.trim()) {
     y += 46;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text("Notes", 48, y);
+    doc.text(labels.notes, 48, y);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(doc.splitTextToSize(input.notes, pageWidth - 96), 48, y + 18);

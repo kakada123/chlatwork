@@ -1,3 +1,4 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -80,6 +81,11 @@ function pageHarness(
   }).outputText;
   const module = { exports: {} as any };
   const requireMock = (name: string) => {
+    if (name === "~/composables/useAppI18n") return appI18nStub;
+    if (name === "~/composables/useProductCopy")
+      return { useProductCopy: () => ({ productText: (text: string) => text }) };
+    if (name === "~/composables/useLanguage")
+      return { useLanguage: () => ({ isKhmer: vue.ref(false) }) };
     if (name === "vue") return vue;
     if (name === "~/services/creator-ai.service") return services;
     if (name === "~/lib/creator-credit-display") return display;

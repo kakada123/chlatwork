@@ -1,3 +1,5 @@
+import { createI18nStub } from "./i18n-stubs.ts";
+import { translateMessage } from "../../app/lib/i18n.ts";
 import { readFileSync } from "node:fs";
 import * as vue from "vue";
 import * as icons from "lucide-vue-next";
@@ -34,6 +36,8 @@ export function loadCalendarComponent(
   }).outputText;
   const dependencies: Record<string, unknown> = {
     vue,
+    "~/composables/useAppI18n": { useAppI18n: createI18nStub },
+    "~/lib/i18n": { translateMessage },
     "lucide-vue-next": icons,
     "~/lib/khmer-calendar": calendar,
     "~/lib/calendar-sharing": sharing,

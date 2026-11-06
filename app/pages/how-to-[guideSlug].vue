@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { findToolGuideByPath } from "~/data/tool-guides";
-import { getToolGuideKm } from "~/data/tool-guides-km";
+import { getToolGuideKm, localizeToolGuide } from "~/data/tool-guides-km";
+
+const { t } = useAppI18n();
 
 const route = useRoute();
 const pageEl = ref<HTMLElement | null>(null);
 const siteUrl = "https://chlatwork.com";
 const { isKhmer, localizeTool } = useLanguage();
-const guide = computed(() => findToolGuideByPath(route.path));
+const guide = computed(() => {
+  const source = findToolGuideByPath(route.path);
+  return source ? localizeToolGuide(source, t("shared.components_admin_bot_group_workspaces.en"), localizeTool(source.tool)) : null;
+});
 const pageUrl = computed(() =>
   guide.value ? `${siteUrl}${guide.value.path}` : siteUrl,
 );
@@ -23,28 +29,31 @@ const guideKm = computed(() =>
     : null,
 );
 
+const metaTitle = computed(() => guide.value?.metaTitle ?? (t("shared.pages_how_to_guide_slug.tool_guide_chlat_work")));
+const metaDescription = computed(() => guide.value?.metaDescription ?? "");
+
 useLandingReveal(pageEl);
 
 watchEffect(() => {
   if (!guide.value) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Tool guide not found",
+      statusMessage: t("shared.pages_how_to_guide_slug.tool_guide_not_found"),
     });
   }
 });
 
 useSeoMeta({
-  title: computed(() => guide.value?.metaTitle ?? "Tool Guide - ChlatWork"),
-  description: computed(() => guide.value?.metaDescription ?? ""),
-  ogTitle: computed(() => guide.value?.metaTitle ?? "Tool Guide - ChlatWork"),
-  ogDescription: computed(() => guide.value?.metaDescription ?? ""),
+  title: metaTitle,
+  description: metaDescription,
+  ogTitle: metaTitle,
+  ogDescription: metaDescription,
   ogType: "article",
   ogUrl: pageUrl,
   ogImage: `${siteUrl}/og-home.png?v=20261104`,
   twitterCard: "summary_large_image",
-  twitterTitle: computed(() => guide.value?.metaTitle ?? "Tool Guide - ChlatWork"),
-  twitterDescription: computed(() => guide.value?.metaDescription ?? ""),
+  twitterTitle: metaTitle,
+  twitterDescription: metaDescription,
   twitterImage: `${siteUrl}/og-home.png?v=20261104`,
 });
 
@@ -76,8 +85,8 @@ useHead(() => {
             {
               "@type": "WebPage",
               "@id": canonicalUrl,
-              name: currentGuide.metaTitle,
-              description: currentGuide.metaDescription,
+              name: metaTitle.value,
+              description: metaDescription.value,
               url: canonicalUrl,
               isPartOf: {
                 "@type": "WebSite",
@@ -91,7 +100,7 @@ useHead(() => {
             {
               "@type": "FAQPage",
               "@id": `${canonicalUrl}#faq`,
-              mainEntity: currentGuide.faqs.map((faq) => ({
+              mainEntity: (isKhmer.value ? guideKm.value?.faqs ?? currentGuide.faqs : currentGuide.faqs).map((faq) => ({
                 "@type": "Question",
                 name: faq.question,
                 acceptedAnswer: {
@@ -103,11 +112,11 @@ useHead(() => {
             {
               "@type": "SoftwareApplication",
               "@id": softwareId,
-              name: currentGuide.tool.name,
+              name: localizedTool.value?.name ?? currentGuide.tool.name,
               applicationCategory: currentGuide.applicationCategory,
               operatingSystem: "Any",
               url: toolUrl,
-              description: currentGuide.tool.description,
+              description: localizedTool.value?.description ?? currentGuide.tool.description,
               offers: {
                 "@type": "Offer",
                 price: "0",
@@ -143,7 +152,7 @@ useHead(() => {
               class="h-2 w-2 rounded-full bg-emerald-400"
               aria-hidden="true"
             />
-            {{ isKhmer ? "ការណែនាំ ChlatWork" : "ChlatWork Guide" }}
+            {{ t("shared.pages_guides_guide_slug.chlat_work_guide") }}
           </div>
 
           <div class="space-y-3">
@@ -164,13 +173,13 @@ useHead(() => {
               :to="guide.tool.route"
               class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white shadow-lg shadow-slate-300/60 transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:shadow-black/20 dark:hover:bg-cyan-100"
             >
-              {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
+              {{ guide.ctaLabel }}
             </NuxtLink>
             <NuxtLink
               to="/tools"
               class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white/75 px-5 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
             >
-              {{ isKhmer ? "មើលឧបករណ៍ទាំងអស់" : "Browse all tools" }}
+              {{ t("shared.pages_how_to_guide_slug.browse_all_tools") }}
             </NuxtLink>
           </div>
         </div>
@@ -193,7 +202,7 @@ useHead(() => {
             </span>
             <div>
               <p class="text-xs font-semibold uppercase text-slate-400">
-                {{ isKhmer ? "ឧបករណ៍" : "Tool" }}
+                {{ t("shared.pages_how_to_guide_slug.tool") }}
               </p>
               <p class="mt-1 text-lg font-black text-slate-950 dark:text-white">
                 {{ isKhmer && localizedTool ? localizedTool.name : guide.tool.name }}
@@ -207,7 +216,7 @@ useHead(() => {
             :to="guide.tool.route"
             class="mt-6 text-sm font-bold text-sky-700 transition hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
           >
-            {{ isKhmer ? "បើកឧបករណ៍នេះ →" : "Open the tool →" }}
+            {{ t("shared.pages_how_to_guide_slug.open_the_tool") }}
           </NuxtLink>
         </aside>
       </div>
@@ -222,7 +231,7 @@ useHead(() => {
       >
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "តើឧបករណ៍នេះជាអ្វី?" : "What is this tool?" }}
+            {{ t("shared.pages_how_to_guide_slug.what_is_this_tool") }}
           </h2>
           <p
             v-for="paragraph in (isKhmer && guideKm ? guideKm.whatIs : guide.whatIs)"
@@ -235,7 +244,7 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "ហេតុអ្វីគួរប្រើឧបករណ៍នេះ?" : "Why use this tool?" }}
+            {{ t("shared.pages_how_to_guide_slug.why_use_this_tool") }}
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">
             <li
@@ -250,7 +259,7 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "របៀបប្រើប្រាស់" : "How to use it" }}
+            {{ t("shared.pages_how_to_guide_slug.how_to_use_it") }}
           </h2>
           <ol class="space-y-3">
             <li
@@ -272,7 +281,7 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "ករណីប្រើប្រាស់ទូទៅ" : "Common use cases" }}
+            {{ t("shared.pages_how_to_guide_slug.common_use_cases") }}
           </h2>
           <ul class="space-y-3">
             <li
@@ -291,7 +300,7 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "គន្លឹះ និងការអនុវត្តល្អៗ" : "Tips and best practices" }}
+            {{ t("shared.pages_how_to_guide_slug.tips_and_best_practices") }}
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">
             <li
@@ -306,7 +315,7 @@ useHead(() => {
 
         <section class="space-y-3" id="faq">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}
+            {{ t("shared.components_tools_tool_content_layout.faq") }}
           </h2>
           <div class="space-y-3">
             <details
@@ -332,19 +341,19 @@ useHead(() => {
           class="rounded-[24px] border border-white/80 bg-white/80 p-5 shadow-lg shadow-sky-100/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
         >
           <p class="text-xs font-semibold uppercase text-slate-400">
-            {{ isKhmer ? "សកម្មភាពរហ័ស" : "Quick action" }}
+            {{ t("shared.pages_how_to_guide_slug.quick_action") }}
           </p>
           <h2 class="mt-2 text-xl font-black text-slate-950 dark:text-white">
-            {{ isKhmer ? "ត្រៀមសាកល្បងហើយឬនៅ?" : "Ready to try it?" }}
+            {{ t("shared.pages_how_to_guide_slug.ready_to_try_it") }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/65">
-            {{ isKhmer ? "បើកឧបករណ៍ផ្ទាល់ និងអនុវត្តតាមការណែនាំនេះ។" : "Open the real tool and follow the guide while you work." }}
+            {{ t("shared.pages_how_to_guide_slug.open_the_real_tool_and_follow_the_guide_while") }}
           </p>
           <NuxtLink
             :to="guide.tool.route"
             class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-sky-600 px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
           >
-            {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
+            {{ guide.ctaLabel }}
           </NuxtLink>
         </div>
 
@@ -352,10 +361,10 @@ useHead(() => {
           class="rounded-[24px] border border-white/80 bg-white/70 p-5 text-sm leading-6 text-slate-600 shadow-lg shadow-sky-100/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05] dark:text-white/65 dark:shadow-black/20"
         >
           <p class="font-bold text-slate-950 dark:text-white">
-            {{ isKhmer ? "គួរដឹង" : "Good to know" }}
+            {{ t("shared.pages_how_to_guide_slug.good_to_know") }}
           </p>
           <p class="mt-2">
-            {{ isKhmer ? "ឧបករណ៍ ChlatWork ភាគច្រើនបង្កើតឡើងសម្រាប់ប្រើលើ browser ផ្ទាល់ មិនចាំបាច់ដំឡើងកម្មវិធីបន្ថែមឡើយ។" : "Most ChlatWork tools are built for quick browser use, so you can finish the task without installing another app." }}
+            {{ t("shared.pages_how_to_guide_slug.most_chlat_work_tools_are_built_for_quick_browser") }}
           </p>
         </div>
       </aside>
@@ -366,16 +375,16 @@ useHead(() => {
       data-reveal
     >
       <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-        {{ isKhmer ? `ប្រើប្រាស់ ${localizedTool?.name || guide.tool.name} ឥឡូវនេះ` : `Use the ${guide.tool.name} now` }}
+        {{ t("shared.pages_how_to_guide_slug.use_the_now", { guideToolName: guide.tool.name, toolName: localizedTool?.name || guide.tool.name }) }}
       </h2>
       <p class="mx-auto mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-white/70">
-        {{ isKhmer ? "ការណែនាំនេះពន្យល់ពីរបៀបធ្វើ។ ចុចបើកឧបករណ៍ដើម្បីបង្កើត គណនា ឬទាញយកលទ្ធផលជាក់ស្តែង។" : "This guide explains the workflow. The tool page is where you can create, convert, calculate, test, or download the actual result." }}
+        {{ t("shared.pages_how_to_guide_slug.this_guide_explains_the_workflow_the_tool_page_is") }}
       </p>
       <NuxtLink
         :to="guide.tool.route"
         class="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
       >
-        {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
+        {{ guide.ctaLabel }}
       </NuxtLink>
     </section>
   </main>

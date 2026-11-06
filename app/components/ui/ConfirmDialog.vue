@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
 import { AlertTriangle, Check, X } from "lucide-vue-next";
+
 
 const props = withDefaults(
   defineProps<{
@@ -13,8 +16,13 @@ const props = withDefaults(
     locale?: "en" | "km";
     tone?: "danger" | "accent";
   }>(),
-  { cancelLabel: "Cancel", busy: false, busyLabel: "Please wait…", locale: "en", tone: "danger" },
+  { busy: false, tone: "danger" },
 );
+const { locale: appLocale } = useLanguage();
+const dialogLocale = computed(() => props.locale ?? appLocale.value);
+const { t } = useAppI18n(dialogLocale);
+const resolvedCancelLabel = computed(() => props.cancelLabel ?? (t("shared.common.cancel")));
+const resolvedBusyLabel = computed(() => props.busyLabel ?? (t("shared.components_ui_confirm_dialog.please_wait")));
 const emit = defineEmits<{ close: []; confirm: [] }>();
 const dialog = ref<HTMLDivElement | null>(null);
 const cancelButton = ref<HTMLButtonElement | null>(null);
@@ -70,17 +78,17 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" leave-active-class="transition duration-150 ease-in" leave-to-class="opacity-0">
       <div v-if="open" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm" @click.self="close">
-        <div ref="dialog" role="alertdialog" aria-modal="true" :aria-labelledby="titleId" :aria-describedby="descriptionId" class="confirm-dialog max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl outline-none dark:border-white/15 dark:bg-[#101214] sm:p-7" :class="{ 'is-khmer': locale === 'km' }" :lang="locale" @keydown.esc.prevent="close" @keydown="keepFocusInside">
+        <div ref="dialog" role="alertdialog" aria-modal="true" :aria-labelledby="titleId" :aria-describedby="descriptionId" class="confirm-dialog max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl outline-none dark:border-white/15 dark:bg-[#101214] sm:p-7" :class="{ 'is-khmer': dialogLocale === 'km' }" :lang="dialogLocale" @keydown.esc.prevent="close" @keydown="keepFocusInside">
           <div class="flex items-start justify-between gap-4">
             <span class="flex h-12 w-12 items-center justify-center rounded-2xl ring-1" :class="tone === 'accent' ? 'bg-blue-50 text-blue-600 ring-blue-100 dark:bg-blue-400/10 dark:text-blue-300 dark:ring-blue-300/15' : 'bg-red-50 text-red-600 ring-red-100 dark:bg-red-400/10 dark:text-red-300 dark:ring-red-300/15'"><Check v-if="tone === 'accent'" class="h-6 w-6" aria-hidden="true" /><AlertTriangle v-else class="h-6 w-6" aria-hidden="true" /></span>
-            <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white" :aria-label="cancelLabel" :disabled="busy" @click="close"><X class="h-5 w-5" aria-hidden="true" /></button>
+            <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white" :aria-label="resolvedCancelLabel" :disabled="busy" @click="close"><X class="h-5 w-5" aria-hidden="true" /></button>
           </div>
           <h2 :id="titleId" class="mt-5 text-2xl font-semibold text-slate-950 dark:text-white">{{ title }}</h2>
           <p :id="descriptionId" class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/60">{{ description }}</p>
           <slot />
           <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button ref="cancelButton" type="button" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-white/15 dark:text-white/75 dark:hover:bg-white/[0.07]" :disabled="busy" @click="close">{{ cancelLabel }}</button>
-            <button type="button" class="inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 dark:focus-visible:ring-offset-[#101214]" :class="tone === 'accent' ? 'bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400' : 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-500 dark:hover:bg-red-400'" :disabled="busy" @click="emit('confirm')">{{ busy ? busyLabel : confirmLabel }}</button>
+            <button ref="cancelButton" type="button" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-white/15 dark:text-white/75 dark:hover:bg-white/[0.07]" :disabled="busy" @click="close">{{ resolvedCancelLabel }}</button>
+            <button type="button" class="inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 dark:focus-visible:ring-offset-[#101214]" :class="tone === 'accent' ? 'bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400' : 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-500 dark:hover:bg-red-400'" :disabled="busy" @click="emit('confirm')">{{ busy ? resolvedBusyLabel : confirmLabel }}</button>
           </div>
         </div>
       </div>

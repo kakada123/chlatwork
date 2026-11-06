@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import { LoaderCircle } from "lucide-vue-next";
+import { localizeDeveloperCommand, localizeCommandCategory } from "~/data/developer-commands-km";
 import type { DeveloperCommand } from "~/types/developer-command";
 import CommandCopyButton from "~/components/developer-commands/CommandCopyButton.vue";
+
+const { t } = useAppI18n();
 
 const props = withDefaults(
   defineProps<{ item: DeveloperCommand; favorite: boolean; requiresLogin?: boolean; saving?: boolean }>(),
   { requiresLogin: false, saving: false },
 );
+const displayedItem = computed(() => localizeDeveloperCommand(props.item, (isKhmer.value ? "km" : "en")));
 const emit = defineEmits<{ favorite: []; copied: [command: string] }>();
 
 const generatedCommand = computed(() => {
@@ -27,15 +33,15 @@ const dangerDot = computed(() => ({
 <template>
   <article class="group min-w-0 rounded-xl border border-slate-200/80 bg-white/85 p-2.5 shadow-sm transition hover:border-sky-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.10]">
     <div class="flex min-w-0 items-start gap-2">
-      <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full" :class="dangerDot" :title="`${item.danger} command`" />
+      <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full" :class="dangerDot" :title="t(`tools.developerCommands.dangerTitle.${item.danger}`)" />
       <div class="min-w-0 flex-1">
         <code class="block truncate rounded-md bg-slate-100/80 px-1.5 py-1 font-mono text-xs font-bold text-slate-950 dark:bg-black/20 dark:text-slate-100" :title="generatedCommand">{{ generatedCommand }}</code>
-        <p class="mt-1 truncate text-[11px] leading-4 text-slate-500 dark:text-white/50" :title="item.description">{{ item.description }}</p>
+        <p class="mt-1 truncate text-[11px] leading-4 text-slate-500 dark:text-white/50" :title="displayedItem.description">{{ displayedItem.description }}</p>
       </div>
-      <button type="button" class="shrink-0 rounded p-1 text-sm leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-white/10" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 opacity-0 group-hover:opacity-100 focus:opacity-100 dark:text-white/25'" :aria-label="requiresLogin ? 'Sign in to add favorites' : favorite ? 'Remove from favorites' : 'Add to favorites'" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? 'Sign in to save favorites' : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
+      <button type="button" class="shrink-0 rounded p-1 text-sm leading-none transition hover:bg-slate-100 disabled:cursor-wait dark:hover:bg-white/10" :class="favorite ? 'text-amber-500 dark:text-amber-300' : 'text-slate-300 opacity-0 group-hover:opacity-100 focus:opacity-100 dark:text-white/25'" :aria-label="requiresLogin ? (t(&quot;tools.developerCommands.signInToAddFavorites&quot;)) : favorite ? (t(&quot;tools.developerCommands.removeFromFavorites&quot;)) : (t(&quot;tools.developerCommands.addToFavorites&quot;))" :aria-busy="saving" :disabled="saving" :title="requiresLogin ? (t(&quot;tools.developerCommands.signInToSaveFavorites&quot;)) : undefined" @click="emit('favorite')"><LoaderCircle v-if="saving" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span v-else aria-hidden="true">★</span></button>
     </div>
     <div class="mt-2 flex items-center justify-between gap-2 border-t border-slate-100 pt-2 dark:border-white/10">
-      <span class="truncate text-[10px] font-bold uppercase tracking-wide text-sky-700 dark:text-white/55">{{ item.title }}</span>
+      <span class="truncate text-[10px] font-bold uppercase tracking-wide text-sky-700 dark:text-white/55">{{ displayedItem.title }}</span>
       <CommandCopyButton :command="generatedCommand" subtle @copied="emit('copied', generatedCommand)" />
     </div>
   </article>

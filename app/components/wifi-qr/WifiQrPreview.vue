@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import { computed, ref } from "vue";
 import WifiQrPoster from "~/components/wifi-qr/WifiQrPoster.vue";
 import { sanitizeSvg } from "~/lib/sanitize-html";
@@ -7,6 +9,8 @@ import type {
   PrintTheme,
   PosterSize,
 } from "~/lib/wifi-qr";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{
   printMode: boolean;
@@ -36,7 +40,7 @@ defineExpose({
   <div class="rounded-2xl border bg-white p-4 shadow-sm">
     <div v-if="props.printMode" class="space-y-3">
       <div class="flex items-center justify-between">
-        <p class="text-sm font-semibold text-gray-900">Poster preview</p>
+        <p class="text-sm font-semibold text-gray-900">{{ t("tools.wifiQr.posterPreview") }}</p>
         <span class="text-xs text-gray-500">{{ props.posterSize }}</span>
       </div>
 
@@ -67,13 +71,11 @@ defineExpose({
           class="[&>svg]:w-[260px] [&>svg]:h-[260px]"
         ></div>
 
-        <p class="text-sm text-gray-500 mt-2">
-          Scan with camera → connect to
-          <span class="font-semibold text-gray-900">{{ props.ssid }}</span>
+        <p class="text-sm text-gray-500 mt-2">{{ t("tools.wifiQr.scanWithCameraConnectTo") }}<span class="font-semibold text-gray-900">{{ props.ssid }}</span>
         </p>
       </div>
 
-      <p v-else class="text-sm text-gray-500">Enter SSID to generate QR</p>
+      <p v-else class="text-sm text-gray-500">{{ t("tools.wifiQr.enterSsidToGenerateQr") }}</p>
     </div>
   </div>
 </template>

@@ -1,10 +1,10 @@
 <template>
   <section
     class="mt-8 overflow-hidden"
-    aria-label="Advertisement"
+    :aria-label="t(&quot;shared.components_ads_native_ad_client.advertisement&quot;)"
   >
     <p class="mb-2 text-center text-xs text-slate-500 dark:text-white/50">
-      {{ isKhmer ? "ពាណិជ្ជកម្ម" : "Advertisement" }}
+      {{ t("shared.components_ads_native_ad_client.advertisement") }}
     </p>
     <div ref="adHost">
       <div id="container-5d4bd0416bc83aa83b06fe7a1483af82"></div>
@@ -13,6 +13,9 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
 const { isKhmer } = useLanguage();
 const adHost = ref<HTMLDivElement | null>(null);
 

@@ -1,3 +1,4 @@
+import { hasTranslation, translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -57,9 +58,9 @@ test("Kla Klok page stays virtual-only and includes its main landing sections", 
   assert.match(page, /KlaKlokHowToPlay/);
   assert.match(page, /KlaKlokBoard/);
   assert.match(page, /KlaKlokRules/);
-  assert.match(page, /ត្រៀមលេងខ្លាឃ្លោកហើយឬនៅ/);
-  assert.match(board, /virtual coins/i);
-  assert.match(board, /ក្រឡុកចាន/);
+  assert.match(page, /tools\.klaKlok\.readyToPlay/);
+  assert.match(board, /products\.games\.virtual_coins/);
+  assert.match(board, /products\.games\.board\.choose_and_roll/);
   assert.doesNotMatch(`${page}\n${board}`, /real[- ]money|cash bet|deposit|withdraw/i);
 });
 
@@ -93,7 +94,7 @@ test("Kla Klok reveals 3D dice from a covered shaking dish with local sound", ()
   assert.match(board, /isSettling/);
   assert.match(board, /soundEnabled/);
   assert.match(board, /roll-index/);
-  assert.match(board, /ក្រឡុកខ្លាឃ្លោក/);
+  assert.match(board, /products\.games\.board\.roll_button/);
   assert.match(hero, /KlaKlokBowl/);
   assert.match(hero, /:covered="true"/);
   assert.doesNotMatch(hero, /KlaKlokDice/);
@@ -115,4 +116,14 @@ test("Kla Klok is registered as an available website tool", () => {
   assert.match(guideRoutes, /\["kla-klok", "how-to-play-kla-klok"\]/);
   assert.match(guides, /"kla-klok": \{/);
   assert.match(availability, /'kla-klok': 'Kla Klok'/);
+});
+
+
+test("Kla Klok symbol names retain canonical IDs and use catalog keys", () => {
+  for (const symbol of KLA_KLOK_SYMBOLS) {
+    assert.equal(symbol.labelKey, `products.games.symbols.${symbol.id}`);
+    for (const locale of ["en", "km"] as const) assert.equal(hasTranslation(locale, symbol.labelKey), true);
+    assert.equal(symbol.labelEn, translateMessage("en", symbol.labelKey));
+    assert.equal(symbol.labelKm, translateMessage("km", symbol.labelKey));
+  }
 });

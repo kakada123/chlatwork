@@ -1,22 +1,27 @@
-<script setup lang="ts">
-const payouts = [
-  { dice: "1 រូបត្រូវ", multiplier: "1×", detail: "ទទួលពិន្ទុដែលដាក់វិញ + ឈ្នះ 1×" },
-  { dice: "2 រូបត្រូវ", multiplier: "2×", detail: "ទទួលពិន្ទុដែលដាក់វិញ + ឈ្នះ 2×" },
-  { dice: "3 រូបត្រូវ", multiplier: "3×", detail: "ទទួលពិន្ទុដែលដាក់វិញ + ឈ្នះ 3×" },
-];
+<script setup lang="ts">import { computed } from "vue";
+
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+
+const payouts = computed(() => ([
+  { dice: t("products.games.rules.one_match"), multiplier: "1×", detail: t("products.games.rules.one_reward") },
+  { dice: t("products.games.rules.two_matches"), multiplier: "2×", detail: t("products.games.rules.two_reward") },
+  { dice: t("products.games.rules.three_matches"), multiplier: "3×", detail: t("products.games.rules.three_reward") },
+]));
 </script>
 
 <template>
   <section id="kla-klok-rules" class="px-5 py-14 sm:px-10 lg:px-16">
     <div class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
       <div>
-        <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Rules</p>
-        <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">របៀបគិតពិន្ទុ</h2>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">{{ t("products.games.rules") }}</p>
+        <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">{{ t("products.games.rules.scoring") }}</h2>
         <p class="mt-4 max-w-xl text-sm leading-7 text-white/60">
-          ដាក់ពិន្ទុលើរូបដែលអ្នកជ្រើសរើស រួចចាក់គ្រាប់បី។ បើរូបរបស់អ្នកចេញ អ្នកទទួលពិន្ទុដែលដាក់លើរូបនោះវិញ ហើយឈ្នះបន្ថែមតាមចំនួនគ្រាប់ដែលត្រូវគ្នា។
+          {{ t("products.games.rules.scoring_help") }}
         </p>
         <p class="mt-3 max-w-xl text-sm leading-7 text-white/45">
-          Select symbols and roll three dice. Each matching die awards the selected point value, and a matched symbol’s stake is returned.
+          {{ t("products.games.select_symbols_and_roll_three_dice_each_matching_die_awards_the_selected_point_value_and_a_matched_symbols_stake_is_returned") }}
         </p>
       </div>
 
@@ -33,7 +38,7 @@ const payouts = [
           <span class="rounded-xl bg-amber-300/15 px-4 py-2 text-xl font-black text-amber-300">{{ payout.multiplier }}</span>
         </div>
         <div class="border-t border-amber-300/20 bg-amber-300/[0.06] p-4 text-sm leading-6 text-amber-100 sm:p-5">
-          ឧទាហរណ៍៖ បើខ្លាចេញ ២ គ្រាប់ រូបខ្លាឈ្នះ <strong class="text-amber-300">2×</strong> និងទទួលពិន្ទុដែលដាក់លើខ្លាវិញ។
+          {{ t("products.games.rules.example_start") }} <strong class="text-amber-300">2×</strong> {{ t("products.games.rules.example_end") }}
         </div>
       </div>
     </div>

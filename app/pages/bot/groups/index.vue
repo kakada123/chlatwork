@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   groupApi,
   type GroupSummary,
 } from "~/services/group-workspaces.service";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 definePageMeta({ layout: "bot" });
 const { state, bot, epoch } = useBotSession();
 const groups = shallowRef<GroupSummary[]>([]);
@@ -31,7 +36,7 @@ async function load(next = 1) {
     }
   } catch {
     if (version === request)
-      error.value = "Could not verify your group permissions. Try refreshing.";
+      error.value = t("shared.pages_bot_groups_index.could_not_verify_your_group_permissions_try_refreshing");
   } finally {
     if (version === request) loading.value = false;
   }
@@ -48,18 +53,17 @@ onBeforeUnmount(() => {
     <template v-if="state === 'ready'">
       <section class="flex items-start justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold">Your groups</h1>
+          <h1 class="text-2xl font-bold">{{ t("shared.pages_bot_groups_index.your_groups") }}</h1>
           <p class="mt-2 text-sm text-slate-500">
-            Each group has its own settings. You must remain a group
-            administrator.
+            {{ t("shared.pages_bot_groups_index.each_group_has_its_own_settings_you_must_remain") }}
           </p>
         </div>
         <BotGroupConnect />
       </section>
       <p v-if="error" role="alert" class="text-rose-600">
-        {{ error }} <button class="underline" @click="load(page)">Refresh</button>
+        {{ error }} <button class="underline" @click="load(page)">{{ t("shared.common.refresh") }}</button>
       </p>
-      <p v-if="loading" role="status">Loading groups…</p>
+      <p v-if="loading" role="status">{{ t("shared.components_admin_member_khqr_manager.loading_groups") }}</p>
       <div v-else class="grid gap-3 sm:grid-cols-2">
         <NuxtLink
           v-for="group in groups"
@@ -70,13 +74,13 @@ onBeforeUnmount(() => {
           <p class="mt-2 text-sm text-slate-500">
             {{
               group.health === "CONNECTED"
-                ? "Connected"
+                ? t("shared.components_bot_group_overview.connected")
                 : "Reconnect to restore permissions"
             }}
-            · {{ group.enabled ? "Enabled" : "Paused" }}
+            · {{ group.enabled ? t("shared.common.enabled") : t("shared.components_bot_group_overview.paused") }}
           </p>
           <span class="mt-4 inline-block text-sm font-medium text-violet-600"
-            >Manage group →</span
+            >{{ t("shared.pages_bot_groups_index.manage_group") }}</span
           ></NuxtLink
         >
       </div>
@@ -84,14 +88,13 @@ onBeforeUnmount(() => {
         v-if="!loading && !groups.length && !error"
         class="rounded-2xl bg-white p-6 text-slate-500 dark:bg-slate-900"
       >
-        Connect your first group to set up voting, split and KHQR, or Creator
-        tools.
+        {{ t("shared.pages_bot_groups_index.connect_your_first_group_to_set_up_voting_split") }}
       </p>
       <div class="flex justify-between">
         <button v-if="page > 1" class="underline" @click="load(page - 1)">
-          Previous</button
+          {{ t("shared.common.previous") }}</button
         ><button v-if="hasMore" class="underline" @click="load(page + 1)">
-          Next
+          {{ t("shared.common.next") }}
         </button>
       </div>
     </template>

@@ -1,3 +1,4 @@
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -11,6 +12,7 @@ function runModule(
   dependencies: Record<string, unknown>,
   globals: Record<string, unknown> = {},
 ) {
+  globals = { useLanguage: () => ({ isKhmer: vue.ref(false) }), ...globals };
   const output = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -21,6 +23,8 @@ function runModule(
   new Function("require", "module", "exports", ...Object.keys(globals), output)(
     (name: string) => {
       if (name in dependencies) return dependencies[name];
+      if (name === "~/composables/useAppI18n") return { useAppI18n: createI18nStub };
+      if (name === "~/composables/useLanguage") return { useLanguage: globals.useLanguage };
       throw new Error(`Unexpected import ${name}`);
     },
     module,

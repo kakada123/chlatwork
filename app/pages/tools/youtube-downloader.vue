@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Download, LoaderCircle, Play, X } from "lucide-vue-next";
 import AuthLoginDialog from "~/components/auth/AuthLoginDialog.vue";
 import ToolFavoriteButton from "~/components/tools/ToolFavoriteButton.vue";
 import type { YoutubeQuality } from "~/lib/youtube-downloader";
+
+const { t } = useAppI18n();
 
 const { isKhmer, locale } = useLanguage();
 const { user, isReady: authReady } = useAuth();
@@ -12,87 +15,40 @@ const quality = ref<YoutubeQuality>(720);
 const loginOpen = ref(false);
 const downloadStarted = ref(false);
 const busy = computed(() => ["previewing", "preparing", "ticket"].includes(state.value.phase));
-const copy = computed(() =>
-  isKhmer.value
-    ? {
-        title: "ទាញយកវីដេអូ YouTube",
-        description: "បញ្ចូលតំណ ជ្រើសរើសគុណភាព ហើយទាញយកជា MP4។",
-        url: "តំណវីដេអូ YouTube",
-        preview: "មើលវីដេអូ",
-        loading: "កំពុងពិនិត្យវីដេអូ…",
-        login: "ចូលគណនីដើម្បីបន្ត",
-        quality: "គុណភាព MP4",
-        prepare: "រៀបចំការទាញយក",
-        preparing: "កំពុងរៀបចំវីដេអូ…",
-        preparingNote: "វាអាចចំណាយពេលប៉ុន្មាននាទី។ អ្នកអាចបោះបង់បាន។",
-        cancel: "បោះបង់",
-        ready: "វីដេអូរួចរាល់",
-        download: "ទាញយក MP4",
-        ticket: "កំពុងបង្កើតតំណ…",
-        limits: "រហូតដល់ 20 នាទី · 200 MiB · 1080p",
-        privacy: "វីដេអូត្រូវបានរៀបចំនៅលើម៉ាស៊ីនមេ។ ឯកសារបណ្តោះអាសន្នផុតកំណត់ក្នុងរយៈពេល 10 នាទី។",
-        permission: "ទាញយកតែវីដេអូដែលអ្នកជាម្ចាស់ ឬមានការអនុញ្ញាតឱ្យរក្សាទុក។",
-        publicOnly:
-          "គាំទ្រវីដេអូសាធារណៈ និង Shorts។ មិនគាំទ្រវីដេអូឯកជន ការផ្សាយផ្ទាល់ ឬបញ្ជីវីដេអូទាំងមូលទេ។",
-        expires: "ផុតកំណត់",
-        started: "ការទាញយកបានចាប់ផ្តើម។ ប្រសិនបើតំណផុតកំណត់ សូមរៀបចំម្តងទៀត។",
-      }
-    : {
-        title: "YouTube Video Downloader",
-        description: "Paste a link, choose a quality, and download an MP4.",
-        url: "YouTube video link",
-        preview: "Preview video",
-        loading: "Checking video…",
-        login: "Sign in to continue",
-        quality: "MP4 quality",
-        prepare: "Prepare download",
-        preparing: "Preparing your video…",
-        preparingNote: "This can take a few minutes. You can cancel at any time.",
-        cancel: "Cancel",
-        ready: "Your video is ready",
-        download: "Download MP4",
-        ticket: "Creating download link…",
-        limits: "Up to 20 minutes · 200 MiB · 1080p",
-        privacy:
-          "Videos are prepared on our server. Temporary files expire 10 minutes after preparation.",
-        permission: "Download only videos you own or have permission to save.",
-        publicOnly:
-          "Supports public videos and Shorts. Private videos, live streams, and whole playlists are unavailable.",
-        expires: "Expires",
-        started: "Download started. If the link expires, prepare the video again.",
-      },
-);
-const errors = computed<Record<string, string>>(() =>
-  isKhmer.value
-    ? {
-        AUTH_REQUIRED: "សូមចូលគណនីដើម្បីបន្ត។",
-        UPSTREAM_AUTH_REQUIRED:
-          "YouTube ទាមទារការចូលគណនីសម្រាប់សំណើនេះ។ ម៉ាស៊ីនមេរបស់យើងមិនអាចទាញយកវីដេអូនេះបាននៅពេលនេះទេ។ សូមសាកល្បងពេលក្រោយ។",
-        CAPACITY: "សេវាកំពុងរវល់។ សូមសាកល្បងម្តងទៀតបន្តិចទៀត។",
-        NOT_FOUND: "ឯកសារផុតកំណត់ ឬសេវាបានចាប់ផ្តើមឡើងវិញ។ សូមរៀបចំម្តងទៀត។",
-        UNAVAILABLE: "សេវាទាញយកមិនទាន់អាចប្រើបាន។ សូមសាកល្បងពេលក្រោយ។",
-        UNSUPPORTED_VIDEO:
-          "សូមពិនិត្យតំណ។ វីដេអូត្រូវតែជាសាធារណៈ និងមាន MP4 ដែលស្ថិតក្នុងដែនកំណត់។",
-        TOO_LARGE: "វីដេអូធំជាងដែនកំណត់ 200 MiB។",
-        TIMEOUT: "ការរៀបចំចំណាយពេលយូរពេក។ សូមសាកល្បងវីដេអូតូចជាងនេះ។",
-        CANCELLED: "ការទាញយកត្រូវបានបោះបង់។",
-        DOWNLOAD_FAILED: "មិនអាចទាញយកវីដេអូបាន។ សូមសាកល្បងវីដេអូសាធារណៈផ្សេងទៀត។",
-      }
-    : {
-        AUTH_REQUIRED: "Sign in to continue.",
-        UPSTREAM_AUTH_REQUIRED:
-          "YouTube requires authentication for this request. Our server cannot download this video right now. Try again later.",
-        CAPACITY: "The downloader is busy. Please try again shortly.",
-        NOT_FOUND: "This download expired or the service restarted. Please prepare it again.",
-        UNAVAILABLE: "The downloader is temporarily unavailable. Please try again later.",
-        UNSUPPORTED_VIDEO:
-          "Check the link. The video must be public and offer a supported MP4 within the limits.",
-        TOO_LARGE: "This video exceeds the 200 MiB limit.",
-        TIMEOUT: "Preparation took too long. Try a smaller video.",
-        CANCELLED: "The download was cancelled.",
-        DOWNLOAD_FAILED: "Could not download this video. Please try another public video.",
-      },
-);
+const copy = computed(() => ({
+  "title": t("tools.youtubeDownloader.copy.title"),
+  "description": t("tools.youtubeDownloader.copy.description"),
+  "url": t("tools.youtubeDownloader.copy.url"),
+  "preview": t("tools.youtubeDownloader.copy.preview"),
+  "loading": t("tools.youtubeDownloader.copy.loading"),
+  "login": t("tools.youtubeDownloader.copy.login"),
+  "quality": t("tools.youtubeDownloader.copy.quality"),
+  "prepare": t("tools.youtubeDownloader.copy.prepare"),
+  "preparing": t("tools.youtubeDownloader.copy.preparing"),
+  "preparingNote": t("tools.youtubeDownloader.copy.preparingNote"),
+  "cancel": t("tools.youtubeDownloader.copy.cancel"),
+  "ready": t("tools.youtubeDownloader.copy.ready"),
+  "download": t("tools.youtubeDownloader.copy.download"),
+  "ticket": t("tools.youtubeDownloader.copy.ticket"),
+  "limits": t("tools.youtubeDownloader.copy.limits"),
+  "privacy": t("tools.youtubeDownloader.copy.privacy"),
+  "permission": t("tools.youtubeDownloader.copy.permission"),
+  "publicOnly": t("tools.youtubeDownloader.copy.publicOnly"),
+  "expires": t("tools.youtubeDownloader.copy.expires"),
+  "started": t("tools.youtubeDownloader.copy.started"),
+}));
+const errors = computed(() => ({
+  "AUTH_REQUIRED": t("tools.youtubeDownloader.errors.AUTH_REQUIRED"),
+  "UPSTREAM_AUTH_REQUIRED": t("tools.youtubeDownloader.errors.UPSTREAM_AUTH_REQUIRED"),
+  "CAPACITY": t("tools.youtubeDownloader.errors.CAPACITY"),
+  "NOT_FOUND": t("tools.youtubeDownloader.errors.NOT_FOUND"),
+  "UNAVAILABLE": t("tools.youtubeDownloader.errors.UNAVAILABLE"),
+  "UNSUPPORTED_VIDEO": t("tools.youtubeDownloader.errors.UNSUPPORTED_VIDEO"),
+  "TOO_LARGE": t("tools.youtubeDownloader.errors.TOO_LARGE"),
+  "TIMEOUT": t("tools.youtubeDownloader.errors.TIMEOUT"),
+  "CANCELLED": t("tools.youtubeDownloader.errors.CANCELLED"),
+  "DOWNLOAD_FAILED": t("tools.youtubeDownloader.errors.DOWNLOAD_FAILED"),
+}));
 const message = computed(() =>
   state.value.errorCode
     ? (errors.value[state.value.errorCode] ?? errors.value.DOWNLOAD_FAILED)
@@ -104,7 +60,7 @@ const duration = computed(() => {
 });
 const expires = computed(() =>
   state.value.job?.expiresAt
-    ? new Date(state.value.job.expiresAt).toLocaleTimeString(isKhmer.value ? "km-KH" : "en", {
+    ? new Date(state.value.job.expiresAt).toLocaleTimeString((isKhmer.value ? "km-KH" : "en"), {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -152,9 +108,12 @@ async function saveVideo() {
   }).catch(() => undefined);
 }
 
+
+
+
 useSeoMeta({
-  title: "YouTube Video Downloader | ChlatWork",
-  description: "Prepare an MP4 from a public YouTube video you own or have permission to save.",
+  title: () => t("tools.youtubeDownloader.metaTitle"),
+  description: () => t("tools.youtubeDownloader.metaDescription"),
 });
 </script>
 

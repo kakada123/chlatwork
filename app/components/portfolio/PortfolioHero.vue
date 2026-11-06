@@ -23,13 +23,13 @@
             href="#projects"
             class="inline-flex h-12 items-center justify-center rounded-2xl bg-blue-500 px-7 text-sm font-bold text-white shadow-[0_18px_50px_rgba(59,130,246,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_70px_rgba(168,85,247,0.36)] focus:outline-none focus:ring-2 focus:ring-cyan-200"
           >
-            View Projects
+            {{ t("shared.components_portfolio_portfolio_hero.view_projects") }}
           </a>
           <a
             href="#contact"
             class="inline-flex h-12 items-center justify-center rounded-2xl border border-sky-200/80 bg-white/75 px-7 text-sm font-bold text-slate-900 shadow-[0_16px_40px_rgba(14,165,233,0.13),inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 dark:border-white/20 dark:bg-slate-950/55 dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.10)] dark:hover:bg-slate-900/85 dark:focus:ring-white/50"
           >
-            Contact Me
+            {{ t("shared.components_portfolio_portfolio_hero.contact_me") }}
           </a>
         </div>
       </div>
@@ -55,11 +55,11 @@
               <div class="mt-4 space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
                 <p>
                   <span class="text-fuchsia-700 dark:text-fuchsia-200">focus:</span>
-                  backend architecture + real business workflows
+                  {{ t("shared.components_portfolio_portfolio_hero.backend_architecture_real_business_workflows") }}
                 </p>
                 <p>
                   <span class="text-fuchsia-700 dark:text-fuchsia-200">ships:</span>
-                  APIs, dashboards, POS apps, automations
+                  {{ t("shared.components_portfolio_portfolio_hero.apis_dashboards_pos_apps_automations") }}
                 </p>
                 <p>
                   <span class="text-fuchsia-700 dark:text-fuchsia-200">stack:</span>
@@ -88,7 +88,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { portfolioMetrics, portfolioProfile } from "~/data/portfolio";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 
 defineProps<{
   profile: typeof portfolioProfile;

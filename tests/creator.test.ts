@@ -162,14 +162,14 @@ test("Creator surfaces generation, video, result, and insufficient-credit states
   ]) {
     assert.match(composable, new RegExp(`"${state}"`));
   }
-  assert.match(result, /Copy all/);
-  assert.match(result, /New variation/);
+  assert.match(result, /products\.common\.copy_all/);
+  assert.match(result, /products\.creator\.new_variation/);
   assert.match(
     credits,
-    /Processing has not started and no credits were deducted/,
+    /products\.creator\.processing_has_not_started_and_no_credits_were_deducted/,
   );
   assert.match(composable, /Uploading audio/);
   assert.match(composable, /Queued/);
   assert.match(upload, /activeStage/);
-  assert.match(upload, /Preparing audio on your device/);
+  assert.match(upload, /products\.creator\.preparing_audio_on_your_device/);
 });

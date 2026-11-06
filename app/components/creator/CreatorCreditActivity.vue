@@ -1,10 +1,18 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useLanguage } from "~/composables/useLanguage";
+import { useProductCopy } from "~/composables/useProductCopy";
+const { isKhmer } = useLanguage();
 import type { CreatorCreditTransaction } from "~/services/creator-ai.service";
 import {
   creatorFeatureLabel,
   creatorTransactionLabel,
   formatCreditChange,
 } from "~/lib/creator-credit-display";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 defineProps<{
   transactions: (CreatorCreditTransaction & {
@@ -14,7 +22,7 @@ defineProps<{
 }>();
 
 const formatDate = (date: string) =>
-  new Date(date).toLocaleString("en-US", {
+  new Date(date).toLocaleString(isKhmer.value ? "km-KH" : "en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   });
@@ -32,19 +40,19 @@ const formatDate = (date: string) =>
     >
       <div class="min-w-0">
         <p class="text-sm font-semibold">
-          {{ creatorTransactionLabel(entry.type) }}
+          {{ productText(creatorTransactionLabel(entry.type)) }}
         </p>
         <p
           v-if="entry.feature"
           class="mt-1 text-xs text-slate-600 dark:text-white/60"
         >
-          {{ creatorFeatureLabel(entry.feature) }}
+          {{ productText(creatorFeatureLabel(entry.feature)) }}
         </p>
         <p
           v-if="entry.type === 'CHARGE'"
           class="mt-1 text-xs text-slate-500 dark:text-white/50"
         >
-          Uses the reserved credits; no second deduction.
+          {{ t("products.creator.reserved_credit_notice") }}
         </p>
         <p
           v-if="entry.reason"
@@ -56,7 +64,7 @@ const formatDate = (date: string) =>
           v-if="entry.adminUserId"
           class="mt-1 break-all text-[10px] text-slate-500 dark:text-white/40"
         >
-          Admin ID: {{ entry.adminUserId }}
+          {{ t("products.creator.admin_id") }} {{ entry.adminUserId }}
         </p>
         <time
           :datetime="entry.createdAt"
@@ -75,10 +83,10 @@ const formatDate = (date: string) =>
                 : 'text-slate-500 dark:text-white/50'
           "
         >
-          {{ formatCreditChange(entry.amount) }}
+          {{ productText(formatCreditChange(entry.amount)) }}
         </p>
         <p class="mt-1 text-xs text-slate-500 dark:text-white/50">
-          Balance {{ entry.balanceAfter.toLocaleString("en-US") }}
+          {{ t("products.creator.balance") }} {{ entry.balanceAfter.toLocaleString("en-US") }}
         </p>
       </div>
     </li>
@@ -87,6 +95,6 @@ const formatDate = (date: string) =>
     v-else
     class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-white/50"
   >
-    No credit transactions yet.
+    {{ t("products.creator.no_credit_transactions_yet") }}
   </p>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ENABLED_TOOLS, type ToolDef } from "~/lib/tool-registry";
 import {
   TOOL_DIRECTORY_CATEGORIES,
@@ -11,6 +12,8 @@ import HomeGlobalSearch from "~/components/landing/HomeGlobalSearch.vue";
 import MobileToolsDirectory from "~/components/tools/MobileToolsDirectory.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import { ArrowRight, Sparkles } from "lucide-vue-next";
+
+const { t } = useAppI18n();
 
 const { categoryLabel, copy, isKhmer, localizeDirectoryCategory, localizeTool } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
@@ -68,7 +71,7 @@ function groupTools(tools: ToolDef[]) {
       </h1>
     </header>
 
-    <section class="mx-auto w-full max-w-3xl" data-reveal aria-label="Search tools">
+    <section class="mx-auto w-full max-w-3xl" data-reveal :aria-label="t(&quot;tools.index.searchTools&quot;)">
       <HomeGlobalSearch :tools="searchableTools" />
     </section>
 
@@ -78,14 +81,14 @@ function groupTools(tools: ToolDef[]) {
       data-reveal
     >
       <span class="tool-icon-tone tool-icon-tone-violet grid size-12 shrink-0 place-items-center rounded-2xl" aria-hidden="true"><Sparkles class="size-6" /></span>
-      <span class="min-w-0 flex-1"><strong class="block text-base text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block text-sm text-slate-500 dark:text-white/55">{{ isKhmer ? "បង្កើតការផុស ស្គ្រីប ចំណងជើងទាក់ទាញ មាតិកាខ្មែរ និងកញ្ចប់វីដេអូពេញលេញ។" : "Create posts, scripts, hooks, Khmer content, and complete video content packs." }}</span></span>
-      <span class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200">{{ isKhmer ? "បើក Creator" : "Open Creator" }} <ArrowRight class="size-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
+      <span class="min-w-0 flex-1"><strong class="block text-base text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block text-sm text-slate-500 dark:text-white/55">{{ t("tools.index.createPostsScriptsHooksKhmerContentAndCompleteVideo") }}</span></span>
+      <span class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200">{{ t("tools.index.openCreator") }} <ArrowRight class="size-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
     </NuxtLink>
 
     <section class="space-y-3" data-reveal>
       <div>
         <h2 class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-          {{ isKhmer ? "ប្រភេទឧបករណ៍" : "Tool categories" }}
+          {{ t("tools.index.toolCategories") }}
         </h2>
       </div>
 
@@ -111,7 +114,7 @@ function groupTools(tools: ToolDef[]) {
                 {{ category.shortTitle }}
               </h3>
               <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-white/50">
-                {{ category.count }} {{ isKhmer ? "ឧបករណ៍" : (category.count === 1 ? "tool" : "tools") }}
+                {{ category.count }} {{ t(category.count === 1 ? "tools.index.tool.one" : "tools.index.tool.other") }}
               </p>
             </div>
           </div>
@@ -135,7 +138,7 @@ function groupTools(tools: ToolDef[]) {
             {{ categoryLabel(group.category) }}
           </h2>
           <p class="mt-1 text-xs text-slate-400 dark:text-white/35">
-            {{ group.tools.length }} {{ isKhmer ? "ឧបករណ៍" : (group.tools.length === 1 ? "tool" : "tools") }}
+            {{ group.tools.length }} {{ t(group.tools.length === 1 ? "tools.index.tool.one" : "tools.index.tool.other") }}
           </p>
         </div>
       </div>

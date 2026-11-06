@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+const { t: khmerText } = useAppI18n({ value: true });
 const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(true);
 const { canonical, product } = useProductDomain();
 const route = useRoute();
@@ -18,19 +22,20 @@ async function toggleMobileRules() {
     await navigateTo({ path: route.path, query: route.query }, { replace: true });
 }
 const benefits = [
-  { icon: "◆", titleKm: "រចនាបែបខ្មែរ", titleEn: "Khmer-inspired design" },
-  { icon: "⚡", titleKm: "លឿន និងងាយស្រួល", titleEn: "Fast and simple" },
-  { icon: "▣", titleKm: "ល្អសម្រាប់ទូរសព្ទ", titleEn: "Mobile friendly" },
-  { icon: "○", titleKm: "មិនបាច់បង្កើតគណនី", titleEn: "No account for casual mode" },
+  { icon: "◆", titleKey: "tools.klaKlok.benefits.design" },
+  { icon: "⚡", titleKey: "tools.klaKlok.benefits.speed" },
+  { icon: "▣", titleKey: "tools.klaKlok.benefits.mobile" },
+  { icon: "○", titleKey: "tools.klaKlok.benefits.account" },
 ];
 
+
+
+
 useSeoMeta({
-  title: "ខ្លាឃ្លោក — Kla Klok | ChlatWork",
-  description:
-    "Play Kla Klok, a Khmer-inspired three-dice game using entertainment-only virtual points. No account needed.",
-  ogTitle: "ខ្លាឃ្លោក — Kla Klok",
-  ogDescription:
-    "Choose classic symbols, roll three dice, and play with virtual points.",
+  title: () => t("tools.klaKlok.metaTitle"),
+  description: () => t("tools.klaKlok.metaDescription"),
+  ogTitle: () => t("tools.klaKlok.metaOgTitle"),
+  ogDescription: () => t("tools.klaKlok.metaOgDescription"),
   ogType: "website",
   ogUrl: canonical,
   twitterCard: "summary",
@@ -46,24 +51,24 @@ useSeoMeta({
 
     <div class="games-product-divider mx-3 h-px bg-white/10 sm:mx-10 lg:mx-16" />
     <KlaKlokBoard class="games-product-board" />
-    <button v-if="product === 'games'" type="button" class="games-product-help-toggle mx-4 my-4 flex min-h-12 items-center justify-between rounded-xl border border-white/15 px-4 text-sm font-semibold text-amber-200 sm:hidden" :aria-expanded="mobileRulesOpen" aria-controls="kla-klok-rules" @click="toggleMobileRules">{{ isKhmer ? "របៀបលេង និងច្បាប់" : "How to play & rules" }} <span aria-hidden="true">{{ mobileRulesOpen ? '−' : '+' }}</span></button>
+    <button v-if="product === 'games'" type="button" class="games-product-help-toggle mx-4 my-4 flex min-h-12 items-center justify-between rounded-xl border border-white/15 px-4 text-sm font-semibold text-amber-200 sm:hidden" :aria-expanded="mobileRulesOpen" aria-controls="kla-klok-rules" @click="toggleMobileRules">{{ t("tools.klaKlok.howToPlayRules") }} <span aria-hidden="true">{{ mobileRulesOpen ? '−' : '+' }}</span></button>
 
     <section class="games-product-benefits px-5 py-14 sm:px-10 lg:px-16">
       <div class="mx-auto max-w-6xl">
         <div class="max-w-2xl">
-          <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">{{ isKhmer ? "ហេតុអ្វីគួរលេង" : "Why play" }}</p>
-          <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">សប្បាយ ងាយ និងលេងបានគ្រប់ទីកន្លែង</h2>
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">{{ t("tools.klaKlok.whyPlay") }}</p>
+          <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">{{ t("tools.klaKlok.everywhere") }}</h2>
         </div>
         <div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <article
             v-for="benefit in benefits"
-            :key="benefit.titleEn"
+            :key="benefit.titleKey"
             class="rounded-2xl border border-white/10 bg-[#0e2138] p-4 sm:p-5"
           >
             <span class="grid size-9 place-items-center rounded-xl bg-[#d64c4c]/15 text-sm font-black text-[#ef7777]" aria-hidden="true">
               {{ benefit.icon }}
             </span>
-            <h3 class="mt-4 text-sm font-bold leading-6 text-white sm:text-base">{{ benefit.titleKm }}</h3>
+            <h3 class="mt-4 text-sm font-bold leading-6 text-white sm:text-base">{{ t(benefit.titleKey) }}</h3>
             <p class="mt-1 text-xs leading-5 text-white/45 sm:text-sm">{{ benefit.titleEn }}</p>
           </article>
         </div>
@@ -75,16 +80,16 @@ useSeoMeta({
 
     <section class="games-product-cta px-5 pb-16 pt-6 sm:px-10 sm:pb-20 lg:px-16">
       <div class="mx-auto max-w-6xl rounded-3xl border border-amber-300/25 bg-[#0e2138] px-5 py-10 text-center sm:px-10 sm:py-12">
-        <p class="text-sm font-bold uppercase tracking-[0.16em] text-amber-300">{{ isKhmer ? "រួចរាល់ហើយឬនៅ?" : "Ready?" }}</p>
-        <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">ត្រៀមលេងខ្លាឃ្លោកហើយឬនៅ?</h2>
+        <p class="text-sm font-bold uppercase tracking-[0.16em] text-amber-300">{{ t("tools.klaKlok.ready") }}</p>
+        <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">{{ t("tools.klaKlok.readyToPlay") }}</h2>
         <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/50">
-          លេងសម្រាប់ការកម្សាន្តដោយប្រើពិន្ទុសិប្បនិម្មិតតែប៉ុណ្ណោះ។
+          {{ t("tools.klaKlok.virtualPointsOnly") }}
         </p>
         <a
           href="#kla-klok-game"
           class="mt-7 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#d64c4c] px-7 text-sm font-bold text-white transition hover:bg-[#bd3e3e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
         >
-          ចាប់ផ្តើមលេង
+          {{ t("tools.klaKlok.startPlaying") }}
         </a>
       </div>
     </section>

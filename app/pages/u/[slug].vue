@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { QrCode, Share2 } from "lucide-vue-next";
 import LinkProfileCard from "~/components/link/LinkProfileCard.vue";
 import LinkShare from "~/components/link/LinkShare.vue";
 import type { LinkProfile, ProfileLink } from "~/types/link-profile";
+
+const { t } = useAppI18n();
+
 
 definePageMeta({ layout: false, key: (route) => route.fullPath });
 const route = useRoute();
@@ -80,7 +84,7 @@ function recordClick(link: ProfileLink) {
           aria-controls="profile-share"
           @click="shareOpen = !shareOpen"
         >
-          <Share2 :size="16" aria-hidden="true" /> Share
+          <Share2 :size="16" aria-hidden="true" /> {{ t("products.common.share") }}
           <QrCode :size="16" aria-hidden="true" />
         </button>
       </div>

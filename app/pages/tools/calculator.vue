@@ -2,10 +2,10 @@
   <div class="space-y-6 text-slate-950 dark:text-white">
     <div>
       <h1 class="text-lg font-bold text-slate-950 dark:text-white">
-        {{ isKhmer ? "គណនាកាលបរិច្ឆេទ" : "Date Calculator" }}
+        {{ t("tools.calculator.dateCalculator") }}
       </h1>
       <p class="text-sm text-slate-500 dark:text-white/60">
-        {{ isKhmer ? "បូក/ដកកាលបរិច្ឆេទ គណនាគម្លាតថ្ងៃ និងរាប់ថ្ងៃធ្វើការ (ច័ន្ទ–សុក្រ)។" : "Add/subtract dates, find differences, and count workdays (Mon–Fri)." }}
+        {{ t("tools.calculator.addSubtractDatesFindDifferencesAndCountWorkdaysMon") }}
       </p>
     </div>
 
@@ -31,30 +31,24 @@
       v-if="tab === 'add'"
       class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
-        Add / Subtract
-      </h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">{{ t("tools.calculator.addSubtract_2") }}</h2>
 
       <div class="grid gap-3 md:grid-cols-3">
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            Base date
-          </label>
+          >{{ t("tools.calculator.baseDate") }}</label>
           <ModernDateInput
             v-model="add.base"
             class="mt-1"
-            aria-label="Choose base date"
+            :aria-label="t(&quot;tools.calculator.chooseBaseDate&quot;)"
           />
         </div>
 
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            Operation
-          </label>
+          >{{ t("tools.calculator.operation") }}</label>
           <ModernSelect
             v-model="add.op"
             class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
@@ -67,15 +61,13 @@
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            Amount
-          </label>
+          >{{ t("tools.calculator.amount") }}</label>
           <input
             v-model.number="add.amount"
             type="number"
             min="0"
             class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:placeholder:text-white/35 dark:focus:ring-cyan-200/15"
-            placeholder="e.g. 10"
+            :placeholder="t(&quot;tools.calculator.eG10&quot;)"
           />
         </div>
       </div>
@@ -84,17 +76,15 @@
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            Unit
-          </label>
+          >{{ t("tools.calculator.unit") }}</label>
           <ModernSelect
             v-model="add.unit"
             class="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:focus:ring-cyan-200/15"
           >
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-            <option value="years">Years</option>
+            <option value="days">{{ t("tools.calculator.days") }}</option>
+            <option value="weeks">{{ t("tools.calculator.weeks") }}</option>
+            <option value="months">{{ t("tools.calculator.months") }}</option>
+            <option value="years">{{ t("tools.calculator.years") }}</option>
           </ModernSelect>
         </div>
 
@@ -102,20 +92,16 @@
           <button
             @click="computeAdd()"
             class="h-11 w-full rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
-          >
-            Calculate
-          </button>
+          >{{ t("tools.calculator.calculate") }}</button>
           <button
             @click="resetAdd()"
             class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
-          >
-            Clear
-          </button>
+          >{{ t("tools.calculator.clear") }}</button>
         </div>
       </div>
 
       <ResultBox
-        :error="add.error"
+        :error="localizeToolError(add.error, isKhmer)"
         :text="add.resultText"
         @copy="copyText(add.resultText)"
       />
@@ -126,34 +112,28 @@
       v-if="tab === 'diff'"
       class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
-        Difference between 2 dates
-      </h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">{{ t("tools.calculator.differenceBetween2Dates") }}</h2>
 
       <div class="grid gap-3 md:grid-cols-2">
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            From
-          </label>
+          >{{ t("tools.calculator.from") }}</label>
           <ModernDateInput
             v-model="diff.from"
             class="mt-1"
-            aria-label="Choose difference start date"
+            :aria-label="t(&quot;tools.calculator.chooseDifferenceStartDate&quot;)"
           />
         </div>
 
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            To
-          </label>
+          >{{ t("tools.calculator.to") }}</label>
           <ModernDateInput
             v-model="diff.to"
             class="mt-1"
-            aria-label="Choose difference end date"
+            :aria-label="t(&quot;tools.calculator.chooseDifferenceEndDate&quot;)"
           />
         </div>
       </div>
@@ -162,19 +142,15 @@
         <button
           @click="computeDiff()"
           class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
-        >
-          Calculate
-        </button>
+        >{{ t("tools.calculator.calculate") }}</button>
         <button
           @click="resetDiff()"
           class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
-        >
-          Clear
-        </button>
+        >{{ t("tools.calculator.clear") }}</button>
       </div>
 
       <ResultBox
-        :error="diff.error"
+        :error="localizeToolError(diff.error, isKhmer)"
         :text="diff.resultText"
         @copy="copyText(diff.resultText)"
       />
@@ -185,34 +161,28 @@
       v-if="tab === 'workdays'"
       class="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-sky-100/60 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
     >
-      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">
-        Workdays (Mon–Fri) between 2 dates
-      </h2>
+      <h2 class="text-sm font-semibold text-slate-950 dark:text-white">{{ t("tools.calculator.workdaysMonFriBetween2Dates") }}</h2>
 
       <div class="grid gap-3 md:grid-cols-2">
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            From
-          </label>
+          >{{ t("tools.calculator.from") }}</label>
           <ModernDateInput
             v-model="work.from"
             class="mt-1"
-            aria-label="Choose workdays start date"
+            :aria-label="t(&quot;tools.calculator.chooseWorkdaysStartDate&quot;)"
           />
         </div>
 
         <div>
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/50"
-          >
-            To
-          </label>
+          >{{ t("tools.calculator.to") }}</label>
           <ModernDateInput
             v-model="work.to"
             class="mt-1"
-            aria-label="Choose workdays end date"
+            :aria-label="t(&quot;tools.calculator.chooseWorkdaysEndDate&quot;)"
           />
         </div>
       </div>
@@ -221,31 +191,27 @@
         <button
           @click="computeWorkdays()"
           class="h-11 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100"
-        >
-          Calculate
-        </button>
+        >{{ t("tools.calculator.calculate") }}</button>
         <button
           @click="resetWork()"
           class="h-11 rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:border-white/10 dark:bg-white/[0.08] dark:text-white/75 dark:hover:bg-white/[0.13] dark:hover:text-white"
-        >
-          Clear
-        </button>
+        >{{ t("tools.calculator.clear") }}</button>
       </div>
 
       <ResultBox
-        :error="work.error"
+        :error="localizeToolError(work.error, isKhmer)"
         :text="work.resultText"
         @copy="copyText(work.resultText)"
       />
 
-      <p class="text-xs text-slate-500 dark:text-white/50">
-        Note: Excludes weekends only. Public holidays can be added later.
-      </p>
+      <p class="text-xs text-slate-500 dark:text-white/50">{{ t("tools.calculator.noteExcludesWeekendsOnlyPublicHolidaysCanBeAdded") }}</p>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { reactive, ref } from "vue";
 import ResultBox from "~/components/ResultBox.vue";
 
@@ -259,28 +225,30 @@ import {
   isWeekend,
 } from "~/lib/date.utils";
 
+const { t } = useAppI18n();
+
 // ✅ SEO for this page
+
+
+
 useSeoMeta({
-  title: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
-  description:
-    "Add or subtract days, weeks, months, and years, compare two dates, and count Monday to Friday workdays online.",
-  ogTitle: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
-  ogDescription:
-    "Calculate future dates, past dates, date differences, and weekday-only workday counts.",
+  title: () => t("tools.calculator.metaTitle"),
+  description: () => t("tools.calculator.metaDescription"),
+  ogTitle: () => t("tools.calculator.metaOgTitle"),
+  ogDescription: () => t("tools.calculator.metaOgDescription"),
   ogType: "website",
   ogUrl: "https://chlatwork.com/tools/calculator",
   twitterCard: "summary_large_image",
-  twitterTitle: "Date Calculator Online - Add Days and Count Workdays | ChlatWork",
-  twitterDescription:
-    "Add or subtract dates, compare two dates, and count Monday to Friday workdays.",
+  twitterTitle: () => t("tools.calculator.metaTwitterTitle"),
+  twitterDescription: () => t("tools.calculator.metaTwitterDescription"),
 });
 
 const { isKhmer } = useLanguage();
 
 const tabs = computed(() => [
-  { key: "add", label: isKhmer.value ? "បូក/ដកថ្ងៃ" : "Add/Subtract" },
-  { key: "diff", label: isKhmer.value ? "គម្លាតថ្ងៃ" : "Difference" },
-  { key: "workdays", label: isKhmer.value ? "ថ្ងៃធ្វើការ" : "Workdays" },
+  { key: "add", label: t("tools.calculator.addSubtract") },
+  { key: "diff", label: t("tools.calculator.difference") },
+  { key: "workdays", label: t("tools.calculator.workdays") },
 ] as const);
 
 type TabKey = "add" | "diff" | "workdays";
@@ -318,13 +286,13 @@ function computeAdd() {
 
   const base = parseDateInput(add.base);
   if (!base) {
-    add.error = "Please select a base date.";
+    add.error = t("tools.calculator.pleaseSelectABaseDate");
     return;
   }
 
   const amt = Number(add.amount);
   if (!Number.isFinite(amt) || amt < 0) {
-    add.error = "Amount must be 0 or more.";
+    add.error = t("tools.calculator.amountMustBe0OrMore");
     return;
   }
 
@@ -338,7 +306,7 @@ function computeAdd() {
   if (add.unit === "months") out = addMonthsSafe(out, n);
   if (add.unit === "years") out = addYearsSafe(out, n);
 
-  add.resultText = `Result date: ${formatDate(out)}\n(${out.toDateString()})`;
+  add.resultText = t("tools.calculator.resultDate", { formatDateOut: formatDate(out), outToDateString: out.toDateString(), yearNumeric: out.toLocaleDateString("km-KH", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) });
 }
 
 function resetAdd() {
@@ -358,8 +326,8 @@ const diff = reactive({
   error: "",
 });
 
-function formatDurationPart(value: number, unit: string) {
-  return `${value} ${unit}${value === 1 ? "" : "s"}`;
+function formatDurationPart(value: number, unit: "year" | "month" | "day" | "week") {
+  return t(`tools.calculator.duration.${unit}.${value === 1 ? "one" : "other"}`, { value });
 }
 
 function formatDurationText(duration: {
@@ -373,14 +341,14 @@ function formatDurationText(duration: {
     duration.days ? formatDurationPart(duration.days, "day") : "",
   ].filter(Boolean);
 
-  return parts.length ? parts.join(", ") : "0 days";
+  return parts.length ? parts.join(", ") : (t("tools.calculator.0Days"));
 }
 
 function formatWeeksText(weeks: number, days: number) {
   const weekText = formatDurationPart(weeks, "week");
   if (!days) return weekText;
 
-  return `${weekText} and ${formatDurationPart(days, "day")}`;
+  return `${weekText} ${t("tools.calculator.and")} ${formatDurationPart(days, "day")}`;
 }
 
 function computeDiff() {
@@ -391,7 +359,7 @@ function computeDiff() {
   const to = parseDateInput(diff.to);
 
   if (!from || !to) {
-    diff.error = "Please select both dates.";
+    diff.error = t("tools.calculator.pleaseSelectBothDates");
     return;
   }
 
@@ -407,13 +375,13 @@ function computeDiff() {
   const totalDaysText = new Intl.NumberFormat("en-US").format(abs);
 
   const totalMonths = calendar.years * 12 + calendar.months;
-  const monthText = `${formatDurationPart(totalMonths, "month")} and ${formatDurationPart(calendar.days, "day")}`;
+  const monthText = `${formatDurationPart(totalMonths, "month")} ${t("tools.calculator.and")} ${formatDurationPart(calendar.days, "day")}`;
 
   diff.resultText =
-    `Duration\n` +
+    `${t("tools.calculator.duration")}\n` +
     `${calendarText}\n\n` +
-    `That is ${totalDaysText} days total\n\n` +
-    `Also equal to\n` +
+    (t("tools.calculator.thatIsDaysTotal", { totalDaysText: totalDaysText })) +
+    `${t("tools.calculator.alsoEqualTo")}\n` +
     `${formatWeeksText(weeks, remDays)}\n` +
     `${monthText}`;
 }
@@ -440,7 +408,7 @@ function computeWorkdays() {
   const from = parseDateInput(work.from);
   const to = parseDateInput(work.to);
   if (!from || !to) {
-    work.error = "Please select both dates.";
+    work.error = t("tools.calculator.pleaseSelectBothDates");
     return;
   }
 
@@ -460,10 +428,10 @@ function computeWorkdays() {
   }
 
   work.resultText =
-    `Range: ${formatDate(start)} → ${formatDate(end)}\n` +
-    `Total days (inclusive): ${totalDays}\n` +
-    `Workdays (Mon–Fri): ${weekdays}\n` +
-    `Weekend days: ${weekends}`;
+    `${t("tools.calculator.range")} ${formatDate(start)} → ${formatDate(end)}\n` +
+    `${t("tools.calculator.totalDaysInclusive")} ${totalDays}\n` +
+    `${t("tools.calculator.workdaysMonFri")} ${weekdays}\n` +
+    `${t("tools.calculator.weekendDays")} ${weekends}`;
 }
 
 function resetWork() {
@@ -472,4 +440,10 @@ function resetWork() {
   work.resultText = "";
   work.error = "";
 }
+// Rebuild existing derived copy when the visitor changes language.
+watch(isKhmer, () => {
+  if (add.resultText || add.error) computeAdd();
+  if (diff.resultText || diff.error) computeDiff();
+  if (work.resultText || work.error) computeWorkdays();
+});
 </script>

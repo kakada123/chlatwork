@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useProductCopy } from "~/composables/useProductCopy";
 import { getCreatorToolByRoute } from "~/data/creator-tools";
 import {
   containsThaiScript,
   CREATOR_OUTPUT_BLOCKED_MESSAGE,
 } from "~/lib/creator-output-language";
+
+const { productText } = useProductCopy();
 
 definePageMeta({ layout: "creator" });
 
@@ -50,10 +53,10 @@ const hasResultArea = computed(
 );
 
 useSeoMeta({
-  title: `${tool.title} | ChlatWork Creator`,
-  description: tool.description,
-  ogTitle: `${tool.title} | ChlatWork Creator`,
-  ogDescription: tool.description,
+  title: () => `${productText(tool.title)} | ChlatWork Creator`,
+  description: () => productText(tool.description),
+  ogTitle: () => `${productText(tool.title)} | ChlatWork Creator`,
+  ogDescription: () => productText(tool.description),
 });
 
 function showUploadError(message: string) {

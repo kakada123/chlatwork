@@ -45,6 +45,7 @@ export function useFoodResults(
     isRecipeLoading = ref(false),
     isLoadingMore = ref(false),
     isRandomLoading = ref(false);
+  // Store fallback keys so an existing alert follows a later interface-language change.
   const errorMessage = ref<string | null>(null),
     paginationError = ref(false),
     hasSearched = ref(false);
@@ -199,7 +200,7 @@ export function useFoodResults(
       response?.code === "FOOD_PLACES_RATE_LIMITED" ||
       response?.data?.code === "FOOD_PLACES_RATE_LIMITED"
     )
-      return "Google Places បានឈានដល់កម្រិតប្រើប្រាស់។ សូមរង់ចាំយ៉ាងហោចណាស់ ១ នាទី រួចសាកម្ដងទៀត។ បើនៅតែមិនបាន សូមទាក់ទងអ្នកគ្រប់គ្រងឱ្យពិនិត្យ quota របស់ Google។";
+      return "products.food.errors.google_places_quota";
   }
 
   async function getRecommendations() {
@@ -251,12 +252,12 @@ export function useFoodResults(
         !cursor.value
       )
         errorMessage.value =
-          "មិនមានជម្រើសថ្មីដែលត្រូវគ្នាទេ។ សាកប្តូរតម្រង ឬអនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ។";
+          "products.food.errors.no_new_choices";
     } catch (error) {
       if (ownerRevision === accountRevision && signature() === key) {
         errorMessage.value =
           placesQuotaMessage(error) ??
-          "មិនអាចទាញយកការណែនាំបានទេ។ សូមពិនិត្យតម្រង ទីតាំង និងព្យាយាមម្តងទៀត។";
+          "products.food.errors.recommendations";
         cursor.value = undefined;
       }
     } finally {
@@ -316,7 +317,7 @@ export function useFoodResults(
       paginationError.value = true;
       errorMessage.value =
         placesQuotaMessage(error) ??
-        "មិនអាចផ្ទុកហាងបន្ថែមបានទេ។ ចុចដើម្បីសាកម្ដងទៀត។";
+        "products.food.errors.more_places";
     } finally {
       isLoadingMore.value = false;
       drainRefresh();
@@ -356,7 +357,7 @@ export function useFoodResults(
       if (ownerRevision === accountRevision && signature() === key)
         errorMessage.value =
           placesQuotaMessage(error) ??
-          "មិនអាចរើសជម្រើសថ្មីជាមួយ AI បានទេ។ សាកប្តូរតម្រង ឬព្យាយាមម្ដងទៀត។";
+          "products.food.errors.ai_choice";
     } finally {
       isRandomLoading.value = false;
       drainRefresh();

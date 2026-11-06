@@ -1,14 +1,19 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { BookOpen, TerminalSquare } from "lucide-vue-next";
 import { DEVELOPER_COMMANDS, DEVELOPER_COMMAND_CATEGORIES } from "~/data/developer-commands";
 import { DEVELOPER_GUIDES } from "~/data/developer-guides";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
 </script>
 
 <template>
   <section class="py-12" aria-labelledby="developer-platform-title">
     <div class="flex items-center justify-between gap-3">
-      <h2 id="developer-platform-title" class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">Helpful guides</h2>
+      <h2 id="developer-platform-title" class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">{{ t("shared.components_landing_landing_developer_section.helpful_guides") }}</h2>
     </div>
     <div class="mt-4 grid gap-3 sm:grid-cols-2">
       <NuxtLink
@@ -20,10 +25,10 @@ const { websiteEnabled } = useFeatureAvailability();
           <TerminalSquare class="h-5 w-5" aria-hidden="true" />
         </span>
         <span class="min-w-0">
-          <span class="block font-semibold text-slate-950 dark:text-white">Command Hub</span>
+          <span class="block font-semibold text-slate-950 dark:text-white">{{ t("shared.components_landing_landing_developer_section.command_hub") }}</span>
           <span class="mt-1 block text-sm leading-5 text-slate-600 dark:text-white/60">
-            {{ DEVELOPER_COMMANDS.length }} commands ·
-            {{ DEVELOPER_COMMAND_CATEGORIES.length }} categories
+            {{ DEVELOPER_COMMANDS.length }} {{ t("shared.components_landing_landing_developer_section.commands") }}
+            {{ DEVELOPER_COMMAND_CATEGORIES.length }} {{ t("shared.components_landing_landing_developer_section.categories") }}
           </span>
         </span>
       </NuxtLink>
@@ -35,9 +40,9 @@ const { websiteEnabled } = useFeatureAvailability();
           <BookOpen class="h-5 w-5" aria-hidden="true" />
         </span>
         <span class="min-w-0">
-          <span class="block font-semibold text-slate-950 dark:text-white">Production Guides</span>
+          <span class="block font-semibold text-slate-950 dark:text-white">{{ t("shared.components_landing_landing_developer_section.production_guides") }}</span>
           <span class="mt-1 block text-sm leading-5 text-slate-600 dark:text-white/60">
-            {{ DEVELOPER_GUIDES.length }} practical guides
+            {{ DEVELOPER_GUIDES.length }} {{ t("shared.components_landing_landing_developer_section.practical_guides") }}
           </span>
         </span>
       </NuxtLink>

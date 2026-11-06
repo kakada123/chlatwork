@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { Copy, Download, Share2, ExternalLink } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const { isKhmer } = useLanguage();
 const props = defineProps<{ url: string; title: string; published: boolean }>();
@@ -22,7 +28,7 @@ async function generateQr() {
     });
     if (revision === qrRevision) qr.value = data;
   } catch {
-    error.value = isKhmer.value ? "មិនអាចបង្កើតកូដ QR បានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not create the QR code. Please try again.";
+    error.value = t("products.links.could_not_create_the_qr_code_please_try_again");
   }
 }
 onMounted(() => {
@@ -38,9 +44,9 @@ async function copyUrl() {
   error.value = "";
   try {
     await navigator.clipboard.writeText(props.url);
-    message.value = isKhmer.value ? "បានចម្លងតំណភ្ជាប់។" : "Link copied.";
+    message.value = t("products.links.link_copied_alternative");
   } catch {
-    error.value = isKhmer.value ? "មិនអាចចម្លងបានទេ។ សូមជ្រើសរើស URL ហើយចម្លងដោយផ្ទាល់ដៃ។" : "Could not copy. Select the URL and copy it manually.";
+    error.value = t("products.links.could_not_copy_select_the_url_and_copy_it_manually_alternative");
   }
 }
 async function share() {
@@ -50,7 +56,7 @@ async function share() {
     await navigator.share({ title: props.title, url: props.url });
   } catch (err) {
     if ((err as Error).name !== "AbortError")
-      error.value = isKhmer.value ? "មិនអាចចែករំលែកទំព័រនេះបានទេ។ សូមសាកល្បងចម្លង URL។" : "Could not share this page. Try copying the URL.";
+      error.value = t("products.links.could_not_share_this_page_try_copying_the_url_alternative");
   }
 }
 </script>
@@ -58,32 +64,32 @@ async function share() {
 <template>
   <div class="link-share">
     <p v-if="!published">
-      {{ isKhmer ? "បោះផ្សាយទំព័ររបស់អ្នកដើម្បីអាចចែករំលែក និងទាញយក QR បាន។" : "Publish your page to enable sharing and QR download." }}
+      {{ t("products.links.publish_your_page_to_enable_sharing_and_qr_download") }}
     </p>
     <template v-else>
       <label class="share-url-label"
-        >{{ isKhmer ? "ទំព័រសាធារណៈរបស់អ្នក" : "Your public page" }}<input
+        >{{ t("products.links.your_public_page") }}<input
           :value="url"
           readonly
-          :aria-label="isKhmer ? 'URL ប្រវត្តិរូបសាធារណៈ' : 'Public profile URL'"
+          :aria-label="t(&quot;products.links.public_profile_url&quot;)"
           @focus="($event.target as HTMLInputElement).select()"
       /></label>
       <div class="share-actions">
         <button type="button" @click="copyUrl">
-          <Copy :size="16" aria-hidden="true" /> {{ isKhmer ? "ចម្លងតំណភ្ជាប់" : "Copy link" }}
+          <Copy :size="16" aria-hidden="true" /> {{ t("products.links.copy_link") }}
         </button>
         <button type="button" @click="share">
-          <Share2 :size="16" aria-hidden="true" /> {{ isKhmer ? "ចែករំលែក" : "Share" }}
+          <Share2 :size="16" aria-hidden="true" /> {{ t("products.common.share") }}
         </button>
         <a :href="url" target="_blank" rel="noopener noreferrer"
-          ><ExternalLink :size="16" aria-hidden="true" /> {{ isKhmer ? "បើកទំព័រ" : "Open page" }}</a
+          ><ExternalLink :size="16" aria-hidden="true" /> {{ t("products.links.open_page") }}</a
         >
       </div>
       <img
         v-if="qr"
         :src="qr"
         class="share-qr"
-        :alt="isKhmer ? 'កូដ QR សម្រាប់ប្រវត្តិរូបនេះ' : 'QR code for this profile'"
+        :alt="t(&quot;products.links.qr_code_for_this_profile&quot;)"
         width="220"
         height="220"
       />
@@ -92,11 +98,11 @@ async function share() {
         :href="qr"
         download="chlatwork-link-qr.png"
         class="share-download"
-        ><Download :size="16" aria-hidden="true" /> {{ isKhmer ? "ទាញយកកូដ QR" : "Download QR code" }}</a
+        ><Download :size="16" aria-hidden="true" /> {{ t("products.links.download_qr_code") }}</a
       >
     </template>
     <p v-if="message" role="status">{{ message }}</p>
-    <p v-if="error" role="alert">{{ error }}</p>
+    <p v-if="error" role="alert">{{ productText(error) }}</p>
   </div>
 </template>
 

@@ -1,3 +1,4 @@
+import { translateMessage } from "../lib/i18n.ts";
 import { computed, onMounted, ref, watch } from "vue";
 import {
   calculateJekLuy,
@@ -14,7 +15,9 @@ import {
 
 type PendingAction = { kind: "reset" } | { kind: "currency"; currency: JekLuyCurrency };
 
-export function useJekLuy() {
+export function useJekLuy(language: { readonly value: boolean } = { value: true }) {
+  const locale = () => language.value ? "km" as const : "en" as const;
+  const message = (key: string) => translateMessage(locale(), key);
   const draft = ref(createJekLuyDraft());
   const ready = ref(false);
   const pending = ref<PendingAction | null>(null);
@@ -24,9 +27,9 @@ export function useJekLuy() {
   const sharing = ref(false);
   const validation = computed(() => {
     try {
-      return { result: calculateJekLuy(draft.value.participants, draft.value.currency, draft.value.remainderMode, draft.value.remainderPayer), error: null };
+      return { result: calculateJekLuy(draft.value.participants, draft.value.currency, draft.value.remainderMode, draft.value.remainderPayer, locale()), error: null };
     } catch (error) {
-      return { result: null, error: error instanceof JekLuyInputError ? error : new JekLuyInputError("សូមពិនិត្យទិន្នន័យម្តងទៀត។") };
+      return { result: null, error: error instanceof JekLuyInputError ? error : new JekLuyInputError(message("native.jekluy.errors.input")) };
     }
   });
   const result = computed(() => validation.value.result);
@@ -44,7 +47,7 @@ export function useJekLuy() {
       const saved = window.localStorage.getItem(JEKLUY_STORAGE_KEY);
       if (saved) draft.value = parseJekLuyDraft(saved);
     } catch {
-      storageMessage.value = "មិនអាចអានទិន្នន័យចាស់បានទេ។ អ្នកនៅតែអាចគណនាថ្មីបាន។";
+      storageMessage.value = "native.jekluy.storage.read";
     }
     ready.value = true;
   });
@@ -58,7 +61,7 @@ export function useJekLuy() {
       window.localStorage.setItem(JEKLUY_STORAGE_KEY, serializeJekLuyDraft(draft.value));
       storageMessage.value = "";
     } catch {
-      storageMessage.value = "មិនអាចរក្សាទុកលើឧបករណ៍នេះបានទេ។ សូមចម្លងលទ្ធផលទុក។";
+      storageMessage.value = "native.jekluy.storage.write";
     }
   }, { deep: true });
 
@@ -118,15 +121,15 @@ export function useJekLuy() {
 
   async function copyResult() {
     if (!result.value) return;
-    const text = jekluySummary(result.value, completedIds.value);
+    const text = jekluySummary(result.value, completedIds.value, locale());
     manualCopy.value = "";
     shareMessage.value = "";
     try {
       await navigator.clipboard.writeText(text);
-      shareMessage.value = "បានចម្លងហើយ! អ្នកអាចផ្ញើទៅមិត្តភក្តិបាន។";
+      shareMessage.value = "native.jekluy.share.copied";
     } catch {
       manualCopy.value = text;
-      shareMessage.value = "សូមជ្រើសរើសអត្ថបទខាងក្រោម ហើយចម្លងផ្ញើទៅមិត្តភក្តិ។";
+      shareMessage.value = "native.jekluy.share.manual";
     }
   }
 
@@ -137,8 +140,8 @@ export function useJekLuy() {
     shareMessage.value = "";
     manualCopy.value = "";
     try {
-      await navigator.share({ title: "ចែកលុយ 💸", text: jekluySummary(result.value, completedIds.value) });
-      shareMessage.value = "បានចែករំលែកហើយ។";
+      await navigator.share({ title: message("native.jekluy.summary.title"), text: jekluySummary(result.value, completedIds.value, locale()) });
+      shareMessage.value = "native.jekluy.share.complete";
     } catch (error) {
       if ((error as { name?: string })?.name !== "AbortError") await copyResult();
     } finally {
@@ -146,7 +149,7 @@ export function useJekLuy() {
     }
   }
 
-  return { draft, ready, pending, result, error, completedIds, storageMessage, shareMessage, manualCopy, sharing,
+  return { draft, ready, pending, result, error, completedIds, storageMessage: computed(() => storageMessage.value ? message(storageMessage.value) : ""), shareMessage: computed(() => shareMessage.value ? message(shareMessage.value) : ""), manualCopy, sharing,
     addParticipant, removeParticipant, requestCurrency, requestReset, cancelPending, confirmPending,
     toggleCompleted, copyResult, shareResult };
 }

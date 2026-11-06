@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { onMounted, onBeforeUnmount, computed, ref, watch, nextTick } from "vue";
 import {
   Utensils,
@@ -31,6 +32,9 @@ import FoodMenuCatalog from "~/components/food/FoodMenuCatalog.vue";
 import FoodMobileDiscovery from "~/components/food/FoodMobileDiscovery.vue";
 import type { FoodMenuItem } from "~~/api/src/food/catalog/food-menu.contract";
 import { useAuth } from "~/composables/useAuth";
+
+const { t } = useAppI18n();
+
 
 definePageMeta({
   layout: "food",
@@ -208,23 +212,23 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
       v-model:panel="mobilePanel" :keyword="searchKeyword" :mode="mode" :meal-time="mealTime"
       :people-count="peopleCount" :total-budget="totalBudget" :filters="filters" :budget-label="budgetRangeLabel"
       :disabled="discoveryBusy" :locating="isLocating" :location-error="locationError" :has-coords="Boolean(userCoords)"
-      :location-label="locationLabel" :district-id="selectedDistrictId" :districts="districts"
+      :location-label="t(locationLabel)" :district-id="selectedDistrictId" :districts="districts"
       @change="changeMobileCriteria" @submit="submitDiscovery" @locate="requestMobileLocation" @district="chooseMobileDistrict"
     />
-    <p v-if="errorMessage && mobilePanel !== 'advanced'" role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 md:hidden">{{ errorMessage }}</p>
+    <p v-if="errorMessage && mobilePanel !== 'advanced'" role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 md:hidden">{{ t(errorMessage ?? "") }}</p>
     <!-- Hero / Headline Section -->
     <div class="food-hero hidden rounded-3xl border border-orange-100 p-6 shadow-sm dark:border-stone-800 md:block sm:p-8">
       <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
         <div class="space-y-2 text-center sm:text-left">
           <div class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-950/80 dark:text-orange-300">
             <Sparkles class="size-3.5 text-orange-500" />
-            <span>ស្វែងរកម្ហូបឆ្លាតវៃ ដោយមិនគិតថ្លៃ</span>
+            <span>{{ t("products.food.page.eyebrow") }}</span>
           </div>
           <h2 class="text-2xl font-black tracking-tight text-stone-900 dark:text-stone-50 sm:text-3xl">
-            ញ៉ាំអី? ទៅណា? ធ្វើម្ហូបអី?
+            {{ t("products.food.page.title") }}
           </h2>
           <p class="max-w-xl text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-            កំណត់ថវិកា ចំនួនមនុស្ស និងទីតាំងរបស់អ្នក ដើម្បីទទួលការណែនាំភោជនីយដ្ឋានពិតៗ ឬរូបមន្តម្ហូបខ្មែរឆ្ងាញ់ៗ ភ្លាមៗ!
+            {{ t("products.food.page.intro") }}
           </p>
         </div>
 
@@ -236,7 +240,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="fetchRandomPick"
         >
           <Dices class="size-5" :class="{ 'animate-spin': isRandomLoading }" />
-          <span>រើសឱ្យខ្ញុំមួយ! ✨ AI</span>
+          <span>{{ t("products.food.page.pick_for_me") }}</span>
         </button>
       </div>
 
@@ -251,7 +255,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="changeDiscoveryMode('dine-out')"
         >
           <Utensils class="size-4" />
-          <span>ញ៉ាំនៅក្រៅ (Dine Out)</span>
+          <span>{{ t("products.food.dine_out") }}</span>
         </button>
         <button
           type="button"
@@ -262,7 +266,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="changeDiscoveryMode('cook-at-home')"
         >
           <ChefHat class="size-4" />
-          <span>ធ្វើម្ហូបនៅផ្ទះ (Cook at Home)</span>
+          <span>{{ t("products.food.cook_at_home") }}</span>
         </button>
       </div>
     </div>
@@ -274,7 +278,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
         <!-- People & Budget Controls -->
         <div class="space-y-1.5">
           <label class="text-xs font-semibold text-stone-500 dark:text-stone-400">
-            ចំនួនមនុស្ស និងកញ្ចប់ថវិកា
+            {{ t("products.food.page.people_budget") }}
           </label>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -286,10 +290,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                   min="1"
                   max="50"
                   class="w-full rounded-xl border border-stone-200 bg-stone-50 py-2 pl-8 pr-2 text-xs font-bold text-stone-800 dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
-                  placeholder="3 នាក់"
+                  :placeholder="t(&quot;products.food.page.three_people&quot;)"
                 />
               </div>
-              <span class="mt-0.5 block text-[10px] text-stone-400">ចំនួនមនុស្ស</span>
+              <span class="mt-0.5 block text-[10px] text-stone-400">{{ t("products.food.page.group_size") }}</span>
             </div>
             <div>
               <div class="relative">
@@ -304,20 +308,20 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                   class="w-full rounded-xl border border-stone-200 bg-stone-50 py-2 pl-8 pr-2 text-xs font-bold text-stone-800 dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
                   placeholder="10"
                 />
-                <div v-else class="min-h-10 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm dark:border-stone-800 dark:bg-stone-800/40">{{ flexibleBudget ? 'No fixed budget' : budgetRangeLabel }}</div>
+                <div v-else class="min-h-10 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm dark:border-stone-800 dark:bg-stone-800/40">{{ flexibleBudget ? t("products.food.no_fixed_budget") : budgetRangeLabel }}</div>
               </div>
-              <span class="mt-0.5 block text-[10px] text-stone-400">{{ filters.budgetType === 'per-person' || filters.budgetRange ? 'ថវិកាក្នុងម្នាក់ ($)' : 'ថវិកាសរុប ($)' }}</span>
+              <span class="mt-0.5 block text-[10px] text-stone-400">{{ filters.budgetType === 'per-person' || filters.budgetRange ? t("products.food.page.person_budget") : t("products.food.page.group_budget") }}</span>
             </div>
           </div>
           <div v-if="budgetPerPerson !== null && budgetPerPerson > 0" class="text-[11px] font-medium text-orange-600 dark:text-orange-400">
-            {{ filters.budgetRange ? '≤' : '≈' }} ${{ budgetPerPerson }}/នាក់
+            {{ filters.budgetRange ? '≤' : '≈' }} ${{ budgetPerPerson }}{{ t("products.food.labels.per_person_suffix") }}
           </div>
         </div>
 
         <!-- Location / District Selection -->
         <div class="space-y-1.5">
           <label class="text-xs font-semibold text-stone-500 dark:text-stone-400">
-            ទីតាំងនៅភ្នំពេញ
+            {{ t("products.food.page.phnom_penh_location") }}
           </label>
           <div class="flex gap-1.5">
             <ModernSelect
@@ -325,7 +329,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
               class="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-2.5 text-xs font-semibold text-stone-800 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
               @change="isMobile ? chooseMobileDistrict(($event.target as HTMLSelectElement).value) : onDistrictChange(($event.target as HTMLSelectElement).value)"
             >
-              <option value="" disabled>ជ្រើសរើសខណ្ឌ...</option>
+              <option value="" disabled>{{ t("products.food.page.district_placeholder") }}</option>
               <option
                 v-for="d in districts"
                 :key="d.id"
@@ -339,7 +343,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
               type="button"
               class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-300"
               :class="{ 'border-orange-500 text-orange-600 animate-pulse': isLocating }"
-              title="ប្រើទីតាំងបច្ចុប្បន្ន (GPS)"
+              :title="t(&quot;products.food.page.use_gps&quot;)"
               :disabled="isLocating"
               @click="isMobile ? requestMobileLocation() : requestGeolocation()"
             >
@@ -348,27 +352,27 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           </div>
           <div class="flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400">
             <MapPin class="size-3 text-orange-500" />
-            <span class="truncate">{{ locationLabel }}</span>
+            <span class="truncate">{{ t(locationLabel) }}</span>
           </div>
-          <button v-if="locationError && selectedDistrictId && !userCoords" type="button" class="min-h-11 text-left text-xs font-semibold text-orange-600 underline underline-offset-4 dark:text-orange-400" @click="isMobile ? chooseMobileDistrict(selectedDistrictId) : onDistrictChange(selectedDistrictId)">ប្រើតំបន់ដែលបានជ្រើសជំនួស GPS</button>
+          <button v-if="locationError && selectedDistrictId && !userCoords" type="button" class="min-h-11 text-left text-xs font-semibold text-orange-600 underline underline-offset-4 dark:text-orange-400" @click="isMobile ? chooseMobileDistrict(selectedDistrictId) : onDistrictChange(selectedDistrictId)">{{ t("products.food.discovery.area_instead_gps") }}</button>
         </div>
       </div>
 
       <details class="mt-5 min-w-0 rounded-2xl border border-stone-200 p-4 dark:border-stone-700">
-        <summary class="cursor-pointer text-sm font-bold text-stone-800 dark:text-stone-100">តម្រងអាហារ និងទីកន្លែង / Food & place filters</summary>
+        <summary class="cursor-pointer text-sm font-bold text-stone-800 dark:text-stone-100">{{ t("products.food.food_place_filters") }}</summary>
         <div class="mt-4 space-y-4">
           <FoodDiscoveryFilters v-if="filterDefinitions.length" v-model="filters" :definitions="filterDefinitions" />
-          <p v-else class="text-sm text-stone-500">{{ filtersError ? 'មិនអាចផ្ទុកតម្រងបានទេ។' : 'កំពុងផ្ទុកតម្រង…' }} <button v-if="filtersError" type="button" class="font-semibold text-orange-600 underline" @click="fetchFilters">សាកម្ដងទៀត</button></p>
+          <p v-else class="text-sm text-stone-500">{{ filtersError ? t("products.food.page.filters_error") : t("products.food.page.loading_filters") }} <button v-if="filtersError" type="button" class="font-semibold text-orange-600 underline" @click="fetchFilters">{{ t("products.food.actions.retry") }}</button></p>
           <label v-if="['near-home', 'near-workplace', 'near-university'].includes(String(filters.locationDiscovery)) || filters.city === 'other-cambodian-provinces'" class="block space-y-1 text-sm">
-            <span>អាសយដ្ឋាន ឈ្មោះទីតាំង ឬខេត្ត / Address, landmark or province</span>
+            <span>{{ t("products.food.address_landmark_or_province") }}</span>
             <input v-model="locationQuery" maxlength="300" type="text" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" />
           </label>
           <div v-if="filters.locationDiscovery === 'along-my-route'" class="grid gap-3 sm:grid-cols-2">
-            <label class="space-y-1 text-sm"><span>ចេញពី / Route origin</span><input v-model="routeOrigin" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
-            <label class="space-y-1 text-sm"><span>ទៅកាន់ / Destination</span><input v-model="routeDestination" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+            <label class="space-y-1 text-sm"><span>{{ t("products.food.route_origin") }}</span><input v-model="routeOrigin" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+            <label class="space-y-1 text-sm"><span>{{ t("products.food.destination") }}</span><input v-model="routeDestination" maxlength="300" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
           </div>
-          <label v-if="Array.isArray(filters.dietary) && filters.dietary.includes('allergies')" class="block space-y-1 text-sm"><span>អាលែកហ្ស៊ីដែលត្រូវជៀសវាង / Allergies to avoid</span><input v-model="allergies" maxlength="120" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
-          <label v-if="filters.reviews === 'rating'" class="block space-y-1 text-sm"><span>ការវាយតម្លៃអប្បបរមា / Minimum rating</span><ModernSelect v-model.number="minimumRating" class="rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700"><option :value="0">Any</option><option v-for="rating in [3, 3.5, 4, 4.5]" :key="rating" :value="rating">{{ rating }}+</option></ModernSelect></label>
+          <label v-if="Array.isArray(filters.dietary) && filters.dietary.includes('allergies')" class="block space-y-1 text-sm"><span>{{ t("products.food.allergies_to_avoid") }}</span><input v-model="allergies" maxlength="120" class="w-full rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700" /></label>
+          <label v-if="filters.reviews === 'rating'" class="block space-y-1 text-sm"><span>{{ t("products.food.minimum_rating") }}</span><ModernSelect v-model.number="minimumRating" class="rounded-xl border border-stone-200 bg-transparent px-3 py-2 text-base dark:border-stone-700"><option :value="0">{{ t("products.food.any") }}</option><option v-for="rating in [3, 3.5, 4, 4.5]" :key="rating" :value="rating">{{ rating }}+</option></ModernSelect></label>
         </div>
       </details>
 
@@ -380,7 +384,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             v-model="searchKeyword"
             type="text"
             class="w-full rounded-2xl border border-stone-200 bg-stone-50 py-2.5 pl-10 pr-4 text-xs font-medium text-stone-800 placeholder-stone-400 transition dark:border-stone-800 dark:bg-stone-800/40 dark:text-stone-100"
-            placeholder="ស្វែងរកតាមមុខម្ហូប (ឧ. បាយសាច់ជ្រូក, គុយទាវ, BBQ, កាហ្វេ...)"
+            :placeholder="t(&quot;products.food.page.keyword_placeholder&quot;)"
             @keyup.enter="submitDiscovery"
           />
         </div>
@@ -393,16 +397,16 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
         >
           <RefreshCw v-if="isLoading" class="size-4 animate-spin" />
           <Sparkles v-else class="size-4" />
-          <span>ស្នើឱ្យខ្ញុំ! (Suggest for Me)</span>
+          <span>{{ t("products.food.suggest_for_me") }}</span>
         </button>
       </div>
 
-      <button v-if="hasSuggestionHistory" type="button" class="mt-4 text-xs font-semibold text-orange-600 underline underline-offset-4 disabled:opacity-50" :disabled="isLoading || isLoadingMore || isRandomLoading" @click="clearSuggestionHistory(); submitDiscovery()">អនុញ្ញាតឱ្យបង្ហាញជម្រើសចាស់ឡើងវិញ / Reset recent choices</button>
+      <button v-if="hasSuggestionHistory" type="button" class="mt-4 text-xs font-semibold text-orange-600 underline underline-offset-4 disabled:opacity-50" :disabled="isLoading || isLoadingMore || isRandomLoading" @click="clearSuggestionHistory(); submitDiscovery()">{{ t("products.food.reset_recent_choices") }}</button>
 
       <!-- Geolocation / Error Alert -->
       <div v-if="errorMessage" class="mt-4 flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
         <AlertCircle class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-        <span>{{ errorMessage }}</span>
+        <span>{{ t(errorMessage ?? "") }}</span>
       </div>
     </div>
 
@@ -412,19 +416,19 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
       class="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl bg-stone-900 px-4 py-3 text-xs font-semibold text-white shadow-xl dark:bg-stone-100 dark:text-stone-900"
     >
       <CheckCircle2 class="size-4 text-emerald-400 dark:text-emerald-600" />
-      <span>{{ copyNotification }}</span>
+      <span>{{ t(copyNotification ?? "") }}</span>
     </div>
 
     <div v-if="!isMobile || mobilePanel === 'catalog'" :class="{ 'hidden md:block': mobilePanel !== 'catalog' }">
       <FoodMenuCatalog :disabled="discoveryBusy" :initially-expanded="isMobile" :refresh-key="savedRecipesVersion" :recipe-loading="isSharedRecipeLoading" @choose="chooseCatalogFood" @open-recipe="openSharedRecipe" />
-      <p v-if="isSharedRecipeLoading" role="status" class="mt-3 text-sm text-stone-500">កំពុងផ្ទុករូបមន្ត…</p>
-      <p v-if="recipeDetailError" role="alert" class="mt-3 text-sm text-amber-700 dark:text-amber-300">{{ recipeDetailError }}</p>
+      <p v-if="isSharedRecipeLoading" role="status" class="mt-3 text-sm text-stone-500">{{ t("products.food.saved.loading") }}</p>
+      <p v-if="recipeDetailError" role="alert" class="mt-3 text-sm text-amber-700 dark:text-amber-300">{{ t(recipeDetailError ?? "") }}</p>
       <FoodSavedRecipes class="mt-4" shared :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
     </div>
     <FoodSavedRecipes v-if="isMobile && mobilePanel === 'saved'" :refresh-key="savedRecipesVersion" initially-expanded @open="openRecipeDetail" />
     <div v-if="mobilePanel === 'results' && !hasSearched && !isLoading" class="rounded-2xl border border-stone-200 bg-white p-5 text-center text-sm dark:border-stone-700 dark:bg-stone-900 md:hidden">
-      ជ្រើសម្ហូប ឬស្វែងរក ដើម្បីមើលលទ្ធផល។
-      <button type="button" class="mt-3 block min-h-11 w-full font-semibold text-orange-600" @click="mobilePanel = 'steps'">ចាប់ផ្ដើមជ្រើសម្ហូប →</button>
+      {{ t("products.food.page.empty") }}
+      <button type="button" class="mt-3 block min-h-11 w-full font-semibold text-orange-600" @click="mobilePanel = 'steps'">{{ t("products.food.page.start") }}</button>
     </div>
 
     <!-- Dine-Out Results Section -->
@@ -432,10 +436,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
-            ភោជនីយដ្ឋាន និងហាងដែលត្រូវជាមួយអ្នក
+            {{ t("products.food.page.matching_places") }}
           </h3>
           <p class="text-xs text-stone-500 dark:text-stone-400">
-            ទិន្នន័យហាងពី Google Maps · តម្លៃត្រូវបញ្ជាក់ជាមួយហាងផ្ទាល់
+            {{ t("products.food.page.maps_notice") }}
           </p>
         </div>
 
@@ -446,13 +450,13 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="submitDiscovery"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
-          <span>សាកល្បងម្ដងទៀត</span>
+          <span>{{ t("products.food.actions.try_again") }}</span>
         </button>
       </div>
 
-      <div class="flex gap-2 md:hidden" aria-label="Result display">
-        <button type="button" :aria-pressed="mobileResultView === 'list'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'list' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'list'">📋 បញ្ជីហាង</button>
-        <button type="button" :aria-pressed="mobileResultView === 'map'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'map' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'map'">📍 ផែនទី</button>
+      <div class="flex gap-2 md:hidden" :aria-label="t(&quot;products.common.result_display&quot;)">
+        <button type="button" :aria-pressed="mobileResultView === 'list'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'list' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'list'">{{ t("products.food.page.list") }}</button>
+        <button type="button" :aria-pressed="mobileResultView === 'map'" class="min-h-11 flex-1 rounded-xl border px-3 text-sm font-semibold" :class="mobileResultView === 'map' ? 'border-orange-500 bg-orange-600 text-white' : 'border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-900'" @click="mobileResultView = 'map'">{{ t("products.food.page.map") }}</button>
       </div>
 
       <!-- Map & Place Grid Layout -->
@@ -466,10 +470,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           <div v-else-if="places.length === 0 && hasSearched" class="rounded-2xl border border-stone-200 bg-white p-8 text-center dark:border-stone-800 dark:bg-stone-900">
             <Utensils class="mx-auto size-10 text-stone-400" />
             <h4 class="mt-3 text-sm font-bold text-stone-800 dark:text-stone-200">
-              រកមិនឃើញទីតាំងដែលត្រូវគ្នានៅជិតនេះទេ
+              {{ t("products.food.page.no_places") }}
             </h4>
             <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-              សូមសាកល្បងពង្រីកកញ្ចប់ថវិកា ឬជ្រើសរើសខណ្ឌផ្សេងទៀតនៅភ្នំពេញ។
+              {{ t("products.food.page.no_places_help") }}
             </p>
           </div>
 
@@ -505,7 +509,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                   <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                     <span v-if="place.distanceMeters" class="inline-flex items-center gap-0.5 text-orange-600 font-semibold dark:text-orange-400">
                       <MapPin class="size-3" />
-                      {{ (place.distanceMeters / 1000).toFixed(1) }} គ.ម
+                      {{ (place.distanceMeters / 1000).toFixed(1) }} {{ t("products.food.labels.kilometers") }}
                     </span>
                     <span v-if="place.street" class="min-w-0 break-words">· {{ place.street }}</span>
                     <span v-else-if="place.district" class="min-w-0 break-words">· {{ place.district }}</span>
@@ -523,10 +527,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                     : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400'"
                 >
                   <template v-if="place.isPriceVerified && place.estimatedPricePerPersonUsd">
-                    ~${{ place.estimatedPricePerPersonUsd }}/នាក់
+                    ~${{ place.estimatedPricePerPersonUsd }}{{ t("products.food.labels.per_person_suffix") }}
                   </template>
                   <template v-else>
-                    តម្លៃមិនទាន់ផ្ទៀងផ្ទាត់
+                    {{ t("products.food.labels.price_unverified") }}
                   </template>
                 </span>
               </div>
@@ -551,7 +555,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
 
               <!-- Recommended Dishes if available -->
               <div v-if="place.recommendedDishes && place.recommendedDishes.length > 0" class="pt-1 text-[11px] text-stone-500 dark:text-stone-400">
-                <span class="font-semibold text-stone-700 dark:text-stone-300">ម្ហូបពិសេស: </span>
+                <span class="font-semibold text-stone-700 dark:text-stone-300">{{ t("products.food.labels.specialties") }} </span>
                 {{ place.recommendedDishes.join(', ') }}
               </div>
             </div>
@@ -566,25 +570,25 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                 @click.stop
               >
                 <Compass class="size-3.5" />
-                <span>បើកមើលទិសដៅ</span>
+                <span>{{ t("products.food.actions.directions") }}</span>
                 <ExternalLink class="size-3" />
               </a>
 
               <button
                 type="button"
                 class="inline-flex items-center gap-1 text-stone-500 transition hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
-                title="ចែករំលែក"
+                :title="t(&quot;products.food.actions.share&quot;)"
                 @click.stop="sharePlace(place)"
               >
                 <Share2 class="size-3.5" />
-                <span>ចែករំលែក</span>
+                <span>{{ t("products.food.actions.share") }}</span>
               </button>
             </div>
             <FoodPlaceAttribution :place="place" class="mt-3" />
           </article>
           <div v-if="hasMorePlaces" class="flex justify-center py-3" aria-live="polite">
-            <button v-if="!isMobile || !supportsInfiniteScroll || paginationError" type="button" :disabled="isLoadingMore" class="rounded-xl border border-orange-300 px-5 py-2.5 text-sm font-semibold text-orange-700 disabled:opacity-50 dark:text-orange-300" @click="loadMorePlaces">{{ isLoadingMore ? 'កំពុងផ្ទុក…' : paginationError ? 'សាកផ្ទុកម្ដងទៀត / Retry' : 'ផ្ទុកហាងបន្ថែម / Load more' }}</button>
-            <span v-else-if="isLoadingMore" class="text-sm text-stone-500">កំពុងផ្ទុកហាងបន្ថែម…</span>
+            <button v-if="!isMobile || !supportsInfiniteScroll || paginationError" type="button" :disabled="isLoadingMore" class="rounded-xl border border-orange-300 px-5 py-2.5 text-sm font-semibold text-orange-700 disabled:opacity-50 dark:text-orange-300" @click="loadMorePlaces">{{ isLoadingMore ? t("products.food.actions.loading") : paginationError ? t("products.food.page.retry_loading") : t("products.food.page.load_more") }}</button>
+            <span v-else-if="isLoadingMore" class="text-sm text-stone-500">{{ t("products.food.page.loading_places") }}</span>
           </div>
           <div ref="loadMoreSentinel" class="h-px" aria-hidden="true" />
         </div>
@@ -599,7 +603,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
               :center-lng="mapCenter?.lng"
             />
             <div class="mt-2 flex items-center justify-between px-1 text-[11px] text-stone-400">
-              <span>ចុចលើកាតដើម្បីមើលហាងនោះនៅលើផែនទី</span>
+              <span>{{ t("products.food.page.map_help") }}</span>
               <span translate="no">Google Maps</span>
             </div>
           </div>
@@ -612,10 +616,10 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
       <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 class="text-lg font-bold text-stone-900 dark:text-stone-100 sm:text-xl">
-            រូបមន្តម្ហូបខ្មែរបែបប្រពៃណី សន្សំសំចៃ និងឆ្ងាញ់ពិសា
+            {{ t("products.food.page.recipes_title") }}
           </h3>
           <p class="text-xs text-stone-500 dark:text-stone-400">
-            រូបមន្តថ្មីដោយ AI តាមចំនួនមនុស្ស និងថវិការបស់អ្នក សម្រាប់គ្រប់គ្នា · តម្លៃគ្រឿងផ្សំគ្រាន់តែជាការប៉ាន់ស្មាន
+            {{ t("products.food.page.recipe_notice") }}
           </p>
         </div>
 
@@ -626,14 +630,14 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           @click="submitDiscovery"
         >
           <RefreshCw class="size-3.5" :class="{ 'animate-spin': isLoading }" />
-          <span>{{ recipes.length ? 'សាកល្បងម្ដងទៀត' : 'បង្កើតរូបមន្តថ្មី' }}</span>
+          <span>{{ recipes.length ? t("products.food.actions.try_again") : t("products.food.page.new_recipe") }}</span>
         </button>
       </div>
 
       <!-- Recipes Grid -->
       <FoodSavedRecipes v-if="!isMobile" :refresh-key="savedRecipesVersion" @open="openRecipeDetail" />
-      <p v-if="isRecipeLoading" role="status" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">កំពុងបង្កើតរូបមន្តតាមជម្រើសរបស់អ្នក…</p>
-      <p v-else-if="!recipes.length" class="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300">ជ្រើសលក្ខខណ្ឌរបស់អ្នក រួចចុច «ស្នើឱ្យខ្ញុំ» ឬ «រើសឱ្យខ្ញុំមួយ» ដើម្បីបង្កើតរូបមន្តថ្មី។</p>
+      <p v-if="isRecipeLoading" role="status" class="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">{{ t("products.food.page.creating_recipe") }}</p>
+      <p v-else-if="!recipes.length" class="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300">{{ t("products.food.page.recipe_empty_help") }}</p>
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="recipe in recipes"
@@ -646,7 +650,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
                 {{ recipe.category }}
               </span>
               <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">
-                ≈ ${{ recipe.estimatedCostUsd }} (សម្រាប់ {{ recipe.servings }} នាក់)
+                ≈ ${{ recipe.estimatedCostUsd }} {{ t("products.food.labels.for_prefix") }} {{ recipe.servings }} {{ t("products.food.labels.people_suffix") }}
               </span>
             </div>
 
@@ -656,7 +660,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             <p class="text-xs text-stone-400">
               {{ recipe.nameEn }}
             </p>
-            <p v-if="recipe.savedRecipeId" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">✓ {{ recipe.savedToAccount ? 'បានរក្សាទុកក្នុងគណនីរបស់អ្នក' : 'បានរក្សាទុកក្នុងប្រព័ន្ធ' }}</p>
+            <p v-if="recipe.savedRecipeId" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">✓ {{ recipe.savedToAccount ? t("products.food.page.saved_to_account") : t("products.food.page.saved_globally") }}</p>
             <p class="text-xs leading-relaxed text-stone-600 dark:text-stone-300">
               {{ recipe.descriptionKm }}
             </p>
@@ -664,14 +668,14 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             <div class="flex items-center gap-4 text-[11px] text-stone-500 dark:text-stone-400">
               <span class="flex items-center gap-1">
                 <Clock class="size-3 text-orange-500" />
-                {{ recipe.prepTimeMinutes + recipe.cookTimeMinutes }} នាទី
+                {{ recipe.prepTimeMinutes + recipe.cookTimeMinutes }} {{ t("products.food.labels.minutes") }}
               </span>
               <span class="flex items-center gap-1">
                 <Users class="size-3 text-orange-500" />
-                {{ recipe.servings }} ចាន
+                {{ recipe.servings }} {{ t("products.food.labels.plates") }}
               </span>
               <span>
-                កម្រិត: {{ recipe.difficulty === 'easy' ? 'ងាយ' : recipe.difficulty === 'medium' ? 'មធ្យម' : 'ជំនាញ' }}
+                {{ t("products.food.labels.difficulty") }} {{ recipe.difficulty === 'easy' ? t("products.food.difficulty.easy") : recipe.difficulty === 'medium' ? t("products.food.difficulty.medium") : t("products.food.difficulty.advanced") }}
               </span>
             </div>
           </div>
@@ -682,7 +686,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
               class="w-full rounded-xl bg-orange-50 py-2 text-xs font-bold text-orange-700 transition hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-900/60"
               @click="openRecipeDetail(recipe)"
             >
-              មើលគ្រឿងផ្សំ និងរបៀបធ្វើ &rarr;
+              {{ t("products.food.actions.recipe_details") }}
             </button>
           </div>
         </article>
@@ -721,19 +725,19 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           <!-- Recipe Metadata Summary -->
           <div class="grid grid-cols-3 gap-3 rounded-2xl bg-stone-50 p-4 text-center text-xs dark:bg-stone-800/40">
             <div>
-              <span class="block text-stone-400 text-[10px]">ពេលរៀបចំ + ចម្អិន</span>
+              <span class="block text-stone-400 text-[10px]">{{ t("products.food.recipe.total_time") }}</span>
               <span class="font-bold text-stone-800 dark:text-stone-200">
-                {{ selectedRecipe.prepTimeMinutes + selectedRecipe.cookTimeMinutes }} នាទី
+                {{ selectedRecipe.prepTimeMinutes + selectedRecipe.cookTimeMinutes }} {{ t("products.food.labels.minutes") }}
               </span>
             </div>
             <div>
-              <span class="block text-stone-400 text-[10px]">បរិមាណទទួលទាន</span>
+              <span class="block text-stone-400 text-[10px]">{{ t("products.food.recipe.servings") }}</span>
               <span class="font-bold text-stone-800 dark:text-stone-200">
-                {{ selectedRecipe.servings }} នាក់
+                {{ selectedRecipe.servings }} {{ t("products.food.labels.people") }}
               </span>
             </div>
             <div>
-              <span class="block text-stone-400 text-[10px]">ការចំណាយប្រហែល</span>
+              <span class="block text-stone-400 text-[10px]">{{ t("products.food.recipe.estimated_cost") }}</span>
               <span class="font-bold text-orange-600 dark:text-orange-400">
                 ~${{ selectedRecipe.estimatedCostUsd }}
               </span>
@@ -743,7 +747,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           <!-- Ingredients List -->
           <div>
             <h4 class="text-sm font-bold text-stone-900 dark:text-stone-100">
-              គ្រឿងផ្សំចាំបាច់
+              {{ t("products.food.recipe.ingredients") }}
             </h4>
             <ul class="mt-3 space-y-2">
               <li
@@ -765,7 +769,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           <!-- Cooking Steps -->
           <div>
             <h4 class="text-sm font-bold text-stone-900 dark:text-stone-100">
-              របៀបចម្អិនជាជំហានៗ
+              {{ t("products.food.recipe.instructions") }}
             </h4>
             <ol class="mt-3 space-y-3">
               <li
@@ -790,7 +794,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
 
           <!-- Cooking Tip -->
           <div v-if="selectedRecipe.tips" class="rounded-2xl border border-orange-200 bg-orange-50/50 p-4 text-xs text-orange-900 dark:border-orange-900/50 dark:bg-orange-950/30 dark:text-orange-200">
-            <span class="font-bold">💡 គន្លឹះពិសេសពីចុងភៅ: </span>
+            <span class="font-bold">{{ t("products.food.recipe.chef_tips") }} </span>
             <span>{{ selectedRecipe.tips }}</span>
           </div>
         </div>
@@ -809,7 +813,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
         </div>
 
         <h3 class="mt-4 text-lg font-black text-stone-900 dark:text-stone-50">
-          AI រើសឱ្យអ្នករួចហើយ! ✨
+          {{ t("products.food.random.ready") }}
         </h3>
 
         <div class="mt-4 rounded-2xl bg-orange-50/60 p-4 text-sm font-semibold text-orange-950 dark:bg-orange-950/30 dark:text-orange-200">
@@ -829,7 +833,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
           <p class="text-xs text-stone-500 dark:text-stone-400">
             {{ randomSuggestion.dish.descriptionKm }}
           </p>
-          <button v-if="randomSuggestion.recipe" type="button" class="text-xs font-bold text-orange-600 underline" @click="openPickedRecipe">មើលគ្រឿងផ្សំ និងរបៀបធ្វើ →</button>
+          <button v-if="randomSuggestion.recipe" type="button" class="text-xs font-bold text-orange-600 underline" @click="openPickedRecipe">{{ t("products.food.actions.recipe_details") }}</button>
         </div>
 
         <!-- If suggestion is a Place -->
@@ -852,9 +856,9 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             class="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:underline dark:text-orange-400"
           >
             <Compass class="size-3.5" />
-            <span>បើកទិសដៅ &rarr;</span>
+            <span>{{ t("products.food.actions.open_directions") }}</span>
           </a>
-          <p class="text-xs text-stone-500 dark:text-stone-400">តម្លៃមិនទាន់ផ្ទៀងផ្ទាត់។ សូមបញ្ជាក់ជាមួយហាងផ្ទាល់។</p>
+          <p class="text-xs text-stone-500 dark:text-stone-400">{{ t("products.food.random.price_notice") }}</p>
           <FoodPlaceAttribution :place="randomSuggestion.place" />
         </div>
 
@@ -864,7 +868,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             class="flex-1 rounded-2xl border border-stone-200 py-3 text-xs font-semibold text-stone-700 hover:bg-stone-50 dark:border-stone-800 dark:text-stone-300 dark:hover:bg-stone-800"
             @click="closeRandomModal"
           >
-            យល់ព្រម
+            {{ t("products.food.actions.ok") }}
           </button>
           <button
             type="button"
@@ -872,7 +876,7 @@ onBeforeUnmount(() => { pageActive = false; observer?.disconnect(); viewport?.re
             :disabled="isRandomLoading || isLoading || isLoadingMore"
             @click="fetchRandomPick"
           >
-            រើសម្ដងទៀត
+            {{ t("products.food.actions.pick_again") }}
           </button>
         </div>
       </div>

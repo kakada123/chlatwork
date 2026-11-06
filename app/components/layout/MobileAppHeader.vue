@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ChevronLeft, Search } from "lucide-vue-next";
+
+const { t } = useAppI18n();
+
 
 const { isKhmer } = useLanguage();
 
@@ -20,7 +24,7 @@ const emit = defineEmits<{
       <NuxtLink
         :to="backTo"
         class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
-        :aria-label="props.backAriaLabel ?? 'Go back'"
+        :aria-label="props.backAriaLabel ?? t(&quot;shared.components_layout_mobile_app_header.go_back&quot;)"
       >
         <ChevronLeft class="size-5" aria-hidden="true" />
       </NuxtLink>
@@ -32,7 +36,7 @@ const emit = defineEmits<{
       <button
         type="button"
         class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-[#082552] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
-        aria-label="Search ChlatWork"
+        :aria-label="t(&quot;shared.components_layout_mobile_app_header.search_chlat_work&quot;)"
         @click="emit('search')"
       >
         <Search class="size-5" aria-hidden="true" />

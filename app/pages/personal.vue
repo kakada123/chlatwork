@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Bell, Brain, Check, ListTodo, Search, X } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 definePageMeta({ middleware: "auth" });
 useSeoMeta({
-  title: "Personal Assistant — ChlatWork",
+  title: () => t("shared.pages_personal.personal_assistant_chlat_work"),
   robots: "noindex, nofollow",
 });
 
@@ -59,7 +62,7 @@ const shownMemories = computed(() => {
 });
 
 function localDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(t("shared.components_admin_activity_dashboard.en_us"), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
@@ -74,7 +77,7 @@ async function completeTask(id: string) {
     });
     await Promise.all([refreshTasks(), refreshReminders()]);
   } catch {
-    actionError.value = isKhmer.value ? "មិនអាចបញ្ចប់ភារកិច្ចនោះបានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not complete that task. Please try again.";
+    actionError.value = t("shared.pages_personal.could_not_complete_that_task_please_try_again");
   } finally {
     busyId.value = "";
   }
@@ -89,7 +92,7 @@ async function cancelReminder(id: string) {
     });
     await refreshReminders();
   } catch {
-    actionError.value = isKhmer.value ? "មិនអាចបោះបង់ការរំលឹកនោះបានទេ។ សូមព្យាយាមម្តងទៀត។" : "Could not cancel that reminder. Please try again.";
+    actionError.value = t("shared.pages_personal.could_not_cancel_that_reminder_please_try_again");
   } finally {
     busyId.value = "";
   }
@@ -100,27 +103,25 @@ async function cancelReminder(id: string) {
   <main class="mx-auto min-h-screen max-w-4xl px-4 pb-24 pt-6 sm:px-6">
     <header class="mb-6">
       <p class="text-sm font-semibold text-violet-600 dark:text-violet-300">
-        {{ isKhmer ? "ផ្ទាល់ខ្លួន" : "Personal" }}
+        {{ t("shared.pages_personal.personal") }}
       </p>
       <h1 class="text-2xl font-bold text-slate-950 dark:text-white">
-        {{ isKhmer ? "ជំនួយការចងចាំ និងរំលឹក" : "Memory & Reminder Assistant" }}
+        {{ t("shared.pages_personal.memory_reminder_assistant") }}
       </h1>
       <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-        {{ isKhmer
-          ? "ជជែកជាលក្ខណៈធម្មជាតិជាមួយ ChlatWork Telegram bot ដើម្បីបន្ថែមភារកិច្ច ការរំលឹក និងការចងចាំ។"
-          : "Talk naturally to the ChlatWork Telegram bot to add tasks, reminders, and memories." }}
+        {{ t("shared.pages_personal.talk_naturally_to_the_chlat_work_telegram_bot_to") }}
       </p>
     </header>
 
     <nav
       class="mb-5 grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1 dark:bg-slate-900"
-      :aria-label="isKhmer ? 'ផ្នែកជំនួយការផ្ទាល់ខ្លួន' : 'Personal assistant sections'"
+      :aria-label="t(&quot;shared.pages_personal.personal_assistant_sections&quot;)"
     >
       <button
         v-for="item in [
-          { key: 'tasks', label: isKhmer ? 'ភារកិច្ច' : 'Tasks', icon: ListTodo },
-          { key: 'reminders', label: isKhmer ? 'ការរំលឹក' : 'Reminders', icon: Bell },
-          { key: 'memories', label: isKhmer ? 'ការចងចាំ' : 'Memories', icon: Brain },
+          { key: 'tasks', label: t(&quot;shared.pages_personal.tasks&quot;), icon: ListTodo },
+          { key: 'reminders', label: t(&quot;shared.pages_personal.reminders&quot;), icon: Bell },
+          { key: 'memories', label: t(&quot;shared.pages_personal.memories&quot;), icon: Brain },
         ]"
         :key="item.key"
         type="button"
@@ -165,7 +166,7 @@ async function cancelReminder(id: string) {
           type="button"
           class="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700 disabled:opacity-50 dark:bg-emerald-950/50 dark:text-emerald-300"
           :disabled="busyId === task.id"
-          aria-label="Mark task complete"
+          :aria-label="t(&quot;shared.pages_personal.mark_task_complete&quot;)"
           @click="completeTask(task.id)"
         >
           <Check class="size-5" />
@@ -175,7 +176,7 @@ async function cancelReminder(id: string) {
         v-if="!tasks.length"
         class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700"
       >
-        {{ isKhmer ? "មិនទាន់មានភារកិច្ចនៅឡើយទេ។" : "No tasks yet." }}
+        {{ t("shared.pages_personal.no_tasks_yet") }}
       </p>
     </section>
 
@@ -199,7 +200,7 @@ async function cancelReminder(id: string) {
           type="button"
           class="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-700 disabled:opacity-50 dark:bg-red-950/50 dark:text-red-300"
           :disabled="busyId === reminder.id"
-          :aria-label="isKhmer ? 'បោះបង់ការរំលឹក' : 'Cancel reminder'"
+          :aria-label="t(&quot;shared.pages_personal.cancel_reminder&quot;)"
           @click="cancelReminder(reminder.id)"
         >
           <X class="size-5" />
@@ -209,7 +210,7 @@ async function cancelReminder(id: string) {
         v-if="!reminders.length"
         class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700"
       >
-        {{ isKhmer ? "មិនទាន់មានការរំលឹកនៅឡើយទេ។" : "No reminders yet." }}
+        {{ t("shared.pages_personal.no_reminders_yet") }}
       </p>
     </section>
 
@@ -221,7 +222,7 @@ async function cancelReminder(id: string) {
           v-model="memoryQuery"
           type="search"
           maxlength="300"
-          :placeholder="isKhmer ? 'ស្វែងរកការចងចាំ...' : 'Search memories...'"
+          :placeholder="t(&quot;shared.pages_personal.search_memories&quot;)"
           class="h-11 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 text-sm outline-none focus:border-violet-500 dark:border-slate-700 dark:bg-slate-950"
       /></label>
       <article
@@ -243,7 +244,7 @@ async function cancelReminder(id: string) {
         v-if="!shownMemories.length"
         class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700"
       >
-        {{ isKhmer ? "រកមិនឃើញការចងចាំដែលត្រូវគ្នាទេ។" : "No matching memories." }}
+        {{ t("shared.pages_personal.no_matching_memories") }}
       </p>
     </section>
   </main>

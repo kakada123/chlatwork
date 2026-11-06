@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import { Check, ChevronDown, MessageSquarePlus, Plus, ReceiptText, Search, X } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
 import {
@@ -7,6 +9,10 @@ import {
   parseExpenseAmountToCents,
   todayISO,
 } from "~/lib/expense-tracker";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = withDefaults(
   defineProps<{
@@ -48,7 +54,7 @@ const categorySearchInput = ref<HTMLInputElement | null>(null);
 const categorySearch = ref("");
 const filteredCategories = computed(() => {
   const query = categorySearch.value.trim().toLocaleLowerCase();
-  return availableCategories.value.filter((item) => item.toLocaleLowerCase().includes(query));
+  return availableCategories.value.filter((item) => `${item} ${productText(item)}`.toLocaleLowerCase().includes(query));
 });
 const customCategoryInput = ref<HTMLInputElement | null>(null);
 const mobileNoteInput = ref<HTMLInputElement | null>(null);
@@ -184,7 +190,7 @@ defineExpose({ focusAmount, resetForm });
     <div class="sm:grid sm:grid-cols-[minmax(12rem,1fr)_minmax(10rem,14rem)] sm:items-end sm:gap-3">
       <div class="min-w-0">
         <label :for="amountId" class="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-sm sm:font-bold sm:text-slate-700 sm:dark:text-white/75">
-          Amount
+          {{ t("products.expenses.amount") }}
         </label>
         <div class="relative">
           <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-xl font-black text-sky-600 dark:text-cyan-200">
@@ -216,29 +222,29 @@ defineExpose({ focusAmount, resetForm });
         :disabled="props.busy"
       >
         <ReceiptText class="h-5 w-5" aria-hidden="true" />
-        {{ props.busy ? "Saving…" : props.submitLabel }}
+        {{ props.busy ? t("products.common.saving") : productText(props.submitLabel) }}
       </button>
     </div>
 
     <fieldset class="min-w-0 max-w-full overflow-hidden">
-      <legend class="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-sm sm:font-bold sm:text-slate-700 sm:dark:text-white/75">Category</legend>
+      <legend class="sr-only sm:not-sr-only sm:mb-2 sm:block sm:text-sm sm:font-bold sm:text-slate-700 sm:dark:text-white/75">{{ t("products.expenses.category") }}</legend>
       <details ref="categoryPicker" class="group rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04] sm:hidden">
         <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500">
           <span class="min-w-0">
-            <span class="block text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-white/40">Category</span>
-            <span class="block truncate font-black text-slate-800 dark:text-white">{{ categoryLabel }}</span>
+            <span class="block text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-white/40">{{ t("products.expenses.category") }}</span>
+            <span class="block truncate font-black text-slate-800 dark:text-white">{{ category === "__custom__" ? categoryLabel : productText(categoryLabel) }}</span>
           </span>
           <ChevronDown class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-180" aria-hidden="true" />
         </summary>
         <div class="border-t border-slate-200 p-2 dark:border-white/10">
           <div class="relative mb-2">
             <Search class="pointer-events-none absolute left-3 top-3.5 size-4 text-slate-400 dark:text-white/40" aria-hidden="true" />
-            <input v-model="categorySearch" type="search" aria-label="Search categories" autocomplete="off" maxlength="80" placeholder="Search categories…" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-base text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-black/20 dark:text-white dark:focus:border-cyan-200/50 dark:focus:ring-cyan-200/10" :disabled="props.busy" />
+            <input v-model="categorySearch" type="search" :aria-label="t(&quot;products.common.search_categories&quot;)" autocomplete="off" maxlength="80" :placeholder="t(&quot;products.common.search_categories_alternative&quot;)" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-base text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-black/20 dark:text-white dark:focus:border-cyan-200/50 dark:focus:ring-cyan-200/10" :disabled="props.busy" />
           </div>
           <div class="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto overscroll-contain">
           <button
             v-for="item in filteredCategories"
-            :key="`mobile-${item}`"
+            :key="`mobile-${productText(item)}`"
             type="button"
             class="inline-flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             :class="category === item
@@ -248,9 +254,9 @@ defineExpose({ focusAmount, resetForm });
             @click="selectMobileCategory(item)"
           >
             <Check v-if="category === item" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span class="truncate">{{ item }}</span>
+            <span class="truncate">{{ productText(item) }}</span>
           </button>
-          <p v-if="!filteredCategories.length" role="status" class="col-span-2 px-3 py-4 text-center text-sm text-slate-500 dark:text-white/45">No categories found.</p>
+          <p v-if="!filteredCategories.length" role="status" class="col-span-2 px-3 py-4 text-center text-sm text-slate-500 dark:text-white/45">{{ t("products.expenses.no_categories_found") }}</p>
           <button
             type="button"
             class="col-span-2 inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
@@ -261,7 +267,7 @@ defineExpose({ focusAmount, resetForm });
             @click="selectMobileCategory('__custom__')"
           >
             <Check v-if="category === '__custom__'" class="h-3.5 w-3.5" aria-hidden="true" />
-            Custom category
+            {{ t("products.expenses.custom_category") }}
           </button>
           </div>
         </div>
@@ -280,7 +286,7 @@ defineExpose({ focusAmount, resetForm });
           @click="category = item"
         >
           <Check v-if="category === item" class="h-3.5 w-3.5" aria-hidden="true" />
-          {{ item }}
+          {{ productText(item) }}
         </button>
       </div>
       <details
@@ -295,7 +301,7 @@ defineExpose({ focusAmount, resetForm });
         <summary
           ref="desktopCategoryTrigger"
           class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 text-sm outline-none transition hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/5 [&::-webkit-details-marker]:hidden"
-          aria-label="All entry categories"
+          :aria-label="t(&quot;products.common.all_entry_categories&quot;)"
           :aria-disabled="props.busy"
           @click="props.busy && $event.preventDefault()"
           @keydown.enter="props.busy && $event.preventDefault()"
@@ -305,7 +311,7 @@ defineExpose({ focusAmount, resetForm });
             <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600 dark:bg-cyan-200/10 dark:text-cyan-200">
               <Check class="size-4" aria-hidden="true" />
             </span>
-            <span class="truncate font-semibold text-slate-800 dark:text-white/85">{{ categoryLabel }}</span>
+            <span class="truncate font-semibold text-slate-800 dark:text-white/85">{{ category === "__custom__" ? categoryLabel : productText(categoryLabel) }}</span>
           </span>
           <ChevronDown class="size-4 shrink-0 text-slate-400 transition group-open/category:rotate-180 dark:text-white/45" aria-hidden="true" />
         </summary>
@@ -317,21 +323,21 @@ defineExpose({ focusAmount, resetForm });
               ref="categorySearchInput"
               v-model="categorySearch"
               type="search"
-              aria-label="Search categories"
+              :aria-label="t(&quot;products.common.search_categories&quot;)"
               autocomplete="off"
               maxlength="80"
-              placeholder="Search categories…"
+              :placeholder="t(&quot;products.common.search_categories_alternative&quot;)"
               class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-white/35 dark:focus:border-cyan-200/50 dark:focus:ring-cyan-200/10"
               :disabled="props.busy"
               @keydown.enter.prevent="filteredCategories[0] && selectDesktopCategory(filteredCategories[0])"
             />
           </div>
-          <div role="group" aria-label="Category results" class="max-h-52 space-y-1 overflow-y-auto overscroll-contain">
+          <div role="group" :aria-label="t(&quot;products.common.category_results&quot;)" class="max-h-52 space-y-1 overflow-y-auto overscroll-contain">
             <button
               v-for="item in filteredCategories"
               :key="item"
               type="button"
-              :aria-label="`Select ${item}`"
+              :aria-label="`${t(&quot;products.expenses.select&quot;)} ${productText(item)}`"
               :aria-pressed="category === item"
               :disabled="props.busy"
               class="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 disabled:opacity-50"
@@ -340,27 +346,27 @@ defineExpose({ focusAmount, resetForm });
                 : 'text-slate-600 hover:bg-sky-50 dark:text-white/70 dark:hover:bg-white/5'"
               @click="selectDesktopCategory(item)"
             >
-              <span class="truncate">{{ item }}</span>
+              <span class="truncate">{{ productText(item) }}</span>
               <Check v-if="category === item" class="size-4 shrink-0" aria-hidden="true" />
             </button>
-            <p v-if="!filteredCategories.length" role="status" class="px-3 py-5 text-center text-sm text-slate-500 dark:text-white/45">No categories found.</p>
+            <p v-if="!filteredCategories.length" role="status" class="px-3 py-5 text-center text-sm text-slate-500 dark:text-white/45">{{ t("products.expenses.no_categories_found") }}</p>
           </div>
           <div class="mt-2 border-t border-slate-100 pt-2 dark:border-white/10">
             <button
               type="button"
-              aria-label="Choose custom category"
+              :aria-label="t(&quot;products.common.choose_custom_category&quot;)"
               :disabled="props.busy"
               class="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm font-bold text-sky-700 transition hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 disabled:opacity-50 dark:text-cyan-200 dark:hover:bg-cyan-200/5"
               @click="selectDesktopCategory('__custom__')"
             >
               <Plus class="size-4" aria-hidden="true" />
-              Custom category
+              {{ t("products.expenses.custom_category") }}
             </button>
           </div>
         </div>
       </details>
       <div v-if="category === '__custom__'" class="mt-2">
-        <label :for="customCategoryId" class="sr-only">Custom category</label>
+        <label :for="customCategoryId" class="sr-only">{{ t("products.expenses.custom_category") }}</label>
         <input
           :id="customCategoryId"
           ref="customCategoryInput"
@@ -368,15 +374,15 @@ defineExpose({ focusAmount, resetForm });
           type="text"
           maxlength="80"
           class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white/75 dark:focus:ring-cyan-300/10"
-          placeholder="Enter your category"
+          :placeholder="t(&quot;products.common.enter_your_category&quot;)"
           :disabled="props.busy"
         />
       </div>
     </fieldset>
 
     <div v-if="props.initialRow" class="sm:hidden">
-      <p class="mb-1.5 text-xs font-bold text-slate-500 dark:text-white/50">Date</p>
-      <ModernDateInput v-model="date" placement="top" aria-label="Entry date" />
+      <p class="mb-1.5 text-xs font-bold text-slate-500 dark:text-white/50">{{ t("products.expenses.date") }}</p>
+      <ModernDateInput v-model="date" placement="top" :aria-label="t(&quot;products.common.entry_date&quot;)" />
     </div>
 
     <div class="sm:hidden">
@@ -390,10 +396,10 @@ defineExpose({ focusAmount, resetForm });
       >
         <X v-if="showOptionalNote" class="size-4" aria-hidden="true" />
         <MessageSquarePlus v-else class="size-4" aria-hidden="true" />
-        {{ showOptionalNote ? "Remove note" : "Add note (optional)" }}
+        {{ showOptionalNote ? t("products.expenses.remove_note") : t("products.expenses.add_note_optional") }}
       </button>
       <div v-if="showOptionalNote" class="mt-2">
-        <label :for="mobileNoteId" class="sr-only">Note (optional)</label>
+        <label :for="mobileNoteId" class="sr-only">{{ t("products.expenses.note_optional") }}</label>
         <input
           :id="mobileNoteId"
           ref="mobileNoteInput"
@@ -401,7 +407,7 @@ defineExpose({ focusAmount, resetForm });
           type="text"
           maxlength="500"
           class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.05] dark:text-white dark:focus:ring-cyan-300/10"
-          placeholder="What was this for?"
+          :placeholder="t(&quot;products.common.what_was_this_for&quot;)"
           :disabled="props.busy"
         />
       </div>
@@ -409,23 +415,23 @@ defineExpose({ focusAmount, resetForm });
 
     <details :open="Boolean(props.initialRow)" class="group hidden rounded-2xl border border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/[0.035] sm:block">
       <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font-bold text-slate-600 dark:text-white/65">
-        Date and note
+        {{ t("products.expenses.date_and_note") }}
         <ChevronDown class="h-4 w-4 transition group-open:rotate-180" aria-hidden="true" />
       </summary>
       <div class="grid gap-4 border-t border-slate-200 p-4 dark:border-white/10 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Date</label>
-          <ModernDateInput v-model="date" placement="top" aria-label="Expense date" />
+          <label class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">{{ t("products.expenses.date") }}</label>
+          <ModernDateInput v-model="date" placement="top" :aria-label="t(&quot;products.common.expense_date&quot;)" />
         </div>
         <div>
-          <label :for="desktopNoteId" class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">Note (optional)</label>
+          <label :for="desktopNoteId" class="mb-1.5 block text-xs font-bold text-slate-500 dark:text-white/50">{{ t("products.expenses.note_optional") }}</label>
           <input
             :id="desktopNoteId"
             v-model.trim="note"
             type="text"
             maxlength="500"
             class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:focus:ring-cyan-300/10"
-            placeholder="What was this for?"
+            :placeholder="t(&quot;products.common.what_was_this_for&quot;)"
             :disabled="props.busy"
           />
         </div>
@@ -433,7 +439,7 @@ defineExpose({ focusAmount, resetForm });
     </details>
 
     <p v-if="error" :id="errorId" role="alert" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-400/10 dark:text-red-300">
-      {{ error }}
+      {{ productText(error) }}
     </p>
 
     <button
@@ -442,7 +448,7 @@ defineExpose({ focusAmount, resetForm });
       :disabled="props.busy"
     >
       <ReceiptText class="h-5 w-5" aria-hidden="true" />
-      {{ props.busy ? "Saving…" : props.submitLabel }}
+      {{ props.busy ? t("products.common.saving") : productText(props.submitLabel) }}
     </button>
   </form>
 </template>

@@ -131,6 +131,10 @@ export function getProductMobileNavigation(
   return navigation[product];
 }
 
+export function getProductMobileLabelKey(product: Product, item: ProductMobileItem): string {
+  return item.key === "account" ? "catalog.product_navigation.account" : `catalog.product_navigation.${product}.${item.key}`;
+}
+
 export function isProductMobileItemActive(
   product: Product,
   item: ProductMobileItem,

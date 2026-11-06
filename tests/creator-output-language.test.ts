@@ -1,3 +1,4 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -58,8 +59,11 @@ function compileComponent(
   ).outputText;
   const stub = { render: () => vue.h("span") };
   const imports: Record<string, unknown> = {
+    "~/composables/useAppI18n": appI18nStub,
     vue,
     "~/lib/creator-output-language": guard,
+    "~/composables/useProductCopy": { useProductCopy: () => ({ productText: (text: string) => text }) },
+    "~/composables/useLanguage": { useLanguage: () => ({ isKhmer: vue.ref(false) }) },
     "~/components/developer-tools/CopyButton.vue": {
       __esModule: true,
       default: {

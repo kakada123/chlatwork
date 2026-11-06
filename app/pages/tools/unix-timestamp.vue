@@ -2,17 +2,17 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-xl font-bold">
-        {{ isKhmer ? "បំប្លែងកាលបរិច្ឆេទ Unix Timestamp" : "Unix Timestamp Converter" }}
+        {{ t("tools.unixTimestamp.unixTimestampConverter") }}
       </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ isKhmer ? "បំប្លែង Unix timestamp ទៅជាកាលបរិច្ឆេទដែលងាយស្រួលអាន និងបំប្លែងកាលបរិច្ឆេទត្រឡប់ទៅជា timestamp វិញ។" : "Convert Unix timestamps to readable dates and convert date-time values back to timestamps." }}
+        {{ t("tools.unixTimestamp.convertUnixTimestampsToReadableDatesAndConvertDate") }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-4 max-w-sm">
         <label class="block text-sm font-semibold text-gray-900">
-          {{ isKhmer ? "តំបន់ម៉ោង (Timezone)" : "Timezone" }}
+          {{ t("tools.unixTimestamp.timezone") }}
         </label>
         <ModernSelect
           v-model="timeZone"
@@ -27,12 +27,12 @@
       <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-3 rounded-lg border border-gray-200 p-3">
           <h2 class="text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "Timestamp ទៅជាកាលបរិច្ឆេទ" : "Timestamp to date" }}
+            {{ t("tools.unixTimestamp.timestampToDate") }}
           </h2>
           <input
             v-model="timestampInput"
             class="h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-            placeholder="1715000000 or 1715000000000"
+            :placeholder="t(&quot;tools.unixTimestamp.1715000000Or1715000000000&quot;)"
           />
           <div class="flex flex-wrap gap-2">
             <button
@@ -40,21 +40,21 @@
               class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="convertTimestamp"
             >
-              {{ isKhmer ? "បំប្លែង" : "Convert" }}
+              {{ t("tools.unixTimestamp.convert") }}
             </button>
             <button
               type="button"
               class="h-11 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="useNow"
             >
-              {{ isKhmer ? "ពេលបច្ចុប្បន្ន" : "Use now" }}
+              {{ t("tools.unixTimestamp.useNow") }}
             </button>
           </div>
-          <p v-if="timestampError" class="text-sm text-red-600">{{ timestampError }}</p>
+          <p v-if="timestampError" class="text-sm text-red-600">{{ localizeToolError(timestampError, isKhmer) }}</p>
           <dl v-if="timestampResult" class="space-y-2 text-sm">
             <div class="rounded-lg bg-gray-50 p-3">
               <dt class="font-semibold text-gray-700">
-                {{ isKhmer ? "តំបន់ម៉ោងដែលបានជ្រើស" : "Selected timezone" }}
+                {{ t("tools.unixTimestamp.selectedTimezone") }}
               </dt>
               <dd class="mt-1 break-words font-mono">{{ timestampResult.zone }}</dd>
             </div>
@@ -64,7 +64,7 @@
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
               <dt class="font-semibold text-gray-700">
-                {{ isKhmer ? "វិនាទី (Seconds)" : "Seconds" }}
+                {{ t("tools.unixTimestamp.seconds") }}
               </dt>
               <dd class="mt-1 break-words font-mono">{{ timestampResult.seconds }}</dd>
             </div>
@@ -73,39 +73,39 @@
 
         <div class="space-y-3 rounded-lg border border-gray-200 p-3">
           <h2 class="text-sm font-semibold text-gray-900">
-            {{ isKhmer ? "កាលបរិច្ឆេទ ទៅជា Timestamp" : "Date to timestamp" }}
+            {{ t("tools.unixTimestamp.dateToTimestamp") }}
           </h2>
           <ModernDateInput
             v-model="dateInput"
             type="datetime-local"
             size="sm"
-            aria-label="Choose date and time"
+            :aria-label="t(&quot;tools.unixTimestamp.chooseDateAndTime&quot;)"
           />
           <button
             type="button"
             class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="convertDate"
           >
-            {{ isKhmer ? "បំប្លែង" : "Convert" }}
+            {{ t("tools.unixTimestamp.convert") }}
           </button>
-          <p v-if="dateError" class="text-sm text-red-600">{{ dateError }}</p>
+          <p v-if="dateError" class="text-sm text-red-600">{{ localizeToolError(dateError, isKhmer) }}</p>
           <dl v-if="dateResult" class="space-y-2 text-sm">
             <div class="rounded-lg bg-gray-50 p-3">
               <dt class="font-semibold text-gray-700">
-                {{ isKhmer ? "វិនាទី (Seconds)" : "Seconds" }}
+                {{ t("tools.unixTimestamp.seconds") }}
               </dt>
               <dd class="mt-1 flex items-center justify-between gap-3 font-mono">
                 <span class="break-all">{{ dateResult.seconds }}</span>
-                <CopyButton :text="dateResult.seconds" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+                <CopyButton :text="dateResult.seconds" :label="t(&quot;tools.unixTimestamp.copy&quot;)" />
               </dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
               <dt class="font-semibold text-gray-700">
-                {{ isKhmer ? "មីលីវិនាទី (Milliseconds)" : "Milliseconds" }}
+                {{ t("tools.unixTimestamp.milliseconds") }}
               </dt>
               <dd class="mt-1 flex items-center justify-between gap-3 font-mono">
                 <span class="break-all">{{ dateResult.milliseconds }}</span>
-                <CopyButton :text="dateResult.milliseconds" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
+                <CopyButton :text="dateResult.milliseconds" :label="t(&quot;tools.unixTimestamp.copy&quot;)" />
               </dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
@@ -120,6 +120,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { localizeToolError } from "~/data/tool-ui-km";
 import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 
@@ -132,12 +134,16 @@ import {
   zonedDateTimeToUtcMillis,
 } from "~/lib/developer-tools";
 
+const { t } = useAppI18n();
+
+
+
+
 useSeoMeta({
-  title: "Unix Timestamp Converter - ChlatWork",
-  description:
-    "Convert Unix timestamps to readable dates and convert date-time values to seconds or milliseconds.",
-  ogTitle: "Unix Timestamp Converter - ChlatWork",
-  ogDescription: "Timestamp conversion with timezone support.",
+  title: () => t("tools.unixTimestamp.metaTitle"),
+  description: () => t("tools.unixTimestamp.metaDescription"),
+  ogTitle: () => t("tools.unixTimestamp.metaOgTitle"),
+  ogDescription: () => t("tools.unixTimestamp.metaOgDescription"),
 });
 
 const browserTimeZone = ref("UTC");

@@ -118,3 +118,15 @@ test("same-page navigation updates language and event, and invalid queries show 
     (error: any) => error.statusCode === 404 && error.fatal === true,
   );
 });
+
+test("calendar share copy follows the link locale without changing its title or URL", () => {
+  const props = reactive({ path: "/tools/khmer-calendar/date/2026-12-25?lang=en", title: "Christmas", khmer: false });
+  const component = loadCalendarComponent("app/components/khmer-calendar/CalendarShareButton.vue", { inlineTemplate: false });
+  const share = component.setup(props, { expose() {} });
+  assert.equal(share.t("shared.calendar.share"), "Share");
+  const originalUrl = share.url.value;
+  props.khmer = true;
+  assert.equal(share.t("shared.calendar.share"), "ចែករំលែក");
+  assert.equal(share.url.value, originalUrl);
+  assert.equal(props.title, "Christmas");
+});

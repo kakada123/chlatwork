@@ -1,3 +1,5 @@
+import { appI18nStub } from "./helpers/product-locale-stubs.ts";
+import { productCopyStub } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -23,6 +25,8 @@ function mobile() {
   const module = { exports: {} as any };
   new Function("require", "module", "exports", code)(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return appI18nStub;
+      if (name === "~/composables/useProductCopy") return productCopyStub;
       if (name === "vue") return vue;
       if (name === "lucide-vue-next") return new Proxy({}, { get: () => ({}) });
       throw new Error(`Unexpected mobile dependency: ${name}`);

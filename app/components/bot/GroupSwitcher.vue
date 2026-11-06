@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import type { GroupSummary } from "~/services/group-workspaces.service";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 defineProps<{ groups: GroupSummary[]; selected?: string }>();
 </script>
 <template>
-  <nav aria-label="My groups" class="flex gap-2 overflow-x-auto pb-1">
+  <nav :aria-label="t(&quot;shared.components_bot_group_switcher.my_groups&quot;)" class="flex gap-2 overflow-x-auto pb-1">
     <NuxtLink
       v-for="group in groups"
       :key="group.workspaceId"

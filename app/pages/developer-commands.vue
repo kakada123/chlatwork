@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import DeveloperCommandsPage from "~/components/developer-commands/DeveloperCommandsPage.vue";
 
-const title = "Developer Commands – Docker, Git, NestJS, Linux & More | ChlatWork";
-const description = "Search, customize, and copy practical developer commands for Docker, Git, NestJS, Linux, PostgreSQL, Redis, Laravel, and more.";
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
+const title = computed(() => t("tools.developerCommands.developerCommandsDockerGitNestJsLinuxMoreChlat"));
+const description = computed(() => t("tools.developerCommands.searchCustomizeAndCopyPracticalDeveloperCommandsForDocker"));
 const canonical = "https://chlatwork.com/developer-commands";
 
 useSeoMeta({

@@ -1,3 +1,5 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
+import { productCopyStubUrl, languageStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -26,6 +28,9 @@ async function compileComponent(
       },
     })
     .outputText.replace(/from ["']([^"']+)["']/g, (match, path) => {
+      if (path === "~/composables/useAppI18n") return `from ${JSON.stringify(appI18nStubUrl)}`;
+      if (path === "~/composables/useProductCopy") return `from ${JSON.stringify(productCopyStubUrl)}`;
+      if (path === "~/composables/useLanguage") return `from ${JSON.stringify(languageStubUrl)}`;
       if (
         !dependencies[path] &&
         !path.startsWith("~/lib/") &&

@@ -1,12 +1,17 @@
-<script setup lang="ts">
-withDefaults(defineProps<{ opened: boolean; message: string; locale?: "en" | "km" }>(), { locale: "en" });
+<script setup lang="ts">import { computed } from "vue";
+
+import { useAppI18n } from "~/composables/useAppI18n";
+
+
+const props = withDefaults(defineProps<{ opened: boolean; message: string; locale?: "en" | "km" }>(), { locale: "en" });
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 defineEmits<{ open: [] }>();
 </script>
 
 <template>
   <div class="letter-scene">
-    <button v-if="!opened" type="button" class="letter-envelope" data-action="open-letter" @click="$emit('open')"><span aria-hidden="true">💌</span>{{ locale === 'km' ? 'បើកសំបុត្ររបស់អ្នក' : 'Open your letter' }}</button>
-    <div v-else class="birthday-letter" role="region" :aria-label="locale === 'km' ? 'សារថ្ងៃកំណើត' : 'Birthday message'"><p>{{ message || (locale === 'km' ? 'រីករាយថ្ងៃកំណើត! សូមឱ្យអ្នកមានសុភមង្គលជានិច្ច។' : 'Happy birthday! Wishing you a day full of love and joy.') }}</p></div>
+    <button v-if="!opened" type="button" class="letter-envelope" data-action="open-letter" @click="$emit('open')"><span aria-hidden="true">💌</span>{{ t("products.moments.open_your_letter") }}</button>
+    <div v-else class="birthday-letter" role="region" :aria-label="t(&quot;products.moments.birthday_message&quot;)"><p>{{ message || (t("products.moments.happy_birthday_wishing_you_a_day_full_of_love_and_joy")) }}</p></div>
   </div>
 </template>
 

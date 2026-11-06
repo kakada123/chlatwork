@@ -1,3 +1,4 @@
+import { appI18nStubUrl } from "./helpers/product-locale-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -27,6 +28,7 @@ const compiled = compileScript(descriptor, { id: "birthday-celebration-test", in
 const source = ts.transpileModule(compiled.content, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 }).outputText
+  .replace(/from ["']~\/composables\/useAppI18n["']/g, `from ${JSON.stringify(appI18nStubUrl)}`)
   .replace(/from ["']vue["']/g, `from ${JSON.stringify(import.meta.resolve("vue"))}`)
   .replace(/from ["']canvas-confetti["']/g, `from ${JSON.stringify(`data:text/javascript;base64,${Buffer.from(confettiModule).toString("base64")}`)}`);
 const Celebration = (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`)).default;

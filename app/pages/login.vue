@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
 import { safeReturnPath } from "~/lib/product-domains";
+
+const { t } = useAppI18n();
 definePageMeta({ middleware: "guest" });
 
 const { isKhmer } = useLanguage();
 
 useSeoMeta({
-  title: computed(() => isKhmer.value ? "ចូលគណនី | ChlatWork" : "Login | ChlatWork"),
+  title: computed(() => t("shared.pages_login.login_chlat_work")),
   robots: "noindex, nofollow",
 });
 
@@ -25,10 +28,10 @@ function redirectTarget() {
     <section class="w-full rounded-3xl border border-black/10 bg-white p-6 shadow-xl dark:border-white/15 dark:bg-neutral-950 sm:p-8">
       <NuxtLink to="/" class="text-sm font-bold text-sky-600 dark:text-cyan-300">ChlatWork</NuxtLink>
       <h1 class="mt-4 text-3xl font-semibold">
-        {{ isKhmer ? "សូមស្វាគមន៍មកកាន់ ChlatWork" : "Welcome to ChlatWork" }}
+        {{ t("shared.pages_login.welcome_to_chlat_work") }}
       </h1>
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        {{ isKhmer ? "ចូលគណនីដោយសុវត្ថិភាពជាមួយ Google ឬ Telegram។" : "Continue securely with Google or Telegram." }}
+        {{ t("shared.pages_login.continue_securely_with_google_or_telegram") }}
       </p>
 
       <p v-if="errorMessage" role="alert" class="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">{{ errorMessage }}</p>

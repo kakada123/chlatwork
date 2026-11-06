@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { isKhmer } = useLanguage();
 import {
   Boxes,
   Cloud,
@@ -44,6 +46,8 @@ import {
   type SimpleIcon,
 } from "simple-icons";
 import type { Component } from "vue";
+
+const { t } = useAppI18n();
 
 const props = defineProps<{ category: string }>();
 
@@ -101,7 +105,7 @@ const utilityIcon = computed(() => utilityIcons[props.category] ?? Package);
     class="h-5 w-5 fill-current text-[var(--brand-color)]"
     :style="{ '--brand-color': `#${brandIcon.hex}` }"
     role="img"
-    :aria-label="`${brandIcon.title} icon`"
+    :aria-label="t(&quot;tools.developerCommands.icon&quot;, { brandIconTitle: brandIcon.title })"
   >
     <path :d="brandIcon.path" />
   </svg>

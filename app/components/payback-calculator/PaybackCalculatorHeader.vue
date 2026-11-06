@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Check, RotateCcw, Share2 } from "lucide-vue-next";
 import { useLanguage } from "~/composables/useLanguage";
+
+const { t } = useAppI18n();
 
 const { isKhmer } = useLanguage();
 
@@ -9,12 +12,12 @@ const props = defineProps<{ shareState: PaybackShareState }>();
 const emit = defineEmits<{ reset: []; share: [] }>();
 
 const shareLabel = computed(() => {
-  if (props.shareState === "busy") return isKhmer.value ? "កំពុងរៀបចំ…" : "Preparing…";
-  if (props.shareState === "copied") return isKhmer.value ? "បានចម្លង Link" : "Link copied";
-  if (props.shareState === "shared") return isKhmer.value ? "បានចែករំលែក" : "Shared";
-  if (props.shareState === "ready") return isKhmer.value ? "Link រួចរាល់" : "Link ready";
-  if (props.shareState === "failed") return isKhmer.value ? "ព្យាយាមម្តងទៀត" : "Try again";
-  return isKhmer.value ? "ចែករំលែក" : "Share";
+  if (props.shareState === "busy") return t("products.payback.preparing");
+  if (props.shareState === "copied") return t("products.payback.link_copied_alternative");
+  if (props.shareState === "shared") return t("products.payback.shared");
+  if (props.shareState === "ready") return t("products.payback.link_ready");
+  if (props.shareState === "failed") return t("products.moments.try_again");
+  return t("products.common.share");
 });
 const isShareConfirmed = computed(() => ["copied", "shared", "ready"].includes(props.shareState));
 </script>
@@ -22,20 +25,20 @@ const isShareConfirmed = computed(() => ["copied", "shared", "ready"].includes(p
 <template>
   <header class="mb-6 border-b border-slate-200 pb-6 dark:border-white/10">
     <NuxtLink to="/tools" class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex">
-      {{ isKhmer ? "← ឧបករណ៍ទាំងអស់" : "← All tools" }}
+      {{ t("products.payback.all_tools") }}
     </NuxtLink>
     <div class="flex flex-col gap-4 sm:mt-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 class="text-3xl font-black tracking-tight text-slate-950 dark:text-white">
-          {{ isKhmer ? "គណនាចែកលុយ PayBack" : "PayBack Calculator" }}
+          {{ t("products.payback.pay_back_calculator") }}
         </h1>
         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-white/60">
-          {{ isKhmer ? "បញ្ចូលចំនួនទឹកប្រាក់ដែលម្នាក់ៗបានចេញ។ យើងនឹងគណនាវិធីទូទាត់សងគ្នាដែលងាយស្រួលបំផុត។" : "Add what each person paid. We’ll calculate the simplest way to settle up." }}
+          {{ t("products.payback.add_what_each_person_paid_well_calculate_the_simplest_way_to_settle_up") }}
         </p>
       </div>
       <div class="flex gap-2">
         <button class="payback-secondary inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:text-white/75" type="button" @click="emit('reset')">
-          <RotateCcw class="h-4 w-4" aria-hidden="true" /> {{ isKhmer ? "កំណត់ឡើងវិញ" : "Reset" }}
+          <RotateCcw class="h-4 w-4" aria-hidden="true" /> {{ t("products.payback.reset") }}
         </button>
         <button class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-wait disabled:opacity-70 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100" type="button" :aria-busy="shareState === 'busy'" :disabled="shareState === 'busy'" @click="emit('share')">
           <Check v-if="isShareConfirmed" class="h-4 w-4" aria-hidden="true" />

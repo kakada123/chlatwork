@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { translateMessage } from "~/lib/i18n";
+import { useAppI18n } from "~/composables/useAppI18n";
 import { ArrowLeft, CalendarDays, Flower2, Moon, Sun } from "lucide-vue-next";
 import CalendarShareButton from "~/components/khmer-calendar/CalendarShareButton.vue";
 import {
@@ -20,10 +22,15 @@ import {
 } from "~/data/cambodia-holidays";
 import { CELEBRATION_SOURCES } from "~/data/calendar-celebrations";
 
+
+
 definePageMeta({ layout: false, blankCanvas: true });
 const route = useRoute();
 const { config } = useProductDomain();
 const khmer = computed(() => route.query.lang !== "en");
+const { t } = useAppI18n(khmer);
+// Lunar notations remain in Khmer as part of the calendar data in either interface language.
+const lunarText = (key: string, params: Record<string, unknown>) => translateMessage("km", key, params);
 const detail = computed(() => {
   const result = getCalendarDetail(route.params.date, route.query.event);
   // Fatal also shows Nuxt's 404 page when an invalid link is followed through client navigation.
@@ -51,26 +58,9 @@ const sources = computed(() => [
   ...schedule.value.sources,
   ...CELEBRATION_SOURCES,
 ]);
-const weekday = computed(() =>
-  khmer.value
-    ? KHMER_WEEKDAYS[day.value.weekday]
-    : [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ][day.value.weekday],
-);
-const month = computed(
-  () => (khmer.value ? KHMER_MONTHS : ENGLISH_MONTHS)[day.value.date.month - 1],
-);
+const weekday = computed(() => t(`tools.khmerCalendar.weekdays.${day.value.weekday}`));
+const month = computed(() => t(`tools.khmerCalendar.months.${day.value.date.month}`));
 
-function label(km: string, en: string) {
-  return khmer.value ? km : en;
-}
 function digits(value: number) {
   return khmer.value ? toKhmerDigits(value) : String(value);
 }
@@ -90,32 +80,32 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 useHead(() => ({
-  htmlAttrs: { lang: khmer.value ? "km" : "en" },
+  htmlAttrs: { lang: (khmer.value ? "km" : "en") },
   link: [{ rel: "canonical", href: publicUrl.value }],
 }));
 </script>
 
 <template>
-  <main class="calendar-detail" :lang="khmer ? 'km' : 'en'">
+  <main class="calendar-detail" :lang="(khmer ? 'km' : 'en')">
     <div class="detail-shell">
       <header class="detail-header">
         <NuxtLink :to="calendarMonthPath(day.date, khmer)" class="back-link"
           ><ArrowLeft :size="16" aria-hidden="true" />{{
-            label("ត្រឡប់ទៅប្រតិទិន", "Back to calendar")
+            t("tools.khmerCalendar.backToCalendar")
           }}</NuxtLink
         >
         <NuxtLink
           :to="calendarDetailPath(day.date, event?.id, !khmer)"
           class="language-link"
-          :aria-label="khmer ? 'Switch to English' : 'ប្ដូរទៅភាសាខ្មែរ'"
-          >{{ khmer ? "EN" : "ខ្មែរ" }}</NuxtLink
+          :aria-label="t(&quot;tools.khmerCalendar.message&quot;)"
+          >{{ t("tools.khmerCalendar.message_2") }}</NuxtLink
         >
       </header>
 
       <section class="detail-hero">
         <p class="eyebrow">
           <CalendarDays :size="16" aria-hidden="true" />{{
-            label("ប្រតិទិនខ្មែរ · កម្ពុជា", "KHMER CALENDAR · CAMBODIA")
+            t("tools.khmerCalendar.khmerCalendarCambodia")
           }}
         </p>
         <h1>{{ event ? eventName(event) : dateLabel }}</h1>
@@ -123,10 +113,7 @@ useHead(() => ({
           {{
             event
               ? dateLabel
-              : label(
-                  "ចន្ទគតិ ពិធីបុណ្យ និងទិវារំលឹកសម្រាប់ថ្ងៃនេះ",
-                  "Lunar date, holidays and observances for this day",
-                )
+              : t("tools.khmerCalendar.lunarDateHolidaysAndObservancesForThisDay")
           }}
         </p>
         <CalendarShareButton :path="path" :title="meta.title" :khmer="khmer" />
@@ -135,7 +122,7 @@ useHead(() => ({
       <div class="detail-grid">
         <section
           class="date-card"
-          :aria-label="label('ព័ត៌មានកាលបរិច្ឆេទ', 'Date information')"
+          :aria-label="t(&quot;tools.khmerCalendar.dateInformation&quot;)"
         >
           <p class="date-weekday">{{ weekday }}</p>
           <div class="date-number">
@@ -149,20 +136,17 @@ useHead(() => ({
           </div>
           <p class="date-month">{{ month }} {{ digits(day.date.year) }}</p>
           <div class="lunar-block">
-            <h2>{{ label("ចន្ទគតិខ្មែរ", "Khmer lunar date") }}</h2>
+            <h2>{{ t("tools.khmerCalendar.khmerLunarDate") }}</h2>
             <p lang="km">
-              {{ toKhmerDigits(day.lunar.day)
-              }}{{ day.lunar.moonPhaseName }} ខែ{{ day.lunar.monthName }}
+              {{ lunarText("tools.khmerCalendar.lunarMonth", { lunar: toKhmerDigits(day.lunar.day) + day.lunar.moonPhaseName, month: day.lunar.monthName }) }}
             </p>
             <p lang="km">
-              ឆ្នាំ{{ day.lunar.animalYearName }} {{ day.lunar.sakName }} ព.ស.{{
-                toKhmerDigits(day.lunar.beYear)
-              }}
+              {{ lunarText("tools.khmerCalendar.lunarYear", { animalYear: day.lunar.animalYearName, sakName: day.lunar.sakName, beYear: toKhmerDigits(day.lunar.beYear) }) }}
             </p>
           </div>
           <p v-if="day.holyDay" class="holy-label">
             <Flower2 :size="16" aria-hidden="true" />{{
-              label("ថ្ងៃសីល", "Buddhist holy day")
+              t("tools.khmerCalendar.buddhistHolyDay")
             }}
           </p>
           <p class="timezone">Asia/Phnom_Penh · UTC+7</p>
@@ -171,15 +155,15 @@ useHead(() => ({
         <section
           class="events-panel"
           :aria-label="
-            label('ពិធីបុណ្យ និងទិវារំលឹក', 'Holidays and observances')
+            t(&quot;tools.khmerCalendar.holidaysAndObservances&quot;)
           "
         >
           <div class="section-heading">
             <h2>
               {{
                 event
-                  ? label("អំពីព្រឹត្តិការណ៍នេះ", "About this occasion")
-                  : label("ពិធីបុណ្យ និងទិវារំលឹក", "Holidays & observances")
+                  ? t("tools.khmerCalendar.aboutThisOccasion")
+                  : t("tools.khmerCalendar.holidaysObservances_2")
               }}
             </h2>
             <span>{{ digits(events.length) }}</span>
@@ -192,14 +176,8 @@ useHead(() => ({
             >
               <span class="event-kind" :class="item.kind">{{
                 item.kind === "public-holiday"
-                  ? label(
-                      "ថ្ងៃឈប់សម្រាកផ្លូវការនៅកម្ពុជា",
-                      "Cambodian public holiday",
-                    )
-                  : label(
-                      "ពិធីបុណ្យ / ទិវារំលឹក · មិនមែនថ្ងៃឈប់សម្រាក",
-                      "Celebration / observance · not a public holiday",
-                    )
+                  ? t("tools.khmerCalendar.cambodianPublicHoliday")
+                  : t("tools.khmerCalendar.celebrationObservanceNotAPublicHoliday_2")
               }}</span>
               <h3>
                 <NuxtLink :to="calendarDetailPath(day.date, item.id, khmer)">{{
@@ -208,10 +186,7 @@ useHead(() => ({
               </h3>
               <p v-if="item.estimated" class="estimated">
                 {{
-                  label(
-                    "កាលបរិច្ឆេទប៉ាន់ស្មាន · អាចប្រែប្រួលតាមសហគមន៍",
-                    "Estimated date · local observance may vary",
-                  )
+                  t("tools.khmerCalendar.estimatedDateLocalObservanceMayVary")
                 }}
               </p>
               <p v-if="khmer ? item.noteKm : item.noteEn" class="event-note">
@@ -226,10 +201,7 @@ useHead(() => ({
           </ul>
           <p v-else class="empty-copy">
             {{
-              label(
-                "មិនមានពិធីបុណ្យ ឬទិវារំលឹកក្នុងបញ្ជីសម្រាប់ថ្ងៃនេះទេ។",
-                "No listed holiday or observance for this date.",
-              )
+              t("tools.khmerCalendar.noListedHolidayOrObservanceForThisDate_2")
             }}
           </p>
           <NuxtLink
@@ -237,26 +209,17 @@ useHead(() => ({
             :to="calendarDetailPath(day.date, undefined, khmer)"
             class="all-events-link"
             >{{
-              label(
-                "មើលព័ត៌មានទាំងអស់សម្រាប់ថ្ងៃនេះ",
-                "View everything on this date",
-              )
+              t("tools.khmerCalendar.viewEverythingOnThisDate")
             }}</NuxtLink
           >
           <p v-if="!schedule.verified" class="coverage-notice" role="status">
             {{
-              label(
-                "មិនទាន់មានបញ្ជីថ្ងៃឈប់សម្រាកផ្លូវការសម្រាប់ឆ្នាំនេះទេ។ មានទិន្នន័យដែលបានផ្ទៀងផ្ទាត់សម្រាប់ឆ្នាំ ២០២៦ និង ២០២៧។",
-                "The official public holiday schedule for this year is unavailable. Verified schedules cover 2026 and 2027.",
-              )
+              t("tools.khmerCalendar.theOfficialPublicHolidayScheduleForThisYearIs_2")
             }}
           </p>
           <p class="classification-note">
             {{
-              label(
-                "ទិវារំលឹក និងថ្ងៃសីល មិនសុទ្ធតែជាថ្ងៃឈប់សម្រាកទេ។",
-                "Observances and Buddhist holy days do not automatically mean a day off.",
-              )
+              t("tools.khmerCalendar.observancesAndBuddhistHolyDaysDoNotAutomaticallyMean")
             }}
           </p>
         </section>
@@ -265,7 +228,7 @@ useHead(() => ({
       <footer class="detail-footer">
         <span
           >ChlatWork ·
-          {{ label("ប្រភព និងឯកសារយោង", "Sources & references") }}</span
+          {{ t("tools.khmerCalendar.sourcesReferences") }}</span
         >
         <a
           v-for="source in sources"

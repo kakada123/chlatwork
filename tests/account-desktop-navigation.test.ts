@@ -1,3 +1,5 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
+import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -20,6 +22,7 @@ function compileComponent(path: string, globals: Record<string, unknown> = {}, i
   const module = { exports: {} as any };
   new Function("require", "module", "exports", ...Object.keys(bindings), code)(
     (name: string) => {
+      if (name === "~/composables/useAppI18n") return { useAppI18n: createI18nStub };
       if (name === "vue") return { ...vue, withAsyncContext: (work: () => unknown) => [work(), () => {}] };
       if (name === "~/lib/account-navigation") return navigation;
       if (name === "lucide-vue-next") return new Proxy({}, { get: () => ({}) });
@@ -129,5 +132,5 @@ test("viewport containment and panel hiding apply only at the desktop breakpoint
   const page = readFileSync("app/pages/account.vue", "utf8");
   assert.match(page, /layout: "account"/);
   assert.match(page, /overflow-y: auto/);
-  assert.match(page, /aria-label="ChlatWork information"/);
+  assertTranslatedAttribute(page, "ChlatWork information");
 });

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+import { useProductCopy } from "~/composables/useProductCopy";
 import {
   Check,
   FileAudio,
@@ -14,6 +16,10 @@ import {
   validateCreatorMediaFile,
   type CreatorAudioWorkerMessage,
 } from "~/lib/creator-audio";
+
+const { t } = useAppI18n();
+
+const { productText } = useProductCopy();
 
 const props = defineProps<{
   file: File | null;
@@ -54,7 +60,7 @@ function formatBytes(bytes: number) {
 }
 
 function formatDuration(seconds: number) {
-  if (!seconds) return "Duration unavailable";
+  if (!seconds) return t("products.creator.duration_unavailable");
   const total = Math.round(seconds);
   const minutes = Math.floor(total / 60);
   const remaining = total % 60;
@@ -159,23 +165,23 @@ function handleDrop(event: DragEvent) {
           class="size-4 animate-spin motion-reduce:animate-none"
           aria-hidden="true"
         />
-        Preparing audio on your device… {{ preparationProgress }}%
+        {{ t("products.creator.preparing_audio_on_your_device") }} {{ preparationProgress }}%
       </p>
       <progress
         class="mt-3 h-2 w-full accent-sky-600"
         :value="preparationProgress"
         max="100"
-        aria-label="Preparing audio"
+        :aria-label="t(&quot;products.common.preparing_audio&quot;)"
       />
       <p class="mt-2 text-xs text-slate-600 dark:text-white/60">
-        Keep this page open. Nothing is uploaded until you generate.
+        {{ t("products.creator.keep_open_before_upload") }}
       </p>
       <button
         type="button"
         class="mobile-pressable mt-2 min-h-11 rounded-xl px-3 text-sm font-semibold text-sky-800 focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-cyan-200"
         @click="stopPreparation"
       >
-        Cancel
+        {{ t("products.common.cancel") }}
       </button>
     </div>
 
@@ -201,13 +207,12 @@ function handleDrop(event: DragEvent) {
         >
           <Upload class="size-6" />
         </span>
-        <strong class="mt-3 text-sm text-slate-900 dark:text-white">Choose a video or audio file</strong>
+        <strong class="mt-3 text-sm text-slate-900 dark:text-white">{{ t("products.creator.choose_a_video_or_audio_file") }}</strong>
         <span class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/50"
-          >Video: MP4, M4V, MOV, WebM · Audio: MP3, M4A, WAV, OGG, FLAC,
-          WebM</span
+          >{{ t("products.creator.video_mp4_m4v_mov_web_m_audio_mp3_m4a_wav_ogg_flac_web_m") }}</span
         >
         <span class="mt-1 text-xs leading-5 text-slate-500 dark:text-white/50"
-          >Only audio is uploaded. Your video stays on your device.</span
+          >{{ t("products.creator.audio_upload_privacy") }}</span
         >
       </button>
     </div>
@@ -232,15 +237,15 @@ function handleDrop(event: DragEvent) {
             {{ formatDuration(durationSeconds) }} · {{ formatBytes(file.size) }}
           </p>
           <p class="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
-            Audio ready to upload<span v-if="originalSize > file.size">
-              · reduced from {{ formatBytes(originalSize) }}</span
+            {{ t("products.creator.audio_ready_to_upload") }}<span v-if="originalSize > file.size">
+              {{ t("products.creator.reduced_from") }} {{ formatBytes(originalSize) }}</span
             >
           </p>
         </div>
         <button
           type="button"
           class="mobile-pressable grid size-11 shrink-0 place-items-center rounded-xl text-slate-500 transition hover:bg-white hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-40 dark:text-white/50 dark:hover:bg-white/[0.08] dark:hover:text-red-300"
-          aria-label="Remove selected audio"
+          :aria-label="t(&quot;products.common.remove_selected_audio&quot;)"
           :disabled="busy"
           @click="emit('clear')"
         >
@@ -252,7 +257,7 @@ function handleDrop(event: DragEvent) {
     <ol
       v-if="activeStage >= 0"
       class="grid grid-cols-2 gap-2 sm:grid-cols-3"
-      aria-label="Video processing stages"
+      :aria-label="t(&quot;products.common.video_processing_stages&quot;)"
       aria-live="polite"
     >
       <li
@@ -287,7 +292,7 @@ function handleDrop(event: DragEvent) {
           aria-hidden="true"
           >{{ index + 1 }}</span
         >
-        <span>{{ stage.label }}</span>
+        <span>{{ productText(stage.label) }}</span>
       </li>
     </ol>
   </div>

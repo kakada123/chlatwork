@@ -1,20 +1,22 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { computed } from "vue";
 import { BIRTHDAY_SCENE_IDS, BIRTHDAY_STORY_THEMES } from "~/lib/birthday-story";
 import type { BirthdayCakeDesign, BirthdaySceneId, BirthdayStorySettings } from "~/lib/birthday-story";
 import { moveBirthdayScene, toggleBirthdayScene } from "~/lib/birthday-story-editor";
 
 const props = withDefaults(defineProps<{ modelValue: BirthdayStorySettings; locale?: "en" | "km"; section?: "mode" | "theme" | "scenes" | "cake" | "settings" }>(), { locale: "en", section: "settings" });
+
+const { t } = useAppI18n(computed(() => props.locale === "km"));
 const emit = defineEmits<{ "update:modelValue": [value: BirthdayStorySettings] }>();
 const km = computed(() => props.locale === "km");
-const text = (en: string, kh: string) => km.value ? kh : en;
 const orderedScenes = computed(() => [...props.modelValue.scenes, ...BIRTHDAY_SCENE_IDS.filter(scene => !props.modelValue.scenes.includes(scene))]);
-const sceneNames: Record<BirthdaySceneId, [string, string]> = {
-  gift: ["Gift opening", "បើកអំណោយ"], cake: ["Birthday cake", "នំខួបកំណើត"], memories: ["Photo memories", "រូបភាពអនុស្សាវរីយ៍"],
-  message: ["Personal message", "សារផ្ទាល់ខ្លួន"], secret: ["Secret surprise", "ការភ្ញាក់ផ្អើលសម្ងាត់"], celebration: ["Final celebration", "ការអបអរចុងក្រោយ"],
+const sceneNames: Record<BirthdaySceneId, string> = {
+  gift: "products.moments.scenes.gift", cake: "products.moments.scenes.cake", memories: "products.moments.scenes.memories",
+  message: "products.moments.scenes.message", secret: "products.moments.scenes.secret", celebration: "products.moments.scenes.celebration",
 };
-const cakeDesigns: { value: BirthdayCakeDesign; label: string; km: string }[] = [
-  { value: "CLASSIC", label: "Classic", km: "បែបបុរាណ" }, { value: "CHOCOLATE", label: "Chocolate", km: "សូកូឡា" }, { value: "PASTEL", label: "Pastel", km: "ពណ៌ផាស្ទែល" },
+const cakeDesigns: { value: BirthdayCakeDesign; labelKey: string }[] = [
+  { value: "CLASSIC", labelKey: "products.moments.cake_designs.classic" }, { value: "CHOCOLATE", labelKey: "products.moments.cake_designs.chocolate" }, { value: "PASTEL", labelKey: "products.moments.cake_designs.pastel" },
 ];
 function update(patch: Partial<BirthdayStorySettings>) { emit("update:modelValue", { ...props.modelValue, ...patch }); }
 function move(scene: BirthdaySceneId, direction: -1 | 1) { update({ scenes: moveBirthdayScene(props.modelValue.scenes, scene, direction) }); }
@@ -27,23 +29,23 @@ function setCandles(event: Event) {
 
 <template>
   <fieldset v-if="section === 'mode'" class="birthday-editor mode-editor">
-    <legend>{{ text('Birthday experience', 'បទពិសោធន៍ថ្ងៃកំណើត') }}</legend>
+    <legend>{{ t("products.moments.birthday_experience") }}</legend>
     <div class="mode-grid">
       <label :class="{ selected: !modelValue.enabled }">
         <input type="radio" name="birthday-mode" :checked="!modelValue.enabled" @change="update({ enabled: false })" />
-        <span><strong>{{ text('Simple Mode', 'របៀបសាមញ្ញ') }}</strong><small>{{ text('A beautiful birthday page with photos and your message.', 'ទំព័រថ្ងៃកំណើតជាមួយរូបថត និងសាររបស់អ្នក។') }}</small></span>
+        <span><strong>{{ t("products.moments.simple_mode") }}</strong><small>{{ t("products.moments.a_beautiful_birthday_page_with_photos_and_your_message") }}</small></span>
       </label>
       <label :class="{ selected: modelValue.enabled }">
         <input type="radio" name="birthday-mode" :checked="modelValue.enabled" @change="update({ enabled: true })" />
-        <span><strong>{{ text('Story Mode', 'របៀបរឿងរ៉ាវ') }}</strong><small>{{ text('An interactive gift, cake, memories and surprise.', 'អំណោយ នំ អនុស្សាវរីយ៍ និងការភ្ញាក់ផ្អើលអន្តរកម្ម។') }}</small></span>
+        <span><strong>{{ t("products.moments.story_mode") }}</strong><small>{{ t("products.moments.an_interactive_gift_cake_memories_and_surprise") }}</small></span>
       </label>
     </div>
   </fieldset>
   <div v-else-if="modelValue.enabled" class="birthday-editor settings-editor">
     <section v-if="section === 'settings' || section === 'theme'" id="birthday-theme" aria-labelledby="birthday-theme-title">
-      <h3 id="birthday-theme-title">{{ text('Birthday theme', 'រចនាប័ទ្មថ្ងៃកំណើត') }}</h3>
+      <h3 id="birthday-theme-title">{{ t("products.moments.birthday_theme") }}</h3>
       <fieldset>
-        <legend class="sr-only">{{ text('Birthday theme', 'រចនាប័ទ្មថ្ងៃកំណើត') }}</legend>
+        <legend class="sr-only">{{ t("products.moments.birthday_theme") }}</legend>
         <div class="theme-grid">
           <label v-for="theme in BIRTHDAY_STORY_THEMES" :key="theme.value" :class="{ selected: modelValue.theme === theme.value }">
             <input :id="`story-theme-${theme.value}`" type="radio" name="birthday-story-theme" :checked="modelValue.theme === theme.value" @change="update({ theme: theme.value })" />
@@ -51,35 +53,35 @@ function setCandles(event: Event) {
           </label>
         </div>
       </fieldset>
-      <label for="birthday-teaser" class="input-label">{{ text('Gift teaser (optional)', 'សារខ្លីលើអំណោយ (ជាជម្រើស)') }}</label>
+      <label for="birthday-teaser" class="input-label">{{ t("products.moments.gift_teaser_optional") }}</label>
       <textarea id="birthday-teaser" :value="modelValue.teaser" maxlength="160" rows="2" @input="update({ teaser: ($event.target as HTMLTextAreaElement).value })" />
       <p class="help">{{ modelValue.teaser.length }} / 160</p>
     </section>
     <section v-if="section === 'settings' || section === 'scenes'" id="birthday-scenes" aria-labelledby="birthday-scenes-title">
-      <h3 id="birthday-scenes-title">{{ text('Story scenes', 'ឈុតរឿងរ៉ាវ') }}</h3>
-      <p class="help">{{ text('Choose at least one scene. The gift opens first and the celebration stays last. Empty photo and secret scenes are skipped.', 'ជ្រើសរើសយ៉ាងហោចណាស់មួយឈុត។ អំណោយនៅដើម ហើយការអបអរនៅចុងក្រោយ។ ឈុតរូបថត ឬសារសម្ងាត់ដែលទទេនឹងត្រូវរំលង។') }}</p>
+      <h3 id="birthday-scenes-title">{{ t("products.moments.story_scenes") }}</h3>
+      <p class="help">{{ t("products.moments.choose_at_least_one_scene_the_gift_opens_first_and_the_celebration_stays_last_empty_photo_and_secret_scenes_are_skipped") }}</p>
       <ol class="scene-list">
         <li v-for="scene in orderedScenes" :key="scene">
-          <label><input :id="`birthday-scene-${scene}`" type="checkbox" :checked="modelValue.scenes.includes(scene)" :disabled="modelValue.scenes.length === 1 && modelValue.scenes.includes(scene)" @change="update({ scenes: toggleBirthdayScene(modelValue.scenes, scene) })" />{{ text(...sceneNames[scene]) }}</label>
+          <label><input :id="`birthday-scene-${scene}`" type="checkbox" :checked="modelValue.scenes.includes(scene)" :disabled="modelValue.scenes.length === 1 && modelValue.scenes.includes(scene)" @change="update({ scenes: toggleBirthdayScene(modelValue.scenes, scene) })" />{{ t(sceneNames[scene]) }}</label>
           <span v-if="modelValue.scenes.includes(scene) && scene !== 'gift' && scene !== 'celebration'" class="move-actions">
-            <button type="button" :disabled="!canMove(scene, -1)" :aria-label="text(`Move ${sceneNames[scene][0]} earlier`, `ផ្លាស់ទី ${sceneNames[scene][1]} ទៅមុន`)" @click="move(scene, -1)">↑</button>
-            <button type="button" :disabled="!canMove(scene, 1)" :aria-label="text(`Move ${sceneNames[scene][0]} later`, `ផ្លាស់ទី ${sceneNames[scene][1]} ទៅក្រោយ`)" @click="move(scene, 1)">↓</button>
+            <button type="button" :disabled="!canMove(scene, -1)" :aria-label="t(&quot;products.moments.move_value_earlier&quot;, { value: t(sceneNames[scene]), value_2: t(sceneNames[scene]) })" @click="move(scene, -1)">↑</button>
+            <button type="button" :disabled="!canMove(scene, 1)" :aria-label="t(&quot;products.moments.move_value_later&quot;, { value: t(sceneNames[scene]), value_2: t(sceneNames[scene]) })" @click="move(scene, 1)">↓</button>
           </span>
         </li>
       </ol>
-      <label class="option"><input type="checkbox" :checked="modelValue.allowReplay" @change="update({ allowReplay: ($event.target as HTMLInputElement).checked })" />{{ text('Allow replay', 'អនុញ្ញាតឱ្យមើលម្ដងទៀត') }}</label>
-      <label class="option"><input type="checkbox" :checked="modelValue.allowReactions" @change="update({ allowReactions: ($event.target as HTMLInputElement).checked })" />{{ text('Show reactions on the recipient’s device', 'បង្ហាញប្រតិកម្មនៅលើឧបករណ៍អ្នកទទួល') }}</label>
-      <p class="help">{{ text('Reactions are local feedback and are not sent to you or saved.', 'ប្រតិកម្មបង្ហាញតែក្នុងឧបករណ៍នេះ មិនផ្ញើមកអ្នក ឬរក្សាទុកទេ។') }}</p>
+      <label class="option"><input type="checkbox" :checked="modelValue.allowReplay" @change="update({ allowReplay: ($event.target as HTMLInputElement).checked })" />{{ t("products.moments.allow_replay") }}</label>
+      <label class="option"><input type="checkbox" :checked="modelValue.allowReactions" @change="update({ allowReactions: ($event.target as HTMLInputElement).checked })" />{{ t("products.moments.show_reactions_on_the_recipients_device") }}</label>
+      <p class="help">{{ t("products.moments.reactions_are_local_feedback_and_are_not_sent_to_you_or_saved") }}</p>
     </section>
     <section v-if="section === 'settings' || section === 'cake'" id="birthday-cake" aria-labelledby="birthday-cake-title">
-      <h3 id="birthday-cake-title">{{ text('Birthday cake', 'នំខួបកំណើត') }}</h3>
+      <h3 id="birthday-cake-title">{{ t("products.moments.birthday_cake") }}</h3>
       <fieldset class="cake-designs">
-        <legend>{{ text('Cake design', 'រចនាប័ទ្មនំ') }}</legend>
-        <label v-for="design in cakeDesigns" :key="design.value"><input type="radio" name="birthday-cake-design" :checked="modelValue.cake.design === design.value" @change="update({ cake: { ...modelValue.cake, design: design.value } })" />{{ km ? design.km : design.label }}</label>
+        <legend>{{ t("products.moments.cake_design") }}</legend>
+        <label v-for="design in cakeDesigns" :key="design.value"><input type="radio" name="birthday-cake-design" :checked="modelValue.cake.design === design.value" @change="update({ cake: { ...modelValue.cake, design: design.value } })" />{{ t(design.labelKey) }}</label>
       </fieldset>
-      <label for="birthday-candles" class="input-label">{{ text('Candles (1–12)', 'ទៀន (១–១២)') }}</label>
+      <label for="birthday-candles" class="input-label">{{ t("products.moments.candles_1_12") }}</label>
       <input id="birthday-candles" type="number" min="1" max="12" step="1" :value="modelValue.cake.candles" @input="setCandles" />
-      <p class="help">{{ text('The recipient can tap each candle to make a wish.', 'អ្នកទទួលអាចចុចលើទៀននីមួយៗដើម្បីបួងសួង។') }}</p>
+      <p class="help">{{ t("products.moments.the_recipient_can_tap_each_candle_to_make_a_wish") }}</p>
     </section>
   </div>
 </template>

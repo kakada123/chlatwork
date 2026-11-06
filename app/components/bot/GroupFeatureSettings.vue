@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   groupApi,
   type GroupDetails,
   type GroupFeatures,
 } from "~/services/group-workspaces.service";
+
+const { t } = useAppI18n();
+
+const { isKhmer } = useLanguage();
 const props = defineProps<{ group: GroupDetails }>();
 let active = true;
 onBeforeUnmount(() => {
@@ -26,7 +31,7 @@ async function save() {
   if (
     !form.enabled &&
     !window.confirm(
-      `Pause ${props.group.title}? Members will lose this bot’s group features.`,
+      t("shared.components_bot_group_feature_settings.pause_members_will_lose_this_bot_s_group_features", { groupTitle: props.group.title }),
     )
   )
     return;
@@ -46,8 +51,8 @@ async function save() {
     if (active && session === epoch.value) {
       error.value =
         cause?.status === 409 || cause?.statusCode === 409
-          ? "Another manager changed this group. Refresh before saving again."
-          : "Could not save group settings.";
+          ? t("shared.components_bot_group_feature_settings.another_manager_changed_this_group_refresh_before_saving_again")
+          : t("shared.components_bot_group_feature_settings.could_not_save_group_settings");
       stale.value = true;
       if ([401, 403].includes(cause?.statusCode ?? cause?.status))
         emit("denied");
@@ -62,21 +67,21 @@ async function save() {
     class="space-y-4 rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900"
     @submit.prevent="save"
   >
-    <h2 class="font-semibold">Features in {{ group.title }}</h2>
+    <h2 class="font-semibold">{{ t("shared.components_bot_group_feature_settings.features_in") }} {{ group.title }}</h2>
     <label class="flex items-center gap-3"
       ><input
         v-model="form.enabled"
         type="checkbox"
         :disabled="busy"
         class="size-4 accent-violet-600"
-      />Enable this bot in this group</label
+      />{{ t("shared.components_bot_group_feature_settings.enable_this_bot_in_this_group") }}</label
     ><template v-if="group.bot === 'CHLATWORK'"
       ><label
         v-for="feature in ['voting', 'split', 'khqr'] as const"
         :key="feature"
         class="flex items-center justify-between gap-3 border-t border-slate-100 py-3 text-sm dark:border-slate-800"
         ><span>{{
-          { voting: "Voting", split: "Bill split", khqr: "KHQR directory" }[
+          { voting: t("shared.components_bot_group_feature_settings.voting"), split: t("shared.components_bot_group_feature_settings.bill_split"), khqr: t("shared.components_bot_group_feature_settings.khqr_directory") }[
             feature
           ]
         }}</span
@@ -98,7 +103,7 @@ async function save() {
       :disabled="busy || stale"
       class="rounded-xl bg-violet-600 px-4 py-2 text-white disabled:opacity-50"
     >
-      {{ busy ? "Saving…" : "Save features" }}
+      {{ busy ? t("shared.common.saving") : t("shared.components_bot_group_feature_settings.save_features") }}
     </button>
   </form>
 </template>

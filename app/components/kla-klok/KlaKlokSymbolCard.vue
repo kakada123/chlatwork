@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+const { t } = useAppI18n();
 import type { KlaKlokSymbolId } from "~/lib/kla-klok";
 
 defineProps<{
   symbol: {
     id: KlaKlokSymbolId;
+    labelKey?: string;
     labelKm: string;
     labelEn: string;
     glyph: string;
@@ -23,7 +26,7 @@ defineEmits<{ toggle: [symbolId: KlaKlokSymbolId] }>();
       ? 'border-amber-300 bg-amber-300/15 shadow-[0_0_0_1px_rgba(252,211,77,0.25)]'
       : 'border-white/10 bg-white/[0.045] hover:border-white/25 hover:bg-white/[0.07]'"
     :aria-pressed="selected"
-    :aria-label="`${symbol.labelKm}, ${symbol.labelEn}`"
+    :aria-label="t(symbol.labelKey ?? `products.games.symbols.${symbol.id}`)"
     :disabled="disabled"
     @click="$emit('toggle', symbol.id)"
   >
@@ -33,7 +36,6 @@ defineEmits<{ toggle: [symbolId: KlaKlokSymbolId] }>();
       aria-hidden="true"
     >✓</span>
     <span class="block text-4xl transition group-hover:scale-105" aria-hidden="true">{{ symbol.glyph }}</span>
-    <strong class="mt-2 block text-base text-white">{{ symbol.labelKm }}</strong>
-    <span class="mt-0.5 block text-xs text-white/55">{{ symbol.labelEn }}</span>
+    <strong class="mt-2 block text-base text-white">{{ t(symbol.labelKey ?? `products.games.symbols.${symbol.id}`) }}</strong>
   </button>
 </template>

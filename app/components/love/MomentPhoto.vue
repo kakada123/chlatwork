@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
+
+const { t } = useAppI18n();
+
 const props = defineProps<{
   src: string;
   alt: string;
@@ -56,7 +60,7 @@ onBeforeUnmount(() => {
       loading="lazy"
       @error="convertHeic"
     />
-    <span v-else role="img" :aria-label="alt">Photo memory ♥</span>
-    <span v-if="isConverting" class="moment-photo-loading">Preparing photo…</span>
+    <span v-else role="img" :aria-label="alt">{{ t("products.private_gallery.photo_memory") }}</span>
+    <span v-if="isConverting" class="moment-photo-loading">{{ t("products.private_gallery.preparing_photo") }}</span>
   </div>
 </template>

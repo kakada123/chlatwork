@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { BarChart3, BookOpen, Heart, History, ReceiptText, Settings2, Sparkles, Terminal, UserRound } from "lucide-vue-next";
 import { DESKTOP_ACCOUNT_SECTIONS, type DesktopAccountSection } from "~/lib/account-navigation";
+
+const { t } = useAppI18n();
+
 
 defineProps<{
   activeSection: DesktopAccountSection;
@@ -24,7 +28,7 @@ const icons = {
 </script>
 
 <template>
-  <nav aria-label="Account sections" class="hidden min-h-0 space-y-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#101214] lg:block">
+  <nav :aria-label="t(&quot;shared.components_account_account_desktop_navigation.account_sections&quot;)" class="hidden min-h-0 space-y-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#101214] lg:block">
     <template v-for="section in DESKTOP_ACCOUNT_SECTIONS" :key="section.key">
       <button
         v-if="!section.feature || commandsEnabled"
@@ -38,8 +42,7 @@ const icons = {
         @click="$emit('select', section.key)"
       >
         <component :is="icons[section.key]" class="size-4 shrink-0" aria-hidden="true" />
-        <span v-if="!isKhmer">{{ section.title }}</span>
-        <span v-else>{{ isKhmer && section.titleKm ? section.titleKm : section.title }}</span>
+        <span>{{ t(section.titleKey) }}</span>
       </button>
     </template>
   </nav>

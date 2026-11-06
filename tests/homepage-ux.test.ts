@@ -1,3 +1,4 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -15,23 +16,23 @@ test("homepage uses the mobile content sequence at every width", () => {
   assert.match(landing, /<MobileLandingPage/);
   assert.doesNotMatch(landing, /<HeroSection|<ToolCategorySection|<LandingMomentsSection|<LandingFaq/);
   assert.doesNotMatch(landing, /<MobileLandingPage\s+class="sm:hidden"/);
-  assert.match(landing, /HOME_CATEGORY_COPY/);
-  assert.match(landing, /Work with PDFs/);
+  assert.match(landing, /HOME_CATEGORY_KEYS/);
+  assertSourceMessage(landing, /Work with PDFs/);
   assert.match(landing, /getPopularToolUsage/);
   assert.match(landing, /shuffledToolKeys/);
   assert.match(content, /<header class="[^"]*sm:hidden"/);
   assert.match(content, /sm:mx-auto sm:mt-0 sm:max-w-3xl/);
   assert.match(content, /sm:grid-cols-3[^\"]*lg:grid-cols-5/);
-  assert.match(content, /overflow-x-auto[^\"]*" aria-label="Popular tools"/);
+  assertTranslatedAttribute(content, "Popular tools", "ul");
   const sections = [
-    'aria-label="Find a ChlatWork tool"',
-    'aria-label="Mobile tool categories"',
+    "Find a ChlatWork tool",
+    "Mobile tool categories",
     'aria-labelledby="mobile-featured-item-title"',
     'aria-labelledby="mobile-resume-tools-title"',
     'aria-labelledby="mobile-favorite-tools-title"',
     'aria-labelledby="mobile-popular-tools-title"',
   ];
-  const positions = sections.map((section) => content.indexOf(section));
+  const positions = sections.map((section, index) => index < 2 ? sourceMessagePosition(content, section) : content.indexOf(section));
   assert.ok(positions.every((position) => position >= 0));
   assert.ok(positions.every((position, index) => index === 0 || position > positions[index - 1]));
 });
@@ -40,7 +41,7 @@ test("homepage tool cards retain compact keyboard-friendly actions", () => {
   const content = readFileSync("app/components/landing/MobileLandingPage.vue", "utf8");
   const card = readFileSync("app/components/landing/MobileHomeToolCard.vue", "utf8");
 
-  assert.match(content, /<ul[^>]+aria-label="Popular tools"/);
+  assertTranslatedAttribute(content, "Popular tools", "ul");
   assert.match(card, /<NuxtLink/);
   assert.match(card, /focus-visible:ring-2/);
   assert.match(card, /ToolFavoriteButton/);
@@ -70,8 +71,8 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
 
   assert.match(landing, /<MobileLandingPage/);
   assert.doesNotMatch(landing, /<div class="hidden sm:block">/);
-  assert.match(mobile, /aria-label="Mobile tool categories"/);
-  assert.match(mobile, /Good morning/);
+  assertTranslatedAttribute(mobile, "Mobile tool categories");
+  assertSourceMessage(mobile, /Good morning/);
   assert.match(mobile, /mobile-featured-item-title/);
   assert.match(mobile, /line-clamp-2 h-14 text-2xl/);
   assert.match(mobile, /line-clamp-2 h-10 text-sm/);
@@ -79,23 +80,23 @@ test("homepage uses compact, touch-friendly mobile discovery patterns", () => {
   assert.doesNotMatch(mobile, /aria-roledescription="carousel"/);
   assert.doesNotMatch(mobile, /aria-label="Choose featured item"/);
   assert.doesNotMatch(mobile, /selectFeaturedItem/);
-  assert.match(mobile, /name: "Create a Moment"/);
+  assertSourceMessage(mobile, "Create a Moment");
   assert.match(mobile, /route: "\/moments\/create"/);
   assert.match(mobile, /kind: "moment"/);
   assert.doesNotMatch(mobile, /FEATURED_ITEM_IDS/);
-  assert.match(mobile, /Continue where you left off/);
+  assertSourceMessage(mobile, /Continue where you left off/);
   assert.match(mobile, /getToolUsageSummary/);
   assert.match(mobile, /id="mobile-favorite-tools-title"/);
   assert.match(mobile, /favoritesReady && favoriteTools\.length/);
-  assert.match(mobile, /aria-label="Favorite tools"/);
+  assertTranslatedAttribute(mobile, "Favorite tools");
   assert.doesNotMatch(mobile, /recentTools\.value\.length \? recentTools\.value : favoriteTools\.value/);
-  assert.match(bottomNav, /aria-label="Mobile primary navigation"/);
+  assertTranslatedAttribute(bottomNav, "Mobile primary navigation");
   assert.match(bottomNav, /env\(safe-area-inset-bottom\)/);
   assert.match(bottomNav, /rounded-\[2rem\]/);
   assert.match(bottomNav, /rounded-\[1\.35rem\]/);
   assert.match(bottomNav, /dark:bg-white\/\[0\.14\] dark:text-sky-400/);
   assert.match(mobile, /input-id="mobile-home-global-search"/);
-  assert.doesNotMatch(mobile, /aria-label="Mobile primary navigation"/);
+  assert.doesNotMatch(mobile, /<MobileBottomNav|shared\.components_layout_mobile_bottom_nav\.mobile_primary_navigation/);
   assert.match(landing, /pb-24[^\"]*sm:pb-0/);
   assert.match(mobile, /grid grid-flow-col auto-cols-/);
   assert.match(mobile, /MobileHomeToolCard/);
@@ -160,7 +161,7 @@ test("mobile footer removes secondary navigation and dead scroll", () => {
   assert.match(layout, /<MobileBottomNav/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(quickExpense, /left-1\/2 size-14 -translate-x-1\/2/);
-  assert.match(quickExpense, /aria-label="Add expense"/);
+  assertTranslatedAttribute(quickExpense, "Add expense");
   assert.match(quickExpense, /v-if="!props\.mobileNavigationAction"/);
   assert.match(
     bottomNav,

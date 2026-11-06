@@ -1,3 +1,4 @@
+import { assertSourceMessage, assertTranslatedAttribute, sourceMessagePosition } from "./helpers/source-i18n.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -9,15 +10,15 @@ test("tools directory uses a dedicated mobile discovery composition", () => {
 
   assert.match(page, /<MobileToolsDirectory class="sm:hidden"/);
   assert.match(page, /<div class="hidden space-y-8 sm:block">/);
-  assert.match(mobile, /Explore tools/);
+  assertSourceMessage(mobile, /Explore tools/);
   assert.match(mobile, /input-id="mobile-tools-global-search"/);
-  assert.match(mobile, /aria-label="Filter tools by category"/);
+  assertTranslatedAttribute(mobile, "Filter tools by category");
   assert.match(mobile, /dark:bg-white\/\[0\.12\]/);
   assert.match(mobile, /bg-white\/15 text-white/);
   assert.doesNotMatch(mobile, /dark:bg-cyan-300 dark:text-slate-950/);
   assert.match(mobile, /selectedCategoryKey/);
   assert.match(mobile, /grid grid-cols-2 gap-2/);
-  assert.doesNotMatch(mobile, /aria-label="Mobile primary navigation"/);
+  assert.doesNotMatch(mobile, /<MobileBottomNav|shared\.components_layout_mobile_bottom_nav\.mobile_primary_navigation/);
   assert.match(card, /ToolFavoriteButton/);
   assert.match(card, /min-h-\[132px\]/);
 });

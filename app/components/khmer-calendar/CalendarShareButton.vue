@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import { Share2 } from "lucide-vue-next";
 import { shareCalendarLink } from "~/lib/calendar-sharing";
 
 const props = defineProps<{ path: string; title: string; khmer: boolean }>();
+const { t } = useAppI18n(computed(() => props.khmer));
 const { config } = useProductDomain();
 const url = computed(() => new URL(props.path, config.mainOrigin).href);
 const status = ref("");
@@ -36,23 +38,23 @@ function selectLink(event: FocusEvent) {
       type="button"
       class="share-button"
       :disabled="busy"
-      :aria-label="`${khmer ? 'ចែករំលែក' : 'Share'}: ${title}`"
+      :aria-label="t(&quot;shared.calendar.share_title&quot;, { title })"
       @click="share"
     >
       <Share2 :size="15" aria-hidden="true" />
-      {{ khmer ? "ចែករំលែក" : "Share" }}
+      {{ t("shared.calendar.share") }}
     </button>
     <span v-if="status" class="share-feedback" role="status">
       <template v-if="status === 'copied'">{{
-        khmer ? "បានចម្លងតំណ" : "Link copied"
+        t("shared.calendar.link_copied")
       }}</template>
       <label v-else class="share-fallback">
-        {{ khmer ? "សូមចម្លងតំណនេះ៖" : "Copy this link:" }}
+        {{ t("shared.calendar.copy_this_link") }}
         <input
           type="url"
           :value="url"
           readonly
-          :aria-label="khmer ? 'តំណសម្រាប់ចែករំលែក' : 'Shareable link'"
+          :aria-label="t(&quot;shared.calendar.shareable_link&quot;)"
           @focus="selectLink"
         />
       </label>

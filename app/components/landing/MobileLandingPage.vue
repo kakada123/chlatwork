@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAppI18n } from "~/composables/useAppI18n";
 import {
   Heart,
   Moon,
@@ -11,6 +12,9 @@ import ToolIcon from "~/components/icons/ToolIcon.vue";
 import type { ToolUsageSummaryItem } from "~/composables/useToolUsage";
 import type { LandingTool, LandingToolCategory } from "~/data/tools";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
+
+const { t } = useAppI18n();
+
 
 type RecentTool = {
   tool: LandingTool;
@@ -25,16 +29,6 @@ type FeaturedHomeItem = Pick<
   kind: "tool" | "moment";
 };
 
-const MOMENTS_FEATURED_ITEM: FeaturedHomeItem = {
-  key: "create-moment",
-  name: "Create a Moment",
-  route: "/moments/create",
-  description:
-    "Turn photos and your words into a private page for someone special.",
-  ctaLabel: "Create now",
-  kind: "moment",
-};
-
 const props = defineProps<{
   tools: LandingTool[];
   popularTools: LandingTool[];
@@ -46,7 +40,7 @@ const { user, isReady } = useAuth();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
 const { favoriteToolKeys, favoritesReady } = useToolFavorites();
 const { getToolUsageSummary } = useToolUsage();
-const greeting = ref("Welcome");
+const greeting = ref("shared.home.welcome");
 const avatarFailed = ref(false);
 const usageSummary = ref<ToolUsageSummaryItem[]>([]);
 const recentToolsLoading = ref(false);
@@ -54,10 +48,11 @@ let loadedUsageForUserId = "";
 
 const visibleUser = computed(() => isReady.value ? user.value : null);
 const firstName = computed(() => visibleUser.value?.name?.trim().split(/\s+/)[0] ?? "");
+const localizedGreeting = computed(() => t(greeting.value));
 const greetingLine = computed(() =>
   firstName.value
-    ? `${greeting.value}, ${firstName.value}! 👋`
-    : `${greeting.value}! 👋`,
+    ? `${localizedGreeting.value}, ${firstName.value}! 👋`
+    : `${localizedGreeting.value}! 👋`,
 );
 const userInitials = computed(() => {
   const source = visibleUser.value?.name
@@ -84,12 +79,10 @@ const mobileCategories = computed(() => {
 // Moments remains the single focused campaign instead of competing in an auto-rotating tool carousel.
 const featuredItem = computed<FeaturedHomeItem>(() => ({
   key: "create-moment",
-  name: isKhmer.value ? "បង្កើត Moment" : "Create a Moment",
+  name: t("shared.components_layout_product_navigation.create_a_moment"),
   route: "/moments/create",
-  description: isKhmer.value
-    ? "បម្លែងរូបថត និងពាក្យពេចន៍របស់អ្នកទៅជាទំព័រផ្ទាល់ខ្លួនដ៏ពិសេសសម្រាប់មនុស្សជាទីស្រលាញ់។"
-    : "Turn photos and your words into a private page for someone special.",
-  ctaLabel: isKhmer.value ? "បង្កើតឥឡូវនេះ" : "Create now",
+  description: t("shared.components_landing_mobile_landing_page.turn_photos_and_your_words_into_a_private_page"),
+  ctaLabel: t("shared.components_landing_mobile_landing_page.create_now"),
   kind: "moment",
 }));
 const recentTools = computed<RecentTool[]>(() =>
@@ -109,35 +102,27 @@ const favoriteTools = computed<RecentTool[]>(() =>
     .map((tool) => ({ tool, lastUsedAt: null })),
 );
 function categoryLabel(category: LandingToolCategory) {
-  if (isKhmer.value) {
-    if (category.key === "calculators") return "ការគណនា";
-    if (category.key === "developer-tools") return "Developer";
-    if (category.key === "khmer-tools") return "ភាសាខ្មែរ";
-    return category.name;
-  }
-  if (category.key === "calculators") return "Utilities";
-  if (category.key === "developer-tools") return "Developer";
-  if (category.key === "khmer-tools") return "Khmer";
-  return category.name;
+  const keys: Record<string, string> = { calculators: "shared.home.utilities", "developer-tools": "shared.home.developer", "khmer-tools": "shared.home.khmer" };
+  return keys[category.key] ? t(keys[category.key]!) : category.name;
 }
 
 function formatRecentTime(value: string | null) {
-  if (!value) return isKhmer.value ? "បានរក្សាទុក" : "Saved";
+  if (!value) return t("shared.components_landing_mobile_landing_page.saved");
 
   const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return isKhmer.value ? "ថ្មីៗនេះ" : "Recently";
+  if (!Number.isFinite(timestamp)) return t("shared.components_landing_mobile_landing_page.recently");
 
   const elapsedMinutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60_000));
-  if (elapsedMinutes < 1) return isKhmer.value ? "អម្បាញ់មិញ" : "Just now";
-  if (elapsedMinutes < 60) return isKhmer.value ? `${elapsedMinutes} នាទីមុន` : `${elapsedMinutes}m ago`;
+  if (elapsedMinutes < 1) return t("shared.components_landing_mobile_landing_page.just_now");
+  if (elapsedMinutes < 60) return t("shared.components_landing_mobile_landing_page.m_ago", { elapsedMinutes: elapsedMinutes });
 
   const elapsedHours = Math.floor(elapsedMinutes / 60);
-  if (elapsedHours < 24) return isKhmer.value ? `${elapsedHours} ម៉ោងមុន` : `${elapsedHours}h ago`;
+  if (elapsedHours < 24) return t("shared.components_landing_mobile_landing_page.h_ago", { elapsedHours: elapsedHours });
 
   const elapsedDays = Math.floor(elapsedHours / 24);
   return elapsedDays === 1
-    ? (isKhmer.value ? "ម្សិលមិញ" : "Yesterday")
-    : (isKhmer.value ? `${elapsedDays} ថ្ងៃមុន` : `${elapsedDays}d ago`);
+    ? (t("shared.components_landing_mobile_landing_page.yesterday"))
+    : (t("shared.components_landing_mobile_landing_page.d_ago", { elapsedDays: elapsedDays }));
 }
 
 async function loadRecentTools() {
@@ -175,11 +160,7 @@ function handleAvatarError() {
 
 onMounted(() => {
   const hour = new Date().getHours();
-  if (isKhmer.value) {
-    greeting.value = hour < 12 ? "អរុណសួស្តី" : hour < 18 ? "ទិវាសួស្តី" : "សាយណ្ហសួស្តី";
-  } else {
-    greeting.value = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  }
+  greeting.value = hour < 12 ? "shared.home.good_morning" : hour < 18 ? "shared.home.good_afternoon" : "shared.home.good_evening";
   void loadRecentTools();
 });
 
@@ -212,7 +193,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           :title="languageLabel"
           @click="switchLanguage"
         >
-          {{ isKhmer ? 'EN' : 'ខ្មែរ' }}
+          {{ t("shared.components_landing_mobile_landing_page.message") }}
         </button>
 
         <button
@@ -235,7 +216,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
           v-else
           :to="visibleUser ? '/account' : '/login'"
           class="mobile-pressable grid size-11 place-items-center overflow-hidden rounded-full bg-[#082552] text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-          :aria-label="visibleUser ? 'Open account' : 'Sign in'"
+          :aria-label="visibleUser ? t(&quot;shared.components_landing_mobile_landing_page.open_account&quot;) : t(&quot;shared.common.sign_in&quot;)"
         >
           <img
             v-if="visibleUser?.avatarUrl && !avatarFailed"
@@ -250,19 +231,19 @@ watch(() => visibleUser.value?.avatarUrl, () => {
       </div>
     </header>
 
-    <section class="mt-6 sm:mx-auto sm:mt-0 sm:max-w-3xl" aria-label="Find a ChlatWork tool">
+    <section class="mt-6 sm:mx-auto sm:mt-0 sm:max-w-3xl" :aria-label="t(&quot;shared.components_landing_mobile_landing_page.find_a_chlat_work_tool&quot;)">
       <HomeGlobalSearch input-id="mobile-home-global-search" :tools="props.tools" />
     </section>
 
     <nav
       class="sidebar-scrollbar-hidden -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
-      aria-label="Mobile tool categories"
+      :aria-label="t(&quot;shared.components_landing_mobile_landing_page.mobile_tool_categories&quot;)"
     >
       <NuxtLink
         to="/tools"
         class="mobile-pressable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#082552] px-4 text-sm font-semibold text-white shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
       >
-        <Shapes class="size-4" aria-hidden="true" /> {{ isKhmer ? "ទាំងអស់" : "All" }}
+        <Shapes class="size-4" aria-hidden="true" /> {{ t("shared.components_landing_mobile_landing_page.all") }}
       </NuxtLink>
       <NuxtLink
         v-for="category in mobileCategories"
@@ -288,7 +269,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
       <div class="relative z-10">
         <div class="max-w-[58%] sm:max-w-[60%] lg:max-w-xl">
           <p class="inline-flex rounded-lg bg-rose-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-700 dark:bg-rose-300/15 dark:text-rose-200">
-            {{ isKhmer ? "ពិសេស" : "Featured" }}
+            {{ t("shared.components_landing_mobile_landing_page.featured") }}
           </p>
           <h2 id="mobile-featured-item-title" class="mt-3 line-clamp-2 h-14 text-2xl font-semibold leading-7 text-[#082552] dark:text-white">
             {{ featuredItem.name }}
@@ -315,7 +296,7 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     <section
       v-if="recentToolsLoading"
       class="mt-7"
-      aria-label="Loading recent tools"
+      :aria-label="t(&quot;shared.components_landing_mobile_landing_page.loading_recent_tools&quot;)"
     >
       <div class="flex items-center justify-between gap-3" aria-hidden="true">
         <div class="mobile-skeleton h-5 w-48 rounded-md" />
@@ -338,13 +319,13 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     >
       <div class="flex items-center justify-between gap-3">
         <h2 id="mobile-resume-tools-title" class="text-lg font-semibold tracking-tight text-[#082552] dark:text-white">
-          {{ isKhmer ? "បន្តការងារដែលអ្នកបានទុក" : "Continue where you left off" }}
+          {{ t("shared.components_landing_mobile_landing_page.continue_where_you_left_off") }}
         </h2>
         <NuxtLink to="/account" class="shrink-0 text-xs font-semibold text-[#082552] dark:text-cyan-300">
-          {{ isKhmer ? "មើលទាំងអស់ →" : "View all →" }}
+          {{ t("shared.components_landing_mobile_landing_page.view_all") }}
         </NuxtLink>
       </div>
-      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-5" aria-label="Recently used tools">
+      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-5" :aria-label="t(&quot;shared.components_landing_mobile_landing_page.recently_used_tools&quot;)">
         <li v-for="item in recentTools" :key="item.tool.key" class="shrink-0 sm:min-w-0">
           <MobileHomeToolCard
             :tool="item.tool"
@@ -362,15 +343,15 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     >
       <div class="flex items-center justify-between gap-3">
         <h2 id="mobile-favorite-tools-title" class="text-lg font-semibold tracking-tight text-[#082552] dark:text-white">
-          {{ isKhmer ? "ឧបករណ៍សំណព្វ" : "Favorite tools" }}
+          {{ t("shared.components_landing_mobile_landing_page.favorite_tools") }}
         </h2>
         <NuxtLink to="/account" class="shrink-0 text-xs font-semibold text-[#082552] dark:text-cyan-300">
-          {{ isKhmer ? "គ្រប់គ្រង →" : "Manage →" }}
+          {{ t("shared.components_landing_mobile_landing_page.manage") }}
         </NuxtLink>
       </div>
-      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-5" aria-label="Favorite tools">
+      <ul class="mobile-stagger-list sidebar-scrollbar-hidden -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 lg:grid-cols-5" :aria-label="t(&quot;shared.components_landing_mobile_landing_page.favorite_tools&quot;)">
         <li v-for="item in favoriteTools" :key="item.tool.key" class="shrink-0 sm:min-w-0">
-          <MobileHomeToolCard :tool="item.tool" variant="recent" :meta="isKhmer ? 'បានរក្សាទុក' : 'Saved'" />
+          <MobileHomeToolCard :tool="item.tool" variant="recent" :meta="t(&quot;shared.components_landing_mobile_landing_page.saved&quot;)" />
         </li>
       </ul>
     </section>
@@ -378,13 +359,13 @@ watch(() => visibleUser.value?.avatarUrl, () => {
     <section class="mt-7" aria-labelledby="mobile-popular-tools-title">
       <div class="flex items-center justify-between gap-3">
         <h2 id="mobile-popular-tools-title" class="text-lg font-semibold tracking-tight text-[#082552] dark:text-white">
-          {{ isKhmer ? "ឧបករណ៍ពេញនិយម" : "Popular tools" }}
+          {{ t("shared.components_landing_hero_section.popular_tools") }}
         </h2>
         <NuxtLink to="/tools" class="text-xs font-semibold text-[#082552] dark:text-cyan-300">
-          {{ isKhmer ? "មើលទាំងអស់ →" : "See all →" }}
+          {{ t("shared.components_landing_mobile_landing_page.see_all") }}
         </NuxtLink>
       </div>
-      <ul class="mobile-stagger-list mt-3 grid grid-flow-col auto-cols-[calc((100%_-_1.5rem)/4)] gap-2 overflow-x-auto pb-3 sm:auto-cols-[calc((100%_-_2.25rem)/4)] sm:gap-3 lg:auto-cols-[calc((100%_-_5.25rem)/8)]" aria-label="Popular tools">
+      <ul class="mobile-stagger-list mt-3 grid grid-flow-col auto-cols-[calc((100%_-_1.5rem)/4)] gap-2 overflow-x-auto pb-3 sm:auto-cols-[calc((100%_-_2.25rem)/4)] sm:gap-3 lg:auto-cols-[calc((100%_-_5.25rem)/8)]" :aria-label="t(&quot;shared.components_landing_hero_section.popular_tools&quot;)">
         <li v-for="tool in visiblePopularTools" :key="tool.key">
           <MobileHomeToolCard :tool="tool" />
         </li>
