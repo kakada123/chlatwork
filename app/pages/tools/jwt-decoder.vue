@@ -1,15 +1,19 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">JWT Decoder</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "ពន្លា JWT Decoder" : "JWT Decoder" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Decode JWT header and payload claims locally. Signature verification is not performed.
+        {{ isKhmer ? "ពន្លា JWT header និង payload claims ដោយផ្ទាល់ក្នុង Browser។ មិនមានការផ្ទៀងផ្ទាត់ signature ឡើយ។" : "Decode JWT header and payload claims locally. Signature verification is not performed." }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="space-y-3">
-        <label class="block text-sm font-semibold text-gray-900">JWT token</label>
+        <label class="block text-sm font-semibold text-gray-900">
+          {{ isKhmer ? "កូដ JWT Token" : "JWT token" }}
+        </label>
         <textarea
           v-model="token"
           class="h-36 w-full resize-y rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -22,14 +26,14 @@
             class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="decode"
           >
-            Decode
+            {{ isKhmer ? "ពន្លា (Decode)" : "Decode" }}
           </button>
           <button
             type="button"
             class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
             @click="clearAll"
           >
-            Clear
+            {{ isKhmer ? "សម្អាត" : "Clear" }}
           </button>
         </div>
 
@@ -45,7 +49,7 @@
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-2 flex items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-gray-900">Header</h2>
-          <CopyButton :text="decoded.header" label="Copy" />
+          <CopyButton :text="decoded.header" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
         </div>
         <pre class="max-h-96 overflow-auto rounded-lg bg-gray-50 p-3 font-mono text-sm">{{
           decoded.header
@@ -55,7 +59,7 @@
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-2 flex items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-gray-900">Payload</h2>
-          <CopyButton :text="decoded.payload" label="Copy" />
+          <CopyButton :text="decoded.payload" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
         </div>
         <pre class="max-h-96 overflow-auto rounded-lg bg-gray-50 p-3 font-mono text-sm">{{
           decoded.payload
@@ -67,22 +71,32 @@
       v-if="decoded.expiresAt || decoded.issuedAt || decoded.notBefore || decoded.signature"
       class="rounded-xl border bg-white p-4 shadow-sm"
     >
-      <h2 class="mb-3 text-sm font-semibold text-gray-900">Token details</h2>
+      <h2 class="mb-3 text-sm font-semibold text-gray-900">
+        {{ isKhmer ? "ព័ត៌មានលម្អិត Token" : "Token details" }}
+      </h2>
       <dl class="grid gap-3 text-sm md:grid-cols-2">
         <div v-if="decoded.expiresAt" class="rounded-lg bg-gray-50 p-3">
-          <dt class="font-semibold text-gray-700">Expires</dt>
+          <dt class="font-semibold text-gray-700">
+            {{ isKhmer ? "ផុតកំណត់" : "Expires" }}
+          </dt>
           <dd class="mt-1 break-words text-gray-600">{{ decoded.expiresAt }}</dd>
         </div>
         <div v-if="decoded.issuedAt" class="rounded-lg bg-gray-50 p-3">
-          <dt class="font-semibold text-gray-700">Issued at</dt>
+          <dt class="font-semibold text-gray-700">
+            {{ isKhmer ? "បង្កើតនៅ" : "Issued at" }}
+          </dt>
           <dd class="mt-1 break-words text-gray-600">{{ decoded.issuedAt }}</dd>
         </div>
         <div v-if="decoded.notBefore" class="rounded-lg bg-gray-50 p-3">
-          <dt class="font-semibold text-gray-700">Not before</dt>
+          <dt class="font-semibold text-gray-700">
+            {{ isKhmer ? "មិនទាន់មានសុពលភាពមុន" : "Not before" }}
+          </dt>
           <dd class="mt-1 break-words text-gray-600">{{ decoded.notBefore }}</dd>
         </div>
         <div v-if="decoded.signature" class="rounded-lg bg-gray-50 p-3">
-          <dt class="font-semibold text-gray-700">Signature segment</dt>
+          <dt class="font-semibold text-gray-700">
+            {{ isKhmer ? "ផ្នែក Signature" : "Signature segment" }}
+          </dt>
           <dd class="mt-1 break-words font-mono text-gray-600">{{ decoded.signature }}</dd>
         </div>
       </dl>
@@ -91,8 +105,11 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeJwt, type JwtDecodeResult } from "~/lib/developer-tools";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "JWT Decoder - ChlatWork",

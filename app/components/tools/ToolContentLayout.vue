@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ToolGuide } from "~/data/tool-guides";
+import { getToolGuideKm } from "~/data/tool-guides-km";
 import { getRelatedToolsForToolKey } from "~/data/tool-categories";
 import { EDITORIAL_BYLINE } from "~/data/editorial-identity";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
@@ -15,15 +16,34 @@ const props = withDefaults(
   },
 );
 const route = useRoute();
-const { isKhmer } = useLanguage();
+const { isKhmer, localizeTool } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
+const localizedTool = computed(() => localizeTool(props.guide.tool));
 const shouldUseKhmerExamples = computed(
   () => isKhmer.value || route.path.startsWith("/km/"),
 );
 
-const steps = computed(() => props.guide.steps.slice(0, 6));
-const whyUse = computed(() => props.guide.whyUse.slice(0, 6));
-const useCases = computed(() => props.guide.useCases.slice(0, 6));
+const guideKm = computed(() =>
+  getToolGuideKm(
+    props.guide.tool.key,
+    localizedTool.value.name,
+    localizedTool.value.description,
+  ),
+);
+
+const whatIs = computed(() =>
+  isKhmer.value && guideKm.value ? guideKm.value.whatIs : props.guide.whatIs,
+);
+
+const steps = computed(() =>
+  (isKhmer.value && guideKm.value ? guideKm.value.steps : props.guide.steps).slice(0, 6),
+);
+const whyUse = computed(() =>
+  (isKhmer.value && guideKm.value ? guideKm.value.whyUse : props.guide.whyUse).slice(0, 6),
+);
+const useCases = computed(() =>
+  (isKhmer.value && guideKm.value ? guideKm.value.useCases : props.guide.useCases).slice(0, 6),
+);
 const practicalExamples = computed(() =>
   shouldUseKhmerExamples.value
     ? ((
@@ -31,24 +51,53 @@ const practicalExamples = computed(() =>
       )?.slice(0, 3) ?? [])
     : (props.guide.practicalExamples?.slice(0, 3) ?? []),
 );
-const tips = computed(() => props.guide.tips.slice(0, 6));
-const commonMistakes = computed(() =>
-  props.guide.commonMistakes?.length
+const tips = computed(() =>
+  (isKhmer.value && guideKm.value ? guideKm.value.tips : props.guide.tips).slice(0, 6),
+);
+const commonMistakes = computed(() => {
+  if (isKhmer.value && guideKm.value?.commonMistakes?.length) {
+    return guideKm.value.commonMistakes.slice(0, 6);
+  }
+  if (isKhmer.value) {
+    return [
+      "មិនបានពិនិត្យផ្ទៀងផ្ទាត់លទ្ធផលមុនពេលចែករំលែក ឬយកទៅប្រើប្រាស់។",
+      "ប្រើប្រាស់ទិន្នន័យផលិតកម្មពិតប្រាកដក្នុងរូបភាពគំរូ។",
+      "លុបឯកសារដើមចោលមុនពេលបញ្ជាក់ថាទិន្នន័យចុងក្រោយត្រឹមត្រូវ។",
+    ];
+  }
+  return props.guide.commonMistakes?.length
     ? props.guide.commonMistakes.slice(0, 6)
     : [
         "Skipping the preview and sharing output without checking details.",
         "Using production data in screenshots or shared examples.",
         "Deleting originals before confirming the final output is correct.",
-      ],
+      ];
+});
+const faqs = computed(() =>
+  (isKhmer.value && guideKm.value ? guideKm.value.faqs : props.guide.faqs).slice(0, 6),
 );
-const faqs = computed(() => props.guide.faqs.slice(0, 6));
+
+const outputChecklistKm = [
+  "សាកល្បងគំរូជាក់ស្តែងយ៉ាងហោចមួយដង មុនពេលចែករំលែក ឬបោះពុម្ព។",
+  "បើកផ្ទៀងផ្ទាត់លើឧបករណ៍ ឬកម្មវិធីផ្សេង ដើម្បីបញ្ជាក់ពីភាពត្រូវគ្នា។",
+  "ពិនិត្យឈ្មោះ លេខ កាលបរិច្ឆេទ និងតំណភ្ជាប់ ក្រែងមានកំហុសអក្ខរាវិរុទ្ធ។",
+  "រក្សាទុកឯកសារ ឬអត្ថបទដើម រហូតដល់លទ្ធផលចុងក្រោយត្រូវបានទទួលយក។",
+];
+
+const privacyNotesKm = [
+  "ដំណើរការផ្ទាល់លើ browser របស់អ្នកដោយសុវត្ថិភាព គ្មានការបញ្ជូនទិន្នន័យឯកជនទៅ server ក្រៅឡើយ។",
+  "ពិនិត្យផ្ទៀងផ្ទាត់លទ្ធផលមុនពេលយកទៅប្រើប្រាស់ក្នុងអាជីវកម្ម ការសិក្សា ឬកិច្ចការផ្លូវការ។",
+];
+
 const privacyNotes = computed(() =>
-  props.guide.privacy?.length
-    ? props.guide.privacy
-    : [
-        LOCAL_PROCESSING_PRIVACY_NOTE,
-        "Review the output before using it for business, school, customer, or public workflows.",
-      ],
+  isKhmer.value
+    ? privacyNotesKm
+    : props.guide.privacy?.length
+      ? props.guide.privacy
+      : [
+          LOCAL_PROCESSING_PRIVACY_NOTE,
+          "Review the output before using it for business, school, customer, or public workflows.",
+        ],
 );
 const relatedTools = computed(() =>
   getRelatedToolsForToolKey(
@@ -72,6 +121,9 @@ const outputChecklist = [
   "Check names, numbers, dates, and links for typing mistakes.",
   "Keep the original file or text until the final output is accepted.",
 ];
+const displayedOutputChecklist = computed(() =>
+  isKhmer.value ? outputChecklistKm : outputChecklist,
+);
 </script>
 
 <template>
@@ -86,15 +138,15 @@ const outputChecklist = [
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
         <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-          Tool introduction
+          {{ isKhmer ? "ការណែនាំអំពីឧបករណ៍" : "Tool introduction" }}
         </p>
         <h2 class="mt-2 text-2xl font-black">
-          What {{ guide.tool.name }} does
+          {{ isKhmer ? `លក្ខណៈពិសេសរបស់ ${localizedTool.name}` : `What ${guide.tool.name} does` }}
         </h2>
         <div
           class="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-white/65"
         >
-          <p v-for="paragraph in guide.whatIs" :key="paragraph">
+          <p v-for="paragraph in whatIs" :key="paragraph">
             {{ paragraph }}
           </p>
         </div>
@@ -106,12 +158,12 @@ const outputChecklist = [
         <p
           class="text-xs font-bold uppercase text-emerald-700 dark:text-emerald-200"
         >
-          Privacy and processing
+          {{ isKhmer ? "ភាពឯកជន និងការដំណើរការ" : "Privacy and processing" }}
         </p>
         <h2
           class="mt-2 text-xl font-black text-emerald-950 dark:text-emerald-50"
         >
-          How your input is handled
+          {{ isKhmer ? "របៀបគ្រប់គ្រងទិន្នន័យរបស់អ្នក" : "How your input is handled" }}
         </h2>
         <ul
           class="mt-4 space-y-3 text-sm leading-6 text-emerald-900/85 dark:text-emerald-100/80"
@@ -131,7 +183,7 @@ const outputChecklist = [
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">How to use {{ guide.tool.name }}</h2>
+        <h2 class="text-xl font-black">{{ isKhmer ? `របៀបប្រើប្រាស់ ${localizedTool.name}` : `How to use ${guide.tool.name}` }}</h2>
         <ol class="mt-4 space-y-3">
           <li
             v-for="(step, index) in steps"
@@ -151,7 +203,7 @@ const outputChecklist = [
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">Why people use this tool</h2>
+        <h2 class="text-xl font-black">{{ isKhmer ? "ហេតុផលដែលគួរប្រើឧបករណ៍នេះ" : "Why people use this tool" }}</h2>
         <ul class="mt-4 space-y-3">
           <li
             v-for="reason in whyUse"
@@ -170,7 +222,7 @@ const outputChecklist = [
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">Practical use cases</h2>
+        <h2 class="text-xl font-black">{{ isKhmer ? "ករណីប្រើប្រាស់ជាក់ស្តែង" : "Practical use cases" }}</h2>
         <ul class="mt-4 space-y-3">
           <li
             v-for="useCase in useCases"
@@ -189,10 +241,10 @@ const outputChecklist = [
       <article
         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
       >
-        <h2 class="text-xl font-black">Output verification checklist</h2>
+        <h2 class="text-xl font-black">{{ isKhmer ? "បញ្ជីត្រួតពិនិត្យលទ្ធផល" : "Output verification checklist" }}</h2>
         <ul class="mt-4 space-y-3">
           <li
-            v-for="item in outputChecklist"
+            v-for="item in displayedOutputChecklist"
             :key="item"
             class="flex gap-3 text-sm leading-6 text-slate-600 dark:text-white/65"
           >
@@ -209,7 +261,7 @@ const outputChecklist = [
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-xl font-black">Tips and limitations</h2>
+      <h2 class="text-xl font-black">{{ isKhmer ? "គន្លឹះ និងកម្រិតកំណត់" : "Tips and limitations" }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <p
           v-for="tip in tips"
@@ -265,7 +317,7 @@ const outputChecklist = [
       class="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-sm dark:border-rose-300/25 dark:bg-rose-300/10"
     >
       <h2 class="text-xl font-black text-rose-950 dark:text-rose-100">
-        Common mistakes to avoid
+        {{ isKhmer ? "កំហុសទូទៅដែលគួរជៀសវាង" : "Common mistakes to avoid" }}
       </h2>
       <ul class="mt-4 space-y-3">
         <li
@@ -286,7 +338,7 @@ const outputChecklist = [
       id="faq"
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-xl font-black">FAQ</h2>
+      <h2 class="text-xl font-black">{{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <details
           v-for="faq in faqs"
@@ -308,14 +360,12 @@ const outputChecklist = [
       aria-label="Trust and transparency"
     >
       <h2 class="text-xl font-black text-amber-950 dark:text-amber-100">
-        Trust and transparency
+        {{ isKhmer ? "ទំនុកចិត្ត និងតម្លាភាព" : "Trust and transparency" }}
       </h2>
       <p
         class="mt-3 text-sm leading-6 text-amber-900/90 dark:text-amber-100/80"
       >
-        ChlatWork tool guides are educational. For money, legal, tax, medical,
-        or compliance-critical decisions, verify details with qualified
-        professionals and confirm final outputs before use.
+        {{ isKhmer ? "មេរៀន និងការណែនាំឧបករណ៍របស់ ChlatWork គឺសម្រាប់ជាព័ត៌មានអប់រំ និងជំនួយការងារទូទៅ។ សម្រាប់ការសម្រេចចិត្តសំខាន់ៗលើផ្នែកហិរញ្ញវត្ថុ ច្បាប់ ពន្ធ ឬវេជ្ជសាស្ត្រ សូមផ្ទៀងផ្ទាត់ជាមួយអ្នកជំនាញដែលមានសមត្ថកិច្ច។" : "ChlatWork tool guides are educational. For money, legal, tax, medical, or compliance-critical decisions, verify details with qualified professionals and confirm final outputs before use." }}
       </p>
       <p
         class="mt-2 text-xs font-semibold text-amber-900/80 dark:text-amber-100/75"
@@ -331,31 +381,31 @@ const outputChecklist = [
           to="/editorial-policy"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          Editorial policy
+          {{ isKhmer ? "គោលការណ៍វិចារណកថា" : "Editorial policy" }}
         </NuxtLink>
         <NuxtLink
           to="/disclaimer"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          Disclaimer
+          {{ isKhmer ? "ការបដិសេធ" : "Disclaimer" }}
         </NuxtLink>
         <NuxtLink
           to="/contact"
           class="rounded-full border border-amber-300/80 bg-white px-3 py-1.5 text-amber-900 transition hover:bg-amber-100 dark:border-amber-200/40 dark:bg-amber-100/10 dark:text-amber-100 dark:hover:bg-amber-100/20"
         >
-          Request a correction
+          {{ isKhmer ? "ស្នើសុំការកែសម្រួល" : "Request a correction" }}
         </NuxtLink>
       </div>
     </section>
 
     <section v-if="showRelated && relatedTools.length" class="space-y-3">
-      <h2 class="text-xl font-black">Related tools</h2>
+      <h2 class="text-xl font-black">{{ isKhmer ? "ឧបករណ៍ពាក់ព័ន្ធ" : "Related tools" }}</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ToolDirectoryCard
           v-for="tool in relatedTools"
           :key="tool.key"
           :tool-key="tool.key"
-          :name="tool.name"
+          :name="localizeTool(tool).name"
           :route="tool.route"
         />
       </div>

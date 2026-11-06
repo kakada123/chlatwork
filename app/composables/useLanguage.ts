@@ -4,7 +4,8 @@ import type { ToolCategory } from "~/lib/tool-registry";
 export type AppLocale = "en" | "km";
 
 // Keep the unfinished Khmer shell dormant until every public tool page has complete localization.
-const ENABLE_KHMER_LOCALIZATION = false;
+// const ENABLE_KHMER_LOCALIZATION = false;
+const ENABLE_KHMER_LOCALIZATION = true;
 
 type LandingCopy = {
   metaTitle: string;
@@ -228,6 +229,33 @@ const DIRECTORY_CATEGORY_TRANSLATIONS: Record<AppLocale, Record<string, string>>
     "date-time": "កាលបរិច្ឆេទ និងពេលវេលា",
     calculators: "ឧបករណ៍គណនា",
     productivity: "ឧបករណ៍ Productivity",
+    "developer-tools": "ឧបករណ៍អ្នកអភិវឌ្ឍន៍",
+    "security-encoding": "សុវត្ថិភាព និង Encoding",
+    "khmer-tools": "ឧបករណ៍ភាសាខ្មែរ",
+    scanners: "ឧបករណ៍ស្កេន",
+    generators: "ឧបករណ៍បង្កើត Generator",
+    "file-conversion": "ឧបករណ៍បម្លែងឯកសារ",
+  },
+};
+
+const DIRECTORY_CATEGORY_SHORT_TITLE_TRANSLATIONS: Record<
+  AppLocale,
+  Record<string, string>
+> = {
+  en: {},
+  km: {
+    pdf: "PDF",
+    image: "រូបភាព",
+    "qr-barcode": "QR & Barcode",
+    "date-time": "កាលបរិច្ឆេទ",
+    calculators: "ការគណនា",
+    productivity: "Productivity",
+    "developer-tools": "Developer",
+    "security-encoding": "សុវត្ថិភាព",
+    "khmer-tools": "ភាសាខ្មែរ",
+    scanners: "ស្កេន",
+    generators: "បង្កើត",
+    "file-conversion": "បម្លែងឯកសារ",
   },
 };
 
@@ -248,6 +276,39 @@ const DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS: Record<
       "ជំនួយសម្រាប់គណនាកាលបរិច្ឆេទ ចែកចំណាយជាក្រុម និងតាមដានចំណាយប្រចាំថ្ងៃ។",
     productivity:
       "ឧបករណ៍តូចៗសម្រាប់ lucky draw អានអត្ថបទជាសំឡេង បង្កើតពាក្យសម្ងាត់ និងការងារការិយាល័យរហ័ស។",
+    "developer-tools":
+      "រៀបចំទិន្នន័យ ពិនិត្យ token សាកល្បង pattern និងដោះស្រាយការបម្លែងទូទៅរបស់ developer ក្នុង browser។",
+    "security-encoding":
+      "បកស្រាយ token, encode ទិន្នន័យ, បង្កើត hash និងពាក្យសម្ងាត់ខ្លាំងៗដោយសុវត្ថិភាព។",
+    "khmer-tools":
+      "កែសម្រួលអត្ថបទ Khmer Unicode និងស្តាប់សំឡេងអានជាភាសាខ្មែរ ឬអង់គ្លេស។",
+    scanners:
+      "អាន QR code និង barcode ពីរូបភាព ការ upload ស្លាក និងកាមេរ៉ាដោយផ្ទាល់។",
+    generators:
+      "បង្កើត QR code, barcode, ពាក្យសម្ងាត់, UUID និង hash សម្រាប់ការងារប្រចាំថ្ងៃ និងការអភិវឌ្ឍន៍។",
+    "file-conversion":
+      "បម្លែងរូបភាព និង PDF ឬរៀបចំឯកសារសម្រាប់ចែករំលែក និងការងារការិយាល័យ។",
+  },
+};
+
+const DIRECTORY_CATEGORY_INTRO_TRANSLATIONS: Record<
+  AppLocale,
+  Record<string, string>
+> = {
+  en: {},
+  km: {
+    pdf: "ប្រើប្រាស់ឧបករណ៍ ChlatWork PDF សម្រាប់ការងារឯកសាររហ័ស ដូចជាបម្លែងរូបភាពទៅជា PDF បញ្ចូលឯកសារ ឬលុបទំព័រដែលមិនត្រូវការ។",
+    image: "រៀបចំរូបថត screenshot រូបភាពផលិតផល និងឯកសារដោយមិនចាំបាច់ដំឡើងកម្មវិធីធំៗ។",
+    "qr-barcode": "បង្កើត code ងាយស្រួលស្កេនសម្រាប់ហាង ការិយាល័យ ព្រឹត្តិការណ៍ ស្លាកទំនិញ Wi-Fi និង link។",
+    "date-time": "ប្រើប្រាស់ឧបករណ៍ទាំងនេះនៅពេលដែលអ្នកត្រូវការពិនិត្យកាលបរិច្ឆេទ timestamp ឬ cron jobs យ៉ាងរហ័ស។",
+    calculators: "ឧបករណ៍ទាំងនេះជួយដល់តួលេខជាក់ស្តែង៖ ការរៀបចំកាលបរិច្ឆេទ ការចែកលុយជាក្រុម ថវិកា និងការចំណាយប្រចាំថ្ងៃ។",
+    productivity: "ឧបករណ៍ productivity ជួយឱ្យការងារការិយាល័យទូទៅដំណើរការទៅដោយរលូន មិនថាជាការចាប់ឆ្នោត ការបង្កើតពាក្យសម្ងាត់ ឬការកត់ត្រាផ្សេងៗ។",
+    "developer-tools": "ប្រើប្រាស់ឧបករណ៍ជំនួយក្នុង browser សម្រាប់ JSON, JWT, encoding, regular expressions, identifiers, timestamps, schedules និង hashes។",
+    "security-encoding": "ពិនិត្យ និងបម្លែងទម្រង់ពាក់ព័ន្ធនឹងសុវត្ថិភាពទូទៅ ដោយមិនចាំបាច់ផ្ញើតម្លៃដែលបានបញ្ចូលទៅ server ខាងក្រៅឡើយ។",
+    "khmer-tools": "ជំនួយការភាសាស្រាលៗសម្រាប់សម្អាតអត្ថបទខ្មែរដែលបានចម្លង និងអានអត្ថបទជាសំឡេង។",
+    scanners: "ស្រង់យកព័ត៌មានដែលបាន encode ចេញពីរូបភាពដោយមិនបាច់ដំឡើងកម្មវិធីស្កេនដាច់ដោយឡែក។",
+    generators: "បង្កើត code, identifier និងតម្លៃសុវត្ថិភាពដែលត្រូវការញឹកញាប់ដោយផ្ទាល់នៅលើ browser។",
+    "file-conversion": "រៀបចំឯកសារ និងរូបភាពទូទៅសម្រាប់ការចែករំលែក រក្សាទុក បញ្ចូល និងការងារការិយាល័យប្រចាំថ្ងៃ។",
   },
 };
 
@@ -346,15 +407,85 @@ const TOOL_TRANSLATIONS: Record<
       name: "បង្កើត Hash",
       description: "បង្កើត MD5, SHA-1, SHA-256 និង SHA-512 hash។",
     },
+    stopwatch: {
+      name: "នាឡិកាវាស់ស្ទង់",
+      description: "វាស់ស្ទង់ពេលវេលា ចាប់ជុំ និងតាមដានរយៈពេលយ៉ាងជាក់លាក់។",
+    },
+    "scan-qr": {
+      name: "ស្កេន QR Code",
+      description:
+        "ស្កេន QR code ពីរូបភាព ឯកសារ ឬកាមេរ៉ាដោយផ្ទាល់នៅលើ browser។",
+    },
+    "scan-barcode": {
+      name: "ស្កេន Barcode",
+      description:
+        "ស្កេន និងអានកូដ barcode ពីរូបភាព ឬកាមេរ៉ាដោយសុវត្ថិភាព។",
+    },
+    "kla-klok": {
+      name: "បោករឡុក ខ្លាឃ្លោក",
+      description:
+        "ល្បែងកម្សាន្តប្រជាប្រិយខ្មែរ ខ្លាឃ្លោក បង្វិលគ្រាប់ឡុកឡាក់ដោយចៃដន្យ។",
+    },
+    "youtube-downloader": {
+      name: "ទាញយកវីដេអូ YouTube",
+      description:
+        "ទាញយកវីដេអូ ឬសំឡេងពី YouTube ដែលអ្នកមានការអនុញ្ញាត។",
+    },
+    "chlatwork-link": {
+      name: "ChlatWork Link",
+      description:
+        "បង្កើតទំព័រ Link-in-bio ផ្ទាល់ខ្លួន ស្អាត និងចែករំលែកបានយ៉ាងងាយស្រួល។",
+    },
+    "pdf-to-jpg": {
+      name: "បម្លែង PDF ទៅជា JPG",
+      description:
+        "បម្លែងទំព័រឯកសារ PDF ទៅជារូបភាព JPG ច្បាស់ៗដោយឥតគិតថ្លៃ។",
+    },
+    "merge-pdf": {
+      name: "បញ្ចូល PDF ចូលគ្នា",
+      description:
+        "បញ្ចូលឯកសារ PDF ច្រើនចូលទៅជាឯកសារតែមួយយ៉ាងរហ័ស។",
+    },
+    "split-pdf": {
+      name: "បំបែកឯកសារ PDF",
+      description:
+        "បំបែកទំព័រ ឬជ្រើសរើសទំព័រជាក់លាក់ចេញពីឯកសារ PDF។",
+    },
+    "compress-pdf": {
+      name: "បង្រួមទំហំ PDF",
+      description:
+        "កាត់បន្ថយទំហំឯកសារ PDF ដោយរក្សាគុណភាពច្បាស់ល្អ។",
+    },
+    "remove-pdf-pages": {
+      name: "លុបទំព័រ PDF",
+      description:
+        "ជ្រើសរើស និងលុបទំព័រដែលមិនត្រូវការចេញពីឯកសារ PDF។",
+    },
+    "reorder-pdf-pages": {
+      name: "តម្រៀបទំព័រ PDF",
+      description:
+        "រៀបចំលំដាប់លំដោយទំព័រ PDF ឡើងវិញតាមតម្រូវការ។",
+    },
+    "html-to-pdf": {
+      name: "បម្លែង HTML ទៅ PDF",
+      description:
+        "បម្លែងកូដ HTML ឬទំព័រគេហទំព័រទៅជាឯកសារ PDF ស្អាត។",
+    },
+    "text-to-pdf": {
+      name: "បម្លែងអត្ថបទទៅ PDF",
+      description:
+        "បម្លែងអត្ថបទសាមញ្ញទៅជាឯកសារ PDF ផ្លូវការយ៉ាងរហ័ស។",
+    },
+    "invoice-to-pdf": {
+      name: "បង្កើតវិក្កយបត្រ PDF",
+      description:
+        "បំពេញទិន្នន័យ និងបង្កើតវិក្កយបត្រ PDF អាជីពភ្លាមៗ។",
+    },
   },
 };
 
-function getInitialLocale(routePath: string): AppLocale {
-  if (!ENABLE_KHMER_LOCALIZATION) {
-    return "en";
-  }
-
-  return routePath === "/km" || routePath.startsWith("/km/") ? "km" : "en";
+function getInitialLocale(_routePath?: string): AppLocale {
+  return "km";
 }
 
 function containsKhmerContent(value: string) {
@@ -376,25 +507,12 @@ export function useLanguage() {
     sameSite: "lax",
   });
   const currentLocale = computed<AppLocale>(() =>
-    ENABLE_KHMER_LOCALIZATION && locale.value === "km" ? "km" : "en",
-  );
-
-  watch(
-    () => route.path,
-    (path) => {
-      if (
-        ENABLE_KHMER_LOCALIZATION &&
-        (path === "/km" || path.startsWith("/km/"))
-      ) {
-        locale.value = "km";
-      }
-    },
-    { immediate: true },
+    locale.value === "en" ? "en" : "km",
   );
 
   const copy = computed(() => COPY[currentLocale.value]);
   const isKhmer = computed(() => currentLocale.value === "km");
-  const homePath = computed(() => (isKhmer.value ? "/km" : "/"));
+  const homePath = computed(() => "/");
   const nextLocale = computed<AppLocale>(() => (isKhmer.value ? "en" : "km"));
   const languageLabel = computed(() =>
     isKhmer.value
@@ -403,18 +521,7 @@ export function useLanguage() {
   );
 
   const switchLanguage = () => {
-    if (!ENABLE_KHMER_LOCALIZATION) {
-      return;
-    }
-
-    const targetLocale = nextLocale.value;
-    const targetPath = targetLocale === "km" ? "/km" : "/";
-
-    locale.value = targetLocale;
-
-    if (route.path === "/" || route.path === "/km") {
-      return navigateTo(targetPath);
-    }
+    locale.value = currentLocale.value === "km" ? "en" : "km";
   };
 
   const localizeTool = <
@@ -441,6 +548,45 @@ export function useLanguage() {
     tools: category.tools.map(localizeTool),
   });
 
+  const localizeDirectoryCategory = <
+    T extends {
+      key: string;
+      name: string;
+      shortTitle?: string;
+      title?: string;
+      description: string;
+      intro?: string;
+    },
+  >(
+    category: T,
+  ): T => ({
+    ...category,
+    name:
+      DIRECTORY_CATEGORY_TRANSLATIONS[currentLocale.value][category.key] ??
+      category.name,
+    shortTitle:
+      DIRECTORY_CATEGORY_SHORT_TITLE_TRANSLATIONS[currentLocale.value][
+        category.key
+      ] ??
+      category.shortTitle ??
+      category.name,
+    title:
+      DIRECTORY_CATEGORY_TRANSLATIONS[currentLocale.value][category.key] ??
+      category.title ??
+      category.name,
+    description:
+      DIRECTORY_CATEGORY_DESCRIPTION_TRANSLATIONS[currentLocale.value][
+        category.key
+      ] ??
+      category.description,
+    intro:
+      DIRECTORY_CATEGORY_INTRO_TRANSLATIONS[currentLocale.value][
+        category.key
+      ] ??
+      category.intro ??
+      category.description,
+  });
+
   const categoryLabel = (category: ToolCategory) =>
     TOOL_CATEGORY_TRANSLATIONS[currentLocale.value][category];
 
@@ -461,6 +607,7 @@ export function useLanguage() {
     switchLanguage,
     localizeTool,
     localizeCategory,
+    localizeDirectoryCategory,
     categoryLabel,
     fontFamilyForText,
     lineHeightForText,

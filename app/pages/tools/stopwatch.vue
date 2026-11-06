@@ -18,6 +18,7 @@ useSeoMeta({
   ogDescription: "A simple stopwatch with lap times, right in your browser.",
 });
 
+const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(true);
 const stopwatch = reactive(createStopwatch());
 const elapsedMs = ref(0);
 const running = computed(() => stopwatch.startedAt !== null);
@@ -25,7 +26,17 @@ const hasSession = computed(
   () => running.value || elapsedMs.value > 0 || stopwatch.laps.length > 0,
 );
 const status = computed(() =>
-  running.value ? "Running" : hasSession.value ? "Paused" : "Ready",
+  running.value
+    ? isKhmer.value
+      ? "កំពុងដំណើរការ"
+      : "Running"
+    : hasSession.value
+    ? isKhmer.value
+      ? "បានផ្អាក"
+      : "Paused"
+    : isKhmer.value
+    ? "រួចរាល់"
+    : "Ready",
 );
 const recentLaps = computed(() => [...stopwatch.laps].reverse());
 let frame: number | null = null;
@@ -98,12 +109,12 @@ onBeforeUnmount(() => {
       <div class="mb-3 flex items-center gap-2 text-sky-700 dark:text-cyan-200">
         <Timer class="size-5" aria-hidden="true" />
         <span class="text-xs font-bold uppercase tracking-widest"
-          >Date &amp; Time</span
+          >{{ isKhmer ? "កាលបរិច្ឆេទ និងពេលវេលា" : "Date & Time" }}</span
         >
       </div>
-      <h1 class="text-2xl font-bold sm:text-3xl">Stopwatch</h1>
+      <h1 class="text-2xl font-bold sm:text-3xl">{{ isKhmer ? "នាឡិកាវាស់ស្ទង់" : "Stopwatch" }}</h1>
       <p class="mt-2 text-sm text-slate-500 dark:text-white/60">
-        Track your time. Pause when you need to, and capture every lap.
+        {{ isKhmer ? "វាស់ស្ទង់ពេលវេលា ចុចផ្អាក និងកត់ត្រាជុំនីមួយៗបានយ៉ាងងាយស្រួល។" : "Track your time. Pause when you need to, and capture every lap." }}
       </p>
     </header>
 
@@ -131,7 +142,7 @@ onBeforeUnmount(() => {
         {{ formatStopwatchTime(elapsedMs) }}
       </p>
       <p class="text-xs text-slate-400 dark:text-white/40">
-        Hours : Minutes : Seconds . Hundredths
+        {{ isKhmer ? "ម៉ោង : នាទី : វិនាទី . ភាគរយវិនាទី" : "Hours : Minutes : Seconds . Hundredths" }}
       </p>
 
       <div class="mx-auto mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
@@ -145,7 +156,7 @@ onBeforeUnmount(() => {
             class="size-4 shrink-0"
             aria-hidden="true"
           />
-          {{ running ? "Pause" : hasSession ? "Resume" : "Start" }}
+          {{ running ? (isKhmer ? "ផ្អាក" : "Pause") : hasSession ? (isKhmer ? "បន្ត" : "Resume") : (isKhmer ? "ចាប់ផ្តើម" : "Start") }}
         </button>
         <button
           type="button"
@@ -154,7 +165,7 @@ onBeforeUnmount(() => {
           @click="addLap"
         >
           <Flag class="size-4 shrink-0" aria-hidden="true" />
-          Lap
+          {{ isKhmer ? "ចាប់ជុំ" : "Lap" }}
         </button>
         <button
           type="button"
@@ -163,11 +174,11 @@ onBeforeUnmount(() => {
           @click="reset"
         >
           <RotateCcw class="size-4 shrink-0" aria-hidden="true" />
-          Reset
+          {{ isKhmer ? "កំណត់ឡើងវិញ" : "Reset" }}
         </button>
       </div>
       <p class="mt-4 text-xs text-slate-500 dark:text-white/50">
-        Press <kbd class="font-semibold">Space</kbd> to start, pause, or resume.
+        {{ isKhmer ? "ចុច Space ដើម្បីចាប់ផ្តើម ផ្អាក ឬបន្ត។" : "Press Space to start, pause, or resume." }}
       </p>
     </section>
 
@@ -178,9 +189,9 @@ onBeforeUnmount(() => {
       <div
         class="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-white/10 sm:px-6"
       >
-        <h2 id="stopwatch-laps-heading" class="text-sm font-bold">Lap times</h2>
+        <h2 id="stopwatch-laps-heading" class="text-sm font-bold">{{ isKhmer ? "កំណត់ត្រាជុំ" : "Lap times" }}</h2>
         <span role="status" class="text-xs text-slate-500 dark:text-white/50"
-          >{{ stopwatch.laps.length }} recorded</span
+          >{{ stopwatch.laps.length }} {{ isKhmer ? "ជុំ" : "recorded" }}</span
         >
       </div>
       <div v-if="recentLaps.length" class="max-h-80 overflow-auto">
@@ -192,12 +203,12 @@ onBeforeUnmount(() => {
             class="sticky top-0 bg-slate-50 text-slate-500 dark:bg-slate-900 dark:text-white/60"
           >
             <tr>
-              <th scope="col" class="px-3 py-3 font-medium sm:px-6">Lap</th>
+              <th scope="col" class="px-3 py-3 font-medium sm:px-6">{{ isKhmer ? "ជុំ" : "Lap" }}</th>
               <th scope="col" class="px-3 py-3 text-right font-medium sm:px-6">
-                Split
+                {{ isKhmer ? "រយៈពេលជុំ" : "Split" }}
               </th>
               <th scope="col" class="px-3 py-3 text-right font-medium sm:px-6">
-                Total
+                {{ isKhmer ? "សរុប" : "Total" }}
               </th>
             </tr>
           </thead>

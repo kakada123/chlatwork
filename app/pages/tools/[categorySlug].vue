@@ -5,6 +5,7 @@ import {
 } from "~/data/tool-categories";
 import ToolDirectoryCard from "~/components/tools/ToolDirectoryCard.vue";
 
+const { isKhmer, localizeDirectoryCategory, localizeTool } = useLanguage();
 const route = useRoute();
 const { websiteEnabled } = useFeatureAvailability();
 const siteUrl = "https://chlatwork.com";
@@ -12,13 +13,24 @@ const categorySlug = computed(() => String(route.params.categorySlug ?? ""));
 const category = computed(() =>
   findToolDirectoryCategoryBySlug(categorySlug.value),
 );
+const localizedCategory = computed(() =>
+  category.value ? localizeDirectoryCategory(category.value) : null,
+);
 const tools = computed(() =>
-  category.value ? getToolsForDirectoryCategory(category.value).filter((tool) => websiteEnabled(tool.key)) : [],
+  category.value
+    ? getToolsForDirectoryCategory(category.value)
+        .filter((tool) => websiteEnabled(tool.key))
+        .map(localizeTool)
+    : [],
 );
 const pageTitle = computed(() =>
-  category.value ? `${category.value.title} - ChlatWork` : "Tools - ChlatWork",
+  localizedCategory.value
+    ? `${localizedCategory.value.title} - ChlatWork`
+    : isKhmer.value
+    ? "ឧបករណ៍ - ChlatWork"
+    : "Tools - ChlatWork",
 );
-const pageDescription = computed(() => category.value?.description ?? "");
+const pageDescription = computed(() => localizedCategory.value?.description ?? "");
 const canonicalUrl = computed(() =>
   category.value ? `${siteUrl}${category.value.path}` : `${siteUrl}/tools`,
 );
@@ -56,13 +68,13 @@ useHead(() => ({
           {
             "@type": "ListItem",
             position: 1,
-            name: "Tools",
+            name: isKhmer.value ? "ឧបករណ៍" : "Tools",
             item: `${siteUrl}/tools`,
           },
           {
             "@type": "ListItem",
             position: 2,
-            name: category.value?.title ?? "Tool Category",
+            name: localizedCategory.value?.title ?? (isKhmer.value ? "ប្រភេទឧបករណ៍" : "Tool Category"),
             item: canonicalUrl.value,
           },
         ],
@@ -73,21 +85,21 @@ useHead(() => ({
 </script>
 
 <template>
-  <main v-if="category" class="mx-auto w-full max-w-[1200px] space-y-8">
+  <main v-if="localizedCategory" class="mx-auto w-full max-w-[1200px] space-y-8">
     <header class="space-y-3 border-b border-slate-200 pb-5 dark:border-white/10">
       <NuxtLink
         to="/tools"
         class="hidden text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200 sm:inline-flex"
       >
-        All tools
+        {{ isKhmer ? "← ឧបករណ៍ទាំងអស់" : "← All tools" }}
       </NuxtLink>
 
       <div class="space-y-2">
         <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
-          {{ category.title }}
+          {{ localizedCategory.title }}
         </h1>
         <p class="max-w-3xl text-sm text-slate-500 dark:text-white/55">
-          {{ category.intro }}
+          {{ localizedCategory.intro }}
         </p>
       </div>
     </header>

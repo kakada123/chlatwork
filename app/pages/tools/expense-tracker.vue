@@ -20,13 +20,13 @@
         <h1
           class="truncate text-[clamp(0.875rem,4.4vw,1.125rem)] font-black tracking-tight"
         >
-          {{ isExpenseProduct ? 'Overview' : 'Expense Tracker' }}
+          {{ isExpenseProduct ? (isKhmer ? 'ទិដ្ឋភាពទូទៅ' : 'Overview') : (isKhmer ? 'ផ្ទាំងគ្រប់គ្រងចំណាយ' : 'Expense Tracker') }}
         </h1>
         <p
           v-if="!isExpenseProduct"
           class="mt-0.5 truncate text-[10px] text-slate-500 dark:text-white/50"
         >
-          Track spending. Stay on budget.
+          {{ isKhmer ? 'តាមដានការចំណាយ។ គ្រប់គ្រងថវិកា។' : 'Track spending. Stay on budget.' }}
         </p>
       </div>
       <button
@@ -45,7 +45,7 @@
         v-if="signedIn"
         type="button"
         :disabled="entryBusy"
-        aria-label="Add expense"
+        :aria-label="isKhmer ? 'កត់ត្រាចំណាយ' : 'Add expense'"
         aria-haspopup="dialog"
         class="grid size-10 place-items-center rounded-full bg-sky-600 text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950"
         @click="openQuickExpense"
@@ -56,13 +56,15 @@
         v-else
         to="/login"
         @click="storeGuestDraft"
-        aria-label="Sign in to add expenses"
+        :aria-label="isKhmer ? 'ចូលគណនីដើម្បីកត់ត្រាចំណាយ' : 'Sign in to add expenses'"
         class="grid size-10 place-items-center rounded-full bg-sky-600 text-white dark:bg-cyan-200 dark:text-slate-950"
         ><Plus class="size-5" aria-hidden="true"
       /></NuxtLink>
     </header>
     <div v-if="signedIn" class="flex gap-2 sm:hidden" :class="isExpenseProduct ? 'justify-stretch' : 'justify-end'">
-      <button v-if="isExpenseProduct" type="button" :disabled="entryBusy" aria-haspopup="dialog" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 text-sm font-bold text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950" @click="openQuickExpense"><Plus class="size-4" aria-hidden="true" />Add expense</button>
+      <button v-if="isExpenseProduct" type="button" :disabled="entryBusy" aria-haspopup="dialog" class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 text-sm font-bold text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950" @click="openQuickExpense">
+        <Plus class="size-4" aria-hidden="true" />{{ isKhmer ? "កត់ត្រាចំណាយ" : "Add expense" }}
+      </button>
       <button
         type="button"
         :disabled="entryBusy"
@@ -71,7 +73,7 @@
         :class="isExpenseProduct ? 'min-h-11 flex-1' : undefined"
         @click="openQuickIncome"
       >
-        <Plus class="size-4" aria-hidden="true" />Add income
+        <Plus class="size-4" aria-hidden="true" />{{ isKhmer ? "កត់ត្រាចំណូល" : "Add income" }}
       </button>
     </div>
     <header class="hidden flex-wrap items-center justify-between gap-4 sm:flex">
@@ -82,10 +84,10 @@
         /></span>
         <div class="min-w-0">
           <h1 class="text-2xl font-black tracking-tight sm:text-3xl">
-            Expense Dashboard
+            {{ isKhmer ? "ផ្ទាំងគ្រប់គ្រងចំណាយ" : "Expense Dashboard" }}
           </h1>
           <p class="mt-1 text-xs text-slate-500 dark:text-white/50 sm:text-sm">
-            Track your spending, stay on budget, and build better habits.
+            {{ isKhmer ? "តាមដានការចំណាយ គ្រប់គ្រងថវិកា និងបង្កើតទម្លាប់ហិរញ្ញវត្ថុល្អប្រសើរ។" : "Track your spending, stay on budget, and build better habits." }}
           </p>
         </div>
       </div>
@@ -97,8 +99,8 @@
           :aria-pressed="isFavorite('expense-tracker')"
           :aria-label="
             isFavorite('expense-tracker')
-              ? 'Remove from favorites'
-              : 'Add to favorites'
+              ? (isKhmer ? 'ដកចេញពីសំណព្វ' : 'Remove from favorites')
+              : (isKhmer ? 'បន្ថែមទៅសំណព្វ' : 'Add to favorites')
           "
           class="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-semibold disabled:opacity-50"
           :class="
@@ -113,7 +115,9 @@
             :fill="isFavorite('expense-tracker') ? 'currentColor' : 'none'"
             aria-hidden="true"
           /><span class="hidden sm:inline">{{
-            isFavorite("expense-tracker") ? "Favorited" : "Favorite"
+            isFavorite("expense-tracker")
+              ? (isKhmer ? "បានរក្សាទុក" : "Favorited")
+              : (isKhmer ? "សំណព្វ" : "Favorite")
           }}</span>
         </button>
         <!-- Manual entry remains available when the optional floating shortcut is off. -->
@@ -125,7 +129,7 @@
           class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 text-sm font-bold text-emerald-700 disabled:opacity-50 dark:bg-emerald-400/10 dark:text-emerald-300"
           @click="openQuickIncome"
         >
-          <Plus class="h-4 w-4" aria-hidden="true" />Add income
+          <Plus class="h-4 w-4" aria-hidden="true" />{{ isKhmer ? "កត់ត្រាចំណូល" : "Add income" }}
         </button>
         <button
           v-if="signedIn"
@@ -135,7 +139,7 @@
           class="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 text-sm font-bold text-white transition hover:bg-sky-700 disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950 dark:hover:bg-cyan-100 sm:flex-none"
           @click="openQuickExpense"
         >
-          <Plus class="h-4 w-4" aria-hidden="true" />Add expense
+          <Plus class="h-4 w-4" aria-hidden="true" />{{ isKhmer ? "កត់ត្រាចំណាយ" : "Add expense" }}
         </button>
         <ModernSelect
           v-model="currency"
@@ -166,7 +170,7 @@
           <span class="min-w-0 flex-1"
             ><span
               class="block text-[10px] font-medium text-slate-400 dark:text-white/40"
-              >Summary period</span
+              >{{ isKhmer ? "កាលបរិច្ឆេទសង្ខេប" : "Summary period" }}</span
             ><span
               class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-semibold sm:text-sm"
               >{{ formatExpenseRangeDate(activeRange.from)
@@ -191,7 +195,7 @@
           >
             <div class="min-w-0">
               <p class="mb-1 text-xs text-slate-500 dark:text-white/50">
-                From date
+                {{ isKhmer ? "ពីថ្ងៃ" : "From date" }}
               </p>
               <ModernDateInput
                 v-model="dateFrom"
@@ -200,7 +204,7 @@
             </div>
             <div class="min-w-0">
               <p class="mb-1 text-xs text-slate-500 dark:text-white/50">
-                To date
+                {{ isKhmer ? "ដល់ថ្ងៃ" : "To date" }}
               </p>
               <ModernDateInput v-model="dateTo" aria-label="Expense end date" />
             </div>
@@ -208,7 +212,7 @@
               type="submit"
               class="col-span-2 min-h-10 rounded-xl bg-sky-600 px-4 text-sm font-bold text-white disabled:opacity-50 dark:bg-cyan-200 dark:text-slate-950"
             >
-              {{ loading ? "Loading…" : "Apply dates" }}
+              {{ loading ? (isKhmer ? "កំពុងផ្ទុក…" : "Loading…") : (isKhmer ? "អនុវត្ត" : "Apply dates") }}
             </button>
           </fieldset>
         </form>
@@ -240,7 +244,7 @@
           class="min-h-9 rounded-full px-3 text-xs font-semibold text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-white/60 dark:hover:bg-white/5"
           @click="showCustomRange"
         >
-          Custom
+          {{ isKhmer ? "កំណត់ដោយខ្លួនឯង" : "Custom" }}
         </button>
       </div>
       <label
@@ -401,28 +405,32 @@
         role="status"
         class="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-[115] max-w-[calc(100vw-2rem)] rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-xl sm:bottom-6 sm:max-w-sm"
       >
-        <span class="block">Expense saved to your account</span
+        <span class="block">
+          {{ isKhmer ? "បានរក្សាទុកក្នុងគណនីរបស់អ្នក" : "Expense saved to your account" }}
+        </span
         ><span class="mt-1 block text-xs font-medium text-white/80">{{
           EXPENSE_SAVE_MOTIVATION
         }}</span>
       </div>
     </Transition>
     <details class="text-xs text-slate-400 dark:text-white/35">
-      <summary class="w-fit cursor-pointer">About this tracker</summary>
+      <summary class="w-fit cursor-pointer">
+        {{ isKhmer ? "អំពីផ្ទាំងគ្រប់គ្រងចំណាយនេះ" : "About this tracker" }}
+      </summary>
       <p class="mt-2 max-w-2xl leading-5">
-        For planning and education. Reconcile totals with your receipts and
-        statements.
+        {{ isKhmer ? "សម្រាប់ជាជំនួយដល់ការរៀបចំផែនការ និងការគ្រប់គ្រង។ សូមផ្ទៀងផ្ទាត់ឡើងវិញជាមួយវិក្កយបត្រជាក់ស្តែងរបស់អ្នក។" : "For planning and education. Reconcile totals with your receipts and statements." }}
         <NuxtLink to="/editorial-policy" class="underline"
-          >Editorial policy</NuxtLink
+          >{{ isKhmer ? "គោលការណ៍និពន្ធ" : "Editorial policy" }}</NuxtLink
         >
-        · <NuxtLink to="/disclaimer" class="underline">Disclaimer</NuxtLink> ·
-        <NuxtLink to="/contact" class="underline">Contact</NuxtLink>
+        · <NuxtLink to="/disclaimer" class="underline">{{ isKhmer ? "ការមិនទទួលខុសត្រូវ" : "Disclaimer" }}</NuxtLink> ·
+        <NuxtLink to="/contact" class="underline">{{ isKhmer ? "ទំនាក់ទំនង" : "Contact" }}</NuxtLink>
       </p>
     </details>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import ExpenseEntryHistory from "~/components/expense-tracker/ExpenseEntryHistory.vue";
 import ExpenseEntryEditDialog from "~/components/expense-tracker/ExpenseEntryEditDialog.vue";
 import {
@@ -457,6 +465,7 @@ import {
   normalizeExpenseStoredState,
 } from "~/lib/expense-tracker";
 
+const { isKhmer } = useLanguage();
 const route = useRoute();
 const { product } = useProductDomain();
 const isExpenseProduct = product === "expense";
@@ -538,13 +547,13 @@ const mobilePeriodLabel = computed(() => {
     }).format(start);
   return "Date range";
 });
-const datePresets: { label: string; key: ExpensePeriodPreset }[] = [
-  { label: "Today", key: "today" },
-  { label: "Last 7 days", key: "week" },
-  { label: "This month", key: "month" },
-  { label: "Last month", key: "last-month" },
-  { label: "This year", key: "year" },
-];
+const datePresets = computed<{ label: string; key: ExpensePeriodPreset }[]>(() => [
+  { label: isKhmer.value ? "ថ្ងៃនេះ" : "Today", key: "today" },
+  { label: isKhmer.value ? "៧ ថ្ងៃចុងក្រោយ" : "Last 7 days", key: "week" },
+  { label: isKhmer.value ? "ខែនេះ" : "This month", key: "month" },
+  { label: isKhmer.value ? "ខែមុន" : "Last month", key: "last-month" },
+  { label: isKhmer.value ? "ឆ្នាំនេះ" : "This year", key: "year" },
+]);
 const {
   isFavorite,
   toggleFavorite,
@@ -629,10 +638,24 @@ const dailyTrend = computed(() =>
       })),
 );
 const persistenceMessage = computed(() => {
-  if (!signedIn.value) return "Sign in to save expenses to your account.";
-  if (!ready.value) return "Loading your dashboard…";
-  if (saveError.value) return "Changes need your attention.";
-  return saving.value ? "Saving changes…" : "Saved securely to your account.";
+  if (!signedIn.value) {
+    return isKhmer.value
+      ? "ចូលគណនីដើម្បីរក្សាទុកការចំណាយក្នុងគណនីរបស់អ្នក។"
+      : "Sign in to save expenses to your account.";
+  }
+  if (!ready.value) {
+    return isKhmer.value ? "កំពុងផ្ទុកផ្ទាំងគ្រប់គ្រងរបស់អ្នក…" : "Loading your dashboard…";
+  }
+  if (saveError.value) {
+    return isKhmer.value ? "ការផ្លាស់ប្តូរត្រូវការការត្រួតពិនិត្យរបស់អ្នក។" : "Changes need your attention.";
+  }
+  return saving.value
+    ? isKhmer.value
+      ? "កំពុងរក្សាទុក…"
+      : "Saving changes…"
+    : isKhmer.value
+      ? "បានរក្សាទុកដោយសុវត្ថិភាពក្នុងគណនីរបស់អ្នក។"
+      : "Saved securely to your account.";
 });
 
 function isPresetActive(preset: ExpensePeriodPreset) {

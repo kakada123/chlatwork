@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import { findToolGuideByPath } from "~/data/tool-guides";
+import { getToolGuideKm } from "~/data/tool-guides-km";
 
 const route = useRoute();
 const pageEl = ref<HTMLElement | null>(null);
 const siteUrl = "https://chlatwork.com";
+const { isKhmer, localizeTool } = useLanguage();
 const guide = computed(() => findToolGuideByPath(route.path));
 const pageUrl = computed(() =>
   guide.value ? `${siteUrl}${guide.value.path}` : siteUrl,
+);
+const localizedTool = computed(() =>
+  guide.value ? localizeTool(guide.value.tool) : null,
+);
+const guideKm = computed(() =>
+  guide.value
+    ? getToolGuideKm(
+        guide.value.tool.key,
+        localizedTool.value?.name,
+        localizedTool.value?.description,
+      )
+    : null,
 );
 
 useLandingReveal(pageEl);
@@ -129,19 +143,19 @@ useHead(() => {
               class="h-2 w-2 rounded-full bg-emerald-400"
               aria-hidden="true"
             />
-            ChlatWork Guide
+            {{ isKhmer ? "ការណែនាំ ChlatWork" : "ChlatWork Guide" }}
           </div>
 
           <div class="space-y-3">
             <h1
               class="max-w-3xl text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-5xl"
             >
-              {{ guide.heroTitle }}
+              {{ isKhmer && guideKm?.heroTitle ? guideKm.heroTitle : guide.heroTitle }}
             </h1>
             <p
               class="max-w-2xl text-base leading-7 text-slate-600 dark:text-white/70"
             >
-              {{ guide.heroDescription }}
+              {{ isKhmer && guideKm?.heroDescription ? guideKm.heroDescription : guide.heroDescription }}
             </p>
           </div>
 
@@ -150,13 +164,13 @@ useHead(() => {
               :to="guide.tool.route"
               class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white shadow-lg shadow-slate-300/60 transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:shadow-black/20 dark:hover:bg-cyan-100"
             >
-              {{ guide.ctaLabel }}
+              {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
             </NuxtLink>
             <NuxtLink
               to="/tools"
               class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white/75 px-5 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
             >
-              Browse all tools
+              {{ isKhmer ? "មើលឧបករណ៍ទាំងអស់" : "Browse all tools" }}
             </NuxtLink>
           </div>
         </div>
@@ -179,13 +193,13 @@ useHead(() => {
             </span>
             <div>
               <p class="text-xs font-semibold uppercase text-slate-400">
-                Tool
+                {{ isKhmer ? "ឧបករណ៍" : "Tool" }}
               </p>
               <p class="mt-1 text-lg font-black text-slate-950 dark:text-white">
-                {{ guide.tool.name }}
+                {{ isKhmer && localizedTool ? localizedTool.name : guide.tool.name }}
               </p>
               <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/60">
-                {{ guide.tool.description }}
+                {{ isKhmer && localizedTool ? localizedTool.description : guide.tool.description }}
               </p>
             </div>
           </div>
@@ -193,7 +207,7 @@ useHead(() => {
             :to="guide.tool.route"
             class="mt-6 text-sm font-bold text-sky-700 transition hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
           >
-            Open the tool
+            {{ isKhmer ? "បើកឧបករណ៍នេះ →" : "Open the tool →" }}
           </NuxtLink>
         </aside>
       </div>
@@ -208,10 +222,10 @@ useHead(() => {
       >
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            What is this tool?
+            {{ isKhmer ? "តើឧបករណ៍នេះជាអ្វី?" : "What is this tool?" }}
           </h2>
           <p
-            v-for="paragraph in guide.whatIs"
+            v-for="paragraph in (isKhmer && guideKm ? guideKm.whatIs : guide.whatIs)"
             :key="paragraph"
             class="text-sm leading-7 text-slate-600 dark:text-white/70"
           >
@@ -221,11 +235,11 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            Why use this tool?
+            {{ isKhmer ? "ហេតុអ្វីគួរប្រើឧបករណ៍នេះ?" : "Why use this tool?" }}
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">
             <li
-              v-for="reason in guide.whyUse"
+              v-for="reason in (isKhmer && guideKm ? guideKm.whyUse : guide.whyUse)"
               :key="reason"
               class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-slate-950/35 dark:text-white/70"
             >
@@ -236,11 +250,11 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            How to use it
+            {{ isKhmer ? "របៀបប្រើប្រាស់" : "How to use it" }}
           </h2>
           <ol class="space-y-3">
             <li
-              v-for="(step, index) in guide.steps"
+              v-for="(step, index) in (isKhmer && guideKm ? guideKm.steps : guide.steps)"
               :key="step"
               class="flex gap-3 rounded-2xl border border-slate-100 bg-white/70 p-4 dark:border-white/10 dark:bg-white/[0.04]"
             >
@@ -258,11 +272,11 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            Common use cases
+            {{ isKhmer ? "ករណីប្រើប្រាស់ទូទៅ" : "Common use cases" }}
           </h2>
           <ul class="space-y-3">
             <li
-              v-for="useCase in guide.useCases"
+              v-for="useCase in (isKhmer && guideKm ? guideKm.useCases : guide.useCases)"
               :key="useCase"
               class="flex gap-3 text-sm leading-7 text-slate-600 dark:text-white/70"
             >
@@ -277,11 +291,11 @@ useHead(() => {
 
         <section class="space-y-3">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            Tips and best practices
+            {{ isKhmer ? "គន្លឹះ និងការអនុវត្តល្អៗ" : "Tips and best practices" }}
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">
             <li
-              v-for="tip in guide.tips"
+              v-for="tip in (isKhmer && guideKm ? guideKm.tips : guide.tips)"
               :key="tip"
               class="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 text-sm leading-6 text-emerald-950 dark:border-emerald-300/15 dark:bg-emerald-300/10 dark:text-emerald-50"
             >
@@ -292,11 +306,11 @@ useHead(() => {
 
         <section class="space-y-3" id="faq">
           <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-            FAQ
+            {{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}
           </h2>
           <div class="space-y-3">
             <details
-              v-for="faq in guide.faqs"
+              v-for="faq in (isKhmer && guideKm ? guideKm.faqs : guide.faqs)"
               :key="faq.question"
               class="group rounded-2xl border border-slate-100 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/35"
             >
@@ -318,19 +332,19 @@ useHead(() => {
           class="rounded-[24px] border border-white/80 bg-white/80 p-5 shadow-lg shadow-sky-100/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.07] dark:shadow-black/20"
         >
           <p class="text-xs font-semibold uppercase text-slate-400">
-            Quick action
+            {{ isKhmer ? "សកម្មភាពរហ័ស" : "Quick action" }}
           </p>
           <h2 class="mt-2 text-xl font-black text-slate-950 dark:text-white">
-            Ready to try it?
+            {{ isKhmer ? "ត្រៀមសាកល្បងហើយឬនៅ?" : "Ready to try it?" }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-white/65">
-            Open the real tool and follow the guide while you work.
+            {{ isKhmer ? "បើកឧបករណ៍ផ្ទាល់ និងអនុវត្តតាមការណែនាំនេះ។" : "Open the real tool and follow the guide while you work." }}
           </p>
           <NuxtLink
             :to="guide.tool.route"
             class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-sky-600 px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
           >
-            {{ guide.ctaLabel }}
+            {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
           </NuxtLink>
         </div>
 
@@ -338,11 +352,10 @@ useHead(() => {
           class="rounded-[24px] border border-white/80 bg-white/70 p-5 text-sm leading-6 text-slate-600 shadow-lg shadow-sky-100/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.05] dark:text-white/65 dark:shadow-black/20"
         >
           <p class="font-bold text-slate-950 dark:text-white">
-            Good to know
+            {{ isKhmer ? "គួរដឹង" : "Good to know" }}
           </p>
           <p class="mt-2">
-            Most ChlatWork tools are built for quick browser use, so you can
-            finish the task without installing another app.
+            {{ isKhmer ? "ឧបករណ៍ ChlatWork ភាគច្រើនបង្កើតឡើងសម្រាប់ប្រើលើ browser ផ្ទាល់ មិនចាំបាច់ដំឡើងកម្មវិធីបន្ថែមឡើយ។" : "Most ChlatWork tools are built for quick browser use, so you can finish the task without installing another app." }}
           </p>
         </div>
       </aside>
@@ -353,17 +366,16 @@ useHead(() => {
       data-reveal
     >
       <h2 class="text-2xl font-black text-slate-950 dark:text-white">
-        Use the {{ guide.tool.name }} now
+        {{ isKhmer ? `ប្រើប្រាស់ ${localizedTool?.name || guide.tool.name} ឥឡូវនេះ` : `Use the ${guide.tool.name} now` }}
       </h2>
       <p class="mx-auto mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-white/70">
-        This guide explains the workflow. The tool page is where you can create,
-        convert, calculate, test, or download the actual result.
+        {{ isKhmer ? "ការណែនាំនេះពន្យល់ពីរបៀបធ្វើ។ ចុចបើកឧបករណ៍ដើម្បីបង្កើត គណនា ឬទាញយកលទ្ធផលជាក់ស្តែង។" : "This guide explains the workflow. The tool page is where you can create, convert, calculate, test, or download the actual result." }}
       </p>
       <NuxtLink
         :to="guide.tool.route"
         class="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
       >
-        {{ guide.ctaLabel }}
+        {{ isKhmer ? "ប្រើប្រាស់ឧបករណ៍នេះ" : guide.ctaLabel }}
       </NuxtLink>
     </section>
   </main>

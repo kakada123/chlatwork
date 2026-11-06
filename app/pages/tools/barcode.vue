@@ -1,11 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Barcode Generator</h1>
+      <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត Barcode" : "Barcode Generator" }}</h1>
       <p class="text-sm text-gray-500">
-        Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic
-        English characters. Enter each value and click Generate to add multiple
-        items.
+        {{ isKhmer ? "បង្កើត barcode CODE128, EAN13, UPC និង CODE39 ពីលេខ ឬអក្សរអង់គ្លេសមូលដ្ឋាន។" : "Generate CODE128, EAN13, UPC, and CODE39 barcodes from numbers and basic English characters. Enter each value and click Generate to add multiple items." }}
       </p>
     </div>
 
@@ -35,10 +33,10 @@
       class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm"
     >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">Generated barcodes</h2>
+        <h2 class="text-sm font-semibold">{{ isKhmer ? "Barcode ដែលបានបង្កើត" : "Generated barcodes" }}</h2>
         <p class="text-xs text-gray-500">
           {{ generatedItems.length }}
-          {{ generatedItems.length > 1 ? "items" : "item" }}
+          {{ isKhmer ? "កូដ" : (generatedItems.length > 1 ? "items" : "item") }}
         </p>
       </div>
 
@@ -59,7 +57,7 @@
             type="button"
             @click="downloadItemSvg(item.value, item.svg, index)"
           >
-            Download SVG
+            {{ isKhmer ? "ទាញយក SVG" : "Download SVG" }}
           </button>
         </article>
       </div>
@@ -75,6 +73,8 @@ import {
   normalizeBarcodeValue,
   validateBarcodeValue,
 } from "~/lib/barcode-generator";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "Barcode Generator Online - CODE128, EAN13, UPC | ChlatWork",

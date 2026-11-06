@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { findStarterGuideByPath } from "~/data/guides";
+import { getStarterGuideKm } from "~/data/starter-guides-km";
 
+const { isKhmer } = useLanguage();
 const route = useRoute();
 const siteUrl = "https://chlatwork.com";
 const guide = computed(() => findStarterGuideByPath(route.path));
+const guideKm = computed(() =>
+  guide.value ? getStarterGuideKm(guide.value.slug) : null,
+);
 const canonicalUrl = computed(() =>
   guide.value ? `${siteUrl}${guide.value.path}` : `${siteUrl}/guides`,
 );
@@ -93,17 +98,17 @@ useHead(() => {
         to="/guides"
         class="inline-flex text-sm font-bold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-100"
       >
-        All guides
+        {{ isKhmer ? "← មេរៀនទាំងអស់" : "All guides" }}
       </NuxtLink>
       <div class="space-y-3">
         <p class="text-xs font-bold uppercase text-sky-700 dark:text-cyan-300">
-          ChlatWork Guide
+          {{ isKhmer ? "ការណែនាំ ChlatWork" : "ChlatWork Guide" }}
         </p>
         <h1 class="text-3xl font-black leading-tight sm:text-5xl">
-          {{ guide.title }}
+          {{ isKhmer && guideKm ? guideKm.title : guide.title }}
         </h1>
         <p class="text-base leading-7 text-slate-600 dark:text-white/65">
-          {{ guide.summary }}
+          {{ isKhmer && guideKm ? guideKm.summary : guide.summary }}
         </p>
       </div>
       <div class="flex flex-wrap gap-3">
@@ -111,13 +116,13 @@ useHead(() => {
           :to="guide.primaryTool.path"
           class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white transition hover:bg-sky-700 dark:bg-white dark:text-slate-950 dark:hover:bg-cyan-100"
         >
-          Open {{ guide.primaryTool.label }}
+          {{ isKhmer && guideKm ? `បើក ${guideKm.primaryToolLabel}` : `Open ${guide.primaryTool.label}` }}
         </NuxtLink>
         <NuxtLink
           to="/tools"
           class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-white/75 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
         >
-          Browse tools
+          {{ isKhmer ? "រកមើលឧបករណ៍ទាំងអស់" : "Browse tools" }}
         </NuxtLink>
       </div>
     </header>
@@ -125,10 +130,10 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">Steps</h2>
+      <h2 class="text-2xl font-black">{{ isKhmer ? "ជំហានអនុវត្ត" : "Steps" }}</h2>
       <ol class="mt-4 space-y-3">
         <li
-          v-for="(step, index) in guide.steps"
+          v-for="(step, index) in (isKhmer && guideKm ? guideKm.steps : guide.steps)"
           :key="step"
           class="flex gap-3 text-sm leading-6 text-slate-600 dark:text-white/65"
         >
@@ -144,7 +149,7 @@ useHead(() => {
 
     <article class="space-y-8">
       <section
-        v-for="section in guide.sections"
+        v-for="section in (isKhmer && guideKm ? guideKm.sections : guide.sections)"
         :key="section.heading"
         class="space-y-3"
       >
@@ -170,10 +175,10 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">Examples</h2>
+      <h2 class="text-2xl font-black">{{ isKhmer ? "ឧទាហរណ៍" : "Examples" }}</h2>
       <ul class="mt-4 space-y-3">
         <li
-          v-for="example in guide.examples"
+          v-for="example in (isKhmer && guideKm ? guideKm.examples : guide.examples)"
           :key="example"
           class="flex gap-3 text-sm leading-6 text-slate-600 dark:text-white/65"
         >
@@ -186,10 +191,10 @@ useHead(() => {
     <section
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-2xl font-black">FAQ</h2>
+      <h2 class="text-2xl font-black">{{ isKhmer ? "សំណួរដែលសួរញឹកញាប់" : "FAQ" }}</h2>
       <div class="mt-4 space-y-3">
         <details
-          v-for="faq in guide.faqs"
+          v-for="faq in (isKhmer && guideKm ? guideKm.faqs : guide.faqs)"
           :key="faq.question"
           class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.05]"
         >
@@ -204,7 +209,7 @@ useHead(() => {
     </section>
 
     <section class="space-y-3">
-      <h2 class="text-2xl font-black">Related tools</h2>
+      <h2 class="text-2xl font-black">{{ isKhmer ? "ឧបករណ៍ពាក់ព័ន្ធ" : "Related tools" }}</h2>
       <div class="grid gap-3 sm:grid-cols-2">
         <NuxtLink
           v-for="tool in guide.relatedTools"

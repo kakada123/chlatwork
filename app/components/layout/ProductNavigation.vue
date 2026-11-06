@@ -107,7 +107,7 @@ onBeforeUnmount(() =>
             class="block text-[10px] font-semibold tracking-wide text-slate-500 dark:text-white/45"
             >ChlatWork</span
           ><span class="block truncate text-base">{{
-            productInfo.name.replace("ChlatWork ", "")
+            (isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name).replace("ChlatWork ", "")
           }}</span></span
         >
       </NuxtLink>
@@ -203,11 +203,11 @@ onBeforeUnmount(() =>
       <NuxtLink
         :to="productInfo.home"
         class="min-h-11 content-center font-bold text-sky-700 dark:text-cyan-300"
-        >{{ productInfo.name }}</NuxtLink
+        >{{ isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name }}</NuxtLink
       >
       <nav
         class="flex flex-wrap items-center gap-3 text-sm"
-        :aria-label="productInfo.name"
+        :aria-label="isKhmer ? (productInfo.nameKm || productInfo.name) : productInfo.name"
       >
         <NuxtLink
           v-for="link in links"

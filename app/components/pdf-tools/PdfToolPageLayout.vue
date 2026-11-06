@@ -5,10 +5,13 @@ const props = defineProps<{
   tool: PdfToolDef;
 }>();
 
+const { isKhmer, localizeTool } = useLanguage();
+const localizedTool = computed(() => localizeTool(props.tool));
+
 const parentDirectory = computed(() =>
   props.tool.category === "Developer Tools"
-    ? { label: "Developer tools", path: "/tools/developer-tools" }
-    : { label: "PDF tools", path: "/tools/pdf" },
+    ? { label: isKhmer.value ? "ឧបករណ៍អ្នកអភិវឌ្ឍន៍" : "Developer tools", path: "/tools/developer-tools" }
+    : { label: isKhmer.value ? "ឧបករណ៍ PDF" : "PDF tools", path: "/tools/pdf" },
 );
 </script>
 
@@ -19,15 +22,15 @@ const parentDirectory = computed(() =>
         :to="parentDirectory.path"
         class="inline-flex text-sm font-semibold text-sky-700 hover:text-sky-900 dark:text-cyan-300 dark:hover:text-cyan-200"
       >
-        {{ parentDirectory.label }}
+        ← {{ parentDirectory.label }}
       </NuxtLink>
 
       <div class="space-y-2">
         <h1 class="text-3xl font-black text-slate-950 dark:text-white sm:text-4xl">
-          {{ tool.name }}
+          {{ localizedTool.name }}
         </h1>
         <p class="max-w-2xl text-sm text-slate-500 dark:text-white/55">
-          {{ tool.description }}
+          {{ localizedTool.description }}
         </p>
         <p
           v-if="tool.status === 'beta' && tool.betaNotice"

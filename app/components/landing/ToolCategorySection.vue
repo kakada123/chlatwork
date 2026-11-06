@@ -7,7 +7,7 @@ const props = defineProps<{
   categories: LandingToolCategory[];
 }>();
 
-const { copy } = useLanguage();
+const { copy, isKhmer } = useLanguage();
 const sectionEl = ref<HTMLElement | null>(null);
 useLandingReveal(sectionEl);
 </script>
@@ -17,7 +17,7 @@ useLandingReveal(sectionEl);
     <div class="mx-auto w-full">
       <div class="mb-4 flex items-center justify-between gap-3" data-reveal>
         <h2 class="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
-          What do you need to do?
+          {{ isKhmer ? "តើអ្នកចង់ធ្វើអ្វី?" : "What do you need to do?" }}
         </h2>
       </div>
 

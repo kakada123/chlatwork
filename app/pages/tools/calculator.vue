@@ -2,10 +2,10 @@
   <div class="space-y-6 text-slate-950 dark:text-white">
     <div>
       <h1 class="text-lg font-bold text-slate-950 dark:text-white">
-        Date Calculator
+        {{ isKhmer ? "គណនាកាលបរិច្ឆេទ" : "Date Calculator" }}
       </h1>
       <p class="text-sm text-slate-500 dark:text-white/60">
-        Add/subtract dates, find differences, and count workdays (Mon–Fri).
+        {{ isKhmer ? "បូក/ដកកាលបរិច្ឆេទ គណនាគម្លាតថ្ងៃ និងរាប់ថ្ងៃធ្វើការ (ច័ន្ទ–សុក្រ)។" : "Add/subtract dates, find differences, and count workdays (Mon–Fri)." }}
       </p>
     </div>
 
@@ -275,13 +275,15 @@ useSeoMeta({
     "Add or subtract dates, compare two dates, and count Monday to Friday workdays.",
 });
 
-const tabs = [
-  { key: "add", label: "Add/Subtract" },
-  { key: "diff", label: "Difference" },
-  { key: "workdays", label: "Workdays" },
-] as const;
+const { isKhmer } = useLanguage();
 
-type TabKey = (typeof tabs)[number]["key"];
+const tabs = computed(() => [
+  { key: "add", label: isKhmer.value ? "បូក/ដកថ្ងៃ" : "Add/Subtract" },
+  { key: "diff", label: isKhmer.value ? "គម្លាតថ្ងៃ" : "Difference" },
+  { key: "workdays", label: isKhmer.value ? "ថ្ងៃធ្វើការ" : "Workdays" },
+] as const);
+
+type TabKey = "add" | "diff" | "workdays";
 const tab = ref<TabKey>("add");
 
 async function copyText(text: string) {

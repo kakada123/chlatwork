@@ -1,17 +1,16 @@
 <script setup lang="ts">
+const { copy } = useLanguage();
+
 useSeoMeta({
-  title: "Free Online Tools for Everyday Work - ChlatWork",
-  description:
-    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
-  ogTitle: "Free Online Tools for Everyday Work - ChlatWork",
-  ogDescription:
-    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
+  title: computed(() => copy.value.metaTitle),
+  description: computed(() => copy.value.metaDescription),
+  ogTitle: computed(() => copy.value.metaTitle),
+  ogDescription: computed(() => copy.value.metaDescription),
   ogType: "website",
   ogUrl: "https://chlatwork.com",
   twitterCard: "summary_large_image",
-  twitterTitle: "Free Online Tools for Everyday Work - ChlatWork",
-  twitterDescription:
-    "Search free tools for PDFs, images, QR codes, calculators, Khmer text, and developer tasks.",
+  twitterTitle: computed(() => copy.value.metaTitle),
+  twitterDescription: computed(() => copy.value.metaDescription),
 });
 </script>
 

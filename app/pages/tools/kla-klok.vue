@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const isKhmer = typeof useLanguage === "function" ? useLanguage().isKhmer : ref(true);
 const { canonical, product } = useProductDomain();
 const route = useRoute();
 const mobileRulesOpen = ref(false);
@@ -45,12 +46,12 @@ useSeoMeta({
 
     <div class="games-product-divider mx-3 h-px bg-white/10 sm:mx-10 lg:mx-16" />
     <KlaKlokBoard class="games-product-board" />
-    <button v-if="product === 'games'" type="button" class="games-product-help-toggle mx-4 my-4 flex min-h-12 items-center justify-between rounded-xl border border-white/15 px-4 text-sm font-semibold text-amber-200 sm:hidden" :aria-expanded="mobileRulesOpen" aria-controls="kla-klok-rules" @click="toggleMobileRules">How to play & rules <span aria-hidden="true">{{ mobileRulesOpen ? '−' : '+' }}</span></button>
+    <button v-if="product === 'games'" type="button" class="games-product-help-toggle mx-4 my-4 flex min-h-12 items-center justify-between rounded-xl border border-white/15 px-4 text-sm font-semibold text-amber-200 sm:hidden" :aria-expanded="mobileRulesOpen" aria-controls="kla-klok-rules" @click="toggleMobileRules">{{ isKhmer ? "របៀបលេង និងច្បាប់" : "How to play & rules" }} <span aria-hidden="true">{{ mobileRulesOpen ? '−' : '+' }}</span></button>
 
     <section class="games-product-benefits px-5 py-14 sm:px-10 lg:px-16">
       <div class="mx-auto max-w-6xl">
         <div class="max-w-2xl">
-          <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Why play</p>
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">{{ isKhmer ? "ហេតុអ្វីគួរលេង" : "Why play" }}</p>
           <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">សប្បាយ ងាយ និងលេងបានគ្រប់ទីកន្លែង</h2>
         </div>
         <div class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -74,7 +75,7 @@ useSeoMeta({
 
     <section class="games-product-cta px-5 pb-16 pt-6 sm:px-10 sm:pb-20 lg:px-16">
       <div class="mx-auto max-w-6xl rounded-3xl border border-amber-300/25 bg-[#0e2138] px-5 py-10 text-center sm:px-10 sm:py-12">
-        <p class="text-sm font-bold uppercase tracking-[0.16em] text-amber-300">Ready?</p>
+        <p class="text-sm font-bold uppercase tracking-[0.16em] text-amber-300">{{ isKhmer ? "រួចរាល់ហើយឬនៅ?" : "Ready?" }}</p>
         <h2 class="mt-3 text-2xl font-bold text-white sm:text-3xl">ត្រៀមលេងខ្លាឃ្លោកហើយឬនៅ?</h2>
         <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/50">
           លេងសម្រាប់ការកម្សាន្តដោយប្រើពិន្ទុសិប្បនិម្មិតតែប៉ុណ្ណោះ។

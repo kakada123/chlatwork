@@ -5,6 +5,8 @@ import type {
   PosterSize,
 } from "~/lib/wifi-qr";
 
+const { isKhmer } = useLanguage();
+
 const props = defineProps<{
   payload: string;
   qrDataUrl: string;
@@ -45,7 +47,7 @@ const enHeadline = defineModel<string>("enHeadline", {
 <template>
   <div class="space-y-3 rounded-2xl border bg-white p-4 shadow-sm">
     <div>
-      <label class="text-sm font-medium">Wi-Fi Name (SSID)</label>
+      <label class="text-sm font-medium">{{ isKhmer ? "ឈ្មោះ Wi-Fi (SSID)" : "Wi-Fi Name (SSID)" }}</label>
       <input
         v-model="ssid"
         class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -55,19 +57,19 @@ const enHeadline = defineModel<string>("enHeadline", {
 
     <div class="grid gap-3 sm:grid-cols-2">
       <div>
-        <label class="text-sm font-medium">Security</label>
+        <label class="text-sm font-medium">{{ isKhmer ? "ប្រព័ន្ធសុវត្ថិភាព" : "Security" }}</label>
         <ModernSelect
           v-model="security"
           class="mt-1 h-11 w-full rounded-xl border px-3"
         >
           <option value="WPA">WPA / WPA2</option>
           <option value="WEP">WEP</option>
-          <option value="nopass">No password</option>
+          <option value="nopass">{{ isKhmer ? "គ្មានពាក្យសម្ងាត់" : "No password" }}</option>
         </ModernSelect>
       </div>
 
       <div>
-        <label class="text-sm font-medium">Password</label>
+        <label class="text-sm font-medium">{{ isKhmer ? "ពាក្យសម្ងាត់" : "Password" }}</label>
         <input
           v-model="password"
           :disabled="security === 'nopass'"
@@ -80,12 +82,12 @@ const enHeadline = defineModel<string>("enHeadline", {
     <div class="flex flex-wrap gap-4">
       <label class="flex items-center gap-2 text-sm">
         <input type="checkbox" v-model="hidden" />
-        Hidden network
+        {{ isKhmer ? "បណ្ដាញលាក់ឈ្មោះ" : "Hidden network" }}
       </label>
 
       <label class="flex items-center gap-2 text-sm">
         <input type="checkbox" v-model="printMode" />
-        Print template
+        {{ isKhmer ? "ផ្ទាំង Poster សម្រាប់បោះពុម្ព" : "Print template" }}
       </label>
     </div>
 
@@ -93,7 +95,7 @@ const enHeadline = defineModel<string>("enHeadline", {
     <div v-if="printMode" class="rounded-2xl border bg-gray-50 p-3 space-y-3">
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">Shop name (optional)</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "ឈ្មោះហាង (ស្រេចចិត្ត)" : "Shop name (optional)" }}</label>
           <input
             v-model="shopName"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -102,7 +104,7 @@ const enHeadline = defineModel<string>("enHeadline", {
         </div>
 
         <div>
-          <label class="text-sm font-medium">Tagline (optional)</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "ពាក្យស្លោក (ស្រេចចិត្ត)" : "Tagline (optional)" }}</label>
           <input
             v-model="tagline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -113,19 +115,19 @@ const enHeadline = defineModel<string>("enHeadline", {
 
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">Style</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "រចនាប័ទ្ម" : "Style" }}</label>
           <ModernSelect
             v-model="theme"
             class="mt-1 h-11 w-full rounded-xl border px-3"
           >
-            <option value="cute">Cute</option>
-            <option value="modern">Modern</option>
-            <option value="minimal">Minimal</option>
+            <option value="cute">{{ isKhmer ? "គួរឱ្យស្រលាញ់ (Cute)" : "Cute" }}</option>
+            <option value="modern">{{ isKhmer ? "ទាន់សម័យ (Modern)" : "Modern" }}</option>
+            <option value="minimal">{{ isKhmer ? "សាមញ្ញ (Minimal)" : "Minimal" }}</option>
           </ModernSelect>
         </div>
 
         <div>
-          <label class="text-sm font-medium">Poster size</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "ទំហំ Poster" : "Poster size" }}</label>
           <ModernSelect
             v-model="posterSize"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -143,18 +145,18 @@ const enHeadline = defineModel<string>("enHeadline", {
             v-model="showPassword"
             :disabled="security === 'nopass'"
           />
-          Show password
+          {{ isKhmer ? "បង្ហាញពាក្យសម្ងាត់" : "Show password" }}
         </label>
 
         <label class="flex items-center gap-2 text-sm">
           <input type="checkbox" v-model="showDontShare" />
-          “Don’t share” note
+          {{ isKhmer ? "កំណត់សម្គាល់ \"ហាមចែករំលែក\"" : "“Don’t share” note" }}
         </label>
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
         <div>
-          <label class="text-sm font-medium">Khmer headline</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "ចំណងជើងភាសាខ្មែរ" : "Khmer headline" }}</label>
           <input
             v-model="khmerHeadline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -162,7 +164,7 @@ const enHeadline = defineModel<string>("enHeadline", {
         </div>
 
         <div>
-          <label class="text-sm font-medium">English headline</label>
+          <label class="text-sm font-medium">{{ isKhmer ? "ចំណងជើងភាសាអង់គ្លេស" : "English headline" }}</label>
           <input
             v-model="enHeadline"
             class="mt-1 h-11 w-full rounded-xl border px-3"
@@ -180,7 +182,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('print-poster')"
         >
-          Print
+          {{ isKhmer ? "បោះពុម្ព" : "Print" }}
         </button>
 
         <button
@@ -188,7 +190,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('export-poster')"
         >
-          Export PNG
+          {{ isKhmer ? "ទាញយក Poster" : "Export PNG" }}
         </button>
       </div>
 
@@ -199,7 +201,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!props.payload"
           @click="emit('copy-payload')"
         >
-          Copy
+          {{ isKhmer ? "ចម្លង" : "Copy" }}
         </button>
 
         <a
@@ -208,7 +210,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :download="props.qrFileName"
           class="rounded-xl border px-4 py-2 text-sm font-semibold text-center"
         >
-          Download
+          {{ isKhmer ? "ទាញយក" : "Download" }}
         </a>
 
         <button
@@ -217,7 +219,7 @@ const enHeadline = defineModel<string>("enHeadline", {
           :disabled="!ssid.trim()"
           @click="emit('generate-qr-png')"
         >
-          Generate PNG
+          {{ isKhmer ? "បង្កើត PNG" : "Generate PNG" }}
         </button>
       </div>
 
@@ -227,11 +229,11 @@ const enHeadline = defineModel<string>("enHeadline", {
         :disabled="!props.payload"
         @click="emit('share-qr')"
       >
-        Share / Save
+        {{ isKhmer ? "ចែករំលែក / រក្សាទុក" : "Share / Save" }}
       </button>
 
       <p class="mt-2 text-xs text-gray-500">
-        Tip: On iPhone, tap <b>Share</b> → <b>Save Image</b>.
+        {{ isKhmer ? "គន្លឹះ៖ លើ iPhone ចុច Share → Save Image ដើម្បីរក្សាទុកក្នុងរូបថត។" : "Tip: On iPhone, tap Share → Save Image." }}
       </p>
     </div>
   </div>

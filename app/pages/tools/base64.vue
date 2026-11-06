@@ -3,7 +3,7 @@
     <div>
       <h1 class="text-xl font-bold">Base64 Encoder / Decoder</h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Encode text, decode Base64, or convert a local file to Base64 in your browser.
+        {{ isKhmer ? "បំប្លែងអត្ថបទទៅជា Base64, ពន្លា Base64 មកវិញ ឬបំប្លែងឯកសារទៅជា Base64 ក្នុង Browser របស់អ្នក។" : "Encode text, decode Base64, or convert a local file to Base64 in your browser." }}
       </p>
     </div>
 
@@ -29,7 +29,7 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center">
             <label class="block text-sm font-semibold text-gray-900">
-              {{ mode === "encode" ? "Text to encode" : "Base64 to decode" }}
+              {{ mode === "encode" ? (isKhmer ? "អត្ថបទដែលត្រូវបំប្លែង" : "Text to encode") : (isKhmer ? "កូដ Base64 ដែលត្រូវពន្លា" : "Base64 to decode") }}
             </label>
           </div>
           <textarea
@@ -37,8 +37,8 @@
             class="h-72 w-full resize-y rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             :placeholder="
               mode === 'encode'
-                ? 'Paste text here'
-                : 'Paste Base64 here'
+                ? (isKhmer ? 'បិទភ្ជាប់អត្ថបទនៅទីនេះ' : 'Paste text here')
+                : (isKhmer ? 'បិទភ្ជាប់ Base64 នៅទីនេះ' : 'Paste Base64 here')
             "
           />
           <div class="flex flex-wrap gap-2">
@@ -47,28 +47,30 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="runText"
             >
-              {{ mode === "encode" ? "Encode" : "Decode" }}
+              {{ mode === "encode" ? (isKhmer ? "បំប្លែង" : "Encode") : (isKhmer ? "ពន្លា" : "Decode") }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearAll"
             >
-              Clear
+              {{ isKhmer ? "សម្អាត" : "Clear" }}
             </button>
           </div>
         </div>
 
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
-            <label class="block text-sm font-semibold text-gray-900">Result</label>
-            <CopyButton :text="result" label="Copy result" />
+            <label class="block text-sm font-semibold text-gray-900">
+              {{ isKhmer ? "លទ្ធផល" : "Result" }}
+            </label>
+            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-72 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            placeholder="Result appears here"
+            :placeholder="isKhmer ? 'លទ្ធផលនឹងបង្ហាញនៅទីនេះ' : 'Result appears here'"
           />
           <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
         </div>
@@ -78,7 +80,7 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              File to Base64
+              {{ isKhmer ? "ឯកសារទៅជា Base64" : "File to Base64" }}
             </label>
             <button
               v-if="fileName"
@@ -86,7 +88,7 @@
               class="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearFile"
             >
-              Remove
+              {{ isKhmer ? "លុបចេញ" : "Remove" }}
             </button>
           </div>
 
@@ -133,7 +135,7 @@
 
               <span class="min-w-0 flex-1">
                 <span class="block text-sm font-semibold text-gray-900">
-                  {{ fileName ? "File selected" : "Choose or drop a file" }}
+                  {{ fileName ? (isKhmer ? "បានជ្រើសរើសឯកសារ" : "File selected") : (isKhmer ? "ជ្រើសរើស ឬទម្លាក់ឯកសារនៅទីនេះ" : "Choose or drop a file") }}
                 </span>
                 <span class="mt-1 block truncate text-xs text-gray-500">
                   {{
@@ -147,7 +149,7 @@
               <span
                 class="inline-flex h-10 items-center justify-center rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800"
               >
-                {{ fileName ? "Change file" : "Choose file" }}
+                {{ fileName ? (isKhmer ? "ប្តូរឯកសារ" : "Change file") : (isKhmer ? "ជ្រើសរើសឯកសារ" : "Choose file") }}
               </span>
             </div>
           </label>
@@ -156,15 +158,15 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label class="block text-sm font-semibold text-gray-900">
-              Base64 output
+              {{ isKhmer ? "លទ្ធផល Base64" : "Base64 output" }}
             </label>
-            <CopyButton :text="result" label="Copy result" />
+            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-80 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            placeholder="Choose a file to generate Base64"
+            :placeholder="isKhmer ? 'ជ្រើសរើសឯកសារដើម្បីបង្កើត Base64' : 'Choose a file to generate Base64'"
           />
           <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
         </div>
@@ -174,10 +176,13 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { decodeBase64ToUtf8, encodeUtf8ToBase64 } from "~/lib/developer-tools";
 import { formatFileLimit } from "~/lib/file-validation";
 import { LOCAL_PROCESSING_PRIVACY_NOTE } from "~/lib/privacy-copy";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "Base64 Encoder / Decoder - ChlatWork",
@@ -187,13 +192,13 @@ useSeoMeta({
   ogDescription: "Fast, private Base64 encoding and decoding for developers.",
 });
 
-const tabs = [
-  { key: "encode", label: "Encode" },
-  { key: "decode", label: "Decode" },
-  { key: "file", label: "File to Base64" },
-] as const;
+const tabs = computed(() => [
+  { key: "encode", label: isKhmer.value ? "បំប្លែង (Encode)" : "Encode" },
+  { key: "decode", label: isKhmer.value ? "ពន្លា (Decode)" : "Decode" },
+  { key: "file", label: isKhmer.value ? "ឯកសារទៅ Base64" : "File to Base64" },
+] as const);
 
-type TabKey = (typeof tabs)[number]["key"];
+type TabKey = "encode" | "decode" | "file";
 
 const mode = ref<TabKey>("encode");
 const input = ref("");

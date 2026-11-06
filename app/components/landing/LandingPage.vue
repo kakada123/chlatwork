@@ -27,7 +27,7 @@ const POPULAR_TOOL_FALLBACK_KEYS = [
 ] as const;
 const POPULAR_TOOL_CARD_COUNT = 15;
 
-const { localizeCategory, localizeTool } = useLanguage();
+const { isKhmer, localizeCategory, localizeTool } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
 const { getPopularToolUsage } = useToolUsage();
 const popularToolKeys = ref<string[]>(
@@ -42,6 +42,19 @@ const HOME_CATEGORY_COPY: Record<string, Pick<(typeof LANDING_CATEGORIES)[number
   "khmer-tools": { name: "Khmer and text", description: "Clean Khmer text and listen to written content." },
   "developer-tools": { name: "Developer utilities", description: "Format, inspect, encode, test, and generate developer data." },
 };
+
+const HOME_CATEGORY_COPY_KM: Record<string, Pick<(typeof LANDING_CATEGORIES)[number], "name" | "description">> = {
+  pdf: { name: "ធ្វើការជាមួយ PDF", description: "បញ្ចូល បំបែក បង្រួម រៀបចំលំដាប់ និងបង្កើតឯកសារ PDF។" },
+  image: { name: "រៀបចំរូបភាព", description: "បង្រួមរូបភាព និងបម្លែងវាទៅជាទម្រង់ងាយប្រើ។" },
+  "qr-barcode": { name: "បង្កើត Code", description: "បង្កើត និងស្កេន QR code, Wi-Fi code និង barcode។" },
+  calculators: { name: "គណនា និងតាមដាន", description: "ចែកលុយ តាមដានការចំណាយ និងគណនាកាលបរិច្ឆេទ។" },
+  "khmer-tools": { name: "ឧបករណ៍ភាសាខ្មែរ", description: "កែសម្រួលអត្ថបទខ្មែរ និងអានអត្ថបទជាសំឡេង។" },
+  "developer-tools": { name: "ឧបករណ៍អ្នកអភិវឌ្ឍន៍", description: "រៀបចំ ពិនិត្យ encode សាកល្បង និងបង្កើតទិន្នន័យ dev។" },
+};
+
+const currentHomeCategoryCopy = computed(() =>
+  isKhmer.value ? HOME_CATEGORY_COPY_KM : HOME_CATEGORY_COPY,
+);
 
 function pickLandingTools(keys: readonly string[]) {
   return keys
@@ -58,7 +71,7 @@ const landingCategories = computed(() =>
     .map((category) => ({ ...category, tools: category.tools.filter((tool) => websiteEnabled(tool.key)) }))
     .filter((category) => category.tools.length > 0)
     .map(localizeCategory)
-    .map((category) => ({ ...category, ...HOME_CATEGORY_COPY[category.key], count: category.tools.length })),
+    .map((category) => ({ ...category, ...currentHomeCategoryCopy.value[category.key], count: category.tools.length })),
 );
 
 function shuffledToolKeys(excludedKeys: Set<string>) {
@@ -103,7 +116,7 @@ onMounted(() => {
   <div
     class="mx-auto w-full max-w-[1200px] pb-24 text-slate-950 transition-colors sm:pb-0 dark:text-white"
   >
-    <h1 class="hidden sm:block sm:sr-only">Free online tools for everyday work</h1>
+    <h1 class="hidden sm:block sm:sr-only">{{ isKhmer ? "ឧបករណ៍អនឡាញឥតគិតថ្លៃសម្រាប់ការងារប្រចាំថ្ងៃ" : "Free online tools for everyday work" }}</h1>
     <!-- Share the mobile content flow; its in-page header stays mobile-only. -->
     <MobileLandingPage
       :tools="landingTools"

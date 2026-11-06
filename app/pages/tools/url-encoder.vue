@@ -1,9 +1,11 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">URL Encoder / Decoder</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "URL Encoder / Decoder" : "URL Encoder / Decoder" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Encode and decode URL components, query strings, and pasted URL parameters.
+        {{ isKhmer ? "បំប្លែង និងពន្លាកូដ URL components, query strings និង parameters ក្នុង Browser របស់អ្នក។" : "Encode and decode URL components, query strings, and pasted URL parameters." }}
       </p>
     </div>
 
@@ -11,7 +13,9 @@
       <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-2">
           <div class="flex h-10 items-center">
-            <label class="block text-sm font-semibold text-gray-900">Input</label>
+            <label class="block text-sm font-semibold text-gray-900">
+              {{ isKhmer ? "ទិន្នន័យបញ្ចូល" : "Input" }}
+            </label>
           </div>
           <textarea
             v-model="input"
@@ -24,21 +28,21 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="run('encode')"
             >
-              Encode
+              {{ isKhmer ? "បំប្លែង (Encode)" : "Encode" }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="run('decode')"
             >
-              Decode
+              {{ isKhmer ? "ពន្លា (Decode)" : "Decode" }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearAll"
             >
-              Clear
+              {{ isKhmer ? "សម្អាត" : "Clear" }}
             </button>
           </div>
           <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
@@ -46,27 +50,31 @@
 
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
-            <label class="block text-sm font-semibold text-gray-900">Result</label>
-            <CopyButton :text="result" label="Copy result" />
+            <label class="block text-sm font-semibold text-gray-900">
+              {{ isKhmer ? "លទ្ធផល" : "Result" }}
+            </label>
+            <CopyButton :text="result" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy result'" />
           </div>
           <textarea
             v-model="result"
             readonly
             class="h-72 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            placeholder="Encoded or decoded result appears here"
+            :placeholder="isKhmer ? 'លទ្ធផលនឹងបង្ហាញនៅទីនេះ' : 'Encoded or decoded result appears here'"
           />
         </div>
       </div>
     </section>
 
     <section v-if="queryRows.length" class="rounded-xl border bg-white p-4 shadow-sm">
-      <h2 class="mb-3 text-sm font-semibold text-gray-900">Decoded query parameters</h2>
+      <h2 class="mb-3 text-sm font-semibold text-gray-900">
+        {{ isKhmer ? "ប៉ារ៉ាម៉ែត្រ Query ដែលបានពន្លា" : "Decoded query parameters" }}
+      </h2>
       <div class="overflow-auto rounded-lg border">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 text-left">
             <tr>
-              <th class="p-2 font-semibold">Key</th>
-              <th class="p-2 font-semibold">Value</th>
+              <th class="p-2 font-semibold">{{ isKhmer ? "កូនសោ (Key)" : "Key" }}</th>
+              <th class="p-2 font-semibold">{{ isKhmer ? "តម្លៃ (Value)" : "Value" }}</th>
             </tr>
           </thead>
           <tbody>
@@ -82,7 +90,10 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "URL Encoder / Decoder - ChlatWork",

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ChevronLeft, Search } from "lucide-vue-next";
 
+const { isKhmer } = useLanguage();
+
 const props = defineProps<{
   title: string;
   backTo: string;

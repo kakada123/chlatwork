@@ -8,10 +8,23 @@ const products = computed(() => Object.entries(PRODUCTS).filter(([key]) => !feat
 </script>
 
 <template>
-  <section class="mx-auto max-w-[1244px] px-4 py-6 sm:px-6" aria-labelledby="product-directory-title">
-    <h2 id="product-directory-title" class="mb-4 text-xl font-bold">{{ isKhmer ? "កម្មវិធី ChlatWork" : "ChlatWork apps" }}</h2>
+  <section class="mt-2 mb-8 sm:mb-10" aria-labelledby="product-directory-title">
+    <h2
+      id="product-directory-title"
+      class="mb-4 text-lg font-semibold tracking-tight text-[#082552] dark:text-white sm:text-xl"
+    >
+      {{ isKhmer ? "កម្មវិធី ChlatWork" : "ChlatWork apps" }}
+    </h2>
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-3">
-      <a v-for="[key, product] in products" :key="key" :href="destination(product.entry)" class="rounded-2xl border border-black/10 bg-white p-4 font-semibold text-sky-700 transition hover:border-sky-400 dark:border-white/15 dark:bg-white/5 dark:text-cyan-300">{{ product.name }} <span aria-hidden="true">↗</span></a>
+      <a
+        v-for="[key, product] in products"
+        :key="key"
+        :href="destination(product.entry)"
+        class="flex min-h-[52px] items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 font-semibold text-sky-700 shadow-sm transition hover:border-sky-400 hover:bg-sky-50/40 dark:border-white/10 dark:bg-white/[0.05] dark:text-cyan-300 dark:hover:border-cyan-300/40 dark:hover:bg-white/[0.08]"
+      >
+        <span>{{ isKhmer ? product.nameKm : product.name }}</span>
+        <span aria-hidden="true" class="shrink-0 text-slate-400 dark:text-white/40">↗</span>
+      </a>
     </div>
   </section>
 </template>

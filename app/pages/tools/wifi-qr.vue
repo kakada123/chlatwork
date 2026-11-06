@@ -33,6 +33,7 @@ const enHeadline = ref("Scan to connect to Wi-Fi");
 
 // ✅ ref to preview component (to grab poster DOM)
 const previewRef = ref<InstanceType<typeof WifiQrPreview> | null>(null);
+const { isKhmer } = useLanguage();
 
 // SEO
 const title = "Wi-Fi QR Generator — ChlatWork";
@@ -200,9 +201,9 @@ watch(
   <div class="mx-auto w-full max-w-[1440px]">
     <div class="flex items-center gap-3 pb-6">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold">Wi-Fi QR Generator</h1>
+        <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត Wi-Fi QR" : "Wi-Fi QR Generator" }}</h1>
         <p class="text-sm text-gray-500 truncate">
-          Generate a Wi-Fi QR for iOS + Android. Scan to connect instantly.
+          {{ isKhmer ? "បង្កើត Wi-Fi QR សម្រាប់ iOS និង Android ដើម្បីភ្ជាប់ដោយស្កេនភ្លាមៗ។" : "Generate a Wi-Fi QR for iOS + Android. Scan to connect instantly." }}
         </p>
       </div>
     </div>

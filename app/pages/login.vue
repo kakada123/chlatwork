@@ -1,7 +1,14 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import { safeReturnPath } from "~/lib/product-domains";
 definePageMeta({ middleware: "guest" });
-useSeoMeta({ title: "Login | ChlatWork", robots: "noindex, nofollow" });
+
+const { isKhmer } = useLanguage();
+
+useSeoMeta({
+  title: computed(() => isKhmer.value ? "ចូលគណនី | ChlatWork" : "Login | ChlatWork"),
+  robots: "noindex, nofollow",
+});
 
 const route = useRoute();
 const errorMessage = ref("");
@@ -17,8 +24,12 @@ function redirectTarget() {
   <div class="mx-auto flex min-h-[calc(100dvh-10rem)] max-w-md items-center px-4 py-12">
     <section class="w-full rounded-3xl border border-black/10 bg-white p-6 shadow-xl dark:border-white/15 dark:bg-neutral-950 sm:p-8">
       <NuxtLink to="/" class="text-sm font-bold text-sky-600 dark:text-cyan-300">ChlatWork</NuxtLink>
-      <h1 class="mt-4 text-3xl font-semibold">Welcome to ChlatWork</h1>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Continue securely with Google or Telegram.</p>
+      <h1 class="mt-4 text-3xl font-semibold">
+        {{ isKhmer ? "សូមស្វាគមន៍មកកាន់ ChlatWork" : "Welcome to ChlatWork" }}
+      </h1>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        {{ isKhmer ? "ចូលគណនីដោយសុវត្ថិភាពជាមួយ Google ឬ Telegram។" : "Continue securely with Google or Telegram." }}
+      </p>
 
       <p v-if="errorMessage" role="alert" class="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300">{{ errorMessage }}</p>
 

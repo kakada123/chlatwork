@@ -1,9 +1,11 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Regex Tester</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "តេស្ត Regex (JavaScript)" : "Regex Tester" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Test JavaScript regular expressions, toggle flags, and inspect matches.
+        {{ isKhmer ? "តេស្ត JavaScript Regular Expressions, កំណត់ flags និងពិនិត្យលទ្ធផល match ផ្ទាល់ក្នុង Browser។" : "Test JavaScript regular expressions, toggle flags, and inspect matches." }}
       </p>
     </div>
 
@@ -11,7 +13,9 @@
       <div class="grid gap-4 lg:grid-cols-[320px_1fr]">
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-900">Pattern</label>
+            <label class="block text-sm font-semibold text-gray-900">
+              {{ isKhmer ? "លំនាំ Pattern" : "Pattern" }}
+            </label>
             <input
               v-model="pattern"
               class="mt-2 h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -20,7 +24,9 @@
           </div>
 
           <div>
-            <p class="mb-2 text-sm font-semibold text-gray-900">Flags</p>
+            <p class="mb-2 text-sm font-semibold text-gray-900">
+              {{ isKhmer ? "ជម្រើស Flags" : "Flags" }}
+            </p>
             <div class="grid grid-cols-2 gap-2">
               <label
                 v-for="flag in flagRows"
@@ -35,7 +41,9 @@
           </div>
 
           <div class="rounded-lg bg-gray-50 p-3 text-sm">
-            <p class="font-semibold text-gray-700">Expression</p>
+            <p class="font-semibold text-gray-700">
+              {{ isKhmer ? "កន្សោម Regex" : "Expression" }}
+            </p>
             <p class="mt-1 break-all font-mono text-gray-600">
               /{{ pattern || "" }}/{{ flagString }}
             </p>
@@ -44,11 +52,13 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-900">Test string</label>
+          <label class="block text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "អត្ថបទសម្រាប់តេស្ត" : "Test string" }}
+          </label>
           <textarea
             v-model="testText"
             class="h-80 w-full resize-y rounded-lg border px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
-            placeholder="Paste text to test"
+            :placeholder="isKhmer ? 'បិទភ្ជាប់អត្ថបទដើម្បីតេស្ត' : 'Paste text to test'"
           />
         </div>
       </div>
@@ -56,12 +66,14 @@
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-3 flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold text-gray-900">Match preview</h2>
+        <h2 class="text-sm font-semibold text-gray-900">
+          {{ isKhmer ? "ទិដ្ឋភាព Match" : "Match preview" }}
+        </h2>
         <span
           v-if="matches.length"
           class="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100"
         >
-          {{ matches.length }} {{ matches.length === 1 ? "match" : "matches" }}
+          {{ isKhmer ? `${matches.length} ត្រូវគ្នា` : `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` }}
         </span>
       </div>
       <pre
@@ -72,24 +84,24 @@
           >{{ segment.text }}</mark
         ><span v-else>{{ segment.text }}</span></template></pre>
       <p v-if="!matches.length" class="mt-3 text-sm text-gray-500">
-        No matches found.
+        {{ isKhmer ? "រកមិនឃើញលទ្ធផលត្រូវគ្នាឡើយ។" : "No matches found." }}
       </p>
     </section>
 
     <section v-if="matches.length" class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-3 flex items-center justify-between gap-3">
         <h2 class="text-sm font-semibold text-gray-900">
-          Matches ({{ matches.length }})
+          {{ isKhmer ? `លទ្ធផលត្រូវគ្នា (${matches.length})` : `Matches (${matches.length})` }}
         </h2>
-        <CopyButton :text="matchesText" label="Copy matches" />
+        <CopyButton :text="matchesText" :label="isKhmer ? 'ចម្លងលទ្ធផល' : 'Copy matches'" />
       </div>
       <div class="overflow-auto rounded-lg border">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 text-left">
             <tr>
-              <th class="p-2 font-semibold">Index</th>
-              <th class="p-2 font-semibold">Match</th>
-              <th class="p-2 font-semibold">Groups</th>
+              <th class="p-2 font-semibold">{{ isKhmer ? "លំដាប់" : "Index" }}</th>
+              <th class="p-2 font-semibold">{{ isKhmer ? "លទ្ធផល" : "Match" }}</th>
+              <th class="p-2 font-semibold">{{ isKhmer ? "ក្រុម (Groups)" : "Groups" }}</th>
             </tr>
           </thead>
           <tbody>
@@ -108,7 +120,10 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "Regex Tester - ChlatWork",

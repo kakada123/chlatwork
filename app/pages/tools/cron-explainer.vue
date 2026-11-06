@@ -1,15 +1,19 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Cron Expression Explainer</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "ពន្យល់កូដ Cron Expression" : "Cron Expression Explainer" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Explain standard 5-field cron expressions and preview the next five local run times.
+        {{ isKhmer ? "ពន្យល់ពីអត្ថន័យនៃ Cron ៥ ខ្ទង់ និងបង្ហាញកាលវិភាគដំណើរការ ៥ លើកបន្ទាប់។" : "Explain standard 5-field cron expressions and preview the next five local run times." }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="space-y-3">
-        <label class="block text-sm font-semibold text-gray-900">Cron expression</label>
+        <label class="block text-sm font-semibold text-gray-900">
+          {{ isKhmer ? "កូដ Cron expression" : "Cron expression" }}
+        </label>
         <input
           v-model="expression"
           class="h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -23,7 +27,7 @@
             class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="explain"
           >
-            Explain
+            {{ isKhmer ? "ពន្យល់" : "Explain" }}
           </button>
           <button
             v-for="example in examples"
@@ -37,7 +41,7 @@
         </div>
 
         <p class="text-xs text-gray-500">
-          Supports 5 fields: minute, hour, day of month, month, day of week.
+          {{ isKhmer ? "គាំទ្រ ៥ ខ្ទង់៖ នាទី ម៉ោង ថ្ងៃនៃខែ ខែ និងថ្ងៃនៃសប្តាហ៍។" : "Supports 5 fields: minute, hour, day of month, month, day of week." }}
         </p>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </div>
@@ -46,7 +50,9 @@
     <section v-if="explanation.length" class="grid gap-4 lg:grid-cols-2">
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-3 flex h-10 items-center">
-          <h2 class="text-sm font-semibold text-gray-900">Explanation</h2>
+          <h2 class="text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "ការពន្យល់" : "Explanation" }}
+          </h2>
         </div>
         <ul class="space-y-2 text-sm text-gray-700">
           <li
@@ -58,15 +64,16 @@
           </li>
         </ul>
         <p class="mt-3 text-xs text-gray-500">
-          When both day-of-month and day-of-week are restricted, this uses common cron OR
-          matching.
+          {{ isKhmer ? "នៅពេលថ្ងៃនៃខែ និងថ្ងៃនៃសប្តាហ៍ត្រូវបានកំណត់ នោះនឹងប្រើលក្ខខណ្ឌ OR ដូចប្រព័ន្ធ Cron ទូទៅ។" : "When both day-of-month and day-of-week are restricted, this uses common cron OR matching." }}
         </p>
       </div>
 
       <div class="rounded-xl border bg-white p-4 shadow-sm">
         <div class="mb-3 flex h-10 items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold text-gray-900">Next 5 run times</h2>
-          <CopyButton :text="runsText" label="Copy" />
+          <h2 class="text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "កាលវិភាគ ៥ លើកបន្ទាប់" : "Next 5 run times" }}
+          </h2>
+          <CopyButton :text="runsText" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
         </div>
         <ol class="space-y-2 text-sm text-gray-700">
           <li
@@ -83,8 +90,11 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { getNextCronRuns } from "~/lib/developer-tools";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "Cron Expression Explainer - ChlatWork",
@@ -97,12 +107,12 @@ const expression = ref("*/5 * * * *");
 const explanation = ref<string[]>([]);
 const runs = ref<Date[]>([]);
 const error = ref("");
-const examples = [
-  { label: "Every 5 min", value: "*/5 * * * *" },
-  { label: "Daily 9 AM", value: "0 9 * * *" },
-  { label: "Weekdays", value: "0 9 * * 1-5" },
-  { label: "Monthly", value: "0 0 1 * *" },
-];
+const examples = computed(() => [
+  { label: isKhmer.value ? "រៀងរាល់ ៥ នាទី" : "Every 5 min", value: "*/5 * * * *" },
+  { label: isKhmer.value ? "រាល់ថ្ងៃ ម៉ោង ៩ ព្រឹក" : "Daily 9 AM", value: "0 9 * * *" },
+  { label: isKhmer.value ? "ថ្ងៃធ្វើការ" : "Weekdays", value: "0 9 * * 1-5" },
+  { label: isKhmer.value ? "រៀងរាល់ខែ" : "Monthly", value: "0 0 1 * *" },
+]);
 
 const runsText = computed(() => runs.value.map((run) => formatRun(run)).join("\n"));
 

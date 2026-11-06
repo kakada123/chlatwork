@@ -14,7 +14,9 @@ const props = withDefaults(
 );
 
 const siteUrl = "https://chlatwork.com";
+const { isKhmer, localizeTool } = useLanguage();
 const { destination } = useProductDomain();
+const localizedTool = computed(() => localizeTool(props.guide.tool));
 const canonicalUrl = computed(() => destination(props.guide.tool.route));
 const faqs = computed(() => props.guide.faqs.slice(0, 6));
 const reviewDate = "2026-07-31";
@@ -93,7 +95,7 @@ useHead(() => ({
     <summary
       class="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-400 dark:text-white/75 dark:hover:bg-white/[0.05] [&::-webkit-details-marker]:hidden sm:px-5"
     >
-      <span class="min-w-0 flex-1">About {{ guide.tool.name }}</span>
+      <span class="min-w-0 flex-1">{{ isKhmer ? `អំពី ${localizedTool.name}` : `About ${guide.tool.name}` }}</span>
       <span
         aria-hidden="true"
         class="relative grid size-7 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-500 dark:border-white/10 dark:text-white/60"

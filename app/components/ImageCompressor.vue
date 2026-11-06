@@ -1,16 +1,20 @@
 <template>
   <div class="space-y-6">
     <div class="space-y-1">
-      <h1 class="text-xl font-bold">Image Compressor</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "បង្រួមទំហំរូបភាព" : "Image Compressor" }}
+      </h1>
       <p class="text-sm text-gray-500 dark:text-white/55">
-        Compress one image or a batch in your browser. No upload, no API.
+        {{ isKhmer ? "បង្រួមទំហំរូបភាពមួយ ឬច្រើនក្នុងពេលតែមួយក្នុង browser។ មិន Upload មិនប្រើប្រាស់ API ឡើយ។" : "Compress one image or a batch in your browser. No upload, no API." }}
       </p>
     </div>
 
     <section
       class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"
     >
-      <h2 class="text-sm font-semibold">Upload</h2>
+      <h2 class="text-sm font-semibold">
+        {{ isKhmer ? "បញ្ចូលរូបភាព" : "Upload" }}
+      </h2>
 
       <input
         ref="fileInput"
@@ -47,13 +51,13 @@
 
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-gray-900 dark:text-white">
-              {{ hasFiles ? selectedSummary : "Click or drop images here" }}
+              {{ hasFiles ? selectedSummary : (isKhmer ? "ចុច ឬទម្លាក់រូបភាពនៅទីនេះ" : "Click or drop images here") }}
             </p>
             <p class="text-xs text-gray-500 dark:text-white/50">
               {{
                 hasFiles
-                  ? "Batch compress selected images with the same settings."
-                  : "PNG, JPG, WebP, HEIC, and HEIF images."
+                  ? (isKhmer ? "បង្រួមរូបភាពដែលបានជ្រើសរើសទាំងអស់ជាមួយការកំណត់ដូចគ្នា។" : "Batch compress selected images with the same settings.")
+                  : (isKhmer ? "គាំទ្រឯកសារ PNG, JPG, WebP, HEIC និង HEIF។" : "PNG, JPG, WebP, HEIC, and HEIF images.")
               }}
             </p>
           </div>
@@ -61,7 +65,7 @@
           <span
             class="inline-flex h-10 items-center justify-center rounded-xl bg-gray-900 px-4 text-sm font-semibold text-white transition group-hover:bg-gray-800 group-hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:group-hover:bg-gray-800 dark:group-hover:text-white"
           >
-            {{ hasFiles ? "Replace" : "Choose images" }}
+            {{ hasFiles ? (isKhmer ? "ប្តូរថ្មី" : "Replace") : (isKhmer ? "ជ្រើសរើសរូបភាព" : "Choose images") }}
           </span>
         </div>
       </label>
@@ -73,7 +77,7 @@
           :disabled="loading || isBatchFull"
           @click="openPicker('append')"
         >
-          Add more
+          {{ isKhmer ? "បន្ថែមទៀត" : "Add more" }}
         </button>
 
         <button
@@ -82,11 +86,11 @@
           :disabled="loading"
           @click="resetAll"
         >
-          Remove all
+          {{ isKhmer ? "លុបទាំងអស់" : "Remove all" }}
         </button>
 
         <p class="text-xs text-gray-500 dark:text-white/50">
-          Up to {{ maxBatchSize }} images per batch.
+          {{ isKhmer ? `អាចបញ្ចូលបានរហូតដល់ ${maxBatchSize} រូបភាពក្នុងមួយលើក។` : `Up to ${maxBatchSize} images per batch.` }}
         </p>
       </div>
 
@@ -101,9 +105,11 @@
     >
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div class="space-y-1">
-          <h2 class="text-sm font-semibold">Options</h2>
+          <h2 class="text-sm font-semibold">
+            {{ isKhmer ? "ជម្រើស" : "Options" }}
+          </h2>
           <p class="text-xs text-gray-500 dark:text-white/50">
-            One setting set is applied to every selected image.
+            {{ isKhmer ? "ការកំណត់មួយនឹងត្រូវអនុវត្តលើគ្រប់រូបភាពដែលបានជ្រើសរើស។" : "One setting set is applied to every selected image." }}
           </p>
         </div>
 
@@ -121,7 +127,7 @@
             :disabled="loading"
             @click="clearAllOutputs"
           >
-            Clear output
+            {{ isKhmer ? "សម្អាតលទ្ធផល" : "Clear output" }}
           </button>
         </div>
       </div>
@@ -131,15 +137,15 @@
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45"
           >
-            Output format
+            {{ isKhmer ? "ទម្រង់ចេញ" : "Output format" }}
           </label>
           <ModernSelect
             v-model="opts.format"
             class="mt-1 h-11 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-white/10 dark:bg-gray-950 dark:text-white"
           >
-            <option value="image/webp">WebP (smallest)</option>
+            <option value="image/webp">{{ isKhmer ? "WebP (តូចបំផុត)" : "WebP (smallest)" }}</option>
             <option value="image/jpeg">JPEG</option>
-            <option value="image/png">PNG (lossless)</option>
+            <option value="image/png">{{ isKhmer ? "PNG (គុណភាពដើម)" : "PNG (lossless)" }}</option>
           </ModernSelect>
         </div>
 
@@ -147,7 +153,7 @@
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45"
           >
-            Quality
+            {{ isKhmer ? "គុណភាព" : "Quality" }}
             <span
               v-if="
                 opts.format === 'image/png' ||
@@ -155,7 +161,7 @@
               "
               class="normal-case text-gray-400"
             >
-              (ignored)
+              {{ isKhmer ? "(មិនអនុវត្ត)" : "(ignored)" }}
             </span>
           </label>
 
@@ -185,7 +191,7 @@
               type="checkbox"
               class="h-4 w-4 rounded border-gray-300"
             />
-            WebP high detail for screenshots or UI text
+            {{ isKhmer ? "WebP គុណភាពលម្អិតខ្ពស់សម្រាប់ screenshot ឬអក្សរ UI" : "WebP high detail for screenshots or UI text" }}
           </label>
         </div>
 
@@ -193,8 +199,8 @@
           <label
             class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45"
           >
-            Max width (px)
-            <span class="normal-case text-gray-400">(0 = keep)</span>
+            {{ isKhmer ? "ទទឹងអតិបរមា (px)" : "Max width (px)" }}
+            <span class="normal-case text-gray-400">{{ isKhmer ? "(0 = រក្សាទំហំដើម)" : "(0 = keep)" }}</span>
           </label>
           <input
             v-model.number="opts.maxWidth"
@@ -213,7 +219,9 @@
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="space-y-1">
-          <h2 class="text-sm font-semibold">Preview & results</h2>
+          <h2 class="text-sm font-semibold">
+            {{ isKhmer ? "ទិដ្ឋភាពមុន និងលទ្ធផល" : "Preview & results" }}
+          </h2>
           <p class="text-xs text-gray-500 dark:text-white/50">
             {{ resultSummary }}
           </p>
@@ -225,7 +233,7 @@
             class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white"
             @click="downloadItem(activeItem)"
           >
-            Download selected
+            {{ isKhmer ? "ទាញយករូបភាពដែលជ្រើស" : "Download selected" }}
           </button>
 
           <button
@@ -234,7 +242,7 @@
             :disabled="zipLoading"
             @click="downloadAll"
           >
-            {{ zipLoading ? "Creating ZIP..." : "Download ZIP" }}
+            {{ zipLoading ? (isKhmer ? "កំពុងបង្កើត ZIP..." : "Creating ZIP...") : (isKhmer ? "ទាញយកឯកសារ ZIP" : "Download ZIP") }}
           </button>
         </div>
       </div>
@@ -244,7 +252,7 @@
           <p
             class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45"
           >
-            Original
+            {{ isKhmer ? "រូបភាពដើម" : "Original" }}
           </p>
           <div
             class="rounded-xl border bg-gray-50 p-3 dark:border-white/10 dark:bg-black/20"
@@ -259,7 +267,7 @@
               v-else
               class="flex min-h-[180px] items-center justify-center text-center text-sm text-gray-500 dark:text-white/50"
             >
-              HEIC preview will appear when compression starts.
+              {{ isKhmer ? "ទិដ្ឋភាព HEIC នឹងបង្ហាញនៅពេលចាប់ផ្តើមបង្រួម។" : "HEIC preview will appear when compression starts." }}
             </p>
           </div>
           <p class="truncate text-xs text-gray-500 dark:text-white/50">
@@ -271,7 +279,7 @@
           <p
             class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45"
           >
-            Compressed
+            {{ isKhmer ? "រូបភាពដែលបានបង្រួម" : "Compressed" }}
           </p>
           <div
             class="flex min-h-[200px] items-center justify-center rounded-xl border bg-gray-50 p-3 dark:border-white/10 dark:bg-black/20"
@@ -287,7 +295,7 @@
               v-else-if="activeItem.status === 'compressing'"
               class="text-sm text-gray-500 dark:text-white/50"
             >
-              Compressing this image...
+              {{ isKhmer ? "កំពុងបង្រួមរូបភាពនេះ..." : "Compressing this image..." }}
             </p>
             <p
               v-else-if="activeItem.message"
@@ -296,7 +304,7 @@
               {{ activeItem.message }}
             </p>
             <p v-else class="text-sm text-gray-400">
-              Click Compress to generate output.
+              {{ isKhmer ? "ចុចបង្រួមទំហំដើម្បីទាញយកលទ្ធផល។" : "Click Compress to generate output." }}
             </p>
           </div>
 
@@ -314,7 +322,7 @@
 
       <div class="space-y-2">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/45">
-          Batch queue
+          {{ isKhmer ? "បញ្ជីរូបភាពក្នុងជួរ" : "Batch queue" }}
         </h3>
 
         <div class="grid gap-2">
@@ -358,7 +366,7 @@
                 class="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-gray-800 hover:text-white dark:bg-gray-950 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-gray-800 dark:hover:text-white"
                 @click="downloadItem(item)"
               >
-                Download
+                {{ isKhmer ? "ទាញយក" : "Download" }}
               </button>
 
               <button
@@ -367,7 +375,7 @@
                 :disabled="loading"
                 @click="removeItem(item.id)"
               >
-                Remove
+                {{ isKhmer ? "លុប" : "Remove" }}
               </button>
             </div>
           </div>
@@ -375,9 +383,7 @@
       </div>
 
       <p class="text-xs text-gray-500 dark:text-white/50">
-        PNG is lossless and may become bigger. For photos, use WebP or JPEG with
-        lower quality. For screenshots and text-heavy images, try WebP high
-        detail or reduce max width.
+        {{ isKhmer ? "PNG រក្សាគុណភាពដើមឥតបាត់បង់ ដូច្នេះទំហំអាចធំជាងមុន។ សម្រាប់រូបថត សូមប្រើ WebP ឬ JPEG ដោយកំណត់គុណភាពទាបបន្តិច។ សម្រាប់ screenshot ឬរូបភាពដែលមានអក្សរច្រើន សូមជ្រើស WebP គុណភាពលម្អិត ឬបន្ថយទទឹងរូបភាព។" : "PNG is lossless and may become bigger. For photos, use WebP or JPEG with lower quality. For screenshots and text-heavy images, try WebP high detail or reduce max width." }}
       </p>
     </section>
   </div>
@@ -385,6 +391,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref } from "vue";
+import { useLanguage } from "~/composables/useLanguage";
 import { createStoredZip, type ZipEntryInput } from "~/lib/browser-zip";
 import {
   BROWSER_IMAGE_EXTENSIONS,
@@ -396,6 +403,8 @@ import {
   validateFiles,
 } from "~/lib/file-validation";
 import { secureRandomId } from "~/lib/secure-random";
+
+const { isKhmer } = useLanguage();
 
 type OutputFormat = "image/webp" | "image/jpeg" | "image/png";
 type PickerMode = "replace" | "append";
@@ -452,22 +461,38 @@ const totalSavedBytes = computed(() =>
     0,
   ),
 );
-const selectedSummary = computed(
-  () =>
-    `${items.value.length} ${items.value.length === 1 ? "image" : "images"} - ${formatBytes(
-      totalOriginalBytes.value,
-    )} total`,
-);
+const selectedSummary = computed(() => {
+  if (isKhmer.value) {
+    return `${items.value.length} រូបភាព - សរុប ${formatBytes(totalOriginalBytes.value)}`;
+  }
+  return `${items.value.length} ${items.value.length === 1 ? "image" : "images"} - ${formatBytes(
+    totalOriginalBytes.value,
+  )} total`;
+});
 const compressButtonLabel = computed(() => {
   if (loading.value) {
-    return `Compressing ${compressingIndex.value}/${items.value.length}`;
+    return isKhmer.value
+      ? `កំពុងបង្រួម ${compressingIndex.value}/${items.value.length}`
+      : `Compressing ${compressingIndex.value}/${items.value.length}`;
   }
 
+  if (isKhmer.value) {
+    return items.value.length === 1 ? "បង្រួមរូបភាព" : `បង្រួម ${items.value.length} រូបភាព`;
+  }
   return items.value.length === 1 ? "Compress image" : `Compress ${items.value.length} images`;
 });
 const resultSummary = computed(() => {
   if (!completedItems.value.length && !failedItems.value.length) {
-    return "Compressed results will appear here after processing.";
+    return isKhmer.value
+      ? "លទ្ធផលដែលបានបង្រួមរួចនឹងបង្ហាញនៅទីនេះ។"
+      : "Compressed results will appear here after processing.";
+  }
+
+  if (isKhmer.value) {
+    const done = `បានបង្រួម ${completedItems.value.length} រូបភាព`;
+    const skipped = failedItems.value.length ? `, រំលង ${failedItems.value.length}` : "";
+    const saved = totalSavedBytes.value ? ` - សន្សំសំចៃបាន ${formatBytes(totalSavedBytes.value)}` : "";
+    return `${done}${skipped}${saved}`;
   }
 
   const done = `${completedItems.value.length} compressed`;
@@ -805,11 +830,13 @@ function savedPct(item: ImageItem) {
 }
 
 function statusLabel(item: ImageItem) {
-  if (item.status === "done") return `Saved ${savedPct(item).toFixed(1)}%`;
-  if (item.status === "compressing") return "Compressing";
-  if (item.status === "skipped") return "Skipped";
-  if (item.status === "error") return "Error";
-  return "Ready";
+  if (item.status === "done") {
+    return isKhmer.value ? `កាត់បន្ថយ ${savedPct(item).toFixed(1)}%` : `Saved ${savedPct(item).toFixed(1)}%`;
+  }
+  if (item.status === "compressing") return isKhmer.value ? "កំពុងដំណើរការ" : "Compressing";
+  if (item.status === "skipped") return isKhmer.value ? "បានរំលង" : "Skipped";
+  if (item.status === "error") return isKhmer.value ? "មានបញ្ហា" : "Error";
+  return isKhmer.value ? "រួចរាល់" : "Ready";
 }
 
 function statusBadgeClass(status: ImageStatus) {

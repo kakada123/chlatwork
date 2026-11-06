@@ -1,9 +1,11 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Password Generator</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "បង្កើតពាក្យសម្ងាត់សុវត្ថិភាព" : "Password Generator" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Generate strong random passwords with length and character-set controls.
+        {{ isKhmer ? "បង្កើតពាក្យសម្ងាត់ចៃដន្យរឹងមាំ ដោយអាចកំណត់ប្រវែង និងប្រភេទតួអក្សរបានតាមតម្រូវការ។" : "Generate strong random passwords with length and character-set controls." }}
       </p>
     </div>
 
@@ -12,7 +14,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-900">
-              Length: {{ options.length }}
+              {{ isKhmer ? "ប្រវែង" : "Length" }}: {{ options.length }}
             </label>
             <input
               v-model.number="options.length"
@@ -47,23 +49,25 @@
               class="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="generate"
             >
-              Generate
+              {{ isKhmer ? "បង្កើតថ្មី" : "Generate" }}
             </button>
-            <CopyButton :text="password" label="Copy" />
+            <CopyButton :text="password" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
           </div>
           <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
         </div>
 
         <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-900">Generated password</label>
+          <label class="block text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "ពាក្យសម្ងាត់ដែលបានបង្កើត" : "Generated password" }}
+          </label>
           <textarea
             v-model="password"
             readonly
             class="h-64 w-full resize-y rounded-lg border bg-gray-50 px-3 py-2 font-mono text-sm outline-none"
-            placeholder="Generated password appears here"
+            :placeholder="isKhmer ? 'ពាក្យសម្ងាត់ដែលបានបង្កើតនឹងបង្ហាញនៅទីនេះ' : 'Generated password appears here'"
           />
           <p class="text-xs text-gray-500">
-            Randomness uses the browser crypto API when available.
+            {{ isKhmer ? "ដំណើរការដោយប្រើ Browser Crypto API ប្រកបដោយសុវត្ថិភាព។" : "Randomness uses the browser crypto API when available." }}
           </p>
         </div>
       </div>
@@ -72,8 +76,11 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
 import { generatePassword } from "~/lib/developer-tools";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "Password Generator - ChlatWork",
@@ -93,12 +100,12 @@ const options = reactive<Record<PasswordOptionKey, boolean> & { length: number }
   symbols: true,
 });
 
-const optionRows: Array<{ key: PasswordOptionKey; label: string }> = [
-  { key: "lowercase", label: "Lowercase letters" },
-  { key: "uppercase", label: "Uppercase letters" },
-  { key: "numbers", label: "Numbers" },
-  { key: "symbols", label: "Symbols" },
-];
+const optionRows = computed<Array<{ key: PasswordOptionKey; label: string }>>(() => [
+  { key: "lowercase", label: isKhmer.value ? "អក្សរតូច (a-z)" : "Lowercase letters" },
+  { key: "uppercase", label: isKhmer.value ? "អក្សរធំ (A-Z)" : "Uppercase letters" },
+  { key: "numbers", label: isKhmer.value ? "លេខ (0-9)" : "Numbers" },
+  { key: "symbols", label: isKhmer.value ? "និមិត្តសញ្ញា (!@#$)" : "Symbols" },
+]);
 
 const password = ref("");
 const error = ref("");

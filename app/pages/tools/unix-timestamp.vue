@@ -1,15 +1,19 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Unix Timestamp Converter</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "បំប្លែងកាលបរិច្ឆេទ Unix Timestamp" : "Unix Timestamp Converter" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Convert Unix timestamps to readable dates and convert date-time values back to timestamps.
+        {{ isKhmer ? "បំប្លែង Unix timestamp ទៅជាកាលបរិច្ឆេទដែលងាយស្រួលអាន និងបំប្លែងកាលបរិច្ឆេទត្រឡប់ទៅជា timestamp វិញ។" : "Convert Unix timestamps to readable dates and convert date-time values back to timestamps." }}
       </p>
     </div>
 
     <section class="rounded-xl border bg-white p-4 shadow-sm">
       <div class="mb-4 max-w-sm">
-        <label class="block text-sm font-semibold text-gray-900">Timezone</label>
+        <label class="block text-sm font-semibold text-gray-900">
+          {{ isKhmer ? "តំបន់ម៉ោង (Timezone)" : "Timezone" }}
+        </label>
         <ModernSelect
           v-model="timeZone"
           class="mt-2 h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -22,7 +26,9 @@
 
       <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-3 rounded-lg border border-gray-200 p-3">
-          <h2 class="text-sm font-semibold text-gray-900">Timestamp to date</h2>
+          <h2 class="text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "Timestamp ទៅជាកាលបរិច្ឆេទ" : "Timestamp to date" }}
+          </h2>
           <input
             v-model="timestampInput"
             class="h-11 w-full rounded-lg border px-3 font-mono text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
@@ -34,20 +40,22 @@
               class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
               @click="convertTimestamp"
             >
-              Convert
+              {{ isKhmer ? "បំប្លែង" : "Convert" }}
             </button>
             <button
               type="button"
               class="h-11 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="useNow"
             >
-              Use now
+              {{ isKhmer ? "ពេលបច្ចុប្បន្ន" : "Use now" }}
             </button>
           </div>
           <p v-if="timestampError" class="text-sm text-red-600">{{ timestampError }}</p>
           <dl v-if="timestampResult" class="space-y-2 text-sm">
             <div class="rounded-lg bg-gray-50 p-3">
-              <dt class="font-semibold text-gray-700">Selected timezone</dt>
+              <dt class="font-semibold text-gray-700">
+                {{ isKhmer ? "តំបន់ម៉ោងដែលបានជ្រើស" : "Selected timezone" }}
+              </dt>
               <dd class="mt-1 break-words font-mono">{{ timestampResult.zone }}</dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
@@ -55,14 +63,18 @@
               <dd class="mt-1 break-words font-mono">{{ timestampResult.iso }}</dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
-              <dt class="font-semibold text-gray-700">Seconds</dt>
+              <dt class="font-semibold text-gray-700">
+                {{ isKhmer ? "វិនាទី (Seconds)" : "Seconds" }}
+              </dt>
               <dd class="mt-1 break-words font-mono">{{ timestampResult.seconds }}</dd>
             </div>
           </dl>
         </div>
 
         <div class="space-y-3 rounded-lg border border-gray-200 p-3">
-          <h2 class="text-sm font-semibold text-gray-900">Date to timestamp</h2>
+          <h2 class="text-sm font-semibold text-gray-900">
+            {{ isKhmer ? "កាលបរិច្ឆេទ ទៅជា Timestamp" : "Date to timestamp" }}
+          </h2>
           <ModernDateInput
             v-model="dateInput"
             type="datetime-local"
@@ -74,22 +86,26 @@
             class="h-11 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white hover:bg-gray-800"
             @click="convertDate"
           >
-            Convert
+            {{ isKhmer ? "បំប្លែង" : "Convert" }}
           </button>
           <p v-if="dateError" class="text-sm text-red-600">{{ dateError }}</p>
           <dl v-if="dateResult" class="space-y-2 text-sm">
             <div class="rounded-lg bg-gray-50 p-3">
-              <dt class="font-semibold text-gray-700">Seconds</dt>
+              <dt class="font-semibold text-gray-700">
+                {{ isKhmer ? "វិនាទី (Seconds)" : "Seconds" }}
+              </dt>
               <dd class="mt-1 flex items-center justify-between gap-3 font-mono">
                 <span class="break-all">{{ dateResult.seconds }}</span>
-                <CopyButton :text="dateResult.seconds" label="Copy" />
+                <CopyButton :text="dateResult.seconds" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
               </dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
-              <dt class="font-semibold text-gray-700">Milliseconds</dt>
+              <dt class="font-semibold text-gray-700">
+                {{ isKhmer ? "មីលីវិនាទី (Milliseconds)" : "Milliseconds" }}
+              </dt>
               <dd class="mt-1 flex items-center justify-between gap-3 font-mono">
                 <span class="break-all">{{ dateResult.milliseconds }}</span>
-                <CopyButton :text="dateResult.milliseconds" label="Copy" />
+                <CopyButton :text="dateResult.milliseconds" :label="isKhmer ? 'ចម្លង' : 'Copy'" />
               </dd>
             </div>
             <div class="rounded-lg bg-gray-50 p-3">
@@ -104,7 +120,10 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
 import CopyButton from "~/components/developer-tools/CopyButton.vue";
+
+const { isKhmer } = useLanguage();
 import {
   COMMON_TIME_ZONES,
   formatDateInTimeZone,

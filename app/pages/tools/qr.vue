@@ -1,10 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">QR Generator</h1>
+      <h1 class="text-xl font-bold">{{ isKhmer ? "បង្កើត QR Code" : "QR Generator" }}</h1>
       <p class="text-sm text-gray-500">
-        Generate QR codes for text/URL and download as PNG (no upload, no API).
-        Enter each value and click Generate to add multiple items.
+        {{ isKhmer ? "បង្កើត QR code សម្រាប់អត្ថបទ ឬ URL និងទាញយកជា PNG ដោយផ្ទាល់ក្នុង browser។" : "Generate QR codes for text/URL and download as PNG (no upload, no API). Enter each value and click Generate to add multiple items." }}
       </p>
     </div>
 
@@ -34,10 +33,10 @@
       class="space-y-4 rounded-2xl border bg-white p-4 shadow-sm"
     >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold">Generated QR codes</h2>
+        <h2 class="text-sm font-semibold">{{ isKhmer ? "QR Code ដែលបានបង្កើត" : "Generated QR codes" }}</h2>
         <p class="text-xs text-gray-500">
           {{ generatedItems.length }}
-          {{ generatedItems.length > 1 ? "items" : "item" }}
+          {{ isKhmer ? "កូដ" : (generatedItems.length > 1 ? "items" : "item") }}
         </p>
       </div>
 
@@ -65,7 +64,7 @@
             type="button"
             @click="downloadItemPng(item.text, item.dataUrl, index)"
           >
-            Download PNG
+            {{ isKhmer ? "ទាញយក PNG" : "Download PNG" }}
           </button>
         </article>
       </div>
@@ -80,6 +79,8 @@ import {
   createQrGeneratorState,
   validateQrText,
 } from "~/lib/qr-generator";
+
+const { isKhmer } = useLanguage();
 
 useSeoMeta({
   title: "QR Code Generator Online - Free PNG Download | ChlatWork",

@@ -1,9 +1,11 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-xl font-bold">Text to Voice</h1>
+      <h1 class="text-xl font-bold">
+        {{ isKhmer ? "អត្ថបទទៅជាសំឡេង" : "Text to Voice" }}
+      </h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Listen to Khmer or English text with online audio or your browser voice engine.
+        {{ isKhmer ? "ស្តាប់អត្ថបទជាភាសាខ្មែរ ឬអង់គ្លេស តាមរយៈប្រព័ន្ធសំឡេងអនឡាញ ឬម៉ាស៊ីនសំឡេងលើ browser របស់អ្នក។" : "Listen to Khmer or English text with online audio or your browser voice engine." }}
       </p>
     </div>
 
@@ -20,10 +22,10 @@
         <div class="space-y-2">
           <div class="flex h-10 items-center justify-between gap-3">
             <label for="text-to-voice-input" class="block text-sm font-semibold text-gray-900">
-              Text
+              {{ isKhmer ? "អត្ថបទ" : "Text" }}
             </label>
             <span class="shrink-0 text-xs text-gray-400">
-              {{ characterCount }} characters
+              {{ characterCount }} {{ isKhmer ? "តួអក្សរ" : "characters" }}
               <span v-if="usesNarakeetVoice">
                 · ~{{ estimatedSpeechSeconds }}s / 10s
               </span>
@@ -41,10 +43,10 @@
 
           <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span class="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1">
-              Detected: {{ detectedLanguageLabel }}
+              {{ isKhmer ? "ស្វែងរកឃើញ៖ " : "Detected: " }}{{ detectedLanguageLabel }}
             </span>
             <span>
-              Khmer and English are detected automatically before playback.
+              {{ isKhmer ? "ភាសាខ្មែរ និងអង់គ្លេស ត្រូវបានកំណត់ដោយស្វ័យប្រវត្តិតាមអត្ថបទ។" : "Khmer and English are detected automatically before playback." }}
             </span>
           </div>
 
@@ -55,7 +57,7 @@
               :disabled="!canSpeak"
               @click="speak"
             >
-              {{ isSpeaking ? "Restart" : "Speak" }}
+              {{ isSpeaking ? (isKhmer ? "ចាក់ឡើងវិញ" : "Restart") : (isKhmer ? "អានសំឡេង" : "Speak") }}
             </button>
             <button
               type="button"
@@ -63,7 +65,7 @@
               :disabled="!isSpeaking"
               @click="togglePause"
             >
-              {{ isPaused ? "Resume" : "Pause" }}
+              {{ isPaused ? (isKhmer ? "បន្ត" : "Resume") : (isKhmer ? "ផ្អាក" : "Pause") }}
             </button>
             <button
               type="button"
@@ -71,14 +73,14 @@
               :disabled="!isSpeaking && !isPaused"
               @click="stop"
             >
-              Stop
+              {{ isKhmer ? "បញ្ឈប់" : "Stop" }}
             </button>
             <button
               type="button"
               class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               @click="clearText"
             >
-              Clear
+              {{ isKhmer ? "សម្អាត" : "Clear" }}
             </button>
             <button
               v-if="engine === 'online'"
@@ -87,14 +89,14 @@
               :disabled="!canDownload"
               @click="downloadSpeech"
             >
-              {{ isDownloading ? "Downloading..." : "Download MP3" }}
+              {{ isDownloading ? (isKhmer ? "កំពុងទាញយក..." : "Downloading...") : (isKhmer ? "ទាញយក MP3" : "Download MP3") }}
             </button>
             <span
               v-else
               class="flex h-10 items-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-500"
               title="Browser voices only expose local playback, not downloadable audio data."
             >
-              Local playback only
+              {{ isKhmer ? "ចាក់ផ្ទាល់លើម៉ាស៊ីនប៉ុណ្ណោះ" : "Local playback only" }}
             </span>
           </div>
 
@@ -106,24 +108,24 @@
         <div class="space-y-4 rounded-lg border bg-gray-50 p-4">
           <div class="space-y-2">
             <label for="engine-select" class="block text-sm font-semibold text-gray-900">
-              Engine
+              {{ isKhmer ? "ប្រព័ន្ធសំឡេង" : "Engine" }}
             </label>
             <ModernSelect
               id="engine-select"
               v-model="engine"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
-              <option value="online">Online audio</option>
-              <option value="browser">Browser voice</option>
+              <option value="online">{{ isKhmer ? "សំឡេងអនឡាញ (Online)" : "Online audio" }}</option>
+              <option value="browser">{{ isKhmer ? "សំឡេងក្នុង Browser" : "Browser voice" }}</option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              Online mode sends text to the ChlatWork API and can export MP3. Browser voice stays local.
+              {{ isKhmer ? "សំឡេងអនឡាញដំណើរការតាម API និងអាចទាញយកជា MP3។ សំឡេង Browser ដំណើរការផ្ទាល់លើឧបករណ៍។" : "Online mode sends text to the ChlatWork API and can export MP3. Browser voice stays local." }}
             </p>
           </div>
 
           <div v-if="engine === 'online'" class="space-y-2">
             <label for="online-voice-select" class="block text-sm font-semibold text-gray-900">
-              Voice
+              {{ isKhmer ? "សំឡេង" : "Voice" }}
             </label>
             <ModernSelect
               id="online-voice-select"
@@ -142,20 +144,20 @@
               </option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              Auto voice supports Khmer and English. Extended Khmer voices are Khmer-only.
+              {{ isKhmer ? "សំឡេង Auto គាំទ្រភាសាខ្មែរ និងអង់គ្លេស។ សំឡេងខ្មែរបន្ថែមគាំទ្រតែភាសាខ្មែរប៉ុណ្ណោះ។" : "Auto voice supports Khmer and English. Extended Khmer voices are Khmer-only." }}
             </p>
           </div>
 
           <div v-if="engine === 'browser'" class="space-y-2">
             <label for="voice-select" class="block text-sm font-semibold text-gray-900">
-              Voice
+              {{ isKhmer ? "សំឡេង" : "Voice" }}
             </label>
             <ModernSelect
               id="voice-select"
               v-model="selectedVoiceURI"
               class="h-11 w-full rounded-lg border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-gray-900/20"
             >
-              <option value="">Browser default detected voice</option>
+              <option value="">{{ isKhmer ? "សំឡេងលំនាំដើមរបស់ Browser" : "Browser default detected voice" }}</option>
               <option
                 v-for="voice in voiceOptions"
                 :key="voice.voiceURI"
@@ -165,14 +167,14 @@
               </option>
             </ModernSelect>
             <p class="text-xs text-gray-500">
-              Voices matching the detected language appear first when your browser provides them.
+              {{ isKhmer ? "សំឡេងដែលត្រូវគ្នានឹងភាសាដែលបានកំណត់នឹងបង្ហាញដំបូង។" : "Voices matching the detected language appear first when your browser provides them." }}
             </p>
           </div>
 
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="rate-control" class="text-sm font-semibold text-gray-900">
-                Speed
+                {{ isKhmer ? "ល្បឿន" : "Speed" }}
               </label>
               <span class="text-xs text-gray-500">{{ rate.toFixed(1) }}x</span>
             </div>
@@ -190,7 +192,7 @@
           <div v-if="engine === 'browser'" class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="pitch-control" class="text-sm font-semibold text-gray-900">
-                Pitch
+                {{ isKhmer ? "កម្រិតសំឡេង (Pitch)" : "Pitch" }}
               </label>
               <span class="text-xs text-gray-500">{{ pitch.toFixed(1) }}</span>
             </div>
@@ -208,7 +210,7 @@
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-3">
               <label for="volume-control" class="text-sm font-semibold text-gray-900">
-                Volume
+                {{ isKhmer ? "កម្រិតឮ (Volume)" : "Volume" }}
               </label>
               <span class="text-xs text-gray-500">{{ Math.round(volume * 100) }}%</span>
             </div>
@@ -229,6 +231,9 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
+const { isKhmer } = useLanguage();
 useSeoMeta({
   title: "Text to Voice Khmer and English - ChlatWork",
   description:

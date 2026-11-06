@@ -12,16 +12,19 @@ import MobileToolsDirectory from "~/components/tools/MobileToolsDirectory.vue";
 import { getToolIconTone } from "~/lib/tool-icon-tones";
 import { ArrowRight, Sparkles } from "lucide-vue-next";
 
-const { categoryLabel, copy, localizeTool } = useLanguage();
+const { categoryLabel, copy, isKhmer, localizeDirectoryCategory, localizeTool } = useLanguage();
 const { websiteEnabled } = useFeatureAvailability();
 const localizedEnabledTools = computed(() => ENABLED_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
 const searchableTools = computed(() => LANDING_TOOLS.filter((tool) => websiteEnabled(tool.key)).map(localizeTool));
 const groupedTools = computed(() => groupTools(localizedEnabledTools.value));
 const directoryCategories = computed(() =>
-  TOOL_DIRECTORY_CATEGORIES.map((category) => ({
-    ...category,
-    count: getToolsForDirectoryCategory(category).filter((tool) => websiteEnabled(tool.key)).length,
-  })).filter((category) => category.count > 0),
+  TOOL_DIRECTORY_CATEGORIES.map((category) => {
+    const localized = localizeDirectoryCategory(category);
+    return {
+      ...localized,
+      count: getToolsForDirectoryCategory(category).filter((tool) => websiteEnabled(tool.key)).length,
+    };
+  }).filter((category) => category.count > 0),
 );
 const pageEl = ref<HTMLElement | null>(null);
 
@@ -75,14 +78,14 @@ function groupTools(tools: ToolDef[]) {
       data-reveal
     >
       <span class="tool-icon-tone tool-icon-tone-violet grid size-12 shrink-0 place-items-center rounded-2xl" aria-hidden="true"><Sparkles class="size-6" /></span>
-      <span class="min-w-0 flex-1"><strong class="block text-base text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block text-sm text-slate-500 dark:text-white/55">Create posts, scripts, hooks, Khmer content, and complete video content packs.</span></span>
-      <span class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200">Open Creator <ArrowRight class="size-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
+      <span class="min-w-0 flex-1"><strong class="block text-base text-[#082552] dark:text-white">ChlatWork Creator</strong><span class="mt-1 block text-sm text-slate-500 dark:text-white/55">{{ isKhmer ? "បង្កើតការផុស ស្គ្រីប ចំណងជើងទាក់ទាញ មាតិកាខ្មែរ និងកញ្ចប់វីដេអូពេញលេញ។" : "Create posts, scripts, hooks, Khmer content, and complete video content packs." }}</span></span>
+      <span class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 dark:text-violet-200">{{ isKhmer ? "បើក Creator" : "Open Creator" }} <ArrowRight class="size-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
     </NuxtLink>
 
     <section class="space-y-3" data-reveal>
       <div>
         <h2 class="text-sm font-semibold uppercase text-sky-600 dark:text-cyan-300">
-          Tool categories
+          {{ isKhmer ? "ប្រភេទឧបករណ៍" : "Tool categories" }}
         </h2>
       </div>
 
@@ -108,7 +111,7 @@ function groupTools(tools: ToolDef[]) {
                 {{ category.shortTitle }}
               </h3>
               <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-white/50">
-                {{ category.count }} tools
+                {{ category.count }} {{ isKhmer ? "ឧបករណ៍" : (category.count === 1 ? "tool" : "tools") }}
               </p>
             </div>
           </div>
@@ -132,7 +135,7 @@ function groupTools(tools: ToolDef[]) {
             {{ categoryLabel(group.category) }}
           </h2>
           <p class="mt-1 text-xs text-slate-400 dark:text-white/35">
-            {{ group.tools.length }} tools
+            {{ group.tools.length }} {{ isKhmer ? "ឧបករណ៍" : (group.tools.length === 1 ? "tool" : "tools") }}
           </p>
         </div>
       </div>

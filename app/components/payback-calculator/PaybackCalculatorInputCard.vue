@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from "vue";
 import { Plus, Trash2 } from "lucide-vue-next";
+import { useLanguage } from "~/composables/useLanguage";
 import type {
   PaybackCurrency,
   PaybackInputRow,
 } from "~/lib/payback-calculator";
 import { createEmptyPaybackRow } from "~/lib/payback-calculator";
+
+const { isKhmer } = useLanguage();
 
 const props = defineProps<{
   copied: boolean;
@@ -132,8 +135,12 @@ watch(currency, (nextCurrency) => {
   <section class="payback-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-sky-100/60 sm:p-6 lg:h-full">
     <div class="mb-5 flex items-start justify-between gap-4">
       <div>
-        <h2 class="font-bold text-slate-950 dark:text-white">Who paid?</h2>
-        <p class="mt-1 text-sm text-slate-500 dark:text-white/50">Enter each person’s total contribution.</p>
+        <h2 class="font-bold text-slate-950 dark:text-white">
+          {{ isKhmer ? "នរណាបានចេញលុយ?" : "Who paid?" }}
+        </h2>
+        <p class="mt-1 text-sm text-slate-500 dark:text-white/50">
+          {{ isKhmer ? "បញ្ចូលចំនួនទឹកប្រាក់ដែលម្នាក់ៗបានចេញ។" : "Enter each person’s total contribution." }}
+        </p>
       </div>
 
       <label class="sr-only" for="payback-currency">Currency</label>
@@ -147,9 +154,13 @@ watch(currency, (nextCurrency) => {
       <table class="w-full table-fixed text-sm">
         <thead class="payback-subtle text-xs uppercase tracking-wide text-slate-500 dark:text-white/45">
           <tr>
-            <th class="w-[48%] p-2 text-left sm:w-[55%]">Person</th>
+            <th class="w-[48%] p-2 text-left sm:w-[55%]">
+              {{ isKhmer ? "ឈ្មោះ" : "Person" }}
+            </th>
 
-            <th class="w-[38%] p-2 text-right sm:w-[35%]">Paid ({{ currency }})</th>
+            <th class="w-[38%] p-2 text-right sm:w-[35%]">
+              {{ isKhmer ? `បានចេញ (${currency})` : `Paid (${currency})` }}
+            </th>
 
             <th class="w-[14%] p-2 sm:w-[10%]"><span class="sr-only">Actions</span></th>
           </tr>
@@ -168,7 +179,7 @@ watch(currency, (nextCurrency) => {
                 type="text"
                 autocomplete="off"
                 class="payback-control h-11 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-slate-950 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:text-white dark:placeholder:text-white/30"
-                placeholder="Name"
+                :placeholder="isKhmer ? 'ឈ្មោះ' : 'Name'"
               />
             </td>
 
@@ -199,7 +210,7 @@ watch(currency, (nextCurrency) => {
 
           <tr v-if="rows.length === 0">
             <td class="p-3 text-gray-500" colspan="3">
-              No rows yet. Click “Add row”.
+              {{ isKhmer ? "មិនទាន់មានជួរទិន្នន័យ។ ចុច \"បន្ថែមមនុស្ស\"។" : "No rows yet. Click “Add row”." }}
             </td>
           </tr>
         </tbody>
@@ -212,7 +223,7 @@ watch(currency, (nextCurrency) => {
         type="button"
         @click="addRow"
       >
-        <Plus class="h-4 w-4" aria-hidden="true" /> <span>Add person</span>
+        <Plus class="h-4 w-4" aria-hidden="true" /> <span>{{ isKhmer ? "បន្ថែមមនុស្ស" : "Add person" }}</span>
       </button>
 
       <button
@@ -239,7 +250,7 @@ watch(currency, (nextCurrency) => {
           <path d="M8 17h5" />
         </svg>
 
-        <span class="truncate">Try example</span>
+        <span class="truncate">{{ isKhmer ? "សាកល្បងឧទាហរណ៍" : "Try example" }}</span>
       </button>
 
       <button
@@ -275,14 +286,14 @@ watch(currency, (nextCurrency) => {
         </svg>
 
         <span class="truncate">
-          {{ props.copied ? "Copied" : "Copy result" }}
+          {{ props.copied ? (isKhmer ? "បានចម្លង" : "Copied") : (isKhmer ? "ចម្លងលទ្ធផល" : "Copy result") }}
         </span>
       </button>
     </div>
 
     <details class="payback-subtle mt-4 rounded-xl p-4">
       <summary class="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-950 dark:text-white/60 dark:hover:text-white">
-        Paste a list instead
+        {{ isKhmer ? "ឬបិទភ្ជាប់ជាបញ្ជីអត្ថបទ" : "Paste a list instead" }}
       </summary>
 
       <textarea
@@ -322,7 +333,7 @@ Jompa: 38$"
             <path d="m9 14 2 2 4-4" />
           </svg>
 
-          <span>Use this list</span>
+          <span>{{ isKhmer ? "ប្រើបញ្ជីនេះ" : "Use this list" }}</span>
         </button>
       </div>
     </details>

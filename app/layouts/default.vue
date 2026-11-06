@@ -165,24 +165,24 @@ const SITE_SEARCH_PAGES: HeaderSearchResult[] = [
   },
 ];
 
-const { categoryLabel, copy, homePath, isKhmer, localizeTool } = useLanguage();
+const { categoryLabel, copy, homePath, isKhmer, languageLabel, localizeTool, switchLanguage } = useLanguage();
 const footerMenuGroups = computed(() => [
   {
-    title: "Site",
+    title: isKhmer.value ? "គេហទំព័រ" : "Site",
     ariaLabel: "Footer site links",
     items: [
       { label: copy.value.footer.about, to: "/about" },
       { label: copy.value.footer.contact, to: "/contact" },
-      { label: "Guides", to: "/guides" },
-      { label: "Posts", to: "/posts" },
-      { label: "Sitemap", href: "/sitemap.xml" },
+      { label: isKhmer.value ? "មេរៀន" : "Guides", to: "/guides" },
+      { label: isKhmer.value ? "អត្ថបទ" : "Posts", to: "/posts" },
+      { label: isKhmer.value ? "ប្លង់គេហទំព័រ" : "Sitemap", href: "/sitemap.xml" },
     ],
   },
   {
-    title: "Policies",
+    title: isKhmer.value ? "គោលការណ៍" : "Policies",
     ariaLabel: "Footer policy links",
     items: [
-      { label: "Editorial policy", to: "/editorial-policy" },
+      { label: isKhmer.value ? "គោលការណ៍វិចារណកថា" : "Editorial policy", to: "/editorial-policy" },
       { label: copy.value.footer.privacy, to: "/privacy-policy" },
       { label: copy.value.footer.terms, to: "/terms" },
       { label: copy.value.footer.cookies, to: "/cookies" },
@@ -190,7 +190,7 @@ const footerMenuGroups = computed(() => [
     ],
   },
   {
-    title: "Support",
+    title: isKhmer.value ? "ជំនួយ និងការគាំទ្រ" : "Support",
     ariaLabel: "Footer support links",
     items: [
       { label: copy.value.footer.cookieNotice, action: "cookie-settings" },
@@ -661,7 +661,7 @@ watch(
 
           <!-- Desktop Navigation -->
           <nav class="hidden items-center gap-1 text-sm sm:flex">
-            <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">Link</NuxtLink>
+            <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">{{ isKhmer ? "តំណភ្ជាប់" : "Link" }}</NuxtLink>
             <NuxtLink
               to="/tools"
               class="rounded-lg px-3 py-2 font-medium transition"
@@ -674,28 +674,28 @@ watch(
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/creator') ? 'bg-violet-50 text-violet-700 dark:bg-violet-300/10 dark:text-violet-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              Creator
+              {{ isKhmer ? "បង្កើតមាតិកា" : "Creator" }}
             </NuxtLink>
             <NuxtLink
               to="/guides"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/guides') || route.path.startsWith('/developer-guides') ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              Guides
+              {{ isKhmer ? "មេរៀន" : "Guides" }}
             </NuxtLink>
             <NuxtLink
               :to="linkTo('/moments/create')"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path.startsWith('/moments') ? 'bg-rose-50 text-rose-700 dark:bg-rose-300/10 dark:text-rose-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              Moments
+              {{ isKhmer ? "អនុស្សាវរីយ៍" : "Moments" }}
             </NuxtLink>
             <NuxtLink
               to="/about"
               class="rounded-lg px-3 py-2 font-medium transition"
               :class="route.path === '/about' ? 'bg-[#f0f9ff] text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'"
             >
-              About
+              {{ isKhmer ? "អំពីយើង" : "About" }}
             </NuxtLink>
 
             <NuxtLink
@@ -823,6 +823,16 @@ watch(
               <circle cx="12" cy="8" r="4" />
               <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
             </svg>
+          </button>
+
+          <button
+            type="button"
+            class="lang-toggle inline-flex h-10 px-3 items-center justify-center rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:bg-black dark:text-slate-100 dark:hover:bg-white/10"
+            :aria-label="languageLabel"
+            :title="languageLabel"
+            @click="switchLanguage"
+          >
+            {{ isKhmer ? 'EN' : 'ខ្មែរ' }}
           </button>
 
           <button
@@ -1044,8 +1054,7 @@ watch(
             ChlatWork
           </p>
           <p class="hidden leading-6 text-gray-500 dark:text-white/60 sm:block">
-            ChlatWork provides simple online tools for documents, images, QR
-            codes, barcodes, dates, and productivity.
+            {{ isKhmer ? "ChlatWork ផ្ដល់ឧបករណ៍អនឡាញងាយស្រួលសម្រាប់ឯកសារ រូបភាព QR code បាកូដ កាលបរិច្ឆេទ និងការងារប្រចាំថ្ងៃ។" : "ChlatWork provides simple online tools for documents, images, QR codes, barcodes, dates, and productivity." }}
           </p>
           <p class="text-xs text-gray-400 dark:text-white/40">
             © 2026 ChlatWork.
