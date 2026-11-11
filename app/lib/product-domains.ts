@@ -75,6 +75,18 @@ function previewOrigins(value: unknown, reportInvalid?: (setting: DomainConfigSe
   return [];
 }
 
+export function runtimeVercelPreviewOrigins(): string[] {
+  const env = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env;
+  if (!env) return [];
+  const hosts = [env.VERCEL_URL, env.VERCEL_BRANCH_URL, env.VERCEL_PROJECT_PRODUCTION_URL]
+    .filter((host): host is string => Boolean(host && typeof host === "string"));
+  try {
+    return [...new Set(hosts.map((host) => origin(host.startsWith("http") ? host : `https://${host}`)))];
+  } catch {
+    return [];
+  }
+}
+
 export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: (setting: DomainConfigSetting) => void): DomainConfig {
   const mainOrigin = origin(options.mainOrigin || "https://chlatwork.com");
   // Nitro may deserialize JSON environment overrides before passing runtimeConfig to the app.
@@ -91,10 +103,12 @@ export function createDomainConfig(options: DomainOptions = {}, reportInvalid?: 
   if (new Set(hosts).size !== hosts.length) throw new Error("Product origins must have distinct hosts");
   const enabled = products(options.enabledProducts, "NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS", reportInvalid);
   const canonical = products(options.canonicalProducts, "NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS", reportInvalid).filter((product) => enabled.includes(product));
+  const explicitPreviews = previewOrigins(options.previewOrigins, reportInvalid);
+  const previews = [...new Set([...explicitPreviews, ...runtimeVercelPreviewOrigins()])];
   return {
     mainOrigin, origins, enabled, canonical,
     redirects: products(options.redirectProducts, "NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS", reportInvalid).filter((product) => canonical.includes(product) && product !== "draw"),
-    previews: previewOrigins(options.previewOrigins, reportInvalid),
+    previews,
   };
 }
 

@@ -84,3 +84,21 @@ test("preview origin lists accept exact origins and Nitro arrays, and omitted li
   }
   assert.deepEqual(issues, []);
 });
+
+test("runtime Vercel environment automatically allows branch and deployment previews", () => {
+  const previousBranch = process.env.VERCEL_BRANCH_URL;
+  const previousUrl = process.env.VERCEL_URL;
+  try {
+    process.env.VERCEL_BRANCH_URL = "chlatwork-git-main-ngen-kakadas-projects.vercel.app";
+    process.env.VERCEL_URL = "chlatwork-iuv55wfhx-ngen-kakadas-projects.vercel.app";
+    const config = createDomainConfig();
+    assert.equal(resolveHost("chlatwork-git-main-ngen-kakadas-projects.vercel.app", config).kind, "preview");
+    assert.equal(resolveHost("chlatwork-iuv55wfhx-ngen-kakadas-projects.vercel.app", config).kind, "preview");
+    assert.equal(resolveHost("random.vercel.app", config).kind, "unsupported");
+  } finally {
+    if (previousBranch === undefined) delete process.env.VERCEL_BRANCH_URL;
+    else process.env.VERCEL_BRANCH_URL = previousBranch;
+    if (previousUrl === undefined) delete process.env.VERCEL_URL;
+    else process.env.VERCEL_URL = previousUrl;
+  }
+});

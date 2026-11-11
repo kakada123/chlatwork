@@ -88,6 +88,24 @@ const legacyToolGuideRedirectRules = Object.fromEntries(
   ]),
 );
 
+const vercelPreviewOrigins = [
+  nodeEnv.VERCEL_URL,
+  nodeEnv.VERCEL_BRANCH_URL,
+  nodeEnv.VERCEL_PROJECT_PRODUCTION_URL,
+]
+  .filter(Boolean)
+  .map((host) => (host!.startsWith("http") ? host! : `https://${host}`));
+
+const configuredPreviewOrigins = [
+  ...(nodeEnv.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS
+    ? String(nodeEnv.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS).split(",")
+    : []),
+  ...vercelPreviewOrigins,
+]
+  .map((entry) => entry.trim())
+  .filter(Boolean)
+  .join(",");
+
 export default defineNuxtConfig({
   ssr: true,
   // CI and restricted workspaces can isolate generated artifacts from shared caches.
@@ -115,7 +133,7 @@ export default defineNuxtConfig({
         enabledProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_ENABLED_PRODUCTS || "",
         canonicalProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_CANONICAL_PRODUCTS || "",
         redirectProducts: nodeEnv.NUXT_PUBLIC_DOMAINS_REDIRECT_PRODUCTS || "",
-        previewOrigins: nodeEnv.NUXT_PUBLIC_DOMAINS_PREVIEW_ORIGINS || (nodeEnv.VERCEL_URL ? `https://${nodeEnv.VERCEL_URL}` : ""),
+        previewOrigins: configuredPreviewOrigins,
       },
       googleClientId: nodeEnv.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       googleMapsEmbedApiKey: nodeEnv.NUXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY || "",
