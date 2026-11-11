@@ -89,3 +89,123 @@ export function buildExpenseTrendSeries(
     tooManyPoints: false,
   };
 }
+
+export type WeeklyExpenseDay = {
+  date: string;
+  formattedDate: string;
+  dayOfWeek: string;
+  spent: number;
+  income: number;
+};
+
+export type WeeklyExpenseGroup = {
+  weekKey: string;
+  weekStart: string;
+  weekEnd: string;
+  formattedRange: string;
+  activeRangeLabel: string;
+  days: WeeklyExpenseDay[];
+  totalSpent: number;
+  totalIncome: number;
+};
+
+export function formatExpenseDayDDMMYYYY(dateStr: string): string {
+  if (!dateStr || !dateStr.includes("-")) return dateStr;
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  const [year, month, day] = parts;
+  return `${day}-${month}-${year}`;
+}
+
+export function getExpenseDayOfWeek(dateStr: string, isKhmer = false): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  if (!Number.isFinite(d.getTime())) return "";
+  return new Intl.DateTimeFormat(isKhmer ? "km-KH" : "en-US", {
+    weekday: "short",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+export function buildWeeklyExpenseBreakdown(
+  data: ExpenseTrendPoint[],
+  isKhmer = false,
+): WeeklyExpenseGroup[] {
+  if (!data || !data.length) return [];
+
+  // Group / aggregate unique dates using cents to avoid float drift
+  const dateTotals = new Map<string, { spent: bigint; income: bigint }>();
+  for (const point of data) {
+    if (!point.date) continue;
+    if (point.spent <= 0 && point.income <= 0) continue;
+    const current = dateTotals.get(point.date) ?? { spent: 0n, income: 0n };
+    current.spent += moneyNumberToCents(point.spent);
+    current.income += moneyNumberToCents(point.income);
+    dateTotals.set(point.date, current);
+  }
+
+  if (dateTotals.size === 0) return [];
+
+  const sortedDates = [...dateTotals.keys()].sort((a, b) => a.localeCompare(b));
+
+  const weekMap = new Map<string, WeeklyExpenseDay[]>();
+  for (const date of sortedDates) {
+    const totals = dateTotals.get(date)!;
+    const d = new Date(`${date}T00:00:00Z`);
+    const dayIndex = d.getUTCDay();
+    d.setUTCDate(d.getUTCDate() - dayIndex);
+    const weekStart = d.toISOString().slice(0, 10);
+
+    const dayObj: WeeklyExpenseDay = {
+      date,
+      formattedDate: formatExpenseDayDDMMYYYY(date),
+      dayOfWeek: getExpenseDayOfWeek(date, isKhmer),
+      spent: moneyCentsToNumber(totals.spent),
+      income: moneyCentsToNumber(totals.income),
+    };
+
+    const daysInWeek = weekMap.get(weekStart) ?? [];
+    daysInWeek.push(dayObj);
+    weekMap.set(weekStart, daysInWeek);
+  }
+
+  const result: WeeklyExpenseGroup[] = [];
+  for (const [weekStart, days] of weekMap) {
+    const endD = new Date(`${weekStart}T00:00:00Z`);
+    endD.setUTCDate(endD.getUTCDate() + 6);
+    const weekEnd = endD.toISOString().slice(0, 10);
+
+    const firstActiveDate = days[0].date;
+    const lastActiveDate = days[days.length - 1].date;
+
+    const formattedStart = formatExpenseDayDDMMYYYY(weekStart);
+    const formattedEnd = formatExpenseDayDDMMYYYY(weekEnd);
+    const formattedRange = `${formattedStart} – ${formattedEnd}`;
+
+    const activeRangeLabel =
+      firstActiveDate === lastActiveDate
+        ? formatExpenseDayDDMMYYYY(firstActiveDate)
+        : `${formatExpenseDayDDMMYYYY(firstActiveDate)} – ${formatExpenseDayDDMMYYYY(lastActiveDate)}`;
+
+    const totalSpentCents = days.reduce(
+      (sum, d) => sum + moneyNumberToCents(d.spent),
+      0n,
+    );
+    const totalIncomeCents = days.reduce(
+      (sum, d) => sum + moneyNumberToCents(d.income),
+      0n,
+    );
+
+    result.push({
+      weekKey: weekStart,
+      weekStart,
+      weekEnd,
+      formattedRange,
+      activeRangeLabel,
+      days,
+      totalSpent: moneyCentsToNumber(totalSpentCents),
+      totalIncome: moneyCentsToNumber(totalIncomeCents),
+    });
+  }
+
+  return result;
+}

@@ -326,6 +326,10 @@
         :budget-status="budgetStatus"
         :category-breakdown="categoryBreakdown"
         :trend-data="dailyTrend"
+        :rows="rows"
+        :searched-date="searchedDate"
+        :loading-entries="loadingEntries"
+        @select-day="handleSelectDay"
       >
         <template #entries>
           <ExpenseEntryHistory
@@ -502,6 +506,15 @@ const {
   appendRows,
   acceptSavedEntry,
 } = useExpenseDashboard(signedIn);
+
+async function handleSelectDay(day: string) {
+  entryDate.value = day;
+  await searchEntries(day);
+  const target = document.getElementById("expense-entries");
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 const editingEntry = ref<ExpenseRow | null>(null);
 const incomeVisible = ref(false);
 const netBalanceVisible = ref(false);
