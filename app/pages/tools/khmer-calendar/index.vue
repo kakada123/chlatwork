@@ -163,9 +163,20 @@ const years = Array.from(
   (_, index) => MIN_CALENDAR_YEAR + index,
 );
 const months = computed(() => Array.from({ length: 12 }, (_, index) => t(`tools.khmerCalendar.months.${index + 1}`)));
-const weekdays = computed(() => Array.from({ length: 7 }, (_, index) => t(`tools.khmerCalendar.weekdays.${index}`)));
+const weekdayNames = computed(() => Array.from({ length: 7 }, (_, index) => t(`tools.khmerCalendar.weekdays.${index}`)));
+// Monday-first grid puts Saturday (index 5) and Sunday (index 6) side by side
+const gridWeekdays = computed(() => [
+  weekdayNames.value[1],
+  weekdayNames.value[2],
+  weekdayNames.value[3],
+  weekdayNames.value[4],
+  weekdayNames.value[5],
+  weekdayNames.value[6],
+  weekdayNames.value[0],
+]);
+const weekdays = weekdayNames;
 const cells = computed(() =>
-  getCalendarMonth(selected.value.year, selected.value.month),
+  getCalendarMonth(selected.value.year, selected.value.month, 1),
 );
 const weeks = computed(() =>
   Array.from({ length: 6 }, (_, row) =>
@@ -288,13 +299,14 @@ function goToday() {
 
 async function handleDayKey(event: KeyboardEvent, day: CalendarDay) {
   if (event.altKey || event.ctrlKey || event.metaKey) return;
+  const colIndex = (day.weekday + 6) % 7;
   const offsets: Record<string, number> = {
     ArrowLeft: -1,
     ArrowRight: 1,
     ArrowUp: -7,
     ArrowDown: 7,
-    Home: -day.weekday,
-    End: 6 - day.weekday,
+    Home: -colIndex,
+    End: 6 - colIndex,
   };
   if (event.key === "PageUp" || event.key === "PageDown") {
     event.preventDefault();
@@ -610,10 +622,10 @@ onBeforeUnmount(() => {
             <thead>
               <tr>
                 <th
-                  v-for="(weekday, index) in weekdays"
+                  v-for="(weekday, index) in gridWeekdays"
                   :key="index"
                   scope="col"
-                  :class="{ 'sunday-heading': index === 0 }"
+                  :class="{ 'sunday-heading': index === 6 }"
                 >
                   <abbr :title="weekday">{{
                     khmer ? weekday : weekday.slice(0, 3)

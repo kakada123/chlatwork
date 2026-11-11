@@ -35,10 +35,11 @@ function d(val: number | string) {
   return props.khmer ? toKhmerDigits(val) : String(val);
 }
 
-// Generate calendar cells array for the 7 columns (Sun to Sat)
+// Generate calendar cells array for the 7 columns (Monday to Sunday)
 const monthCells = computed(() => {
   const lastDay = new Date(Date.UTC(props.year, props.month, 0)).getUTCDate();
-  const firstDow = new Date(Date.UTC(props.year, props.month - 1, 1)).getUTCDay();
+  const rawDow = new Date(Date.UTC(props.year, props.month - 1, 1)).getUTCDay();
+  const firstDow = (rawDow - 1 + 7) % 7; // Monday-first
 
   const daysMap = new Map<string, RosterDay>();
   for (const day of props.days) {
@@ -54,13 +55,13 @@ const monthCells = computed(() => {
 
   // Blank padding
   for (let i = 0; i < firstDow; i++) {
-    cells.push({ dayNumber: null, dateKey: `blank-${i}`, entry: null, weekday: i });
+    cells.push({ dayNumber: null, dateKey: `blank-${i}`, entry: null, weekday: (i + 1) % 7 });
   }
 
   // Days of month
   for (let day = 1; day <= lastDay; day++) {
     const key = `${props.year}-${String(props.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const weekday = (firstDow + day - 1) % 7;
+    const weekday = (rawDow + day - 1) % 7;
     cells.push({
       dayNumber: day,
       dateKey: key,
@@ -75,7 +76,7 @@ const monthCells = computed(() => {
       dayNumber: null,
       dateKey: `blank-end-${cells.length}`,
       entry: null,
-      weekday: cells.length % 7,
+      weekday: (cells.length + 1) % 7,
     });
   }
 
@@ -84,8 +85,8 @@ const monthCells = computed(() => {
 
 const weekdays = computed(() => {
   return props.khmer
-    ? ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
-    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    ? ["ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍", "អាទិត្យ"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 });
 
 async function exportPNG() {
@@ -289,7 +290,7 @@ async function copyImageToClipboard() {
                       v-for="(w, idx) in weekdays"
                       :key="idx"
                       class="border border-slate-200 py-2 text-xs"
-                      :class="idx === 0 ? 'text-red-600' : ''"
+                      :class="idx === 6 ? 'text-red-600' : ''"
                     >
                       {{ w }}
                     </th>
@@ -303,12 +304,12 @@ async function copyImageToClipboard() {
                       class="border border-slate-200 p-2 align-top h-20"
                       :class="{
                         'bg-slate-50/50': !monthCells[(rowIdx - 1) * 7 + (colIdx - 1)]?.dayNumber,
-                        'bg-red-50/20': colIdx === 1,
+                        'bg-red-50/20': colIdx === 7,
                       }"
                     >
                       <template v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)]?.dayNumber">
                         <div class="flex items-center justify-between">
-                          <span class="font-bold text-slate-900" :class="colIdx === 1 ? 'text-red-600' : ''">
+                          <span class="font-bold text-slate-900" :class="colIdx === 7 ? 'text-red-600' : ''">
                             {{ d(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].dayNumber!) }}
                           </span>
                         </div>

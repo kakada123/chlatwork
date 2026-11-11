@@ -166,9 +166,11 @@ export function getDayDetails(date: CalendarDate): CalendarDay {
 export function getCalendarMonth(
   year: number,
   month: number,
+  weekStart: 0 | 1 = 0,
 ): (CalendarDay | null)[] {
   validateDate({ year, month, day: 1 });
-  const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const dayOfWeek = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const firstWeekday = (dayOfWeek - weekStart + 7) % 7;
   const count = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const holidays = getHolidaySchedule(year).events;
   return Array.from({ length: 42 }, (_, index) => {
