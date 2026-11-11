@@ -3,7 +3,12 @@ import { useAppI18n } from "~/composables/useAppI18n";
 import { useProductCopy } from "~/composables/useProductCopy";
 import { CalendarDays, Eye, EyeOff, ReceiptText } from "lucide-vue-next";
 import type { ExpenseCurrency, ExpenseRow } from "~/lib/expense-tracker";
-import { getPresetCategoriesForExpenseRow, resolveExpenseCategory } from "~/lib/expense-tracker";
+import {
+  getPresetCategoriesForExpenseRow,
+  moneyCentsToNumber,
+  moneyNumberToCents,
+  resolveExpenseCategory,
+} from "~/lib/expense-tracker";
 
 const { t } = useAppI18n();
 
@@ -46,6 +51,27 @@ function amountValue(row: ExpenseRow) {
     ? Number(row.amount)
     : null;
 }
+
+const hasExpenses = computed(() =>
+  entries.value.some((row) => row.type !== "income"),
+);
+const hasIncome = computed(() =>
+  entries.value.some((row) => row.type === "income"),
+);
+
+const totalSpent = computed(() => {
+  const cents = entries.value
+    .filter((row) => row.type !== "income")
+    .reduce((sum, row) => sum + moneyNumberToCents(row.amount), 0n);
+  return moneyCentsToNumber(cents);
+});
+
+const totalIncome = computed(() => {
+  const cents = entries.value
+    .filter((row) => row.type === "income")
+    .reduce((sum, row) => sum + moneyNumberToCents(row.amount), 0n);
+  return moneyCentsToNumber(cents);
+});
 </script>
 
 <template>
@@ -183,6 +209,84 @@ function amountValue(row: ExpenseRow) {
           >
             {{ t("products.common.edit") }}
           </button>
+        </li>
+        <li
+          class="flex min-w-0 items-center gap-3 border-t-2 border-slate-200/80 pt-3 dark:border-white/10"
+        >
+          <span
+            class="grid size-8 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-white/70 sm:hidden"
+            aria-hidden="true"
+          >
+            <ReceiptText class="size-4" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-slate-950 dark:text-white">
+              {{ hasIncome && hasExpenses ? t("products.expenses.total_spent") : t("products.expenses.total") }}
+            </p>
+          </div>
+          <div
+            class="min-w-0 max-w-[35%] text-right text-sm font-bold tabular-nums"
+            :class="
+              hasExpenses || !hasIncome
+                ? 'text-red-500 dark:text-red-300'
+                : 'text-emerald-600 dark:text-emerald-300'
+            "
+          >
+            <MoneyAmount
+              v-if="hasExpenses || !hasIncome"
+              :value="totalSpent"
+              :currency="currency"
+            />
+            <template v-else>
+              <MoneyAmount
+                v-if="incomeVisible"
+                :value="totalIncome"
+                :currency="currency"
+              />
+              <span
+                v-else
+                :aria-label="t('products.common.income_amount_hidden')"
+                >••••</span
+              >
+            </template>
+          </div>
+          <span
+            class="invisible min-h-11 shrink-0 px-2 text-xs font-bold select-none"
+            aria-hidden="true"
+          >
+            {{ t("products.common.edit") }}
+          </span>
+        </li>
+        <li
+          v-if="hasIncome && hasExpenses"
+          class="flex min-w-0 items-center gap-3 py-1"
+        >
+          <span class="size-8 shrink-0 sm:hidden" aria-hidden="true" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-slate-950 dark:text-white">
+              {{ t("products.expenses.income_alternative") }}
+            </p>
+          </div>
+          <div
+            class="min-w-0 max-w-[35%] text-right text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-300"
+          >
+            <MoneyAmount
+              v-if="incomeVisible"
+              :value="totalIncome"
+              :currency="currency"
+            />
+            <span
+              v-else
+              :aria-label="t('products.common.income_amount_hidden')"
+              >••••</span
+            >
+          </div>
+          <span
+            class="invisible min-h-11 shrink-0 px-2 text-xs font-bold select-none"
+            aria-hidden="true"
+          >
+            {{ t("products.common.edit") }}
+          </span>
         </li>
       </ul>
     </div>

@@ -103,6 +103,59 @@ test("day search results render read-only text with Edit buttons", async () => {
   assert.doesNotMatch(html, /Hidden note|<input|<textarea|<select/);
 });
 
+test("day search results render total row with sum of daily entries", async () => {
+  const app = createSSRApp(History, {
+    currency: "USD",
+    rows: [
+      {
+        id: "1",
+        type: "expense",
+        date: "2026-11-11",
+        category: "Phone",
+        note: "Phone top-up",
+        amount: "1.50",
+      },
+      {
+        id: "2",
+        type: "expense",
+        date: "2026-11-11",
+        category: "Coffee",
+        note: "Brown Discount 50%",
+        amount: "1.97",
+      },
+      {
+        id: "3",
+        type: "expense",
+        date: "2026-11-11",
+        category: "Food",
+        note: "Lunch time at Happy Lamb",
+        amount: "6.77",
+      },
+      {
+        id: "4",
+        type: "expense",
+        date: "2026-11-11",
+        category: "Food",
+        note: "B'bor",
+        amount: "1.35",
+      },
+    ],
+    date: "2026-11-11",
+    searchedDate: "2026-11-11",
+    loading: false,
+    busy: false,
+    error: "",
+  });
+  app.component("ModernDateInput", () => h("span", "Date picker"));
+  app.component("MoneyAmount", {
+    props: ["value"],
+    setup: (props: any) => () => h("span", { "data-value": props.value }, String(props.value)),
+  });
+  const html = await renderToString(app);
+  assert.match(html, /Total/);
+  assert.match(html, /data-value="11.59"/);
+});
+
 test("saved entries show a loading state while the selected day is loading", async () => {
   const app = createSSRApp(History, {
     currency: "USD",

@@ -111,6 +111,7 @@ export default {
   "products.expenses.search_entries": "ស្វែងរកកំណត់ត្រា",
   "products.expenses.entry": "កំណត់ត្រា",
   "products.expenses.entries": "កំណត់ត្រា",
+  "products.expenses.total": "សរុប",
   "products.expenses.spending_trend": "និន្នាការចំណាយ",
   "products.expenses.spent": "បានចំណាយ",
   "products.expenses.income_alternative": "ចំណូល",

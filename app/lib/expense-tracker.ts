@@ -13,6 +13,8 @@ import {
   roundMoney,
 } from "./money.ts";
 
+export { moneyCentsToNumber, moneyNumberToCents } from "./money.ts";
+
 const {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,

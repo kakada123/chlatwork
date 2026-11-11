@@ -111,6 +111,7 @@ export default {
   "products.expenses.search_entries": "Search entries",
   "products.expenses.entry": "entry",
   "products.expenses.entries": "entries",
+  "products.expenses.total": "Total",
   "products.expenses.spending_trend": "Spending trend",
   "products.expenses.spent": "Spent",
   "products.expenses.income_alternative": "Income",
