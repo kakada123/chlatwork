@@ -1240,6 +1240,7 @@ export default {
   "catalog.product_navigation.games.rules": "Rules",
   "catalog.products.jekluy.name": "ចែកលុយ",
   "catalog.products.food.name": "ChlatWork Food",
+  "catalog.products.calendar.name": "Khmer Calendar",
   "catalog.common.local_processing": "Your data is processed in your browser where possible. We do not intentionally store your files or input on our server.",
   "catalog.common.description": "A practical {name} tool for fast and simple everyday work.",
   "catalog.common.title": "How to use {name}",

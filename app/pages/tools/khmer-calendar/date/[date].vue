@@ -26,7 +26,7 @@ import { CELEBRATION_SOURCES } from "~/data/calendar-celebrations";
 
 definePageMeta({ layout: false, blankCanvas: true });
 const route = useRoute();
-const { config } = useProductDomain();
+const { config, destination } = useProductDomain();
 const khmer = computed(() => route.query.lang !== "en");
 const { t } = useAppI18n(khmer);
 // Lunar notations remain in Khmer as part of the calendar data in either interface language.
@@ -52,7 +52,7 @@ const dateLabel = computed(() => calendarDateLabel(day.value, khmer.value));
 const path = computed(() =>
   calendarDetailPath(day.value.date, event.value?.id, khmer.value),
 );
-const publicUrl = computed(() => new URL(path.value, config.mainOrigin).href);
+const publicUrl = computed(() => (destination ? destination(path.value) : new URL(path.value, config.mainOrigin).href));
 const events = computed(() => (event.value ? [event.value] : day.value.events));
 const sources = computed(() => [
   ...schedule.value.sources,

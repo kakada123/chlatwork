@@ -54,6 +54,7 @@ function loadPage(
     useRoute: () => ({ query: {} }),
     useProductDomain: () => ({
       config: { mainOrigin: "https://chlatwork.com" },
+      destination: (path: string) => new URL(path, "https://chlatwork.com").href,
     }),
     navigateTo() {},
     onMounted() {},

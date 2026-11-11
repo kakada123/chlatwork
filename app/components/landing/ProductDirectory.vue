@@ -7,7 +7,7 @@ const { destination } = useProductDomain();
 const { t } = useAppI18n();
 const mobileExpanded = ref(false);
 const { websiteEnabled } = useFeatureAvailability();
-const featureKeys: Partial<Record<Product, string>> = { link: "chlatwork-link", expense: "expense-tracker", draw: "lucky-draw", games: "kla-klok" };
+const featureKeys: Partial<Record<Product, string>> = { link: "chlatwork-link", expense: "expense-tracker", draw: "lucky-draw", games: "kla-klok", calendar: "khmer-calendar" };
 const products = computed(() => Object.entries(PRODUCTS).filter(([key]) => !featureKeys[key as Product] || websiteEnabled(featureKeys[key as Product]!)));
 </script>
 

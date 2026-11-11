@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppI18n } from "~/composables/useAppI18n";
 import {
+  CalendarDays,
   Dices,
   Gamepad2,
   Heart,
@@ -26,7 +27,7 @@ const { user, isReady } = useAuth();
 const { enabled: quickExpenseEnabled } = useQuickExpense();
 const { websiteEnabled } = useFeatureAvailability();
 const canQuickExpense = computed(() =>
-  product !== "creator" && product !== "expense" && product !== "jekluy" && isReady.value &&
+  product !== "creator" && product !== "expense" && product !== "jekluy" && product !== "calendar" && isReady.value &&
   Boolean(user.value) && quickExpenseEnabled.value === true &&
   websiteEnabled("expense-tracker"),
 );
@@ -45,6 +46,7 @@ const icons = {
   expense: Wallet,
   draw: Dices,
   games: Gamepad2,
+  calendar: CalendarDays,
 };
 const productInfo = computed(() => (product ? PRODUCTS[product] : null));
 const links = computed(() => {

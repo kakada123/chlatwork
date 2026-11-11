@@ -5,8 +5,8 @@ import { shareCalendarLink } from "~/lib/calendar-sharing";
 
 const props = defineProps<{ path: string; title: string; khmer: boolean }>();
 const { t } = useAppI18n(computed(() => props.khmer));
-const { config } = useProductDomain();
-const url = computed(() => new URL(props.path, config.mainOrigin).href);
+const { config, destination } = useProductDomain();
+const url = computed(() => (destination ? destination(props.path) : new URL(props.path, config.mainOrigin).href));
 const status = ref("");
 const busy = ref(false);
 watch(url, () => {

@@ -31,6 +31,8 @@ const navigation: Record<Product, ProductMobileItem[]> = {
   jekluy: [],
   // Food has a dedicated discovery shell with search, map, and recipes.
   food: [],
+  // Calendar has a dedicated fullscreen tool shell.
+  calendar: [],
   creator: [
     { key: "home", label: "Create", labelKm: "បង្កើត", icon: "home", to: "/" },
     {

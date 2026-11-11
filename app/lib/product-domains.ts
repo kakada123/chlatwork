@@ -8,6 +8,7 @@ export const PRODUCTS = {
   games: { nameKey: "catalog.products.games.name", name: "ChlatWork Games", nameKm: "ChlatWork ហ្គេមកម្សាន្ត", entry: "/tools/kla-klok", home: "/kla-klok", host: "games" },
   jekluy: { nameKey: "catalog.products.jekluy.name", name: "ចែកលុយ", nameKm: "ចែកលុយ", entry: "/jekluy", home: "/", host: "jekluy" },
   food: { nameKey: "catalog.products.food.name", name: "ChlatWork Food", nameKm: "ChlatWork ម្ហូបអាហារ", entry: "/food", home: "/", host: "food" },
+  calendar: { nameKey: "catalog.products.calendar.name", name: "Khmer Calendar", nameKm: "ប្រតិទិនចន្ទគតិខ្មែរ", entry: "/tools/khmer-calendar", home: "/", host: "calendar" },
 } as const;
 
 export type Product = keyof typeof PRODUCTS;
@@ -117,17 +118,27 @@ export function productForPath(path: string): Product | null {
   if (/^\/(?:link(?:\/|$)|u\/|account\/link(?:\/|$))/.test(value)) return "link";
   if (/^\/(?:moments(?:\/|$)|moment\/|m\/|i\/)/.test(value)) return "moment";
   if (/^\/food(?:\/|$)/.test(value)) return "food";
+  if (/^\/(?:tools\/khmer-calendar|date)(?:\/|$)/.test(value)) return "calendar";
   return (Object.keys(PRODUCTS) as Product[]).find((product) => PRODUCTS[product].entry === value) || null;
 }
 
 export function productPath(product: Product, path: string) {
   const entry = PRODUCTS[product];
   const value = pathname(path);
+  if (product === "calendar") {
+    if (value === entry.entry) return entry.home;
+    if (value.startsWith(`${entry.entry}/`)) return value.slice(entry.entry.length);
+  }
   return value === entry.entry ? entry.home : value;
 }
 
 export function legacyPath(product: Product | undefined, path: string) {
   if (!product) return pathname(path);
+  if (product === "calendar") {
+    const value = pathname(path);
+    if (value === "/" || value === PRODUCTS.calendar.home) return PRODUCTS.calendar.entry;
+    if (value.startsWith("/date/")) return `${PRODUCTS.calendar.entry}${value}`;
+  }
   return pathname(path) === PRODUCTS[product].home || (product === "games" && pathname(path) === "/")
     ? PRODUCTS[product].entry : pathname(path);
 }
@@ -177,12 +188,23 @@ export function isSameOriginMutation(expected: string, supplied?: string, fetchS
 export function productRouteRecords<T extends { path: string; name?: unknown; alias?: unknown; meta?: Record<string, unknown> }>(routes: readonly T[], product: Product): T[] {
   const entry = PRODUCTS[product];
   return routes.filter((route) => route.path !== "/").map((route) => {
-    if (route.path !== entry.entry) return route;
-    return {
-      ...route,
-      path: entry.home,
-      alias: [route.path, ...(Array.isArray(route.alias) ? route.alias : route.alias ? [route.alias] : [])],
-      meta: { ...route.meta, productLegacyPath: route.path },
-    };
+    if (route.path === entry.entry) {
+      return {
+        ...route,
+        path: entry.home,
+        alias: [route.path, ...(Array.isArray(route.alias) ? route.alias : route.alias ? [route.alias] : [])],
+        meta: { ...route.meta, productLegacyPath: route.path },
+      };
+    }
+    if (product === "calendar" && route.path.startsWith(`${entry.entry}/`)) {
+      const childPath = route.path.slice(entry.entry.length);
+      return {
+        ...route,
+        path: childPath,
+        alias: [route.path, ...(Array.isArray(route.alias) ? route.alias : route.alias ? [route.alias] : [])],
+        meta: { ...route.meta, productLegacyPath: route.path },
+      };
+    }
+    return route;
   });
 }

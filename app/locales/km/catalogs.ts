@@ -1240,6 +1240,7 @@ export default {
   "catalog.product_navigation.games.rules": "របៀបលេង",
   "catalog.products.jekluy.name": "ចែកលុយ",
   "catalog.products.food.name": "ChlatWork ម្ហូបអាហារ",
+  "catalog.products.calendar.name": "ប្រតិទិនចន្ទគតិខ្មែរ",
   "catalog.common.local_processing": "ទិន្នន័យត្រូវបានដំណើរការក្នុងកម្មវិធីរុករកតាមដែលអាចធ្វើបាន។ យើងមិនមានគោលបំណងរក្សាទុកឯកសារ ឬទិន្នន័យបញ្ចូលរបស់អ្នកលើម៉ាស៊ីនមេឡើយ។",
   "catalog.common.description": "ឧបករណ៍ជំនួយការងារ {name} ប្រកបដោយភាពរហ័ស និងងាយស្រួលប្រើប្រាស់។",
   "catalog.common.title": "របៀបប្រើប្រាស់ {name}",

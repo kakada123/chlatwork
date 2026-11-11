@@ -52,6 +52,7 @@ export function loadCalendarComponent(
     useRoute: () => options.route ?? { params: {}, query: {} },
     useProductDomain: () => ({
       config: { mainOrigin: "https://chlatwork.com" },
+      destination: (path: string) => new URL(path, "https://chlatwork.com").href,
     }),
     useState: () => vue.ref({ year: 2026, month: 11, day: 4 }),
     createError: (data: object) => Object.assign(new Error("Not found"), data),
