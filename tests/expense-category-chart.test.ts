@@ -47,11 +47,9 @@ async function compileComponent(
   return `data:text/javascript;base64,${Buffer.from(js).toString("base64")}`;
 }
 const trendUrl = await compileComponent("ExpenseSpendingTrend");
-const breakdownUrl = await compileComponent("ExpenseWeeklyBreakdown");
 const { default: SummaryCard } = await import(
   await compileComponent("ExpenseTrackerSummaryCard", {
     "./ExpenseSpendingTrend.vue": trendUrl,
-    "./ExpenseWeeklyBreakdown.vue": breakdownUrl,
   })
 );
 SummaryCard.components = { ...SummaryCard.components, ModernSelect };

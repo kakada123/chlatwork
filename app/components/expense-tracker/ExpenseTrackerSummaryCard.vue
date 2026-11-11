@@ -23,11 +23,9 @@ import type {
   Budget,
   ExpenseBudgetStatus,
   ExpenseCurrency,
-  ExpenseRow,
 } from "~/lib/expense-tracker";
 import type { ExpenseTrendPoint } from "~/lib/expense-dashboard-view";
 import ExpenseSpendingTrend from "./ExpenseSpendingTrend.vue";
-import ExpenseWeeklyBreakdown from "./ExpenseWeeklyBreakdown.vue";
 
 const { t } = useAppI18n();
 
@@ -51,22 +49,9 @@ const props = withDefaults(
     budgetStatus: ExpenseBudgetStatus;
     categoryBreakdown: Breakdown[];
     trendData?: ExpenseTrendPoint[];
-    rows?: ExpenseRow[];
-    searchedDate?: string | null;
-    loadingEntries?: boolean;
   }>(),
-  {
-    rangeFrom: "",
-    rangeTo: "",
-    trendData: () => [],
-    rows: () => [],
-    searchedDate: null,
-    loadingEntries: false,
-  },
+  { rangeFrom: "", rangeTo: "", trendData: () => [] },
 );
-const emit = defineEmits<{
-  "select-day": [date: string];
-}>();
 const budget = defineModel<Budget>("budget", { required: true });
 const incomeVisible = defineModel<boolean>("incomeVisible", { default: false });
 const netBalanceVisible = defineModel<boolean>("netBalanceVisible", {
@@ -531,17 +516,6 @@ const metrics = computed(() => [
         {{ t("products.expenses.add_expenses_to_see_spending_by_category") }}
       </p>
     </section>
-
-    <ExpenseWeeklyBreakdown
-      :data="trendData"
-      :currency="currency"
-      :rows="rows"
-      :searched-date="searchedDate"
-      :loading-entries="loadingEntries"
-      :busy="busy"
-      :income-visible="incomeVisible"
-      @select-day="emit('select-day', $event)"
-    />
 
     <div
       class="grid min-w-0 items-start gap-4"

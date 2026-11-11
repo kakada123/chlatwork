@@ -45,12 +45,10 @@ async function componentUrl(
   return `data:text/javascript;base64,${Buffer.from(js).toString("base64")}`;
 }
 const trendUrl = await componentUrl("ExpenseSpendingTrend");
-const breakdownUrl = await componentUrl("ExpenseWeeklyBreakdown");
 const Summary = (
   await import(
     await componentUrl("ExpenseTrackerSummaryCard", {
       "./ExpenseSpendingTrend.vue": trendUrl,
-      "./ExpenseWeeklyBreakdown.vue": breakdownUrl,
     })
   )
 ).default;

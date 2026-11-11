@@ -36,10 +36,6 @@ async function loadComponent(name: string) {
     .replace(
       /from ["']~\/lib\/expense-tracker["']/g,
       `from ${JSON.stringify(new URL("../app/lib/expense-tracker.ts", import.meta.url).href)}`,
-    )
-    .replace(
-      /from ["']~\/lib\/expense-dashboard-view["']/g,
-      `from ${JSON.stringify(new URL("../app/lib/expense-dashboard-view.ts", import.meta.url).href)}`,
     );
   return (
     await import(
@@ -50,7 +46,6 @@ async function loadComponent(name: string) {
 
 const History = await loadComponent("ExpenseEntryHistory");
 const QuickForm = await loadComponent("QuickExpenseForm");
-const WeeklyBreakdown = await loadComponent("ExpenseWeeklyBreakdown");
 const savedEntry = {
   id: "00000000-0000-4000-8000-000000000001",
   updatedAt: "2026-10-01T00:00:00.000Z",
@@ -176,40 +171,6 @@ test("saved entries show a loading state while the selected day is loading", asy
   const html = await renderToString(app);
   assert.match(html, /Loading entries…/);
   assert.doesNotMatch(html, /Lunch|Edit Food entry/);
-});
-
-test("weekly expense breakdown displays day-by-day rows, totals, and view detail buttons", async () => {
-  const app = createSSRApp(WeeklyBreakdown, {
-    currency: "USD",
-    data: [
-      { date: "2026-11-01", spent: 15, income: 0 },
-      { date: "2026-11-02", spent: 34, income: 0 },
-    ],
-    rows: [
-      {
-        id: "entry-1",
-        date: "2026-11-01",
-        category: "Food",
-        note: "Pho",
-        amount: "15",
-      },
-    ],
-    searchedDate: "2026-11-01",
-    loadingEntries: false,
-    busy: false,
-  });
-  app.component("MoneyAmount", {
-    props: ["value"],
-    setup: (props: any) => () => h("span", { "data-value": props.value }, String(props.value)),
-  });
-  const html = await renderToString(app);
-  assert.match(html, /01-11-2026/);
-  assert.match(html, /02-11-2026/);
-  assert.match(html, /data-value="15"/);
-  assert.match(html, /data-value="34"/);
-  assert.match(html, /data-value="49"/);
-  assert.match(html, /View detail/);
-  assert.match(html, /Pho/);
 });
 
 function mountForm(initialRow: typeof savedEntry, submit: (row: any) => void) {
