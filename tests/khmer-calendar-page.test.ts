@@ -19,6 +19,7 @@ function loadPage(
   inlineTemplate = false,
   date = { year: 2026, month: 11, day: 4 },
   sourcePath = "../app/pages/tools/khmer-calendar/index.vue",
+  query: Record<string, string> = {},
 ) {
   const filename = new URL(sourcePath, import.meta.url).pathname;
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), {
@@ -44,6 +45,78 @@ function loadPage(
     "~/lib/calendar-sharing": sharing,
     "~/data/cambodia-holidays": holidays,
     "~/data/calendar-celebrations": celebrations,
+    "~/composables/useAuth": {
+      useAuth: () => ({
+        user: vue.ref(null),
+        isReady: vue.ref(true),
+        fetchMe: () => Promise.resolve(null),
+      }),
+    },
+    "~/composables/useRoster": {
+      useRoster: () => {
+        const days = vue.ref([]);
+        const shifts = vue.ref([]);
+        const preferences = vue.ref({
+          saturdayOff: true,
+          sundayOff: true,
+          holidaysOff: true,
+          defaultShiftCode: "K123",
+          allocationPriority: ["PRD", "PHL", "AL"],
+        });
+        const balances = vue.ref([]);
+        const transactions = vue.ref([]);
+        const loading = vue.ref(false);
+        const saving = vue.ref(false);
+        const daysByDate = vue.ref(new Map());
+        const shiftsByCode = vue.ref(new Map());
+        const summary = vue.ref({
+          month: 11,
+          year: 2026,
+          workingDays: 0,
+          workingHours: 0,
+          prdUsed: 0,
+          prdAllowance: 7,
+          prdRemaining: 7,
+          phlConfirmed: 0,
+          phlPending: 0,
+          phlRemaining: 0,
+          alConfirmed: 0,
+          alPending: 0,
+          alRemaining: 0,
+          h1Count: 0,
+          h2Count: 0,
+          pendingRequests: 0,
+          unassignedDays: 0,
+        });
+        return {
+          days,
+          shifts,
+          preferences,
+          balances,
+          transactions,
+          loading,
+          saving,
+          error: vue.ref(null),
+          isInitialized: vue.ref(true),
+          shiftsByCode,
+          daysByDate,
+          summary,
+          loadMonth: () => Promise.resolve(),
+          saveDay: () => Promise.resolve(true),
+          deleteDay: () => Promise.resolve(true),
+          resetMonth: () => Promise.resolve(true),
+          savePreferences: () => Promise.resolve(true),
+          createShift: () => Promise.resolve(null),
+          updateShift: () => Promise.resolve(null),
+          recordLeaveAdjustment: () => Promise.resolve(true),
+          previewSmartRoster: () => null,
+          applySmartRoster: () => Promise.resolve(true),
+        };
+      },
+    },
+    "~/lib/roster": {
+      calculateDayWorkingHours: () => 0,
+    },
   };
   const globals = {
     ...vue,
@@ -51,7 +124,8 @@ function loadPage(
     useSeoMeta() {},
     useHead() {},
     useState: () => vue.ref({ ...date }),
-    useRoute: () => ({ query: {} }),
+    useRoute: () => ({ query }),
+    useRouter: () => ({ push() {}, replace() {} }),
     useProductDomain: () => ({
       config: { mainOrigin: "https://chlatwork.com" },
       destination: (path: string) => new URL(path, "https://chlatwork.com").href,
@@ -78,6 +152,14 @@ function loadPage(
           default: loadCalendarComponent(
             "app/components/khmer-calendar/CalendarShareButton.vue",
           ),
+        };
+      if (name.startsWith("~/components/roster/"))
+        return {
+          __esModule: true,
+          default: {
+            name: name.replace("~/components/roster/", "").replace(".vue", ""),
+            setup: () => () => null,
+          },
         };
       if (!(name in dependencies))
         throw new Error(`Unexpected dependency: ${name}`);
@@ -272,4 +354,24 @@ test("mobile date activation opens a public detail page while desktop stays inli
     if (descriptor) Object.defineProperty(globalThis, "window", descriptor);
     else Reflect.deleteProperty(globalThis, "window");
   }
+});
+
+test("roster mode SSR renders successfully with ?mode=roster and hides khae khmer", async () => {
+  const app = vue.createSSRApp(
+    loadPage(true, undefined, undefined, { mode: "roster" }),
+  );
+  app.component("NuxtLink", { template: "<a><slot /></a>" });
+  app.component("ModernSelect", ModernSelect);
+  const html = await renderToString(app);
+  assert.ok(html.includes("PRD"), "Should render PRD in legend or summary");
+  assert.ok(html.includes("PHL"), "Should render PHL in legend or summary");
+  assert.ok(html.includes("AL"), "Should render AL in legend or summary");
+  assert.ok(!html.includes('class="lunar-date"'), "Should not render lunar-date in roster mode grid");
+
+  // Default mode should render lunar-date
+  const defaultApp = vue.createSSRApp(loadPage(true));
+  defaultApp.component("NuxtLink", { template: "<a><slot /></a>" });
+  defaultApp.component("ModernSelect", ModernSelect);
+  const defaultHtml = await renderToString(defaultApp);
+  assert.ok(defaultHtml.includes('class="lunar-date"'), "Default calendar mode must preserve lunar-date");
 });

@@ -10,15 +10,31 @@ import {
 } from "~/lib/calendar-sharing";
 import {
   ArrowLeft,
+  Briefcase,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Download,
   Expand,
   Flower2,
+  Lock,
   Minimize,
   Moon,
+  Plus,
+  RotateCcw,
+  Settings as SettingsIcon,
+  Sparkles,
   Sun,
 } from "lucide-vue-next";
+import { useAuth } from "~/composables/useAuth";
+import { useRoster } from "~/composables/useRoster";
+import { calculateDayWorkingHours } from "~/lib/roster";
+import type { RosterDay, RosterGeneratePreview } from "~/types/roster";
+import RosterDayEditorModal from "~/components/roster/RosterDayEditorModal.vue";
+import RosterSummaryBar from "~/components/roster/RosterSummaryBar.vue";
+import RosterGeneratorModal from "~/components/roster/RosterGeneratorModal.vue";
+import RosterSettingsModal from "~/components/roster/RosterSettingsModal.vue";
+import RosterExportModal from "~/components/roster/RosterExportModal.vue";
 import {
   calendarDateKey,
   ENGLISH_MONTHS,
@@ -69,6 +85,74 @@ watch(
     khmer.value = value !== "en";
   },
 );
+
+const router = useRouter();
+const calendarMode = ref<"calendar" | "roster">(
+  route.query.mode === "roster" ? "roster" : "calendar",
+);
+
+watch(
+  () => route.query.mode,
+  (mode) => {
+    calendarMode.value = mode === "roster" ? "roster" : "calendar";
+  },
+);
+
+function setCalendarMode(mode: "calendar" | "roster") {
+  calendarMode.value = mode;
+  const query = { ...route.query };
+  if (mode === "roster") {
+    query.mode = "roster";
+  } else {
+    delete query.mode;
+  }
+  void router.replace({ query });
+}
+
+const { user, isReady: isAuthReady, fetchMe } = useAuth();
+const signedIn = computed(
+  () => isAuthReady.value && Boolean(user.value),
+);
+
+const rosterYear = computed(() => selected.value.year);
+const rosterMonth = computed(() => selected.value.month);
+const roster = useRoster(rosterYear, rosterMonth, signedIn);
+
+const rosterEditorOpen = ref(false);
+const rosterGeneratorOpen = ref(false);
+const rosterSettingsOpen = ref(false);
+const rosterExportOpen = ref(false);
+const rosterResetConfirmOpen = ref(false);
+const generatorPreview = ref<RosterGeneratePreview | null>(null);
+
+function confirmResetMonth() {
+  rosterResetConfirmOpen.value = true;
+}
+
+async function executeResetMonth() {
+  await roster.resetMonth();
+  rosterResetConfirmOpen.value = false;
+}
+
+function openGenerator() {
+  generatorPreview.value = roster.previewSmartRoster();
+  rosterGeneratorOpen.value = true;
+}
+
+async function handleApplyGenerator() {
+  if (!generatorPreview.value) return;
+  await roster.applySmartRoster(generatorPreview.value);
+  rosterGeneratorOpen.value = false;
+}
+
+function handleDayClick(day: CalendarDay) {
+  selectDate(day.date);
+  if (calendarMode.value === "roster") {
+    rosterEditorOpen.value = true;
+  } else {
+    void activateDate(day.date);
+  }
+}
 const calendarRoot = ref<HTMLElement | null>(null);
 const fullscreen = ref(false);
 const fullscreenSupported = ref(false);
@@ -132,6 +216,7 @@ const lunarYear = computed(
 function digits(value: number | string) {
   return khmer.value ? toKhmerDigits(value) : String(value);
 }
+const d = digits;
 function eventName(event: CalendarEvent) {
   return khmer.value ? event.nameKm : event.nameEn;
 }
@@ -257,6 +342,7 @@ function refreshToday() {
   today.value = getPhnomPenhToday();
 }
 onMounted(() => {
+  if (!isAuthReady.value) void fetchMe();
   fullscreenSupported.value = Boolean(
     document.fullscreenEnabled && calendarRoot.value?.requestFullscreen,
   );
@@ -282,6 +368,30 @@ onBeforeUnmount(() => {
           ><ArrowLeft :size="15" aria-hidden="true" /> ChlatWork
           <span>/ {{ t("tools.khmerCalendar.tools") }}</span></NuxtLink
         >
+        <div class="calendar-mode-switch" role="tablist" :aria-label="khmer ? 'របៀបប្រតិទិន' : 'Calendar Mode'">
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="calendarMode === 'calendar'"
+            class="mode-switch-btn"
+            :class="{ 'is-active': calendarMode === 'calendar' }"
+            @click="setCalendarMode('calendar')"
+          >
+            <CalendarDays :size="14" aria-hidden="true" />
+            <span>{{ khmer ? "ប្រតិទិនខ្មែរ" : "Khmer Calendar" }}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="calendarMode === 'roster'"
+            class="mode-switch-btn"
+            :class="{ 'is-active': calendarMode === 'roster' }"
+            @click="setCalendarMode('roster')"
+          >
+            <Briefcase :size="14" aria-hidden="true" />
+            <span>{{ khmer ? "តារាងវេនខ្ញុំ" : "My Roster" }}</span>
+          </button>
+        </div>
         <div class="header-actions">
           <button
             type="button"
@@ -313,18 +423,33 @@ onBeforeUnmount(() => {
       </div>
       <div class="title-row">
         <div class="calendar-emblem">
-          <CalendarDays :size="27" :stroke-width="1.5" aria-hidden="true" />
+          <component
+            :is="calendarMode === 'roster' ? Briefcase : CalendarDays"
+            :size="27"
+            :stroke-width="1.5"
+            aria-hidden="true"
+          />
         </div>
         <div>
           <p class="eyebrow">
             {{
-              t("tools.khmerCalendar.datesTraditionCambodia")
+              calendarMode === "roster"
+                ? (khmer ? "កាលវិភាគវេនការងារ និងការឈប់សម្រាកផ្ទាល់ខ្លួន" : "Personal Shifts & Leave Schedule")
+                : t("tools.khmerCalendar.datesTraditionCambodia")
             }}
           </p>
-          <h1>{{ t("tools.khmerCalendar.khmerCalendar") }}</h1>
+          <h1>
+            {{
+              calendarMode === "roster"
+                ? (khmer ? "តារាងវេនការងារខ្ញុំ" : "My Roster")
+                : t("tools.khmerCalendar.khmerCalendar")
+            }}
+          </h1>
           <p class="header-description">
             {{
-              t("tools.khmerCalendar.khmerLunarDatesCelebrationsAroundTheWorld")
+              calendarMode === "roster"
+                ? (khmer ? "រៀបចំវេនការងារ កត់ត្រា PRD, PHL, AL និងនាំចេញតារាងវេន" : "Plan shifts, track PRD, PHL, AL balances, and export monthly roster")
+                : t("tools.khmerCalendar.khmerLunarDatesCelebrationsAroundTheWorld")
             }}
           </p>
         </div>
@@ -350,7 +475,45 @@ onBeforeUnmount(() => {
           <div class="month-toolbar">
             <div class="month-heading">
               <h2 aria-live="polite">{{ monthTitle }}</h2>
-              <p lang="km">{{ lunarMonths }}</p>
+              <p v-if="calendarMode !== 'roster'" lang="km">{{ lunarMonths }}</p>
+            </div>
+            <div v-if="calendarMode === 'roster'" class="roster-toolbar-actions">
+              <button
+                type="button"
+                class="roster-action-btn"
+                :title="khmer ? 'បង្កើតតារាងវេនស្វ័យប្រវត្តិ' : 'Auto-Generate Roster'"
+                @click="openGenerator"
+              >
+                <Sparkles :size="14" aria-hidden="true" />
+                <span>{{ khmer ? "បង្កើតស្វ័យប្រវត្តិ" : "Auto-Generate" }}</span>
+              </button>
+              <button
+                type="button"
+                class="roster-action-btn"
+                :title="khmer ? 'នាំចេញតារាងវេនជារូបភាព/PDF' : 'Export Roster as Image/PDF'"
+                @click="rosterExportOpen = true"
+              >
+                <Download :size="14" aria-hidden="true" />
+                <span>{{ khmer ? "នាំចេញ" : "Export" }}</span>
+              </button>
+              <button
+                type="button"
+                class="roster-action-btn"
+                :title="khmer ? 'ការកំណត់សមតុល្យ និងវេន' : 'Roster Settings'"
+                @click="rosterSettingsOpen = true"
+              >
+                <SettingsIcon :size="14" aria-hidden="true" />
+                <span>{{ khmer ? "ការកំណត់" : "Settings" }}</span>
+              </button>
+              <button
+                type="button"
+                class="roster-action-btn roster-reset-btn"
+                :title="khmer ? 'កំណត់ឡើងវិញនូវទិន្នន័យខែនេះ' : 'Reset Month Roster'"
+                @click="confirmResetMonth"
+              >
+                <RotateCcw :size="14" aria-hidden="true" />
+                <span>{{ khmer ? "កំណត់ឡើងវិញ" : "Reset" }}</span>
+              </button>
             </div>
             <div class="month-controls">
               <button type="button" class="today-button" @click="goToday">
@@ -427,6 +590,13 @@ onBeforeUnmount(() => {
             >
           </div>
 
+          <div v-if="calendarMode === 'roster'" class="px-5 pt-3">
+            <RosterSummaryBar
+              :summary="roster.summary.value"
+              :khmer="khmer"
+            />
+          </div>
+
           <table class="month-grid">
             <caption class="sr-only">
               {{
@@ -467,19 +637,25 @@ onBeforeUnmount(() => {
                       'is-today': day.key === todayKey,
                       'is-holiday': publicHoliday(day),
                       'is-sunday': day.weekday === 0,
+                      'is-roster-mode': calendarMode === 'roster',
                     }"
                     :data-date="day.key"
                     :aria-label="dayLabel(day)"
                     :aria-pressed="day.key === selectedKey"
                     :aria-current="day.key === todayKey ? 'date' : undefined"
                     :tabindex="day.key === selectedKey ? 0 : -1"
-                    @click="activateDate(day.date)"
+                    @click="handleDayClick(day)"
                     @keydown="handleDayKey($event, day)"
                   >
                     <span class="day-top"
                       ><span class="day-number">{{ digits(day.date.day) }}</span
-                      ><Flower2
-                        v-if="day.holyDay"
+                      ><Lock
+                        v-if="calendarMode === 'roster' && roster.daysByDate.value.get(day.key)?.isLocked"
+                        :size="12"
+                        class="text-slate-400"
+                        aria-hidden="true"
+                      /><Flower2
+                        v-else-if="calendarMode !== 'roster' && day.holyDay"
                         :size="14"
                         class="holy-icon"
                         aria-hidden="true" /><span
@@ -487,39 +663,95 @@ onBeforeUnmount(() => {
                         class="today-dot"
                         aria-hidden="true"
                     /></span>
-                    <span class="lunar-date" lang="km"
+                    <span v-if="calendarMode !== 'roster'" class="lunar-date" lang="km"
                       >{{ lunarLabel(day)
                       }}<span class="lunar-month">
                         {{ day.lunar.monthName }}</span
                       ></span
                     >
-                    <span class="day-events" aria-hidden="true"
-                      ><span
-                        v-for="event in day.events
-                          .filter(visibleEvent)
-                          .slice(0, 2)"
-                        :key="event.id"
-                        class="cell-event"
-                        :class="event.kind"
-                        >{{ eventName(event) }}</span
-                      ></span
-                    >
-                    <span class="mobile-markers" aria-hidden="true"
-                      ><i v-if="publicHoliday(day)" class="holiday-dot" /><i
-                        v-if="
-                          showObservances &&
-                          day.events.some(
-                            (event) => event.kind === 'observance',
-                          )
-                        "
-                        class="observance-dot"
-                    /></span>
+                    <template v-if="calendarMode === 'roster'">
+                      <div
+                        v-if="day.events.filter((e) => e.kind === 'public-holiday').length"
+                        class="roster-cell-holiday"
+                      >
+                        <span
+                          class="roster-cell-holiday-tag"
+                          :title="eventName(day.events.filter((e) => e.kind === 'public-holiday')[0])"
+                        >
+                          {{ eventName(day.events.filter((e) => e.kind === 'public-holiday')[0]) }}
+                        </span>
+                      </div>
+                      <div v-if="roster.daysByDate.value.get(day.key)" class="roster-cell-badge">
+                        <span
+                          v-if="roster.daysByDate.value.get(day.key)?.leaveCode"
+                          class="roster-leave-tag"
+                          :class="`roster-leave-${roster.daysByDate.value.get(day.key)!.leaveCode!.toLowerCase()}`"
+                        >
+                          {{ roster.daysByDate.value.get(day.key)!.leaveCode }}
+                        </span>
+                        <div
+                          v-if="roster.daysByDate.value.get(day.key)?.shiftCode"
+                          class="roster-shift-tag"
+                        >
+                          <span class="shift-code">{{ roster.daysByDate.value.get(day.key)!.shiftCode }}</span>
+                          <span
+                            v-if="roster.shiftsByCode.value.get(roster.daysByDate.value.get(day.key)!.shiftCode!)"
+                            class="shift-time"
+                          >
+                            {{ roster.shiftsByCode.value.get(roster.daysByDate.value.get(day.key)!.shiftCode!)!.startTime }}
+                          </span>
+                        </div>
+                        <span
+                          v-if="roster.daysByDate.value.get(day.key)?.note"
+                          class="roster-note-indicator"
+                          :title="roster.daysByDate.value.get(day.key)!.note!"
+                        >
+                          ✎ {{ roster.daysByDate.value.get(day.key)!.note }}
+                        </span>
+                      </div>
+                      <div v-else class="roster-empty-cell" aria-hidden="true">
+                        <span class="roster-add-hint">+</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <span class="day-events" aria-hidden="true"
+                        ><span
+                          v-for="event in day.events
+                            .filter(visibleEvent)
+                            .slice(0, 2)"
+                          :key="event.id"
+                          class="cell-event"
+                          :class="event.kind"
+                          >{{ eventName(event) }}</span
+                        ></span
+                      >
+                      <span class="mobile-markers" aria-hidden="true"
+                        ><i v-if="publicHoliday(day)" class="holiday-dot" /><i
+                          v-if="
+                            showObservances &&
+                            day.events.some(
+                              (event) => event.kind === 'observance',
+                            )
+                          "
+                          class="observance-dot"
+                      /></span>
+                    </template>
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
-          <div class="calendar-legend">
+          <div v-if="calendarMode === 'roster'" class="calendar-legend">
+            <span><span class="legend-swatch roster-leave-prd">PRD</span>{{ khmer ? "ថ្ងៃសម្រាកធម្មតា" : "Day Off" }}</span>
+            <span><span class="legend-swatch roster-leave-phl">PHL</span>{{ khmer ? "ច្បាប់បុណ្យជាតិ" : "Holiday Leave" }}</span>
+            <span><span class="legend-swatch roster-leave-al">AL</span>{{ khmer ? "ច្បាប់ប្រចាំឆ្នាំ" : "Annual Leave" }}</span>
+            <span><span class="legend-swatch roster-leave-h1">H1/H2</span>{{ khmer ? "កន្លះថ្ងៃ" : "Half-Day" }}</span>
+            <small>
+              {{ digits(roster.summary.value.workingDays) }} {{ khmer ? "ថ្ងៃធ្វើការ" : "work days" }} ·
+              {{ digits(roster.summary.value.prdUsed) }}/{{ digits(roster.summary.value.prdAllowance) }} PRD
+            </small>
+          </div>
+          <div v-else class="calendar-legend">
             <span
               ><i class="holiday-dot" />{{
                 t("tools.khmerCalendar.publicHoliday")
@@ -573,7 +805,7 @@ onBeforeUnmount(() => {
               </p>
               <p>{{ lunarYear }}</p>
             </div>
-            <span v-if="detail.holyDay" class="holy-badge"
+            <span v-if="calendarMode !== 'roster' && detail.holyDay" class="holy-badge"
               ><Flower2 :size="14" aria-hidden="true" />{{
                 t("tools.khmerCalendar.buddhistHolyDay")
               }}</span
@@ -597,106 +829,312 @@ onBeforeUnmount(() => {
                 </div>
               </dl>
             </details>
-          </section>
 
-          <div class="selected-date-actions">
-            <NuxtLink :to="calendarDetailPath(selected, undefined, khmer)">{{
-              t("tools.khmerCalendar.viewDateDetails")
-            }}</NuxtLink>
-            <CalendarShareButton
-              :path="calendarDetailPath(selected, undefined, khmer)"
-              :title="getCalendarDetailMeta(detail, null, khmer).title"
-              :khmer="khmer"
-            />
-          </div>
-
-          <section class="day-detail-panel">
-            <h3>{{ t("tools.khmerCalendar.holidaysObservances") }}</h3>
-            <ul v-if="selectedEvents.length" class="selected-events">
-              <li v-for="event in selectedEvents" :key="event.id">
-                <span class="event-type" :class="event.kind">{{
-                  event.kind === "public-holiday"
-                    ? t("tools.khmerCalendar.publicHoliday")
-                    : t("tools.khmerCalendar.celebrationObservanceNotAPublicHoliday")
-                }}</span>
-                <p>
-                  <NuxtLink
-                    :to="calendarDetailPath(selected, event.id, khmer)"
-                    >{{ eventName(event) }}</NuxtLink
-                  >
-                </p>
-                <small v-if="event.estimated" class="estimated-note"
-                  >{{ t("tools.khmerCalendar.estimated") }} ·
-                  {{ khmer ? event.noteKm : event.noteEn }}</small
-                >
-                <CalendarShareButton
-                  :path="calendarDetailPath(selected, event.id, khmer)"
-                  :title="getCalendarDetailMeta(detail, event, khmer).title"
-                  :khmer="khmer"
-                />
-              </li>
-            </ul>
-            <p v-else class="empty-copy">
-              {{
-                schedule.verified
-                  ? t("tools.khmerCalendar.noListedHolidayOrObservanceForThisDate")
-                  : t("tools.khmerCalendar.theOfficialPublicHolidayScheduleForThisYearIs")
-              }}
-            </p>
-          </section>
-
-          <section class="month-event-panel">
-            <div class="section-heading">
-              <h3>{{ t("tools.khmerCalendar.thisMonth") }}</h3>
-              <span>{{ digits(monthEvents.length) }}</span>
-            </div>
-            <ul v-if="monthEvents.length" class="month-event-list">
-              <li
-                v-for="event in monthEvents"
-                :key="`${event.date}-${event.id}`"
-              >
+            <div v-if="calendarMode === 'roster'" class="roster-selected-section">
+              <div class="roster-selected-header">
+                <h4>{{ khmer ? "ផែនការងារថ្ងៃនេះ:" : "Selected Day Roster:" }}</h4>
                 <button
                   type="button"
-                  @click="
-                    selectDate({
-                      year: selected.year,
-                      month: selected.month,
-                      day: event.day,
-                    })
-                  "
+                  class="edit-roster-btn"
+                  @click="rosterEditorOpen = true"
                 >
-                  <span class="event-day" :class="event.kind">{{
-                    digits(event.day)
-                  }}</span
-                  ><span
-                    >{{ eventName(event)
-                    }}<small
-                      >{{
-                        event.kind === "public-holiday"
-                          ? t("tools.khmerCalendar.publicHoliday")
-                          : t("tools.khmerCalendar.celebrationObservance")
-                      }}<template v-if="event.estimated">
-                        · {{ t("tools.khmerCalendar.estimated") }}</template
-                      ></small
-                    ></span
-                  ><ChevronRight :size="14" aria-hidden="true" />
+                  <Plus :size="13" />
+                  {{ khmer ? "កែសម្រួល" : "Edit" }}
                 </button>
-              </li>
-            </ul>
-            <p v-else class="empty-copy">
-              {{
-                t("tools.khmerCalendar.noListedEventsThisMonth")
-              }}
-            </p>
+              </div>
+
+              <div v-if="roster.daysByDate.value.get(selectedKey)" class="roster-selected-details">
+                <div v-if="roster.daysByDate.value.get(selectedKey)?.leaveCode" class="roster-detail-row">
+                  <span class="label">{{ khmer ? "ការឈប់សម្រាក:" : "Leave:" }}</span>
+                  <span
+                    class="roster-leave-tag"
+                    :class="`roster-leave-${roster.daysByDate.value.get(selectedKey)!.leaveCode!.toLowerCase()}`"
+                  >
+                    {{ roster.daysByDate.value.get(selectedKey)!.leaveCode }}
+                  </span>
+                </div>
+                <div v-if="roster.daysByDate.value.get(selectedKey)?.shiftCode" class="roster-detail-row">
+                  <span class="label">{{ khmer ? "ផែនការងារ:" : "Shift:" }}</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-mono font-bold text-white">{{ roster.daysByDate.value.get(selectedKey)!.shiftCode }}</span>
+                    <span
+                      v-if="roster.shiftsByCode.value.get(roster.daysByDate.value.get(selectedKey)!.shiftCode!)"
+                      class="shift-hours"
+                    >
+                      ({{ calculateDayWorkingHours(roster.shiftsByCode.value.get(roster.daysByDate.value.get(selectedKey)!.shiftCode!), roster.daysByDate.value.get(selectedKey)?.leaveCode) }}h)
+                    </span>
+                  </div>
+                </div>
+                <div class="roster-detail-row">
+                  <span class="label">{{ khmer ? "ស្ថានភាព:" : "Status:" }}</span>
+                  <span
+                    class="status-pill"
+                    :class="`status-${roster.daysByDate.value.get(selectedKey)!.status.toLowerCase()}`"
+                  >
+                    {{ roster.daysByDate.value.get(selectedKey)!.status }}
+                  </span>
+                </div>
+                <div v-if="roster.daysByDate.value.get(selectedKey)?.note" class="roster-detail-note">
+                  "{{ roster.daysByDate.value.get(selectedKey)!.note }}"
+                </div>
+              </div>
+              <div v-else class="roster-no-entry">
+                <p>{{ khmer ? "មិនទាន់បានកំណត់វេន" : "No shift or leave set" }}</p>
+                <button type="button" class="set-shift-quick-btn" @click="rosterEditorOpen = true">
+                  + {{ khmer ? "កំណត់វេន" : "Set shift" }}
+                </button>
+              </div>
+            </div>
           </section>
+
+          <template v-if="calendarMode === 'roster'">
+            <section class="day-detail-panel">
+              <h3>{{ khmer ? "សកម្មភាពតារាងវេន" : "Roster Actions" }}</h3>
+              <div class="roster-sidebar-actions">
+                <button
+                  type="button"
+                  class="roster-menu-btn auto-gen-btn"
+                  @click="openGenerator"
+                >
+                  <Sparkles :size="15" />
+                  <span>{{ khmer ? "បង្កើតវេនស្វ័យប្រវត្តិ" : "Auto-Generate Roster" }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="roster-menu-btn"
+                  @click="rosterExportOpen = true"
+                >
+                  <Download :size="15" />
+                  <span>{{ khmer ? "នាំចេញតារាងវេន (PNG/PDF)" : "Export Roster" }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="roster-menu-btn"
+                  @click="rosterSettingsOpen = true"
+                >
+                  <SettingsIcon :size="15" />
+                  <span>{{ khmer ? "ការកំណត់សមតុល្យ & វេន" : "Roster Settings" }}</span>
+                </button>
+              </div>
+            </section>
+          </template>
+          <template v-else>
+            <div class="selected-date-actions">
+              <NuxtLink :to="calendarDetailPath(selected, undefined, khmer)">{{
+                t("tools.khmerCalendar.viewDateDetails")
+              }}</NuxtLink>
+              <CalendarShareButton
+                :path="calendarDetailPath(selected, undefined, khmer)"
+                :title="getCalendarDetailMeta(detail, null, khmer).title"
+                :khmer="khmer"
+              />
+            </div>
+
+            <section class="day-detail-panel">
+              <h3>{{ t("tools.khmerCalendar.holidaysObservances") }}</h3>
+              <ul v-if="selectedEvents.length" class="selected-events">
+                <li v-for="event in selectedEvents" :key="event.id">
+                  <span class="event-type" :class="event.kind">{{
+                    event.kind === "public-holiday"
+                      ? t("tools.khmerCalendar.publicHoliday")
+                      : t("tools.khmerCalendar.celebrationObservanceNotAPublicHoliday")
+                  }}</span>
+                  <p>
+                    <NuxtLink
+                      :to="calendarDetailPath(selected, event.id, khmer)"
+                      >{{ eventName(event) }}</NuxtLink
+                    >
+                  </p>
+                  <small v-if="event.estimated" class="estimated-note"
+                    >{{ t("tools.khmerCalendar.estimated") }} ·
+                    {{ khmer ? event.noteKm : event.noteEn }}</small
+                  >
+                  <CalendarShareButton
+                    :path="calendarDetailPath(selected, event.id, khmer)"
+                    :title="getCalendarDetailMeta(detail, event, khmer).title"
+                    :khmer="khmer"
+                  />
+                </li>
+              </ul>
+              <p v-else class="empty-copy">
+                {{
+                  schedule.verified
+                    ? t("tools.khmerCalendar.noListedHolidayOrObservanceForThisDate")
+                    : t("tools.khmerCalendar.theOfficialPublicHolidayScheduleForThisYearIs")
+                }}
+              </p>
+            </section>
+
+            <section class="month-event-panel">
+              <div class="section-heading">
+                <h3>{{ t("tools.khmerCalendar.thisMonth") }}</h3>
+                <span>{{ digits(monthEvents.length) }}</span>
+              </div>
+              <ul v-if="monthEvents.length" class="month-event-list">
+                <li
+                  v-for="event in monthEvents"
+                  :key="`${event.date}-${event.id}`"
+                >
+                  <button
+                    type="button"
+                    @click="
+                      selectDate({
+                        year: selected.year,
+                        month: selected.month,
+                        day: event.day,
+                      })
+                    "
+                  >
+                    <span class="event-day" :class="event.kind">{{
+                      digits(event.day)
+                    }}</span
+                    ><span
+                      >{{ eventName(event)
+                      }}<small
+                        >{{
+                          event.kind === "public-holiday"
+                            ? t("tools.khmerCalendar.publicHoliday")
+                            : t("tools.khmerCalendar.celebrationObservance")
+                        }}<template v-if="event.estimated">
+                          · {{ t("tools.khmerCalendar.estimated") }}</template
+                        ></small
+                      ></span
+                    ><ChevronRight :size="14" aria-hidden="true" />
+                  </button>
+                </li>
+              </ul>
+              <p v-else class="empty-copy">
+                {{
+                  t("tools.khmerCalendar.noListedEventsThisMonth")
+                }}
+              </p>
+            </section>
+          </template>
         </aside>
       </div>
 
       <CelebrationBrowser
+        v-if="calendarMode === 'calendar'"
         :year="selected.year"
         :khmer="khmer"
         @select="selectCelebrationDate"
       />
+
+      <RosterDayEditorModal
+        :open="rosterEditorOpen"
+        :date-key="selectedKey"
+        :day="detail"
+        :entry="roster.daysByDate.value.get(selectedKey) || null"
+        :shifts="roster.shifts.value"
+        :preferences="roster.preferences.value"
+        :prd-remaining="roster.summary.value.prdRemaining"
+        :al-remaining="roster.summary.value.alRemaining"
+        :phl-remaining="roster.summary.value.phlRemaining"
+        :khmer="khmer"
+        @close="rosterEditorOpen = false"
+        @save="roster.saveDay(selectedKey, $event)"
+        @delete="roster.deleteDay($event)"
+      />
+
+      <RosterGeneratorModal
+        :open="rosterGeneratorOpen"
+        :year="selected.year"
+        :month="selected.month"
+        :preferences="roster.preferences.value"
+        :preview="generatorPreview"
+        :khmer="khmer"
+        :busy="roster.saving.value"
+        @close="rosterGeneratorOpen = false"
+        @apply="handleApplyGenerator"
+      />
+
+      <RosterSettingsModal
+        :open="rosterSettingsOpen"
+        :preferences="roster.preferences.value"
+        :shifts="roster.shifts.value"
+        :balances="roster.balances.value"
+        :transactions="roster.transactions.value"
+        :khmer="khmer"
+        :busy="roster.saving.value"
+        @close="rosterSettingsOpen = false"
+        @save-preferences="roster.savePreferences($event)"
+        @create-shift="roster.createShift($event)"
+        @update-shift="roster.updateShift"
+        @record-leave-adjustment="roster.recordLeaveAdjustment($event)"
+      />
+
+      <RosterExportModal
+        :open="rosterExportOpen"
+        :year="selected.year"
+        :month="selected.month"
+        :month-title="monthTitle"
+        :days="roster.days.value"
+        :shifts-by-code="roster.shiftsByCode.value"
+        :preferences="roster.preferences.value"
+        :summary="roster.summary.value"
+        :khmer="khmer"
+        @close="rosterExportOpen = false"
+      />
+
+      <!-- Reset Month Confirmation Modal -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition duration-150 ease-out"
+          enter-from-class="opacity-0"
+          leave-active-class="transition duration-100 ease-in"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="rosterResetConfirmOpen"
+            class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+            @click.self="rosterResetConfirmOpen = false"
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+              :class="{ 'font-khmer': khmer }"
+              @keydown.esc.prevent="rosterResetConfirmOpen = false"
+            >
+              <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">
+                  <RotateCcw :size="20" />
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-zinc-100">
+                    {{ khmer ? "កំណត់ឡើងវិញ?" : "Reset Month Roster?" }}
+                  </h3>
+                  <p class="text-xs text-slate-500 dark:text-zinc-400">
+                    {{ khmer ? `ខែ ${digits(selected.month)}/${digits(selected.year)}` : `Month ${selected.month}/${selected.year}` }}
+                  </p>
+                </div>
+              </div>
+
+              <p class="mt-4 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
+                {{ khmer ? "តើអ្នកពិតជាចង់កំណត់ឡើងវិញនូវទិន្នន័យវេនការងារ និងការឈប់សម្រាកទាំងអស់ក្នុងខែនេះមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។" : "Are you sure you want to reset all shift assignments and leave entries for this month? This cannot be undone." }}
+              </p>
+
+              <div class="mt-6 flex justify-end gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  @click="rosterResetConfirmOpen = false"
+                >
+                  {{ khmer ? "បោះបង់" : "Cancel" }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50"
+                  :disabled="roster.saving.value"
+                  @click="executeResetMonth"
+                >
+                  {{ roster.saving.value ? (khmer ? "កំពុងលុប..." : "Resetting...") : (khmer ? "កំណត់ឡើងវិញ" : "Reset") }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
 
       <footer class="calendar-footer">
         <div>
@@ -1584,6 +2022,19 @@ summary:focus-visible {
   .source-links {
     text-align: left;
   }
+  .calendar-mode-switch {
+    width: 100%;
+    order: 3;
+    margin-top: 6px;
+    justify-content: center;
+  }
+  .mode-switch-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .roster-toolbar-actions {
+    display: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .day-button {
@@ -1606,5 +2057,351 @@ summary:focus-visible {
     gap: 4px;
     margin-top: 2px;
   }
+}
+
+/* My Roster Feature Styles */
+.calendar-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--muted) 16%, var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 3px;
+  gap: 3px;
+}
+.mode-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mode-switch-btn:hover {
+  color: var(--ink);
+}
+.mode-switch-btn.is-active {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.roster-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  margin-left: 12px;
+}
+.roster-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 34px;
+}
+.roster-action-btn:hover {
+  background: color-mix(in srgb, var(--teal) 8%, var(--paper));
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.roster-cell-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 3px;
+  width: 100%;
+}
+.roster-leave-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+  line-height: 1.2;
+  text-align: center;
+  width: fit-content;
+}
+.roster-leave-prd {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+:global(.dark) .roster-leave-prd {
+  background: rgba(185, 28, 28, 0.35);
+  color: #fca5a5;
+}
+.roster-leave-phl {
+  background: #fef3c7;
+  color: #b45309;
+}
+:global(.dark) .roster-leave-phl {
+  background: rgba(180, 83, 9, 0.35);
+  color: #fcd34d;
+}
+.roster-leave-al {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+:global(.dark) .roster-leave-al {
+  background: rgba(126, 34, 206, 0.35);
+  color: #d8b4fe;
+}
+.roster-leave-h1,
+.roster-leave-h2 {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+:global(.dark) .roster-leave-h1,
+:global(.dark) .roster-leave-h2 {
+  background: rgba(109, 40, 217, 0.3);
+  color: #c4b5fd;
+  border-color: rgba(109, 40, 217, 0.5);
+}
+.roster-shift-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+  border-radius: 5px;
+  padding: 2px 5px;
+  width: 100%;
+  line-height: 1.3;
+}
+.shift-code {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.shift-time {
+  font-size: 9px;
+  color: var(--muted);
+}
+.roster-note-indicator {
+  font-size: 9px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.roster-empty-cell {
+  opacity: 0;
+  margin-top: auto;
+  text-align: right;
+  transition: opacity 0.15s;
+}
+.day-button:hover .roster-empty-cell {
+  opacity: 0.6;
+}
+.roster-add-hint {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--teal);
+}
+.legend-swatch {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  margin-right: 4px;
+}
+.roster-selected-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 246, 233, 0.25);
+  font-family: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.roster-selected-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+.roster-selected-header h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ecd2b2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.edit-roster-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff6e9;
+  background: rgba(255, 246, 233, 0.18);
+  border: 1px solid rgba(255, 246, 233, 0.35);
+  padding: 3px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.edit-roster-btn:hover {
+  background: rgba(255, 246, 233, 0.3);
+  color: #ffffff;
+}
+.roster-selected-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.roster-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.roster-detail-row .label {
+  color: #ecd2b2;
+  font-weight: 600;
+}
+.roster-detail-row .shift-hours {
+  color: #fff6e9;
+  font-size: 11px;
+  opacity: 0.95;
+}
+.status-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.status-pill.status-draft {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+.status-pill.status-confirmed {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid #86efac;
+}
+.status-pill.status-requested {
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #fcd34d;
+}
+.status-pill.status-cancelled {
+  background: #ffe4e6;
+  color: #881337;
+  border: 1px solid #fda4af;
+}
+.roster-detail-note {
+  font-size: 11px;
+  color: #fff6e9;
+  font-style: italic;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 246, 233, 0.2);
+  padding: 6px 9px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+.roster-no-entry {
+  text-align: center;
+  padding: 10px 0;
+  color: #ecd2b2;
+  font-size: 11px;
+}
+.set-shift-quick-btn {
+  margin-top: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 246, 233, 0.35);
+  background: rgba(255, 246, 233, 0.18);
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff6e9;
+  cursor: pointer;
+}
+.roster-reset-btn {
+  color: #e11d48;
+}
+.roster-reset-btn:hover {
+  background: #ffe4e6;
+  border-color: #f43f5e;
+  color: #be123c;
+}
+:global(.dark) .roster-reset-btn {
+  color: #fb7185;
+}
+:global(.dark) .roster-reset-btn:hover {
+  background: rgba(225, 29, 72, 0.2);
+  border-color: #fb7185;
+  color: #fca5a5;
+}
+.roster-cell-holiday {
+  width: 100%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.roster-cell-holiday-tag {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  line-height: 1.3;
+}
+:global(.dark) .roster-cell-holiday-tag {
+  background: rgba(185, 28, 28, 0.35);
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+.roster-sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.roster-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.roster-menu-btn:hover {
+  background: color-mix(in srgb, var(--teal) 6%, var(--paper));
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.roster-menu-btn.auto-gen-btn {
+  background: color-mix(in srgb, var(--teal) 10%, var(--paper));
+  border-color: var(--teal);
+  color: var(--teal);
 }
 </style>

@@ -43,6 +43,78 @@ export function loadCalendarComponent(
     "~/lib/calendar-sharing": sharing,
     "~/data/cambodia-holidays": holidays,
     "~/data/calendar-celebrations": celebrations,
+    "~/composables/useAuth": {
+      useAuth: () => ({
+        user: vue.ref(null),
+        isReady: vue.ref(true),
+        fetchMe: () => Promise.resolve(null),
+      }),
+    },
+    "~/composables/useRoster": {
+      useRoster: () => {
+        const days = vue.ref([]);
+        const shifts = vue.ref([]);
+        const preferences = vue.ref({
+          saturdayOff: true,
+          sundayOff: true,
+          holidaysOff: true,
+          defaultShiftCode: "K123",
+          allocationPriority: ["PRD", "PHL", "AL"],
+        });
+        const balances = vue.ref([]);
+        const transactions = vue.ref([]);
+        const loading = vue.ref(false);
+        const saving = vue.ref(false);
+        const daysByDate = vue.ref(new Map());
+        const shiftsByCode = vue.ref(new Map());
+        const summary = vue.ref({
+          month: 11,
+          year: 2026,
+          workingDays: 0,
+          workingHours: 0,
+          prdUsed: 0,
+          prdAllowance: 7,
+          prdRemaining: 7,
+          phlConfirmed: 0,
+          phlPending: 0,
+          phlRemaining: 0,
+          alConfirmed: 0,
+          alPending: 0,
+          alRemaining: 0,
+          h1Count: 0,
+          h2Count: 0,
+          pendingRequests: 0,
+          unassignedDays: 0,
+        });
+        return {
+          days,
+          shifts,
+          preferences,
+          balances,
+          transactions,
+          loading,
+          saving,
+          error: vue.ref(null),
+          isInitialized: vue.ref(true),
+          shiftsByCode,
+          daysByDate,
+          summary,
+          loadMonth: () => Promise.resolve(),
+          saveDay: () => Promise.resolve(true),
+          deleteDay: () => Promise.resolve(true),
+          resetMonth: () => Promise.resolve(true),
+          savePreferences: () => Promise.resolve(true),
+          createShift: () => Promise.resolve(null),
+          updateShift: () => Promise.resolve(null),
+          recordLeaveAdjustment: () => Promise.resolve(true),
+          previewSmartRoster: () => null,
+          applySmartRoster: () => Promise.resolve(true),
+        };
+      },
+    },
+    "~/lib/roster": {
+      calculateDayWorkingHours: () => 0,
+    },
   };
   const globals = {
     ...vue,
@@ -50,6 +122,7 @@ export function loadCalendarComponent(
     useHead: options.inlineTemplate === false ? () => {} : useHead,
     useSeoMeta: options.inlineTemplate === false ? () => {} : useSeoMeta,
     useRoute: () => options.route ?? { params: {}, query: {} },
+    useRouter: () => ({ push() {}, replace() {} }),
     useProductDomain: () => ({
       config: { mainOrigin: "https://chlatwork.com" },
       destination: (path: string) => new URL(path, "https://chlatwork.com").href,
@@ -63,6 +136,14 @@ export function loadCalendarComponent(
   const module = { exports: {} as any };
   new Function("require", "module", "exports", ...Object.keys(globals), code)(
     (name: string) => {
+      if (name.startsWith("~/components/roster/"))
+        return {
+          __esModule: true,
+          default: {
+            name: name.replace("~/components/roster/", "").replace(".vue", ""),
+            setup: () => () => null,
+          },
+        };
       if (name.startsWith("~/") && name.endsWith(".vue"))
         return {
           __esModule: true,

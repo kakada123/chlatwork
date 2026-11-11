@@ -245,6 +245,11 @@ model User {
   personalTasks                              PersonalTask[]
   personalReminders                          PersonalReminder[]
   foodAiRecipes                              FoodAiRecipe[]
+  rosterShifts                               RosterShift[]
+  rosterPreferences                          RosterPreferences?
+  rosterDays                                 RosterDay[]
+  leaveBalances                              LeaveBalance[]
+  leaveTransactions                          LeaveTransaction[]
 
   @@map("users")
 }
@@ -1304,4 +1309,125 @@ model FoodMenuItem {
   @@index([mealTimes], type: Gin, map: "food_menu_items_meals_idx")
   @@index([tags], type: Gin, map: "food_menu_items_tags_idx")
   @@map("food_menu_items")
+}
+
+// =============================================================================
+// My Roster feature
+// =============================================================================
+
+enum RosterEntryStatus {
+  DRAFT
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+}
+
+enum LeaveCode {
+  PRD
+  PHL
+  AL
+  H1
+  H2
+}
+
+enum LeaveTransactionKind {
+  OPENING_BALANCE
+  EARNED
+  ADJUSTMENT
+  DEDUCTION
+  REVERSAL
+}
+
+model RosterShift {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code        String   @db.VarChar(16)
+  /// HH:MM
+  startTime   String   @map("start_time") @db.VarChar(5)
+  /// HH:MM
+  endTime     String   @map("end_time") @db.VarChar(5)
+  isOvernight Boolean  @default(false) @map("is_overnight")
+  isDefault   Boolean  @default(false) @map("is_default")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, code], map: "roster_shifts_user_code_unique")
+  @@index([userId], map: "roster_shifts_user_idx")
+  @@map("roster_shifts")
+}
+
+model RosterPreferences {
+  userId               String    @id @map("user_id") @db.Uuid
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  saturdayOff          Boolean   @default(true) @map("saturday_off")
+  sundayOff            Boolean   @default(true) @map("sunday_off")
+  publicHolidaysOff    Boolean   @default(true) @map("public_holidays_off")
+  defaultShiftCode     String?   @map("default_shift_code") @db.VarChar(16)
+  /// Ordered list of LeaveCode values to consume when auto-generating the roster
+  leavePriority        String[]  @default(["PRD", "PHL", "AL"]) @map("leave_priority")
+  /// Number of PRD full-days allowed per month (half-day precision handled internally)
+  monthlyPrdAllowance  Int       @default(7) @map("monthly_prd_allowance")
+  timezone             String    @default("Asia/Phnom_Penh") @map("timezone") @db.VarChar(64)
+  displayName          String?   @map("display_name") @db.VarChar(128)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("roster_preferences")
+}
+
+model RosterDay {
+  id           String              @id @default(uuid()) @db.Uuid
+  userId       String              @map("user_id") @db.Uuid
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entryDate    DateTime            @map("entry_date") @db.Date
+  /// NULL means day-off or leave-only (no shift assigned)
+  shiftCode    String?             @map("shift_code") @db.VarChar(16)
+  leaveCode    LeaveCode?          @map("leave_code")
+  status       RosterEntryStatus   @default(DRAFT) @map("status")
+  note         String?
+  isLocked     Boolean             @default(false) @map("is_locked")
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  transactions LeaveTransaction[]
+
+  @@unique([userId, entryDate], map: "roster_days_user_date_unique")
+  @@index([userId, entryDate], map: "roster_days_user_date_idx")
+  @@index([userId, status], map: "roster_days_user_status_idx")
+  @@map("roster_days")
+}
+
+model LeaveBalance {
+  userId                  String    @map("user_id") @db.Uuid
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveCode               LeaveCode @map("leave_code")
+  leaveYear               Int       @map("leave_year")
+  /// Half-days (2 = 1 full day)
+  openingBalanceHalfDays  Int       @default(0) @map("opening_balance_half_days")
+  earnedHalfDays          Int       @default(0) @map("earned_half_days")
+  adjustmentHalfDays      Int       @default(0) @map("adjustment_half_days")
+  confirmedUsedHalfDays   Int       @default(0) @map("confirmed_used_half_days")
+  pendingHalfDays         Int       @default(0) @map("pending_half_days")
+
+  @@id([userId, leaveCode, leaveYear])
+  @@index([userId, leaveYear], map: "leave_balances_user_year_idx")
+  @@map("leave_balances")
+}
+
+model LeaveTransaction {
+  id          String               @id @default(uuid()) @db.Uuid
+  userId      String               @map("user_id") @db.Uuid
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveCode   LeaveCode            @map("leave_code")
+  kind        LeaveTransactionKind @map("kind")
+  /// Positive = credit, negative = debit
+  halfDays    Int                  @map("half_days")
+  rosterDayId String?              @map("roster_day_id") @db.Uuid
+  rosterDay   RosterDay?           @relation(fields: [rosterDayId], references: [id], onDelete: SetNull)
+  note        String?
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId, leaveCode, createdAt(sort: Desc)], map: "leave_transactions_user_code_created_idx")
+  @@index([rosterDayId], map: "leave_transactions_roster_day_idx")
+  @@map("leave_transactions")
 }

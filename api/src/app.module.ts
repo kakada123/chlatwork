@@ -21,6 +21,7 @@ import { FeatureAvailabilityModule } from './feature-availability/feature-availa
 import { ProfilesModule } from './profiles/profiles.module';
 import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader.module';
 import { FoodModule } from './food/food.module';
+import { RosterModule } from './roster/roster.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { FoodModule } from './food/food.module';
     MemberKhqrModule,
     PersonalAssistantModule,
     FoodModule,
+    RosterModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
