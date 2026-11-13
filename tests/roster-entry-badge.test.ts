@@ -6,13 +6,13 @@ import { loadCalendarComponent } from "./helpers/load-calendar-component.ts";
 
 const component = loadCalendarComponent("app/components/roster/RosterEntryBadge.vue");
 
-test("leave badges retain their codes and localized meaning with decorative icons", async () => {
+test("plain leave labels retain their codes and localized meaning without extra icons", async () => {
   for (const [code, description] of [
     ["PRD", "Day off"], ["PHL", "Holiday leave"], ["AL", "Annual leave"], ["H1", "Half-day"], ["H2", "Half-day"],
   ]) {
     const html = await renderToString(createSSRApp(component, { code, leaveCode: code }));
     assert.ok(html.includes(description));
-    assert.match(html, /<svg[^>]*aria-hidden="true"/);
+    assert.doesNotMatch(html, /<svg/);
     assert.ok(html.includes(`>${code}</span>`));
   }
   const khmer = await renderToString(createSSRApp(component, { code: "AL", leaveCode: "AL", khmer: true }));

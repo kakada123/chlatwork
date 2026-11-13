@@ -156,7 +156,7 @@ test("shared export card omits remaining PHL and AL balances in both languages",
   }
 });
 
-test("export retains full-day colors and renders shift and leave badges with icons and full times", async () => {
+test("export keeps full-day colors with plain codes and times instead of icon badges", async () => {
   const component = loadExport(async () => "", undefined, true);
   const days = [
     {
@@ -171,6 +171,8 @@ test("export retains full-day colors and renders shift and leave badges with ico
       leaveCode: "PRD",
       status: "DRAFT",
     },
+    { entryDate: "2026-11-04", shiftCode: null, leaveCode: "PHL", status: "DRAFT" },
+    { entryDate: "2026-11-05", shiftCode: null, leaveCode: "AL", status: "DRAFT" },
   ];
   const context: Record<string, any> = {};
   await renderToString(
@@ -201,8 +203,11 @@ test("export retains full-day colors and renders shift and leave badges with ico
     context.teleports.body,
     /<td[^>]*style="background-color:#fff1f2;/,
   );
-  assert.match(context.teleports.body, /lucide-calendar-days/);
-  assert.match(context.teleports.body, /lucide-coffee/);
+  assert.match(context.teleports.body, /<td[^>]*style="background-color:#fffbeb;/);
+  assert.match(context.teleports.body, /<td[^>]*style="background-color:#faf5ff;/);
+  const table = context.teleports.body.match(/<table[\s\S]*?<\/table>/)?.[0] ?? "";
+  assert.ok(table.includes("K123"));
+  assert.doesNotMatch(table, /<svg/);
   assert.match(context.teleports.body, /09:00 – 18:30/);
 });
 
