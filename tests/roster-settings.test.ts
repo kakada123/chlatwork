@@ -47,12 +47,14 @@ test("settings refresh loaded preferences on open and save the status-flow setti
     ...DEFAULT_PREFERENCES,
     statusFlowEnabled: true,
     monthlyPrdAllowance: 0,
+    saturdayOff: false,
   };
   props.open = true;
   await nextTick();
   settings.handleSavePreferences();
   assert.equal(events[0][1].statusFlowEnabled, true);
   assert.equal(events[0][1].monthlyPrdAllowance, 0);
+  assert.equal(events[0][1].saturdayOff, true);
   settings.submitAdjustment();
   assert.equal(events[1][1].year, 2027);
 });

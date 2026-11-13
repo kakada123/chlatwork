@@ -82,7 +82,6 @@ const newShiftOvernight = ref(false);
 const newShiftDefault = ref(false);
 
 // Local editable preferences
-const localSaturdayOff = ref(props.preferences.saturdayOff);
 const localSundayOff = ref(props.preferences.sundayOff);
 const localHolidaysOff = ref(props.preferences.publicHolidaysOff);
 const localDefaultShift = ref(props.preferences.defaultShiftCode || "K123");
@@ -92,7 +91,6 @@ const localStatusFlowEnabled = ref(props.preferences.statusFlowEnabled ?? false)
 
 watch(() => [props.open, props.preferences], () => {
   if (!props.open) return;
-  localSaturdayOff.value = props.preferences.saturdayOff;
   localSundayOff.value = props.preferences.sundayOff;
   localHolidaysOff.value = props.preferences.publicHolidaysOff;
   localDefaultShift.value = props.preferences.defaultShiftCode || "K123";
@@ -109,7 +107,7 @@ function handleSavePreferences() {
   if (props.busy) return;
   emit("savePreferences", {
     statusFlowEnabled: localStatusFlowEnabled.value,
-    saturdayOff: localSaturdayOff.value,
+    saturdayOff: true,
     sundayOff: localSundayOff.value,
     publicHolidaysOff: localHolidaysOff.value,
     defaultShiftCode: localDefaultShift.value,
@@ -580,12 +578,9 @@ function toggleShiftActive(shift: RosterShift) {
                   </span>
                   <input v-model="localStatusFlowEnabled" type="checkbox" role="switch" :aria-checked="localStatusFlowEnabled" class="h-5 w-5 shrink-0 rounded text-teal-600 focus:ring-teal-500" />
                 </label>
-                <label class="flex items-center justify-between cursor-pointer">
-                  <span class="text-xs text-slate-800 dark:text-zinc-200">
-                    {{ khmer ? "ថ្ងៃសៅរ៍ ជាថ្ងៃពេញចិត្តឈប់សម្រាក" : "Saturday as preferred day off" }}
-                  </span>
-                  <input v-model="localSaturdayOff" type="checkbox" class="h-4 w-4 rounded text-teal-600 focus:ring-teal-500" />
-                </label>
+                <p class="rounded-lg bg-slate-50 p-3 text-xs text-slate-800 dark:bg-zinc-800 dark:text-zinc-200">
+                  {{ khmer ? "ថ្ងៃសៅរ៍៖ ប្រើ PRD → PHL → AL ដែលនៅសល់ មុនកំណត់ឱ្យធ្វើការ" : "Saturdays: use available PRD → PHL → AL before scheduling work." }}
+                </p>
 
                 <label class="flex items-center justify-between cursor-pointer">
                   <span class="text-xs text-slate-800 dark:text-zinc-200">

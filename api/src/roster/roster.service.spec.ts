@@ -107,6 +107,20 @@ describe("RosterService annual balances", () => {
     expect(result.suggestions.find((day) => day.date === "2027-01-02")?.leaveCode).toBe("PHL");
   });
 
+  it("uses PHL then AL on Saturdays even if the legacy Saturday preference is off", async () => {
+    prisma.rosterPreferences.findUnique.mockResolvedValue({ monthlyPrdAllowance: 0, statusFlowEnabled: false, saturdayOff: false, sundayOff: false, publicHolidaysOff: false, defaultShiftCode: "K123" });
+    prisma.rosterDay.findMany.mockResolvedValue([]);
+    prisma.leaveBalance.findUnique.mockImplementation(async ({ where }) => ({
+      openingBalanceHalfDays: where.userId_leaveCode_leaveYear.leaveCode === "PHL" ? 2 : 6,
+      earnedHalfDays: 0, adjustmentHalfDays: 0, confirmedUsedHalfDays: 0, pendingHalfDays: 0,
+    }));
+    const result = await service.generatePreview("user-a", { year: 2027, month: 1 });
+    for (const [date, leaveCode] of [["2027-01-02", "PHL"], ["2027-01-09", "AL"], ["2027-01-16", "AL"], ["2027-01-23", "AL"]]) {
+      expect(result.suggestions.find((entry) => entry.date === date)).toMatchObject({ shiftCode: null, leaveCode });
+    }
+    expect(result.suggestions.find((entry) => entry.date === "2027-01-30")).toMatchObject({ shiftCode: "K123", leaveCode: null });
+  });
+
   it("reserves Sunday PRD before Saturdays and works holidays when credits are exhausted", async () => {
     prisma.rosterPreferences.findUnique.mockResolvedValue({
       monthlyPrdAllowance: 7,

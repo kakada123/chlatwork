@@ -197,14 +197,14 @@ test("export keeps full-day colors with plain codes and times instead of icon ba
   );
   assert.match(
     context.teleports.body,
-    /<td[^>]*style="background-color:#ecfdf5;/,
+    /<td[^>]*style="background-color:#d1fae5;/,
   );
   assert.match(
     context.teleports.body,
-    /<td[^>]*style="background-color:#fff1f2;/,
+    /<td[^>]*style="background-color:#ffe4e6;/,
   );
-  assert.match(context.teleports.body, /<td[^>]*style="background-color:#fffbeb;/);
-  assert.match(context.teleports.body, /<td[^>]*style="background-color:#faf5ff;/);
+  assert.match(context.teleports.body, /<td[^>]*style="background-color:#fef3c7;/);
+  assert.match(context.teleports.body, /<td[^>]*style="background-color:#f3e8ff;/);
   const table = context.teleports.body.match(/<table[\s\S]*?<\/table>/)?.[0] ?? "";
   assert.ok(table.includes("K123"));
   assert.doesNotMatch(table, /<svg/);

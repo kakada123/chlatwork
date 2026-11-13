@@ -45,6 +45,7 @@ const time = computed(() => props.shift ? `${props.shift.startTime} – ${props.
 }
 .roster-entry-label {
   max-width: 100%;
+  color: var(--roster-code-ink, inherit);
   font-weight: 800;
 }
 .roster-entry-code { min-width: 0; overflow-wrap: anywhere; }

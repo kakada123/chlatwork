@@ -11,12 +11,12 @@ import type {
 } from "../types/roster";
 
 const ROSTER_DAY_COLORS = {
-  PRD: { light: "#fff1f2", dark: "#3b2029" },
-  PHL: { light: "#fffbeb", dark: "#352c1c" },
-  AL: { light: "#faf5ff", dark: "#30233d" },
-  H1: { light: "#f5f3ff", dark: "#29223f" },
-  H2: { light: "#f5f3ff", dark: "#29223f" },
-  shift: { light: "#ecfdf5", dark: "#18332d" },
+  PRD: { light: "#ffe4e6", dark: "#4c2430", text: "#9f1239", darkText: "#fda4af" },
+  PHL: { light: "#fef3c7", dark: "#46371d", text: "#92400e", darkText: "#fcd34d" },
+  AL: { light: "#f3e8ff", dark: "#3c2851", text: "#6b21a8", darkText: "#d8b4fe" },
+  H1: { light: "#ede9fe", dark: "#35294f", text: "#5b21b6", darkText: "#c4b5fd" },
+  H2: { light: "#ede9fe", dark: "#35294f", text: "#5b21b6", darkText: "#c4b5fd" },
+  shift: { light: "#d1fae5", dark: "#1e4439", text: "#166534", darkText: "#a7f3d0" },
 };
 
 /** Export uses the light palette; the calendar also supplies a matching dark palette. */
@@ -366,7 +366,7 @@ export function generateSmartRoster(options: {
     if (isSunday && preferences.sundayOff) reservedSundays--;
 
     const isPreferredOff =
-      (isSaturday && preferences.saturdayOff) ||
+      isSaturday ||
       (isSunday && preferences.sundayOff) ||
       (isHoliday && preferences.publicHolidaysOff);
 

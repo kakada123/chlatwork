@@ -410,7 +410,7 @@ async function copyImageToClipboard() {
                     <td
                       v-for="colIdx in 7"
                       :key="colIdx"
-                      :style="{ backgroundColor: getRosterDayColors(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry)?.light }"
+                      :style="{ backgroundColor: getRosterDayColors(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry)?.light, '--roster-code-ink': getRosterDayColors(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry)?.text }"
                       class="border border-slate-200 p-2 align-top h-20"
                       :class="{
                         'bg-slate-50/50': !monthCells[(rowIdx - 1) * 7 + (colIdx - 1)]?.dayNumber,

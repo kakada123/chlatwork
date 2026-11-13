@@ -65,6 +65,16 @@ test("Saturday returns to a normal shift when PRD, PHL and AL are exhausted", ()
   assert.ok(!result.suggestions.some((day) => day.leaveCode === "AL" || day.leaveCode === "PHL"));
 });
 
+test("Saturday leave takes priority even when the old Saturday preference is off", () => {
+  const preferences = { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0, saturdayOff: false, sundayOff: false, publicHolidaysOff: false };
+  const existingDays = [2, 9, 16, 23, 30].map((day) => ({ entryDate: `2027-01-${String(day).padStart(2, "0")}`, shiftCode: "K123", leaveCode: null, status: "CONFIRMED", isLocked: false })) as RosterDay[];
+  const result = generateSmartRoster({ year: 2027, month: 1, preferences, shifts: DEFAULT_SHIFTS, existingDays, phlAvailableHalfDays: 2, alAvailableHalfDays: 6 });
+  for (const [day, code] of [[2, "PHL"], [9, "AL"], [16, "AL"], [23, "AL"]] as const) {
+    assert.equal(result.suggestions.find((entry) => entry.entryDate === `2027-01-${String(day).padStart(2, "0")}`)?.leaveCode, code);
+  }
+  assert.ok(!result.suggestions.some((entry) => entry.entryDate === "2027-01-30"), "The saved shift stays when all leave is exhausted");
+});
+
 test("adding annual credit reconsiders auto-confirmed work on preferred off days", () => {
   const preferences = { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0 };
   const first = generateSmartRoster({ year: 2027, month: 1, preferences, shifts: DEFAULT_SHIFTS });

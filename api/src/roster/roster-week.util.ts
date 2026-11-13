@@ -21,7 +21,7 @@ export function rosterGenerationPreserves(
   if (preferences.statusFlowEnabled || entry.leaveCode || !entry.shiftCode) return true;
   const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
   return !(
-    (weekday === 6 && preferences.saturdayOff) ||
+    weekday === 6 ||
     (weekday === 0 && preferences.sundayOff) ||
     (holidays.has(date) && preferences.publicHolidaysOff)
   );

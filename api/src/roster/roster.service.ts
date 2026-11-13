@@ -641,7 +641,7 @@ export class RosterService {
 
       const isPreferredOff =
         (isSunday && prefs.sundayOff) ||
-        (isSaturday && prefs.saturdayOff) ||
+        isSaturday ||
         (isPublicHoliday && prefs.publicHolidaysOff);
 
       let leaveCode: string | null = null;

@@ -155,7 +155,7 @@ const leaveRestrictions = computed(() => Object.fromEntries((["PRD", "PHL", "AL"
 function rosterCellStyle(key: string | undefined) {
   if (!key || calendarMode.value !== "roster") return undefined;
   const colors = getRosterDayColors(roster.daysByDate.value.get(key));
-  return colors ? { "--roster-day-light": colors.light, "--roster-day-dark": colors.dark } : undefined;
+  return colors ? { "--roster-day-light": colors.light, "--roster-day-dark": colors.dark, "--roster-code-light": colors.text, "--roster-code-dark": colors.darkText } : undefined;
 }
 
 const rosterEditorOpen = ref(false);
@@ -1611,9 +1611,11 @@ h1 {
 }
 .month-grid .roster-colored-day {
   background: var(--roster-day-light);
+  --roster-code-ink: var(--roster-code-light);
 }
 .dark .month-grid .roster-colored-day {
   background: var(--roster-day-dark);
+  --roster-code-ink: var(--roster-code-dark);
 }
 .roster-colored-day .day-button.is-selected,
 .roster-colored-day .day-button:hover {

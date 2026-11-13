@@ -82,6 +82,7 @@ function d(val: number | string) {
               </h3>
               <ul class="mt-1 list-inside list-disc space-y-0.5 text-teal-800 dark:text-teal-400">
                 <li>{{ khmer ? "ធ្វើការមិនលើស ៦ ថ្ងៃក្នុងមួយសប្តាហ៍ (ចន្ទ–អាទិត្យ)" : "Maximum 6 workdays in each Monday-Sunday week, including weeks crossing months" }}</li>
+                <li>{{ khmer ? "ថ្ងៃសៅរ៍៖ ប្រើ PRD → PHL → AL ដែលនៅសល់ មុនកំណត់ឱ្យធ្វើការ" : "Saturdays use available PRD → PHL → AL before a working shift is considered" }}</li>
                 <li>{{ khmer ? "ពេលអស់ច្បាប់ ថ្ងៃសៅរ៍ និងថ្ងៃបុណ្យធ្វើការធម្មតា ដោយរក្សាថ្ងៃសម្រាកប្រចាំសប្តាហ៍" : "When leave runs out, Saturdays and public holidays use the normal shift while preserving weekly rest" }}</li>
                 <li>{{ khmer ? `រក្សា PRD សម្រាប់ថ្ងៃអាទិត្យជាមុន (កូតា ${d(preferences.monthlyPrdAllowance)} ថ្ងៃ)` : `Reserves PRD for Sundays first (monthly allowance: ${preferences.monthlyPrdAllowance} days)` }}</li>
                 <li v-if="!preferences.statusFlowEnabled">{{ khmer ? "ពេលអនុវត្ត វេនត្រូវបានបញ្ជាក់ភ្លាម ហើយសមតុល្យច្បាប់កែដោយស្វ័យប្រវត្តិ" : "Applying the roster confirms entries and updates leave balances immediately" }}</li>
