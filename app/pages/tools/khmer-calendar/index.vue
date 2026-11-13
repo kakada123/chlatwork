@@ -116,6 +116,7 @@ function setCalendarMode(mode: "calendar" | "roster") {
 
 const { user, isReady: isAuthReady, fetchMe, logout } = useAuth();
 const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
+const checkingSession = ref(true);
 const loggingOut = ref(false);
 const avatarFailed = ref(false);
 watch(() => user.value?.avatarUrl, () => { avatarFailed.value = false; });
@@ -132,6 +133,19 @@ const rosterYear = computed(() => selected.value.year);
 const rosterMonth = computed(() => selected.value.month);
 const rosterOwner = computed(() => signedIn.value ? user.value?.id ?? null : null);
 const roster = useRoster(rosterYear, rosterMonth, signedIn, rosterOwner);
+
+async function initializeCalendarSession() {
+  try {
+    // A previous page may have resolved a guest session before login in another tab.
+    // Always check this hostname's cookies before labelling the roster's storage.
+    await fetchMe();
+    // SSR cannot read localStorage, and signedIn stays false for a guest, so its
+    // watcher will not reload the browser data when the auth check completes.
+    if (!signedIn.value) await roster.loadMonth();
+  } finally {
+    checkingSession.value = false;
+  }
+}
 const leaveRestrictions = computed(() => Object.fromEntries((["PRD", "PHL", "AL", "H1", "H2"] as const).map((code) => [code, roster.leaveRestriction(selectedKey.value, code)])));
 
 function rosterCellStyle(key: string | undefined) {
@@ -404,7 +418,7 @@ function refreshToday() {
   today.value = getPhnomPenhToday();
 }
 onMounted(() => {
-  if (!isAuthReady.value) void fetchMe();
+  void initializeCalendarSession();
   fullscreenSupported.value = Boolean(
     document.fullscreenEnabled && calendarRoot.value?.requestFullscreen,
   );
@@ -455,7 +469,8 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="header-actions">
-          <template v-if="signedIn">
+          <span v-if="checkingSession" class="calendar-session-status" role="status">{{ khmer ? 'កំពុងពិនិត្យគណនី…' : 'Checking sign-in…' }}</span>
+          <template v-else-if="signedIn">
             <NuxtLink to="/account" class="calendar-account" :title="user?.name || (khmer ? 'គណនីរបស់ខ្ញុំ' : 'My account')">
               <img v-if="user?.avatarUrl && !avatarFailed" :src="user.avatarUrl" alt="" referrerpolicy="no-referrer" @error="avatarFailed = true" />
               <span v-else class="account-initial">{{ (user?.name || user?.email || 'U').slice(0, 1).toUpperCase() }}</span>
@@ -554,6 +569,11 @@ onBeforeUnmount(() => {
                 {{ khmer ? "បានកំណត់" : "Assigned" }}
                 <strong>{{ digits(roster.summary.value.totalDays - roster.summary.value.unassignedDays) }} / {{ digits(roster.summary.value.totalDays) }}</strong>
                 {{ khmer ? "ថ្ងៃ" : "days" }}
+                <span v-if="!checkingSession" class="roster-storage-status">
+                  ·
+                  <span v-if="signedIn">{{ khmer ? 'តារាងវេនគណនី' : 'Account roster' }}</span>
+                  <NuxtLink v-else :to="{ path: '/login', query: { redirect: route.fullPath || '/tools/khmer-calendar' } }" :title="khmer ? 'ចូលគណនីនៅលើគេហទំព័រនេះ ដើម្បីបើកតារាងវេនគណនី។ ទិន្នន័យក្នុងកម្មវិធីរុករកនៅដាច់ដោយឡែក។' : 'Sign in on this site to open your account roster. Browser-only data stays separate.'">{{ khmer ? 'ភ្ញៀវ · រក្សាទុកតែក្នុងកម្មវិធីរុករកនេះ' : 'Guest · this browser only' }}</NuxtLink>
+                </span>
               </p>
             </div>
             <div class="month-controls">
@@ -2709,6 +2729,9 @@ summary:focus-visible {
 }
 
 .calendar-account, .calendar-login { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 12px; }
+.calendar-session-status { font-size: 11px; color: var(--muted); }
+.roster-storage-status { font-weight: 400; color: var(--muted); }
+.roster-storage-status a { text-decoration: underline; text-underline-offset: 2px; }
 .calendar-account img, .account-initial { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 .account-initial { display: grid; place-items: center; background: color-mix(in srgb, var(--teal) 15%, var(--paper)); color: var(--teal); font-weight: 700; }
 .account-name { max-width: 85px; overflow: hidden; text-overflow: ellipsis; }

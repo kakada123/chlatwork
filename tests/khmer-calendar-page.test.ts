@@ -1,4 +1,5 @@
 import { getRosterDayColors } from "../app/lib/roster.ts";
+import type { AuthUser } from "../app/composables/useAuth.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import { translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
@@ -21,6 +22,12 @@ function loadPage(
   date = { year: 2026, month: 11, day: 4 },
   sourcePath = "../app/pages/tools/khmer-calendar/index.vue",
   query: Record<string, string> = {},
+  authState?: {
+    user: vue.Ref<AuthUser | null>;
+    isReady: vue.Ref<boolean>;
+    fetchMe: () => Promise<AuthUser | null>;
+    logout: () => Promise<void>;
+  },
 ) {
   const filename = new URL(sourcePath, import.meta.url).pathname;
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), {
@@ -48,7 +55,7 @@ function loadPage(
     "~/data/calendar-celebrations": celebrations,
     "~/composables/useColorMode": { useColorMode: () => ({ isDark: vue.ref(false), nextColorModeLabel: vue.ref("Use dark mode"), toggleColorMode() {} }) },
     "~/composables/useAuth": {
-      useAuth: () => ({
+      useAuth: () => authState ?? ({
         user: vue.ref(null),
         isReady: vue.ref(true),
         fetchMe: () => Promise.resolve(null),
@@ -188,6 +195,38 @@ test("changing month clamps the selected day without skipping February", () => {
   page.selectDate({ year: 1900, month: 1, day: 1 });
   page.changeMonth(-1);
   assert.deepEqual(page.selected.value, { year: 1900, month: 1, day: 1 });
+});
+
+test("calendar rechecks a previously resolved guest session before choosing roster storage", async () => {
+  const user = vue.ref<AuthUser | null>(null);
+  const auth = {
+    user,
+    isReady: vue.ref(true),
+    async fetchMe() {
+      user.value = { id: "account-1", name: "Staff", avatarUrl: null, email: null, phone: null, role: "USER", providers: ["GOOGLE"] };
+      return user.value;
+    },
+    async logout() {},
+  };
+  const page = loadPage(false, undefined, undefined, {}, auth).setup({}, { expose() {} });
+  await page.initializeCalendarSession();
+  assert.equal(page.signedIn.value, true);
+  assert.equal(page.rosterOwner.value, "account-1");
+});
+
+test("calendar loads browser-only data after resolving a guest session on the client", async () => {
+  const page = loadPage().setup({}, { expose() {} });
+  let loads = 0;
+  page.roster.loadMonth = async () => { loads += 1; };
+  await page.initializeCalendarSession();
+  assert.equal(loads, 1);
+  assert.equal(page.signedIn.value, false);
+});
+
+test("calendar does not offer login before the current session is checked", async () => {
+  const html = await renderToString(vue.createSSRApp(loadPage(true)));
+  assert.doesNotMatch(html, /class="calendar-login"/);
+  assert.match(html, /role="status"[^>]*>[^<]*កំពុងពិនិត្យគណនី/);
 });
 
 test("confirm opens a popup without changing normal date editing", () => {
