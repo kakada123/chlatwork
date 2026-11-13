@@ -150,6 +150,8 @@ function loadPage(
   const module = { exports: {} as any };
   new Function("require", "module", "exports", ...Object.keys(globals), code)(
     (name: string) => {
+      if (name === "~/components/roster/RosterEntryBadge.vue")
+        return { __esModule: true, default: loadCalendarComponent("app/components/roster/RosterEntryBadge.vue") };
       if (name === "~/components/khmer-calendar/CelebrationBrowser.vue")
         return {
           __esModule: true,

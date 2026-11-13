@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import * as vue from "vue";
+import { loadCalendarComponent } from "./helpers/load-calendar-component.ts";
 import * as icons from "lucide-vue-next";
 import { compileScript, parse } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
@@ -11,6 +12,7 @@ import {
   getRosterDayColors,
   computeMonthlyRosterSummary,
   DEFAULT_PREFERENCES,
+  DEFAULT_SHIFTS,
 } from "../app/lib/roster.ts";
 
 function loadExport(
@@ -40,6 +42,7 @@ function loadExport(
     jspdf: { __esModule: true, default: pdf },
     "~/lib/khmer-calendar": { toKhmerDigits },
     "~/lib/roster": { getRosterDayColors },
+    "~/components/roster/RosterEntryBadge.vue": { __esModule: true, default: loadCalendarComponent("app/components/roster/RosterEntryBadge.vue") },
   };
   const module = { exports: {} as any };
   const globals = { ...vue, onMounted() {}, onBeforeUnmount() {} };
@@ -153,7 +156,7 @@ test("shared export card omits remaining PHL and AL balances in both languages",
   }
 });
 
-test("export paints the entire table cell for K shifts and leave", async () => {
+test("export retains full-day colors and renders shift and leave badges with icons and full times", async () => {
   const component = loadExport(async () => "", undefined, true);
   const days = [
     {
@@ -177,7 +180,7 @@ test("export paints the entire table cell for K shifts and leave", async () => {
       month: 11,
       monthTitle: "November",
       days,
-      shiftsByCode: new Map(),
+      shiftsByCode: new Map(DEFAULT_SHIFTS.map((shift) => [shift.code, shift])),
       preferences: DEFAULT_PREFERENCES,
       summary: computeMonthlyRosterSummary(
         2026,
@@ -198,6 +201,9 @@ test("export paints the entire table cell for K shifts and leave", async () => {
     context.teleports.body,
     /<td[^>]*style="background-color:#fff1f2;/,
   );
+  assert.match(context.teleports.body, /lucide-calendar-days/);
+  assert.match(context.teleports.body, /lucide-coffee/);
+  assert.match(context.teleports.body, /09:00 – 18:30/);
 });
 
 test("PDF fits a tall six-week roster inside both page dimensions", async () => {

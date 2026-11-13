@@ -30,4 +30,5 @@ test("summary figures stay visible as a compact strip without a toggle or headin
   assert.ok(html.includes("PHL"));
   assert.ok(html.includes("PRD"));
   assert.ok(html.includes("AL"));
+  assert.equal((html.match(/<svg /g) ?? []).length, 7);
 });

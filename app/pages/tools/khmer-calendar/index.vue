@@ -15,6 +15,7 @@ import {
   CheckCheck,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Download,
   Expand,
   Flower2,
@@ -24,6 +25,7 @@ import {
   Minimize,
   Moon,
   Plus,
+  Pencil,
   RotateCcw,
   Settings as SettingsIcon,
   Sparkles,
@@ -40,6 +42,7 @@ import RosterSummaryBar from "~/components/roster/RosterSummaryBar.vue";
 import RosterGeneratorModal from "~/components/roster/RosterGeneratorModal.vue";
 import RosterSettingsModal from "~/components/roster/RosterSettingsModal.vue";
 import RosterExportModal from "~/components/roster/RosterExportModal.vue";
+import RosterEntryBadge from "~/components/roster/RosterEntryBadge.vue";
 import {
   calendarDateKey,
   ENGLISH_MONTHS,
@@ -133,6 +136,7 @@ const rosterYear = computed(() => selected.value.year);
 const rosterMonth = computed(() => selected.value.month);
 const rosterOwner = computed(() => signedIn.value ? user.value?.id ?? null : null);
 const roster = useRoster(rosterYear, rosterMonth, signedIn, rosterOwner);
+const selectedRosterShift = computed(() => roster.shiftsByCode.value.get(roster.daysByDate.value.get(selectedKey.value)?.shiftCode ?? ""));
 
 async function initializeCalendarSession() {
   try {
@@ -765,25 +769,17 @@ onBeforeUnmount(() => {
                     >
                     <template v-if="calendarMode === 'roster'">
                       <div v-if="roster.daysByDate.value.get(day.key)" class="roster-cell-badge">
-                        <span
+                        <RosterEntryBadge
                           v-if="roster.daysByDate.value.get(day.key)?.leaveCode"
-                          class="roster-leave-tag"
-                          :class="`roster-leave-${roster.daysByDate.value.get(day.key)!.leaveCode!.toLowerCase()}`"
-                        >
-                          {{ roster.daysByDate.value.get(day.key)!.leaveCode }}
-                        </span>
-                        <div
+                          :code="roster.daysByDate.value.get(day.key)!.leaveCode!"
+                          :leave-code="roster.daysByDate.value.get(day.key)!.leaveCode"
+                          :khmer="khmer"
+                        />
+                        <RosterEntryBadge
                           v-if="roster.daysByDate.value.get(day.key)?.shiftCode"
-                          class="roster-shift-tag"
-                        >
-                          <span class="shift-code">{{ roster.daysByDate.value.get(day.key)!.shiftCode }}</span>
-                          <span
-                            v-if="roster.shiftsByCode.value.get(roster.daysByDate.value.get(day.key)!.shiftCode!)"
-                            class="shift-time"
-                          >
-                            {{ roster.shiftsByCode.value.get(roster.daysByDate.value.get(day.key)!.shiftCode!)!.startTime }}
-                          </span>
-                        </div>
+                          :code="roster.daysByDate.value.get(day.key)!.shiftCode!"
+                          :shift="roster.shiftsByCode.value.get(roster.daysByDate.value.get(day.key)!.shiftCode!)"
+                        />
                         <span
                           v-if="roster.daysByDate.value.get(day.key)?.note"
                           class="roster-note-indicator"
@@ -836,10 +832,11 @@ onBeforeUnmount(() => {
             </tbody>
           </table>
           <div v-if="calendarMode === 'roster'" class="calendar-legend">
-            <span><span class="legend-swatch roster-leave-prd">PRD</span>{{ khmer ? "ថ្ងៃសម្រាកធម្មតា" : "Day Off" }}</span>
-            <span><span class="legend-swatch roster-leave-phl">PHL</span>{{ khmer ? "ច្បាប់បុណ្យជាតិ" : "Holiday Leave" }}</span>
-            <span><span class="legend-swatch roster-leave-al">AL</span>{{ khmer ? "ច្បាប់ប្រចាំឆ្នាំ" : "Annual Leave" }}</span>
-            <span><span class="legend-swatch roster-leave-h1">H1/H2</span>{{ khmer ? "កន្លះថ្ងៃ" : "Half-Day" }}</span>
+            <span><RosterEntryBadge code="Kxxx" :show-description="false" />{{ khmer ? "វេនការងារ" : "Work shift" }}</span>
+            <span><RosterEntryBadge code="PRD" leave-code="PRD" :show-description="false" />{{ khmer ? "ថ្ងៃសម្រាកធម្មតា" : "Day Off" }}</span>
+            <span><RosterEntryBadge code="PHL" leave-code="PHL" :show-description="false" />{{ khmer ? "ច្បាប់បុណ្យជាតិ" : "Holiday Leave" }}</span>
+            <span><RosterEntryBadge code="AL" leave-code="AL" :show-description="false" />{{ khmer ? "ច្បាប់ប្រចាំឆ្នាំ" : "Annual Leave" }}</span>
+            <span><RosterEntryBadge code="H1/H2" leave-code="H1" :show-description="false" />{{ khmer ? "កន្លះថ្ងៃ" : "Half-Day" }}</span>
             <small>
               {{ digits(roster.summary.value.workingDays) }} {{ khmer ? "ថ្ងៃធ្វើការ" : "work days" }} ·
               {{ digits(roster.summary.value.prdUsed) }}/{{ digits(roster.summary.value.prdAllowance) }} PRD
@@ -926,9 +923,12 @@ onBeforeUnmount(() => {
         >
 
           <section class="selected-card" aria-live="polite" aria-atomic="true">
+            <div class="selected-card-heading">
             <p class="selected-eyebrow">
               {{ t("tools.khmerCalendar.selectedDate") }}
             </p>
+            <button v-if="calendarMode === 'roster'" type="button" class="edit-roster-btn" @click="rosterEditorOpen = true"><Pencil :size="12" aria-hidden="true" />{{ khmer ? "កែសម្រួល" : "Edit" }}</button>
+            </div>
             <div class="selected-date">
               <strong>{{ digits(selected.day) }}</strong>
               <div>
@@ -977,39 +977,22 @@ onBeforeUnmount(() => {
             </details>
 
             <div v-if="calendarMode === 'roster'" class="roster-selected-section">
-              <div class="roster-selected-header">
-                <h4>{{ khmer ? "ផែនការងារថ្ងៃនេះ:" : "Selected Day Roster:" }}</h4>
-                <button
-                  type="button"
-                  class="edit-roster-btn"
-                  @click="rosterEditorOpen = true"
-                >
-                  <Plus :size="13" />
-                  {{ khmer ? "កែសម្រួល" : "Edit" }}
-                </button>
-              </div>
+              <h4 class="sr-only">{{ khmer ? "ផែនការងារថ្ងៃនេះ:" : "Selected Day Roster:" }}</h4>
 
               <div v-if="roster.daysByDate.value.get(selectedKey)" class="roster-selected-details">
                 <div v-if="roster.daysByDate.value.get(selectedKey)?.leaveCode" class="roster-detail-row">
                   <span class="label">{{ khmer ? "ការឈប់សម្រាក:" : "Leave:" }}</span>
-                  <span
-                    class="roster-leave-tag"
-                    :class="`roster-leave-${roster.daysByDate.value.get(selectedKey)!.leaveCode!.toLowerCase()}`"
-                  >
-                    {{ roster.daysByDate.value.get(selectedKey)!.leaveCode }}
-                  </span>
+                  <RosterEntryBadge :code="roster.daysByDate.value.get(selectedKey)!.leaveCode!" :leave-code="roster.daysByDate.value.get(selectedKey)!.leaveCode" :show-description="false" />
                 </div>
                 <div v-if="roster.daysByDate.value.get(selectedKey)?.shiftCode" class="roster-detail-row">
-                  <span class="label">{{ khmer ? "ផែនការងារ:" : "Shift:" }}</span>
+                  <span class="label"><CalendarDays :size="14" aria-hidden="true" />{{ khmer ? "វេនការងារ:" : "Shift:" }}</span>
                   <div class="flex items-center gap-1.5">
                     <span class="font-mono font-bold text-white">{{ roster.daysByDate.value.get(selectedKey)!.shiftCode }}</span>
-                    <span
-                      v-if="roster.shiftsByCode.value.get(roster.daysByDate.value.get(selectedKey)!.shiftCode!)"
-                      class="shift-hours"
-                    >
-                      ({{ calculateDayWorkingHours(roster.shiftsByCode.value.get(roster.daysByDate.value.get(selectedKey)!.shiftCode!), roster.daysByDate.value.get(selectedKey)?.leaveCode) }}h)
-                    </span>
                   </div>
+                </div>
+                <div v-if="selectedRosterShift" class="roster-detail-row">
+                  <span class="label"><Clock :size="14" aria-hidden="true" />{{ khmer ? "ម៉ោង:" : "Time:" }}</span>
+                  <span class="shift-hours">{{ selectedRosterShift.startTime }} – {{ selectedRosterShift.endTime }} ({{ calculateDayWorkingHours(selectedRosterShift, roster.daysByDate.value.get(selectedKey)?.leaveCode) }}h)</span>
                 </div>
                 <div class="roster-detail-row">
                   <span class="label">{{ khmer ? "ស្ថានភាព:" : "Status:" }}</span>
@@ -1657,6 +1640,8 @@ h1 {
   border-color: var(--red);
   background: color-mix(in srgb, var(--red) 5%, var(--paper));
 }
+.day-button.is-roster-mode.is-selected { border-radius: 7px; }
+.day-button.is-roster-mode.is-today .day-number { background: transparent; color: var(--red); padding: 0; }
 .day-button.is-bulk-selected {
   border-color: var(--teal);
   box-shadow: inset 0 0 0 1px var(--teal);
@@ -1768,15 +1753,11 @@ h1 {
 }
 .selected-card {
   background: #722832;
-  background-image: radial-gradient(
-    circle at 100% 0%,
-    #ae6a4229,
-    transparent 65%
-  );
   color: #fff6e9;
   padding: 20px;
   border-radius: 15px;
 }
+.selected-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .selected-eyebrow {
   color: #ecd2b2;
   font-size: 10px;
@@ -2359,80 +2340,12 @@ summary:focus-visible {
   color: var(--teal);
 }
 .roster-cell-badge {
+  container: roster-day / inline-size;
   display: flex;
   flex-direction: column;
   gap: 3px;
   margin-top: 3px;
   width: 100%;
-}
-.roster-leave-tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 5px;
-  line-height: 1.2;
-  text-align: center;
-  width: fit-content;
-}
-.roster-leave-prd {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-.dark .roster-leave-prd {
-  background: rgba(185, 28, 28, 0.35);
-  color: #fca5a5;
-}
-.roster-leave-phl {
-  background: #fef3c7;
-  color: #b45309;
-}
-.dark .roster-leave-phl {
-  background: rgba(180, 83, 9, 0.35);
-  color: #fcd34d;
-}
-.roster-leave-al {
-  background: #f3e8ff;
-  color: #7e22ce;
-}
-.dark .roster-leave-al {
-  background: rgba(126, 34, 206, 0.35);
-  color: #d8b4fe;
-}
-.roster-leave-h1,
-.roster-leave-h2 {
-  background: #ede9fe;
-  color: #6d28d9;
-  border: 1px solid #ddd6fe;
-}
-.dark .roster-leave-h1,
-.dark .roster-leave-h2 {
-  background: rgba(109, 40, 217, 0.3);
-  color: #c4b5fd;
-  border-color: rgba(109, 40, 217, 0.5);
-}
-.roster-shift-tag {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
-  border-radius: 5px;
-  padding: 2px 5px;
-  width: 100%;
-  line-height: 1.3;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-.shift-code {
-  font-family: monospace;
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-.shift-time {
-  font-size: 9px;
-  color: var(--muted);
 }
 .roster-note-indicator {
   font-size: 9px;
@@ -2456,32 +2369,11 @@ summary:focus-visible {
   font-weight: bold;
   color: var(--teal);
 }
-.legend-swatch {
-  display: inline-block;
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 800;
-  margin-right: 4px;
-}
 .roster-selected-section {
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 246, 233, 0.25);
   font-family: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-.roster-selected-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 9px;
-}
-.roster-selected-header h4 {
-  font-size: 11px;
-  font-weight: 700;
-  color: #ecd2b2;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 .edit-roster-btn {
   display: inline-flex;
@@ -2513,6 +2405,9 @@ summary:focus-visible {
   justify-content: space-between;
 }
 .roster-detail-row .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: #ecd2b2;
   font-weight: 600;
 }
@@ -2672,21 +2567,6 @@ summary:focus-visible {
   .roster-action-btn svg,
   .mode-switch-btn svg {
     flex-shrink: 0;
-  }
-  .roster-shift-tag {
-    flex-direction: column;
-    gap: 2px;
-    padding: 3px 2px;
-  }
-  .shift-code {
-    font-size: 10px;
-  }
-  .shift-time {
-    font-size: 8px;
-  }
-  .roster-leave-tag {
-    padding: 3px;
-    font-size: 9px;
   }
 }
 .calendar-resources { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; }

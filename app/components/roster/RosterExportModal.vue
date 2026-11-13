@@ -5,6 +5,7 @@ import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { toKhmerDigits } from "~/lib/khmer-calendar";
 import { getRosterDayColors } from "~/lib/roster";
+import RosterEntryBadge from "~/components/roster/RosterEntryBadge.vue";
 import type {
   MonthlyRosterSummary,
   RosterDay,
@@ -424,32 +425,21 @@ async function copyImageToClipboard() {
                         </div>
 
                         <!-- Roster Entry Badge -->
-                        <div v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry" class="mt-1">
+                        <div v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry" class="mt-1 flex flex-col items-start gap-1">
                           <!-- Leave -->
-                          <div
+                          <RosterEntryBadge
                             v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode"
-                            class="inline-block rounded px-1.5 py-0.5 text-[10px] font-extrabold"
-                            :class="{
-                              'bg-red-100 text-red-800': monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode === 'PRD',
-                              'bg-amber-100 text-amber-800': monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode === 'PHL',
-                              'bg-purple-100 text-purple-800': monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode === 'AL',
-                              'bg-violet-100 text-violet-800': monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode === 'H1' || monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode === 'H2',
-                            }"
-                          >
-                            {{ monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.leaveCode }}
-                          </div>
+                            :code="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry!.leaveCode!"
+                            :leave-code="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry!.leaveCode"
+                            :show-description="false"
+                          />
 
                           <!-- Shift -->
-                          <div
+                          <RosterEntryBadge
                             v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.shiftCode"
-                            class="mt-0.5 text-[10px] font-mono font-bold text-slate-700"
-                          >
-                            {{ monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.shiftCode }}
-                            <span class="block font-sans text-[9px] font-normal text-slate-500">
-                              {{ shiftsByCode.get(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.shiftCode!)?.startTime }} -
-                              {{ shiftsByCode.get(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.shiftCode!)?.endTime }}
-                            </span>
-                          </div>
+                            :code="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry!.shiftCode!"
+                            :shift="shiftsByCode.get(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry!.shiftCode!)"
+                          />
 
                           <!-- Note snippet -->
                           <div

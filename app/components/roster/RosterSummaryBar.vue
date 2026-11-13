@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { AlertTriangle } from "lucide-vue-next";
+import { AlertTriangle, Briefcase, CheckCheck, CircleHelp, Clock, Coffee, Flag, TreePalm } from "lucide-vue-next";
 import { toKhmerDigits } from "~/lib/khmer-calendar";
 import type { MonthlyRosterSummary } from "~/types/roster";
 const props = defineProps<{
@@ -14,42 +14,49 @@ const left = (value: number) => `${d(value)} ${props.khmer ? "សល់" : "left
 const metrics = computed(() => [
   {
     key: "work",
+    icon: Briefcase,
     label: props.khmer ? "ថ្ងៃធ្វើការ" : "Work days",
     value: d(props.summary.workingDays),
     detail: "",
   },
   {
     key: "prd",
+    icon: Coffee,
     label: "PRD",
     value: `${d(props.summary.prdUsed)} / ${d(props.summary.prdAllowance)}`,
     detail: left(props.summary.prdRemaining),
   },
   {
     key: "phl",
+    icon: Flag,
     label: `PHL · ${d(props.year)}`,
     value: d(props.summary.phlUsed),
     detail: left(props.summary.phlRemaining),
   },
   {
     key: "al",
+    icon: TreePalm,
     label: `AL · ${d(props.year)}`,
     value: d(props.summary.alUsed),
     detail: left(props.summary.alRemaining),
   },
   {
     key: "half",
+    icon: Clock,
     label: "H1 / H2",
     value: d(props.summary.halfDaysCount),
     detail: props.khmer ? "កន្លះថ្ងៃ" : "half-days",
   },
   {
     key: "pending",
+    icon: CheckCheck,
     label: props.khmer ? "រង់ចាំបញ្ជាក់" : "Pending",
     value: d(props.summary.pendingRequests),
     detail: "",
   },
   {
     key: "empty",
+    icon: CircleHelp,
     label: props.khmer ? "មិនទាន់កំណត់" : "Unassigned",
     value: d(props.summary.unassignedDays),
     detail: "",
@@ -70,7 +77,7 @@ const exceeded = computed(
         :key="metric.key"
         class="summary-metric"
         :class="'metric-' + metric.key"
-        ><span class="metric-label">{{ metric.label }}</span
+        ><span class="metric-label"><component :is="metric.icon" :size="12" aria-hidden="true" />{{ metric.label }}</span
         ><strong>{{ metric.value }}</strong
         ><small v-if="metric.detail">{{ metric.detail }}</small></span
       >
@@ -100,11 +107,17 @@ const exceeded = computed(
 }
 .summary-metric {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 5px;
 }
 .metric-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
   font-weight: 600;
 }
 .summary-metric small {
