@@ -2,10 +2,6 @@
 import { useAppI18n } from "~/composables/useAppI18n";
 import type { AppLocale } from "~/composables/useLanguage";
 import { useLanguage } from "~/composables/useLanguage";
-
-
-const { isKhmer } = useLanguage();
-
 interface GoogleCredentialResponse { credential?: string }
 
 declare global {
@@ -21,9 +17,9 @@ declare global {
   }
 }
 
-const { currentLocale } = useLanguage();
+const { locale: appLocale } = useLanguage();
 const props = defineProps<{ locale?: AppLocale }>();
-const activeLocale = computed(() => props.locale ?? currentLocale.value);
+const activeLocale = computed(() => props.locale ?? appLocale.value);
 const { t } = useAppI18n(activeLocale);
 const emit = defineEmits<{ success: []; error: [message: string] }>();
 const config = useRuntimeConfig();
