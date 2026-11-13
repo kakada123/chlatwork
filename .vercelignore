@@ -1,3 +1,9 @@
-# The NestJS API deploys separately on Railway. Keep Nuxt's server/api routes included.
-/api/
+# The NestJS API deploys separately. Nuxt imports only this dependency-free utility.
+# Reopen each parent directory, then exclude its contents before allowing the exact file.
+/api/*
+!/api/src/
+/api/src/*
+!/api/src/roster/
+/api/src/roster/*
+!/api/src/roster/roster-week.util.ts
 /.tmp/

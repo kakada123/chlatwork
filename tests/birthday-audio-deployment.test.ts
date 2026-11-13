@@ -4,10 +4,12 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { build } from "vite";
 import vue from "@vitejs/plugin-vue";
+import ignore from "ignore";
 
 test("birthday client components bundle when the separately deployed API is unavailable", async () => {
   const root = process.cwd();
-  assert.match(readFileSync(".vercelignore", "utf8"), /^\/api\/$/m);
+  const uploadRules = ignore().add(readFileSync(".vercelignore", "utf8"));
+  assert.equal(uploadRules.ignores("api/src/moments/birthday-audio.service.ts"), true);
   const result = await build({
     configFile: false,
     envDir: false,
@@ -21,7 +23,7 @@ test("birthday client components bundle when the separately deployed API is unav
       name: "match-vercel-api-exclusion",
       enforce: "pre",
       load(id) {
-        if (id.startsWith(`${root}/api/`)) throw new Error(`Vercel excludes backend source: ${id}`);
+        if (id.startsWith(`${root}/api/`) && uploadRules.ignores(id.slice(root.length + 1))) throw new Error(`Vercel excludes backend source: ${id}`);
       },
     }],
     build: {
