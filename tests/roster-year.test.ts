@@ -1,4 +1,4 @@
-import { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks } from "../api/src/roster/roster-week.util.ts";
+import { rosterGenerationPreserves, rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks } from "../api/src/roster/roster-week.util.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -21,7 +21,7 @@ function loadRoster(fetcher?: (...args: any[]) => Promise<any>) {
   const deps: Record<string, unknown> = {
     vue: { ...vue, watch() {} },
     "../lib/roster": rosterLib,
-    "../../api/src/roster/roster-week.util": { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks },
+    "../../api/src/roster/roster-week.util": { rosterGenerationPreserves, rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks },
     "../data/cambodia-holidays": { getHolidaySchedule },
     "../lib/khmer-calendar": {
       getPhnomPenhToday: () => ({ year: 2026, month: 11, day: 13 }),
@@ -242,6 +242,36 @@ test("flow off immediately confirms saves and edits while flow on preserves chos
       "DRAFT",
     );
     assert.equal(roster.summary.value.alUsed, 0);
+  } finally {
+    if (original) Object.defineProperty(globalThis, "window", original);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
+});
+
+test("guest regeneration applies newly added annual credit once and supports flexible half-days", async () => {
+  let stored = JSON.stringify({ annualBalancesVersion: 1, preferences: { ...rosterLib.DEFAULT_PREFERENCES, monthlyPrdAllowance: 0 }, shifts: rosterLib.DEFAULT_SHIFTS, days: {}, balances: {}, transactions: [] });
+  const original = Object.getOwnPropertyDescriptor(globalThis, "window");
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { localStorage: {
+    getItem: () => stored, setItem: (_key: string, value: string) => { stored = value; },
+  } } });
+  try {
+    const roster = loadRoster()(vue.ref(2027), vue.ref(1), vue.ref(false));
+    await roster.loadMonth();
+    assert.equal(await roster.applySmartRoster(await roster.previewSmartRoster()), true);
+    for (const leaveCode of ["PHL", "AL"]) {
+      assert.equal(await roster.recordLeaveAdjustment({ leaveCode, year: 2027, kind: "OPENING_BALANCE", halfDays: 2 }), true);
+    }
+    const preview = await roster.previewSmartRoster();
+    assert.equal(preview.suggestions.filter((day: any) => day.leaveCode === "PHL").length, 1);
+    assert.equal(preview.suggestions.filter((day: any) => day.leaveCode === "AL").length, 1);
+    assert.equal(await roster.applySmartRoster(preview), true);
+    assert.equal(await roster.applySmartRoster(preview), true);
+    assert.equal(roster.phlBalance.value.confirmedUsedHalfDays, 2);
+    assert.equal(roster.alBalance.value.confirmedUsedHalfDays, 2);
+    await roster.recordLeaveAdjustment({ leaveCode: "AL", year: 2027, kind: "EARNED", halfDays: 1 });
+    assert.equal(await roster.saveDay("2027-01-04", { leaveCode: "H1", shiftCode: "K123" }), true);
+    assert.equal(roster.daysByDate.value.get("2027-01-04").shiftCode, null);
+    assert.equal(roster.alBalance.value.confirmedUsedHalfDays, 3);
   } finally {
     if (original) Object.defineProperty(globalThis, "window", original);
     else Reflect.deleteProperty(globalThis, "window");

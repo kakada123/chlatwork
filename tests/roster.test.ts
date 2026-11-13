@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { rosterDayViolation, rosterWorkdayWeight } from "../api/src/roster/roster-week.util.ts";
 import {
   calculateShiftHours,
   calculateDayWorkingHours,
@@ -64,6 +65,18 @@ test("Saturday returns to a normal shift when PRD, PHL and AL are exhausted", ()
   assert.ok(!result.suggestions.some((day) => day.leaveCode === "AL" || day.leaveCode === "PHL"));
 });
 
+test("adding annual credit reconsiders auto-confirmed work on preferred off days", () => {
+  const preferences = { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0 };
+  const first = generateSmartRoster({ year: 2027, month: 1, preferences, shifts: DEFAULT_SHIFTS });
+  const existingDays = first.suggestions.map((entry) => ({ ...entry, id: entry.entryDate, status: "CONFIRMED", isLocked: false, note: null })) as RosterDay[];
+  const result = generateSmartRoster({ year: 2027, month: 1, preferences, shifts: DEFAULT_SHIFTS, existingDays, phlAvailableHalfDays: 2, alAvailableHalfDays: 2 });
+  assert.equal(result.suggestions.find((entry) => entry.entryDate === "2027-01-02")?.leaveCode, "PHL");
+  assert.equal(result.suggestions.find((entry) => entry.entryDate === "2027-01-09")?.leaveCode, "AL");
+  assert.ok(!result.suggestions.some((entry) => entry.entryDate === "2027-01-04"), "Ordinary confirmed weekdays stay unchanged");
+  const withFlow = generateSmartRoster({ year: 2027, month: 1, preferences: { ...preferences, statusFlowEnabled: true }, shifts: DEFAULT_SHIFTS, existingDays, phlAvailableHalfDays: 10, alAvailableHalfDays: 10 });
+  assert.equal(withFlow.suggestions.length, 0);
+});
+
 test("PRD is reserved for Sundays and exhausted leave makes Saturdays and holidays working days", () => {
   const result = generateSmartRoster({ year: 2026, month: 12, preferences: DEFAULT_PREFERENCES, shifts: DEFAULT_SHIFTS, holidayDates: new Set(["2026-12-29"]), alAvailableHalfDays: 0, phlAvailableHalfDays: 0 });
   assert.equal(result.suggestions.find((day) => day.entryDate === "2026-12-26")?.shiftCode, "K123");
@@ -93,6 +106,18 @@ test("protected half-day work counts as 0.5 toward the weekly limit", () => {
     existingDays: [{ entryDate: "2026-11-08", shiftCode: "K123", leaveCode: "H1", status: "CONFIRMED", isLocked: true }] as RosterDay[],
   });
   assert.equal(result.suggestions.filter((day) => day.entryDate >= "2026-11-02" && day.entryDate <= "2026-11-07" && day.shiftCode).length, 5);
+});
+
+test("flexible half-days count toward weekly limits even without a shift time", () => {
+  const days = new Map(Array.from({ length: 6 }, (_, index) => [`2027-01-${String(index + 4).padStart(2, "0")}`, { shiftCode: "K123", status: "CONFIRMED" }] as const));
+  for (const leaveCode of ["H1", "H2"]) {
+    assert.equal(rosterWorkdayWeight({ leaveCode, shiftCode: null, status: "CONFIRMED" }), 0.5);
+    assert.match(rosterDayViolation("2027-01-10", { leaveCode, shiftCode: null, status: "CONFIRMED" }, days, { AL: 2, PHL: 0 }) ?? "", /more than 6 days/);
+    assert.equal(rosterWorkdayWeight({ leaveCode, status: "CANCELLED" }), 0);
+  }
+  const summary = computeMonthlyRosterSummary(2027, 1, [{ entryDate: "2027-01-04", leaveCode: "H1", shiftCode: null, status: "CONFIRMED" }] as RosterDay[], DEFAULT_PREFERENCES, shiftsMap);
+  assert.equal(summary.workingDays, 1);
+  assert.equal(summary.halfDaysCount, 1);
 });
 
 test("protected entries exceeding the weekly limit block generation without changing them", () => {

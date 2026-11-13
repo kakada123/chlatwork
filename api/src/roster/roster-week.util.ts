@@ -8,6 +8,25 @@ export interface WeeklyWorkEntry {
 export const MAX_WEEKLY_WORKDAYS = 6;
 export const MAX_MONTHLY_PRD = 7;
 
+/** Instant confirmation is saving, not locking. Revisit only normal work on preferred off-days. */
+export function rosterGenerationPreserves(
+  date: string,
+  entry: (WeeklyWorkEntry & { isLocked?: boolean }) | undefined,
+  preferences: { statusFlowEnabled?: boolean; saturdayOff?: boolean; sundayOff?: boolean; publicHolidaysOff?: boolean },
+  holidays: ReadonlySet<string>,
+): boolean {
+  if (!entry) return false;
+  if (entry.isLocked || entry.status === "REQUESTED") return true;
+  if (entry.status !== "CONFIRMED") return false;
+  if (preferences.statusFlowEnabled || entry.leaveCode || !entry.shiftCode) return true;
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return !(
+    (weekday === 6 && preferences.saturdayOff) ||
+    (weekday === 0 && preferences.sundayOff) ||
+    (holidays.has(date) && preferences.publicHolidaysOff)
+  );
+}
+
 export function rosterPrdAllowance(value = MAX_MONTHLY_PRD): number {
   return Math.max(0, Math.min(MAX_MONTHLY_PRD, value));
 }
@@ -75,8 +94,9 @@ export function rosterMonthWeekRange(year: number, month: number) {
 }
 
 export function rosterWorkdayWeight(entry?: WeeklyWorkEntry): number {
-  if (!entry?.shiftCode || entry.status === "CANCELLED") return 0;
+  if (!entry || entry.status === "CANCELLED") return 0;
   if (entry.leaveCode === "H1" || entry.leaveCode === "H2") return 0.5;
+  if (!entry.shiftCode) return 0;
   return entry.leaveCode ? 0 : 1;
 }
 

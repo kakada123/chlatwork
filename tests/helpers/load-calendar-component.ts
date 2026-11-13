@@ -1,4 +1,4 @@
-import { getRosterDayColors } from "../../app/lib/roster.ts";
+import { calculateDayWorkingHours, calculateShiftHours, getRosterDayColors } from "../../app/lib/roster.ts";
 import { createI18nStub } from "./i18n-stubs.ts";
 import { translateMessage } from "../../app/lib/i18n.ts";
 import { readFileSync } from "node:fs";
@@ -118,7 +118,8 @@ export function loadCalendarComponent(
       },
     },
     "~/lib/roster": {
-      calculateDayWorkingHours: () => 0,
+      calculateDayWorkingHours,
+      calculateShiftHours,
       getRosterDayColors,
     },
   };

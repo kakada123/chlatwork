@@ -87,7 +87,9 @@ function d(val: number | string) {
                 <li v-if="!preferences.statusFlowEnabled">{{ khmer ? "ពេលអនុវត្ត វេនត្រូវបានបញ្ជាក់ភ្លាម ហើយសមតុល្យច្បាប់កែដោយស្វ័យប្រវត្តិ" : "Applying the roster confirms entries and updates leave balances immediately" }}</li>
                 <li>{{ khmer ? "ប្រើ PHL ប្រសិនបើនៅសល់ថ្ងៃឈប់សម្រាកបុណ្យជាតិ" : "Suggests PHL next if PHL balance is available" }}</li>
                 <li>{{ khmer ? "ប្រើ AL លុះត្រាតែអស់ PRD/PHL (ទាមទារការបញ្ជាក់ពីអ្នក)" : "Suggests AL only when necessary and available (requires confirmation)" }}</li>
-                <li>{{ khmer ? "មិនកែប្រែទិន្នន័យដែលបានបញ្ជាក់ ឬចាក់សោឡើយ" : "Never overwrites locked, confirmed, or requested entries" }}</li>
+                <li>{{ khmer ? "រក្សាថ្ងៃចាក់សោ ការឈប់សម្រាកដែលបានបញ្ជាក់ និងសំណើរង់ចាំ" : "Keeps locked dates, confirmed leave, and requested entries unchanged" }}</li>
+                <li v-if="!preferences.statusFlowEnabled">{{ khmer ? "ពិនិត្យវេនធ្វើការដែលមិនចាក់សោ នៅថ្ងៃចង់ឈប់សម្រាកឡើងវិញ ដោយប្រើសមតុល្យច្បាប់ថ្មី" : "Rechecks unlocked work on preferred off-days using your latest leave balances" }}</li>
+                <li v-else>{{ khmer ? "ពេលបើកលំហូរស្ថានភាព វេនដែលបានបញ្ជាក់មិនត្រូវបានកែទេ" : "With status flow on, confirmed work shifts are also preserved" }}</li>
               </ul>
             </div>
 

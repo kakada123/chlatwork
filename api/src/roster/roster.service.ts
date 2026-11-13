@@ -22,7 +22,7 @@ import {
   type UpdateRosterStatusesDto,
 } from './roster.dto';
 import { getCambodiaPublicHolidays } from './cambodia-holidays.util';
-import { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterMonthWeekRange, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight, type WeeklyWorkEntry } from './roster-week.util';
+import { rosterGenerationPreserves, rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterMonthWeekRange, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight, type WeeklyWorkEntry } from './roster-week.util';
 
 /**
  * Returns the balance bucket in `LeaveBalance` for a given leave code.
@@ -90,7 +90,8 @@ export class RosterService {
 
     const year = entryDate.getUTCFullYear();
     const candidateLeave = dto.leaveCode !== undefined ? newLeaveCode : existing?.leaveCode ?? null;
-    const effective = { shiftCode: dto.shiftCode !== undefined ? dto.shiftCode : existing?.shiftCode ?? null, leaveCode: candidateLeave, status: newStatus ?? existing?.status ?? RosterEntryStatus.DRAFT };
+    const isFlexibleHalfDay = candidateLeave === LeaveCode.H1 || candidateLeave === LeaveCode.H2;
+    const effective = { shiftCode: isFlexibleHalfDay ? null : dto.shiftCode !== undefined ? dto.shiftCode : existing?.shiftCode ?? null, leaveCode: candidateLeave, status: newStatus ?? existing?.status ?? RosterEntryStatus.DRAFT };
     const range = rosterMonthWeekRange(year, entryDate.getUTCMonth() + 1);
     const relatedDays = await tx.rosterDay.findMany({ where: { userId, entryDate: { gte: range.start, lte: range.end } } });
     const available = { AL: 0, PHL: 0 };
@@ -152,14 +153,14 @@ export class RosterService {
       create: {
         userId,
         entryDate,
-        shiftCode: dto.shiftCode ?? null,
+        shiftCode: effective.shiftCode,
         leaveCode: newLeaveCode,
         status: newStatus ?? RosterEntryStatus.DRAFT,
         note: dto.note ?? null,
         isLocked: dto.isLocked ?? false,
       },
       update: {
-        ...(dto.shiftCode !== undefined && { shiftCode: dto.shiftCode }),
+        ...((dto.shiftCode !== undefined || isFlexibleHalfDay) && { shiftCode: effective.shiftCode }),
         ...(dto.leaveCode !== undefined && { leaveCode: newLeaveCode }),
         ...(newStatus !== undefined && { status: newStatus }),
         ...(dto.note !== undefined && { note: dto.note }),
@@ -580,13 +581,14 @@ export class RosterService {
       existingDays.map((d) => [this.dateToString(d.entryDate), d]),
     );
     const monthPrefix = `${year}-${String(month).padStart(2, '0')}-`;
+    const preserves = (date: string, day?: WeeklyWorkEntry & { isLocked?: boolean }) => rosterGenerationPreserves(date, day, prefs, holidays);
     const planned = new Map<string, WeeklyWorkEntry>([...existingMap]
-      .filter(([date, day]) => !date.startsWith(monthPrefix) || day.isLocked || day.status === 'CONFIRMED' || day.status === 'REQUESTED'));
+      .filter(([date, day]) => !date.startsWith(monthPrefix) || preserves(date, day)));
 
     // Calculate existing PRD used this month
     let prdUsedThisMonth = 0;
     for (const d of existingDays) {
-      if (this.dateToString(d.entryDate).startsWith(monthPrefix) && d.leaveCode === LeaveCode.PRD && d.status !== 'CANCELLED' && (d.isLocked || d.status === 'CONFIRMED' || d.status === 'REQUESTED')) prdUsedThisMonth++;
+      if (this.dateToString(d.entryDate).startsWith(monthPrefix) && d.leaveCode === LeaveCode.PRD && d.status !== 'CANCELLED' && preserves(this.dateToString(d.entryDate), d)) prdUsedThisMonth++;
     }
     let remainingPrd = Math.max(0, rosterPrdAllowance(prefs.monthlyPrdAllowance) - prdUsedThisMonth);
 
@@ -618,20 +620,14 @@ export class RosterService {
     let reservedSundays = prefs.sundayOff ? Array.from({ length: daysInMonth }, (_, index) => index + 1).filter((day) => {
       const key = `${monthPrefix}${String(day).padStart(2, '0')}`;
       const existing = existingMap.get(key);
-      return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !(existing?.isLocked || existing?.status === 'CONFIRMED' || existing?.status === 'REQUESTED');
+      return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !preserves(key, existing);
     }).length : 0;
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const existing = existingMap.get(dateStr);
 
-      // Preserve locked or confirmed or requested entries as-is
-      if (
-        existing &&
-        (existing.isLocked ||
-          existing.status === RosterEntryStatus.CONFIRMED ||
-          existing.status === RosterEntryStatus.REQUESTED)
-      ) {
+      if (preserves(dateStr, existing)) {
         continue;
       }
 
@@ -649,7 +645,8 @@ export class RosterService {
         (isPublicHoliday && prefs.publicHolidaysOff);
 
       let leaveCode: string | null = null;
-      let shiftCode: string | null = prefs.defaultShiftCode ?? 'K123';
+      const workingShift = existing?.status === 'CONFIRMED' ? existing.shiftCode : prefs.defaultShiftCode ?? 'K123';
+      let shiftCode: string | null = workingShift;
       let reason = 'Scheduled working shift';
 
       if (isPreferredOff) {
@@ -672,7 +669,7 @@ export class RosterService {
           warnings.push(`AL suggested for ${dateStr} due to exhausted PRD/PHL balance.`);
         } else {
           // Reserve Sundays first; other preferred off days need an available leave credit.
-          shiftCode = isSaturday || isPublicHoliday ? prefs.defaultShiftCode ?? 'K123' : null;
+          shiftCode = isSaturday || isPublicHoliday ? workingShift : null;
           leaveCode = null;
           reason = isSaturday || isPublicHoliday
             ? 'Normal shift (no leave credit available)'
@@ -689,6 +686,7 @@ export class RosterService {
         warnings.push(`Weekly rest required on ${dateStr}; no unavailable AL or PHL was used.`);
       }
       planned.set(dateStr, { shiftCode, leaveCode, status: 'DRAFT' });
+      if (existing?.status === 'CONFIRMED' && existing.shiftCode === shiftCode && existing.leaveCode === leaveCode) continue;
       suggestions.push({
         date: dateStr,
         shiftCode,
@@ -730,9 +728,10 @@ export class RosterService {
       const planned = new Map<string, WeeklyWorkEntry>(currentMap);
       const editable: ApplyRosterEntryDto[] = [];
       const required = { AL: 0, PHL: 0 };
+      const holidays = getCambodiaPublicHolidays(dto.year);
       for (const entry of dto.entries) {
         const current = currentMap.get(entry.date);
-        if (current?.isLocked || current?.status === 'CONFIRMED' || current?.status === 'REQUESTED') continue;
+        if (rosterGenerationPreserves(entry.date, current, preferences ?? this.defaultPreferencesModel(), holidays)) continue;
         planned.set(entry.date, entry);
         editable.push(entry);
         const code = balanceCodeForLeave(entry.leaveCode as LeaveCode);

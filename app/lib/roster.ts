@@ -1,4 +1,4 @@
-import { rosterPrdAllowance, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight } from "../../api/src/roster/roster-week.util.ts";
+import { rosterGenerationPreserves, rosterPrdAllowance, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight } from "../../api/src/roster/roster-week.util.ts";
 import type {
   LeaveBalance,
   LeaveCode,
@@ -232,10 +232,12 @@ export function computeMonthlyRosterSummary(
     }
 
     // Working day count
-    if (entry.shiftCode && entry.status !== "CANCELLED") {
+    if (entry.leaveCode === "H1" || entry.leaveCode === "H2") {
+      workingDays++;
+    } else if (entry.shiftCode && entry.status !== "CANCELLED") {
       const shift = shiftsByCode.get(entry.shiftCode);
       if (shift && shift.isActive) {
-        if (!entry.leaveCode || entry.leaveCode === "H1" || entry.leaveCode === "H2") {
+        if (!entry.leaveCode) {
           workingDays++;
         }
       }
@@ -315,8 +317,9 @@ export function generateSmartRoster(options: {
 
   const existingMap = new Map(existingDays.map((d) => [d.entryDate, d]));
   const monthPrefix = `${year}-${String(month).padStart(2, "0")}-`;
+  const preserves = (date: string, entry?: RosterDay) => rosterGenerationPreserves(date, entry, preferences, holidayDates);
   const planned = new Map(existingDays
-    .filter((day) => !day.entryDate.startsWith(monthPrefix) || day.isLocked || day.status === "CONFIRMED" || day.status === "REQUESTED")
+    .filter((day) => !day.entryDate.startsWith(monthPrefix) || preserves(day.entryDate, day))
     .map((day) => [day.entryDate, day]));
   const defaultShift =
     shifts.find((s) => s.code === preferences.defaultShiftCode) ||
@@ -327,7 +330,7 @@ export function generateSmartRoster(options: {
   // Count PRD already assigned
   let prdUsed = 0;
   for (const d of existingDays) {
-    if (d.entryDate.startsWith(monthPrefix) && d.leaveCode === "PRD" && d.status !== "CANCELLED" && (d.isLocked || d.status === "CONFIRMED" || d.status === "REQUESTED")) {
+    if (d.entryDate.startsWith(monthPrefix) && d.leaveCode === "PRD" && d.status !== "CANCELLED" && preserves(d.entryDate, d)) {
       prdUsed++;
     }
   }
@@ -343,20 +346,14 @@ export function generateSmartRoster(options: {
   let reservedSundays = preferences.sundayOff ? Array.from({ length: daysInMonth }, (_, index) => index + 1).filter((day) => {
     const key = `${monthPrefix}${String(day).padStart(2, "0")}`;
     const existing = existingMap.get(key);
-    return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !(existing?.isLocked || existing?.status === "CONFIRMED" || existing?.status === "REQUESTED");
+    return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !preserves(key, existing);
   }).length : 0;
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     const existing = existingMap.get(dateStr);
 
-    // Strictly preserve locked, confirmed, or requested entries
-    if (
-      existing &&
-      (existing.isLocked ||
-        existing.status === "CONFIRMED" ||
-        existing.status === "REQUESTED")
-    ) {
+    if (preserves(dateStr, existing)) {
       continue;
     }
 
@@ -374,7 +371,8 @@ export function generateSmartRoster(options: {
       (isHoliday && preferences.publicHolidaysOff);
 
     let leaveCode: LeaveCode | null = null;
-    let shiftCode: string | null = defaultShiftCode;
+    const workingShift = existing?.status === "CONFIRMED" ? existing.shiftCode : defaultShiftCode;
+    let shiftCode: string | null = workingShift;
     let reason = "Scheduled working shift";
 
     if (isPreferredOff) {
@@ -397,7 +395,7 @@ export function generateSmartRoster(options: {
         warnings.push(`AL suggested for ${dateStr} due to exhausted PRD/PHL.`);
       } else {
         // Saturdays and public holidays return to a normal shift when leave runs out.
-        shiftCode = isSaturday || isHoliday ? defaultShiftCode : null;
+        shiftCode = isSaturday || isHoliday ? workingShift : null;
         leaveCode = null;
         reason = isSaturday || isHoliday
           ? "Normal shift (no leave credit available)"
@@ -414,6 +412,7 @@ export function generateSmartRoster(options: {
       warnings.push(`Weekly rest required on ${dateStr}; no unavailable AL or PHL was used.`);
     }
     planned.set(dateStr, { entryDate: dateStr, shiftCode, leaveCode, status: "DRAFT", isLocked: false } as RosterDay);
+    if (existing?.status === "CONFIRMED" && existing.shiftCode === shiftCode && existing.leaveCode === leaveCode) continue;
     suggestions.push({
       entryDate: dateStr,
       shiftCode,

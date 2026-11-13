@@ -83,3 +83,28 @@ test("day edits immediately confirm with status flow off", () => {
   editor.handleSave();
   assert.equal(events[1][1].status, "DRAFT");
 });
+
+test("half-day leave saves without a shift and restores the normal default when cleared", () => {
+  const editorComponent = loadCalendarComponent("app/components/roster/RosterDayEditorModal.vue", { inlineTemplate: false });
+  const events: any[][] = [];
+  const editor = editorComponent.setup({ open: true, dateKey: "2027-01-04", entry: null, day: null, preferences: DEFAULT_PREFERENCES, shifts: DEFAULT_SHIFTS, khmer: false }, { expose() {}, emit: (...args: any[]) => events.push(args) });
+  for (const code of ["H1", "H2"]) {
+    editor.handleLeaveChange(code);
+    editor.handleSave();
+    assert.equal(events.at(-1)[1].shiftCode, null);
+    assert.equal(events.at(-1)[1].leaveCode, code);
+  }
+  editor.handleLeaveChange(null);
+  editor.handleSave();
+  assert.equal(events.at(-1)[1].shiftCode, "K123");
+});
+
+test("half-day editor hides fixed shift choices and calculated arrival hours", async () => {
+  const context: SSRContext = {};
+  await renderToString(createSSRApp(loadCalendarComponent("app/components/roster/RosterDayEditorModal.vue"), {
+    open: true, dateKey: "2027-01-04", entry: { shiftCode: "K123", leaveCode: "H1", status: "CONFIRMED" },
+    day: null, preferences: DEFAULT_PREFERENCES, shifts: DEFAULT_SHIFTS, khmer: false,
+  }), context);
+  assert.ok(!context.teleports?.body.includes("Working Shift"));
+  assert.ok(!context.teleports?.body.includes("4.75"));
+});

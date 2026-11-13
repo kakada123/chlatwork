@@ -55,7 +55,7 @@ watch(
   () => {
     if (!props.open) return;
     if (props.entry) {
-      selectedShiftCode.value = props.entry.shiftCode;
+      selectedShiftCode.value = props.entry.leaveCode ? null : props.entry.shiftCode;
       selectedLeaveCode.value = props.entry.leaveCode;
       selectedStatus.value = props.preferences.statusFlowEnabled ? props.entry.status : "CONFIRMED";
       note.value = props.entry.note || "";
@@ -79,20 +79,14 @@ const computedHours = computed(() => {
   return calculateDayWorkingHours(currentShift.value, selectedLeaveCode.value);
 });
 
-const isFullDayLeave = computed(() => {
-  return (
-    selectedLeaveCode.value === "PRD" ||
-    selectedLeaveCode.value === "PHL" ||
-    selectedLeaveCode.value === "AL"
-  );
-});
+const isHalfDayLeave = computed(() => selectedLeaveCode.value === "H1" || selectedLeaveCode.value === "H2");
 
 function handleLeaveChange(code: LeaveCode | null) {
   if (code && props.leaveRestrictions?.[code]) return;
   selectedLeaveCode.value = code;
-  if (code === "PRD" || code === "PHL" || code === "AL") {
+  if (code) {
     selectedShiftCode.value = null;
-  } else if ((code === "H1" || code === "H2") && !selectedShiftCode.value) {
+  } else if (!selectedShiftCode.value) {
     selectedShiftCode.value = props.preferences.defaultShiftCode || (props.shifts[0]?.code ?? "K123");
   }
 }
@@ -100,7 +94,7 @@ function handleLeaveChange(code: LeaveCode | null) {
 function handleSave() {
   if (props.busy) return;
   emit("save", {
-    shiftCode: isFullDayLeave.value ? null : selectedShiftCode.value,
+    shiftCode: selectedLeaveCode.value ? null : selectedShiftCode.value,
     leaveCode: selectedLeaveCode.value,
     status: props.preferences.statusFlowEnabled ? selectedStatus.value : "CONFIRMED",
     note: note.value.trim() || null,
@@ -271,13 +265,13 @@ function d(val: number | string) {
                 </p>
                 <p v-else-if="selectedLeaveCode === 'H1' || selectedLeaveCode === 'H2'" class="text-violet-700 dark:text-violet-300">
                   <strong>{{ selectedLeaveCode === 'H1' ? 'H1 (Morning Leave)' : 'H2 (Afternoon Leave)' }}:</strong>
-                  {{ khmer ? `កាត់ ០.៥ ថ្ងៃពី AL នៅពេលបញ្ជាក់ · ត្រូវបំពេញវេនការងារពាក់កណ្តាលថ្ងៃដែលនៅសល់` : `Deducts 0.5 day from AL when confirmed · Associated working shift remains active for half day` }}
+                  {{ khmer ? "កាត់ ០.៥ ថ្ងៃពី AL នៅពេលបញ្ជាក់ · មិនចាំបាច់ជ្រើសវេន ឬកំណត់ម៉ោងទេ" : "Deducts 0.5 day from AL when confirmed · No shift or fixed time required" }}
                 </p>
               </div>
             </div>
 
-            <!-- Working Shift Selection (disabled if full-day leave) -->
-            <div v-if="!isFullDayLeave">
+            <!-- Flexible half-day leave does not imply a fixed arrival or departure time. -->
+            <div v-if="!selectedLeaveCode">
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 {{ khmer ? "វេនការងារ (Working Shift)" : "Working Shift" }}
               </label>
@@ -309,7 +303,7 @@ function d(val: number | string) {
             </div>
 
             <!-- Working Hours display -->
-            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-zinc-800">
+            <div v-if="!isHalfDayLeave" class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-zinc-800">
               <span class="flex items-center gap-1.5 text-slate-600 dark:text-zinc-300">
                 <Clock :size="14" class="text-teal-600 dark:text-teal-400" />
                 {{ khmer ? "ម៉ោងការងារសរុប:" : "Working Hours:" }}

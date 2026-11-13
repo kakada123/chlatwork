@@ -40,14 +40,15 @@ export const LEAVE_TX_KINDS = [
 export type LeaveTxKindValue = (typeof LEAVE_TX_KINDS)[number];
 
 export class UpsertRosterDayDto {
+  // Null clears an assignment; an omitted field keeps the saved value.
   @IsOptional()
   @IsString()
   @MaxLength(16)
-  shiftCode?: string;
+  shiftCode?: string | null;
 
   @IsOptional()
   @IsIn(LEAVE_CODES)
-  leaveCode?: LeaveCodeValue;
+  leaveCode?: LeaveCodeValue | null;
 
   @IsOptional()
   @IsIn(ROSTER_STATUSES)
@@ -216,11 +217,11 @@ export class ApplyRosterEntryDto {
 
   @IsOptional()
   @IsString()
-  shiftCode?: string;
+  shiftCode?: string | null;
 
   @IsOptional()
   @IsIn(LEAVE_CODES)
-  leaveCode?: LeaveCodeValue;
+  leaveCode?: LeaveCodeValue | null;
 
   @IsOptional()
   @IsIn(ROSTER_STATUSES)

@@ -22,7 +22,7 @@ import {
 } from "../lib/roster";
 import { getHolidaySchedule } from "../data/cambodia-holidays";
 import { getPhnomPenhToday } from "../lib/khmer-calendar";
-import { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks } from "../../api/src/roster/roster-week.util";
+import { rosterGenerationPreserves, rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks } from "../../api/src/roster/roster-week.util";
 
 const LOCAL_STORAGE_KEY = "chlatwork_my_roster_data_v1";
 
@@ -114,7 +114,7 @@ export function useRoster(
 
   function leaveRestriction(date: string, leaveCode: LeaveCode) {
     const existing = daysByDate.value.get(date);
-    const next = { ...existing, leaveCode, shiftCode: ["PRD", "PHL", "AL"].includes(leaveCode) ? null : existing?.shiftCode ?? preferences.value.defaultShiftCode, status: preferences.value.statusFlowEnabled ? existing?.status ?? "DRAFT" : "CONFIRMED" };
+    const next = { ...existing, leaveCode, shiftCode: null, status: preferences.value.statusFlowEnabled ? existing?.status ?? "DRAFT" : "CONFIRMED" };
     return rosterDayViolation(date, next, new Map(days.value.map((day) => [day.entryDate, day])), { AL: alBalance.value?.availableHalfDays ?? 0, PHL: phlBalance.value?.availableHalfDays ?? 0 }, preferences.value.monthlyPrdAllowance);
   }
 
@@ -376,6 +376,7 @@ export function useRoster(
           note: payload.note !== undefined ? payload.note : existing?.note ?? null,
           isLocked: payload.isLocked !== undefined ? payload.isLocked : existing?.isLocked ?? false,
         };
+        if (updated.leaveCode === "H1" || updated.leaveCode === "H2") updated.shiftCode = null;
         const violation = rosterDayViolation(date, updated, new Map(Object.values(local.days).map((day) => [day.entryDate, day])), localAvailableCredits(local, Number(date.slice(0, 4))), local.preferences.monthlyPrdAllowance);
         if (violation) throw new Error(violation);
         local.days[date] = updated;
@@ -704,9 +705,10 @@ export function useRoster(
         const planned = new Map(Object.values(local.days).map((day) => [day.entryDate, day]));
         recalculateLocalBalances(local, year.value);
         const required = { AL: 0, PHL: 0 };
+        const holidays = new Set(getHolidaySchedule(year.value).events.filter((event) => event.kind === "public-holiday").map((event) => event.date));
         for (const suggestion of preview.suggestions) {
           const existing = planned.get(suggestion.entryDate);
-          if (existing?.isLocked || existing?.status === "CONFIRMED" || existing?.status === "REQUESTED") continue;
+          if (rosterGenerationPreserves(suggestion.entryDate, existing, local.preferences, holidays)) continue;
           const code = balanceBucketForLeave(suggestion.leaveCode);
           if (code) required[code] += leaveHalfDayCost(suggestion.leaveCode);
           planned.set(suggestion.entryDate, { ...suggestion, status: preferences.value.statusFlowEnabled ? "DRAFT" : "CONFIRMED", isLocked: false } as RosterDay);
@@ -716,12 +718,7 @@ export function useRoster(
         if (rosterMonthPrdCount(`${year.value}-${String(month.value).padStart(2, "0")}-01`, planned) > rosterPrdAllowance(local.preferences.monthlyPrdAllowance)) throw new Error("PRD cannot exceed the monthly allowance (maximum 7 days).");
         for (const s of preview.suggestions) {
           const existing = local.days[s.entryDate];
-          if (
-            existing &&
-            (existing.isLocked ||
-              existing.status === "CONFIRMED" ||
-              existing.status === "REQUESTED")
-          ) {
+          if (rosterGenerationPreserves(s.entryDate, existing, local.preferences, holidays)) {
             continue;
           }
           local.days[s.entryDate] = {

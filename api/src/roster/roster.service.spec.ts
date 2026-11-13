@@ -10,8 +10,10 @@ describe("RosterService annual balances", () => {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       upsert: jest.fn(),
+      update: jest.fn(),
     },
-    rosterDay: { findMany: jest.fn() },
+    rosterDay: { findMany: jest.fn(), findUnique: jest.fn(), upsert: jest.fn() },
+    leaveTransaction: { create: jest.fn() },
   };
   let service: RosterService;
 
@@ -22,6 +24,44 @@ describe("RosterService annual balances", () => {
     prisma.rosterShift.findMany.mockResolvedValue([{ code: "K123" }]);
     prisma.leaveBalance.findMany.mockResolvedValue([]);
     service = new RosterService(prisma as never);
+  });
+
+  function savedWorkday(date: string, leaveCode: "AL" | "PHL") {
+    let day = {
+      id: "day-a", userId: "user-a", entryDate: new Date(`${date}T00:00:00Z`),
+      shiftCode: "K123" as string | null, leaveCode: null as string | null,
+      status: "CONFIRMED", note: "Keep this note", isLocked: false,
+      createdAt: new Date("2027-01-01T00:00:00Z"), updatedAt: new Date("2027-01-01T00:00:00Z"),
+    };
+    const balance = { leaveCode, openingBalanceHalfDays: 2, earnedHalfDays: 0, adjustmentHalfDays: 0, confirmedUsedHalfDays: 0, pendingHalfDays: 0 };
+    prisma.rosterPreferences.findUnique.mockResolvedValue({ statusFlowEnabled: false, monthlyPrdAllowance: 0, saturdayOff: true, sundayOff: true, publicHolidaysOff: true, defaultShiftCode: "K123" });
+    prisma.rosterDay.findMany.mockImplementation(async () => [day]);
+    prisma.rosterDay.findUnique.mockImplementation(async () => day);
+    prisma.rosterDay.upsert.mockImplementation(async ({ update }) => { day = { ...day, ...update }; return day; });
+    prisma.leaveBalance.findMany.mockResolvedValue([balance]);
+    prisma.leaveBalance.findUnique.mockResolvedValue(balance);
+    prisma.leaveBalance.upsert.mockResolvedValue(balance);
+    prisma.leaveBalance.update.mockImplementation(async ({ data }) => { balance.confirmedUsedHalfDays += data.confirmedUsedHalfDays.increment; return balance; });
+    return { balance, get day() { return day; } };
+  }
+
+  it("applies new PHL credit to confirmed Saturday work once, preserving notes", async () => {
+    const state = savedWorkday("2027-01-02", "PHL");
+    const plan = { year: 2027, month: 1, entries: [{ date: "2027-01-02", shiftCode: null, leaveCode: "PHL" as const }] };
+    expect(await service.applyRosterSuggestions("user-a", plan)).toEqual({ applied: 1, skipped: 0 });
+    expect(state.day).toMatchObject({ shiftCode: null, leaveCode: "PHL", note: "Keep this note" });
+    expect(state.balance.confirmedUsedHalfDays).toBe(2);
+    expect(await service.applyRosterSuggestions("user-a", plan)).toEqual({ applied: 0, skipped: 1 });
+    expect(state.balance.confirmedUsedHalfDays).toBe(2);
+    expect(prisma.leaveTransaction.create).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["H1", "H2"] as const)("saves flexible %s without a shift and debits half a day", async (leaveCode) => {
+    const state = savedWorkday("2027-01-04", "AL");
+    await service.upsertRosterDay("user-a", "2027-01-04", { shiftCode: "K123", leaveCode });
+    expect(state.day.shiftCode).toBeNull();
+    expect(state.day.leaveCode).toBe(leaveCode);
+    expect(state.balance.confirmedUsedHalfDays).toBe(1);
   });
 
   it("uses the normal Saturday shift when no leave credits are available", async () => {
@@ -48,6 +88,23 @@ describe("RosterService annual balances", () => {
         result.suggestions.find((entry) => entry.date === date),
       ).toMatchObject({ shiftCode: "K123", leaveCode: null });
     }
+  });
+
+  it("reconsiders confirmed Saturday work after annual leave credit is added", async () => {
+    prisma.rosterPreferences.findUnique.mockResolvedValue({
+      monthlyPrdAllowance: 0, statusFlowEnabled: false, saturdayOff: true,
+      sundayOff: true, publicHolidaysOff: true, defaultShiftCode: "K123",
+    });
+    prisma.rosterDay.findMany.mockResolvedValue([{
+      entryDate: new Date("2027-01-02T00:00:00Z"), shiftCode: "K123", leaveCode: null,
+      status: "CONFIRMED", isLocked: false,
+    }]);
+    prisma.leaveBalance.findUnique.mockResolvedValue({
+      openingBalanceHalfDays: 44, earnedHalfDays: 0, adjustmentHalfDays: 0,
+      confirmedUsedHalfDays: 0, pendingHalfDays: 0,
+    });
+    const result = await service.generatePreview("user-a", { year: 2027, month: 1 });
+    expect(result.suggestions.find((day) => day.date === "2027-01-02")?.leaveCode).toBe("PHL");
   });
 
   it("reserves Sunday PRD before Saturdays and works holidays when credits are exhausted", async () => {

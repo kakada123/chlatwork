@@ -127,7 +127,7 @@ describe("monthly bulk status updates", () => {
     expect(rows[1]).toMatchObject({
       status: "CONFIRMED",
       leaveCode: "H1",
-      shiftCode: "K123",
+      shiftCode: null,
     });
     expect(rows[2].status).toBe("DRAFT");
     expect(used()).toBe(3);
