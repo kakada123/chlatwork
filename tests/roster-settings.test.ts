@@ -1,8 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { nextTick, reactive } from "vue";
+import { createSSRApp, nextTick, reactive } from "vue";
+import { renderToString, type SSRContext } from "vue/server-renderer";
 import { loadCalendarComponent } from "./helpers/load-calendar-component.ts";
 import { DEFAULT_PREFERENCES, DEFAULT_SHIFTS } from "../app/lib/roster.ts";
+
+test("settings show saving, success, and failure feedback inside the dialog", async () => {
+  for (const state of [
+    { busy: true, saved: true, error: "", role: "status", message: "Saving…", khmer: false },
+    { busy: false, saved: true, error: "", role: "status", message: "Saved successfully.", khmer: false },
+    { busy: false, saved: true, error: "Unable to save settings.", role: "alert", message: "Unable to save settings.", khmer: false },
+    { busy: false, saved: true, error: "", role: "status", message: "បានរក្សាទុកដោយជោគជ័យ។", khmer: true },
+  ]) {
+    const context: SSRContext = {};
+    await renderToString(createSSRApp(loadCalendarComponent("app/components/roster/RosterSettingsModal.vue"), {
+      open: true, preferences: DEFAULT_PREFERENCES, shifts: [], balances: [], transactions: [], year: 2026, ...state,
+    }), context);
+    const html = context.teleports?.body ?? "";
+    assert.ok(html.includes(`role="${state.role}"`));
+    assert.ok(html.includes(state.message));
+    if (state.busy || state.error) assert.ok(!html.includes("Saved successfully."));
+  }
+});
 
 test("settings refresh loaded preferences on open and save the status-flow setting", async () => {
   const component = loadCalendarComponent(

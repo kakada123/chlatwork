@@ -32,6 +32,8 @@ const props = defineProps<{
   khmer: boolean;
   year: number;
   busy: boolean;
+  saved?: boolean;
+  error?: string;
 }>();
 
 const emit = defineEmits<{
@@ -104,6 +106,7 @@ function d(val: number | string) {
 }
 
 function handleSavePreferences() {
+  if (props.busy) return;
   emit("savePreferences", {
     statusFlowEnabled: localStatusFlowEnabled.value,
     saturdayOff: localSaturdayOff.value,
@@ -116,6 +119,7 @@ function handleSavePreferences() {
 }
 
 function submitAdjustment() {
+  if (props.busy) return;
   emit("recordLeaveAdjustment", {
     leaveCode: adjLeaveCode.value,
     year: props.year,
@@ -128,7 +132,7 @@ function submitAdjustment() {
 }
 
 function submitNewShift() {
-  if (!newShiftCode.value.trim()) return;
+  if (props.busy || !newShiftCode.value.trim()) return;
   emit("createShift", {
     code: newShiftCode.value.trim().toUpperCase(),
     startTime: newShiftStart.value,
@@ -141,10 +145,12 @@ function submitNewShift() {
 }
 
 function toggleShiftDefault(shift: RosterShift) {
+  if (props.busy) return;
   emit("updateShift", shift.id, { isDefault: true });
 }
 
 function toggleShiftActive(shift: RosterShift) {
+  if (props.busy) return;
   emit("updateShift", shift.id, { isActive: !shift.isActive });
 }
 </script>
@@ -341,8 +347,9 @@ function toggleShiftActive(shift: RosterShift) {
                     type="button"
                     class="rounded bg-teal-600 px-3 py-1 text-xs font-bold text-white hover:bg-teal-700"
                     @click="submitAdjustment"
+                    :disabled="busy"
                   >
-                    {{ khmer ? "រក្សាទុក" : "Save Adjustment" }}
+                    {{ busy ? (khmer ? "កំពុងរក្សាទុក…" : "Saving…") : (khmer ? "រក្សាទុក" : "Save Adjustment") }}
                   </button>
                 </div>
               </div>
@@ -491,6 +498,7 @@ function toggleShiftActive(shift: RosterShift) {
                     type="button"
                     class="rounded bg-teal-600 px-3 py-1 text-xs font-bold text-white hover:bg-teal-700"
                     @click="submitNewShift"
+                    :disabled="busy"
                   >
                     {{ khmer ? "បង្កើតវេន" : "Create Shift" }}
                   </button>
@@ -531,6 +539,7 @@ function toggleShiftActive(shift: RosterShift) {
                           type="button"
                           class="text-[11px] text-slate-500 hover:text-teal-600 underline font-sans"
                           @click="toggleShiftDefault(s)"
+                          :disabled="busy"
                         >
                           {{ khmer ? "កំណត់ជាលំនាំដើម" : "Set default" }}
                         </button>
@@ -541,6 +550,7 @@ function toggleShiftActive(shift: RosterShift) {
                           class="rounded px-2 py-0.5 text-[10px] font-bold transition-colors"
                           :class="s.isActive ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-zinc-800'"
                           @click="toggleShiftActive(s)"
+                          :disabled="busy"
                         >
                           {{ s.isActive ? (khmer ? "សកម្ម" : "Active") : (khmer ? "អសកម្ម" : "Inactive") }}
                         </button>
@@ -629,8 +639,9 @@ function toggleShiftActive(shift: RosterShift) {
                   type="button"
                   class="rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white hover:bg-teal-700"
                   @click="handleSavePreferences"
+                  :disabled="busy"
                 >
-                  {{ khmer ? "រក្សាទុកចំណង់ចំណូលចិត្ត" : "Save Preferences" }}
+                  {{ busy ? (khmer ? "កំពុងរក្សាទុក…" : "Saving…") : (khmer ? "រក្សាទុកចំណង់ចំណូលចិត្ត" : "Save Preferences") }}
                 </button>
               </div>
             </div>
@@ -671,12 +682,16 @@ function toggleShiftActive(shift: RosterShift) {
                   type="button"
                   class="rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white hover:bg-teal-700"
                   @click="handleSavePreferences"
+                  :disabled="busy"
                 >
-                  {{ khmer ? "រក្សាទុក" : "Save" }}
+                  {{ busy ? (khmer ? "កំពុងរក្សាទុក…" : "Saving…") : (khmer ? "រក្សាទុក" : "Save") }}
                 </button>
               </div>
             </div>
           </div>
+          <p v-if="busy" role="status" class="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">{{ khmer ? "កំពុងរក្សាទុក…" : "Saving…" }}</p>
+          <p v-else-if="error" role="alert" class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{{ error }}</p>
+          <p v-else-if="saved" role="status" class="mt-4 flex items-center gap-2 rounded-lg bg-teal-50 px-3 py-2 text-sm font-semibold text-teal-700 dark:bg-teal-950/40 dark:text-teal-300"><CheckCircle2 :size="16" aria-hidden="true" />{{ khmer ? "បានរក្សាទុកដោយជោគជ័យ។" : "Saved successfully." }}</p>
         </div>
       </div>
     </Transition>

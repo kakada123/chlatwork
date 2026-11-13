@@ -157,6 +157,24 @@ function rosterCellStyle(key: string | undefined) {
 const rosterEditorOpen = ref(false);
 const rosterGeneratorOpen = ref(false);
 const rosterSettingsOpen = ref(false);
+const settingsSaved = ref(false);
+let settingsSaveVersion = 0;
+watch([rosterSettingsOpen, rosterOwner, rosterYear], () => {
+  settingsSaveVersion += 1;
+  settingsSaved.value = false;
+  if (rosterSettingsOpen.value) roster.error.value = "";
+}, { flush: "sync" });
+
+async function saveRosterSettings(action: () => Promise<boolean>) {
+  if (roster.saving.value || !rosterSettingsOpen.value) return;
+  const version = ++settingsSaveVersion;
+  settingsSaved.value = false;
+  const saved = await action();
+  // A request from an earlier dialog or account must not confirm the current form.
+  if (version === settingsSaveVersion && rosterSettingsOpen.value) {
+    settingsSaved.value = saved && !roster.error.value;
+  }
+}
 const rosterExportOpen = ref(false);
 const rosterResetConfirmOpen = ref(false);
 const generatorPreview = ref<RosterGeneratePreview | null>(null);
@@ -554,7 +572,7 @@ onBeforeUnmount(() => {
       <p v-if="fullscreenError" role="status" class="notice">
         {{ fullscreenError }}
       </p>
-      <p v-if="calendarMode === 'roster' && roster.error.value && !bulkSelectionOpen" role="alert" class="notice">{{ roster.error.value }}</p>
+      <p v-if="calendarMode === 'roster' && roster.error.value && !bulkSelectionOpen && !rosterSettingsOpen" role="alert" class="notice">{{ roster.error.value }}</p>
       <p v-if="bulkStatusMessage" role="status" class="roster-status-toast">{{ bulkStatusMessage }}</p>
       <div class="calendar-workspace">
         <section
@@ -1180,11 +1198,13 @@ onBeforeUnmount(() => {
         :transactions="roster.transactions.value"
         :khmer="khmer"
         :busy="roster.saving.value"
+        :saved="settingsSaved"
+        :error="roster.error.value"
         @close="rosterSettingsOpen = false"
-        @save-preferences="roster.savePreferences($event)"
-        @create-shift="roster.createShift($event)"
-        @update-shift="roster.updateShift"
-        @record-leave-adjustment="roster.recordLeaveAdjustment($event)"
+        @save-preferences="saveRosterSettings(() => roster.savePreferences($event))"
+        @create-shift="saveRosterSettings(() => roster.createShift($event))"
+        @update-shift="(id, shift) => saveRosterSettings(() => roster.updateShift(id, shift))"
+        @record-leave-adjustment="saveRosterSettings(() => roster.recordLeaveAdjustment($event))"
       />
 
       <RosterExportModal

@@ -229,6 +229,35 @@ test("calendar does not offer login before the current session is checked", asyn
   assert.match(html, /role="status"[^>]*>[^<]*កំពុងពិនិត្យគណនី/);
 });
 
+test("settings feedback waits for successful persistence and clears on the next attempt", async () => {
+  const page = loadPage().setup({}, { expose() {} });
+  page.rosterSettingsOpen.value = true;
+  await vue.nextTick();
+  let complete!: (result: boolean) => void;
+  const pending = page.saveRosterSettings?.(() => new Promise<boolean>((resolve) => { complete = resolve; }));
+  assert.equal(Boolean(page.settingsSaved?.value), false);
+  complete?.(true);
+  await pending;
+  assert.equal(page.settingsSaved?.value, true);
+  await page.saveRosterSettings(() => Promise.resolve(false));
+  assert.equal(page.settingsSaved.value, false);
+});
+
+test("a completed settings save cannot show success after the dialog is reopened", async () => {
+  const page = loadPage().setup({}, { expose() {} });
+  page.rosterSettingsOpen.value = true;
+  await vue.nextTick();
+  let complete!: (result: boolean) => void;
+  const pending = page.saveRosterSettings?.(() => new Promise<boolean>((resolve) => { complete = resolve; }));
+  page.rosterSettingsOpen.value = false;
+  await vue.nextTick();
+  page.rosterSettingsOpen.value = true;
+  await vue.nextTick();
+  complete?.(true);
+  await pending;
+  assert.equal(page.settingsSaved?.value, false);
+});
+
 test("confirm opens a popup without changing normal date editing", () => {
   const page = loadPage().setup({}, { expose() {} });
   page.calendarMode.value = "roster";
