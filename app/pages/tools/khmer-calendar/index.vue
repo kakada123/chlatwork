@@ -12,12 +12,15 @@ import {
   ArrowLeft,
   Briefcase,
   CalendarDays,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Download,
   Expand,
   Flower2,
   Lock,
+  LogIn,
+  LogOut,
   Minimize,
   Moon,
   Plus,
@@ -27,9 +30,11 @@ import {
   Sun,
 } from "lucide-vue-next";
 import { useAuth } from "~/composables/useAuth";
+import { useColorMode } from "~/composables/useColorMode";
 import { useRoster } from "~/composables/useRoster";
-import { calculateDayWorkingHours } from "~/lib/roster";
-import type { RosterDay, RosterGeneratePreview } from "~/types/roster";
+import { calculateDayWorkingHours, getRosterDayColors } from "~/lib/roster";
+import type { RosterDay, RosterEntryStatus, RosterGeneratePreview } from "~/types/roster";
+import RosterBulkStatusModal from "~/components/roster/RosterBulkStatusModal.vue";
 import RosterDayEditorModal from "~/components/roster/RosterDayEditorModal.vue";
 import RosterSummaryBar from "~/components/roster/RosterSummaryBar.vue";
 import RosterGeneratorModal from "~/components/roster/RosterGeneratorModal.vue";
@@ -109,14 +114,31 @@ function setCalendarMode(mode: "calendar" | "roster") {
   void router.replace({ query });
 }
 
-const { user, isReady: isAuthReady, fetchMe } = useAuth();
+const { user, isReady: isAuthReady, fetchMe, logout } = useAuth();
+const { isDark, nextColorModeLabel, toggleColorMode } = useColorMode();
+const loggingOut = ref(false);
+const avatarFailed = ref(false);
+watch(() => user.value?.avatarUrl, () => { avatarFailed.value = false; });
+async function logoutCalendar() {
+  if (loggingOut.value) return;
+  loggingOut.value = true;
+  try { await logout(); } finally { loggingOut.value = false; }
+}
 const signedIn = computed(
   () => isAuthReady.value && Boolean(user.value),
 );
 
 const rosterYear = computed(() => selected.value.year);
 const rosterMonth = computed(() => selected.value.month);
-const roster = useRoster(rosterYear, rosterMonth, signedIn);
+const rosterOwner = computed(() => signedIn.value ? user.value?.id ?? null : null);
+const roster = useRoster(rosterYear, rosterMonth, signedIn, rosterOwner);
+const leaveRestrictions = computed(() => Object.fromEntries((["PRD", "PHL", "AL", "H1", "H2"] as const).map((code) => [code, roster.leaveRestriction(selectedKey.value, code)])));
+
+function rosterCellStyle(key: string | undefined) {
+  if (!key || calendarMode.value !== "roster") return undefined;
+  const colors = getRosterDayColors(roster.daysByDate.value.get(key));
+  return colors ? { "--roster-day-light": colors.light, "--roster-day-dark": colors.dark } : undefined;
+}
 
 const rosterEditorOpen = ref(false);
 const rosterGeneratorOpen = ref(false);
@@ -124,25 +146,53 @@ const rosterSettingsOpen = ref(false);
 const rosterExportOpen = ref(false);
 const rosterResetConfirmOpen = ref(false);
 const generatorPreview = ref<RosterGeneratePreview | null>(null);
+const bulkSelectionOpen = ref(false);
+const bulkStatusMessage = ref("");
+watch([rosterYear, rosterMonth, calendarMode, rosterOwner], () => {
+  bulkSelectionOpen.value = false;
+  bulkStatusMessage.value = "";
+  rosterEditorOpen.value = false; rosterGeneratorOpen.value = false; rosterSettingsOpen.value = false; rosterExportOpen.value = false;
+});
+async function updateSelectedStatuses(payload: { dates: string[]; status: RosterEntryStatus }) {
+  const monthKey = `${selected.value.year}-${selected.value.month}`;
+  const result = await roster.updateStatuses(payload.dates, payload.status);
+  if (!result || monthKey !== `${selected.value.year}-${selected.value.month}`) return;
+  bulkSelectionOpen.value = false;
+  bulkStatusMessage.value = khmer.value ? `បានកែស្ថានភាព ${digits(result.updated)} ថ្ងៃ` : `Updated ${result.updated} entries.`;
+}
 
 function confirmResetMonth() {
   rosterResetConfirmOpen.value = true;
 }
 
 async function executeResetMonth() {
-  await roster.resetMonth();
-  rosterResetConfirmOpen.value = false;
+  if (await roster.resetMonth()) rosterResetConfirmOpen.value = false;
 }
 
-function openGenerator() {
-  generatorPreview.value = roster.previewSmartRoster();
-  rosterGeneratorOpen.value = true;
+const preparingGenerator = ref(false);
+async function openGenerator() {
+  if (preparingGenerator.value) return;
+  preparingGenerator.value = true;
+  const key = `${selected.value.year}-${selected.value.month}-${rosterOwner.value ?? "guest"}`;
+  try {
+    const preview = await roster.previewSmartRoster();
+    if (key !== `${selected.value.year}-${selected.value.month}-${rosterOwner.value ?? "guest"}` || calendarMode.value !== "roster") return;
+    generatorPreview.value = preview;
+    rosterGeneratorOpen.value = Boolean(preview);
+  } finally {
+    preparingGenerator.value = false;
+  }
 }
 
 async function handleApplyGenerator() {
   if (!generatorPreview.value) return;
-  await roster.applySmartRoster(generatorPreview.value);
-  rosterGeneratorOpen.value = false;
+  if (await roster.applySmartRoster(generatorPreview.value)) rosterGeneratorOpen.value = false;
+}
+
+function toggleBulkSelection() { roster.error.value = ""; bulkSelectionOpen.value = true; }
+
+async function saveRosterEntry(payload: Parameters<typeof roster.saveDay>[1]) {
+  if (await roster.saveDay(selectedKey.value, payload)) rosterEditorOpen.value = false;
 }
 
 function handleDayClick(day: CalendarDay) {
@@ -373,7 +423,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main ref="calendarRoot" class="khmer-calendar" :lang="(khmer ? 'km' : 'en')">
+  <main ref="calendarRoot" class="khmer-calendar" :class="{ 'is-roster': calendarMode === 'roster' }" :lang="(khmer ? 'km' : 'en')">
     <header class="calendar-header">
       <div class="brand-row">
         <NuxtLink to="/tools" class="back-link"
@@ -405,6 +455,16 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="header-actions">
+          <template v-if="signedIn">
+            <NuxtLink to="/account" class="calendar-account" :title="user?.name || (khmer ? 'គណនីរបស់ខ្ញុំ' : 'My account')">
+              <img v-if="user?.avatarUrl && !avatarFailed" :src="user.avatarUrl" alt="" referrerpolicy="no-referrer" @error="avatarFailed = true" />
+              <span v-else class="account-initial">{{ (user?.name || user?.email || 'U').slice(0, 1).toUpperCase() }}</span>
+              <span class="account-name">{{ user?.name || (khmer ? 'គណនី' : 'Account') }}</span>
+            </NuxtLink>
+            <button type="button" class="icon-button" :disabled="loggingOut" :aria-label="khmer ? 'ចាកចេញពីគណនី' : 'Log out'" @click="logoutCalendar"><LogOut :size="17" aria-hidden="true" /></button>
+          </template>
+          <NuxtLink v-else :to="{ path: '/login', query: { redirect: route.fullPath || '/tools/khmer-calendar' } }" class="calendar-login"><LogIn :size="16" aria-hidden="true" /><span>{{ khmer ? 'ចូល' : 'Log in' }}</span></NuxtLink>
+          <button type="button" class="icon-button" :aria-label="nextColorModeLabel" @click="toggleColorMode"><component :is="isDark ? Sun : Moon" :size="17" aria-hidden="true" /></button>
           <button
             type="button"
             class="language-button"
@@ -479,6 +539,8 @@ onBeforeUnmount(() => {
       <p v-if="fullscreenError" role="status" class="notice">
         {{ fullscreenError }}
       </p>
+      <p v-if="calendarMode === 'roster' && roster.error.value && !bulkSelectionOpen" role="alert" class="notice">{{ roster.error.value }}</p>
+      <p v-if="bulkStatusMessage" role="status" class="roster-status-toast">{{ bulkStatusMessage }}</p>
       <div class="calendar-workspace">
         <section
           class="month-panel"
@@ -488,44 +550,11 @@ onBeforeUnmount(() => {
             <div class="month-heading">
               <h2 aria-live="polite">{{ monthTitle }}</h2>
               <p v-if="calendarMode !== 'roster'" lang="km">{{ lunarMonths }}</p>
-            </div>
-            <div v-if="calendarMode === 'roster'" class="roster-toolbar-actions">
-              <button
-                type="button"
-                class="roster-action-btn"
-                :title="khmer ? 'បង្កើតតារាងវេនស្វ័យប្រវត្តិ' : 'Auto-Generate Roster'"
-                @click="openGenerator"
-              >
-                <Sparkles :size="14" aria-hidden="true" />
-                <span>{{ khmer ? "បង្កើតស្វ័យប្រវត្តិ" : "Auto-Generate" }}</span>
-              </button>
-              <button
-                type="button"
-                class="roster-action-btn"
-                :title="khmer ? 'នាំចេញតារាងវេនជារូបភាព/PDF' : 'Export Roster as Image/PDF'"
-                @click="rosterExportOpen = true"
-              >
-                <Download :size="14" aria-hidden="true" />
-                <span>{{ khmer ? "នាំចេញ" : "Export" }}</span>
-              </button>
-              <button
-                type="button"
-                class="roster-action-btn"
-                :title="khmer ? 'ការកំណត់សមតុល្យ និងវេន' : 'Roster Settings'"
-                @click="rosterSettingsOpen = true"
-              >
-                <SettingsIcon :size="14" aria-hidden="true" />
-                <span>{{ khmer ? "ការកំណត់" : "Settings" }}</span>
-              </button>
-              <button
-                type="button"
-                class="roster-action-btn roster-reset-btn"
-                :title="khmer ? 'កំណត់ឡើងវិញនូវទិន្នន័យខែនេះ' : 'Reset Month Roster'"
-                @click="confirmResetMonth"
-              >
-                <RotateCcw :size="14" aria-hidden="true" />
-                <span>{{ khmer ? "កំណត់ឡើងវិញ" : "Reset" }}</span>
-              </button>
+              <p v-else class="assignment-coverage" :class="{ 'is-incomplete': roster.summary.value.unassignedDays > 0 }" role="status" aria-live="polite">
+                {{ khmer ? "បានកំណត់" : "Assigned" }}
+                <strong>{{ digits(roster.summary.value.totalDays - roster.summary.value.unassignedDays) }} / {{ digits(roster.summary.value.totalDays) }}</strong>
+                {{ khmer ? "ថ្ងៃ" : "days" }}
+              </p>
             </div>
             <div class="month-controls">
               <button type="button" class="today-button" @click="goToday">
@@ -602,14 +631,15 @@ onBeforeUnmount(() => {
             >
           </div>
 
-          <div v-if="calendarMode === 'roster'" class="px-5 pt-3">
+          <div v-if="calendarMode === 'roster'" class="roster-summary-container">
             <RosterSummaryBar
               :summary="roster.summary.value"
+              :year="selected.year"
               :khmer="khmer"
             />
           </div>
 
-          <table class="month-grid">
+          <table class="month-grid" role="table" :style="{ '--calendar-week-rows': weeks.length }">
             <caption class="sr-only">
               {{
                 monthTitle
@@ -627,9 +657,22 @@ onBeforeUnmount(() => {
                   scope="col"
                   :class="{ 'sunday-heading': index === 6 }"
                 >
-                  <abbr :title="weekday">{{
+                  <abbr :title="weekday"><span class="weekday-full">{{
                     khmer ? weekday : weekday.slice(0, 3)
-                  }}</abbr>
+                  }}</span
+                    ><span class="weekday-compact" aria-hidden="true">{{
+                      khmer
+                        ? [
+                            "ចន្ទ",
+                            "អង្គារ",
+                            "ពុធ",
+                            "ព្រហ",
+                            "សុក្រ",
+                            "សៅរ៍",
+                            "អាទិត្យ",
+                          ][index]
+                        : weekday.slice(0, 3)
+                    }}</span></abbr>
                 </th>
               </tr>
             </thead>
@@ -638,7 +681,8 @@ onBeforeUnmount(() => {
                 <td
                   v-for="(day, column) in week"
                   :key="day?.key ?? `blank-${row}-${column}`"
-                  :class="{ 'blank-day': !day }"
+                  :class="{ 'blank-day': !day, 'roster-colored-day': day && calendarMode === 'roster' && Boolean(getRosterDayColors(roster.daysByDate.value.get(day.key))) }"
+                  :style="rosterCellStyle(day?.key)"
                 >
                   <button
                     v-if="day"
@@ -682,17 +726,6 @@ onBeforeUnmount(() => {
                       ></span
                     >
                     <template v-if="calendarMode === 'roster'">
-                      <div
-                        v-if="day.events.filter((e) => e.kind === 'public-holiday').length"
-                        class="roster-cell-holiday"
-                      >
-                        <span
-                          class="roster-cell-holiday-tag"
-                          :title="eventName(day.events.filter((e) => e.kind === 'public-holiday')[0])"
-                        >
-                          {{ eventName(day.events.filter((e) => e.kind === 'public-holiday')[0]) }}
-                        </span>
-                      </div>
                       <div v-if="roster.daysByDate.value.get(day.key)" class="roster-cell-badge">
                         <span
                           v-if="roster.daysByDate.value.get(day.key)?.leaveCode"
@@ -723,6 +756,17 @@ onBeforeUnmount(() => {
                       </div>
                       <div v-else class="roster-empty-cell" aria-hidden="true">
                         <span class="roster-add-hint">+</span>
+                      </div>
+                      <div
+                        v-if="day.events.filter((e) => e.kind === 'public-holiday').length"
+                        class="roster-cell-holiday"
+                      >
+                        <span
+                          class="roster-cell-holiday-tag"
+                          :title="eventName(day.events.filter((e) => e.kind === 'public-holiday')[0])"
+                        >
+                          {{ eventName(day.events.filter((e) => e.kind === 'public-holiday')[0]) }}
+                        </span>
                       </div>
                     </template>
                     <template v-else>
@@ -783,6 +827,57 @@ onBeforeUnmount(() => {
               }}</small
             >
           </div>
+          <div v-if="calendarMode === 'roster'" class="roster-toolbar-actions">
+            <button
+              type="button"
+              class="roster-action-btn"
+              :title="
+                khmer ? 'បង្កើតតារាងវេនស្វ័យប្រវត្តិ' : 'Auto-Generate Roster'
+              "
+              @click="openGenerator"
+              :disabled="preparingGenerator"
+            >
+              <Sparkles :size="14" aria-hidden="true" />
+              <span>{{ khmer ? "បង្កើតស្វ័យប្រវត្តិ" : "Auto-Generate" }}</span>
+            </button>
+            <button type="button" class="roster-action-btn" :aria-expanded="bulkSelectionOpen" aria-haspopup="dialog" @click="toggleBulkSelection">
+              <CheckCheck :size="14" aria-hidden="true" />
+              <span>{{ khmer ? "បញ្ជាក់តារាង" : "Confirm roster" }}</span>
+            </button>
+            <button
+              type="button"
+              class="roster-action-btn"
+              :title="
+                khmer
+                  ? 'នាំចេញតារាងវេនជារូបភាព/PDF'
+                  : 'Export Roster as Image/PDF'
+              "
+              @click="rosterExportOpen = true"
+            >
+              <Download :size="14" aria-hidden="true" />
+              <span>{{ khmer ? "នាំចេញ" : "Export" }}</span>
+            </button>
+            <button
+              type="button"
+              class="roster-action-btn roster-secondary-action"
+              :title="khmer ? 'ការកំណត់សមតុល្យ និងវេន' : 'Roster Settings'"
+              @click="rosterSettingsOpen = true"
+            >
+              <SettingsIcon :size="14" aria-hidden="true" />
+              <span>{{ khmer ? "ការកំណត់" : "Settings" }}</span>
+            </button>
+            <button
+              type="button"
+              class="roster-action-btn roster-secondary-action roster-reset-btn"
+              :title="
+                khmer ? 'កំណត់ឡើងវិញនូវទិន្នន័យខែនេះ' : 'Reset Month Roster'
+              "
+              @click="confirmResetMonth"
+            >
+              <RotateCcw :size="14" aria-hidden="true" />
+              <span>{{ khmer ? "កំណត់ឡើងវិញ" : "Reset" }}</span>
+            </button>
+          </div>
         </section>
 
         <aside
@@ -791,6 +886,7 @@ onBeforeUnmount(() => {
             t(&quot;tools.khmerCalendar.dateDetailsAndEvents&quot;)
           "
         >
+
           <section class="selected-card" aria-live="polite" aria-atomic="true">
             <p class="selected-eyebrow">
               {{ t("tools.khmerCalendar.selectedDate") }}
@@ -905,27 +1001,20 @@ onBeforeUnmount(() => {
               <div class="roster-sidebar-actions">
                 <button
                   type="button"
-                  class="roster-menu-btn auto-gen-btn"
-                  @click="openGenerator"
-                >
-                  <Sparkles :size="15" />
-                  <span>{{ khmer ? "បង្កើតវេនស្វ័យប្រវត្តិ" : "Auto-Generate Roster" }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="roster-menu-btn"
-                  @click="rosterExportOpen = true"
-                >
-                  <Download :size="15" />
-                  <span>{{ khmer ? "នាំចេញតារាងវេន (PNG/PDF)" : "Export Roster" }}</span>
-                </button>
-                <button
-                  type="button"
                   class="roster-menu-btn"
                   @click="rosterSettingsOpen = true"
                 >
                   <SettingsIcon :size="15" />
-                  <span>{{ khmer ? "ការកំណត់សមតុល្យ & វេន" : "Roster Settings" }}</span>
+                  <span>{{ khmer ? "ការកំណត់សមតុល្យ & វេន" : "Roster Settings"
+                  }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="roster-menu-btn roster-reset-btn"
+                  @click="confirmResetMonth"
+                >
+                  <RotateCcw :size="15" aria-hidden="true" />
+                  <span>{{ khmer ? "កំណត់ឡើងវិញ" : "Reset Month" }}</span>
                 </button>
               </div>
             </section>
@@ -1025,14 +1114,14 @@ onBeforeUnmount(() => {
         </aside>
       </div>
 
-      <CelebrationBrowser
-        v-if="calendarMode === 'calendar'"
-        :year="selected.year"
-        :khmer="khmer"
-        @select="selectCelebrationDate"
-      />
 
+
+      <RosterBulkStatusModal :open="bulkSelectionOpen" :days="roster.days.value" :year="selected.year" :month="selected.month" :month-title="monthTitle" :summary="roster.summary.value" :busy="roster.saving.value" :khmer="khmer" :status-flow-enabled="Boolean(roster.preferences.value.statusFlowEnabled)" :error="roster.error.value" :teleport-target="fullscreen ? calendarRoot : undefined" @close="bulkSelectionOpen = false" @apply="updateSelectedStatuses" />
       <RosterDayEditorModal
+        :teleport-target="fullscreen ? calendarRoot : undefined"
+        :leave-restrictions="leaveRestrictions"
+        :busy="roster.saving.value"
+        :error="roster.error.value"
         :open="rosterEditorOpen"
         :date-key="selectedKey"
         :day="detail"
@@ -1044,11 +1133,12 @@ onBeforeUnmount(() => {
         :phl-remaining="roster.summary.value.phlRemaining"
         :khmer="khmer"
         @close="rosterEditorOpen = false"
-        @save="roster.saveDay(selectedKey, $event)"
+        @save="saveRosterEntry"
         @delete="roster.deleteDay($event)"
       />
 
       <RosterGeneratorModal
+        :teleport-target="fullscreen ? calendarRoot : undefined"
         :open="rosterGeneratorOpen"
         :year="selected.year"
         :month="selected.month"
@@ -1061,6 +1151,8 @@ onBeforeUnmount(() => {
       />
 
       <RosterSettingsModal
+        :teleport-target="fullscreen ? calendarRoot : undefined"
+        :year="selected.year"
         :open="rosterSettingsOpen"
         :preferences="roster.preferences.value"
         :shifts="roster.shifts.value"
@@ -1076,6 +1168,7 @@ onBeforeUnmount(() => {
       />
 
       <RosterExportModal
+        :teleport-target="fullscreen ? calendarRoot : undefined"
         :open="rosterExportOpen"
         :year="selected.year"
         :month="selected.month"
@@ -1089,7 +1182,7 @@ onBeforeUnmount(() => {
       />
 
       <!-- Reset Month Confirmation Modal -->
-      <Teleport to="body">
+      <Teleport :to="fullscreen && calendarRoot ? calendarRoot : 'body'">
         <Transition
           enter-active-class="transition duration-150 ease-out"
           enter-from-class="opacity-0"
@@ -1140,7 +1233,9 @@ onBeforeUnmount(() => {
                   :disabled="roster.saving.value"
                   @click="executeResetMonth"
                 >
-                  {{ roster.saving.value ? (khmer ? "កំពុងលុប..." : "Resetting...") : (khmer ? "កំណត់ឡើងវិញ" : "Reset") }}
+                  {{ roster.saving.value ? khmer ? "កំពុងលុប..." : "Resetting..."
+                      : khmer ? "កំណត់ឡើងវិញ" : "Reset"
+                  }}
                 </button>
               </div>
             </div>
@@ -1148,6 +1243,21 @@ onBeforeUnmount(() => {
         </Transition>
       </Teleport>
 
+      <div class="calendar-resources">
+        <details v-if="calendarMode === 'calendar'" class="calendar-resource" name="calendar-resources">
+          <summary>{{ khmer ? "ព្រឹត្តិការណ៍ប្រចាំឆ្នាំ" : "Annual events" }}</summary>
+          <div class="calendar-resource-panel">
+      <CelebrationBrowser
+        v-if="calendarMode === 'calendar'"
+        :year="selected.year"
+        :khmer="khmer"
+        @select="selectCelebrationDate"
+      />
+          </div>
+        </details>
+        <details class="calendar-resource" name="calendar-resources">
+          <summary>{{ khmer ? "ប្រភព និងព័ត៌មាន" : "Sources & information" }}</summary>
+          <div class="calendar-resource-panel">
       <footer class="calendar-footer">
         <div>
           <p v-if="schedule.verified">
@@ -1184,6 +1294,9 @@ onBeforeUnmount(() => {
           }}</span>
         </div>
       </footer>
+          </div>
+        </details>
+      </div>
     </div>
   </main>
 </template>
@@ -1204,7 +1317,7 @@ onBeforeUnmount(() => {
   font-size: 14px;
   line-height: 1.7;
 }
-:global(.dark) .khmer-calendar {
+.dark .khmer-calendar {
   --paper: #202124;
   --canvas: #171819;
   --ink: #eeeae3;
@@ -1236,6 +1349,9 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 .brand-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
   justify-content: space-between;
   margin-bottom: 10px;
 }
@@ -1252,6 +1368,7 @@ onBeforeUnmount(() => {
   font-weight: 400;
 }
 .header-actions {
+  justify-self: end;
   gap: 10px;
 }
 .language-button {
@@ -1326,15 +1443,39 @@ h1 {
   gap: 22px;
 }
 .month-panel {
+  display: flex;
+  flex-direction: column;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 15px;
   overflow: hidden;
 }
+.month-panel > .month-toolbar { order: 0; }
+.month-panel > .calendar-options { order: 2; }
+.month-panel > .roster-summary-container { order: 3; }
+.month-panel > .month-grid { order: 4; }
+.month-panel > .calendar-legend { order: 5; }
+.month-heading .assignment-coverage {
+  color: var(--teal);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.month-heading .assignment-coverage.is-incomplete { color: var(--gold); }
 .month-toolbar {
+  flex-wrap: wrap;
   padding: 22px 22px 13px;
   justify-content: space-between;
   gap: 10px;
+}
+.month-heading {
+  flex: 1;
+  min-width: 0;
+}
+.weekday-compact {
+  display: none;
+}
+.roster-summary-container {
+  padding: 0 12px;
 }
 .month-heading h2 {
   font-size: 22px;
@@ -1384,9 +1525,19 @@ h1 {
   flex-wrap: wrap;
 }
 .date-selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(95px, 0.7fr);
+  width: min(100%, 330px);
   gap: 7px;
   min-width: 0;
   max-width: 100%;
+}
+.date-selectors :deep(.modern-select) {
+  width: 100%;
+  --select-bg: var(--paper);
+  --select-text: var(--ink);
+  --select-muted: var(--muted);
+  --select-border: var(--line);
 }
 .observance-toggle {
   font-size: 11px;
@@ -1435,6 +1586,16 @@ h1 {
 .month-grid .blank-day {
   background: color-mix(in srgb, var(--muted) 3%, var(--paper));
 }
+.month-grid .roster-colored-day {
+  background: var(--roster-day-light);
+}
+.dark .month-grid .roster-colored-day {
+  background: var(--roster-day-dark);
+}
+.roster-colored-day .day-button.is-selected,
+.roster-colored-day .day-button:hover {
+  background: transparent;
+}
 .day-button {
   display: flex;
   flex-direction: column;
@@ -1444,6 +1605,8 @@ h1 {
   padding: 8px 9px;
   text-align: left;
   position: relative;
+  min-width: 0;
+  overflow: hidden;
   border: 2px solid transparent;
   transition: background 0.15s;
 }
@@ -1453,6 +1616,14 @@ h1 {
 .day-button.is-selected {
   border-color: var(--red);
   background: color-mix(in srgb, var(--red) 5%, var(--paper));
+}
+.day-button.is-bulk-selected {
+  border-color: var(--teal);
+  box-shadow: inset 0 0 0 1px var(--teal);
+}
+.day-button:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 .day-top {
   display: flex;
@@ -1889,6 +2060,20 @@ summary:focus-visible {
   }
 }
 @media (max-width: 850px) {
+  .brand-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .calendar-mode-switch {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .mode-switch-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .today-summary {
+    display: none;
+  }
   .calendar-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1914,6 +2099,9 @@ summary:focus-visible {
   }
   .brand-row {
     margin-bottom: 8px;
+  }
+  .back-link span {
+    display: none;
   }
   .title-row {
     gap: 12px;
@@ -1953,18 +2141,21 @@ summary:focus-visible {
     gap: 4px;
   }
   .month-controls .icon-button {
-    width: 30px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
   }
   .today-button {
     padding: 3px 9px;
     font-size: 11px;
     margin-right: 0;
-    height: 34px;
+    height: 44px;
   }
   .calendar-options {
     padding: 0 12px 12px;
     gap: 5px;
+  }
+  .date-selectors {
+    width: 100%;
   }
   .observance-toggle {
     font-size: 10px;
@@ -1982,6 +2173,12 @@ summary:focus-visible {
   }
   .day-number {
     font-size: 20px;
+  }
+  .weekday-full {
+    display: none;
+  }
+  .weekday-compact {
+    display: inline;
   }
   .lunar-date {
     font-size: 9px;
@@ -2034,19 +2231,6 @@ summary:focus-visible {
   .source-links {
     text-align: left;
   }
-  .calendar-mode-switch {
-    width: 100%;
-    order: 3;
-    margin-top: 6px;
-    justify-content: center;
-  }
-  .mode-switch-btn {
-    flex: 1;
-    justify-content: center;
-  }
-  .roster-toolbar-actions {
-    display: none;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .day-button {
@@ -2093,6 +2277,8 @@ summary:focus-visible {
   color: var(--muted);
   background: transparent;
   cursor: pointer;
+  min-height: 44px;
+  line-height: 1.8;
   transition: all 0.15s ease;
 }
 .mode-switch-btn:hover {
@@ -2104,11 +2290,12 @@ summary:focus-visible {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 .roster-toolbar-actions {
+  order: 1;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-right: auto;
-  margin-left: 12px;
+  flex-wrap: wrap;
+  padding: 0 12px 12px;
 }
 .roster-action-btn {
   display: inline-flex;
@@ -2123,7 +2310,8 @@ summary:focus-visible {
   color: var(--ink);
   cursor: pointer;
   transition: all 0.15s;
-  min-height: 34px;
+  min-height: 44px;
+  line-height: 1.8;
 }
 .roster-action-btn:hover {
   background: color-mix(in srgb, var(--teal) 8%, var(--paper));
@@ -2151,7 +2339,7 @@ summary:focus-visible {
   background: #fee2e2;
   color: #b91c1c;
 }
-:global(.dark) .roster-leave-prd {
+.dark .roster-leave-prd {
   background: rgba(185, 28, 28, 0.35);
   color: #fca5a5;
 }
@@ -2159,7 +2347,7 @@ summary:focus-visible {
   background: #fef3c7;
   color: #b45309;
 }
-:global(.dark) .roster-leave-phl {
+.dark .roster-leave-phl {
   background: rgba(180, 83, 9, 0.35);
   color: #fcd34d;
 }
@@ -2167,7 +2355,7 @@ summary:focus-visible {
   background: #f3e8ff;
   color: #7e22ce;
 }
-:global(.dark) .roster-leave-al {
+.dark .roster-leave-al {
   background: rgba(126, 34, 206, 0.35);
   color: #d8b4fe;
 }
@@ -2177,8 +2365,8 @@ summary:focus-visible {
   color: #6d28d9;
   border: 1px solid #ddd6fe;
 }
-:global(.dark) .roster-leave-h1,
-:global(.dark) .roster-leave-h2 {
+.dark .roster-leave-h1,
+.dark .roster-leave-h2 {
   background: rgba(109, 40, 217, 0.3);
   color: #c4b5fd;
   border-color: rgba(109, 40, 217, 0.5);
@@ -2192,12 +2380,15 @@ summary:focus-visible {
   padding: 2px 5px;
   width: 100%;
   line-height: 1.3;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 .shift-code {
   font-family: monospace;
   font-size: 11px;
   font-weight: 800;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 .shift-time {
   font-size: 9px;
@@ -2353,10 +2544,10 @@ summary:focus-visible {
   border-color: #f43f5e;
   color: #be123c;
 }
-:global(.dark) .roster-reset-btn {
+.dark .roster-reset-btn {
   color: #fb7185;
 }
-:global(.dark) .roster-reset-btn:hover {
+.dark .roster-reset-btn:hover {
   background: rgba(225, 29, 72, 0.2);
   border-color: #fb7185;
   color: #fca5a5;
@@ -2380,7 +2571,7 @@ summary:focus-visible {
   border: 1px solid #fecaca;
   line-height: 1.3;
 }
-:global(.dark) .roster-cell-holiday-tag {
+.dark .roster-cell-holiday-tag {
   background: rgba(185, 28, 28, 0.35);
   color: #fecaca;
   border-color: rgba(248, 113, 113, 0.4);
@@ -2415,5 +2606,120 @@ summary:focus-visible {
   background: color-mix(in srgb, var(--teal) 10%, var(--paper));
   border-color: var(--teal);
   color: var(--teal);
+}
+@media (min-width: 851px) {
+  .roster-secondary-action {
+    display: none;
+  }
+}
+@media (max-width: 850px) {
+  .roster-toolbar-actions {
+    order: 7;
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 540px) {
+  .roster-toolbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .roster-action-btn {
+    justify-content: center;
+    padding: 6px;
+  }
+  .roster-action-btn svg,
+  .mode-switch-btn svg {
+    flex-shrink: 0;
+  }
+  .roster-shift-tag {
+    flex-direction: column;
+    gap: 2px;
+    padding: 3px 2px;
+  }
+  .shift-code {
+    font-size: 10px;
+  }
+  .shift-time {
+    font-size: 8px;
+  }
+  .roster-leave-tag {
+    padding: 3px;
+    font-size: 9px;
+  }
+}
+.calendar-resources { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; }
+.calendar-resource > summary { cursor: pointer; color: var(--muted); font-size: 12px; padding: 8px 0; }
+.calendar-resource-panel { padding: 8px 0; }
+@media (min-width: 851px) {
+  /* Fit the whole month to the desktop window; optional detail panels keep their own scroll. */
+  .khmer-calendar { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .calendar-header { flex: none; padding: 5px 16px; }
+  .brand-row { margin: 0; }
+  .title-row { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .calendar-content { flex: 1; min-height: 0; width: 100%; padding: 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .calendar-workspace { flex: 1; min-height: 0; align-items: stretch; gap: 12px; grid-template-columns: minmax(0, 1fr) 270px; }
+  .month-panel { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto minmax(0, 1fr) auto; position: relative; }
+  .month-panel > .month-toolbar { grid-row: 1; grid-column: 1; padding: 10px 12px 6px; }
+  .month-panel > .roster-toolbar-actions { grid-row: 1; grid-column: 2; align-self: center; padding: 6px 12px 6px 0; }
+  .month-panel > .calendar-options { grid-row: 2; grid-column: 1 / -1; padding: 4px 12px 8px; }
+  .month-panel > .roster-summary-container { display: block; grid-row: 3; grid-column: 1 / -1; }
+  .month-panel > .month-grid { grid-row: 4; grid-column: 1 / -1; }
+  .month-panel > .calendar-legend { grid-row: 5; grid-column: 1 / -1; padding: 6px 12px; }
+  .month-heading h2 { font-size: 18px; line-height: 1.5; }
+  .month-heading .assignment-coverage { font-size: 11px; }
+  .month-controls { margin-left: auto; }
+  .roster-action-btn { min-height: 36px; padding: 4px 8px; }
+  .date-selectors { width: 260px; }
+  .date-selectors :deep(.modern-select-trigger) { min-height: 36px; padding: 5px 10px; }
+  .date-selectors :deep(.modern-select) { min-height: 36px; }
+  .month-grid { display: grid; grid-template-rows: 30px minmax(0, 1fr); min-height: 0; height: 100%; }
+  .month-grid thead tr { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); height: 30px; }
+  .month-grid th { display: flex; align-items: center; justify-content: center; height: 30px; }
+  .month-grid tbody { display: grid; grid-template-rows: repeat(var(--calendar-week-rows), minmax(0, 1fr)); min-height: 0; }
+  .month-grid tbody tr { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); min-height: 0; }
+  .month-grid td { min-width: 0; min-height: 0; height: auto; position: relative; border-width: 0 1px 1px 0; }
+  .day-button { position: absolute; inset: 0; min-height: 0; height: 100%; padding: 4px 6px; }
+  .day-number { font-size: 18px; line-height: 1.35; }
+  .roster-cell-badge { gap: 2px; margin-top: 2px; }
+  .roster-cell-holiday { margin: 1px 0; }
+  .roster-cell-holiday-tag { font-size: 8px; }
+  .calendar-sidebar { overflow-y: auto; min-height: 0; align-content: start; gap: 10px; padding-right: 2px; }
+  .is-roster .selected-lunar, .is-roster .year-information, .is-roster .phase-icon { display: none; }
+  .selected-card { padding: 14px; }
+  .selected-date { margin: 6px 0; }
+  .selected-date > strong { font-size: 38px; }
+  .roster-selected-section { margin-top: 8px; padding-top: 8px; }
+  .day-detail-panel, .month-event-panel { padding: 12px; }
+  .calendar-resources { flex: none; margin: 0; }
+  .calendar-resource > summary { font-size: 10px; padding: 2px 0; }
+  .calendar-resource-panel { position: fixed; z-index: 30; left: 16px; right: 16px; bottom: 34px; max-width: 1100px; max-height: calc(100dvh - 100px); overflow: auto; margin: auto; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: 0 12px 40px #0003; }
+  .calendar-resource-panel .calendar-footer { padding: 0; }
+}
+@media (min-width: 851px) and (max-width: 1150px) {
+  .calendar-workspace { grid-template-columns: minmax(0, 1fr) 240px; }
+  .month-panel > .roster-toolbar-actions { grid-row: 2; grid-column: 1 / -1; padding: 2px 12px; }
+  .month-panel > .calendar-options { grid-row: 3; }
+  .month-panel > .roster-summary-container { grid-row: 4; }
+  .month-panel > .month-grid { grid-row: 5; }
+  .month-panel > .calendar-legend { grid-row: 6; }
+  .month-panel { grid-template-rows: auto auto auto auto minmax(0, 1fr) auto; }
+  .month-panel > .month-toolbar { grid-column: 1 / -1; }
+}
+
+.calendar-account, .calendar-login { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 12px; }
+.calendar-account img, .account-initial { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.account-initial { display: grid; place-items: center; background: color-mix(in srgb, var(--teal) 15%, var(--paper)); color: var(--teal); font-weight: 700; }
+.account-name { max-width: 85px; overflow: hidden; text-overflow: ellipsis; }
+.calendar-login { min-height: 36px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.header-actions { gap: 5px; }
+.roster-status-toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 50; max-width: calc(100vw - 24px); padding: 8px 14px; border: 1px solid var(--teal); border-radius: 10px; background: var(--paper); color: var(--teal); font-size: 12px; box-shadow: 0 4px 16px #0002; }
+@media (max-width: 1100px) { .account-name { display: none; } }
+@media (max-width: 540px) {
+  .header-actions { gap: 4px; }
+  .header-actions .icon-button { width: 34px; height: 40px; }
+  .language-button { min-height: 40px; width: 34px; padding: 3px; }
+  .calendar-login { font-size: 11px; padding: 4px 6px; gap: 4px; }
 }
 </style>

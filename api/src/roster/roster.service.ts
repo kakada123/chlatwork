@@ -19,8 +19,10 @@ import {
   type UpdatePreferencesDto,
   type UpdateShiftDto,
   type UpsertRosterDayDto,
+  type UpdateRosterStatusesDto,
 } from './roster.dto';
 import { getCambodiaPublicHolidays } from './cambodia-holidays.util';
+import { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterMonthWeekRange, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight, type WeeklyWorkEntry } from './roster-week.util';
 
 /**
  * Returns the balance bucket in `LeaveBalance` for a given leave code.
@@ -69,144 +71,181 @@ export class RosterService {
   // ─── Upsert roster day ────────────────────────────────────────────────────
 
   async upsertRosterDay(userId: string, date: string, dto: UpsertRosterDayDto) {
+    return this.prisma.$transaction((tx) => this.upsertRosterDayInTransaction(tx, userId, date, dto), { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 });
+  }
+
+  // Both individual edits and bulk changes must use the same reversal and debit rules.
+  private async upsertRosterDayInTransaction(tx: Prisma.TransactionClient, userId: string, date: string, dto: UpsertRosterDayDto, preferences?: { statusFlowEnabled: boolean; monthlyPrdAllowance: number }) {
     const entryDate = this.parseDate(date);
+    const prefs = preferences ?? await tx.rosterPreferences.findUnique({ where: { userId }, select: { statusFlowEnabled: true, monthlyPrdAllowance: true } });
+    const flowEnabled = prefs?.statusFlowEnabled ?? false;
     const newLeaveCode = dto.leaveCode ? (dto.leaveCode as LeaveCode) : null;
-    const newStatus = dto.status
+    const newStatus = !flowEnabled ? RosterEntryStatus.CONFIRMED : dto.status
       ? (dto.status as RosterEntryStatus)
       : undefined;
 
-    return this.prisma.$transaction(async (tx) => {
-      const existing = await tx.rosterDay.findUnique({
-        where: { userId_entryDate: { userId, entryDate } },
-      });
+    const existing = await tx.rosterDay.findUnique({
+      where: { userId_entryDate: { userId, entryDate } },
+    });
 
-      const year = entryDate.getUTCFullYear();
+    const year = entryDate.getUTCFullYear();
+    const candidateLeave = dto.leaveCode !== undefined ? newLeaveCode : existing?.leaveCode ?? null;
+    const effective = { shiftCode: dto.shiftCode !== undefined ? dto.shiftCode : existing?.shiftCode ?? null, leaveCode: candidateLeave, status: newStatus ?? existing?.status ?? RosterEntryStatus.DRAFT };
+    const range = rosterMonthWeekRange(year, entryDate.getUTCMonth() + 1);
+    const relatedDays = await tx.rosterDay.findMany({ where: { userId, entryDate: { gte: range.start, lte: range.end } } });
+    const available = { AL: 0, PHL: 0 };
+    const bucket = balanceCodeForLeave(candidateLeave);
+    if (bucket === LeaveCode.AL || bucket === LeaveCode.PHL) {
+      const balance = await tx.leaveBalance.findUnique({ where: { userId_leaveCode_leaveYear: { userId, leaveCode: bucket, leaveYear: year } } });
+      available[bucket] = balance ? balance.openingBalanceHalfDays + balance.earnedHalfDays + balance.adjustmentHalfDays - balance.confirmedUsedHalfDays - balance.pendingHalfDays : 0;
+    }
+    const violation = rosterDayViolation(date, effective, new Map(relatedDays.map((day) => [this.dateToString(day.entryDate), day])), available, prefs?.monthlyPrdAllowance);
+    if (violation) throw new BadRequestException(violation);
 
-      // 1. Reverse previous commitment if existing entry had a leave code
-      if (existing && existing.leaveCode) {
-        const oldBalanceCode = balanceCodeForLeave(existing.leaveCode);
-        const oldCost = halfDayCostForLeave(existing.leaveCode);
+    // 1. Reverse previous commitment if existing entry had a leave code
+    if (existing && existing.leaveCode) {
+      const oldBalanceCode = balanceCodeForLeave(existing.leaveCode);
+      const oldCost = halfDayCostForLeave(existing.leaveCode);
 
-        if (oldBalanceCode && oldCost > 0) {
-          if (existing.status === RosterEntryStatus.CONFIRMED) {
-            await tx.leaveTransaction.create({
-              data: {
-                userId,
-                leaveCode: oldBalanceCode,
-                kind: LeaveTransactionKind.REVERSAL,
-                halfDays: oldCost, // positive = credit back
-                rosterDayId: existing.id,
-                note: `Reversal for ${existing.leaveCode} on ${date}`,
-              },
-            });
-            await this.ensureLeaveBalance(tx, userId, oldBalanceCode, year);
-            await tx.leaveBalance.update({
-              where: {
-                userId_leaveCode_leaveYear: {
-                  userId,
-                  leaveCode: oldBalanceCode,
-                  leaveYear: year,
-                },
-              },
-              data: { confirmedUsedHalfDays: { decrement: oldCost } },
-            });
-          } else if (existing.status === RosterEntryStatus.REQUESTED) {
-            await this.ensureLeaveBalance(tx, userId, oldBalanceCode, year);
-            await tx.leaveBalance.update({
-              where: {
-                userId_leaveCode_leaveYear: {
-                  userId,
-                  leaveCode: oldBalanceCode,
-                  leaveYear: year,
-                },
-              },
-              data: { pendingHalfDays: { decrement: oldCost } },
-            });
-          }
-        }
-      }
-
-      // 2. Upsert the roster day
-      const rosterDay = await tx.rosterDay.upsert({
-        where: { userId_entryDate: { userId, entryDate } },
-        create: {
-          userId,
-          entryDate,
-          shiftCode: dto.shiftCode ?? null,
-          leaveCode: newLeaveCode,
-          status: newStatus ?? RosterEntryStatus.DRAFT,
-          note: dto.note ?? null,
-          isLocked: dto.isLocked ?? false,
-        },
-        update: {
-          ...(dto.shiftCode !== undefined && { shiftCode: dto.shiftCode }),
-          ...(dto.leaveCode !== undefined && { leaveCode: newLeaveCode }),
-          ...(dto.status !== undefined && { status: newStatus }),
-          ...(dto.note !== undefined && { note: dto.note }),
-          ...(dto.isLocked !== undefined && { isLocked: dto.isLocked }),
-        },
-      });
-
-      // 3. Apply new commitment
-      const effectiveStatus = rosterDay.status;
-      const effectiveLeave = rosterDay.leaveCode;
-      const newBalanceCode = balanceCodeForLeave(effectiveLeave);
-      const newCost = halfDayCostForLeave(effectiveLeave);
-
-      if (newBalanceCode && newCost > 0) {
-        await this.ensureLeaveBalance(tx, userId, newBalanceCode, year);
-
-        if (effectiveStatus === RosterEntryStatus.CONFIRMED) {
+      if (oldBalanceCode && oldCost > 0) {
+        if (existing.status === RosterEntryStatus.CONFIRMED) {
           await tx.leaveTransaction.create({
             data: {
               userId,
-              leaveCode: newBalanceCode,
-              kind: LeaveTransactionKind.DEDUCTION,
-              halfDays: -newCost, // negative = debit
-              rosterDayId: rosterDay.id,
-              note: `Deduction for ${effectiveLeave} on ${date}`,
+              leaveCode: oldBalanceCode,
+              kind: LeaveTransactionKind.REVERSAL,
+              halfDays: oldCost, // positive = credit back
+              rosterDayId: existing.id,
+              note: `Reversal for ${existing.leaveCode} on ${date}`,
             },
           });
+          await this.ensureLeaveBalance(tx, userId, oldBalanceCode, year);
           await tx.leaveBalance.update({
             where: {
               userId_leaveCode_leaveYear: {
                 userId,
-                leaveCode: newBalanceCode,
+                leaveCode: oldBalanceCode,
                 leaveYear: year,
               },
             },
-            data: { confirmedUsedHalfDays: { increment: newCost } },
+            data: { confirmedUsedHalfDays: { decrement: oldCost } },
           });
-        } else if (effectiveStatus === RosterEntryStatus.REQUESTED) {
+        } else if (existing.status === RosterEntryStatus.REQUESTED) {
+          await this.ensureLeaveBalance(tx, userId, oldBalanceCode, year);
           await tx.leaveBalance.update({
             where: {
               userId_leaveCode_leaveYear: {
                 userId,
-                leaveCode: newBalanceCode,
+                leaveCode: oldBalanceCode,
                 leaveYear: year,
               },
             },
-            data: { pendingHalfDays: { increment: newCost } },
+            data: { pendingHalfDays: { decrement: oldCost } },
           });
         }
       }
+    }
 
-      return this.serializeRosterDay(rosterDay);
+    // 2. Upsert the roster day
+    const rosterDay = await tx.rosterDay.upsert({
+      where: { userId_entryDate: { userId, entryDate } },
+      create: {
+        userId,
+        entryDate,
+        shiftCode: dto.shiftCode ?? null,
+        leaveCode: newLeaveCode,
+        status: newStatus ?? RosterEntryStatus.DRAFT,
+        note: dto.note ?? null,
+        isLocked: dto.isLocked ?? false,
+      },
+      update: {
+        ...(dto.shiftCode !== undefined && { shiftCode: dto.shiftCode }),
+        ...(dto.leaveCode !== undefined && { leaveCode: newLeaveCode }),
+        ...(newStatus !== undefined && { status: newStatus }),
+        ...(dto.note !== undefined && { note: dto.note }),
+        ...(dto.isLocked !== undefined && { isLocked: dto.isLocked }),
+      },
     });
+
+    // 3. Apply new commitment
+    const effectiveStatus = rosterDay.status;
+    const effectiveLeave = rosterDay.leaveCode;
+    const newBalanceCode = balanceCodeForLeave(effectiveLeave);
+    const newCost = halfDayCostForLeave(effectiveLeave);
+
+    if (newBalanceCode && newCost > 0) {
+      await this.ensureLeaveBalance(tx, userId, newBalanceCode, year);
+
+      if (effectiveStatus === RosterEntryStatus.CONFIRMED) {
+        await tx.leaveTransaction.create({
+          data: {
+            userId,
+            leaveCode: newBalanceCode,
+            kind: LeaveTransactionKind.DEDUCTION,
+            halfDays: -newCost, // negative = debit
+            rosterDayId: rosterDay.id,
+            note: `Deduction for ${effectiveLeave} on ${date}`,
+          },
+        });
+        await tx.leaveBalance.update({
+          where: {
+            userId_leaveCode_leaveYear: {
+              userId,
+              leaveCode: newBalanceCode,
+              leaveYear: year,
+            },
+          },
+          data: { confirmedUsedHalfDays: { increment: newCost } },
+        });
+      } else if (effectiveStatus === RosterEntryStatus.REQUESTED) {
+        await tx.leaveBalance.update({
+          where: {
+            userId_leaveCode_leaveYear: {
+              userId,
+              leaveCode: newBalanceCode,
+              leaveYear: year,
+            },
+          },
+          data: { pendingHalfDays: { increment: newCost } },
+        });
+      }
+    }
+
+    return this.serializeRosterDay(rosterDay);
+  }
+
+  async updateStatuses(userId: string, dto: UpdateRosterStatusesDto) {
+    this.validateYearMonth(dto.year, dto.month);
+    const prefix = `${dto.year}-${String(dto.month).padStart(2, '0')}-`;
+    const dates = [...new Set(dto.dates)];
+    if (!dates.length || dates.length > 31 || !['DRAFT', 'REQUESTED', 'CONFIRMED', 'CANCELLED'].includes(dto.status)) throw new BadRequestException('Invalid bulk status update');
+    const parsed = dates.map((date) => {
+      const value = this.parseDate(date);
+      if (!date.startsWith(prefix)) throw new BadRequestException('All dates must belong to the selected month');
+      return value;
+    });
+    return this.prisma.$transaction(async (tx) => {
+      const days = await tx.rosterDay.findMany({ where: { userId, entryDate: { in: parsed } } });
+      const preferences = await tx.rosterPreferences.findUnique({ where: { userId }, select: { statusFlowEnabled: true, monthlyPrdAllowance: true } });
+      const status = preferences?.statusFlowEnabled ? dto.status : RosterEntryStatus.CONFIRMED;
+      const editable = days.filter((day) => !day.isLocked && day.status !== status);
+      for (const day of editable) {
+        await this.upsertRosterDayInTransaction(tx, userId, this.dateToString(day.entryDate), { status }, preferences ?? undefined);
+      }
+      return { updated: editable.length, skippedLocked: days.filter((day) => day.isLocked).length, skippedMissing: dates.length - days.length };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 });
   }
 
   // ─── Delete draft roster day ──────────────────────────────────────────────
 
   async deleteRosterDay(userId: string, date: string) {
     const entryDate = this.parseDate(date);
-    const existing = await this.prisma.rosterDay.findUnique({
-      where: { userId_entryDate: { userId, entryDate } },
-    });
-    if (!existing) throw new NotFoundException('Roster day not found');
-
     const year = entryDate.getUTCFullYear();
 
     return this.prisma.$transaction(async (tx) => {
+      // Read and reverse the same version, so a concurrent edit cannot credit the wrong leave bucket.
+      const existing = await tx.rosterDay.findUnique({ where: { userId_entryDate: { userId, entryDate } } });
+      if (!existing) throw new NotFoundException('Roster day not found');
       // Revert any commitment
       if (existing.leaveCode) {
         const balCode = balanceCodeForLeave(existing.leaveCode);
@@ -255,12 +294,13 @@ export class RosterService {
       });
 
       return { deleted: true };
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 });
   }
 
   // ─── Settings ─────────────────────────────────────────────────────────────
 
-  async getSettings(userId: string) {
+  async getSettings(userId: string, year = new Date().getUTCFullYear()) {
+    this.validateYearMonth(year, 1);
     let [preferences, shifts] = await Promise.all([
       this.prisma.rosterPreferences.findUnique({ where: { userId } }),
       this.prisma.rosterShift.findMany({
@@ -291,21 +331,21 @@ export class RosterService {
       });
     }
 
-    const currentYear = new Date().getUTCFullYear();
-    const currentYearBalances = await this.prisma.leaveBalance.findMany({
-      where: { userId, leaveYear: currentYear },
+    const yearBalances = await this.prisma.leaveBalance.findMany({
+      where: { userId, leaveYear: year },
     });
 
     return {
       preferences: this.serializePreferences(preferences),
       shifts: shifts.map((s) => this.serializeShift(s)),
-      leaveBalances: currentYearBalances.map((b) =>
+      leaveBalances: yearBalances.map((b) =>
         this.serializeLeaveBalance(b),
       ),
     };
   }
 
   async updatePreferences(userId: string, dto: UpdatePreferencesDto) {
+    if (dto.monthlyPrdAllowance !== undefined && (!Number.isInteger(dto.monthlyPrdAllowance) || dto.monthlyPrdAllowance < 0 || dto.monthlyPrdAllowance > 7)) throw new BadRequestException('PRD allowance must be between 0 and 7 days.');
     const prefs = await this.prisma.rosterPreferences.upsert({
       where: { userId },
       create: {
@@ -315,10 +355,12 @@ export class RosterService {
         publicHolidaysOff: dto.publicHolidaysOff ?? true,
         defaultShiftCode: dto.defaultShiftCode ?? 'K123',
         monthlyPrdAllowance: dto.monthlyPrdAllowance ?? 7,
+        statusFlowEnabled: dto.statusFlowEnabled ?? false,
         displayName: dto.displayName ?? null,
         timezone: dto.timezone ?? 'Asia/Phnom_Penh',
       },
       update: {
+        ...(dto.statusFlowEnabled !== undefined && { statusFlowEnabled: dto.statusFlowEnabled }),
         ...(dto.saturdayOff !== undefined && { saturdayOff: dto.saturdayOff }),
         ...(dto.sundayOff !== undefined && { sundayOff: dto.sundayOff }),
         ...(dto.publicHolidaysOff !== undefined && {
@@ -439,8 +481,8 @@ export class RosterService {
 
   // ─── Leave balances ───────────────────────────────────────────────────────
 
-  async getLeaveBalances(userId: string) {
-    const year = new Date().getUTCFullYear();
+  async getLeaveBalances(userId: string, year = new Date().getUTCFullYear()) {
+    this.validateYearMonth(year, 1);
     await Promise.all([
       this.ensureLeaveBalance(this.prisma, userId, LeaveCode.AL, year),
       this.ensureLeaveBalance(this.prisma, userId, LeaveCode.PHL, year),
@@ -507,13 +549,14 @@ export class RosterService {
     const { year, month } = dto;
     this.validateYearMonth(year, month);
 
+    const weekRange = rosterMonthWeekRange(year, month);
     const [existingDays, preferences, alBalance, phlBalance] = await Promise.all([
       this.prisma.rosterDay.findMany({
         where: {
           userId,
           entryDate: {
-            gte: this.monthRange(year, month).start,
-            lte: this.monthRange(year, month).end,
+            gte: weekRange.start,
+            lte: weekRange.end,
           },
         },
       }),
@@ -536,13 +579,16 @@ export class RosterService {
     const existingMap = new Map(
       existingDays.map((d) => [this.dateToString(d.entryDate), d]),
     );
+    const monthPrefix = `${year}-${String(month).padStart(2, '0')}-`;
+    const planned = new Map<string, WeeklyWorkEntry>([...existingMap]
+      .filter(([date, day]) => !date.startsWith(monthPrefix) || day.isLocked || day.status === 'CONFIRMED' || day.status === 'REQUESTED'));
 
     // Calculate existing PRD used this month
     let prdUsedThisMonth = 0;
     for (const d of existingDays) {
-      if (d.leaveCode === LeaveCode.PRD) prdUsedThisMonth++;
+      if (this.dateToString(d.entryDate).startsWith(monthPrefix) && d.leaveCode === LeaveCode.PRD && d.status !== 'CANCELLED' && (d.isLocked || d.status === 'CONFIRMED' || d.status === 'REQUESTED')) prdUsedThisMonth++;
     }
-    let remainingPrd = Math.max(0, prefs.monthlyPrdAllowance - prdUsedThisMonth);
+    let remainingPrd = Math.max(0, rosterPrdAllowance(prefs.monthlyPrdAllowance) - prdUsedThisMonth);
 
     // Calculate available PHL and AL half-days
     let availablePhl = phlBalance
@@ -569,6 +615,11 @@ export class RosterService {
       reason: string;
     }> = [];
     const warnings: string[] = [];
+    let reservedSundays = prefs.sundayOff ? Array.from({ length: daysInMonth }, (_, index) => index + 1).filter((day) => {
+      const key = `${monthPrefix}${String(day).padStart(2, '0')}`;
+      const existing = existingMap.get(key);
+      return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !(existing?.isLocked || existing?.status === 'CONFIRMED' || existing?.status === 'REQUESTED');
+    }).length : 0;
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -590,6 +641,7 @@ export class RosterService {
       const isSunday = dowUtc === 0;
       const isSaturday = dowUtc === 6;
       const isPublicHoliday = holidays.has(dateStr);
+      if (isSunday && prefs.sundayOff) reservedSundays--;
 
       const isPreferredOff =
         (isSunday && prefs.sundayOff) ||
@@ -602,7 +654,7 @@ export class RosterService {
 
       if (isPreferredOff) {
         // Preferred off day: Allocate according to priority PRD -> PHL -> AL
-        if (remainingPrd > 0) {
+        if (remainingPrd > 0 && (isSunday || remainingPrd > reservedSundays)) {
           leaveCode = 'PRD';
           shiftCode = null;
           reason = 'PRD monthly allowance';
@@ -619,13 +671,24 @@ export class RosterService {
           availableAl -= 2;
           warnings.push(`AL suggested for ${dateStr} due to exhausted PRD/PHL balance.`);
         } else {
-          shiftCode = null;
+          // Reserve Sundays first; other preferred off days need an available leave credit.
+          shiftCode = isSaturday || isPublicHoliday ? prefs.defaultShiftCode ?? 'K123' : null;
           leaveCode = null;
-          reason = 'Preferred day off (insufficient balance)';
+          reason = isSaturday || isPublicHoliday
+            ? 'Normal shift (no leave credit available)'
+            : 'Preferred day off (insufficient balance)';
           warnings.push(`Insufficient leave balance for preferred day off on ${dateStr}.`);
         }
       }
 
+      if (shiftCode && rosterWeekWorkdays(dateStr, planned) + rosterWorkdayWeight({ shiftCode, leaveCode }) > 6) {
+        shiftCode = null;
+        leaveCode = remainingPrd > 0 ? 'PRD' : null;
+        if (leaveCode) remainingPrd--;
+        reason = 'Weekly rest (maximum 6 workdays, Monday-Sunday)';
+        warnings.push(`Weekly rest required on ${dateStr}; no unavailable AL or PHL was used.`);
+      }
+      planned.set(dateStr, { shiftCode, leaveCode, status: 'DRAFT' });
       suggestions.push({
         date: dateStr,
         shiftCode,
@@ -635,7 +698,9 @@ export class RosterService {
       });
     }
 
-    return { year, month, suggestions, warnings };
+    const overLimit = rosterOverLimitWeeks(year, month, planned);
+    for (const week of overLimit) warnings.push(`Existing protected entries exceed 6 workdays in the week of ${week}. Review them before applying.`);
+    return { year, month, suggestions, warnings, blocked: overLimit.length > 0 };
   }
 
   // ─── Apply roster suggestions ─────────────────────────────────────────────
@@ -645,36 +710,48 @@ export class RosterService {
     dto: { year: number; month: number; entries: ApplyRosterEntryDto[] },
   ) {
     this.validateYearMonth(dto.year, dto.month);
-    let applied = 0;
-    let skipped = 0;
-
-    for (const entry of dto.entries) {
-      const entryDate = this.parseDate(entry.date);
-      const existing = await this.prisma.rosterDay.findUnique({
-        where: { userId_entryDate: { userId, entryDate } },
-      });
-
-      if (
-        existing &&
-        (existing.isLocked ||
-          existing.status === RosterEntryStatus.CONFIRMED ||
-          existing.status === RosterEntryStatus.REQUESTED)
-      ) {
-        skipped++;
-        continue;
-      }
-
-      const upsertDto: UpsertRosterDayDto = {
-        shiftCode: entry.shiftCode,
-        leaveCode: entry.leaveCode,
-        status: entry.status ?? 'DRAFT',
-        note: entry.note,
-      };
-      await this.upsertRosterDay(userId, entry.date, upsertDto);
-      applied++;
+    const prefix = `${dto.year}-${String(dto.month).padStart(2, '0')}-`;
+    if (dto.entries.length > 31 || new Set(dto.entries.map((entry) => entry.date)).size !== dto.entries.length) {
+      throw new BadRequestException('Generated dates must be unique and limited to one month');
     }
-
-    return { applied, skipped };
+    for (const entry of dto.entries) {
+      this.parseDate(entry.date);
+      if (!entry.date.startsWith(prefix)) throw new BadRequestException('Generated dates must belong to the selected month');
+    }
+    // Recheck credits and weekly limits in the same transaction that confirms assignments.
+    return this.prisma.$transaction(async (tx) => {
+      const range = rosterMonthWeekRange(dto.year, dto.month);
+      const [currentDays, preferences, balances] = await Promise.all([
+        tx.rosterDay.findMany({ where: { userId, entryDate: { gte: range.start, lte: range.end } } }),
+        tx.rosterPreferences.findUnique({ where: { userId } }),
+        tx.leaveBalance.findMany({ where: { userId, leaveYear: dto.year } }),
+      ]);
+      const currentMap = new Map(currentDays.map((day) => [this.dateToString(day.entryDate), day]));
+      const planned = new Map<string, WeeklyWorkEntry>(currentMap);
+      const editable: ApplyRosterEntryDto[] = [];
+      const required = { AL: 0, PHL: 0 };
+      for (const entry of dto.entries) {
+        const current = currentMap.get(entry.date);
+        if (current?.isLocked || current?.status === 'CONFIRMED' || current?.status === 'REQUESTED') continue;
+        planned.set(entry.date, entry);
+        editable.push(entry);
+        const code = balanceCodeForLeave(entry.leaveCode as LeaveCode);
+        if (code === LeaveCode.AL || code === LeaveCode.PHL) required[code] += halfDayCostForLeave(entry.leaveCode as LeaveCode);
+      }
+      if (rosterOverLimitWeeks(dto.year, dto.month, planned).length) {
+        throw new BadRequestException('Roster exceeds 6 working days in a Monday-Sunday week. Review existing entries first.');
+      }
+      if (rosterMonthPrdCount(`${prefix}01`, planned) > rosterPrdAllowance(preferences?.monthlyPrdAllowance)) throw new BadRequestException('PRD cannot exceed the monthly allowance (maximum 7 days).');
+      for (const code of [LeaveCode.AL, LeaveCode.PHL] as const) {
+        const balance = balances.find((item) => item.leaveCode === code);
+        const available = balance ? balance.openingBalanceHalfDays + balance.earnedHalfDays + balance.adjustmentHalfDays - balance.confirmedUsedHalfDays - balance.pendingHalfDays : 0;
+        if (required[code] > Math.max(0, available)) throw new BadRequestException('Leave credits changed. Regenerate the roster before applying.');
+      }
+      for (const entry of editable) {
+        await this.upsertRosterDayInTransaction(tx, userId, entry.date, { shiftCode: entry.shiftCode, leaveCode: entry.leaveCode, status: entry.status ?? 'DRAFT', note: entry.note }, preferences ?? undefined);
+      }
+      return { applied: editable.length, skipped: dto.entries.length - editable.length };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 });
   }
 
   // ─── Reset month roster ───────────────────────────────────────────────────
@@ -822,6 +899,7 @@ export class RosterService {
   }
 
   private serializePreferences(p: {
+    statusFlowEnabled?: boolean;
     saturdayOff: boolean;
     sundayOff: boolean;
     publicHolidaysOff: boolean;
@@ -833,6 +911,7 @@ export class RosterService {
   }) {
     return {
       saturdayOff: p.saturdayOff,
+      statusFlowEnabled: p.statusFlowEnabled ?? false,
       sundayOff: p.sundayOff,
       publicHolidaysOff: p.publicHolidaysOff,
       defaultShiftCode: p.defaultShiftCode,
@@ -845,6 +924,7 @@ export class RosterService {
 
   private defaultPreferencesModel() {
     return {
+      statusFlowEnabled: false,
       saturdayOff: true,
       sundayOff: true,
       publicHolidaysOff: true,

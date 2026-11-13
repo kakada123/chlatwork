@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { X, Download, Copy, FileText, Check, Loader2 } from "lucide-vue-next";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { toKhmerDigits } from "~/lib/khmer-calendar";
+import { getRosterDayColors } from "~/lib/roster";
 import type {
   MonthlyRosterSummary,
   RosterDay,
@@ -12,6 +13,7 @@ import type {
 } from "~/types/roster";
 
 const props = defineProps<{
+  teleportTarget?: HTMLElement | null;
   open: boolean;
   year: number;
   month: number;
@@ -28,8 +30,52 @@ const emit = defineEmits<{
 }>();
 
 const printCardRef = ref<HTMLElement | null>(null);
+const previewRef = ref<HTMLElement | null>(null);
+const previewScale = ref(1);
+const previewHeight = ref<number>();
 const exporting = ref(false);
 const copySuccess = ref(false);
+const exportError = ref("");
+const canCopyImage = ref(false);
+let previewObserver: ResizeObserver | undefined;
+let copyTimer: ReturnType<typeof setTimeout> | undefined;
+
+function resizePreview() {
+  if (!previewRef.value || !printCardRef.value) return;
+  previewScale.value = Math.min(
+    1,
+    previewRef.value.clientWidth / printCardRef.value.offsetWidth,
+  );
+  previewHeight.value = Math.ceil(
+    printCardRef.value.offsetHeight * previewScale.value,
+  );
+}
+
+watch(
+  () => props.open,
+  async (open) => {
+    previewObserver?.disconnect();
+    exportError.value = "";
+    copySuccess.value = false;
+    if (!open) return;
+    canCopyImage.value =
+      typeof ClipboardItem !== "undefined" &&
+      Boolean(navigator.clipboard?.write);
+    await nextTick();
+    if (!props.open || !previewRef.value || !printCardRef.value) return;
+    // Scale only the preview; exports retain the same readable width on every device.
+    resizePreview();
+    previewObserver = new ResizeObserver(resizePreview);
+    previewObserver.observe(previewRef.value);
+    previewObserver.observe(printCardRef.value);
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  previewObserver?.disconnect();
+  if (copyTimer) clearTimeout(copyTimer);
+});
 
 function d(val: number | string) {
   return props.khmer ? toKhmerDigits(val) : String(val);
@@ -89,20 +135,47 @@ const weekdays = computed(() => {
     : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 });
 
+async function captureRoster() {
+  await nextTick();
+  // Measuring before Hanuman loads can cut off Khmer glyphs and the final calendar row.
+  await document.fonts.ready;
+  const card = printCardRef.value;
+  if (!card) throw new Error("Roster preview unavailable");
+  const width = Math.max(card.scrollWidth, card.offsetWidth || 0);
+  const height = Math.max(card.scrollHeight, card.offsetHeight || 0);
+  return toPng(card, {
+    pixelRatio: 2,
+    backgroundColor: "#ffffff",
+    width,
+    height,
+    style: {
+      width: `${width}px`,
+      height: `${height}px`,
+      maxWidth: "none",
+      transform: "none",
+      margin: "0",
+    },
+  });
+}
+
+function reportExportError() {
+  exportError.value = props.khmer
+    ? "មិនអាចនាំចេញរូបភាពបានទេ។ សូមព្យាយាមម្តងទៀត ឬទាញយក PNG។"
+    : "Could not export the roster. Please try again or download PNG instead.";
+}
+
 async function exportPNG() {
   if (!printCardRef.value || exporting.value) return;
   exporting.value = true;
+  exportError.value = "";
   try {
-    const dataUrl = await toPng(printCardRef.value, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
+    const dataUrl = await captureRoster();
     const link = document.createElement("a");
     link.download = `ChlatWork-Roster-${props.year}-${String(props.month).padStart(2, "0")}.png`;
     link.href = dataUrl;
     link.click();
-  } catch (err) {
-    console.error("Export PNG failed:", err);
+  } catch {
+    reportExportError();
   } finally {
     exporting.value = false;
   }
@@ -111,23 +184,35 @@ async function exportPNG() {
 async function exportPDF() {
   if (!printCardRef.value || exporting.value) return;
   exporting.value = true;
+  exportError.value = "";
   try {
-    const dataUrl = await toPng(printCardRef.value, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
+    const dataUrl = await captureRoster();
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "mm",
       format: "a4",
     });
     const imgProps = pdf.getImageProperties(dataUrl);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(dataUrl, "PNG", 0, 10, pdfWidth, pdfHeight);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    // Six-week months and wrapped notes must fit within both A4 dimensions.
+    const scale = Math.min(
+      (pageWidth - 20) / imgProps.width,
+      (pageHeight - 20) / imgProps.height,
+    );
+    const width = imgProps.width * scale;
+    const height = imgProps.height * scale;
+    pdf.addImage(
+      dataUrl,
+      "PNG",
+      (pageWidth - width) / 2,
+      (pageHeight - height) / 2,
+      width,
+      height,
+    );
     pdf.save(`ChlatWork-Roster-${props.year}-${String(props.month).padStart(2, "0")}.pdf`);
-  } catch (err) {
-    console.error("Export PDF failed:", err);
+  } catch {
+    reportExportError();
   } finally {
     exporting.value = false;
   }
@@ -136,24 +221,26 @@ async function exportPDF() {
 async function copyImageToClipboard() {
   if (!printCardRef.value || exporting.value) return;
   exporting.value = true;
+  exportError.value = "";
+  copySuccess.value = false;
   try {
-    const dataUrl = await toPng(printCardRef.value, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    if (navigator.clipboard && (window as any).ClipboardItem) {
-      await navigator.clipboard.write([
-        new (window as any).ClipboardItem({ "image/png": blob }),
-      ]);
-      copySuccess.value = true;
-      setTimeout(() => {
-        copySuccess.value = false;
-      }, 2500);
+    if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) {
+      throw new Error("Image clipboard unavailable");
     }
-  } catch (err) {
-    console.error("Copy image failed:", err);
+    // Start clipboard.write during the tap so Safari retains user activation while rendering.
+    const image = captureRoster().then(async (url) =>
+      (await fetch(url)).blob(),
+    );
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": image }),
+    ]);
+    copySuccess.value = true;
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      copySuccess.value = false;
+    }, 2500);
+  } catch {
+    reportExportError();
   } finally {
     exporting.value = false;
   }
@@ -161,7 +248,7 @@ async function copyImageToClipboard() {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget || 'body'">
     <Transition
       enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
@@ -176,12 +263,12 @@ async function copyImageToClipboard() {
         <div
           role="dialog"
           aria-modal="true"
-          class="relative flex w-full max-w-5xl flex-col max-h-[95vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="roster-export-dialog relative flex w-full max-w-5xl flex-col max-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
           :class="{ 'font-khmer': khmer }"
           @keydown.esc.prevent="emit('close')"
         >
           <!-- Modal Top Bar -->
-          <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-zinc-800">
+          <div class="export-toolbar relative flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4 pr-14 dark:border-zinc-800">
             <div>
               <h2 class="text-base font-bold text-slate-900 dark:text-zinc-100">
                 {{ khmer ? "នាំចេញតារាងវេនការងារ" : "Export Monthly Roster" }}
@@ -190,15 +277,18 @@ async function copyImageToClipboard() {
                 {{ khmer ? "រូបភាព និង PDF សម្រាប់ផ្ញើតាម Telegram ឬ Messenger" : "Ready to share via Telegram, Messenger, or email" }}
               </p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <button
+                v-if="canCopyImage"
                 type="button"
                 class="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                 :disabled="exporting"
                 @click="copyImageToClipboard"
               >
                 <component :is="copySuccess ? Check : Copy" :size="14" :class="copySuccess ? 'text-emerald-600' : ''" />
-                {{ copySuccess ? (khmer ? "បានចម្លង!" : "Copied!") : (khmer ? "ចម្លងរូបភាព" : "Copy Image") }}
+                {{ copySuccess ? khmer ? "បានចម្លង!" : "Copied!"
+                    : khmer ? "ចម្លងរូបភាព" : "Copy Image"
+                }}
               </button>
               <button
                 type="button"
@@ -221,7 +311,8 @@ async function copyImageToClipboard() {
               </button>
               <button
                 type="button"
-                class="ml-2 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                class="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                :aria-label="khmer ? 'បិទ' : 'Close'"
                 @click="emit('close')"
               >
                 <X :size="18" />
@@ -229,13 +320,28 @@ async function copyImageToClipboard() {
             </div>
           </div>
 
+          <p
+            v-if="exportError"
+            role="alert"
+            class="shrink-0 bg-rose-50 px-4 py-2 text-sm text-rose-800 dark:bg-rose-950 dark:text-rose-200"
+          >
+            {{ exportError }}
+          </p>
+
           <!-- Printable Preview Area -->
-          <div class="flex-1 overflow-auto bg-slate-100 p-4 sm:p-6 dark:bg-zinc-950">
+          <div class="min-h-0 flex-1 overflow-auto bg-slate-100 p-3 sm:p-6 dark:bg-zinc-950">
             <div
-              ref="printCardRef"
-              class="mx-auto max-w-4xl rounded-2xl bg-white p-6 shadow-md text-slate-900 border border-slate-200"
-              style="font-family: inherit; color: #1e293b; background: #ffffff;"
+              ref="previewRef"
+              class="relative mx-auto w-full max-w-[1000px] overflow-hidden"
+              :style="{
+                height: previewHeight ? `${previewHeight}px` : undefined,
+              }"
             >
+              <div
+                ref="printCardRef"
+                class="roster-print-card rounded-2xl bg-white p-6 shadow-md text-slate-900 border border-slate-200"
+                :style="{ transform: `scale(${previewScale})` }"
+              >
               <!-- Card Header -->
               <div class="flex items-start justify-between border-b-2 border-slate-800 pb-4">
                 <div>
@@ -273,12 +379,14 @@ async function copyImageToClipboard() {
                   <strong class="font-mono text-base font-bold text-red-700">{{ d(summary.prdUsed) }} / {{ d(summary.prdAllowance) }}</strong>
                 </div>
                 <div>
-                  <span class="block text-[11px] text-amber-600">PHL ({{ khmer ? "នៅសល់" : "Available" }})</span>
-                  <strong class="font-mono text-base font-bold text-amber-700">{{ d(summary.phlRemaining) }}</strong>
+                  <span class="block text-[11px] text-amber-600">PHL · {{ d(year) }} ({{ khmer ? "បានប្រើ" : "Used"
+                      }})</span>
+                  <strong class="font-mono text-base font-bold text-amber-700">{{ d(summary.phlUsed) }}</strong>
                 </div>
                 <div>
-                  <span class="block text-[11px] text-purple-600">AL ({{ khmer ? "នៅសល់" : "Available" }})</span>
-                  <strong class="font-mono text-base font-bold text-purple-700">{{ d(summary.alRemaining) }}</strong>
+                  <span class="block text-[11px] text-purple-600">AL · {{ d(year) }} ({{ khmer ? "បានប្រើ" : "Used"
+                      }})</span>
+                  <strong class="font-mono text-base font-bold text-purple-700">{{ d(summary.alUsed) }}</strong>
                 </div>
               </div>
 
@@ -301,6 +409,7 @@ async function copyImageToClipboard() {
                     <td
                       v-for="colIdx in 7"
                       :key="colIdx"
+                      :style="{ backgroundColor: getRosterDayColors(monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry)?.light }"
                       class="border border-slate-200 p-2 align-top h-20"
                       :class="{
                         'bg-slate-50/50': !monthCells[(rowIdx - 1) * 7 + (colIdx - 1)]?.dayNumber,
@@ -345,8 +454,8 @@ async function copyImageToClipboard() {
                           <!-- Note snippet -->
                           <div
                             v-if="monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.note"
-                            class="mt-0.5 truncate text-[9px] text-slate-400"
-                          >
+                            class="mt-0.5 break-words text-[9px] text-slate-500"
+                            >
                             {{ monthCells[(rowIdx - 1) * 7 + (colIdx - 1)].entry?.note }}
                           </div>
                         </div>
@@ -365,6 +474,26 @@ async function copyImageToClipboard() {
           </div>
         </div>
       </div>
+    </div>
     </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+.roster-print-card {
+  width: 1000px;
+  max-width: none;
+  box-sizing: border-box;
+  transform-origin: top left;
+  font-family: var(--app-font);
+  color: #1e293b;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.roster-print-card h1 {
+  line-height: 1.7;
+}
+.export-toolbar button {
+  min-height: 44px;
+}
+</style>

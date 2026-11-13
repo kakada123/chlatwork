@@ -259,7 +259,7 @@ useHead(() => ({
   border-top: 4px solid #9a3038;
   line-height: 1.8;
 }
-:global(.dark) .calendar-detail {
+.dark .calendar-detail {
   --paper: #202124;
   --canvas: #171819;
   --ink: #eeeae3;

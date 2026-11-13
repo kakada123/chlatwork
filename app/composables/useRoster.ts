@@ -21,10 +21,13 @@ import {
   leaveHalfDayCost,
 } from "../lib/roster";
 import { getHolidaySchedule } from "../data/cambodia-holidays";
+import { getPhnomPenhToday } from "../lib/khmer-calendar";
+import { rosterDayViolation, rosterPrdAllowance, rosterMonthPrdCount, rosterOverLimitWeeks } from "../../api/src/roster/roster-week.util";
 
 const LOCAL_STORAGE_KEY = "chlatwork_my_roster_data_v1";
 
 interface LocalStorageData {
+  annualBalancesVersion?: 1;
   preferences: RosterPreferences;
   shifts: RosterShift[];
   days: Record<string, RosterDay>; // keyed by "YYYY-MM-DD"
@@ -36,6 +39,7 @@ export function useRoster(
   year: Ref<number>,
   month: Ref<number>,
   signedIn: Ref<boolean>,
+  ownerId?: Ref<string | null>,
 ) {
   const days = ref<RosterDay[]>([]);
   const shifts = ref<RosterShift[]>([...DEFAULT_SHIFTS]);
@@ -88,10 +92,10 @@ export function useRoster(
   });
 
   const alBalance = computed(() =>
-    balances.value.find((b) => b.leaveCode === "AL"),
+    balances.value.find((b) => b.leaveCode === "AL" && b.leaveYear === year.value),
   );
   const phlBalance = computed(() =>
-    balances.value.find((b) => b.leaveCode === "PHL"),
+    balances.value.find((b) => b.leaveCode === "PHL" && b.leaveYear === year.value),
   );
 
   const summary = computed<MonthlyRosterSummary>(() => {
@@ -108,6 +112,12 @@ export function useRoster(
 
   // ─── Local storage helpers for guests ──────────────────────────────────────
 
+  function leaveRestriction(date: string, leaveCode: LeaveCode) {
+    const existing = daysByDate.value.get(date);
+    const next = { ...existing, leaveCode, shiftCode: ["PRD", "PHL", "AL"].includes(leaveCode) ? null : existing?.shiftCode ?? preferences.value.defaultShiftCode, status: preferences.value.statusFlowEnabled ? existing?.status ?? "DRAFT" : "CONFIRMED" };
+    return rosterDayViolation(date, next, new Map(days.value.map((day) => [day.entryDate, day])), { AL: alBalance.value?.availableHalfDays ?? 0, PHL: phlBalance.value?.availableHalfDays ?? 0 }, preferences.value.monthlyPrdAllowance);
+  }
+
   function getLocalData(): LocalStorageData {
     if (typeof window === "undefined") {
       return {
@@ -121,7 +131,30 @@ export function useRoster(
     try {
       const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
       if (raw) {
-        return JSON.parse(raw);
+        const data: LocalStorageData = JSON.parse(raw);
+        if (!data || typeof data !== "object")
+          throw new Error("Invalid local roster");
+        data.balances ||= {};
+        data.days ||= {};
+        data.transactions ||= [];
+        if (data.annualBalancesVersion !== 1) {
+          // Legacy credits had no year. Preserve them once in the current Cambodia year,
+          // even if the first calendar opened after upgrading is a past or future year.
+          const legacyYear = getPhnomPenhToday().year;
+          for (const code of ["AL", "PHL"]) {
+            if (
+              data.balances[code] &&
+              !data.balances[`${legacyYear}:${code}`]
+            ) {
+              data.balances[`${legacyYear}:${code}`] = {
+                ...data.balances[code],
+              };
+            }
+          }
+          data.annualBalancesVersion = 1;
+          setLocalData(data);
+        }
+        return data;
       }
     } catch (_) {}
     return {
@@ -134,10 +167,11 @@ export function useRoster(
   }
 
   function setLocalData(data: LocalStorageData) {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return false;
     try {
       window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-    } catch (_) {}
+      return true;
+    } catch (_) { return false; }
   }
 
   function recalculateLocalBalances(data: LocalStorageData, currentYear: number) {
@@ -147,7 +181,7 @@ export function useRoster(
     let phlPendingHalfDays = 0;
 
     for (const d of Object.values(data.days)) {
-      if (!d.entryDate.startsWith(String(currentYear)) || !d.leaveCode) continue;
+      if (!d.entryDate.startsWith(`${currentYear}-`) || !d.leaveCode) continue;
       const cost = leaveHalfDayCost(d.leaveCode);
       const bucket = balanceBucketForLeave(d.leaveCode);
 
@@ -160,8 +194,8 @@ export function useRoster(
       }
     }
 
-    const alRecord = data.balances["AL"] || { opening: 0, earned: 0, adjustment: 0 };
-    const phlRecord = data.balances["PHL"] || { opening: 0, earned: 0, adjustment: 0 };
+    const alRecord = data.balances[`${currentYear}:AL`] || { opening: 0, earned: 0, adjustment: 0 };
+    const phlRecord = data.balances[`${currentYear}:PHL`] || { opening: 0, earned: 0, adjustment: 0 };
 
     const alTotal = alRecord.opening + alRecord.earned + alRecord.adjustment;
     const phlTotal = phlRecord.opening + phlRecord.earned + phlRecord.adjustment;
@@ -192,9 +226,29 @@ export function useRoster(
     ];
   }
 
+  function localAvailableCredits(data: LocalStorageData, currentYear: number) {
+    const available = { AL: 0, PHL: 0 };
+    for (const code of ["AL", "PHL"] as const) {
+      const record = data.balances[`${currentYear}:${code}`];
+      available[code] = record ? record.opening + record.earned + record.adjustment : 0;
+    }
+    for (const day of Object.values(data.days)) {
+      if (!day.entryDate.startsWith(`${currentYear}-`) || !["CONFIRMED", "REQUESTED"].includes(day.status)) continue;
+      const code = balanceBucketForLeave(day.leaveCode);
+      if (code) available[code] -= leaveHalfDayCost(day.leaveCode);
+    }
+    return available;
+  }
+
   // ─── Load month ────────────────────────────────────────────────────────────
 
+  let loadVersion = 0;
   async function loadMonth() {
+    const version = ++loadVersion;
+    const requestedYear = year.value;
+    const requestedMonth = month.value;
+    const requestedSignedIn = signedIn.value;
+    const requestedOwner = ownerId?.value;
     loading.value = true;
     error.value = "";
     try {
@@ -203,7 +257,7 @@ export function useRoster(
         const [monthDays, settings] = await Promise.all([
           $fetch<Array<{ id: string; date: string; shiftCode: string | null; leaveCode: LeaveCode | null; status: RosterEntryStatus; note: string | null; isLocked: boolean }>>(
             "/api/roster/month",
-            { query: { year: year.value, month: month.value } },
+            { query: { year: requestedYear, month: requestedMonth } },
           ),
           $fetch<{
             preferences: RosterPreferences;
@@ -221,8 +275,17 @@ export function useRoster(
                 remaining: number;
               };
             }>;
-          }>("/api/roster/settings"),
+          }>("/api/roster/settings", { query: { year: requestedYear } }),
         ]);
+
+        // A slow request must not replace another month or a different sign-in state.
+        if (
+          version !== loadVersion ||
+          year.value !== requestedYear ||
+          month.value !== requestedMonth ||
+          signedIn.value !== requestedSignedIn || ownerId?.value !== requestedOwner
+        )
+          return;
 
         days.value = monthDays.map((d) => ({
           id: d.id,
@@ -267,10 +330,13 @@ export function useRoster(
         recalculateLocalBalances(local, year.value);
       }
     } catch (e: any) {
-      error.value = e?.message || "Failed to load roster data";
+      if (version === loadVersion)
+        error.value = e?.message || "Failed to load roster data";
     } finally {
-      loading.value = false;
-      isInitialized.value = true;
+      if (version === loadVersion) {
+        loading.value = false;
+        isInitialized.value = true;
+      }
     }
   }
 
@@ -304,12 +370,16 @@ export function useRoster(
           entryDate: date,
           shiftCode: payload.shiftCode !== undefined ? payload.shiftCode : existing?.shiftCode ?? null,
           leaveCode: payload.leaveCode !== undefined ? payload.leaveCode : existing?.leaveCode ?? null,
-          status: payload.status !== undefined ? payload.status : existing?.status ?? "DRAFT",
+          status: preferences.value.statusFlowEnabled
+            ? (payload.status !== undefined ? payload.status : existing?.status ?? "DRAFT")
+            : "CONFIRMED",
           note: payload.note !== undefined ? payload.note : existing?.note ?? null,
           isLocked: payload.isLocked !== undefined ? payload.isLocked : existing?.isLocked ?? false,
         };
+        const violation = rosterDayViolation(date, updated, new Map(Object.values(local.days).map((day) => [day.entryDate, day])), localAvailableCredits(local, Number(date.slice(0, 4))), local.preferences.monthlyPrdAllowance);
+        if (violation) throw new Error(violation);
         local.days[date] = updated;
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
 
         const prefix = `${year.value}-${String(month.value).padStart(2, "0")}`;
         days.value = Object.values(local.days).filter((d) =>
@@ -328,6 +398,53 @@ export function useRoster(
 
   // ─── Delete single day entry ───────────────────────────────────────────────
 
+  async function updateStatuses(dates: string[], status: RosterEntryStatus) {
+    if (!preferences.value.statusFlowEnabled) status = "CONFIRMED";
+    const uniqueDates = [...new Set(dates)];
+    const prefix = `${year.value}-${String(month.value).padStart(2, "0")}-`;
+    if (!uniqueDates.length || uniqueDates.length > 31 || !["DRAFT", "REQUESTED", "CONFIRMED", "CANCELLED"].includes(status) || uniqueDates.some((date) => !/^\d{4}-\d{2}-\d{2}$/.test(date) || !date.startsWith(prefix) || Number(date.slice(8)) < 1 || Number(date.slice(8)) > new Date(Date.UTC(year.value, month.value, 0)).getUTCDate())) {
+      error.value = "Choose valid dates from the selected month.";
+      return null;
+    }
+    saving.value = true;
+    error.value = "";
+    try {
+      if (signedIn.value) {
+        const result = await $fetch<{ updated: number; skippedLocked: number; skippedMissing: number }>("/api/roster/month/status", { method: "PUT", body: { year: year.value, month: month.value, dates: uniqueDates, status } });
+        await loadMonth();
+        return result;
+      }
+      const local = getLocalData();
+      let updated = 0;
+      let skippedLocked = 0;
+      let skippedMissing = 0;
+      for (const date of uniqueDates) {
+        const day = local.days[date];
+        if (!day) { skippedMissing++; continue; }
+        if (day.isLocked) { skippedLocked++; continue; }
+        if (day.status === status) continue;
+        const next = { ...day, status };
+        const violation = rosterDayViolation(date, next, new Map(Object.values(local.days).map((entry) => [entry.entryDate, entry])), localAvailableCredits(local, year.value), local.preferences.monthlyPrdAllowance);
+        if (violation) throw new Error(violation);
+        local.days[date] = next;
+        updated++;
+      }
+      if (!setLocalData(local)) throw new Error("Could not save local roster");
+      days.value = Object.values(local.days).filter((day) => day.entryDate.startsWith(prefix));
+      recalculateLocalBalances(local, year.value);
+      return { updated, skippedLocked, skippedMissing };
+    } catch (failure: any) {
+      const message = failure?.data?.message ?? failure?.data?.statusMessage ?? failure?.message;
+      // Business-rule errors explain what must change; server failures keep a neutral message.
+      error.value = (failure?.statusCode ?? failure?.status ?? 0) < 500 && typeof message === "string"
+        ? message
+        : "Could not update the selected entries. Please try again.";
+      return null;
+    } finally {
+      saving.value = false;
+    }
+  }
+
   async function deleteDay(date: string) {
     saving.value = true;
     error.value = "";
@@ -340,7 +457,7 @@ export function useRoster(
       } else {
         const local = getLocalData();
         delete local.days[date];
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
 
         const prefix = `${year.value}-${String(month.value).padStart(2, "0")}`;
         days.value = Object.values(local.days).filter((d) =>
@@ -375,7 +492,7 @@ export function useRoster(
       } else {
         const local = getLocalData();
         local.preferences = { ...local.preferences, ...newPrefs };
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
         preferences.value = local.preferences;
       }
       return true;
@@ -420,7 +537,7 @@ export function useRoster(
           isActive: true,
         };
         local.shifts.push(newShift);
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
         shifts.value = local.shifts;
       }
       return true;
@@ -453,7 +570,7 @@ export function useRoster(
         local.shifts = local.shifts.map((s) =>
           s.id === id ? { ...s, ...shift } : s,
         );
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
         shifts.value = local.shifts;
       }
       return true;
@@ -486,15 +603,16 @@ export function useRoster(
       } else {
         const local = getLocalData();
         const code = adjustment.leaveCode === "H1" || adjustment.leaveCode === "H2" ? "AL" : adjustment.leaveCode;
-        if (!local.balances[code]) {
-          local.balances[code] = { opening: 0, earned: 0, adjustment: 0, confirmed: 0, pending: 0 };
+        const balanceKey = `${adjustment.year}:${code}`;
+        if (!local.balances[balanceKey]) {
+          local.balances[balanceKey] = { opening: 0, earned: 0, adjustment: 0, confirmed: 0, pending: 0 };
         }
         if (adjustment.kind === "OPENING_BALANCE") {
-          local.balances[code].opening += adjustment.halfDays;
+          local.balances[balanceKey].opening += adjustment.halfDays;
         } else if (adjustment.kind === "EARNED") {
-          local.balances[code].earned += adjustment.halfDays;
+          local.balances[balanceKey].earned += adjustment.halfDays;
         } else {
-          local.balances[code].adjustment += adjustment.halfDays;
+          local.balances[balanceKey].adjustment += adjustment.halfDays;
         }
 
         const tx: LeaveTransaction = {
@@ -507,7 +625,7 @@ export function useRoster(
           rosterDayId: null,
         };
         local.transactions.unshift(tx);
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
         recalculateLocalBalances(local, year.value);
         transactions.value = local.transactions;
       }
@@ -522,7 +640,19 @@ export function useRoster(
 
   // ─── Smart Roster Generator ────────────────────────────────────────────────
 
-  function previewSmartRoster(): RosterGeneratePreview {
+  async function previewSmartRoster(): Promise<RosterGeneratePreview | null> {
+    error.value = "";
+    if (signedIn.value) {
+      try {
+        const preview = await $fetch<{ suggestions: Array<{ date: string; shiftCode: string | null; leaveCode: LeaveCode | null; reason: string }>; warnings: string[]; blocked?: boolean }>("/api/roster/generate/preview", {
+          method: "POST", body: { year: year.value, month: month.value },
+        });
+        return { suggestions: preview.suggestions.map((day) => ({ ...day, entryDate: day.date })), warnings: preview.warnings, blocked: preview.blocked };
+      } catch {
+        error.value = "Could not prepare the roster. Please try again.";
+        return null;
+      }
+    }
     const holidaySched = getHolidaySchedule(year.value);
     const holidayDates = new Set<string>();
     for (const h of holidaySched.events || []) {
@@ -539,7 +669,7 @@ export function useRoster(
       month: month.value,
       preferences: preferences.value,
       shifts: shifts.value.filter((s) => s.isActive),
-      existingDays: days.value,
+      existingDays: Object.values(getLocalData().days),
       holidayDates,
       alAvailableHalfDays: alAvail,
       phlAvailableHalfDays: phlAvail,
@@ -547,6 +677,10 @@ export function useRoster(
   }
 
   async function applySmartRoster(preview: RosterGeneratePreview) {
+    if (preview.blocked) {
+      error.value = "Review the weeks exceeding 6 workdays before applying.";
+      return false;
+    }
     saving.value = true;
     error.value = "";
     try {
@@ -560,13 +694,26 @@ export function useRoster(
               date: s.entryDate,
               shiftCode: s.shiftCode,
               leaveCode: s.leaveCode,
-              status: "DRAFT",
+              status: preferences.value.statusFlowEnabled ? "DRAFT" : "CONFIRMED",
             })),
           },
         });
         await loadMonth();
       } else {
         const local = getLocalData();
+        const planned = new Map(Object.values(local.days).map((day) => [day.entryDate, day]));
+        recalculateLocalBalances(local, year.value);
+        const required = { AL: 0, PHL: 0 };
+        for (const suggestion of preview.suggestions) {
+          const existing = planned.get(suggestion.entryDate);
+          if (existing?.isLocked || existing?.status === "CONFIRMED" || existing?.status === "REQUESTED") continue;
+          const code = balanceBucketForLeave(suggestion.leaveCode);
+          if (code) required[code] += leaveHalfDayCost(suggestion.leaveCode);
+          planned.set(suggestion.entryDate, { ...suggestion, status: preferences.value.statusFlowEnabled ? "DRAFT" : "CONFIRMED", isLocked: false } as RosterDay);
+        }
+        if (required.AL > Math.max(0, alBalance.value?.availableHalfDays ?? 0) || required.PHL > Math.max(0, phlBalance.value?.availableHalfDays ?? 0)) throw new Error("Leave credits changed. Regenerate the roster before applying.");
+        if (rosterOverLimitWeeks(year.value, month.value, planned).length) throw new Error("Roster exceeds the weekly work limit");
+        if (rosterMonthPrdCount(`${year.value}-${String(month.value).padStart(2, "0")}-01`, planned) > rosterPrdAllowance(local.preferences.monthlyPrdAllowance)) throw new Error("PRD cannot exceed the monthly allowance (maximum 7 days).");
         for (const s of preview.suggestions) {
           const existing = local.days[s.entryDate];
           if (
@@ -582,12 +729,12 @@ export function useRoster(
             entryDate: s.entryDate,
             shiftCode: s.shiftCode,
             leaveCode: s.leaveCode,
-            status: "DRAFT",
+            status: preferences.value.statusFlowEnabled ? "DRAFT" : "CONFIRMED",
             note: existing?.note || null,
             isLocked: false,
           };
         }
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
 
         const prefix = `${year.value}-${String(month.value).padStart(2, "0")}`;
         days.value = Object.values(local.days).filter((d) =>
@@ -625,7 +772,7 @@ export function useRoster(
             delete local.days[dateKey];
           }
         }
-        setLocalData(local);
+        if (!setLocalData(local)) throw new Error("Could not save the roster on this device.");
         days.value = [];
         recalculateLocalBalances(local, year.value);
       }
@@ -639,9 +786,20 @@ export function useRoster(
   }
 
   // Watch for year/month/signedIn changes to reload month data
+  let lastOwner: string | null | undefined;
   watch(
-    [year, month, signedIn],
+    [year, month, signedIn, ...(ownerId ? [ownerId] : [])],
     () => {
+      const owner = signedIn.value ? ownerId?.value ?? "signed-in" : null;
+      if (owner !== lastOwner) {
+        // Account changes discard the previous view; guest storage is never merged into an account.
+        days.value = [];
+        balances.value = [];
+        transactions.value = [];
+        preferences.value = { ...DEFAULT_PREFERENCES };
+        shifts.value = [...DEFAULT_SHIFTS];
+        lastOwner = owner;
+      }
       void loadMonth();
     },
     { immediate: true },
@@ -662,8 +820,10 @@ export function useRoster(
     alBalance,
     phlBalance,
     summary,
+    leaveRestriction,
     loadMonth,
     saveDay,
+    updateStatuses,
     deleteDay,
     resetMonth,
     savePreferences,

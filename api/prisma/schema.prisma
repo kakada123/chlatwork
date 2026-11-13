@@ -1369,6 +1369,7 @@ model RosterPreferences {
   leavePriority        String[]  @default(["PRD", "PHL", "AL"]) @map("leave_priority")
   /// Number of PRD full-days allowed per month (half-day precision handled internally)
   monthlyPrdAllowance  Int       @default(7) @map("monthly_prd_allowance")
+  statusFlowEnabled    Boolean   @default(false) @map("status_flow_enabled")
   timezone             String    @default("Asia/Phnom_Penh") @map("timezone") @db.VarChar(64)
   displayName          String?   @map("display_name") @db.VarChar(128)
   updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz

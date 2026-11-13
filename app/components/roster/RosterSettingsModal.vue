@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import {
   X,
   Sliders,
@@ -23,12 +23,14 @@ import type {
 } from "~/types/roster";
 
 const props = defineProps<{
+  teleportTarget?: HTMLElement | null;
   open: boolean;
   preferences: RosterPreferences;
   shifts: RosterShift[];
   balances: LeaveBalance[];
   transactions: LeaveTransaction[];
   khmer: boolean;
+  year: number;
   busy: boolean;
 }>();
 
@@ -84,6 +86,18 @@ const localHolidaysOff = ref(props.preferences.publicHolidaysOff);
 const localDefaultShift = ref(props.preferences.defaultShiftCode || "K123");
 const localPrdAllowance = ref(props.preferences.monthlyPrdAllowance || 7);
 const localDisplayName = ref(props.preferences.displayName || "");
+const localStatusFlowEnabled = ref(props.preferences.statusFlowEnabled ?? false);
+
+watch(() => [props.open, props.preferences], () => {
+  if (!props.open) return;
+  localSaturdayOff.value = props.preferences.saturdayOff;
+  localSundayOff.value = props.preferences.sundayOff;
+  localHolidaysOff.value = props.preferences.publicHolidaysOff;
+  localDefaultShift.value = props.preferences.defaultShiftCode || "K123";
+  localPrdAllowance.value = Math.max(0, Math.min(7, props.preferences.monthlyPrdAllowance ?? 7));
+  localDisplayName.value = props.preferences.displayName || "";
+  localStatusFlowEnabled.value = props.preferences.statusFlowEnabled ?? false;
+}, { immediate: true });
 
 function d(val: number | string) {
   return props.khmer ? toKhmerDigits(val) : String(val);
@@ -91,6 +105,7 @@ function d(val: number | string) {
 
 function handleSavePreferences() {
   emit("savePreferences", {
+    statusFlowEnabled: localStatusFlowEnabled.value,
     saturdayOff: localSaturdayOff.value,
     sundayOff: localSundayOff.value,
     publicHolidaysOff: localHolidaysOff.value,
@@ -103,7 +118,7 @@ function handleSavePreferences() {
 function submitAdjustment() {
   emit("recordLeaveAdjustment", {
     leaveCode: adjLeaveCode.value,
-    year: new Date().getFullYear(),
+    year: props.year,
     kind: adjKind.value,
     halfDays: Math.round(Number(adjDays.value) * 2),
     note: adjNote.value.trim() || undefined,
@@ -135,7 +150,7 @@ function toggleShiftActive(shift: RosterShift) {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget || 'body'">
     <Transition
       enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
@@ -150,7 +165,7 @@ function toggleShiftActive(shift: RosterShift) {
         <div
           role="dialog"
           aria-modal="true"
-          class="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="relative w-full max-w-3xl max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
           :class="{ 'font-khmer': khmer }"
           @keydown.esc.prevent="emit('close')"
         >
@@ -163,6 +178,7 @@ function toggleShiftActive(shift: RosterShift) {
               <div>
                 <h2 class="text-lg font-bold text-slate-900 dark:text-zinc-100">
                   {{ khmer ? "ការកំណត់តារាងវេនការងារ" : "My Roster Settings" }}
+                  · {{ d(year) }}
                 </h2>
                 <p class="text-xs text-slate-500 dark:text-zinc-400">
                   {{ khmer ? "គ្រប់គ្រងសមតុល្យច្បាប់ វេនការងារ និងចំណង់ចំណូលចិត្ត" : "Manage leave balances, work shifts, and planning preferences" }}
@@ -171,18 +187,19 @@ function toggleShiftActive(shift: RosterShift) {
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              :aria-label="khmer ? 'បិទ' : 'Close'"
               @click="emit('close')"
             >
-              <X :size="18" />
+              <X :size="18" aria-hidden="true" />
             </button>
           </div>
 
           <!-- Tabs Navigation -->
-          <div class="mt-4 flex border-b border-slate-200 text-xs font-semibold dark:border-zinc-800">
+          <div class="mt-4 flex overflow-x-auto border-b border-slate-200 text-xs font-semibold dark:border-zinc-800">
             <button
               type="button"
-              class="border-b-2 px-4 py-2.5 transition-all"
+              class="shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 transition-all"
               :class="
                 activeTab === 'balances'
                   ? 'border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400'
@@ -194,7 +211,7 @@ function toggleShiftActive(shift: RosterShift) {
             </button>
             <button
               type="button"
-              class="border-b-2 px-4 py-2.5 transition-all"
+              class="shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 transition-all"
               :class="
                 activeTab === 'shifts'
                   ? 'border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400'
@@ -206,7 +223,7 @@ function toggleShiftActive(shift: RosterShift) {
             </button>
             <button
               type="button"
-              class="border-b-2 px-4 py-2.5 transition-all"
+              class="shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 transition-all"
               :class="
                 activeTab === 'preferences'
                   ? 'border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400'
@@ -218,7 +235,7 @@ function toggleShiftActive(shift: RosterShift) {
             </button>
             <button
               type="button"
-              class="border-b-2 px-4 py-2.5 transition-all"
+              class="shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 transition-all"
               :class="
                 activeTab === 'general'
                   ? 'border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400'
@@ -546,6 +563,13 @@ function toggleShiftActive(shift: RosterShift) {
               </div>
 
               <div class="space-y-3 rounded-xl border border-slate-200 p-4 dark:border-zinc-800">
+                <label class="flex items-center justify-between gap-4 cursor-pointer">
+                  <span class="text-xs text-slate-800 dark:text-zinc-200">
+                    <strong class="block">{{ khmer ? "ប្រើលំហូរស្ថានភាព" : "Status flow" }}</strong>
+                    <span class="block mt-1 text-slate-500 dark:text-zinc-400">{{ khmer ? "បិទ៖ បញ្ជាក់ភ្លាម និងកែសមតុល្យច្បាប់។ បើក៖ ប្រើ ព្រាង → ស្នើសុំ → បញ្ជាក់។" : "Off: confirm saved entries and update leave balances immediately. On: use Draft → Requested → Confirmed." }}</span>
+                  </span>
+                  <input v-model="localStatusFlowEnabled" type="checkbox" role="switch" :aria-checked="localStatusFlowEnabled" class="h-5 w-5 shrink-0 rounded text-teal-600 focus:ring-teal-500" />
+                </label>
                 <label class="flex items-center justify-between cursor-pointer">
                   <span class="text-xs text-slate-800 dark:text-zinc-200">
                     {{ khmer ? "ថ្ងៃសៅរ៍ ជាថ្ងៃពេញចិត្តឈប់សម្រាក" : "Saturday as preferred day off" }}
@@ -575,7 +599,7 @@ function toggleShiftActive(shift: RosterShift) {
                     v-model.number="localPrdAllowance"
                     type="number"
                     min="0"
-                    max="31"
+                    max="7"
                     class="mt-1 w-32 rounded border border-slate-300 bg-white p-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
                   />
                 </div>

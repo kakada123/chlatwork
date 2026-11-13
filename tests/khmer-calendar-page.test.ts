@@ -1,3 +1,4 @@
+import { getRosterDayColors } from "../app/lib/roster.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import { translateMessage } from "../app/lib/i18n.ts";
 import assert from "node:assert/strict";
@@ -45,11 +46,13 @@ function loadPage(
     "~/lib/calendar-sharing": sharing,
     "~/data/cambodia-holidays": holidays,
     "~/data/calendar-celebrations": celebrations,
+    "~/composables/useColorMode": { useColorMode: () => ({ isDark: vue.ref(false), nextColorModeLabel: vue.ref("Use dark mode"), toggleColorMode() {} }) },
     "~/composables/useAuth": {
       useAuth: () => ({
         user: vue.ref(null),
         isReady: vue.ref(true),
         fetchMe: () => Promise.resolve(null),
+        logout: () => Promise.resolve(),
       }),
     },
     "~/composables/useRoster": {
@@ -87,6 +90,7 @@ function loadPage(
           h2Count: 0,
           pendingRequests: 0,
           unassignedDays: 0,
+          totalDays: 30,
         });
         return {
           days,
@@ -110,12 +114,14 @@ function loadPage(
           updateShift: () => Promise.resolve(null),
           recordLeaveAdjustment: () => Promise.resolve(true),
           previewSmartRoster: () => null,
+          leaveRestriction: () => null,
           applySmartRoster: () => Promise.resolve(true),
         };
       },
     },
     "~/lib/roster": {
       calculateDayWorkingHours: () => 0,
+      getRosterDayColors,
     },
   };
   const globals = {
@@ -182,6 +188,15 @@ test("changing month clamps the selected day without skipping February", () => {
   page.selectDate({ year: 1900, month: 1, day: 1 });
   page.changeMonth(-1);
   assert.deepEqual(page.selected.value, { year: 1900, month: 1, day: 1 });
+});
+
+test("confirm opens a popup without changing normal date editing", () => {
+  const page = loadPage().setup({}, { expose() {} });
+  page.calendarMode.value = "roster";
+  page.toggleBulkSelection();
+  assert.equal(page.bulkSelectionOpen.value, true);
+  page.handleDayClick(calendar.getDayDetails({ year: 2026, month: 11, day: 2 }));
+  assert.equal(page.rosterEditorOpen.value, true);
 });
 
 test("fullscreen rejection is handled with usable feedback", async () => {

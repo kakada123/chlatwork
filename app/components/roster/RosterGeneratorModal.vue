@@ -8,6 +8,7 @@ import type {
 } from "~/types/roster";
 
 const props = defineProps<{
+  teleportTarget?: HTMLElement | null;
   open: boolean;
   year: number;
   month: number;
@@ -28,7 +29,7 @@ function d(val: number | string) {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget || 'body'">
     <Transition
       enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
@@ -43,7 +44,7 @@ function d(val: number | string) {
         <div
           role="dialog"
           aria-modal="true"
-          class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="relative w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
           :class="{ 'font-khmer': khmer }"
           @keydown.esc.prevent="emit('close')"
         >
@@ -64,10 +65,11 @@ function d(val: number | string) {
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              :aria-label="khmer ? 'បិទ' : 'Close'"
               @click="emit('close')"
             >
-              <X :size="18" />
+              <X :size="18" aria-hidden="true" />
             </button>
           </div>
 
@@ -79,7 +81,10 @@ function d(val: number | string) {
                 {{ khmer ? "គោលការណ៍បែងចែក:" : "Allocation Logic:" }}
               </h3>
               <ul class="mt-1 list-inside list-disc space-y-0.5 text-teal-800 dark:text-teal-400">
-                <li>{{ khmer ? "កំណត់ PRD សម្រាប់ថ្ងៃចុងសប្តាហ៍/បុណ្យជាមុន (កូតា ៧ ថ្ងៃ)" : "Suggests PRD first for preferred off days (up to monthly allowance)" }}</li>
+                <li>{{ khmer ? "ធ្វើការមិនលើស ៦ ថ្ងៃក្នុងមួយសប្តាហ៍ (ចន្ទ–អាទិត្យ)" : "Maximum 6 workdays in each Monday-Sunday week, including weeks crossing months" }}</li>
+                <li>{{ khmer ? "ពេលអស់ច្បាប់ ថ្ងៃសៅរ៍ និងថ្ងៃបុណ្យធ្វើការធម្មតា ដោយរក្សាថ្ងៃសម្រាកប្រចាំសប្តាហ៍" : "When leave runs out, Saturdays and public holidays use the normal shift while preserving weekly rest" }}</li>
+                <li>{{ khmer ? `រក្សា PRD សម្រាប់ថ្ងៃអាទិត្យជាមុន (កូតា ${d(preferences.monthlyPrdAllowance)} ថ្ងៃ)` : `Reserves PRD for Sundays first (monthly allowance: ${preferences.monthlyPrdAllowance} days)` }}</li>
+                <li v-if="!preferences.statusFlowEnabled">{{ khmer ? "ពេលអនុវត្ត វេនត្រូវបានបញ្ជាក់ភ្លាម ហើយសមតុល្យច្បាប់កែដោយស្វ័យប្រវត្តិ" : "Applying the roster confirms entries and updates leave balances immediately" }}</li>
                 <li>{{ khmer ? "ប្រើ PHL ប្រសិនបើនៅសល់ថ្ងៃឈប់សម្រាកបុណ្យជាតិ" : "Suggests PHL next if PHL balance is available" }}</li>
                 <li>{{ khmer ? "ប្រើ AL លុះត្រាតែអស់ PRD/PHL (ទាមទារការបញ្ជាក់ពីអ្នក)" : "Suggests AL only when necessary and available (requires confirmation)" }}</li>
                 <li>{{ khmer ? "មិនកែប្រែទិន្នន័យដែលបានបញ្ជាក់ ឬចាក់សោឡើយ" : "Never overwrites locked, confirmed, or requested entries" }}</li>
@@ -109,9 +114,9 @@ function d(val: number | string) {
                 <div
                   v-for="s in preview?.suggestions"
                   :key="s.entryDate"
-                  class="flex items-center justify-between px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/40"
+                  class="flex flex-wrap gap-2 items-center justify-between px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/40"
                 >
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="font-mono font-semibold text-slate-800 dark:text-zinc-200">
                       {{ s.entryDate }}
                     </span>
@@ -155,7 +160,7 @@ function d(val: number | string) {
           </div>
 
           <!-- Footer Actions -->
-          <div class="mt-5 flex items-center justify-end gap-2 border-t border-slate-100 pt-4 dark:border-zinc-800">
+          <div class="mt-5 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4 dark:border-zinc-800">
             <button
               type="button"
               class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
@@ -166,7 +171,7 @@ function d(val: number | string) {
             <button
               type="button"
               class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white hover:bg-teal-700 disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-600"
-              :disabled="busy || !preview?.suggestions?.length"
+              :disabled="busy || !preview?.suggestions?.length || preview?.blocked"
               @click="emit('apply')"
             >
               <CheckCircle2 :size="14" />

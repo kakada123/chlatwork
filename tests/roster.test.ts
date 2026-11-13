@@ -11,6 +11,7 @@ import {
   generateSmartRoster,
   DEFAULT_SHIFTS,
   DEFAULT_PREFERENCES,
+  getRosterDayColors,
 } from "../app/lib/roster.ts";
 import { getHolidaySchedule } from "../app/data/cambodia-holidays.ts";
 import type {
@@ -21,6 +22,126 @@ import type {
 } from "../app/types/roster.ts";
 
 const shiftsMap = new Map(DEFAULT_SHIFTS.map((s) => [s.code, s]));
+
+test("assignment coverage excludes blank and cancelled dates", () => {
+  const days = [
+    { entryDate: "2026-11-01", shiftCode: "K123", leaveCode: null, status: "CONFIRMED" },
+    { entryDate: "2026-11-02", shiftCode: null, leaveCode: "PRD", status: "DRAFT" },
+    { entryDate: "2026-11-03", shiftCode: null, leaveCode: null, status: "CONFIRMED" },
+    { entryDate: "2026-11-04", shiftCode: "K123", leaveCode: null, status: "CANCELLED" },
+  ] as RosterDay[];
+  const summary = computeMonthlyRosterSummary(2026, 11, days, DEFAULT_PREFERENCES, shiftsMap);
+  assert.equal(summary.totalDays - summary.unassignedDays, 2);
+  assert.equal(summary.unassignedDays, 28);
+});
+
+test("leave and working shifts have consistent full-day colors", () => {
+  const shift = getRosterDayColors({ shiftCode: "K123", leaveCode: null, status: "DRAFT" });
+  assert.ok(shift?.light);
+  for (const code of ["PRD", "PHL", "AL", "H1", "H2"] as const) {
+    const colors = getRosterDayColors({ shiftCode: null, leaveCode: code, status: "CONFIRMED" });
+    assert.ok(colors?.light);
+    assert.ok(colors?.dark);
+    assert.notEqual(colors?.light, shift?.light);
+  }
+  assert.equal(getRosterDayColors({ shiftCode: "K123", leaveCode: null, status: "CANCELLED" }), null);
+});
+
+test("Saturday returns to a normal shift when PRD, PHL and AL are exhausted", () => {
+  const result = generateSmartRoster({
+    year: 2026,
+    month: 11,
+    preferences: { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0 },
+    shifts: DEFAULT_SHIFTS,
+    phlAvailableHalfDays: 0,
+    alAvailableHalfDays: 0,
+  });
+  for (const day of ["2026-11-07", "2026-11-14", "2026-11-21", "2026-11-28"]) {
+    const entry = result.suggestions.find((item) => item.entryDate === day)!;
+    assert.equal(entry.shiftCode, DEFAULT_PREFERENCES.defaultShiftCode);
+    assert.equal(entry.leaveCode, null);
+  }
+  assert.ok(!result.suggestions.some((day) => day.leaveCode === "AL" || day.leaveCode === "PHL"));
+});
+
+test("PRD is reserved for Sundays and exhausted leave makes Saturdays and holidays working days", () => {
+  const result = generateSmartRoster({ year: 2026, month: 12, preferences: DEFAULT_PREFERENCES, shifts: DEFAULT_SHIFTS, holidayDates: new Set(["2026-12-29"]), alAvailableHalfDays: 0, phlAvailableHalfDays: 0 });
+  assert.equal(result.suggestions.find((day) => day.entryDate === "2026-12-26")?.shiftCode, "K123");
+  assert.equal(result.suggestions.find((day) => day.entryDate === "2026-12-27")?.leaveCode, "PRD");
+  assert.equal(result.suggestions.find((day) => day.entryDate === "2026-12-29")?.shiftCode, "K123");
+  assert.equal(result.suggestions.filter((day) => day.leaveCode === "PRD").length, 7);
+  assert.ok(result.suggestions.every((day) => day.shiftCode || day.leaveCode));
+});
+
+test("generation caps Monday-Sunday work at 6 days including adjacent months", () => {
+  const existingDays = [{ entryDate: "2026-10-26", shiftCode: "K123", leaveCode: null, status: "CONFIRMED", isLocked: true }] as RosterDay[];
+  const result = generateSmartRoster({
+    year: 2026, month: 11,
+    preferences: { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0, saturdayOff: false, sundayOff: false, publicHolidaysOff: false },
+    shifts: DEFAULT_SHIFTS, existingDays,
+  });
+  assert.equal(result.suggestions.find((day) => day.entryDate === "2026-11-08")!.shiftCode, null);
+  for (const day of [27, 28, 29, 30, 31]) existingDays.push({ entryDate: `2026-10-${day}`, shiftCode: "K123", leaveCode: null, status: "CONFIRMED", isLocked: true } as RosterDay);
+  const boundary = generateSmartRoster({ year: 2026, month: 11, preferences: { ...DEFAULT_PREFERENCES, monthlyPrdAllowance: 0, sundayOff: false }, shifts: DEFAULT_SHIFTS, existingDays });
+  assert.equal(boundary.suggestions.find((day) => day.entryDate === "2026-11-01")!.shiftCode, null);
+});
+
+test("protected half-day work counts as 0.5 toward the weekly limit", () => {
+  const result = generateSmartRoster({ year: 2026, month: 11,
+    preferences: { ...DEFAULT_PREFERENCES, saturdayOff: false, sundayOff: false, publicHolidaysOff: false },
+    shifts: DEFAULT_SHIFTS,
+    existingDays: [{ entryDate: "2026-11-08", shiftCode: "K123", leaveCode: "H1", status: "CONFIRMED", isLocked: true }] as RosterDay[],
+  });
+  assert.equal(result.suggestions.filter((day) => day.entryDate >= "2026-11-02" && day.entryDate <= "2026-11-07" && day.shiftCode).length, 5);
+});
+
+test("protected entries exceeding the weekly limit block generation without changing them", () => {
+  const existingDays = Array.from({ length: 7 }, (_, index) => ({ entryDate: `2026-11-${String(index + 2).padStart(2, "0")}`, shiftCode: "K123", leaveCode: null, status: "CONFIRMED", isLocked: true })) as RosterDay[];
+  const result = generateSmartRoster({ year: 2026, month: 11, preferences: DEFAULT_PREFERENCES, shifts: DEFAULT_SHIFTS, existingDays });
+  assert.equal(result.blocked, true);
+  assert.ok(result.warnings.some((message) => message.includes("Existing protected entries")));
+  assert.ok(existingDays.every((existing) => !result.suggestions.some((day) => day.entryDate === existing.entryDate)));
+});
+
+test("PHL and AL usage and availability use the selected year's balances", () => {
+  const balance = (leaveCode: "AL" | "PHL", used: number): LeaveBalance => ({
+    leaveCode,
+    leaveYear: 2027,
+    openingBalanceHalfDays: 40,
+    earnedHalfDays: 0,
+    adjustmentHalfDays: 0,
+    confirmedUsedHalfDays: used,
+    pendingHalfDays: 2,
+    totalHalfDays: 40,
+    availableHalfDays: 38 - used,
+  });
+  const summary = computeMonthlyRosterSummary(
+    2027,
+    11,
+    [],
+    DEFAULT_PREFERENCES,
+    shiftsMap,
+    balance("AL", 7),
+    balance("PHL", 10),
+  );
+  assert.equal(summary.alUsed, 3.5);
+  assert.equal(summary.phlUsed, 5);
+  assert.equal(summary.alRemaining, 15.5);
+  assert.equal(summary.phlRemaining, 14);
+  const otherYear = computeMonthlyRosterSummary(
+    2028,
+    1,
+    [],
+    DEFAULT_PREFERENCES,
+    shiftsMap,
+    balance("AL", 7),
+    balance("PHL", 10),
+  );
+  assert.equal(otherYear.alUsed, 0);
+  assert.equal(otherYear.phlUsed, 0);
+  assert.equal(otherYear.alRemaining, 0);
+  assert.equal(otherYear.phlRemaining, 0);
+});
 
 test("1. PRD 7-day monthly limit and quota calculation", () => {
   const days: RosterDay[] = [

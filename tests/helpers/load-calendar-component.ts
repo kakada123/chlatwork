@@ -1,3 +1,4 @@
+import { getRosterDayColors } from "../../app/lib/roster.ts";
 import { createI18nStub } from "./i18n-stubs.ts";
 import { translateMessage } from "../../app/lib/i18n.ts";
 import { readFileSync } from "node:fs";
@@ -43,11 +44,13 @@ export function loadCalendarComponent(
     "~/lib/calendar-sharing": sharing,
     "~/data/cambodia-holidays": holidays,
     "~/data/calendar-celebrations": celebrations,
+    "~/composables/useColorMode": { useColorMode: () => ({ isDark: vue.ref(false), nextColorModeLabel: vue.ref("Use dark mode"), toggleColorMode() {} }) },
     "~/composables/useAuth": {
       useAuth: () => ({
         user: vue.ref(null),
         isReady: vue.ref(true),
         fetchMe: () => Promise.resolve(null),
+        logout: () => Promise.resolve(),
       }),
     },
     "~/composables/useRoster": {
@@ -85,6 +88,7 @@ export function loadCalendarComponent(
           h2Count: 0,
           pendingRequests: 0,
           unassignedDays: 0,
+          totalDays: 30,
         });
         return {
           days,
@@ -108,12 +112,14 @@ export function loadCalendarComponent(
           updateShift: () => Promise.resolve(null),
           recordLeaveAdjustment: () => Promise.resolve(true),
           previewSmartRoster: () => null,
+          leaveRestriction: () => null,
           applySmartRoster: () => Promise.resolve(true),
         };
       },
     },
     "~/lib/roster": {
       calculateDayWorkingHours: () => 0,
+      getRosterDayColors,
     },
   };
   const globals = {

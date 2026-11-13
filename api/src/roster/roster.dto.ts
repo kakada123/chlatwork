@@ -1,6 +1,9 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayUnique,
   IsBoolean,
   IsIn,
   IsInt,
@@ -64,6 +67,10 @@ export class UpsertRosterDayDto {
 export class UpdatePreferencesDto {
   @IsOptional()
   @IsBoolean()
+  statusFlowEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
   saturdayOff?: boolean;
 
   @IsOptional()
@@ -82,7 +89,7 @@ export class UpdatePreferencesDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  @Max(31)
+  @Max(7)
   monthlyPrdAllowance?: number;
 
   @IsOptional()
@@ -186,6 +193,18 @@ export class ApplyRosterDto extends GenerateRosterDto {
   @ValidateNested({ each: true })
   @Type(() => ApplyRosterEntryDto)
   entries!: ApplyRosterEntryDto[];
+}
+
+export class UpdateRosterStatusesDto extends GenerateRosterDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(31)
+  @ArrayUnique()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { each: true })
+  dates!: string[];
+
+  @IsIn(ROSTER_STATUSES)
+  status!: RosterStatusValue;
 }
 
 export class ApplyRosterEntryDto {

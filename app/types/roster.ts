@@ -24,6 +24,7 @@ export interface RosterDay {
 }
 
 export interface RosterPreferences {
+  statusFlowEnabled: boolean
   saturdayOff: boolean
   sundayOff: boolean
   publicHolidaysOff: boolean
@@ -64,6 +65,7 @@ export interface RosterSettings {
 }
 
 export interface RosterGeneratePreview {
+  blocked?: boolean
   suggestions: Array<{
     entryDate: string
     shiftCode: string | null

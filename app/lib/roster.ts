@@ -1,3 +1,4 @@
+import { rosterPrdAllowance, rosterOverLimitWeeks, rosterWeekWorkdays, rosterWorkdayWeight } from "../../api/src/roster/roster-week.util.ts";
 import type {
   LeaveBalance,
   LeaveCode,
@@ -8,6 +9,22 @@ import type {
   RosterPreferences,
   RosterShift,
 } from "../types/roster";
+
+const ROSTER_DAY_COLORS = {
+  PRD: { light: "#fff1f2", dark: "#3b2029" },
+  PHL: { light: "#fffbeb", dark: "#352c1c" },
+  AL: { light: "#faf5ff", dark: "#30233d" },
+  H1: { light: "#f5f3ff", dark: "#29223f" },
+  H2: { light: "#f5f3ff", dark: "#29223f" },
+  shift: { light: "#ecfdf5", dark: "#18332d" },
+};
+
+/** Export uses the light palette; the calendar also supplies a matching dark palette. */
+export function getRosterDayColors(day?: Pick<RosterDay, "shiftCode" | "leaveCode" | "status"> | null) {
+  if (!day || day.status === "CANCELLED") return null;
+  if (day.leaveCode) return ROSTER_DAY_COLORS[day.leaveCode];
+  return day.shiftCode ? ROSTER_DAY_COLORS.shift : null;
+}
 
 export const DEFAULT_SHIFTS: RosterShift[] = [
   {
@@ -49,6 +66,7 @@ export const DEFAULT_SHIFTS: RosterShift[] = [
 ];
 
 export const DEFAULT_PREFERENCES: RosterPreferences = {
+  statusFlowEnabled: false,
   saturdayOff: true,
   sundayOff: true,
   publicHolidaysOff: true,
@@ -169,7 +187,7 @@ export function computeLeaveBalance(b: {
 }
 
 /**
- * Computes monthly summary for a given month's roster days.
+ * PRD and work metrics are monthly; PHL and AL use the selected year's balance.
  */
 export function computeMonthlyRosterSummary(
   year: number,
@@ -188,8 +206,6 @@ export function computeMonthlyRosterSummary(
 
   let workingDays = 0;
   let prdUsed = 0;
-  let phlConfirmedUsed = 0;
-  let alConfirmedUsed = 0; // in full days
   let halfDaysCount = 0;
   let pendingRequests = 0;
   let unassignedDays = 0;
@@ -198,7 +214,7 @@ export function computeMonthlyRosterSummary(
     const key = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const entry = dateMap.get(key);
 
-    if (!entry) {
+    if (!entry || entry.status === "CANCELLED" || (!entry.shiftCode && !entry.leaveCode)) {
       unassignedDays++;
       continue;
     }
@@ -210,13 +226,8 @@ export function computeMonthlyRosterSummary(
     if (entry.leaveCode) {
       if (entry.leaveCode === "PRD" && entry.status !== "CANCELLED") {
         prdUsed++;
-      } else if (entry.leaveCode === "PHL") {
-        if (entry.status === "CONFIRMED") phlConfirmedUsed++;
-      } else if (entry.leaveCode === "AL") {
-        if (entry.status === "CONFIRMED") alConfirmedUsed++;
       } else if (entry.leaveCode === "H1" || entry.leaveCode === "H2") {
         halfDaysCount++;
-        if (entry.status === "CONFIRMED") alConfirmedUsed += 0.5;
       }
     }
 
@@ -231,14 +242,31 @@ export function computeMonthlyRosterSummary(
     }
   }
 
-  const prdAllowance = preferences.monthlyPrdAllowance ?? 7;
+  const prdAllowance = rosterPrdAllowance(preferences.monthlyPrdAllowance);
   const prdRemaining = prdAllowance - prdUsed;
 
-  const alComputed = alBalance
-    ? computeLeaveBalance(alBalance)
+  const annualAl = alBalance?.leaveYear === year ? alBalance : null;
+  const annualPhl = phlBalance?.leaveYear === year ? phlBalance : null;
+  // The annual ledger includes confirmed leave in every month, including half-days.
+  const yearDays = days.filter(
+    (day) => day.entryDate.startsWith(`${year}-`) && day.status === "CONFIRMED",
+  );
+  const alConfirmedUsed = yearDays.reduce(
+    (total, day) =>
+      total +
+      (balanceBucketForLeave(day.leaveCode) === "AL"
+        ? leaveHalfDayCost(day.leaveCode) / 2
+        : 0),
+    0,
+  );
+  const phlConfirmedUsed = yearDays.filter(
+    (day) => day.leaveCode === "PHL",
+  ).length;
+  const alComputed = annualAl
+    ? computeLeaveBalance(annualAl)
     : { availableDays: 0, officialBalanceDays: 0 };
-  const phlComputed = phlBalance
-    ? computeLeaveBalance(phlBalance)
+  const phlComputed = annualPhl
+    ? computeLeaveBalance(annualPhl)
     : { availableDays: 0, officialBalanceDays: 0 };
 
   return {
@@ -247,9 +275,9 @@ export function computeMonthlyRosterSummary(
     prdUsed,
     prdAllowance,
     prdRemaining,
-    phlUsed: phlConfirmedUsed,
+    phlUsed: annualPhl ? annualPhl.confirmedUsedHalfDays / 2 : phlConfirmedUsed,
     phlRemaining: phlComputed.availableDays,
-    alUsed: alConfirmedUsed,
+    alUsed: annualAl ? annualAl.confirmedUsedHalfDays / 2 : alConfirmedUsed,
     alRemaining: alComputed.availableDays,
     halfDaysCount,
     pendingRequests,
@@ -286,6 +314,10 @@ export function generateSmartRoster(options: {
       : new Set(options.holidayDates ?? []);
 
   const existingMap = new Map(existingDays.map((d) => [d.entryDate, d]));
+  const monthPrefix = `${year}-${String(month).padStart(2, "0")}-`;
+  const planned = new Map(existingDays
+    .filter((day) => !day.entryDate.startsWith(monthPrefix) || day.isLocked || day.status === "CONFIRMED" || day.status === "REQUESTED")
+    .map((day) => [day.entryDate, day]));
   const defaultShift =
     shifts.find((s) => s.code === preferences.defaultShiftCode) ||
     shifts.find((s) => s.isDefault) ||
@@ -295,11 +327,11 @@ export function generateSmartRoster(options: {
   // Count PRD already assigned
   let prdUsed = 0;
   for (const d of existingDays) {
-    if (d.leaveCode === "PRD" && d.status !== "CANCELLED") {
+    if (d.entryDate.startsWith(monthPrefix) && d.leaveCode === "PRD" && d.status !== "CANCELLED" && (d.isLocked || d.status === "CONFIRMED" || d.status === "REQUESTED")) {
       prdUsed++;
     }
   }
-  let remainingPrd = Math.max(0, (preferences.monthlyPrdAllowance ?? 7) - prdUsed);
+  let remainingPrd = Math.max(0, rosterPrdAllowance(preferences.monthlyPrdAllowance) - prdUsed);
 
   let availablePhl = Math.max(0, phlAvailableHalfDays);
   let availableAl = Math.max(0, alAvailableHalfDays);
@@ -307,6 +339,12 @@ export function generateSmartRoster(options: {
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const suggestions: RosterGeneratePreview["suggestions"] = [];
   const warnings: string[] = [];
+  // Reserve weekly rest before optional Saturdays/holidays can consume the monthly quota.
+  let reservedSundays = preferences.sundayOff ? Array.from({ length: daysInMonth }, (_, index) => index + 1).filter((day) => {
+    const key = `${monthPrefix}${String(day).padStart(2, "0")}`;
+    const existing = existingMap.get(key);
+    return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 0 && !(existing?.isLocked || existing?.status === "CONFIRMED" || existing?.status === "REQUESTED");
+  }).length : 0;
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -328,6 +366,7 @@ export function generateSmartRoster(options: {
     const isSaturday = dow === 6;
     const isSunday = dow === 0;
     const isHoliday = holidayDates.has(dateStr);
+    if (isSunday && preferences.sundayOff) reservedSundays--;
 
     const isPreferredOff =
       (isSaturday && preferences.saturdayOff) ||
@@ -340,7 +379,7 @@ export function generateSmartRoster(options: {
 
     if (isPreferredOff) {
       // Allocate according to priority: PRD -> PHL -> AL
-      if (remainingPrd > 0) {
+      if (remainingPrd > 0 && (isSunday || remainingPrd > reservedSundays)) {
         leaveCode = "PRD";
         shiftCode = null;
         reason = "PRD monthly allowance";
@@ -357,13 +396,24 @@ export function generateSmartRoster(options: {
         availableAl -= 2;
         warnings.push(`AL suggested for ${dateStr} due to exhausted PRD/PHL.`);
       } else {
-        shiftCode = null;
+        // Saturdays and public holidays return to a normal shift when leave runs out.
+        shiftCode = isSaturday || isHoliday ? defaultShiftCode : null;
         leaveCode = null;
-        reason = "Preferred day off (insufficient leave balance)";
+        reason = isSaturday || isHoliday
+          ? "Normal shift (no leave credit available)"
+          : "Preferred day off (insufficient leave balance)";
         warnings.push(`Insufficient leave balance for preferred day off on ${dateStr}.`);
       }
     }
 
+    if (rosterWeekWorkdays(dateStr, planned) + rosterWorkdayWeight({ shiftCode, leaveCode }) > 6 && shiftCode) {
+      shiftCode = null;
+      leaveCode = remainingPrd > 0 ? "PRD" : null;
+      if (leaveCode) remainingPrd--;
+      reason = "Weekly rest (maximum 6 workdays, Monday-Sunday)";
+      warnings.push(`Weekly rest required on ${dateStr}; no unavailable AL or PHL was used.`);
+    }
+    planned.set(dateStr, { entryDate: dateStr, shiftCode, leaveCode, status: "DRAFT", isLocked: false } as RosterDay);
     suggestions.push({
       entryDate: dateStr,
       shiftCode,
@@ -372,5 +422,7 @@ export function generateSmartRoster(options: {
     });
   }
 
-  return { suggestions, warnings };
+  const overLimit = rosterOverLimitWeeks(year, month, planned);
+  for (const week of overLimit) warnings.push(`Existing protected entries exceed 6 workdays in the week of ${week}. Review them before applying.`);
+  return { suggestions, warnings, blocked: overLimit.length > 0 };
 }

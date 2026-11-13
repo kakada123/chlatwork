@@ -13,6 +13,7 @@ import type {
 import { calculateDayWorkingHours, calculateShiftHours } from "~/lib/roster";
 
 const props = defineProps<{
+  teleportTarget?: HTMLElement | null;
   open: boolean;
   dateKey: string;
   day: CalendarDay | null;
@@ -22,6 +23,9 @@ const props = defineProps<{
   prdRemaining: number;
   alRemaining: number;
   phlRemaining: number;
+  leaveRestrictions?: Partial<Record<LeaveCode, string | null>>;
+  busy?: boolean;
+  error?: string | null;
   khmer: boolean;
 }>();
 
@@ -53,13 +57,13 @@ watch(
     if (props.entry) {
       selectedShiftCode.value = props.entry.shiftCode;
       selectedLeaveCode.value = props.entry.leaveCode;
-      selectedStatus.value = props.entry.status;
+      selectedStatus.value = props.preferences.statusFlowEnabled ? props.entry.status : "CONFIRMED";
       note.value = props.entry.note || "";
       isLocked.value = props.entry.isLocked;
     } else {
       selectedShiftCode.value = props.preferences.defaultShiftCode || (props.shifts[0]?.code ?? "K123");
       selectedLeaveCode.value = null;
-      selectedStatus.value = "DRAFT";
+      selectedStatus.value = props.preferences.statusFlowEnabled ? "DRAFT" : "CONFIRMED";
       note.value = "";
       isLocked.value = false;
     }
@@ -84,6 +88,7 @@ const isFullDayLeave = computed(() => {
 });
 
 function handleLeaveChange(code: LeaveCode | null) {
+  if (code && props.leaveRestrictions?.[code]) return;
   selectedLeaveCode.value = code;
   if (code === "PRD" || code === "PHL" || code === "AL") {
     selectedShiftCode.value = null;
@@ -93,14 +98,14 @@ function handleLeaveChange(code: LeaveCode | null) {
 }
 
 function handleSave() {
+  if (props.busy) return;
   emit("save", {
     shiftCode: isFullDayLeave.value ? null : selectedShiftCode.value,
     leaveCode: selectedLeaveCode.value,
-    status: selectedStatus.value,
+    status: props.preferences.statusFlowEnabled ? selectedStatus.value : "CONFIRMED",
     note: note.value.trim() || null,
     isLocked: isLocked.value,
   });
-  emit("close");
 }
 
 function handleDelete() {
@@ -114,7 +119,7 @@ function d(val: number | string) {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget || 'body'">
     <Transition
       enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
@@ -129,7 +134,7 @@ function d(val: number | string) {
         <div
           role="dialog"
           aria-modal="true"
-          class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="relative w-full max-w-lg max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
           :class="{ 'font-khmer': khmer }"
           @keydown.esc.prevent="emit('close')"
         >
@@ -150,10 +155,11 @@ function d(val: number | string) {
             </div>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              :aria-label="khmer ? 'បិទ' : 'Close'"
               @click="emit('close')"
             >
-              <X :size="18" />
+              <X :size="18" aria-hidden="true" />
             </button>
           </div>
 
@@ -167,7 +173,7 @@ function d(val: number | string) {
               <div class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
                 <button
                   type="button"
-                  class="rounded-lg border px-2 py-2 text-center text-xs font-bold transition-all"
+                  class="rounded-lg border px-2 py-2 text-center text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   :class="
                     selectedLeaveCode === null
                       ? 'border-slate-800 bg-slate-900 text-white dark:border-zinc-200 dark:bg-zinc-100 dark:text-zinc-900'
@@ -185,6 +191,8 @@ function d(val: number | string) {
                       ? 'border-red-600 bg-red-600 text-white'
                       : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300'
                   "
+                  :disabled="Boolean(leaveRestrictions?.PRD)"
+                  :title="leaveRestrictions?.PRD || undefined"
                   @click="handleLeaveChange('PRD')"
                 >
                   PRD
@@ -197,6 +205,8 @@ function d(val: number | string) {
                       ? 'border-amber-500 bg-amber-500 text-white'
                       : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300'
                   "
+                  :disabled="Boolean(leaveRestrictions?.PHL)"
+                  :title="leaveRestrictions?.PHL || undefined"
                   @click="handleLeaveChange('PHL')"
                 >
                   PHL
@@ -209,6 +219,8 @@ function d(val: number | string) {
                       ? 'border-purple-600 bg-purple-600 text-white'
                       : 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300'
                   "
+                  :disabled="Boolean(leaveRestrictions?.AL)"
+                  :title="leaveRestrictions?.AL || undefined"
                   @click="handleLeaveChange('AL')"
                 >
                   AL
@@ -221,6 +233,8 @@ function d(val: number | string) {
                       ? 'border-violet-500 bg-violet-500 text-white'
                       : 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-300'
                   "
+                  :disabled="Boolean(leaveRestrictions?.H1)"
+                  :title="leaveRestrictions?.H1 || undefined"
                   @click="handleLeaveChange('H1')"
                 >
                   H1 (ព្រឹក)
@@ -233,6 +247,8 @@ function d(val: number | string) {
                       ? 'border-violet-500 bg-violet-500 text-white'
                       : 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-300'
                   "
+                  :disabled="Boolean(leaveRestrictions?.H2)"
+                  :title="leaveRestrictions?.H2 || undefined"
                   @click="handleLeaveChange('H2')"
                 >
                   H2 (រសៀល)
@@ -304,11 +320,11 @@ function d(val: number | string) {
             </div>
 
             <!-- Status Selection -->
-            <div>
+            <div v-if="preferences.statusFlowEnabled">
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 {{ khmer ? "ស្ថានភាព (Status)" : "Entry Status" }}
               </label>
-              <div class="mt-2 grid grid-cols-4 gap-2">
+              <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <button
                   type="button"
                   class="rounded-lg border py-1.5 text-center text-xs font-semibold transition-all"
@@ -388,7 +404,8 @@ function d(val: number | string) {
           </div>
 
           <!-- Footer Actions -->
-          <div class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-zinc-800">
+          <p v-if="error" role="alert" class="mt-3 text-xs text-rose-700 dark:text-rose-300">{{ error }}</p>
+          <div class="mt-5 flex flex-wrap gap-2 items-center justify-between border-t border-slate-100 pt-4 dark:border-zinc-800">
             <button
               v-if="entry"
               type="button"
@@ -412,6 +429,7 @@ function d(val: number | string) {
                 type="button"
                 class="flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600"
                 @click="handleSave"
+                :disabled="busy"
               >
                 <Check :size="14" />
                 {{ khmer ? "រក្សាទុក" : "Save Entry" }}

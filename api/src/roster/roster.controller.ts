@@ -20,6 +20,7 @@ import {
   UpdatePreferencesDto,
   UpdateShiftDto,
   UpsertRosterDayDto,
+  UpdateRosterStatusesDto,
 } from './roster.dto';
 import { RosterService } from './roster.service';
 
@@ -42,8 +43,14 @@ export class RosterController {
   }
 
   @Get('settings')
-  getSettings(@CurrentAuthUser() user: CurrentUser) {
-    return this.roster.getSettings(user.id);
+  getSettings(
+    @CurrentAuthUser() user: CurrentUser,
+    @Query('year') year?: string,
+  ) {
+    return this.roster.getSettings(
+      user.id,
+      year === undefined ? undefined : Number(year),
+    );
   }
 
   @Put('settings/preferences')
@@ -52,6 +59,11 @@ export class RosterController {
     @Body() dto: UpdatePreferencesDto,
   ) {
     return this.roster.updatePreferences(user.id, dto);
+  }
+
+  @Put('month/status')
+  updateStatuses(@CurrentAuthUser() user: CurrentUser, @Body() dto: UpdateRosterStatusesDto) {
+    return this.roster.updateStatuses(user.id, dto);
   }
 
   @Get('shifts')
@@ -94,8 +106,14 @@ export class RosterController {
   }
 
   @Get('leave/balances')
-  getLeaveBalances(@CurrentAuthUser() user: CurrentUser) {
-    return this.roster.getLeaveBalances(user.id);
+  getLeaveBalances(
+    @CurrentAuthUser() user: CurrentUser,
+    @Query('year') year?: string,
+  ) {
+    return this.roster.getLeaveBalances(
+      user.id,
+      year === undefined ? undefined : Number(year),
+    );
   }
 
   @Post('leave/adjustments')
