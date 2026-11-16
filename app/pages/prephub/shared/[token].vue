@@ -45,7 +45,7 @@ const denyMutation = async () => false;
 const noConfirmation = () => {};
 </script>
 <template>
-  <main class="prephub mx-auto max-w-5xl space-y-4 pb-8">
+  <main class="prephub mx-auto max-w-6xl space-y-4 pb-8">
     <p
       v-if="status === 'pending'"
       role="status"
@@ -103,6 +103,7 @@ const noConfirmation = () => {};
       </p>
       <PrepNotebook
         :sections="sections"
+        :progress="subject.progress"
         :subject-id="subject.id"
         :time-zone="subject.timeZone"
         :mutate="denyMutation"

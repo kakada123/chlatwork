@@ -7,7 +7,14 @@ import {
   Pencil,
   Trash2,
 } from "lucide-vue-next";
-defineProps<{ title: string; busy?: boolean; first: boolean; last: boolean }>();
+defineProps<{
+  title: string;
+  busy?: boolean;
+  first?: boolean;
+  last?: boolean;
+  reorderable?: boolean;
+  editLabel?: string;
+}>();
 const emit = defineEmits<{ edit: []; up: []; down: []; remove: [] }>();
 const { t } = useAppI18n();
 const menu = ref<HTMLDetailsElement | null>(null),
@@ -93,11 +100,12 @@ onBeforeUnmount(cleanup);
         @click="emit('edit')"
       >
         <Pencil class="size-4" aria-hidden="true" />{{
-          t("prephub.notebook.editDetails")
+          editLabel || t("prephub.notebook.editDetails")
         }}</button
       ><button
         type="button"
         class="prep-menu-item"
+        v-if="reorderable !== false"
         :disabled="busy || first"
         @click="emit('up')"
       >
@@ -107,6 +115,7 @@ onBeforeUnmount(cleanup);
       ><button
         type="button"
         class="prep-menu-item"
+        v-if="reorderable !== false"
         :disabled="busy || last"
         @click="emit('down')"
       >

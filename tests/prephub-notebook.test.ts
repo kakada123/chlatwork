@@ -39,12 +39,17 @@ function load(name: string, hub: any = {}, inline = false) {
           ? icons
           : path === "~/lib/prephub"
             ? prep
-            : path.endsWith(".vue")
+            : path.endsWith("PrepFormattedText.vue")
               ? {
                   __esModule: true,
-                  default: { setup: () => () => vue.h("span") },
+                  default: load("PrepFormattedText", hub, true),
                 }
-              : {},
+              : path.endsWith(".vue")
+                ? {
+                    __esModule: true,
+                    default: { setup: () => () => vue.h("span") },
+                  }
+                : {},
     mod,
     mod.exports,
     ...Object.values(globals),
@@ -376,4 +381,162 @@ test("a deep-link section seeds Add once without overriding a newer notebook int
   } finally {
     restore();
   }
+});
+
+test("the reference layout keeps the server progress in the checklist without counting saved materials", async () => {
+  const component = load("PrepNotebook", {}, true);
+  const html = await renderToString(
+    vue.createSSRApp(component, {
+      subjectId: "subject",
+      timeZone: "Asia/Phnom_Penh",
+      sections: [
+        section("links", "LINKS", [{ id: "link", title: "Reference" }]),
+      ],
+      progress: { total: 3, completed: 1, percent: 33 },
+      readOnly: true,
+      mutate: async () => false,
+      confirm() {},
+    }),
+  );
+  assert.match(html, /1 \/ 3 completed/);
+  assert.match(html, /<progress[^>]*value="1"[^>]*max="3"/);
+  const empty = await renderToString(
+    vue.createSSRApp(component, {
+      subjectId: "subject",
+      timeZone: "Asia/Phnom_Penh",
+      sections: [],
+      progress: { total: 0, completed: 0, percent: 0 },
+      readOnly: true,
+      mutate: async () => false,
+      confirm() {},
+    }),
+  );
+  assert.doesNotMatch(empty, /0%|<progress/);
+});
+test("the overview labels the time zone accurately and does not invent location or favorite actions", async () => {
+  const html = await renderToString(
+    vue.createSSRApp(load("PrepOverview", {}, true), {
+      subject: {
+        title: "POS Research",
+        description: "Prepare recommendations",
+        goal: "Compare offline approaches",
+        status: "READY",
+        eventAt: "2026-11-16T06:01:00Z",
+        deadlineAt: null,
+        progress: { total: 1, completed: 0, percent: 0 },
+      },
+      timeZone: "Asia/Phnom_Penh",
+    }),
+  );
+  assert.match(html, /Time zone/);
+  assert.match(html, /Asia\/Phnom_Penh/);
+  assert.doesNotMatch(html, /Location|Favorite|<progress/);
+});
+
+test("reference file rows use actual counts and capability URLs while keeping public controls read-only", async () => {
+  const resources = [
+    {
+      id: "pdf",
+      title: "Offline report.pdf",
+      extension: "pdf",
+      mimeType: "application/pdf",
+      fileSize: 370688,
+    },
+    {
+      id: "photo",
+      title: "Photo.jpg",
+      extension: "jpg",
+      mimeType: "image/jpeg",
+      fileSize: 260000,
+    },
+    {
+      id: "document",
+      title: "Outline.docx",
+      extension: "docx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      fileSize: 1024,
+    },
+  ];
+  const props = {
+    section: {
+      id: "files",
+      title: "Files",
+      type: "ATTACHMENTS",
+      items: [],
+      resources,
+    },
+    subjectId: "subject",
+    timeZone: "Asia/Phnom_Penh",
+    notebook: true,
+    readOnly: true,
+    resourceBase: "/api/prephub/public/token/resources",
+    mutate: async () => false,
+    confirm() {},
+  };
+  const html = await renderToString(
+    vue.createSSRApp(load("PrepSection", {}, true), props),
+  );
+  assert.match(html, /3 files/);
+  assert.match(html, /Offline report.pdf/);
+  assert.match(html, /362.0 KiB/);
+  assert.match(html, /\/api\/prephub\/public\/token\/resources\/pdf/);
+  assert.doesNotMatch(html, /\/subjects\/subject|<button|type="file"/);
+  assert.equal((html.match(/aria-label="Preview:/g) || []).length, 2);
+  assert.equal((html.match(/aria-label="Download:/g) || []).length, 3);
+});
+test("reference link rows show only the stored label and description with safe external navigation", async () => {
+  const item = {
+    id: "link",
+    title: "Architecture",
+    url: "https://example.com/architecture",
+    label: "Offline checkout",
+    content: "Saved by the owner",
+    isCompleted: false,
+    isRequired: false,
+  };
+  const html = await renderToString(
+    vue.createSSRApp(load("PrepSection", {}, true), {
+      section: section("references", "LINKS", [item]),
+      subjectId: "subject",
+      timeZone: "Asia/Phnom_Penh",
+      notebook: true,
+      readOnly: true,
+      mutate: async () => false,
+      confirm() {},
+    }),
+  );
+  assert.match(html, /1 link/);
+  assert.match(html, /Offline checkout/);
+  assert.match(html, /Saved by the owner/);
+  assert.match(
+    html,
+    /href="https:\/\/example.com\/architecture"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/,
+  );
+  assert.doesNotMatch(html, /<button|Technical Architecture|Success Criteria/);
+});
+
+test("optional checklist entries do not produce a false empty-task message or a readiness percentage", async () => {
+  const html = await renderToString(
+    vue.createSSRApp(load("PrepNotebook", {}, true), {
+      subjectId: "subject",
+      timeZone: "Asia/Phnom_Penh",
+      sections: [
+        section("optional", "CHECKLIST", [
+          {
+            id: "o",
+            title: "Optional reading",
+            isRequired: false,
+            isCompleted: false,
+          },
+        ]),
+      ],
+      progress: { total: 0, completed: 0, percent: 0 },
+      readOnly: true,
+      mutate: async () => false,
+      confirm() {},
+    }),
+  );
+  assert.doesNotMatch(html, /No preparation tasks yet|0%|<progress/);
+  assert.match(html, /Optional tasks/);
 });

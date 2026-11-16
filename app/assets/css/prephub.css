@@ -23,3 +23,126 @@
 .prephub .prep-menu-item {
   @apply flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10;
 }
+/* Reference layout stays feature-local; saved content and native actions retain their existing contracts. */
+.prephub .prep-overview {
+  @apply grid items-start gap-4;
+}
+.prephub .prep-overview-main {
+  @apply p-4 sm:p-5;
+}
+.prephub .prep-overview-icon {
+  @apply grid size-12 shrink-0 place-items-center rounded-2xl bg-sky-50 text-sky-700 sm:size-16 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-status {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-white/70;
+}
+.prephub .prep-status--ready,
+.prephub .prep-status--completed {
+  @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300;
+}
+.prephub .prep-status--preparing {
+  @apply bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-schedule-row {
+  @apply flex items-start gap-3 border-b border-slate-100 py-2.5 first:pt-0 last:border-0 last:pb-0 dark:border-white/10;
+}
+.prephub .prep-schedule dt {
+  @apply text-xs font-semibold text-slate-500 dark:text-white/60;
+}
+.prephub .prep-schedule dd {
+  @apply mt-1 text-sm font-medium;
+}
+.prephub .prep-detail-icon {
+  @apply grid size-9 shrink-0 place-items-center rounded-xl bg-slate-50 text-slate-500 dark:bg-white/5 dark:text-white/60;
+}
+.prephub .prep-goal {
+  @apply border-violet-100 bg-violet-50/40 dark:border-violet-900/50 dark:bg-violet-950/20;
+}
+.prephub .prep-notebook-area {
+  @apply p-4 sm:p-5;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 0.035);
+}
+.prephub .prep-area-heading {
+  @apply mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+}
+.prephub .prep-area-icon {
+  @apply grid size-11 shrink-0 place-items-center rounded-xl bg-sky-50 text-sky-700 sm:size-12 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-area-icon--materials {
+  @apply bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300;
+}
+.prephub .prep-area-icon--questions {
+  @apply bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300;
+}
+.prephub .prep-checklist-progress {
+  @apply flex min-h-11 min-w-0 items-center gap-3 rounded-xl border border-slate-200 px-3 text-xs font-medium text-slate-600 sm:w-72 sm:shrink-0 dark:border-white/10 dark:text-white/70;
+}
+.prephub .prep-checklist-progress > span {
+  @apply shrink-0;
+}
+.prephub .prep-task-entry {
+  @apply mt-3 flex items-center gap-2;
+}
+.prephub .prep-task-entry .prep-input {
+  @apply min-h-12;
+}
+.prephub .prep-task-submit {
+  @apply grid size-12 shrink-0 place-items-center rounded-xl bg-sky-800 text-white hover:bg-sky-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:opacity-40 dark:bg-sky-600 dark:hover:bg-sky-500;
+}
+.prephub .prep-count {
+  @apply shrink-0 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-file-list {
+  @apply overflow-hidden rounded-xl border border-slate-200 dark:border-white/10;
+}
+.prephub .prep-file-row {
+  @apply grid min-w-0 grid-cols-1 items-center gap-3 border-b border-slate-100 p-3 last:border-b-0 md:grid-cols-[minmax(0,1fr)_auto] dark:border-white/10;
+}
+.prephub .prep-file-icon {
+  @apply grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500 sm:size-11 dark:bg-white/10 dark:text-white/70;
+}
+.prephub .prep-file-icon--image {
+  @apply bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300;
+}
+.prephub .prep-file-icon--pdf {
+  @apply bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-300;
+}
+.prephub .prep-file-icon--link {
+  @apply bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-file-actions {
+  @apply flex min-w-0 items-center gap-1.5;
+}
+.prephub .prep-file-action {
+  @apply min-w-0 flex-1 gap-1.5 px-2 text-xs md:flex-none md:px-3 md:text-sm;
+}
+.prephub .prep-material-row {
+  @apply rounded-xl border border-slate-200 bg-slate-50/40 p-3 dark:border-white/10 dark:bg-white/[0.02];
+}
+.prephub .prep-link-label {
+  @apply mt-2 inline-flex max-w-full break-words rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-white/70;
+}
+.prephub .prep-link-note {
+  @apply mt-3 flex min-w-0 gap-2 rounded-lg border-l-2 border-sky-400 bg-sky-50/70 p-3 text-slate-600 dark:bg-sky-950/30 dark:text-white/70;
+}
+.prephub .prep-deliverable-grid {
+  @apply grid gap-2 sm:grid-cols-2 xl:grid-cols-3;
+}
+.prephub .prep-deliverable-row {
+  @apply rounded-xl border border-slate-200 bg-slate-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02];
+}
+.prephub .prep-deliverable-number {
+  @apply mt-2 grid size-6 shrink-0 place-items-center rounded-lg bg-sky-50 text-xs font-bold text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+}
+@media (min-width: 1024px) {
+  .prephub .prep-overview--with-aside {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 21rem);
+  }
+}
+
+.prephub .prep-schedule .prep-detail-icon {
+  @apply bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-goal .prep-detail-icon {
+  @apply bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300;
+}

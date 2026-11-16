@@ -297,7 +297,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <main
-    class="prephub mx-auto max-w-5xl space-y-4 pb-24 text-slate-950 dark:text-white"
+    class="prephub mx-auto max-w-6xl space-y-4 pb-24 text-slate-950 dark:text-white"
   >
     <nav class="flex items-center justify-between gap-2">
       <NuxtLink :to="linkTo('/prephub')" class="prep-button"
@@ -383,6 +383,7 @@ onBeforeUnmount(() => {
       <PrepNotebook
         ref="notebook"
         :sections="visibleSections"
+        :progress="subject.progress"
         :subject-id="id"
         :time-zone="timeZone"
         :busy="busy"

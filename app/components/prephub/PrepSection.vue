@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import {
+  FileText,
+  FileImage,
+  Link2,
+  Eye,
+  Info,
   Check,
   Circle,
   MoreHorizontal,
@@ -31,6 +36,7 @@ const props = defineProps<{
   confirm: (action: () => Promise<boolean>) => void;
   review?: boolean;
   notebook?: boolean;
+  hideHeading?: boolean;
   anchor?: boolean;
   readOnly?: boolean;
   resourceBase?: string;
@@ -161,7 +167,13 @@ async function saveRename() {
     :aria-label="section.title"
   >
     <header
-      class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 dark:border-white/10"
+      v-if="!hideHeading"
+      class="flex flex-wrap items-center justify-between gap-2"
+      :class="
+        notebook
+          ? 'mb-3'
+          : 'border-b border-slate-100 pb-3 dark:border-white/10'
+      "
     >
       <div class="min-w-0">
         <p v-if="!notebook" class="text-xs text-slate-500">
@@ -170,7 +182,46 @@ async function saveRename() {
             · {{ completed }}/{{ section.items.length }}</span
           >
         </p>
-        <h2 class="break-words text-sm font-semibold">{{ section.title }}</h2>
+        <div class="flex min-w-0 items-center gap-2">
+          <component
+            v-if="
+              notebook &&
+              ['ATTACHMENTS', 'LINKS', 'NOTES'].includes(section.type)
+            "
+            :is="section.type === 'LINKS' ? Link2 : FileText"
+            class="size-5 shrink-0 text-slate-500"
+            aria-hidden="true"
+          />
+          <h3 class="break-words text-sm font-semibold sm:text-base">
+            {{ section.title }}
+          </h3>
+          <span
+            v-if="
+              notebook &&
+              ['ATTACHMENTS', 'LINKS', 'NOTES'].includes(section.type)
+            "
+            class="prep-count"
+            >{{
+              t(
+                section.type === "ATTACHMENTS"
+                  ? section.resources.length === 1
+                    ? "prephub.visual.oneFile"
+                    : "prephub.visual.files"
+                  : section.type === "LINKS"
+                    ? section.items.length === 1
+                      ? "prephub.visual.oneLink"
+                      : "prephub.visual.links"
+                    : "prephub.visual.items",
+                {
+                  count:
+                    section.type === "ATTACHMENTS"
+                      ? section.resources.length
+                      : section.items.length,
+                },
+              )
+            }}</span
+          >
+        </div>
       </div>
       <div
         v-if="!review && !readOnly && !notebook"
@@ -213,9 +264,40 @@ async function saveRename() {
         </button>
       </div>
     </header>
-    <ol class="divide-y divide-slate-100 dark:divide-white/10">
-      <li v-for="(item, index) in shownItems" :key="item.id" class="py-3">
+    <ol
+      :class="
+        notebook && section.type === 'DELIVERABLES'
+          ? 'prep-deliverable-grid'
+          : notebook && ['LINKS', 'NOTES'].includes(section.type)
+            ? 'space-y-2'
+            : 'divide-y divide-slate-100 dark:divide-white/10'
+      "
+    >
+      <li
+        v-for="(item, index) in shownItems"
+        :key="item.id"
+        :class="
+          notebook && section.type === 'DELIVERABLES'
+            ? 'prep-deliverable-row'
+            : notebook && ['LINKS', 'NOTES'].includes(section.type)
+              ? 'prep-material-row'
+              : 'py-3'
+        "
+      >
         <div class="flex items-start gap-2">
+          <span
+            v-if="notebook && ['LINKS', 'NOTES'].includes(section.type)"
+            class="prep-file-icon"
+            :class="{ 'prep-file-icon--link': section.type === 'LINKS' }"
+            aria-hidden="true"
+            ><Link2 v-if="section.type === 'LINKS'" class="size-5" /><FileText
+              v-else
+              class="size-5" /></span
+          ><span
+            v-if="notebook && section.type === 'DELIVERABLES'"
+            class="prep-deliverable-number"
+            >{{ index + 1 }}</span
+          >
           <label
             v-if="
               (trackable || (notebook && section.type === 'RESEARCH')) &&
@@ -276,7 +358,7 @@ async function saveRename() {
                 maxlength="300"
                 :disabled="busy"
               />
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
                   class="prep-button"
                   :disabled="busy || !draftTitle.trim()"
@@ -355,14 +437,28 @@ async function saveRename() {
               rel="noopener noreferrer"
               class="mt-2 inline-flex min-h-11 max-w-full items-center gap-2 break-all text-sm text-sky-700 underline dark:text-sky-300"
               ><ExternalLink class="size-4 shrink-0" aria-hidden="true" />{{
-                item.label || item.url
+                notebook ? item.url : item.label || item.url
               }}</a
             >
-            <PrepFormattedText
+            <span
+              v-if="notebook && section.type === 'LINKS' && item.label"
+              class="prep-link-label"
+              >{{ item.label }}</span
+            >
+            <div
               v-if="item.content"
-              class="mt-2 text-slate-600 dark:text-white/70"
-              :text="item.content"
-            />
+              :class="
+                notebook && section.type === 'LINKS'
+                  ? 'prep-link-note'
+                  : 'mt-2 text-slate-600 dark:text-white/70'
+              "
+            >
+              <Info
+                v-if="notebook && section.type === 'LINKS'"
+                class="mt-0.5 size-4 shrink-0 text-sky-600 dark:text-sky-300"
+                aria-hidden="true"
+              /><PrepFormattedText :text="item.content" class="min-w-0" />
+            </div>
             <template v-if="section.type === 'RESEARCH'"
               ><div
                 v-for="key in ['objective', 'findings', 'conclusion'] as const"
@@ -492,28 +588,55 @@ async function saveRename() {
         </div>
       </li>
     </ol>
-    <ul
-      v-if="section.type === 'ATTACHMENTS'"
-      class="divide-y divide-slate-100 dark:divide-white/10"
-    >
+    <ul v-if="section.type === 'ATTACHMENTS'" class="prep-file-list">
       <li
         v-for="file in section.resources"
         :key="file.id"
-        class="flex flex-wrap items-center justify-between gap-2 py-3"
+        class="prep-file-row"
       >
-        <div class="min-w-0">
-          <p class="break-words text-sm font-medium">{{ file.title }}</p>
-          <p class="text-xs text-slate-500">
-            {{ file.extension.toUpperCase() }} ·
-            {{ (file.fileSize / 1024).toFixed(1) }} KiB
-          </p>
+        <div class="flex min-w-0 items-center gap-3">
+          <span
+            class="prep-file-icon"
+            :class="
+              file.mimeType.startsWith('image/')
+                ? 'prep-file-icon--image'
+                : file.extension === 'pdf'
+                  ? 'prep-file-icon--pdf'
+                  : ''
+            "
+            aria-hidden="true"
+            ><FileImage
+              v-if="file.mimeType.startsWith('image/')"
+              class="size-6" /><span
+              v-else-if="file.extension === 'pdf'"
+              class="text-[10px] font-bold"
+              >PDF</span
+            ><FileText v-else class="size-6"
+          /></span>
+          <div class="min-w-0">
+            <p
+              class="line-clamp-2 break-words text-sm font-semibold md:line-clamp-1"
+              :title="file.title"
+            >
+              {{ file.title }}
+            </p>
+            <p class="mt-1 text-xs text-slate-500">
+              {{ file.extension.toUpperCase() }} ·
+              {{ (file.fileSize / 1024).toFixed(1) }} KiB
+            </p>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-1">
-          <a class="prep-button" :href="resourceUrl(file)"
-            ><Download class="size-4" aria-hidden="true" />{{
-              t("prephub.download")
-            }}</a
-          ><a
+        <div class="prep-file-actions">
+          <a
+            class="prep-button prep-file-action"
+            :href="resourceUrl(file)"
+            :aria-label="`${t('prephub.download')}: ${file.title}`"
+            ><Download class="size-4 shrink-0" aria-hidden="true" /><span
+              class="truncate"
+              >{{ t("prephub.download") }}</span
+            ></a
+          >
+          <a
             v-if="
               [
                 'application/pdf',
@@ -522,31 +645,53 @@ async function saveRename() {
                 'image/webp',
               ].includes(file.mimeType)
             "
-            class="prep-button"
+            class="prep-button prep-file-action"
             :href="resourceUrl(file, true)"
+            :aria-label="`${t('prephub.preview')}: ${file.title}`"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ t("prephub.preview") }}</a
-          ><template v-if="!review && !readOnly"
-            ><button
-              type="button"
-              class="prep-icon"
-              :disabled="busy"
-              :aria-label="t('prephub.rename')"
-              @click="
+            ><Eye class="size-4 shrink-0" aria-hidden="true" /><span
+              class="truncate"
+              >{{ t("prephub.preview") }}</span
+            ></a
+          >
+          <template v-if="!review && !readOnly"
+            ><div class="hidden gap-1 md:flex">
+              <button
+                type="button"
+                class="prep-icon border border-slate-200 dark:border-white/15"
+                :disabled="busy"
+                :aria-label="`${t('prephub.rename')}: ${file.title}`"
+                @click="
+                  rename = { title: file.title, path: `/resources/${file.id}` }
+                "
+              >
+                <Pencil class="size-4" aria-hidden="true" /></button
+              ><button
+                type="button"
+                class="prep-icon border border-slate-200 dark:border-white/15"
+                :disabled="busy"
+                :aria-label="`${t('prephub.delete')}: ${file.title}`"
+                @click="
+                  confirm(() => mutate(`/resources/${file.id}`, 'DELETE'))
+                "
+              >
+                <Trash2 class="size-4" aria-hidden="true" />
+              </button>
+            </div>
+            <PrepItemActions
+              class="md:hidden"
+              :title="file.title"
+              :busy="busy"
+              :reorderable="false"
+              :edit-label="t('prephub.rename')"
+              @edit="
                 rename = { title: file.title, path: `/resources/${file.id}` }
               "
-            >
-              <Pencil class="size-4" aria-hidden="true" /></button
-            ><button
-              type="button"
-              class="prep-icon"
-              :disabled="busy"
-              :aria-label="t('prephub.delete')"
-              @click="confirm(() => mutate(`/resources/${file.id}`, 'DELETE'))"
-            >
-              <Trash2 class="size-4" aria-hidden="true" /></button
-          ></template>
+              @remove="
+                confirm(() => mutate(`/resources/${file.id}`, 'DELETE'))
+              "
+          /></template>
         </div>
       </li>
     </ul>

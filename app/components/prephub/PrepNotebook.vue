@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  Plus,
   ArrowRight,
   ClipboardList,
   FolderOpen,
@@ -11,10 +12,12 @@ import {
   type PrepType,
   type PrepMutation,
   type PrepNotebookArea,
+  type PrepProgress,
 } from "~/lib/prephub";
 import PrepSection from "./PrepSection.vue";
 const props = defineProps<{
   sections: Section[];
+  progress?: PrepProgress;
   subjectId: string;
   timeZone: string;
   busy?: boolean;
@@ -94,16 +97,66 @@ defineExpose({ focusTask });
       <section
         v-if="area.key !== 'questions' || content.questions.length"
         :id="`prep-${area.key}`"
-        class="prep-panel scroll-mt-36"
+        class="prep-panel prep-notebook-area scroll-mt-36"
         :aria-label="t(`prephub.notebook.${area.key}`)"
       >
-        <h2 class="mb-3 flex items-center gap-2 font-semibold">
-          <component
-            :is="area.icon"
-            class="size-4 text-slate-400"
-            aria-hidden="true"
-          />{{ t(`prephub.notebook.${area.key}`) }}
-        </h2>
+        <div class="prep-area-heading">
+          <div class="flex min-w-0 items-center gap-3">
+            <span class="prep-area-icon" :class="`prep-area-icon--${area.key}`"
+              ><component
+                :is="area.icon"
+                class="size-5 sm:size-6"
+                aria-hidden="true"
+            /></span>
+            <div class="min-w-0">
+              <h2 class="text-lg font-bold sm:text-xl">
+                {{ t(`prephub.notebook.${area.key}`) }}
+              </h2>
+              <p
+                class="mt-0.5 text-sm leading-relaxed text-slate-500 dark:text-white/60"
+              >
+                {{
+                  t(
+                    area.key === "checklist" && review
+                      ? content.checklist.length
+                        ? "prephub.visual.reviewChecklistHint"
+                        : "prephub.notebook.noUnfinishedTasks"
+                      : `prephub.visual.${area.key}Hint`,
+                  )
+                }}
+              </p>
+            </div>
+          </div>
+          <div
+            v-if="area.key === 'checklist' && progress?.total"
+            class="prep-checklist-progress"
+          >
+            <span>{{
+              t("prephub.visual.completedCount", {
+                completed: progress.completed,
+                total: progress.total,
+              })
+            }}</span
+            ><progress
+              :value="progress.completed"
+              :max="progress.total"
+              :aria-label="t('prephub.notebook.preparation')"
+              class="h-2 min-w-0 flex-1 accent-sky-700"
+            /><strong>{{ progress.percent }}%</strong>
+          </div>
+          <p
+            v-else-if="area.key === 'checklist' && progress"
+            class="text-xs text-slate-500"
+          >
+            {{
+              t(
+                groups.checklist.some((s) => s.items.length)
+                  ? "prephub.visual.optionalTasksOnly"
+                  : "prephub.notebook.noTasksProgress",
+              )
+            }}
+          </p>
+        </div>
         <div class="space-y-4">
           <div
             v-for="section in content[area.key]"
@@ -122,12 +175,21 @@ defineExpose({ focusTask });
               :read-only="readOnly"
               :review="review"
               :resource-base="resourceBase"
+              :hide-heading="
+                area.key === 'checklist' &&
+                content.checklist.length === 1 &&
+                [
+                  'Checklist',
+                  t('prephub.CHECKLIST'),
+                  t('prephub.notebook.checklist'),
+                ].includes(section.title)
+              "
               notebook
             />
           </div>
         </div>
         <p
-          v-if="!content[area.key].length"
+          v-if="!content[area.key].length && area.key === 'materials'"
           class="text-sm leading-relaxed text-slate-500"
         >
           {{
@@ -142,22 +204,25 @@ defineExpose({ focusTask });
         </p>
         <form
           v-if="area.key === 'checklist' && !readOnly && !review && createTask"
-          class="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-white/10"
+          class="prep-task-entry"
           @submit.prevent="saveTask"
         >
-          <label class="min-w-0 flex-1"
+          <label class="relative min-w-0 flex-1"
             ><span class="sr-only">{{ t("prephub.notebook.task") }}</span
+            ><span
+              class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400"
+              ><Plus class="size-4" aria-hidden="true" /></span
             ><input
               :ref="(el) => (taskInput = el as HTMLInputElement | null)"
               v-model="taskTitle"
-              class="prep-input !mt-0"
+              class="prep-input !mt-0 !pl-11"
               maxlength="300"
               required
               :disabled="busy"
               :placeholder="t('prephub.notebook.taskPlaceholder')" /></label
           ><button
             type="submit"
-            class="prep-icon text-sky-700 dark:text-sky-300"
+            class="prep-task-submit"
             :disabled="busy || !taskTitle.trim()"
             :aria-label="t('prephub.notebook.saveTask')"
           >

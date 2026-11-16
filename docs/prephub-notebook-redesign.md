@@ -3,7 +3,7 @@
 Adapt the existing Nuxt/Vue feature without changing APIs, Prisma models, SQL, authorization, sharing or progress calculations. Saved sections remain intact. This is a presentation and interaction change.
 
 - Create: title and optional description; dates and advanced subject/template options progressively revealed. New subjects start blank and open immediately after saving.
-- Overview: compact title/description/schedule/status with one progress indicator based on existing server totals. No percentage when there are no counted tasks. Ready and Finished remain deliberate status actions.
+- Overview: compact title/description/status with responsive date and goal cards. The single preparation indicator is in the checklist header, based on existing server totals. No percentage when there are no counted tasks. Ready and Finished remain deliberate status actions.
 - Checklist: existing checklist/deliverable sections grouped together, quick inline task creation and title editing, one-tap completion and a row menu for reorder/details/delete.
 - Materials: notes, files, links and agenda together, preserving section names/content, resource metadata and download/preview behavior.
 - Questions: question and research sections together; hidden when empty, with simple answered controls and full findings/sources/conclusions still accessible.
@@ -68,3 +68,7 @@ No SQL, new environment variables, backend API changes or deployment configurati
 - `tests/prephub-notebook.test.ts` (new)
 - `tests/helpers/component-host.ts`
 - `docs/prephub-notebook-redesign.md` (new)
+
+## Visual reference follow-up
+
+The current presentation follows the supplied visual references using existing content. See [PrepHub reference layout](prephub-reference-layout.md) for the updated layout, changed files and latest validation results. Earlier validation counts above describe the initial notebook redesign.

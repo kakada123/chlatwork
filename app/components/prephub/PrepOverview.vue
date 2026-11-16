@@ -1,31 +1,51 @@
 <script setup lang="ts">
-import { CalendarDays, Clock } from "lucide-vue-next";
+import {
+  CalendarDays,
+  Clock,
+  Layers,
+  Flag,
+  Globe2,
+  ChevronDown,
+} from "lucide-vue-next";
 import type { PrepSubject } from "~/lib/prephub";
 import PrepFormattedText from "./PrepFormattedText.vue";
 const props = defineProps<{
   subject: Pick<
     PrepSubject,
-    | "title"
-    | "description"
-    | "goal"
-    | "status"
-    | "eventAt"
-    | "deadlineAt"
-    | "progress"
+    "title" | "description" | "goal" | "status" | "eventAt" | "deadlineAt"
   >;
   timeZone: string;
 }>();
 const { t } = useAppI18n();
-const expanded = ref(false);
+const expanded = ref(false),
+  goalExpanded = ref(false),
+  detailsOpen = ref(false),
+  detailsId = useId();
 const longDescription = computed(
   () =>
     props.subject.description.length > 180 ||
     props.subject.description.split("\n").length > 3,
 );
+const longGoal = computed(
+  () =>
+    props.subject.goal.length > 240 ||
+    props.subject.goal.split("\n").length > 4,
+);
+const hasAside = computed(() =>
+  Boolean(
+    props.subject.eventAt || props.subject.deadlineAt || props.subject.goal,
+  ),
+);
 watch(
   () => props.subject.description,
   () => {
     expanded.value = false;
+  },
+);
+watch(
+  () => props.subject.goal,
+  () => {
+    goalExpanded.value = false;
   },
 );
 function date(value: string, timeZone: string) {
@@ -37,88 +57,148 @@ function date(value: string, timeZone: string) {
 }
 </script>
 <template>
-  <header class="prep-panel space-y-3">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <slot name="badge" /><span
-        class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-white/70"
-        >{{ t(`prephub.${subject.status}`) }}</span
-      >
+  <header
+    class="prep-overview"
+    :class="{ 'prep-overview--with-aside': hasAside }"
+  >
+    <div class="prep-panel prep-overview-main">
+      <div class="flex min-w-0 items-start gap-3 sm:gap-4">
+        <span class="prep-overview-icon" aria-hidden="true"
+          ><Layers class="size-6 sm:size-8"
+        /></span>
+        <div class="min-w-0 flex-1">
+          <div class="mb-2 flex flex-wrap items-center gap-2">
+            <span
+              class="prep-status"
+              :class="`prep-status--${subject.status.toLowerCase()}`"
+              ><span
+                class="size-2 rounded-full bg-current"
+                aria-hidden="true"
+              />{{ t(`prephub.${subject.status}`) }}</span
+            ><slot name="badge" />
+          </div>
+          <h1
+            class="break-words text-2xl font-bold leading-tight tracking-tight sm:text-3xl"
+          >
+            {{ subject.title }}
+          </h1>
+          <PrepFormattedText
+            v-if="subject.description"
+            :text="subject.description"
+            class="mt-3 text-slate-600 dark:text-white/70"
+            :class="{ 'line-clamp-3': longDescription && !expanded }"
+          /><button
+            v-if="longDescription"
+            type="button"
+            class="min-h-11 text-sm font-semibold text-sky-700 dark:text-sky-300"
+            :aria-expanded="expanded"
+            @click="expanded = !expanded"
+          >
+            {{
+              t(
+                expanded
+                  ? "prephub.notebook.showLess"
+                  : "prephub.notebook.readMore",
+              )
+            }}
+          </button>
+          <p
+            v-if="subject.eventAt || subject.deadlineAt"
+            class="mt-3 text-xs text-slate-500 lg:hidden"
+          >
+            {{
+              t(
+                subject.eventAt
+                  ? "prephub.sharedEventAt"
+                  : "prephub.sharedDeadline",
+              )
+            }}: {{ date((subject.eventAt || subject.deadlineAt)!, timeZone) }}
+          </p>
+        </div>
+      </div>
     </div>
-    <div>
-      <h1 class="break-words text-xl font-bold leading-snug sm:text-2xl">
-        {{ subject.title }}
-      </h1>
-      <PrepFormattedText
-        v-if="subject.description"
-        :text="subject.description"
-        class="mt-2 text-slate-600 dark:text-white/70"
-        :class="{ 'line-clamp-3': longDescription && !expanded }"
-      /><button
-        v-if="longDescription"
+    <aside
+      v-if="hasAside"
+      class="space-y-3"
+      :aria-label="t('prephub.visual.subjectDetails')"
+    >
+      <button
         type="button"
-        class="min-h-11 text-sm font-semibold text-sky-700 dark:text-sky-300"
-        :aria-expanded="expanded"
-        @click="expanded = !expanded"
+        class="prep-button w-full lg:hidden"
+        :aria-expanded="detailsOpen"
+        :aria-controls="detailsId"
+        @click="detailsOpen = !detailsOpen"
       >
-        {{
-          t(
-            expanded
-              ? "prephub.notebook.showLess"
-              : "prephub.notebook.readMore",
-          )
-        }}
+        {{ t("prephub.visual.datesAndGoal")
+        }}<ChevronDown
+          class="size-4"
+          :class="{ 'rotate-180': detailsOpen }"
+          aria-hidden="true"
+        />
       </button>
-    </div>
-    <div
-      v-if="subject.eventAt || subject.deadlineAt"
-      class="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500"
-    >
-      <p v-if="subject.eventAt" class="inline-flex items-center gap-1.5">
-        <CalendarDays class="size-4 shrink-0" aria-hidden="true" /><span
-          >{{ t("prephub.sharedEventAt") }}:
-          {{ date(subject.eventAt, timeZone) }}</span
-        >
-      </p>
-      <p v-if="subject.deadlineAt" class="inline-flex items-center gap-1.5">
-        <Clock class="size-4 shrink-0" aria-hidden="true" /><span
-          >{{ t("prephub.sharedDeadline") }}:
-          {{ date(subject.deadlineAt, timeZone) }}</span
-        >
-      </p>
-      <span>{{ timeZone }}</span>
-    </div>
-    <details v-if="subject.goal" class="group">
-      <summary
-        class="min-h-11 cursor-pointer content-center text-sm font-semibold text-slate-600 dark:text-white/70"
+      <div
+        :id="detailsId"
+        class="space-y-3"
+        :class="detailsOpen ? 'block' : 'hidden lg:block'"
       >
-        {{ t("prephub.notebook.goal") }}
-      </summary>
-      <PrepFormattedText :text="subject.goal" class="pb-2" />
-    </details>
-    <div
-      v-if="subject.progress.total"
-      class="space-y-2 border-t border-slate-100 pt-3 dark:border-white/10"
-    >
-      <p class="text-sm font-medium">
-        {{
-          t("prephub.notebook.progress", {
-            completed: subject.progress.completed,
-            total: subject.progress.total,
-          })
-        }}
-      </p>
-      <progress
-        class="block h-2 w-full accent-sky-700"
-        :value="subject.progress.completed"
-        :max="subject.progress.total"
-        :aria-label="t('prephub.notebook.preparation')"
-      />
-    </div>
-    <p
-      v-else
-      class="border-t border-slate-100 pt-3 text-sm text-slate-500 dark:border-white/10"
-    >
-      {{ t("prephub.notebook.noTasksProgress") }}
-    </p>
+        <dl
+          v-if="subject.eventAt || subject.deadlineAt"
+          class="prep-panel prep-schedule"
+        >
+          <div v-if="subject.eventAt" class="prep-schedule-row">
+            <span class="prep-detail-icon text-sky-700 dark:text-sky-300"
+              ><CalendarDays class="size-5" aria-hidden="true"
+            /></span>
+            <div class="min-w-0">
+              <dt>{{ t("prephub.sharedEventAt") }}</dt>
+              <dd>{{ date(subject.eventAt, timeZone) }}</dd>
+            </div>
+          </div>
+          <div v-if="subject.deadlineAt" class="prep-schedule-row">
+            <span class="prep-detail-icon"
+              ><Clock class="size-5" aria-hidden="true"
+            /></span>
+            <div class="min-w-0">
+              <dt>{{ t("prephub.sharedDeadline") }}</dt>
+              <dd>{{ date(subject.deadlineAt, timeZone) }}</dd>
+            </div>
+          </div>
+          <div class="prep-schedule-row">
+            <span class="prep-detail-icon"
+              ><Globe2 class="size-5" aria-hidden="true"
+            /></span>
+            <div class="min-w-0">
+              <dt>{{ t("prephub.visual.timeZone") }}</dt>
+              <dd class="break-words">{{ timeZone }}</dd>
+            </div>
+          </div>
+        </dl>
+        <section v-if="subject.goal" class="prep-panel prep-goal">
+          <h2 class="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <span class="prep-detail-icon text-violet-700 dark:text-violet-300"
+              ><Flag class="size-5" aria-hidden="true" /></span
+            >{{ t("prephub.notebook.goal") }}
+          </h2>
+          <PrepFormattedText
+            :text="subject.goal"
+            :class="{ 'line-clamp-4': longGoal && !goalExpanded }"
+          /><button
+            v-if="longGoal"
+            type="button"
+            class="min-h-11 text-sm font-semibold text-violet-700 dark:text-violet-300"
+            :aria-expanded="goalExpanded"
+            @click="goalExpanded = !goalExpanded"
+          >
+            {{
+              t(
+                goalExpanded
+                  ? "prephub.notebook.showLess"
+                  : "prephub.notebook.readMore",
+              )
+            }}
+          </button>
+        </section>
+      </div>
+    </aside>
   </header>
 </template>
