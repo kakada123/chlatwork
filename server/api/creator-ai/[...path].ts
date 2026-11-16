@@ -63,6 +63,7 @@ export default defineEventHandler(async (event) => {
 
   const accessToken = await getFreshAccessToken(event);
   const query = getRequestURL(event).search;
+  const idempotencyKey = getHeader(event, "idempotency-key");
   setResponseHeader(event, "Cache-Control", "no-store");
   // Streaming preserves large video uploads without buffering them inside Nuxt.
   return proxyRequest(
@@ -72,6 +73,7 @@ export default defineEventHandler(async (event) => {
       streamRequest: true,
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
         Cookie: "",
       },
     },

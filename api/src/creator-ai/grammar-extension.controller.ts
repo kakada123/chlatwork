@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   Body,
@@ -33,10 +34,11 @@ export class GrammarExtensionController {
     const isPolish = dto.mode === 'polish';
     const feature = isPolish ? AiFeature.KHMER_REWRITE : AiFeature.KHMER_GRAMMAR;
     const label = isPolish ? 'Polish text' : 'Grammar correction';
+    const idempotencyKey = key?.trim() || randomUUID();
     const result = await this.generations.generate(
       user.id,
       { feature, payload: { content: text }, inputSummary: label },
-      key,
+      idempotencyKey,
     );
     const corrected =
       result.data.sections.find((s) => s.id === 'result')?.content ?? text;

@@ -203,7 +203,7 @@ export function safeReturnPath(value: unknown, fallback = "/account") {
 }
 
 export function isSameOriginMutation(expected: string, supplied?: string, fetchSite?: string) {
-  if (supplied) return supplied === expected;
+  if (supplied) return supplied === expected || supplied.startsWith("chrome-extension://");
   // Non-browser callers and provider webhooks have no Origin; their existing authentication still applies.
   return fetchSite !== "cross-site" && fetchSite !== "same-site";
 }

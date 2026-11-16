@@ -94,7 +94,13 @@ export async function requestAuthApi<T>(
   }
 }
 
-export const getAccessToken = (event: H3Event) => getCookie(event, ACCESS_TOKEN_COOKIE);
+export const getAccessToken = (event: H3Event) => {
+  const auth = getHeader(event, "authorization");
+  if (auth && /^Bearer\s+/i.test(auth)) {
+    return auth.replace(/^Bearer\s+/i, "").trim();
+  }
+  return getCookie(event, ACCESS_TOKEN_COOKIE);
+};
 export const getRefreshToken = (event: H3Event) => getCookie(event, REFRESH_TOKEN_COOKIE);
 
 export async function getFreshAccessToken(event: H3Event) {

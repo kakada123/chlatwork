@@ -53,16 +53,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           ? { content: message.text }
           : { text: message.text, content: message.text, mode: message.mode, language: 'en' };
 
+        const idempotencyKey = typeof crypto?.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `cw-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+
         response = await fetch(requestUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Idempotency-Key': idempotencyKey,
             ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
           },
           body: JSON.stringify(requestBody),
           signal: abort.signal,
           credentials: 'omit',
-          redirect: 'error'
+          redirect: 'follow',
         });
       } finally {
         clearTimeout(timeout);

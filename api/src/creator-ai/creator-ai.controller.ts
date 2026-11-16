@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   Body,
@@ -84,7 +85,7 @@ export class CreatorAiController {
 
   @Post('khmer/grammar')
   grammar(@CurrentAuthUser() user: CurrentUser, @Headers('idempotency-key') key: string | undefined, @Body() dto: KhmerGrammarDto) {
-    return this.generate(user.id, AiFeature.KHMER_GRAMMAR, { ...dto }, 'Khmer grammar', key);
+    return this.generate(user.id, AiFeature.KHMER_GRAMMAR, { ...dto }, 'Khmer grammar', key?.trim() || randomUUID());
   }
 
   @Post('grammar/correct')
@@ -100,12 +101,13 @@ export class CreatorAiController {
     const isPolish = dto.mode === 'polish';
     const feature = isPolish ? AiFeature.KHMER_REWRITE : AiFeature.KHMER_GRAMMAR;
     const label = isPolish ? 'Polish text' : 'Grammar correction';
+    const idempotencyKey = key?.trim() || randomUUID();
     const result = await this.generate(
       user.id,
       feature,
       { content: text },
       label,
-      key,
+      idempotencyKey,
     );
     const corrected =
       result.data.sections.find((s) => s.id === 'result')?.content ?? text;
@@ -118,7 +120,7 @@ export class CreatorAiController {
 
   @Post('khmer/rewrite')
   rewrite(@CurrentAuthUser() user: CurrentUser, @Headers('idempotency-key') key: string | undefined, @Body() dto: RewriteDto) {
-    return this.generate(user.id, AiFeature.KHMER_REWRITE, { ...dto }, 'Khmer rewrite', key);
+    return this.generate(user.id, AiFeature.KHMER_REWRITE, { ...dto }, 'Khmer rewrite', key?.trim() || randomUUID());
   }
 
   @Post('khmer/latin-to-khmer')

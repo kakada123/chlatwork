@@ -98,7 +98,7 @@ describe('Grammar Correction API', () => {
         payload: { content: 'I has meeting today.' },
         inputSummary: 'Grammar correction',
       },
-      undefined,
+      expect.any(String),
     );
   });
 

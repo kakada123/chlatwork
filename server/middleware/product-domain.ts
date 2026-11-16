@@ -35,8 +35,18 @@ export default defineEventHandler((event) => {
   if (context.kind === "preview" || (context.product && !config.canonical.includes(context.product)) || /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) {
     setHeader(event, "X-Robots-Tag", "noindex, nofollow");
   }
+  const requestOrigin = getHeader(event, "origin");
+  if (path.startsWith("/api/") && requestOrigin && requestOrigin.startsWith("chrome-extension://")) {
+    setHeader(event, "Access-Control-Allow-Origin", requestOrigin);
+    setHeader(event, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    setHeader(event, "Access-Control-Allow-Headers", "Content-Type, Authorization, Idempotency-Key");
+    if (event.method === "OPTIONS") {
+      setResponseStatus(event, 204);
+      return send(event, "");
+    }
+  }
   if (path.startsWith("/api/") && !["GET", "HEAD", "OPTIONS"].includes(event.method)) {
-    if (!isSameOriginMutation(trustedRequestOrigin(event), getHeader(event, "origin"), getHeader(event, "sec-fetch-site"))) {
+    if (!isSameOriginMutation(trustedRequestOrigin(event), requestOrigin, getHeader(event, "sec-fetch-site"))) {
       throw createError({ statusCode: 403, statusMessage: "Cross-origin requests are not allowed" });
     }
   }
