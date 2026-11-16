@@ -11,7 +11,7 @@ test("Chrome Extension Manifest V3 structure and permissions", () => {
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.name, "ChlatWork Grammar Assistant");
   assert.ok(manifest.version);
-  assert.deepEqual(manifest.permissions, ["storage"]);
+  assert.deepEqual(manifest.permissions, ["storage", "cookies"]);
 
   // Host permissions grant background service worker cross-origin fetch access
   assert.ok(Array.isArray(manifest.host_permissions));

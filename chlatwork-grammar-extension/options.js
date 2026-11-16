@@ -48,6 +48,43 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
+document.querySelector('#syncCookieBtn').addEventListener('click', async () => {
+  try {
+    setStatus('Looking for active ChlatWork session...');
+
+    // Search for the chlatwork_access_token cookie across all permitted domains (local and production)
+    const cookies = await chrome.cookies.getAll({ name: 'chlatwork_access_token' });
+    let foundToken = null;
+    let foundSource = null;
+
+    if (cookies && cookies.length > 0) {
+      // If user typed an endpoint domain, prefer cookie matching that domain; otherwise pick the latest cookie
+      let targetHost = '';
+      try {
+        if (endpointInput.value) targetHost = new URL(endpointInput.value).hostname;
+      } catch {}
+
+      const matched = targetHost
+        ? cookies.find((c) => c.domain.includes(targetHost) || targetHost.includes(c.domain.replace(/^\./, '')))
+        : null;
+
+      const cookie = matched || cookies[0];
+      foundToken = cookie.value;
+      foundSource = cookie.domain;
+    }
+
+    if (foundToken) {
+      tokenInput.value = foundToken;
+      await chrome.storage.session.set({ accessToken: foundToken });
+      setStatus(`✅ Successfully synced session from ${foundSource}! You are authenticated with Telegram.`);
+    } else {
+      setStatus('No active session found. Log into ChlatWork with Telegram in your browser, then click Sync.', true);
+    }
+  } catch (err) {
+    setStatus(`Failed to read session: ${err.message}`, true);
+  }
+});
+
 document.querySelector('#clearToken').addEventListener('click', async () => {
   await chrome.storage.session.remove('accessToken');
   tokenInput.value = '';

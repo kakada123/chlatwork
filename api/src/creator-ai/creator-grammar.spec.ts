@@ -74,7 +74,9 @@ describe('Grammar Correction API', () => {
       mockCreditsService as unknown as CreatorCreditsService,
       mockUploadTicketService as unknown as CreatorVideoUploadTicketService,
     );
-    extensionController = new GrammarExtensionController(controller);
+    extensionController = new GrammarExtensionController(
+      mockGenerationService as unknown as CreatorGenerationService,
+    );
   });
 
   it('corrects an English sentence with grammatical errors', async () => {
@@ -204,5 +206,10 @@ describe('Grammar Correction API', () => {
         ),
       ).rejects.toThrow();
     });
+  });
+
+  it('verifies that GrammarExtensionController resolves cleanly with CreatorGenerationService', () => {
+    expect(extensionController).toBeDefined();
+    expect(controller).toBeDefined();
   });
 });

@@ -4,7 +4,7 @@
   "description": "Fix grammar on websites using your existing ChlatWork AI API, only when you choose to send text.",
   "version": "0.2.0",
   "minimum_chrome_version": "110",
-  "permissions": ["storage"],
+  "permissions": ["storage", "cookies"],
   "host_permissions": [
     "https://*/*",
     "http://localhost/*",

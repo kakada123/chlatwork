@@ -18,7 +18,11 @@
       <label for="accessToken">ChlatWork access token (optional for authenticated API)</label>
       <input id="accessToken" type="password" spellcheck="false" autocomplete="off" placeholder="Temporary user access token" />
       <p class="hint">For local testing only. Held in session memory and cleared when the browser restarts, extension reloads, or is updated. Never paste your Google Gemini key here.</p>
-      <div class="buttons"><button type="submit">Save &amp; Grant Permission</button><button type="button" class="secondary" id="clearToken">Clear session token</button></div>
+      <div class="buttons">
+        <button type="submit">Save &amp; Grant Permission</button>
+        <button type="button" class="secondary" id="syncCookieBtn">🔄 Sync from Web Login (Telegram)</button>
+        <button type="button" class="secondary" id="clearToken">Clear session token</button>
+      </div>
       <p class="status" id="status" role="status"></p>
     </form>
     <section>

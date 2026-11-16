@@ -9,6 +9,7 @@
     "codex:safe:off": "./scripts/codex-mode-off.sh",
     "dev": "nuxt dev",
     "dev:api": "npm --prefix api run dev",
+    "dev:token": "node scripts/generate-dev-token.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
