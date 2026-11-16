@@ -23,6 +23,7 @@ import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader
 import { FoodModule } from './food/food.module';
 import { RosterModule } from './roster/roster.module';
 import { PrepHubModule } from './prephub/prephub.module';
+import { WorkTasksModule } from './work-tasks/work-tasks.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PrepHubModule } from './prephub/prephub.module';
     FoodModule,
     RosterModule,
     PrepHubModule,
+    WorkTasksModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

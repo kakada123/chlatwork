@@ -33,6 +33,8 @@ const navigation: Record<Product, ProductMobileItem[]> = {
   food: [],
   // Calendar has a dedicated fullscreen tool shell.
   calendar: [],
+  tasks: [],
+  prep: [{ key: "home", label: "PrepHub", labelKm: "PrepHub", icon: "home", to: "/" }, account],
   creator: [
     { key: "home", label: "Create", labelKm: "បង្កើត", icon: "home", to: "/" },
     {

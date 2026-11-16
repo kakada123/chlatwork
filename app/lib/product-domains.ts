@@ -1,5 +1,7 @@
 // Pure policy shared by the Nuxt router, server proxy, and deployment tests.
 export const PRODUCTS = {
+  tasks: { nameKey: "catalog.products.tasks.name", name: "ChlatWork Tasks", nameKm: "ChlatWork កិច្ចការ", entry: "/tasks", home: "/", host: "tasks" },
+  prep: { nameKey: "catalog.products.prep.name", name: "PrepHub", nameKm: "PrepHub", entry: "/prephub", home: "/", host: "prep" },
   creator: { nameKey: "catalog.products.creator.name", name: "ChlatWork Creator", nameKm: "ChlatWork បង្កើតមាតិកា", entry: "/creator", home: "/", host: "creator" },
   link: { nameKey: "catalog.products.link.name", name: "ChlatWork Link", nameKm: "ChlatWork តំណភ្ជាប់", entry: "/link", home: "/", host: "link" },
   moment: { nameKey: "catalog.products.moment.name", name: "ChlatWork Moments", nameKm: "ChlatWork អនុស្សាវរីយ៍", entry: "/moments/create", home: "/", host: "moment" },
@@ -128,6 +130,8 @@ function pathname(path: string) {
 
 export function productForPath(path: string): Product | null {
   const value = pathname(path);
+  if (/^\/tasks(?:\/|$)/.test(value)) return "tasks";
+  if (/^\/prephub(?:\/|$)/.test(value)) return "prep";
   if (/^\/creator(?:\/|$)/.test(value)) return "creator";
   if (/^\/(?:link(?:\/|$)|u\/|account\/link(?:\/|$))/.test(value)) return "link";
   if (/^\/(?:moments(?:\/|$)|moment\/|m\/|i\/)/.test(value)) return "moment";
@@ -139,7 +143,7 @@ export function productForPath(path: string): Product | null {
 export function productPath(product: Product, path: string) {
   const entry = PRODUCTS[product];
   const value = pathname(path);
-  if (product === "calendar") {
+  if (["calendar", "prep", "tasks"].includes(product)) {
     if (value === entry.entry) return entry.home;
     if (value.startsWith(`${entry.entry}/`)) return value.slice(entry.entry.length);
   }
@@ -148,6 +152,11 @@ export function productPath(product: Product, path: string) {
 
 export function legacyPath(product: Product | undefined, path: string) {
   if (!product) return pathname(path);
+  if (product === "prep") {
+    const value = pathname(path);
+    if (value === "/") return PRODUCTS.prep.entry;
+    if (/^\/[0-9a-f-]{36}(?:\/review)?$/i.test(value)) return `${PRODUCTS.prep.entry}${value}`;
+  }
   if (product === "calendar") {
     const value = pathname(path);
     if (value === "/" || value === PRODUCTS.calendar.home) return PRODUCTS.calendar.entry;
@@ -210,7 +219,7 @@ export function productRouteRecords<T extends { path: string; name?: unknown; al
         meta: { ...route.meta, productLegacyPath: route.path },
       };
     }
-    if (product === "calendar" && route.path.startsWith(`${entry.entry}/`)) {
+    if (["calendar", "prep", "tasks"].includes(product) && route.path.startsWith(`${entry.entry}/`)) {
       const childPath = route.path.slice(entry.entry.length);
       return {
         ...route,

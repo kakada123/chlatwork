@@ -3,6 +3,7 @@ import type { PrepInbox } from "~/lib/prephub";
 const props = defineProps<{ timeZone: string }>();
 const { request, owner, error, fail } = usePrepHub();
 const { t } = useAppI18n();
+const { linkTo } = useProductDomain();
 function date(value: string) {
   return new Intl.DateTimeFormat(undefined, {
     timeZone: props.timeZone,
@@ -52,7 +53,7 @@ onBeforeUnmount(() => clearInterval(timer));
       class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/30"
     >
       <NuxtLink
-        :to="`/prephub/${r.subjectId}/review`"
+        :to="linkTo(`/prephub/${r.subjectId}/review`)"
         class="min-w-0 flex-1 break-words"
         ><strong>{{ t("prephub.reminderDue") }}: {{ r.subject.title }}</strong
         ><span class="mt-1 block text-xs">{{

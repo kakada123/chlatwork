@@ -14,6 +14,7 @@ import "~/assets/css/prephub.css";
 definePageMeta({ middleware: "auth" });
 useSeoMeta({ title: "PrepHub — ChlatWork", robots: "noindex, nofollow" });
 const { t } = useAppI18n();
+const { linkTo } = useProductDomain();
 const { request, owner, timeZone, error, busy, feedback, fail, date } =
   usePrepHub();
 const subjects = ref<PrepSubject[]>([]),
@@ -70,7 +71,7 @@ async function create(body: Record<string, unknown>) {
       body,
     });
     createOpen.value = false;
-    await navigateTo(`/prephub/${subject.id}`);
+    await navigateTo(linkTo(`/prephub/${subject.id}`));
     return true;
   } catch (e) {
     fail(e);
@@ -262,7 +263,7 @@ function captured() {
       <NuxtLink
         v-for="subject in subjects"
         :key="subject.id"
-        :to="`/prephub/${subject.id}`"
+        :to="linkTo(`/prephub/${subject.id}`)"
         class="prep-panel group flex flex-col gap-3 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
         ><div class="flex items-center justify-between gap-2 text-xs">
           <span class="text-sky-700 dark:text-sky-300">{{

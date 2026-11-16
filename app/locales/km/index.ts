@@ -7,4 +7,6 @@ import native from "./native.ts";
 
 import prephub from "./prephub.ts";
 
-export default { ...prephub, ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;
+import tasks from "./tasks.ts";
+
+export default { ...tasks, ...prephub, ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;

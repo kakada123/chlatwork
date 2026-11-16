@@ -21,7 +21,7 @@ function component(name: string, hub: any = {}) {
       },
     },
   ).outputText;
-  const globals = {
+  const globals = { useProductDomain: () => ({ linkTo: (path: string) => path }),
     ...vue,
     onMounted() {},
     onBeforeUnmount() {},

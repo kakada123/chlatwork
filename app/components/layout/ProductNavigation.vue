@@ -2,6 +2,8 @@
 import { useAppI18n } from "~/composables/useAppI18n";
 import {
   CalendarDays,
+  ClipboardCheck,
+  ListChecks,
   Dices,
   Gamepad2,
   Heart,
@@ -47,6 +49,8 @@ const icons = {
   draw: Dices,
   games: Gamepad2,
   calendar: CalendarDays,
+  tasks: ListChecks,
+  prep: ClipboardCheck,
 };
 const productInfo = computed(() => (product ? PRODUCTS[product] : null));
 const links = computed(() => {

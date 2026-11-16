@@ -18,6 +18,7 @@ import PrepFormattedText from "./PrepFormattedText.vue";
 import "~/assets/css/prephub.css";
 const props = defineProps<{ id: string; review?: boolean }>();
 const { t } = useAppI18n();
+const { linkTo } = useProductDomain();
 const { request, owner, timeZone, error, busy, feedback, fail, date } =
   usePrepHub();
 const subject = ref<PrepSubject | null>(null);
@@ -122,7 +123,7 @@ async function deleteSubject() {
   try {
     await request(base.value, { method: "DELETE" });
     pendingDelete.value = null;
-    await navigateTo("/prephub");
+    await navigateTo(linkTo("/prephub"));
     return true;
   } catch (e) {
     fail(e);
@@ -183,13 +184,13 @@ onBeforeUnmount(() => {
     class="prephub mx-auto max-w-6xl space-y-4 pb-24 text-slate-950 dark:text-white"
   >
     <nav class="flex flex-wrap items-center justify-between gap-2">
-      <NuxtLink to="/prephub" class="prep-button"
+      <NuxtLink :to="linkTo('/prephub')" class="prep-button"
         ><ArrowLeft class="size-4" aria-hidden="true" />{{
           t("prephub.back")
         }}</NuxtLink
       ><NuxtLink
         v-if="subject"
-        :to="review ? `/prephub/${id}` : `/prephub/${id}/review`"
+        :to="linkTo(review ? `/prephub/${id}` : `/prephub/${id}/review`)"
         class="prep-button"
         ><ClipboardCheck class="size-4" aria-hidden="true" />{{
           t(review ? "prephub.workspace" : "prephub.review")
