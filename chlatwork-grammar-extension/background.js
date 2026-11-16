@@ -51,7 +51,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         const requestBody = isLegacyKhmer
           ? { content: message.text }
-          : { text: message.text, content: message.text, mode: message.mode, language: 'en' };
+          : { text: message.text, content: message.text, mode: message.mode, language: message.language || 'en' };
 
         const idempotencyKey = typeof crypto?.randomUUID === 'function'
           ? crypto.randomUUID()

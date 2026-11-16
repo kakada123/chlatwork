@@ -105,6 +105,21 @@
       background: #f1f5f9;
       color: #0f172a;
     }
+    .cw-lang-select {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+      padding: 3px 6px;
+      cursor: pointer;
+      outline: none;
+    }
+    .cw-lang-select:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
 
     /* Mode pill switch */
     .cw-mode-switch {
@@ -280,6 +295,10 @@
     <div class="cw-top">
       <div class="cw-brand"><span class="cw-logo">✨</span> ChlatWork Grammar</div>
       <div class="cw-controls">
+        <select class="cw-lang-select" id="cw-lang-select" title="Correction Language">
+          <option value="en" selected>English</option>
+          <option value="km">ខ្មែរ (Khmer)</option>
+        </select>
         <button class="cw-icon-btn" id="cw-opt-btn" type="button" title="Settings">⚙</button>
         <button class="cw-icon-btn" id="cw-close-btn" type="button" title="Close">×</button>
       </div>
@@ -297,14 +316,17 @@
   const bodyEl = popover.querySelector('#cw-body');
   const grammarPill = popover.querySelector('#cw-mode-grammar');
   const polishPill = popover.querySelector('#cw-mode-polish');
+  const langSelect = popover.querySelector('#cw-lang-select');
   const settingsBtn = popover.querySelector('#cw-opt-btn');
   const closeBtn = popover.querySelector('#cw-close-btn');
 
   let activeEditable = null;
   let currentMode = 'grammar';
+  let currentLanguage = 'en';
   let isChecking = false;
   let lastCheckedText = '';
   let lastSuggestion = null;
+  const correctionCache = new Map();
 
   const isPrivate = (element) => {
     const tags = [element.name, element.id, element.getAttribute('autocomplete')].join(' ').toLowerCase();
@@ -400,14 +422,64 @@
 
   grammarPill.addEventListener('click', () => setMode('grammar'));
   polishPill.addEventListener('click', () => setMode('polish'));
+  langSelect.addEventListener('change', () => {
+    currentLanguage = langSelect.value;
+    if (!popover.hidden) checkGrammar();
+  });
   settingsBtn.addEventListener('click', () => { chrome.runtime.sendMessage({ type: 'OPEN_SETTINGS' }); });
   closeBtn.addEventListener('click', () => { popover.hidden = true; });
+
+  function renderResult(text, corrected) {
+    if (!corrected || corrected === text) {
+      bodyEl.innerHTML = `
+        <div class="cw-perfect">✨ Looking good! No grammar errors found.</div>
+        <div class="cw-actions">
+          <button class="cw-btn" style="flex: 1; justify-content: center;" id="cw-dismiss-btn" type="button">Close</button>
+        </div>
+      `;
+      popover.querySelector('#cw-dismiss-btn')?.addEventListener('click', () => {
+        popover.hidden = true;
+      });
+      return;
+    }
+
+    const directApplyAllowed = canApply(activeEditable);
+    bodyEl.innerHTML = `
+      <div class="cw-card cw-card-original" title="Original text"><s>${escapeHtml(text)}</s></div>
+      <div class="cw-card cw-card-suggestion" title="Suggested correction">${escapeHtml(corrected)}</div>
+      <div class="cw-actions">
+        <button class="cw-btn cw-btn-primary" id="cw-accept-btn" type="button" ${directApplyAllowed ? '' : 'disabled'}>
+          ✓ Accept & Replace
+        </button>
+        <button class="cw-btn" id="cw-copy-btn" type="button" title="Copy to clipboard">Copy</button>
+      </div>
+      ${!directApplyAllowed ? '<p style="margin: 6px 0 0; font-size: 11px; color: #995c07;">Rich text editor: click Copy to preserve styles.</p>' : ''}
+    `;
+
+    popover.querySelector('#cw-accept-btn')?.addEventListener('click', () => {
+      applyDirectly(corrected);
+    });
+
+    popover.querySelector('#cw-copy-btn')?.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(corrected).catch(() => {});
+      const copyBtn = popover.querySelector('#cw-copy-btn');
+      if (copyBtn) copyBtn.textContent = 'Copied!';
+      setTimeout(() => { popover.hidden = true; }, 700);
+    });
+  }
 
   async function checkGrammar() {
     if (!activeEditable || !activeEditable.isConnected) return;
     const text = readText(activeEditable).trim();
     if (!text) {
       bodyEl.innerHTML = `<div class="cw-perfect" style="color: #64748b;">Type something in the text field first.</div>`;
+      return;
+    }
+
+    const cacheKey = `${currentLanguage}:${currentMode}:${text}`;
+    if (correctionCache.has(cacheKey)) {
+      renderResult(text, correctionCache.get(cacheKey));
+      updatePopoverPosition();
       return;
     }
 
@@ -425,6 +497,7 @@
         type: 'GRAMMAR_CORRECT',
         text,
         mode: currentMode,
+        language: currentLanguage,
       });
 
       if (!result?.ok) {
@@ -434,45 +507,9 @@
       const corrected = (result.corrected || '').trim();
       lastCheckedText = text;
       lastSuggestion = corrected;
+      correctionCache.set(cacheKey, corrected);
 
-      if (!corrected || corrected === text) {
-        bodyEl.innerHTML = `
-          <div class="cw-perfect">✨ Looking good! No grammar errors found.</div>
-          <div class="cw-actions">
-            <button class="cw-btn" style="flex: 1; justify-content: center;" id="cw-dismiss-btn" type="button">Close</button>
-          </div>
-        `;
-        popover.querySelector('#cw-dismiss-btn')?.addEventListener('click', () => {
-          popover.hidden = true;
-        });
-        return;
-      }
-
-      // Show Grammarly-style 1-click replacement UI
-      const directApplyAllowed = canApply(activeEditable);
-      bodyEl.innerHTML = `
-        <div class="cw-card cw-card-original" title="Original text"><s>${escapeHtml(text)}</s></div>
-        <div class="cw-card cw-card-suggestion" title="Suggested correction">${escapeHtml(corrected)}</div>
-        <div class="cw-actions">
-          <button class="cw-btn cw-btn-primary" id="cw-accept-btn" type="button" ${directApplyAllowed ? '' : 'disabled'}>
-            ✓ Accept & Replace
-          </button>
-          <button class="cw-btn" id="cw-copy-btn" type="button" title="Copy to clipboard">Copy</button>
-        </div>
-        ${!directApplyAllowed ? '<p style="margin: 6px 0 0; font-size: 11px; color: #995c07;">Rich text editor: click Copy to preserve styles.</p>' : ''}
-      `;
-
-      popover.querySelector('#cw-accept-btn')?.addEventListener('click', () => {
-        applyDirectly(corrected);
-      });
-
-      popover.querySelector('#cw-copy-btn')?.addEventListener('click', async () => {
-        await navigator.clipboard.writeText(corrected).catch(() => {});
-        const copyBtn = popover.querySelector('#cw-copy-btn');
-        if (copyBtn) copyBtn.textContent = 'Copied!';
-        setTimeout(() => { popover.hidden = true; }, 700);
-      });
-
+      renderResult(text, corrected);
     } catch (error) {
       bodyEl.innerHTML = `
         <div class="cw-error">${escapeHtml(error?.message || 'Could not connect to grammar API.')}</div>

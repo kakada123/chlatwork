@@ -99,13 +99,14 @@ export class CreatorAiController {
       throw new BadRequestException('text or content is required');
     }
     const isPolish = dto.mode === 'polish';
+    const language = (dto.language || 'en').toLowerCase();
     const feature = isPolish ? AiFeature.KHMER_REWRITE : AiFeature.KHMER_GRAMMAR;
     const label = isPolish ? 'Polish text' : 'Grammar correction';
     const idempotencyKey = key?.trim() || randomUUID();
     const result = await this.generate(
       user.id,
       feature,
-      { content: text },
+      { content: text, language, minimal: true },
       label,
       idempotencyKey,
     );

@@ -152,6 +152,30 @@ export function buildCreatorTextPrompt(
     case AiFeature.KHMER_GRAMMAR:
       return grammarPrompt(payload);
     case AiFeature.KHMER_REWRITE:
+      if (String(payload.language || '').toLowerCase() === 'en') {
+        return {
+          name: 'english_polish_fast',
+          instructions: `You are an expert English writing assistant.
+Polish the text to be clear, fluent, natural, and professional while preserving the original meaning and tone.
+Do not translate. Return only the polished English text in the result field without any explanations.`,
+          input: payloadText({ content: payload.content }),
+          schema: objectSchema({
+            result: stringField(12_000),
+          }),
+          maxOutputTokens: 2_000,
+          premium: false,
+          parse(value) {
+            const data = record(value);
+            const correctedText = text(data.result, 12_000);
+            return {
+              title: 'Polished text',
+              sections: [
+                { id: 'result', label: 'Polished text', content: correctedText },
+              ],
+            };
+          },
+        };
+      }
       return simpleResultPrompt(
         common,
         'khmer_rewrite',
@@ -253,6 +277,64 @@ Return only the converted text in result, without explanations, labels, alternat
 function grammarPrompt(
   payload: Record<string, unknown>,
 ): CreatorPromptSpec<CreatorGenerationResult> {
+  const language = String(payload.language || '').toLowerCase();
+  const minimal = Boolean(payload.minimal || payload.fast);
+
+  if (language === 'en') {
+    return {
+      name: 'english_grammar_fast',
+      instructions: `You are an expert English grammar assistant.
+Correct spelling, punctuation, verb tense, and grammar with minimal edits.
+Preserve the original meaning, tone, and useful emoji.
+Do not translate. If the text is already grammatically correct, return it unchanged.
+Return only the complete corrected text in the result field without any explanations.`,
+      input: payloadText({ content: payload.content }),
+      schema: objectSchema({
+        result: stringField(12_000),
+      }),
+      maxOutputTokens: 2_000,
+      premium: false,
+      parse(value) {
+        const data = record(value);
+        const correctedText = text(data.result, 12_000);
+        return {
+          title: 'Corrected text',
+          sections: [
+            { id: 'result', label: 'Corrected text', content: correctedText },
+          ],
+        };
+      },
+    };
+  }
+
+  if (minimal) {
+    return {
+      name: 'khmer_grammar_fast',
+      instructions: `You are ChlatWork's high-speed grammar and spelling editor for Khmer and English.
+Detect the language of the supplied content automatically. Correct English content in English and Khmer content in Khmer. For mixed Khmer-English content, preserve the language of each passage.
+Correct grammar, spelling, punctuation, and phrasing errors with minimal edits. Preserve the original meaning, tone, and useful emoji.
+Do not translate or transliterate. If the text is already correct, return it unchanged.
+Return only the complete corrected text in the result field without any explanations.
+Never emit Thai-script characters.`,
+      input: payloadText({ content: payload.content }),
+      schema: objectSchema({
+        result: stringField(12_000),
+      }),
+      maxOutputTokens: 2_000,
+      premium: false,
+      parse(value) {
+        const data = record(value);
+        const correctedText = text(data.result, 12_000);
+        return {
+          title: 'Corrected text',
+          sections: [
+            { id: 'result', label: 'Corrected text', content: correctedText },
+          ],
+        };
+      },
+    };
+  }
+
   return {
     name: 'khmer_grammar',
     instructions: `You are ChlatWork's grammar editor for Khmer and English.

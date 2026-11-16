@@ -32,12 +32,13 @@ export class GrammarExtensionController {
       throw new BadRequestException('text or content is required');
     }
     const isPolish = dto.mode === 'polish';
+    const language = (dto.language || 'en').toLowerCase();
     const feature = isPolish ? AiFeature.KHMER_REWRITE : AiFeature.KHMER_GRAMMAR;
     const label = isPolish ? 'Polish text' : 'Grammar correction';
     const idempotencyKey = key?.trim() || randomUUID();
     const result = await this.generations.generate(
       user.id,
-      { feature, payload: { content: text }, inputSummary: label },
+      { feature, payload: { content: text, language, minimal: true }, inputSummary: label },
       idempotencyKey,
     );
     const corrected =

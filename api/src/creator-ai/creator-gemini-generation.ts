@@ -162,7 +162,7 @@ export async function generateStructuredWithGemini<T>(
         maxOutputTokens: spec.maxOutputTokens,
         responseMimeType: 'application/json',
         responseJsonSchema: spec.schema,
-        ...(model.startsWith('gemini-2.5-flash')
+        ...(model.startsWith('gemini-2.5') || model.includes('thinking')
           ? { thinkingConfig: { thinkingBudget: 0 } }
           : {}),
       },

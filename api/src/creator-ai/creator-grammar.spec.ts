@@ -95,7 +95,7 @@ describe('Grammar Correction API', () => {
       user.id,
       {
         feature: AiFeature.KHMER_GRAMMAR,
-        payload: { content: 'I has meeting today.' },
+        payload: { content: 'I has meeting today.', language: 'en', minimal: true },
         inputSummary: 'Grammar correction',
       },
       expect.any(String),
@@ -132,7 +132,7 @@ describe('Grammar Correction API', () => {
       user.id,
       {
         feature: AiFeature.KHMER_REWRITE,
-        payload: { content: 'I has meeting today.' },
+        payload: { content: 'I has meeting today.', language: 'en', minimal: true },
         inputSummary: 'Polish text',
       },
       'idemp-1',
