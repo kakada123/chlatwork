@@ -1449,6 +1449,9 @@ model PreparationSubject {
   goal           String                @default("") @db.VarChar(4000)
   status         String                @default("DRAFT") @db.VarChar(20)
   previousStatus String?               @map("previous_status") @db.VarChar(20)
+  shareToken     String?               @unique @map("share_token") @db.VarChar(43)
+  shareAttachments Boolean             @default(false) @map("share_attachments")
+  sharedAt       DateTime?             @map("shared_at") @db.Timestamptz
   priority       String                @default("NORMAL") @db.VarChar(10)
   eventAt        DateTime?             @map("event_at") @db.Timestamptz
   deadlineAt     DateTime?             @map("deadline_at") @db.Timestamptz

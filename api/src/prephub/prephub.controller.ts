@@ -32,6 +32,7 @@ import {
   ResourceDto,
   SectionDto,
   SubjectDto,
+  ShareSubjectDto,
 } from './prephub.dto';
 import { PrepHubService } from './prephub.service';
 const uuid = new ParseUUIDPipe({ version: '4' });
@@ -82,6 +83,25 @@ export class PrepHubController {
     @Param('subjectId', uuid) s: string,
   ) {
     return this.hub.restore(u.id, s);
+  }
+  @Get('subjects/:subjectId/sharing') sharing(
+    @CurrentAuthUser() u: CurrentUser,
+    @Param('subjectId', uuid) id: string,
+  ) {
+    return this.hub.sharing(u.id, id);
+  }
+  @Put('subjects/:subjectId/sharing') enableSharing(
+    @CurrentAuthUser() u: CurrentUser,
+    @Param('subjectId', uuid) id: string,
+    @Body() dto: ShareSubjectDto,
+  ) {
+    return this.hub.enableSharing(u.id, id, dto);
+  }
+  @Delete('subjects/:subjectId/sharing') disableSharing(
+    @CurrentAuthUser() u: CurrentUser,
+    @Param('subjectId', uuid) id: string,
+  ) {
+    return this.hub.disableSharing(u.id, id);
   }
   @Get('subjects/:subjectId/history') history(
     @CurrentAuthUser() u: CurrentUser,

@@ -90,3 +90,8 @@ export class ListSubjectsDto {
   @Type(() => Number) @IsInt() @Min(1) @Max(100000) page = 1;
   @Type(() => Number) @IsInt() @Min(1) @Max(50) limit = 20;
 }
+
+export class ShareSubjectDto {
+  @IsBoolean() includeAttachments: boolean;
+  @ValidateIf(defined) @IsBoolean() regenerate?: boolean;
+}

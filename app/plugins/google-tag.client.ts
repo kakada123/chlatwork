@@ -1,3 +1,4 @@
+import { isPrepPublicPath } from "~/lib/prephub-sharing";
 import { nextTick } from "vue";
 import {
   GOOGLE_CONSENT_UPDATE_EVENT,
@@ -8,19 +9,32 @@ import {
 const productionHostname = "chlatwork.com";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  if (
-    import.meta.dev ||
-    window.location.hostname !== productionHostname
-  ) {
+  if (import.meta.dev) {
     return;
   }
 
   const measurementId = useRuntimeConfig().public.googleMeasurementId;
   const router = useRouter();
+  const privacyFlags = window as unknown as Record<string, unknown>;
+  const disableKey = "ga-disable-" + measurementId;
+  const protectShare = (path: string) => {
+    if (isPrepPublicPath(path)) privacyFlags[disableKey] = true;
+  };
+  protectShare(window.location.pathname);
+  // Block before History API updates, including automatic events from enhanced measurement.
+  router.beforeEach((to) => {
+    protectShare(to.path);
+  });
   let lastTrackedPath = "";
 
   const trackRoute = (fullPath: string) => {
-    if (!window.gtag || fullPath === lastTrackedPath) {
+    if (
+      window.location.hostname !== productionHostname ||
+      privacyFlags[disableKey] === true ||
+      !window.gtag ||
+      isPrepPublicPath(fullPath) ||
+      fullPath === lastTrackedPath
+    ) {
       return;
     }
 
@@ -41,10 +55,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   };
 
-  window.addEventListener(
-    GOOGLE_CONSENT_UPDATE_EVENT,
-    handleConsentUpdate,
-  );
+  window.addEventListener(GOOGLE_CONSENT_UPDATE_EVENT, handleConsentUpdate);
 
   nuxtApp.hook("app:mounted", () => {
     nextTick(() => trackRoute(router.currentRoute.value.fullPath));

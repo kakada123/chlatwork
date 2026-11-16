@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, ArrowLeft, ClipboardCheck, Zap } from "lucide-vue-next";
+import { Plus, ArrowLeft, ClipboardCheck, Zap, Share2 } from "lucide-vue-next";
 import {
   PREP_STATUSES,
   PREP_TYPES,
@@ -9,6 +9,7 @@ import {
 } from "~/lib/prephub";
 import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
+import PrepShareSettings from "./PrepShareSettings.vue";
 import PrepDialog from "./PrepDialog.vue";
 import PrepSubjectForm from "./PrepSubjectForm.vue";
 import PrepSection from "./PrepSection.vue";
@@ -24,6 +25,7 @@ const { request, owner, timeZone, error, busy, feedback, fail, date } =
   usePrepHub();
 const subject = ref<PrepSubject | null>(null);
 const loading = ref(true);
+const shareOpen = ref(false);
 const edit = ref(false),
   capture = ref(false),
   addSection = ref(false);
@@ -156,6 +158,7 @@ watch(
     subject.value = null;
     history.value = [];
     historyVersion++;
+    shareOpen.value = false;
     edit.value = false;
     capture.value = false;
     addSection.value = false;
@@ -169,6 +172,7 @@ watch(owner, () => {
   subject.value = null;
   history.value = [];
   pendingDelete.value = null;
+  shareOpen.value = false;
   edit.value = false;
   capture.value = false;
   addSection.value = false;
@@ -197,7 +201,24 @@ onBeforeUnmount(() => {
           t(review ? "prephub.workspace" : "prephub.review")
         }}</NuxtLink
       >
+      <button
+        v-if="subject && owner"
+        type="button"
+        class="prep-button"
+        @click="shareOpen = true"
+      >
+        <Share2 class="size-4" aria-hidden="true" />{{ t("prephub.share") }}
+      </button>
     </nav>
+    <PrepDialog
+      :open="shareOpen"
+      :title="t('prephub.shareWorkspace')"
+      @close="shareOpen = false"
+      ><PrepShareSettings
+        v-if="shareOpen && subject && owner"
+        :key="subject.id"
+        :subject-id="subject.id"
+    /></PrepDialog>
     <PrepInbox v-if="owner" :time-zone="timeZone" />
     <p v-if="loading" role="status" class="prep-panel animate-pulse">
       {{ t("prephub.loading") }}

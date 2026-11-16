@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import {
+  Check,
+  Circle,
   MoreHorizontal,
   ArrowDown,
   ArrowUp,
@@ -27,6 +29,8 @@ const props = defineProps<{
   mutate: PrepMutation;
   confirm: (action: () => Promise<boolean>) => void;
   review?: boolean;
+  readOnly?: boolean;
+  resourceBase?: string;
   error?: string;
 }>();
 const emit = defineEmits<{ move: [direction: number] }>();
@@ -37,7 +41,9 @@ const rename = ref<{ title: string; path: string } | null>(null);
 const uploadError = ref("");
 const itemActions = ref<string | null>(null);
 const shownItems = computed(() =>
-  props.review && ["CHECKLIST", "DELIVERABLES"].includes(props.section.type)
+  props.review &&
+  !props.readOnly &&
+  ["CHECKLIST", "DELIVERABLES"].includes(props.section.type)
     ? props.section.items.filter((i) => !i.isCompleted)
     : props.section.items,
 );
@@ -87,7 +93,7 @@ async function upload(event: Event) {
   input.value = "";
 }
 function resourceUrl(resource: PrepResource, preview = false) {
-  return `/api/prephub/subjects/${props.subjectId}/resources/${resource.id}${preview ? "?preview=1" : ""}`;
+  return `${props.resourceBase ?? `/api/prephub/subjects/${props.subjectId}/resources`}/${resource.id}${preview ? "?preview=1" : ""}`;
 }
 async function saveRename() {
   if (
@@ -118,7 +124,7 @@ async function saveRename() {
         <h2 class="break-words text-base font-semibold">{{ section.title }}</h2>
       </div>
       <div
-        v-if="!review"
+        v-if="!review && !readOnly"
         class="flex items-center"
         :class="{ 'pointer-events-none opacity-50': busy }"
       >
@@ -162,7 +168,7 @@ async function saveRename() {
       <li v-for="(item, index) in shownItems" :key="item.id" class="py-3">
         <div class="flex items-start gap-2">
           <label
-            v-if="trackable && !review"
+            v-if="trackable && !review && !readOnly"
             class="grid size-11 shrink-0 cursor-pointer place-items-center"
           >
             <input
@@ -177,6 +183,23 @@ async function saveRename() {
                 })
               "
           /></label>
+          <span
+            v-if="trackable && readOnly"
+            class="grid size-11 shrink-0 place-items-center"
+            :class="item.isCompleted ? 'text-emerald-600' : 'text-slate-400'"
+          >
+            <component
+              :is="item.isCompleted ? Check : Circle"
+              class="size-5"
+              aria-hidden="true"
+            /><span class="sr-only">{{
+              t(
+                item.isCompleted
+                  ? "prephub.completedRequirements"
+                  : "prephub.remaining",
+              )
+            }}</span>
+          </span>
           <span
             v-if="section.type === 'AGENDA'"
             class="mt-1 text-sm text-slate-400"
@@ -262,7 +285,7 @@ async function saveRename() {
             >
           </div>
         </div>
-        <div v-if="!review" class="mt-2 flex justify-end">
+        <div v-if="!review && !readOnly" class="mt-2 flex justify-end">
           <div
             :id="`${section.id}-${item.id}-actions`"
             class="items-center"
@@ -352,7 +375,7 @@ async function saveRename() {
             target="_blank"
             rel="noopener noreferrer"
             >{{ t("prephub.preview") }}</a
-          ><template v-if="!review"
+          ><template v-if="!review && !readOnly"
             ><button
               type="button"
               class="prep-icon"
@@ -381,7 +404,7 @@ async function saveRename() {
     >
       {{ t("prephub.emptySection") }}
     </p>
-    <template v-if="!review"
+    <template v-if="!review && !readOnly"
       ><div v-if="section.type === 'ATTACHMENTS'" class="mt-3">
         <label class="prep-label"
           >{{ t("prephub.upload")
@@ -408,6 +431,7 @@ async function saveRename() {
       </button></template
     >
     <PrepDialog
+      v-if="!readOnly"
       :error="error"
       :open="editor !== undefined"
       :title="t(editor ? 'prephub.edit' : 'prephub.addItem')"
@@ -422,6 +446,7 @@ async function saveRename() {
         @cancel="editor = undefined"
     /></PrepDialog>
     <PrepDialog
+      v-if="!readOnly"
       :error="error"
       :open="Boolean(rename)"
       :title="t('prephub.rename')"

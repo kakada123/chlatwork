@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -24,6 +25,7 @@ import type {
   ListSubjectsDto,
   ReminderDto,
   SubjectDto,
+  ShareSubjectDto,
 } from './prephub.dto';
 
 type Tx = Prisma.TransactionClient;
@@ -85,6 +87,167 @@ export class PrepHubService {
     });
     if (!subject) throw new NotFoundException('Preparation subject not found.');
     return { ...subject, progress: progressFor(subject.sections) };
+  }
+
+  async sharing(userId: string, id: string) {
+    const subject = await this.prisma.preparationSubject.findFirst({
+      where: { id, userId },
+      select: { shareToken: true, shareAttachments: true, sharedAt: true },
+    });
+    if (!subject) throw new NotFoundException('Preparation subject not found.');
+    return this.shareSettings(subject);
+  }
+
+  private shareSettings(subject: {
+    shareToken: string | null;
+    shareAttachments: boolean;
+    sharedAt: Date | null;
+  }) {
+    return {
+      enabled: Boolean(subject.shareToken),
+      token: subject.shareToken,
+      includeAttachments: subject.shareAttachments,
+      sharedAt: subject.sharedAt,
+    };
+  }
+
+  enableSharing(userId: string, id: string, dto: ShareSubjectDto) {
+    return this.change(
+      userId,
+      id,
+      dto.regenerate
+        ? 'Public link replaced'
+        : 'Public sharing enabled or updated',
+      async (tx, current) => {
+        const subject = await tx.preparationSubject.update({
+          where: { id },
+          data: {
+            shareToken:
+              dto.regenerate || !current.shareToken
+                ? randomBytes(32).toString('base64url')
+                : current.shareToken,
+            shareAttachments: dto.includeAttachments,
+            sharedAt: current.sharedAt ?? new Date(),
+          },
+        });
+        return this.shareSettings(subject);
+      },
+    );
+  }
+
+  disableSharing(userId: string, id: string) {
+    return this.change(userId, id, 'Public sharing disabled', async (tx) =>
+      this.shareSettings(
+        await tx.preparationSubject.update({
+          where: { id },
+          data: { shareToken: null, shareAttachments: false, sharedAt: null },
+        }),
+      ),
+    );
+  }
+
+  private validShareToken(token: string) {
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token))
+      throw new NotFoundException('Shared workspace not found.');
+  }
+
+  async publicWorkspace(token: string) {
+    this.validShareToken(token);
+    // Select safe content explicitly; never return identity, reminders, history or file bytes.
+    const subject = await this.prisma.preparationSubject.findFirst({
+      where: { shareToken: token },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        goal: true,
+        status: true,
+        priority: true,
+        eventAt: true,
+        deadlineAt: true,
+        updatedAt: true,
+        shareAttachments: true,
+        user: { select: { telegramNotificationTimeZone: true } },
+        sections: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            items: {
+              orderBy: { sortOrder: 'asc' },
+              select: {
+                id: true,
+                title: true,
+                content: true,
+                objective: true,
+                findings: true,
+                sources: true,
+                conclusion: true,
+                url: true,
+                label: true,
+                status: true,
+                isRequired: true,
+                isCompleted: true,
+                dueAt: true,
+              },
+            },
+            resources: {
+              where: { section: { subject: { shareAttachments: true } } },
+              select: resourceSelect,
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    if (!subject) throw new NotFoundException('Shared workspace not found.');
+    const {
+      id,
+      title,
+      description,
+      category,
+      goal,
+      status,
+      priority,
+      eventAt,
+      deadlineAt,
+      updatedAt,
+    } = subject;
+    const sections = subject.sections.map((section) => ({
+      ...section,
+      resources: subject.shareAttachments ? section.resources : [],
+    }));
+    return {
+      id,
+      title,
+      description,
+      category,
+      goal,
+      status,
+      priority,
+      eventAt,
+      deadlineAt,
+      updatedAt,
+      sections,
+      progress: progressFor(sections),
+      timeZone: subject.user.telegramNotificationTimeZone || 'Asia/Phnom_Penh',
+      includeAttachments: subject.shareAttachments,
+    };
+  }
+
+  async publicFile(token: string, id: string) {
+    this.validShareToken(token);
+    // Every download checks current access; a previously opened page grants no lasting file access.
+    const resource = await this.prisma.preparationResource.findFirst({
+      where: {
+        id,
+        section: { subject: { shareToken: token, shareAttachments: true } },
+      },
+    });
+    if (!resource) throw new NotFoundException('Attachment not found.');
+    return resource;
   }
 
   async list(userId: string, query: ListSubjectsDto) {

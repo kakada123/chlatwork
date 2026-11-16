@@ -1,3 +1,4 @@
+import { filterPrepShareTelemetry } from "../app/lib/prephub-sharing.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -244,6 +245,7 @@ test("the app rechecks ad policy on focus and polling, reloads only after revoca
   new Function("require", "module", "exports", ...Object.keys(globals), code)(
     (name: string) => {
       if (name === "~/composables/useAppI18n") return { useAppI18n: createI18nStub };
+      if (name === "~/lib/prephub-sharing") return { filterPrepShareTelemetry };
       if (name === "vue") return vue;
       if (name === "~/lib/ad-visibility") return { canShowAdsForUser };
       if (name === "~/data/site-routes")

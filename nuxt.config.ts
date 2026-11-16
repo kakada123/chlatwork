@@ -1,3 +1,4 @@
+import { prepShareGoogleGuardScript } from "./app/lib/prephub-sharing";
 import { PUBLIC_SITEMAP_PATHS } from "./app/data/site-routes";
 import { TOOL_GUIDE_ROUTES } from "./app/data/tool-guide-routes";
 
@@ -12,6 +13,7 @@ const googleMeasurementId = "G-Y3CGX9GBQN";
 const isProduction = nodeEnv.NODE_ENV === "production";
 
 const googleTagConsentScript = `
+${prepShareGoogleGuardScript(googleMeasurementId)}
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 window.gtag = window.gtag || gtag;
@@ -141,7 +143,7 @@ export default defineNuxtConfig({
       telegramClientId: nodeEnv.NUXT_PUBLIC_TELEGRAM_CLIENT_ID || "",
     },
   },
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap", "@vercel/speed-insights"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/sitemap"],
   sitemap: {
     siteUrl: "https://chlatwork.com",
     // Keep sitemap discovery explicit so redirect-only and catch-all pages do not leak into Google.

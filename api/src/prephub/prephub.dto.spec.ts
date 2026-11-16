@@ -42,3 +42,31 @@ describe('PrepHub input validation', () => {
     ).not.toHaveLength(0);
   });
 });
+
+import { ShareSubjectDto } from './prephub.dto';
+describe('PrepHub share scope validation', () => {
+  it('requires an explicit boolean attachment choice and rejects string flags', () => {
+    for (const body of [
+      {},
+      { includeAttachments: 'false' },
+      { includeAttachments: null },
+      { includeAttachments: false, regenerate: 'true' },
+    ])
+      expect(
+        validateSync(plainToInstance(ShareSubjectDto, body)),
+      ).not.toHaveLength(0);
+    expect(
+      validateSync(
+        plainToInstance(ShareSubjectDto, { includeAttachments: false }),
+      ),
+    ).toHaveLength(0);
+    expect(
+      validateSync(
+        plainToInstance(ShareSubjectDto, {
+          includeAttachments: true,
+          regenerate: true,
+        }),
+      ),
+    ).toHaveLength(0);
+  });
+});

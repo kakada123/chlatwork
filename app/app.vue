@@ -1,5 +1,5 @@
 <template>
-  <Analytics />
+  <Analytics :before-send="filterPrepShareTelemetry" />
   <div
     class="app-shell"
     :data-account-workspace="route.path === '/account' ? '' : undefined"
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { useAppI18n } from "~/composables/useAppI18n";
+import { filterPrepShareTelemetry } from "~/lib/prephub-sharing";
 import { Analytics } from "@vercel/analytics/nuxt";
 import { getPublisherRobots } from "~/data/site-routes";
 import { canShowAdsForUser } from "~/lib/ad-visibility";

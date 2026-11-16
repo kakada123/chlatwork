@@ -1,3 +1,4 @@
+import { prepShareGoogleGuardScript } from "../app/lib/prephub-sharing.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -21,6 +22,7 @@ test("the resolved page response policy permits first-party GPS without permitti
     code,
   )(
     (name: string) => {
+      if (name === "./app/lib/prephub-sharing") return { prepShareGoogleGuardScript };
       if (name === "./app/data/site-routes")
         return { PUBLIC_SITEMAP_PATHS: [] };
       if (name === "./app/data/tool-guide-routes")

@@ -179,3 +179,10 @@ export type PrepMutation = (
   method: "POST" | "PATCH" | "PUT" | "DELETE",
   body?: Record<string, unknown> | FormData,
 ) => Promise<boolean>;
+
+export interface PrepSharing {
+  enabled: boolean; token: string | null; includeAttachments: boolean; sharedAt: string | null;
+}
+export interface PrepSharedSubject extends Omit<PrepSubject, 'reminders'> {
+  timeZone: string; includeAttachments: boolean;
+}

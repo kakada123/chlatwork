@@ -155,6 +155,7 @@ export function legacyPath(product: Product | undefined, path: string) {
   if (product === "prep") {
     const value = pathname(path);
     if (value === "/") return PRODUCTS.prep.entry;
+    if (/^\/shared\/[A-Za-z0-9_-]{43}$/.test(value)) return `${PRODUCTS.prep.entry}${value}`;
     if (/^\/[0-9a-f-]{36}(?:\/review)?$/i.test(value)) return `${PRODUCTS.prep.entry}${value}`;
   }
   if (product === "calendar") {
