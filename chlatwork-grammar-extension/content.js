@@ -6,7 +6,7 @@
     :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; }
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* In-field Grammarly-style floating badge */
+    /* In-field & selection Grammarly-style floating badge */
     .cw-badge {
       position: fixed;
       z-index: 2147483646;
@@ -86,7 +86,7 @@
     .cw-controls {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
     .cw-icon-btn {
       background: transparent;
@@ -293,7 +293,7 @@
   popover.hidden = true;
   popover.innerHTML = `
     <div class="cw-top">
-      <div class="cw-brand"><span class="cw-logo">✨</span> ChlatWork Grammar</div>
+      <div class="cw-brand"><span class="cw-logo">✨</span> <span id="cw-header-title">ChlatWork Grammar</span></div>
       <div class="cw-controls">
         <select class="cw-lang-select" id="cw-lang-select" title="Correction Language">
           <option value="en" selected>English</option>
@@ -313,6 +313,7 @@
   root.append(badge, popover);
   (document.documentElement || document.body).appendChild(host);
 
+  const headerTitle = popover.querySelector('#cw-header-title');
   const bodyEl = popover.querySelector('#cw-body');
   const grammarPill = popover.querySelector('#cw-mode-grammar');
   const polishPill = popover.querySelector('#cw-mode-polish');
@@ -321,6 +322,7 @@
   const closeBtn = popover.querySelector('#cw-close-btn');
 
   let activeEditable = null;
+  let selectionContext = null;
   let currentMode = 'grammar';
   let currentLanguage = 'en';
   let isChecking = false;
@@ -329,6 +331,7 @@
   const correctionCache = new Map();
 
   const isPrivate = (element) => {
+    if (!element || !(element instanceof HTMLElement)) return false;
     const tags = [element.name, element.id, element.getAttribute('autocomplete')].join(' ').toLowerCase();
     return /password|passcode|one-time-code|\botp\b|\bpin\b|cc-number|cc-csc|credit.?card/i.test(tags)
       || element.closest('[data-private], [data-sensitive], [contenteditable="false"]') !== null;
@@ -353,11 +356,77 @@
   }
 
   function canApply(element) {
+    if (!element) return false;
     if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) return true;
     return Array.from(element.querySelectorAll('*')).every((child) => child.tagName === 'BR');
   }
 
+  function getSelectionContext(mousePos) {
+    // Check if active input/textarea has highlighted text
+    if (activeEditable instanceof HTMLInputElement || activeEditable instanceof HTMLTextAreaElement) {
+      const start = activeEditable.selectionStart;
+      const end = activeEditable.selectionEnd;
+      if (typeof start === 'number' && typeof end === 'number' && end > start) {
+        const text = activeEditable.value.substring(start, end).trim();
+        if (text) {
+          return {
+            text,
+            isSelection: true,
+            target: activeEditable,
+            start,
+            end,
+            mousePos,
+          };
+        }
+      }
+    }
+
+    // Check general DOM / contenteditable selection
+    const sel = window.getSelection();
+    const selText = sel ? sel.toString().trim() : '';
+    if (selText && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const node = range.commonAncestorContainer;
+        const targetEl = node instanceof HTMLElement ? node : node.parentElement;
+        const target = resolveEditable(targetEl);
+        return {
+          text: selText,
+          isSelection: true,
+          target,
+          range: range.cloneRange(),
+          rect,
+          mousePos,
+        };
+      }
+    }
+
+    return null;
+  }
+
   function updateBadgePosition() {
+    // Priority 1: Floating right over highlighted text selection
+    if (selectionContext?.rect) {
+      badge.hidden = false;
+      const rect = selectionContext.rect;
+      const top = rect.top > 34 ? rect.top - 30 : rect.bottom + 6;
+      const left = Math.min(window.innerWidth - 34, Math.max(8, rect.right + 4));
+      badge.style.top = `${Math.max(4, top)}px`;
+      badge.style.left = `${Math.max(4, left)}px`;
+      return;
+    }
+
+    if (selectionContext?.mousePos) {
+      badge.hidden = false;
+      const top = Math.max(4, selectionContext.mousePos.y - 32);
+      const left = Math.min(window.innerWidth - 34, Math.max(8, selectionContext.mousePos.x + 8));
+      badge.style.top = `${top}px`;
+      badge.style.left = `${left}px`;
+      return;
+    }
+
+    // Priority 2: In-field badge on active input/textarea
     if (!activeEditable || !activeEditable.isConnected) {
       badge.hidden = true;
       return;
@@ -380,27 +449,36 @@
   }
 
   function updatePopoverPosition() {
-    if (!activeEditable || !activeEditable.isConnected || popover.hidden) return;
-    const rect = activeEditable.getBoundingClientRect();
+    if (popover.hidden) return;
+
+    let anchor = null;
+    if (selectionContext?.rect) {
+      anchor = selectionContext.rect;
+    } else if (activeEditable?.isConnected) {
+      anchor = activeEditable.getBoundingClientRect();
+    } else {
+      anchor = badge.getBoundingClientRect();
+    }
+
     const popoverWidth = Math.min(380, window.innerWidth - 32);
     popover.style.width = `${popoverWidth}px`;
 
-    let left = rect.right - popoverWidth;
+    let left = anchor.right - popoverWidth;
     if (left < 16) left = 16;
     if (left + popoverWidth > window.innerWidth - 16) {
       left = window.innerWidth - popoverWidth - 16;
     }
     popover.style.left = `${left}px`;
 
-    const roomAbove = rect.top;
-    const roomBelow = window.innerHeight - rect.bottom;
+    const roomAbove = anchor.top;
+    const roomBelow = window.innerHeight - anchor.bottom;
     const placeAbove = roomAbove > 260 || roomAbove > roomBelow;
 
     if (placeAbove) {
-      popover.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+      popover.style.bottom = `${window.innerHeight - anchor.top + 8}px`;
       popover.style.top = 'auto';
     } else {
-      popover.style.top = `${rect.bottom + 8}px`;
+      popover.style.top = `${anchor.bottom + 8}px`;
       popover.style.bottom = 'auto';
     }
   }
@@ -430,6 +508,10 @@
   closeBtn.addEventListener('click', () => { popover.hidden = true; });
 
   function renderResult(text, corrected) {
+    headerTitle.textContent = selectionContext?.isSelection
+      ? 'ChlatWork (Selected)'
+      : 'ChlatWork Grammar';
+
     if (!corrected || corrected === text) {
       bodyEl.innerHTML = `
         <div class="cw-perfect">✨ Looking good! No grammar errors found.</div>
@@ -443,17 +525,20 @@
       return;
     }
 
-    const directApplyAllowed = canApply(activeEditable);
+    const target = selectionContext?.target || activeEditable;
+    const directApplyAllowed = canApply(target);
+    const isSelection = Boolean(selectionContext?.isSelection);
+
     bodyEl.innerHTML = `
       <div class="cw-card cw-card-original" title="Original text"><s>${escapeHtml(text)}</s></div>
       <div class="cw-card cw-card-suggestion" title="Suggested correction">${escapeHtml(corrected)}</div>
       <div class="cw-actions">
         <button class="cw-btn cw-btn-primary" id="cw-accept-btn" type="button" ${directApplyAllowed ? '' : 'disabled'}>
-          ✓ Accept & Replace
+          ✓ ${isSelection ? 'Replace Selected' : 'Accept & Replace'}
         </button>
         <button class="cw-btn" id="cw-copy-btn" type="button" title="Copy to clipboard">Copy</button>
       </div>
-      ${!directApplyAllowed ? '<p style="margin: 6px 0 0; font-size: 11px; color: #995c07;">Rich text editor: click Copy to preserve styles.</p>' : ''}
+      ${!directApplyAllowed && target ? '<p style="margin: 6px 0 0; font-size: 11px; color: #995c07;">Rich text editor: click Copy to preserve styles.</p>' : ''}
     `;
 
     popover.querySelector('#cw-accept-btn')?.addEventListener('click', () => {
@@ -469,10 +554,15 @@
   }
 
   async function checkGrammar() {
-    if (!activeEditable || !activeEditable.isConnected) return;
-    const text = readText(activeEditable).trim();
+    let text = '';
+    if (selectionContext?.text) {
+      text = selectionContext.text;
+    } else if (activeEditable && activeEditable.isConnected) {
+      text = readText(activeEditable).trim();
+    }
+
     if (!text) {
-      bodyEl.innerHTML = `<div class="cw-perfect" style="color: #64748b;">Type something in the text field first.</div>`;
+      bodyEl.innerHTML = `<div class="cw-perfect" style="color: #64748b;">Type or select text first.</div>`;
       return;
     }
 
@@ -528,6 +618,36 @@
   }
 
   function applyDirectly(corrected) {
+    // Case 1: Replace selected text only
+    if (selectionContext?.isSelection) {
+      const { target, start, end, range } = selectionContext;
+      if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) {
+        const proto = target instanceof HTMLTextAreaElement
+          ? HTMLTextAreaElement.prototype
+          : HTMLInputElement.prototype;
+        const val = target.value;
+        const nextVal = val.slice(0, start) + corrected + val.slice(end);
+        Object.getOwnPropertyDescriptor(proto, 'value').set.call(target, nextVal);
+        target.selectionStart = start + corrected.length;
+        target.selectionEnd = start + corrected.length;
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+      } else if (range) {
+        range.deleteContents();
+        const textNode = range.startContainer.ownerDocument.createTextNode(corrected);
+        range.insertNode(textNode);
+        if (target) {
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+      popover.hidden = true;
+      selectionContext = null;
+      badge.title = 'Selected text corrected!';
+      updateBadgePosition();
+      return;
+    }
+
+    // Case 2: Replace whole active editable
     if (!activeEditable || !activeEditable.isConnected || !canApply(activeEditable)) return;
 
     if (activeEditable instanceof HTMLTextAreaElement || activeEditable instanceof HTMLInputElement) {
@@ -552,7 +672,6 @@
     }
 
     popover.hidden = true;
-    // Brief visual feedback on badge
     badge.title = 'Grammar corrected!';
   }
 
@@ -565,9 +684,16 @@
   }
 
   function openDirectCorrection() {
-    const editor = activeEditable?.isConnected ? activeEditable : resolveEditable(document.activeElement);
-    if (!editor) return;
-    activeEditable = editor;
+    const selCtx = getSelectionContext();
+    if (selCtx && selCtx.text.length > 0) {
+      selectionContext = selCtx;
+    } else {
+      const editor = activeEditable?.isConnected ? activeEditable : resolveEditable(document.activeElement);
+      if (editor) activeEditable = editor;
+    }
+
+    if (!selectionContext && !activeEditable) return;
+
     updateBadgePosition();
     popover.hidden = false;
     updatePopoverPosition();
@@ -591,6 +717,32 @@
     }
   }, true);
 
+  // Mouse selection trigger
+  document.addEventListener('mouseup', (event) => {
+    if (host.contains(event.target)) return;
+    setTimeout(() => {
+      const selCtx = getSelectionContext({ x: event.clientX, y: event.clientY });
+      if (selCtx && selCtx.text.length > 1) {
+        selectionContext = selCtx;
+        updateBadgePosition();
+      } else if (!selCtx && selectionContext) {
+        selectionContext = null;
+        updateBadgePosition();
+      }
+    }, 15);
+  }, true);
+
+  // Keyboard selection trigger (Shift + Arrow keys)
+  document.addEventListener('keyup', (event) => {
+    if (event.key === 'Shift' || event.key.startsWith('Arrow')) {
+      const selCtx = getSelectionContext();
+      if (selCtx && selCtx.text.length > 1) {
+        selectionContext = selCtx;
+        updateBadgePosition();
+      }
+    }
+  }, true);
+
   document.addEventListener('pointerdown', (event) => {
     if (host.contains(event.target)) return;
     const editable = resolveEditable(event.target);
@@ -598,9 +750,15 @@
       activeEditable = editable;
       updateBadgePosition();
     } else {
-      popover.hidden = true;
-      badge.hidden = true;
-      activeEditable = null;
+      setTimeout(() => {
+        const selCtx = getSelectionContext();
+        if (!selCtx) {
+          popover.hidden = true;
+          badge.hidden = true;
+          activeEditable = null;
+          selectionContext = null;
+        }
+      }, 20);
     }
   }, true);
 
