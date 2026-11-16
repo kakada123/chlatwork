@@ -577,6 +577,7 @@ onBeforeUnmount(() => {
           <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-white/50">
             {{ t("shared.pages_account.manage_your_profile_saved_work_and_tool_activity") }}
           </p>
+          <NuxtLink to="/prephub" class="mt-2 inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-3 text-sm font-semibold text-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:border-white/15 dark:text-sky-300">PrepHub · {{ t("prephub.workspace") }}</NuxtLink>
         </div>
       </div>
     </header>

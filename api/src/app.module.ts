@@ -22,6 +22,7 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { YoutubeDownloaderModule } from './youtube-downloader/youtube-downloader.module';
 import { FoodModule } from './food/food.module';
 import { RosterModule } from './roster/roster.module';
+import { PrepHubModule } from './prephub/prephub.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { RosterModule } from './roster/roster.module';
     PersonalAssistantModule,
     FoodModule,
     RosterModule,
+    PrepHubModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

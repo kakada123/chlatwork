@@ -193,6 +193,7 @@ enum AiVideoJobStatus {
 }
 
 model User {
+  preparationSubjects                        PreparationSubject[]
   groupManagerCandidates                     TelegramGroupManager[]
   groupConnectionRequests                    TelegramGroupConnectRequest[]
   groupAuditActions                          TelegramGroupAudit[]
@@ -1431,4 +1432,111 @@ model LeaveTransaction {
   @@index([userId, leaveCode, createdAt(sort: Desc)], map: "leave_transactions_user_code_created_idx")
   @@index([rosterDayId], map: "leave_transactions_roster_day_idx")
   @@map("leave_transactions")
+}
+
+
+model PreparationSubject {
+  id             String                @id @default(uuid()) @db.Uuid
+  userId         String                @map("user_id") @db.Uuid
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String                @db.VarChar(200)
+  description    String                @default("") @db.VarChar(4000)
+  category       String                @default("OTHER") @db.VarChar(20)
+  goal           String                @default("") @db.VarChar(4000)
+  status         String                @default("DRAFT") @db.VarChar(20)
+  previousStatus String?               @map("previous_status") @db.VarChar(20)
+  priority       String                @default("NORMAL") @db.VarChar(10)
+  eventAt        DateTime?             @map("event_at") @db.Timestamptz
+  deadlineAt     DateTime?             @map("deadline_at") @db.Timestamptz
+  scheduleAt     DateTime?             @map("schedule_at") @db.Timestamptz
+  completedAt    DateTime?             @map("completed_at") @db.Timestamptz
+  archivedAt     DateTime?             @map("archived_at") @db.Timestamptz
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime              @updatedAt @map("updated_at") @db.Timestamptz
+  sections       PreparationSection[]
+  reminders      PreparationReminder[]
+  history        PreparationHistory[]
+
+  @@index([userId, status, updatedAt(sort: Desc)])
+  @@index([userId, scheduleAt])
+  @@map("preparation_subjects")
+}
+
+model PreparationSection {
+  id        String                @id @default(uuid()) @db.Uuid
+  subjectId String                @map("subject_id") @db.Uuid
+  subject   PreparationSubject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  type      String                @db.VarChar(20)
+  title     String                @db.VarChar(160)
+  sortOrder Int                   @default(0) @map("sort_order")
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime              @updatedAt @map("updated_at") @db.Timestamptz
+  items     PreparationItem[]
+  resources PreparationResource[]
+
+  @@index([subjectId, sortOrder])
+  @@map("preparation_sections")
+}
+
+model PreparationItem {
+  id          String             @id @default(uuid()) @db.Uuid
+  sectionId   String             @map("section_id") @db.Uuid
+  section     PreparationSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String             @db.VarChar(300)
+  content     String             @default("") @db.VarChar(20000)
+  objective   String             @default("") @db.VarChar(4000)
+  findings    String             @default("") @db.VarChar(20000)
+  sources     String             @default("") @db.VarChar(8000)
+  conclusion  String             @default("") @db.VarChar(8000)
+  url         String             @default("") @db.VarChar(2048)
+  label       String             @default("") @db.VarChar(80)
+  status      String             @default("TO_RESEARCH") @db.VarChar(24)
+  isRequired  Boolean            @default(true) @map("is_required")
+  isCompleted Boolean            @default(false) @map("is_completed")
+  dueAt       DateTime?          @map("due_at") @db.Timestamptz
+  sortOrder   Int                @default(0) @map("sort_order")
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([sectionId, sortOrder])
+  @@map("preparation_items")
+}
+
+model PreparationResource {
+  id        String             @id @default(uuid()) @db.Uuid
+  sectionId String             @map("section_id") @db.Uuid
+  section   PreparationSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title     String             @db.VarChar(200)
+  extension String             @db.VarChar(8)
+  mimeType  String             @map("mime_type") @db.VarChar(120)
+  fileSize  Int                @map("file_size")
+  data      Bytes
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([sectionId])
+  @@map("preparation_resources")
+}
+
+model PreparationReminder {
+  id          String             @id @default(uuid()) @db.Uuid
+  subjectId   String             @map("subject_id") @db.Uuid
+  subject     PreparationSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  remindAt    DateTime           @map("remind_at") @db.Timestamptz
+  dismissedAt DateTime?          @map("dismissed_at") @db.Timestamptz
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([subjectId, remindAt])
+  @@index([dismissedAt, remindAt])
+  @@map("preparation_reminders")
+}
+
+model PreparationHistory {
+  id        String             @id @default(uuid()) @db.Uuid
+  subjectId String             @map("subject_id") @db.Uuid
+  subject   PreparationSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  action    String             @db.VarChar(200)
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([subjectId, createdAt(sort: Desc)])
+  @@map("preparation_history")
 }

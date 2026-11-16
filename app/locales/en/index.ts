@@ -5,4 +5,6 @@ import developerCommands from "./developerCommands.ts";
 import catalogs from "./catalogs.ts";
 import native from "./native.ts";
 
-export default { ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;
+import prephub from "./prephub.ts";
+
+export default { ...prephub, ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;

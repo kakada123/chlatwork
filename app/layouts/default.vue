@@ -43,6 +43,7 @@ type HeaderSearchResult = {
 };
 
 const SITE_SEARCH_PAGES = computed<HeaderSearchResult[]>(() => [
+  { key: "page-prephub", title: "PrepHub", description: t("prephub.tagline"), path: "/prephub", label: "PrepHub", searchText: "prephub preparation research meeting checklist workspace" },
   {
     key: "page-home",
     title: t("shared.components_layout_mobile_bottom_nav.home"),
@@ -674,6 +675,7 @@ watch(
 
           <!-- Desktop Navigation -->
           <nav class="hidden items-center gap-1 text-sm sm:flex">
+            <NuxtLink to="/prephub" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path.startsWith('/prephub') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">PrepHub</NuxtLink>
             <NuxtLink v-if="websiteEnabled('chlatwork-link')" :to="linkTo('/link')" class="rounded-lg px-3 py-2 font-medium transition" :class="route.path === '/link' || route.path.startsWith('/account/link') ? 'bg-sky-50 text-sky-700 dark:bg-cyan-300/10 dark:text-cyan-300' : 'text-slate-700 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/10'">{{ t("shared.layouts_default.link") }}</NuxtLink>
             <NuxtLink
               to="/tools"
