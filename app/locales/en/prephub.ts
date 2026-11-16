@@ -1,10 +1,16 @@
 export default {
-  "prephub.visual.optionalTasksOnly": "Optional tasks are not counted in preparation progress.",
+  "prephub.dashboard.addTask": "Add task",
+  "prephub.dashboard.openSubject": "Open subject",
+  "prephub.dashboard.noTrackedTasks": "No tracked preparation tasks yet.",
+  "prephub.visual.optionalTasksOnly":
+    "Optional tasks are not counted in preparation progress.",
   "prephub.visual.subjectDetails": "Subject details",
   "prephub.visual.timeZone": "Time zone",
   "prephub.visual.datesAndGoal": "Dates and goal",
-  "prephub.visual.checklistHint": "Write down what you need to do before the activity.",
-  "prephub.visual.materialsHint": "Notes, files, links and references for this activity.",
+  "prephub.visual.checklistHint":
+    "Write down what you need to do before the activity.",
+  "prephub.visual.materialsHint":
+    "Notes, files, links and references for this activity.",
   "prephub.visual.questionsHint": "Things to ask, confirm or investigate.",
   "prephub.visual.reviewChecklistHint": "Review what still needs attention.",
   "prephub.visual.completedCount": "{completed} / {total} completed",
@@ -35,11 +41,14 @@ export default {
   "prephub.notebook.linkHint": "A website or reference",
   "prephub.notebook.questionHint": "Something to ask or investigate",
   "prephub.notebook.reminderHint": "A reminder before your activity",
-  "prephub.notebook.progress": "Preparation: {completed} of {total} tasks completed",
+  "prephub.notebook.progress":
+    "Preparation: {completed} of {total} tasks completed",
   "prephub.notebook.preparation": "Preparation",
   "prephub.notebook.noTasksProgress": "No preparation tasks yet.",
-  "prephub.notebook.emptyChecklist": "Write down what you need to do before the activity.",
-  "prephub.notebook.emptyMaterials": "Keep notes, files and useful links together here.",
+  "prephub.notebook.emptyChecklist":
+    "Write down what you need to do before the activity.",
+  "prephub.notebook.emptyMaterials":
+    "Keep notes, files and useful links together here.",
   "prephub.notebook.noUnfinishedTasks": "No unfinished preparation tasks.",
   "prephub.notebook.taskPlaceholder": "Write a task and press Enter…",
   "prephub.notebook.saveTask": "Save task",
@@ -59,24 +68,31 @@ export default {
   "prephub.notebook.finish": "Finish",
   "prephub.notebook.prepareAgain": "Prepare again",
   "prephub.notebook.backToNotebook": "Back to notebook",
-  "prephub.notebook.reviewHelp": "Focus on what remains and review your saved materials.",
+  "prephub.notebook.reviewHelp":
+    "Focus on what remains and review your saved materials.",
   "prephub.notebook.moreSettings": "More and settings",
   "prephub.notebook.editSubject": "Edit subject",
   "prephub.notebook.advancedProgress": "Preparation details",
-  "prephub.notebook.progressHelp": "Progress counts required checklist tasks and deliverables. Optional tasks, notes, files, links and questions do not change the total.",
+  "prephub.notebook.progressHelp":
+    "Progress counts required checklist tasks and deliverables. Optional tasks, notes, files, links and questions do not change the total.",
   "prephub.notebook.customSections": "Custom sections",
-  "prephub.notebook.sectionsHelp": "Manage section names, order and advanced content here. Everything stays in your notebook.",
+  "prephub.notebook.sectionsHelp":
+    "Manage section names, order and advanced content here. Everything stays in your notebook.",
   "prephub.notebook.addDate": "Add an activity date",
   "prephub.notebook.researchDetails": "Research objective and status",
   "prephub.share": "Share",
   "prephub.shareWorkspace": "Share workspace",
   "prephub.shareAnyone": "Anyone with the link can view",
   "prephub.sharePrivate": "Private workspace",
-  "prephub.sharePrivateHelp": "Only you can open the workspace. Enable a separate link to share it.",
-  "prephub.shareLiveHelp": "This is a read-only link. Your saved changes appear here automatically.",
-  "prephub.shareDisclosure": "Sharing makes all notes, research, findings, sources, questions and links in this workspace visible to anyone with the link. Viewers cannot edit. Personal reminders, history and account details stay private.",
+  "prephub.sharePrivateHelp":
+    "Only you can open the workspace. Enable a separate link to share it.",
+  "prephub.shareLiveHelp":
+    "This is a read-only link. Your saved changes appear here automatically.",
+  "prephub.shareDisclosure":
+    "Sharing makes all notes, research, findings, sources, questions and links in this workspace visible to anyone with the link. Viewers cannot edit. Personal reminders, history and account details stay private.",
   "prephub.shareFiles": "Include attachments",
-  "prephub.shareFilesHelp": "Allow viewers to preview and download every attachment in this workspace. Off by default.",
+  "prephub.shareFilesHelp":
+    "Allow viewers to preview and download every attachment in this workspace. Off by default.",
   "prephub.shareLink": "Public viewing link",
   "prephub.copyLink": "Copy link",
   "prephub.openShared": "Open preview",
@@ -84,9 +100,12 @@ export default {
   "prephub.replaceLink": "Replace link",
   "prephub.stopSharing": "Turn off sharing",
   "prephub.enableSharing": "Enable link sharing",
-  "prephub.stopSharingConfirm": "Turn off public access? The current link will stop working. Your workspace and files stay saved.",
-  "prephub.replaceLinkConfirm": "Replace this link? Everyone using the old link will need the new one.",
-  "prephub.shareSaved": "Sharing settings saved. Copy the link to send it to your team.",
+  "prephub.stopSharingConfirm":
+    "Turn off public access? The current link will stop working. Your workspace and files stay saved.",
+  "prephub.replaceLinkConfirm":
+    "Replace this link? Everyone using the old link will need the new one.",
+  "prephub.shareSaved":
+    "Sharing settings saved. Copy the link to send it to your team.",
   "prephub.shareReplaced": "New link created. The old link no longer works.",
   "prephub.shareStopped": "Sharing is off. This workspace is private again.",
   "prephub.linkCopied": "Link copied.",
@@ -95,13 +114,16 @@ export default {
   "prephub.publicDescription": "A shared read-only preparation workspace.",
   "prephub.sharedWorkspace": "Shared workspace",
   "prephub.readOnly": "View only",
-  "prephub.sharedReadOnlyHelp": "You can view this preparation. Only its owner can make changes.",
+  "prephub.sharedReadOnlyHelp":
+    "You can view this preparation. Only its owner can make changes.",
   "prephub.shareUnavailable": "This link is unavailable",
-  "prephub.shareUnavailableHelp": "The owner may have turned off sharing or replaced the link. Ask them for a new link.",
+  "prephub.shareUnavailableHelp":
+    "The owner may have turned off sharing or replaced the link. Ask them for a new link.",
   "prephub.shareLoadError": "Unable to load this workspace",
   "prephub.shareLoadErrorHelp": "Check your connection and try again.",
   "prephub.sharedEmpty": "No preparation materials have been added yet.",
-  "prephub.sharedFilesExcluded": "Attachments are not included in this shared link.",
+  "prephub.sharedFilesExcluded":
+    "Attachments are not included in this shared link.",
   "prephub.completedRequirements": "Completed",
   "prephub.sections": "Workspace sections",
   "prephub.sharedEventAt": "Event",

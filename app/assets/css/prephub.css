@@ -41,7 +41,7 @@
   @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300;
 }
 .prephub .prep-status--preparing {
-  @apply bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
+  @apply bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300;
 }
 .prephub .prep-schedule-row {
   @apply flex items-start gap-3 border-b border-slate-100 py-2.5 first:pt-0 last:border-0 last:pb-0 dark:border-white/10;
@@ -145,4 +145,54 @@
 }
 .prephub .prep-goal .prep-detail-icon {
   @apply bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300;
+}
+/* Dashboard uses the same notebook palette; wide rows stack naturally on small screens. */
+.prephub .prep-dashboard-heading {
+  @apply flex flex-col gap-4 rounded-2xl bg-sky-50/40 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4 dark:bg-sky-950/10;
+}
+.prephub .prep-dashboard-logo {
+  @apply grid size-12 shrink-0 place-items-center rounded-2xl bg-sky-700 text-white sm:size-14 dark:bg-sky-600;
+}
+.prephub .prep-dashboard-stats {
+  @apply flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 sm:gap-3;
+}
+.prephub .prep-dashboard-stat {
+  @apply flex min-w-[8.5rem] flex-1 items-center gap-3 p-3 text-left transition hover:border-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 sm:min-w-0;
+}
+.prephub .prep-dashboard-stat--selected {
+  @apply border-sky-400 bg-sky-50 ring-1 ring-sky-300 dark:border-sky-600 dark:bg-sky-950/30 dark:ring-sky-700;
+}
+.prephub .prep-dashboard-stat-icon {
+  @apply grid size-10 shrink-0 place-items-center rounded-full bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-dashboard-stat-icon--upcoming {
+  @apply bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300;
+}
+.prephub .prep-dashboard-stat-icon--overdue {
+  @apply bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-300;
+}
+.prephub .prep-dashboard-stat-icon--completed {
+  @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300;
+}
+.prephub .prep-dashboard-stat-icon--archived {
+  @apply bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-white/60;
+}
+.prephub .prep-category-chip {
+  @apply inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-sky-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:bg-white/5 dark:text-white/70 dark:hover:bg-sky-950/30;
+}
+.prephub .prep-category-chip--selected {
+  @apply bg-sky-700 text-white hover:bg-sky-800 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500;
+}
+.prephub .prep-subject-card {
+  @apply border-l-2 p-3 sm:p-5;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 0.035);
+}
+.prephub .prep-subject-card--active {
+  @apply border-l-sky-400;
+}
+.prephub .prep-subject-icon {
+  @apply grid size-11 shrink-0 place-items-center rounded-2xl bg-sky-50 text-sky-700 sm:size-14 dark:bg-sky-950/50 dark:text-sky-300;
+}
+.prephub .prep-subject-progress {
+  @apply flex flex-col items-stretch gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3 sm:flex-row sm:items-center dark:border-white/10 dark:bg-white/[0.02];
 }

@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { Plus, Search, Zap, CalendarDays, ArrowRight } from "lucide-vue-next";
+import {
+  Plus,
+  Search,
+  Zap,
+  CalendarDays,
+  Layers,
+  CirclePlay,
+  TriangleAlert,
+  CircleCheck,
+  Archive,
+} from "lucide-vue-next";
 import {
   PREP_CATEGORIES,
   type PrepSubject,
+  type PrepSubjectSummary,
+  type PrepType,
   type PrepDashboard,
   type PrepList,
 } from "~/lib/prephub";
+import PrepSubjectCard from "~/components/prephub/PrepSubjectCard.vue";
+import PrepCategoryIcon from "~/components/prephub/PrepCategoryIcon.vue";
 import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
 import PrepDialog from "~/components/prephub/PrepDialog.vue";
 import PrepSubjectForm from "~/components/prephub/PrepSubjectForm.vue";
@@ -16,12 +30,28 @@ definePageMeta({ middleware: "auth" });
 useSeoMeta({ title: "PrepHub — ChlatWork", robots: "noindex, nofollow" });
 const { t } = useAppI18n();
 const { linkTo } = useProductDomain();
-const { request, owner, timeZone, error, busy, feedback, fail, date } =
-  usePrepHub();
-const subjects = ref<PrepSubject[]>([]),
+const { request, owner, timeZone, error, busy, feedback, fail } = usePrepHub();
+const subjects = ref<PrepSubjectSummary[]>([]),
   total = ref(0),
   page = ref(1),
   loading = ref(true);
+const pageSize = ref(20),
+  categoryCounts = ref<Record<string, number> | null>(null);
+const categoryTotal = computed(() =>
+  Object.values(categoryCounts.value ?? {}).reduce(
+    (sum, count) => sum + count,
+    0,
+  ),
+);
+const captureSubject = ref<PrepSubjectSummary | null>(null),
+  captureType = ref<PrepType>("NOTES");
+const statIcons: Record<string, unknown> = {
+  ACTIVE: CirclePlay,
+  UPCOMING: CalendarDays,
+  OVERDUE: TriangleAlert,
+  COMPLETED: CircleCheck,
+  ARCHIVED: Archive,
+};
 const dashboard = ref<PrepDashboard | null>(null);
 const query = ref(""),
   category = ref(""),
@@ -36,7 +66,8 @@ const activeFilterCount = computed(
 const createOpen = ref(false),
   captureOpen = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
-let version = 0;
+let version = 0,
+  summaryVersion = 0;
 async function load() {
   const current = ++version;
   loading.value = true;
@@ -54,6 +85,8 @@ async function load() {
     if (current !== version) return;
     subjects.value = result.subjects;
     total.value = result.total;
+    pageSize.value = result.limit || 20;
+    categoryCounts.value = result.categoryCounts ?? null;
   } catch (e) {
     if (current === version) fail(e);
   } finally {
@@ -61,12 +94,31 @@ async function load() {
   }
 }
 async function summary() {
+  const current = ++summaryVersion;
   try {
-    dashboard.value = await request<PrepDashboard>("/dashboard");
-    timeZone.value = dashboard.value.timeZone;
+    const result = await request<PrepDashboard>("/dashboard");
+    if (current !== summaryVersion) return;
+    dashboard.value = result;
+    timeZone.value = result.timeZone;
   } catch (e) {
-    fail(e);
+    if (current === summaryVersion) fail(e);
   }
+}
+function captureTask(subject: PrepSubjectSummary) {
+  if (busy.value) return;
+  captureSubject.value = subject;
+  captureType.value = "CHECKLIST";
+  captureOpen.value = true;
+}
+function quickCapture() {
+  if (busy.value) return;
+  captureSubject.value = null;
+  captureType.value = "NOTES";
+  captureOpen.value = true;
+}
+function firstPage() {
+  if (page.value === 1) void load();
+  else page.value = 1;
 }
 async function create(body: Record<string, unknown>) {
   if (busy.value) return false;
@@ -103,19 +155,20 @@ const stats = computed(() => [
 watch(query, () => {
   clearTimeout(timer);
   timer = setTimeout(() => {
-    page.value = 1;
-    void load();
+    firstPage();
   }, 250);
 });
 watch([category, status, sort], () => {
-  page.value = 1;
-  void load();
+  firstPage();
 });
 watch(page, () => {
   void load();
 });
 watch(owner, () => {
   version++;
+  summaryVersion++;
+  categoryCounts.value = null;
+  captureSubject.value = null;
   subjects.value = [];
   dashboard.value = null;
   total.value = 0;
@@ -133,6 +186,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearTimeout(timer);
   version++;
+  summaryVersion++;
 });
 function captured() {
   feedback.value = t("prephub.saved");
@@ -142,77 +196,101 @@ function captured() {
 </script>
 <template>
   <main
-    class="prephub mx-auto max-w-6xl space-y-4 pb-24 text-slate-950 dark:text-white"
+    class="prephub prep-dashboard mx-auto max-w-6xl space-y-5 pb-24 text-slate-950 dark:text-white"
   >
-    <header
-      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div>
-        <h1 class="text-xl font-bold sm:text-2xl">PrepHub</h1>
-        <p
-          class="mt-1 hidden text-sm text-slate-500 dark:text-white/60 sm:block"
-        >
-          {{ t("prephub.tagline") }}
-        </p>
+    <header class="prep-dashboard-heading">
+      <div class="flex min-w-0 items-center gap-3">
+        <span class="prep-dashboard-logo"
+          ><Layers class="size-6 sm:size-7" aria-hidden="true"
+        /></span>
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">PrepHub</h1>
+          <p class="mt-1 text-xs text-slate-500 sm:text-sm dark:text-white/60">
+            {{ t("prephub.tagline") }}
+          </p>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-2 sm:flex">
-        <button type="button" class="prep-button" @click="captureOpen = true">
+        <button
+          type="button"
+          class="prep-button bg-white dark:bg-neutral-950"
+          :disabled="busy || !owner"
+          @click="quickCapture"
+        >
           <Zap class="size-4" aria-hidden="true" />{{
             t("prephub.quickCapture")
           }}</button
-        ><button type="button" class="prep-primary" @click="createOpen = true">
+        ><button
+          type="button"
+          class="prep-primary"
+          :disabled="busy || !owner"
+          @click="createOpen = true"
+        >
           <Plus class="size-4" aria-hidden="true" />{{ t("prephub.create") }}
         </button>
       </div>
     </header>
     <PrepInbox v-if="owner" :time-zone="timeZone" />
-    <nav
-      class="flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-5"
-      :aria-label="t('prephub.status')"
-    >
+    <nav class="prep-dashboard-stats" :aria-label="t('prephub.status')">
       <button
         v-for="stat in stats"
         :key="stat.key"
         type="button"
-        class="prep-panel min-w-[6.5rem] flex-1 !p-3 text-left sm:min-w-0 sm:!p-4"
-        :class="{ 'ring-2 ring-sky-500': status === stat.key }"
+        class="prep-panel prep-dashboard-stat"
+        :class="{ 'prep-dashboard-stat--selected': status === stat.key }"
         :aria-pressed="status === stat.key"
         @click="status = stat.key"
       >
-        <span class="block text-xl font-bold">{{
-          dashboard ? stat.count : "—"
-        }}</span
-        ><span class="text-xs text-slate-500 dark:text-white/60">{{
-          t(`prephub.${stat.key}`)
-        }}</span>
+        <span
+          class="prep-dashboard-stat-icon"
+          :class="`prep-dashboard-stat-icon--${stat.key.toLowerCase()}`"
+          ><component
+            :is="statIcons[stat.key]"
+            class="size-5 sm:size-6"
+            aria-hidden="true" /></span
+        ><span class="min-w-0"
+          ><strong class="block text-xl font-bold sm:text-2xl">{{
+            dashboard ? stat.count : "—"
+          }}</strong
+          ><span
+            class="block break-words text-xs font-medium text-slate-500 dark:text-white/60"
+            >{{ t(`prephub.${stat.key}`) }}</span
+          ></span
+        >
       </button>
     </nav>
-    <div class="space-y-3 sm:grid sm:grid-cols-4 sm:gap-3 sm:space-y-0">
-      <label class="prep-label"
-        ><span class="flex items-center gap-1"
-          ><Search class="size-4" aria-hidden="true" />{{
-            t("prephub.search")
-          }}</span
-        ><input
+    <div
+      class="space-y-3 sm:grid sm:grid-cols-[minmax(0,1.35fr)_minmax(0,2.65fr)] sm:gap-3 sm:space-y-0"
+    >
+      <label class="relative block min-w-0"
+        ><span class="sr-only">{{ t("prephub.search") }}</span
+        ><Search
+          class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+          aria-hidden="true" /><input
           v-model="query"
           type="search"
-          class="prep-input"
-          maxlength="200" /></label
-      ><WorkspaceFilters class="sm:col-span-3" :count="activeFilterCount"
+          class="prep-input !mt-0 !min-h-12 !pl-10"
+          maxlength="200"
+          :placeholder="t('prephub.search')" /></label
+      ><WorkspaceFilters :count="activeFilterCount"
         ><div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <label class="prep-label"
-            >{{ t("prephub.category")
-            }}<ModernSelect v-model="category" class="mt-1 w-full">
-              <option value="">{{ t("prephub.allCategories") }}</option>
-              <option v-for="v in PREP_CATEGORIES" :key="v" :value="v">
-                {{ t(`prephub.${v}`) }}
-              </option>
-            </ModernSelect></label
-          ><label class="prep-label"
-            >{{ t("prephub.status")
-            }}<ModernSelect v-model="status" class="mt-1 w-full">
+            ><span class="sr-only">{{ t("prephub.category") }}</span
+            ><ModernSelect v-model="category" class="w-full"
+              ><option value="">{{ t("prephub.allCategories") }}</option>
               <option
-                v-for="v in [
+                v-for="value in PREP_CATEGORIES"
+                :key="value"
+                :value="value"
+              >
+                {{ t(`prephub.${value}`) }}
+              </option></ModernSelect
+            ></label
+          ><label class="prep-label"
+            ><span class="sr-only">{{ t("prephub.status") }}</span
+            ><ModernSelect v-model="status" class="w-full"
+              ><option
+                v-for="value in [
                   'ACTIVE',
                   'ALL',
                   'UPCOMING',
@@ -223,36 +301,67 @@ function captured() {
                   'COMPLETED',
                   'ARCHIVED',
                 ]"
-                :key="v"
-                :value="v"
+                :key="value"
+                :value="value"
               >
-                {{ t(`prephub.${v}`) }}
-              </option>
-            </ModernSelect></label
+                {{ t(`prephub.${value}`) }}
+              </option></ModernSelect
+            ></label
           ><label class="prep-label"
-            >{{ t("prephub.sort")
-            }}<ModernSelect v-model="sort" class="mt-1 w-full">
-              <option
-                v-for="v in ['UPCOMING', 'UPDATED', 'TITLE']"
-                :key="v"
-                :value="v"
+            ><span class="sr-only">{{ t("prephub.sort") }}</span
+            ><ModernSelect v-model="sort" class="w-full"
+              ><option
+                v-for="value in ['UPCOMING', 'UPDATED', 'TITLE']"
+                :key="value"
+                :value="value"
               >
-                {{ t(`prephub.${v}`) }}
-              </option>
-            </ModernSelect></label
+                {{ t(`prephub.${value}`) }}
+              </option></ModernSelect
+            ></label
           >
         </div></WorkspaceFilters
       >
     </div>
+    <nav
+      class="flex gap-2 overflow-x-auto pb-1"
+      :aria-label="t('prephub.category')"
+    >
+      <button
+        type="button"
+        class="prep-category-chip"
+        :class="{ 'prep-category-chip--selected': !category }"
+        :aria-pressed="!category"
+        @click="category = ''"
+      >
+        {{ t("prephub.ALL")
+        }}<span v-if="categoryCounts && !loading"
+          >({{ categoryTotal }})</span
+        ></button
+      ><button
+        v-for="value in PREP_CATEGORIES"
+        :key="value"
+        type="button"
+        class="prep-category-chip"
+        :class="{ 'prep-category-chip--selected': category === value }"
+        :aria-pressed="category === value"
+        @click="category = value"
+      >
+        <PrepCategoryIcon :category="value" class="size-4 shrink-0" />{{
+          t(`prephub.${value}`)
+        }}<span v-if="categoryCounts && !loading"
+          >({{ categoryCounts[value] || 0 }})</span
+        >
+      </button>
+    </nav>
     <div
       v-if="error"
       role="alert"
       class="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200"
     >
-      {{ error }}
-      <button
+      {{ error
+      }}<button
         type="button"
-        class="underline"
+        class="ml-2 min-h-11 underline"
         @click="
           load();
           summary();
@@ -271,68 +380,15 @@ function captured() {
     <p v-if="loading" role="status" class="prep-panel animate-pulse">
       {{ t("prephub.loading") }}
     </p>
-    <div
-      v-else-if="subjects.length"
-      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
-    >
-      <NuxtLink
+    <div v-else-if="subjects.length" class="space-y-3">
+      <PrepSubjectCard
         v-for="subject in subjects"
         :key="subject.id"
-        :to="linkTo(`/prephub/${subject.id}`)"
-        class="prep-panel group flex flex-col gap-2 !p-3 transition sm:gap-3 sm:!p-4 hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
-        ><div class="flex items-center justify-between gap-2 text-xs">
-          <span class="text-sky-700 dark:text-sky-300">{{
-            t(`prephub.${subject.category}`)
-          }}</span
-          ><span class="rounded-lg bg-slate-100 px-2 py-1 dark:bg-white/10">{{
-            t(`prephub.${subject.status}`)
-          }}</span>
-        </div>
-        <h2
-          class="break-words font-semibold group-hover:text-sky-700 dark:group-hover:text-sky-300"
-        >
-          {{ subject.title }}
-        </h2>
-        <p
-          v-if="subject.description"
-          class="line-clamp-2 break-words text-sm text-slate-500 dark:text-white/60"
-        >
-          {{ subject.description }}
-        </p>
-        <div class="mt-auto">
-          <p class="flex items-center gap-2 text-xs text-slate-500">
-            <CalendarDays class="size-4 shrink-0" aria-hidden="true" />{{
-              date(subject.eventAt || subject.deadlineAt)
-            }}
-          </p>
-          <div
-            v-if="subject.progress.total"
-            class="mt-3 flex items-center justify-between gap-2 text-xs"
-          >
-            <span>{{
-              t("prephub.notebook.progress", {
-                completed: subject.progress.completed,
-                total: subject.progress.total,
-              })
-            }}</span>
-          </div>
-          <progress
-            v-if="subject.progress.total"
-            class="mt-1 h-2 w-full accent-sky-700"
-            :value="subject.progress.completed"
-            :max="subject.progress.total || 1"
-            :aria-label="t('prephub.progress')"
-          />
-          <p v-if="!subject.progress.total" class="mt-3 text-xs text-slate-500">
-            {{ t("prephub.notebook.noTasksProgress") }}
-          </p>
-          <p
-            class="mt-2 flex items-center justify-between gap-2 text-xs text-slate-500"
-          >
-            <span>{{ t("prephub.updated") }} {{ date(subject.updatedAt) }}</span
-            ><ArrowRight class="size-4 shrink-0" aria-hidden="true" />
-          </p></div
-      ></NuxtLink>
+        :subject="subject"
+        :time-zone="timeZone"
+        :busy="busy"
+        @task="captureTask"
+      />
     </div>
     <p
       v-else-if="!error"
@@ -341,7 +397,7 @@ function captured() {
       {{ t("prephub.empty") }}
     </p>
     <nav
-      v-if="total > 20"
+      v-if="total > pageSize"
       class="flex items-center justify-center gap-3"
       :aria-label="t('prephub.ALL')"
     >
@@ -352,11 +408,12 @@ function captured() {
         @click="page--"
       >
         {{ t("prephub.previous") }}</button
-      ><span class="text-sm">{{ page }} / {{ Math.ceil(total / 20) }}</span
+      ><span class="text-sm"
+        >{{ page }} / {{ Math.ceil(total / pageSize) }}</span
       ><button
         type="button"
         class="prep-button"
-        :disabled="loading || page * 20 >= total"
+        :disabled="loading || page * pageSize >= total"
         @click="page++"
       >
         {{ t("prephub.next") }}
@@ -376,7 +433,10 @@ function captured() {
     /></PrepDialog>
     <PrepCapture
       :open="captureOpen"
+      :subject="captureSubject || undefined"
+      :initial-type="captureSubject ? captureType : undefined"
       :time-zone="timeZone"
+      simple
       @close="captureOpen = false"
       @saved="captured"
     />

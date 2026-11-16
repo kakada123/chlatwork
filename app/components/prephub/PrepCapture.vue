@@ -3,6 +3,7 @@ import {
   notebookCaptureLabel,
   type PrepList,
   type PrepSubject,
+  type PrepSubjectSummary,
   type PrepType,
 } from "~/lib/prephub";
 import PrepDialog from "./PrepDialog.vue";
@@ -12,7 +13,7 @@ const props = defineProps<{
   initialType?: PrepType;
   targetSectionId?: string;
   simple?: boolean;
-  subject?: PrepSubject;
+  subject?: Pick<PrepSubject, "id">;
   timeZone: string;
 }>();
 const emit = defineEmits<{ close: []; saved: [sectionId?: string] }>();
@@ -31,7 +32,7 @@ const typeOptions = computed(() => [
 ]);
 const selected = ref("");
 const query = ref("");
-const subjects = ref<PrepSubject[]>([]);
+const subjects = ref<PrepSubjectSummary[]>([]);
 const file = ref<File>();
 let timer: ReturnType<typeof setTimeout> | undefined;
 let searchVersion = 0;

@@ -1,12 +1,19 @@
 export default {
-  "prephub.visual.optionalTasksOnly": "កិច្ចការជាជម្រើសមិនត្រូវបានរាប់ក្នុងវឌ្ឍនភាពនៃការត្រៀមទេ។",
+  "prephub.dashboard.addTask": "បន្ថែមកិច្ចការ",
+  "prephub.dashboard.openSubject": "បើកប្រធានបទ",
+  "prephub.dashboard.noTrackedTasks":
+    "មិនទាន់មានកិច្ចការដែលត្រូវរាប់វឌ្ឍនភាពនៅឡើយទេ។",
+  "prephub.visual.optionalTasksOnly":
+    "កិច្ចការជាជម្រើសមិនត្រូវបានរាប់ក្នុងវឌ្ឍនភាពនៃការត្រៀមទេ។",
   "prephub.visual.subjectDetails": "ព័ត៌មានប្រធានបទ",
   "prephub.visual.timeZone": "តំបន់ពេលវេលា",
   "prephub.visual.datesAndGoal": "កាលបរិច្ឆេទ និងគោលដៅ",
   "prephub.visual.checklistHint": "កត់ត្រាអ្វីដែលអ្នកត្រូវធ្វើមុនសកម្មភាព។",
-  "prephub.visual.materialsHint": "កំណត់ត្រា ឯកសារ តំណ និងប្រភពយោងសម្រាប់សកម្មភាពនេះ។",
+  "prephub.visual.materialsHint":
+    "កំណត់ត្រា ឯកសារ តំណ និងប្រភពយោងសម្រាប់សកម្មភាពនេះ។",
   "prephub.visual.questionsHint": "អ្វីដែលត្រូវសួរ បញ្ជាក់ ឬស្រាវជ្រាវ។",
-  "prephub.visual.reviewChecklistHint": "ពិនិត្យអ្វីដែលនៅតែត្រូវការយកចិត្តទុកដាក់។",
+  "prephub.visual.reviewChecklistHint":
+    "ពិនិត្យអ្វីដែលនៅតែត្រូវការយកចិត្តទុកដាក់។",
   "prephub.visual.completedCount": "បញ្ចប់ {completed} / {total}",
   "prephub.visual.oneFile": "{count} ឯកសារ",
   "prephub.visual.files": "{count} ឯកសារ",
@@ -35,11 +42,13 @@ export default {
   "prephub.notebook.linkHint": "គេហទំព័រ ឬឯកសារយោង",
   "prephub.notebook.questionHint": "អ្វីដែលត្រូវសួរ ឬស្រាវជ្រាវ",
   "prephub.notebook.reminderHint": "ការរំលឹកមុនសកម្មភាពរបស់អ្នក",
-  "prephub.notebook.progress": "ការត្រៀម៖ បញ្ចប់ {completed} ក្នុងចំណោម {total} កិច្ចការ",
+  "prephub.notebook.progress":
+    "ការត្រៀម៖ បញ្ចប់ {completed} ក្នុងចំណោម {total} កិច្ចការ",
   "prephub.notebook.preparation": "ការត្រៀម",
   "prephub.notebook.noTasksProgress": "មិនទាន់មានកិច្ចការត្រៀមនៅឡើយទេ។",
   "prephub.notebook.emptyChecklist": "កត់ត្រាអ្វីដែលអ្នកត្រូវធ្វើមុនសកម្មភាព។",
-  "prephub.notebook.emptyMaterials": "រក្សាទុកកំណត់ត្រា ឯកសារ និងតំណមានប្រយោជន៍នៅទីនេះ។",
+  "prephub.notebook.emptyMaterials":
+    "រក្សាទុកកំណត់ត្រា ឯកសារ និងតំណមានប្រយោជន៍នៅទីនេះ។",
   "prephub.notebook.noUnfinishedTasks": "គ្មានកិច្ចការត្រៀមដែលនៅសល់ទេ។",
   "prephub.notebook.taskPlaceholder": "សរសេរកិច្ចការ រួចចុច Enter…",
   "prephub.notebook.saveTask": "រក្សាទុកកិច្ចការ",
@@ -59,24 +68,31 @@ export default {
   "prephub.notebook.finish": "បញ្ចប់",
   "prephub.notebook.prepareAgain": "ត្រៀមម្ដងទៀត",
   "prephub.notebook.backToNotebook": "ត្រឡប់ទៅកំណត់ត្រា",
-  "prephub.notebook.reviewHelp": "ផ្ដោតលើអ្វីដែលនៅសល់ និងពិនិត្យសម្ភារៈដែលបានរក្សាទុក។",
+  "prephub.notebook.reviewHelp":
+    "ផ្ដោតលើអ្វីដែលនៅសល់ និងពិនិត្យសម្ភារៈដែលបានរក្សាទុក។",
   "prephub.notebook.moreSettings": "ព័ត៌មានបន្ថែម និងការកំណត់",
   "prephub.notebook.editSubject": "កែប្រែប្រធានបទ",
   "prephub.notebook.advancedProgress": "ព័ត៌មានលម្អិតនៃការត្រៀម",
-  "prephub.notebook.progressHelp": "វឌ្ឍនភាពរាប់តែកិច្ចការ និងលទ្ធផលដែលចាំបាច់។ កិច្ចការជាជម្រើស កំណត់ត្រា ឯកសារ តំណ និងសំណួរ មិនប្ដូរចំនួនសរុបទេ។",
+  "prephub.notebook.progressHelp":
+    "វឌ្ឍនភាពរាប់តែកិច្ចការ និងលទ្ធផលដែលចាំបាច់។ កិច្ចការជាជម្រើស កំណត់ត្រា ឯកសារ តំណ និងសំណួរ មិនប្ដូរចំនួនសរុបទេ។",
   "prephub.notebook.customSections": "ផ្នែកផ្ទាល់ខ្លួន",
-  "prephub.notebook.sectionsHelp": "គ្រប់គ្រងឈ្មោះ លំដាប់ និងមាតិកាលម្អិតនៃផ្នែកនៅទីនេះ។ អ្វីៗទាំងអស់នៅតែក្នុងកំណត់ត្រារបស់អ្នក។",
+  "prephub.notebook.sectionsHelp":
+    "គ្រប់គ្រងឈ្មោះ លំដាប់ និងមាតិកាលម្អិតនៃផ្នែកនៅទីនេះ។ អ្វីៗទាំងអស់នៅតែក្នុងកំណត់ត្រារបស់អ្នក។",
   "prephub.notebook.addDate": "បន្ថែមកាលបរិច្ឆេទសកម្មភាព",
   "prephub.notebook.researchDetails": "គោលដៅ និងស្ថានភាពស្រាវជ្រាវ",
   "prephub.share": "ចែករំលែក",
   "prephub.shareWorkspace": "ចែករំលែកកន្លែងត្រៀម",
   "prephub.shareAnyone": "អ្នកដែលមានតំណអាចមើលបាន",
   "prephub.sharePrivate": "កន្លែងត្រៀមឯកជន",
-  "prephub.sharePrivateHelp": "មានតែអ្នកប៉ុណ្ណោះដែលអាចបើកកន្លែងត្រៀមនេះ។ បើកការចែករំលែកដើម្បីបង្កើតតំណថ្មី។",
-  "prephub.shareLiveHelp": "តំណនេះអនុញ្ញាតឱ្យមើលតែប៉ុណ្ណោះ។ ការកែប្រែដែលអ្នករក្សាទុកនឹងបង្ហាញដោយស្វ័យប្រវត្តិ។",
-  "prephub.shareDisclosure": "ការចែករំលែកនឹងបង្ហាញកំណត់ត្រា ការស្រាវជ្រាវ លទ្ធផល ប្រភព សំណួរ និងតំណទាំងអស់ក្នុងកន្លែងត្រៀមនេះដល់អ្នកដែលមានតំណ។ អ្នកមើលមិនអាចកែប្រែបានទេ។ ការរំលឹក ប្រវត្តិ និងព័ត៌មានគណនីនៅតែជាឯកជន។",
+  "prephub.sharePrivateHelp":
+    "មានតែអ្នកប៉ុណ្ណោះដែលអាចបើកកន្លែងត្រៀមនេះ។ បើកការចែករំលែកដើម្បីបង្កើតតំណថ្មី។",
+  "prephub.shareLiveHelp":
+    "តំណនេះអនុញ្ញាតឱ្យមើលតែប៉ុណ្ណោះ។ ការកែប្រែដែលអ្នករក្សាទុកនឹងបង្ហាញដោយស្វ័យប្រវត្តិ។",
+  "prephub.shareDisclosure":
+    "ការចែករំលែកនឹងបង្ហាញកំណត់ត្រា ការស្រាវជ្រាវ លទ្ធផល ប្រភព សំណួរ និងតំណទាំងអស់ក្នុងកន្លែងត្រៀមនេះដល់អ្នកដែលមានតំណ។ អ្នកមើលមិនអាចកែប្រែបានទេ។ ការរំលឹក ប្រវត្តិ និងព័ត៌មានគណនីនៅតែជាឯកជន។",
   "prephub.shareFiles": "រួមបញ្ចូលឯកសារភ្ជាប់",
-  "prephub.shareFilesHelp": "អនុញ្ញាតឱ្យអ្នកមើលបើកមើល និងទាញយកឯកសារភ្ជាប់ទាំងអស់។ ជម្រើសនេះបិទជាមុន។",
+  "prephub.shareFilesHelp":
+    "អនុញ្ញាតឱ្យអ្នកមើលបើកមើល និងទាញយកឯកសារភ្ជាប់ទាំងអស់។ ជម្រើសនេះបិទជាមុន។",
   "prephub.shareLink": "តំណសម្រាប់មើល",
   "prephub.copyLink": "ចម្លងតំណ",
   "prephub.openShared": "បើកមើលជាមុន",
@@ -84,24 +100,31 @@ export default {
   "prephub.replaceLink": "បង្កើតតំណជំនួស",
   "prephub.stopSharing": "បិទការចែករំលែក",
   "prephub.enableSharing": "បើកការចែករំលែកតាមតំណ",
-  "prephub.stopSharingConfirm": "បិទការចែករំលែកឬ? តំណបច្ចុប្បន្ននឹងមិនអាចប្រើបានទៀតទេ។ កន្លែងត្រៀម និងឯកសាររបស់អ្នកនៅតែរក្សាទុក។",
-  "prephub.replaceLinkConfirm": "បង្កើតតំណជំនួសឬ? អ្នកដែលប្រើតំណចាស់នឹងត្រូវការតំណថ្មី។",
-  "prephub.shareSaved": "បានរក្សាទុកការចែករំលែក។ ចម្លងតំណដើម្បីផ្ញើទៅក្រុមរបស់អ្នក។",
+  "prephub.stopSharingConfirm":
+    "បិទការចែករំលែកឬ? តំណបច្ចុប្បន្ននឹងមិនអាចប្រើបានទៀតទេ។ កន្លែងត្រៀម និងឯកសាររបស់អ្នកនៅតែរក្សាទុក។",
+  "prephub.replaceLinkConfirm":
+    "បង្កើតតំណជំនួសឬ? អ្នកដែលប្រើតំណចាស់នឹងត្រូវការតំណថ្មី។",
+  "prephub.shareSaved":
+    "បានរក្សាទុកការចែករំលែក។ ចម្លងតំណដើម្បីផ្ញើទៅក្រុមរបស់អ្នក។",
   "prephub.shareReplaced": "បានបង្កើតតំណថ្មី។ តំណចាស់មិនអាចប្រើបានទៀតទេ។",
   "prephub.shareStopped": "បានបិទការចែករំលែក។ កន្លែងត្រៀមនេះជាឯកជនវិញហើយ។",
   "prephub.linkCopied": "បានចម្លងតំណ។",
   "prephub.copyManually": "សូមជ្រើសរើស និងចម្លងតំណខាងលើ។",
   "prephub.publicTitle": "កន្លែងត្រៀមដែលបានចែករំលែក — PrepHub",
-  "prephub.publicDescription": "កន្លែងត្រៀមដែលបានចែករំលែក សម្រាប់មើលតែប៉ុណ្ណោះ។",
+  "prephub.publicDescription":
+    "កន្លែងត្រៀមដែលបានចែករំលែក សម្រាប់មើលតែប៉ុណ្ណោះ។",
   "prephub.sharedWorkspace": "កន្លែងត្រៀមដែលបានចែករំលែក",
   "prephub.readOnly": "មើលតែប៉ុណ្ណោះ",
-  "prephub.sharedReadOnlyHelp": "អ្នកអាចមើលការត្រៀមនេះបាន។ មានតែម្ចាស់ប៉ុណ្ណោះដែលអាចកែប្រែបាន។",
+  "prephub.sharedReadOnlyHelp":
+    "អ្នកអាចមើលការត្រៀមនេះបាន។ មានតែម្ចាស់ប៉ុណ្ណោះដែលអាចកែប្រែបាន។",
   "prephub.shareUnavailable": "មិនអាចប្រើតំណនេះបានទេ",
-  "prephub.shareUnavailableHelp": "ម្ចាស់ប្រហែលជាបានបិទការចែករំលែក ឬបង្កើតតំណជំនួស។ សូមស្នើសុំតំណថ្មីពីម្ចាស់។",
+  "prephub.shareUnavailableHelp":
+    "ម្ចាស់ប្រហែលជាបានបិទការចែករំលែក ឬបង្កើតតំណជំនួស។ សូមស្នើសុំតំណថ្មីពីម្ចាស់។",
   "prephub.shareLoadError": "មិនអាចផ្ទុកកន្លែងត្រៀមនេះបានទេ",
   "prephub.shareLoadErrorHelp": "សូមពិនិត្យការតភ្ជាប់ រួចព្យាយាមម្ដងទៀត។",
   "prephub.sharedEmpty": "មិនទាន់មានសម្ភារៈត្រៀមនៅឡើយទេ។",
-  "prephub.sharedFilesExcluded": "ឯកសារភ្ជាប់មិនត្រូវបានរួមបញ្ចូលក្នុងតំណនេះទេ។",
+  "prephub.sharedFilesExcluded":
+    "ឯកសារភ្ជាប់មិនត្រូវបានរួមបញ្ចូលក្នុងតំណនេះទេ។",
   "prephub.completedRequirements": "បានបញ្ចប់",
   "prephub.sections": "ផ្នែកនៃកន្លែងត្រៀម",
   "prephub.sharedEventAt": "ព្រឹត្តិការណ៍",

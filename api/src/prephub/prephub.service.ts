@@ -304,7 +304,17 @@ export class PrepHubService {
       },
     } satisfies Prisma.PreparationSubjectSelect;
     const skip = (query.page - 1) * query.limit;
-    const total = await this.prisma.preparationSubject.count({ where });
+    // Facets share the owner's search/status scope, but stay independent of category and pagination.
+    const facetWhere = { ...where };
+    delete facetWhere.category;
+    const [total, categoryGroups] = await Promise.all([
+      this.prisma.preparationSubject.count({ where }),
+      this.prisma.preparationSubject.groupBy({
+        by: ['category'],
+        where: facetWhere,
+        _count: true,
+      }),
+    ]);
     let subjects;
     if (!query.sort || query.sort === 'UPCOMING') {
       const preferred: Prisma.PreparationSubjectWhereInput = {
@@ -357,10 +367,18 @@ export class PrepHubService {
       subjects: subjects.map(({ sections, ...s }) => ({
         ...s,
         progress: progressFor(sections, now),
+        taskCount: sections
+          .filter((section) =>
+            ['CHECKLIST', 'DELIVERABLES'].includes(section.type),
+          )
+          .reduce((count, section) => count + section.items.length, 0),
       })),
       total,
       page: query.page,
       limit: query.limit,
+      categoryCounts: Object.fromEntries(
+        categoryGroups.map((group) => [group.category, group._count]),
+      ),
     };
   }
 

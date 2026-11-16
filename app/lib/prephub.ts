@@ -98,8 +98,22 @@ export interface PrepDashboard {
   timeZone: string;
   reminders: PrepInbox[];
 }
+export type PrepSubjectSummary = Pick<
+  PrepSubject,
+  | "id"
+  | "title"
+  | "description"
+  | "category"
+  | "status"
+  | "priority"
+  | "eventAt"
+  | "deadlineAt"
+  | "updatedAt"
+  | "progress"
+> & { taskCount?: number };
 export interface PrepList {
-  subjects: PrepSubject[];
+  subjects: PrepSubjectSummary[];
+  categoryCounts?: Record<string, number>;
   total: number;
   page: number;
   limit: number;
