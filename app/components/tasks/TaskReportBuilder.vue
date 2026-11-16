@@ -414,6 +414,10 @@ function date(v: string) {
             class="tasks-report-block"
           >
             <h3>{{ o.title }}</h3>
+            <p>
+              {{ t("tasks.period") }}: {{ o.periodStart.slice(0, 10) }} —
+              {{ o.periodEnd.slice(0, 10) }}
+            </p>
             <p>{{ o.description }}</p>
             <p>
               {{ t("tasks.successCriteria") }}: {{ o.successCriteria || "—" }}
@@ -471,6 +475,7 @@ function date(v: string) {
             class="tasks-report-block"
           >
             <h3>{{ task.title }}</h3>
+            <p class="text-xs">{{ t("tasks.impact") }}</p>
             <p>{{ task.impact || t("tasks.noOutcome") }}</p>
           </section>
           <section class="tasks-report-block">

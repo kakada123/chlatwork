@@ -193,10 +193,10 @@ enum AiVideoJobStatus {
 }
 
 model User {
-  workTasks WorkTask[]
-  workProjects WorkProject[]
-  workObjectives WorkObjective[]
-  workReports WorkReport[]
+  workTasks                                  WorkTask[]
+  workProjects                               WorkProject[]
+  workObjectives                             WorkObjective[]
+  workReports                                WorkReport[]
   preparationSubjects                        PreparationSubject[]
   groupManagerCandidates                     TelegramGroupManager[]
   groupConnectionRequests                    TelegramGroupConnectRequest[]
@@ -1547,167 +1547,187 @@ model PreparationHistory {
 
 
 model WorkTask {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId String? @map("project_id") @db.Uuid
-  project WorkProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  title String @db.VarChar(200)
-  description String @default("") @db.VarChar(4000)
-  status String @default("INBOX") @db.VarChar(20)
-  previousStatus String? @map("previous_status") @db.VarChar(20)
-  priority String @default("NORMAL") @db.VarChar(10)
-  category String @default("General") @db.VarChar(80)
-  startAt DateTime? @map("start_at") @db.Timestamptz
-  dueAt DateTime? @map("due_at") @db.Timestamptz
-  completedAt DateTime? @map("completed_at") @db.Timestamptz
-  archivedAt DateTime? @map("archived_at") @db.Timestamptz
-  estimatedMinutes Int? @map("estimated_minutes")
-  actualMinutes Int? @map("actual_minutes")
-  notes String @default("") @db.VarChar(4000)
-  tags String[] @default([])
-  summary String @default("") @db.VarChar(2000)
-  contribution String @default("") @db.VarChar(2000)
-  impact String @default("") @db.VarChar(2000)
-  evidence String[] @default([])
-  skills String @default("") @db.VarChar(1000)
-  highlighted Boolean @default(false)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  objectives WorkTaskObjective[]
-  subtasks WorkSubtask[]
-  events WorkTaskEvent[]
-  followUps WorkFollowUp[]
-  attachments WorkAttachment[]
+  id               String              @id @default(uuid()) @db.Uuid
+  userId           String              @map("user_id") @db.Uuid
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId        String?             @map("project_id") @db.Uuid
+  project          WorkProject?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  title            String              @db.VarChar(200)
+  description      String              @default("") @db.VarChar(4000)
+  status           String              @default("INBOX") @db.VarChar(20)
+  previousStatus   String?             @map("previous_status") @db.VarChar(20)
+  priority         String              @default("NORMAL") @db.VarChar(10)
+  category         String              @default("General") @db.VarChar(80)
+  startAt          DateTime?           @map("start_at") @db.Timestamptz
+  dueAt            DateTime?           @map("due_at") @db.Timestamptz
+  completedAt      DateTime?           @map("completed_at") @db.Timestamptz
+  archivedAt       DateTime?           @map("archived_at") @db.Timestamptz
+  estimatedMinutes Int?                @map("estimated_minutes")
+  actualMinutes    Int?                @map("actual_minutes")
+  notes            String              @default("") @db.VarChar(4000)
+  tags             String[]            @default([])
+  summary          String              @default("") @db.VarChar(2000)
+  contribution     String              @default("") @db.VarChar(2000)
+  impact           String              @default("") @db.VarChar(2000)
+  evidence         String[]            @default([])
+  skills           String              @default("") @db.VarChar(1000)
+  isMilestone      Boolean             @default(false) @map("is_milestone")
+  highlighted      Boolean             @default(false)
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  objectives       WorkTaskObjective[]
+  subtasks         WorkSubtask[]
+  events           WorkTaskEvent[]
+  followUps        WorkFollowUp[]
+  attachments      WorkAttachment[]
+
   @@index([userId, status, dueAt])
   @@index([userId, completedAt(sort: Desc)])
   @@index([userId, updatedAt(sort: Desc)])
   @@index([projectId])
   @@map("work_tasks")
 }
+
 model WorkSubtask {
-  id String @id @default(uuid()) @db.Uuid
-  taskId String @map("task_id") @db.Uuid
-  task WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  title String @db.VarChar(300)
+  id          String    @id @default(uuid()) @db.Uuid
+  taskId      String    @map("task_id") @db.Uuid
+  task        WorkTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title       String    @db.VarChar(300)
   completedAt DateTime? @map("completed_at") @db.Timestamptz
-  sortOrder Int @default(0) @map("sort_order")
+  sortOrder   Int       @default(0) @map("sort_order")
+
   @@index([taskId, sortOrder])
   @@map("work_subtasks")
 }
+
 model WorkTaskEvent {
-  id String @id @default(uuid()) @db.Uuid
-  taskId String @map("task_id") @db.Uuid
-  task WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  type String @db.VarChar(30)
+  id          String    @id @default(uuid()) @db.Uuid
+  taskId      String    @map("task_id") @db.Uuid
+  task        WorkTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type        String    @db.VarChar(30)
   completedAt DateTime? @map("completed_at") @db.Timestamptz
-  snapshot Json
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  snapshot    Json
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
   @@index([taskId, createdAt(sort: Desc)])
   @@map("work_task_events")
 }
+
 model WorkProject {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name String @db.VarChar(160)
-  description String @default("") @db.VarChar(4000)
-  color String @default("#0369a1") @db.VarChar(7)
-  status String @default("ACTIVE") @db.VarChar(20)
-  targetDate DateTime? @map("target_date") @db.Date
-  notes String @default("") @db.VarChar(4000)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  tasks WorkTask[]
-  objectives WorkProjectObjective[]
+  id          String                 @id @default(uuid()) @db.Uuid
+  userId      String                 @map("user_id") @db.Uuid
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String                 @db.VarChar(160)
+  description String                 @default("") @db.VarChar(4000)
+  color       String                 @default("#0369a1") @db.VarChar(7)
+  status      String                 @default("ACTIVE") @db.VarChar(20)
+  targetDate  DateTime?              @map("target_date") @db.Date
+  notes       String                 @default("") @db.VarChar(4000)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+  tasks       WorkTask[]
+  objectives  WorkProjectObjective[]
+
   @@index([userId, status])
   @@map("work_projects")
 }
+
 model WorkObjective {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title String @db.VarChar(200)
-  description String @default("") @db.VarChar(4000)
-  periodStart DateTime @map("period_start") @db.Date
-  periodEnd DateTime @map("period_end") @db.Date
-  successCriteria String @default("") @map("success_criteria") @db.VarChar(4000)
-  targetValue Decimal? @map("target_value") @db.Decimal(18,4)
-  actualValue Decimal? @map("actual_value") @db.Decimal(18,4)
-  metricUnit String @default("") @map("metric_unit") @db.VarChar(80)
-  verificationEvidence String @default("") @map("verification_evidence") @db.VarChar(2000)
-  verifiedAt DateTime? @map("verified_at") @db.Timestamptz
-  status String @default("ACTIVE") @db.VarChar(20)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  tasks WorkTaskObjective[]
-  projects WorkProjectObjective[]
+  id                   String                 @id @default(uuid()) @db.Uuid
+  userId               String                 @map("user_id") @db.Uuid
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title                String                 @db.VarChar(200)
+  description          String                 @default("") @db.VarChar(4000)
+  periodStart          DateTime               @map("period_start") @db.Date
+  periodEnd            DateTime               @map("period_end") @db.Date
+  successCriteria      String                 @default("") @map("success_criteria") @db.VarChar(4000)
+  targetValue          Decimal?               @map("target_value") @db.Decimal(18, 4)
+  actualValue          Decimal?               @map("actual_value") @db.Decimal(18, 4)
+  metricUnit           String                 @default("") @map("metric_unit") @db.VarChar(80)
+  verificationEvidence String                 @default("") @map("verification_evidence") @db.VarChar(2000)
+  verifiedAt           DateTime?              @map("verified_at") @db.Timestamptz
+  status               String                 @default("ACTIVE") @db.VarChar(20)
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+  tasks                WorkTaskObjective[]
+  projects             WorkProjectObjective[]
+
   @@index([userId, periodStart, periodEnd])
   @@map("work_objectives")
 }
+
 model WorkTaskObjective {
-  taskId String @map("task_id") @db.Uuid
-  task WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  objectiveId String @map("objective_id") @db.Uuid
-  objective WorkObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  taskId      String        @map("task_id") @db.Uuid
+  task        WorkTask      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  objectiveId String        @map("objective_id") @db.Uuid
+  objective   WorkObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
   @@id([taskId, objectiveId])
   @@index([objectiveId])
   @@map("work_task_objectives")
 }
+
 model WorkProjectObjective {
-  projectId String @map("project_id") @db.Uuid
-  project WorkProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  objectiveId String @map("objective_id") @db.Uuid
-  objective WorkObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  projectId   String        @map("project_id") @db.Uuid
+  project     WorkProject   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  objectiveId String        @map("objective_id") @db.Uuid
+  objective   WorkObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
   @@id([projectId, objectiveId])
   @@index([objectiveId])
   @@map("work_project_objectives")
 }
+
 model WorkFollowUp {
-  id String @id @default(uuid()) @db.Uuid
-  taskId String @map("task_id") @db.Uuid
-  task WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  followUpAt DateTime @map("follow_up_at") @db.Timestamptz
-  note String @default("") @db.VarChar(2000)
-  nextAction String @default("") @map("next_action") @db.VarChar(1000)
-  remindAt DateTime? @map("remind_at") @db.Timestamptz
+  id          String    @id @default(uuid()) @db.Uuid
+  taskId      String    @map("task_id") @db.Uuid
+  task        WorkTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  followUpAt  DateTime  @map("follow_up_at") @db.Timestamptz
+  note        String    @default("") @db.VarChar(2000)
+  nextAction  String    @default("") @map("next_action") @db.VarChar(1000)
+  remindAt    DateTime? @map("remind_at") @db.Timestamptz
   dismissedAt DateTime? @map("dismissed_at") @db.Timestamptz
-  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  resolvedAt  DateTime? @map("resolved_at") @db.Timestamptz
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
   @@index([taskId, followUpAt])
   @@index([resolvedAt, followUpAt])
   @@index([dismissedAt, remindAt])
   @@map("work_follow_ups")
 }
+
 model WorkAttachment {
-  id String @id @default(uuid()) @db.Uuid
-  taskId String @map("task_id") @db.Uuid
-  task WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  title String @db.VarChar(200)
-  extension String @db.VarChar(8)
-  mimeType String @map("mime_type") @db.VarChar(120)
-  fileSize Int @map("file_size")
-  data Bytes
+  id        String   @id @default(uuid()) @db.Uuid
+  taskId    String   @map("task_id") @db.Uuid
+  task      WorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title     String   @db.VarChar(200)
+  extension String   @db.VarChar(8)
+  mimeType  String   @map("mime_type") @db.VarChar(120)
+  fileSize  Int      @map("file_size")
+  data      Bytes
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
   @@index([taskId])
   @@map("work_attachments")
 }
+
 model WorkReport {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title String @db.VarChar(200)
-  employeeName String @default("") @map("employee_name") @db.VarChar(160)
-  periodStart DateTime @map("period_start") @db.Date
-  periodEnd DateTime @map("period_end") @db.Date
-  summary String @default("") @db.VarChar(4000)
-  challenges String @default("") @db.VarChar(2000)
-  lessons String @default("") @db.VarChar(2000)
-  priorities String @default("") @db.VarChar(2000)
-  filters Json
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String   @db.VarChar(200)
+  employeeName String   @default("") @map("employee_name") @db.VarChar(160)
+  periodStart  DateTime @map("period_start") @db.Date
+  periodEnd    DateTime @map("period_end") @db.Date
+  summary      String   @default("") @db.VarChar(4000)
+  challenges   String   @default("") @db.VarChar(2000)
+  lessons      String   @default("") @db.VarChar(2000)
+  priorities   String   @default("") @db.VarChar(2000)
+  filters      Json
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
   @@index([userId, updatedAt(sort: Desc)])
   @@map("work_reports")
 }

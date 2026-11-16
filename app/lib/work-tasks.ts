@@ -89,6 +89,7 @@ export interface TaskRecord {
   impact: string;
   skills: string;
   highlighted: boolean;
+  isMilestone: boolean;
   createdAt: string;
   updatedAt: string;
   objectives: { objective: { id: string; title: string } }[];
@@ -116,6 +117,7 @@ export interface TaskDashboard {
   overdue: number;
   completed: number;
   accomplishments: TaskRecord[];
+  milestones: TaskRecord[];
   followUps: TaskPage<TaskFollowUp>;
   objectives: TaskObjective[];
   weekly: {
@@ -145,6 +147,13 @@ export interface TaskReportDraft {
   status: string;
 }
 export interface TaskContribution {
+  status: string;
+  previousStatus: string | null;
+  startAt: string | null;
+  dueAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  tags: string[];
   id: string;
   title: string;
   description: string;
@@ -250,3 +259,13 @@ export type TaskRequest = <T>(
   path: string,
   options?: { query?: Record<string, unknown> },
 ) => Promise<T>;
+/** Untouched datetime-local controls must retain seconds and the original occurrence of a repeated DST time. */
+export function preservedInstant(
+  value: string,
+  timeZone: string,
+  original?: string | null,
+) {
+  return original && value === instantToInput(original, timeZone)
+    ? original
+    : inputToInstant(value, timeZone);
+}

@@ -1,4 +1,6 @@
 export default {
+  "tasks.milestones": "សមិទ្ធផលសំខាន់ផ្ទាល់ខ្លួន",
+  "tasks.milestone": "ការងារនេះជាសមិទ្ធផលសំខាន់ផ្ទាល់ខ្លួន",
   "tasks.name": "ChlatWork កិច្ចការ",
   "tasks.tagline": "តាមដានការងារ។ មើលវឌ្ឍនភាព។ បង្ហាញផលជះរបស់អ្នក។",
   "tasks.overview": "សង្ខេប",
@@ -78,7 +80,8 @@ export default {
   "tasks.weekGroup": "សប្ដាហ៍",
   "tasks.list": "បញ្ជី",
   "tasks.board": "ក្តារកិច្ចការ",
-  "tasks.empty": "មិនមានកំណត់ត្រាត្រូវគ្នាទេ។ បន្ថែមកិច្ចការ ឬកត់ត្រាការងារដែលបានបញ្ចប់។",
+  "tasks.empty":
+    "មិនមានកំណត់ត្រាត្រូវគ្នាទេ។ បន្ថែមកិច្ចការ ឬកត់ត្រាការងារដែលបានបញ្ចប់។",
   "tasks.complete": "សម្គាល់ថាបានបញ្ចប់",
   "tasks.reopen": "បើកឡើងវិញ",
   "tasks.duplicate": "ចម្លងជាកិច្ចការថ្មី",
@@ -95,7 +98,8 @@ export default {
   "tasks.snooze": "ប្ដូរកាលវិភាគ / ពន្យារ",
   "tasks.dismiss": "បិទការរំលឹក",
   "tasks.reminderDue": "ការរំលឹកតាមដាន",
-  "tasks.reminderHint": "ការរំលឹកបង្ហាញពេល Tasks បើក និងពេលអ្នកត្រឡប់មកវិញ។ ការតាមដានអាចនៅបើក ទោះកិច្ចការបានបញ្ចប់។",
+  "tasks.reminderHint":
+    "ការរំលឹកបង្ហាញពេល Tasks បើក និងពេលអ្នកត្រឡប់មកវិញ។ ការតាមដានអាចនៅបើក ទោះកិច្ចការបានបញ្ចប់។",
   "tasks.overdue": "ហួសកំណត់",
   "tasks.upcoming": "ជិតមកដល់",
   "tasks.dueToday": "កំណត់ថ្ងៃនេះ",
@@ -103,9 +107,11 @@ export default {
   "tasks.weeklyWins": "សមិទ្ធផលប្រចាំសប្ដាហ៍",
   "tasks.todayWins": "សមិទ្ធផលថ្ងៃនេះ",
   "tasks.completedPeriod": "បានបញ្ចប់ក្នុងរយៈពេលជ្រើស",
-  "tasks.volumeHint": "ចំនួនបង្ហាញសកម្មភាព មិនមែនតម្លៃនៃសមត្ថភាពទេ។ លទ្ធផល និងភស្តុតាងបង្ហាញរឿងរ៉ាវពេញលេញជាង។",
+  "tasks.volumeHint":
+    "ចំនួនបង្ហាញសកម្មភាព មិនមែនតម្លៃនៃសមត្ថភាពទេ។ លទ្ធផល និងភស្តុតាងបង្ហាញរឿងរ៉ាវពេញលេញជាង។",
   "tasks.objectiveProgress": "ការរួមចំណែកភ្ជាប់គោលដៅ",
-  "tasks.contributionCount": "ការរួមចំណែកបានបញ្ចប់ {done} / កិច្ចការភ្ជាប់ {total}",
+  "tasks.contributionCount":
+    "ការរួមចំណែកបានបញ្ចប់ {done} / កិច្ចការភ្ជាប់ {total}",
   "tasks.targetHint": "ការបញ្ចប់កិច្ចការ មិនមែនជាភស្តុតាងថាគោលដៅបានសម្រេចទេ។",
   "tasks.byCategory": "បានបញ្ចប់តាមប្រភេទ",
   "tasks.byProject": "ការងារតាមគម្រោង",
@@ -133,7 +139,8 @@ export default {
   "tasks.preview": "បង្កើតការមើលជាមុន",
   "tasks.saveDraft": "រក្សាទុកសេចក្ដីព្រាង",
   "tasks.newReport": "របាយការណ៍ថ្មី",
-  "tasks.reportHint": "ឯកសារនាំចេញប្រើការមើលជាមុន និងតម្រងដែលបង្ហាញ។ ការកែសេចក្ដីព្រាងនេះមិនប្ដូរកំណត់ត្រាការងារដើមទេ។ បង្កើតការមើលជាមុនឡើងវិញក្រោយកែតម្រង ឬអត្ថបទ។",
+  "tasks.reportHint":
+    "ឯកសារនាំចេញប្រើការមើលជាមុន និងតម្រងដែលបង្ហាញ។ ការកែសេចក្ដីព្រាងនេះមិនប្ដូរកំណត់ត្រាការងារដើមទេ។ បង្កើតការមើលជាមុនឡើងវិញក្រោយកែតម្រង ឬអត្ថបទ។",
   "tasks.pdf": "ទាញយក PDF",
   "tasks.xlsx": "ទាញយក Excel",
   "tasks.csv": "ទាញយក CSV",
@@ -143,29 +150,35 @@ export default {
   "tasks.outcomes": "លទ្ធផល និងផលជះអាចវាស់វែង",
   "tasks.supportingEvidence": "ភស្តុតាង និងតំណយោង",
   "tasks.pendingFollowUps": "ការតាមដាននៅសល់",
-  "tasks.reportEmpty": "មិនមានការរួមចំណែកបានបញ្ចប់ត្រូវនឹងរយៈពេល និងតម្រងនេះទេ។",
+  "tasks.reportEmpty":
+    "មិនមានការរួមចំណែកបានបញ្ចប់ត្រូវនឹងរយៈពេល និងតម្រងនេះទេ។",
   "tasks.noDate": "មិនមានកាលបរិច្ឆេទ",
   "tasks.previous": "មុន",
   "tasks.next": "បន្ទាប់",
   "tasks.confirmation": "លុបកំណត់ត្រានេះឬ?",
-  "tasks.deleteHint": "ការលុបមិនអាចស្ដារបានទេ។ ការលុបកិច្ចការនឹងលុបកិច្ចការរង ឯកសារ ការតាមដាន និងប្រវត្តិរបស់វា។ ទុកការងារក្នុងបណ្ណសារ ប្រសិនបើចង់រក្សាទុក។",
+  "tasks.deleteHint":
+    "ការលុបមិនអាចស្ដារបានទេ។ ការលុបកិច្ចការនឹងលុបកិច្ចការរង ឯកសារ ការតាមដាន និងប្រវត្តិរបស់វា។ ទុកការងារក្នុងបណ្ណសារ ប្រសិនបើចង់រក្សាទុក។",
   "tasks.files": "ឯកសារភ្ជាប់",
-  "tasks.fileHint": "5 MiB/ឯកសារ អតិបរមា 20 ឯកសារ។ PDF រូបភាព DOCX PPTX XLSX និង TXT។",
+  "tasks.fileHint":
+    "5 MiB/ឯកសារ អតិបរមា 20 ឯកសារ។ PDF រូបភាព DOCX PPTX XLSX និង TXT។",
   "tasks.download": "ទាញយក",
   "tasks.rename": "ប្ដូរឈ្មោះ",
   "tasks.history": "ប្រវត្តិបញ្ចប់",
   "tasks.COMPLETION_CORRECTED": "បានកែថ្ងៃបញ្ចប់",
   "tasks.REOPENED": "បានបើកឡើងវិញ",
-  "tasks.pageHint": "ការដាក់ជាក្រុម និងក្តារបង្ហាញលទ្ធផលទំព័រនេះ។ ប្រើតម្រង ឬទំព័រសម្រាប់បន្ថែម។",
+  "tasks.pageHint":
+    "ការដាក់ជាក្រុម និងក្តារបង្ហាញលទ្ធផលទំព័រនេះ។ ប្រើតម្រង ឬទំព័រសម្រាប់បន្ថែម។",
   "tasks.noSelection": "ជ្រើសកិច្ចការដើម្បីមើលព័ត៌មានលម្អិត។",
   "tasks.savedDrafts": "សេចក្ដីព្រាងរបាយការណ៍",
   "tasks.reflection": "ការឆ្លុះបញ្ចាំងប្រចាំខែ",
-  "tasks.reflectionHint": "ប្រើសេចក្ដីព្រាង MBO ដើម្បីកត់ត្រាមេរៀន លទ្ធផលសំខាន់ និងអាទិភាពរយៈពេលបន្ទាប់។",
+  "tasks.reflectionHint":
+    "ប្រើសេចក្ដីព្រាង MBO ដើម្បីកត់ត្រាមេរៀន លទ្ធផលសំខាន់ និងអាទិភាពរយៈពេលបន្ទាប់។",
   "tasks.linkedWork": "ការងារភ្ជាប់",
-  "tasks.archivedHint": "ការងារបានបញ្ចប់ក្នុងបណ្ណសារ នៅតែមានក្នុងសមិទ្ធផល និងរបាយការណ៍។",
+  "tasks.archivedHint":
+    "ការងារបានបញ្ចប់ក្នុងបណ្ណសារ នៅតែមានក្នុងសមិទ្ធផល និងរបាយការណ៍។",
   "tasks.general": "ទូទៅ",
   "tasks.exporting": "កំពុងរៀបចំនាំចេញ…",
   "catalog.products.tasks.name": "ChlatWork កិច្ចការ",
   "catalog.products.prep.name": "PrepHub",
-  "catalog.product_navigation.prep.home": "PrepHub"
+  "catalog.product_navigation.prep.home": "PrepHub",
 } as const;

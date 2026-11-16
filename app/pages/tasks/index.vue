@@ -97,6 +97,7 @@ let mounted = false,
   detailVersion = 0,
   poll: ReturnType<typeof setInterval> | undefined,
   searchTimer: ReturnType<typeof setTimeout> | undefined;
+const workLogVersion = ref(0);
 const taskId = computed(() =>
   typeof route.query.task === "string" ? route.query.task : "",
 );
@@ -115,6 +116,7 @@ function close() {
 async function loadDetail() {
   const version = ++detailVersion;
   selected.value = null;
+  detailLoading.value = false;
   if (!taskId.value) return;
   detailLoading.value = true;
   try {
@@ -206,6 +208,7 @@ async function create(body: Record<string, unknown>, done = false) {
   );
   if (result) {
     createOpen.value = false;
+    if (done) workLogVersion.value++;
     await refresh();
     open(result.id);
     return true;
@@ -676,6 +679,7 @@ onBeforeUnmount(() => {
             >
             <section v-else-if="view === 'work-log'" class="task-panel">
               <TaskForm
+                :key="workLogVersion"
                 :log-done="true"
                 :catalog="catalog"
                 :busy="busy"
@@ -801,6 +805,9 @@ onBeforeUnmount(() => {
       :busy="busy"
       @close="pendingDelete = null"
       @confirm="confirmDelete"
-    />
+      ><p v-if="error" role="alert" class="mt-3 text-sm text-red-600">
+        {{ error }}
+      </p></ConfirmDialog
+    >
   </main>
 </template>

@@ -2,7 +2,7 @@
 import {
   TASK_STATUSES,
   instantToInput,
-  inputToInstant,
+  preservedInstant,
   isTaskDone,
   type TaskRecord,
   type TaskCatalog,
@@ -41,6 +41,7 @@ const form = reactive({
   impact: source?.impact ?? "",
   skills: source?.skills ?? "",
   highlighted: source?.highlighted ?? false,
+  isMilestone: source?.isMilestone ?? false,
 });
 const error = ref("");
 const done = computed(
@@ -55,12 +56,24 @@ async function save() {
     await props.submit({
       ...rest,
       projectId: form.projectId || null,
-      startAt: inputToInstant(form.startAt, props.catalog.timeZone),
-      dueAt: inputToInstant(form.dueAt, props.catalog.timeZone),
+      startAt: preservedInstant(
+        form.startAt,
+        props.catalog.timeZone,
+        source?.startAt,
+      ),
+      dueAt: preservedInstant(
+        form.dueAt,
+        props.catalog.timeZone,
+        source?.dueAt,
+      ),
       ...(done.value
         ? {
             completedAt: form.completedAt
-              ? inputToInstant(form.completedAt, props.catalog.timeZone)
+              ? preservedInstant(
+                  form.completedAt,
+                  props.catalog.timeZone,
+                  source?.completedAt,
+                )
               : new Date().toISOString(),
           }
         : { completedAt: undefined }),

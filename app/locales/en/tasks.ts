@@ -1,4 +1,6 @@
 export default {
+  "tasks.milestones": "Personal milestones",
+  "tasks.milestone": "This work is a personal milestone",
   "tasks.name": "ChlatWork Tasks",
   "tasks.tagline": "Track your work. See your progress. Prove your impact.",
   "tasks.overview": "Overview",
@@ -78,7 +80,8 @@ export default {
   "tasks.weekGroup": "Week",
   "tasks.list": "List",
   "tasks.board": "Board",
-  "tasks.empty": "No matching records. Add a task or log work you have already completed.",
+  "tasks.empty":
+    "No matching records. Add a task or log work you have already completed.",
   "tasks.complete": "Mark done",
   "tasks.reopen": "Reopen",
   "tasks.duplicate": "Duplicate as new task",
@@ -95,7 +98,8 @@ export default {
   "tasks.snooze": "Reschedule / snooze",
   "tasks.dismiss": "Dismiss reminder",
   "tasks.reminderDue": "Follow-up reminder",
-  "tasks.reminderHint": "Reminders appear while Tasks is open and when you return. A follow-up can stay open after a task is done.",
+  "tasks.reminderHint":
+    "Reminders appear while Tasks is open and when you return. A follow-up can stay open after a task is done.",
   "tasks.overdue": "Overdue",
   "tasks.upcoming": "Upcoming",
   "tasks.dueToday": "Due today",
@@ -103,10 +107,13 @@ export default {
   "tasks.weeklyWins": "Weekly Wins",
   "tasks.todayWins": "Today's Wins",
   "tasks.completedPeriod": "Completed in selected period",
-  "tasks.volumeHint": "Counts describe activity, not the value of your performance. Your outcomes and evidence tell the fuller story.",
+  "tasks.volumeHint":
+    "Counts describe activity, not the value of your performance. Your outcomes and evidence tell the fuller story.",
   "tasks.objectiveProgress": "Objective-linked contributions",
-  "tasks.contributionCount": "{done} completed contributions / {total} linked tasks",
-  "tasks.targetHint": "Task completion is not proof that an objective target was achieved.",
+  "tasks.contributionCount":
+    "{done} completed contributions / {total} linked tasks",
+  "tasks.targetHint":
+    "Task completion is not proof that an objective target was achieved.",
   "tasks.byCategory": "Completed by category",
   "tasks.byProject": "Work by project",
   "tasks.trend": "Completed work this week",
@@ -133,7 +140,8 @@ export default {
   "tasks.preview": "Generate preview",
   "tasks.saveDraft": "Save draft",
   "tasks.newReport": "New report",
-  "tasks.reportHint": "Exports use the generated preview and its shown filters. Editing this draft never changes the original work records. Regenerate the preview after changing filters or text.",
+  "tasks.reportHint":
+    "Exports use the generated preview and its shown filters. Editing this draft never changes the original work records. Regenerate the preview after changing filters or text.",
   "tasks.pdf": "Download PDF",
   "tasks.xlsx": "Download Excel",
   "tasks.csv": "Download CSV",
@@ -143,29 +151,35 @@ export default {
   "tasks.outcomes": "Outcomes and measurable impact",
   "tasks.supportingEvidence": "Supporting evidence and links",
   "tasks.pendingFollowUps": "Pending follow-up items",
-  "tasks.reportEmpty": "No completed contributions match this evaluation period and filters.",
+  "tasks.reportEmpty":
+    "No completed contributions match this evaluation period and filters.",
   "tasks.noDate": "No date",
   "tasks.previous": "Previous",
   "tasks.next": "Next",
   "tasks.confirmation": "Delete this record?",
-  "tasks.deleteHint": "Deletion is permanent. Deleting a task also removes its subtasks, files, follow-ups and audit events. Archive work you want to keep.",
+  "tasks.deleteHint":
+    "Deletion is permanent. Deleting a task also removes its subtasks, files, follow-ups and audit events. Archive work you want to keep.",
   "tasks.files": "Attachments",
-  "tasks.fileHint": "5 MiB/file, up to 20 files. PDF, images, DOCX, PPTX, XLSX and TXT.",
+  "tasks.fileHint":
+    "5 MiB/file, up to 20 files. PDF, images, DOCX, PPTX, XLSX and TXT.",
   "tasks.download": "Download",
   "tasks.rename": "Rename",
   "tasks.history": "Completion history",
   "tasks.COMPLETION_CORRECTED": "Completion date corrected",
   "tasks.REOPENED": "Reopened",
-  "tasks.pageHint": "Grouping and board show this page of results. Use filters or pagination for more.",
+  "tasks.pageHint":
+    "Grouping and board show this page of results. Use filters or pagination for more.",
   "tasks.noSelection": "Select a task to see its details.",
   "tasks.savedDrafts": "Saved report drafts",
   "tasks.reflection": "Monthly reflection",
-  "tasks.reflectionHint": "Use an MBO draft to record lessons, meaningful outcomes and priorities for your next period.",
+  "tasks.reflectionHint":
+    "Use an MBO draft to record lessons, meaningful outcomes and priorities for your next period.",
   "tasks.linkedWork": "Linked work",
-  "tasks.archivedHint": "Archived completed work remains available in accomplishments and reports.",
+  "tasks.archivedHint":
+    "Archived completed work remains available in accomplishments and reports.",
   "tasks.general": "General",
   "tasks.exporting": "Preparing export…",
   "catalog.products.tasks.name": "ChlatWork Tasks",
   "catalog.products.prep.name": "PrepHub",
-  "catalog.product_navigation.prep.home": "PrepHub"
+  "catalog.product_navigation.prep.home": "PrepHub",
 } as const;

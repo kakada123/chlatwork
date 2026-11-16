@@ -61,6 +61,23 @@ const stats = computed(() => [
         @changed="emit('changed')"
       />
     </section>
+    <section v-if="dashboard.milestones?.length" class="task-panel space-y-3">
+      <h2 class="font-semibold">{{ t("tasks.milestones") }}</h2>
+      <button
+        v-for="task in dashboard.milestones"
+        :key="task.id"
+        type="button"
+        class="block min-h-11 w-full break-words text-left text-sm font-semibold text-sky-700 dark:text-sky-300"
+        @click="emit('open', task.id)"
+      >
+        {{ task.title
+        }}<span
+          v-if="task.impact"
+          class="mt-1 block text-xs font-normal text-slate-500"
+          >{{ task.impact }}</span
+        >
+      </button>
+    </section>
     <div class="grid gap-4 lg:grid-cols-2">
       <section class="task-panel space-y-3">
         <h2 class="font-semibold">{{ t("tasks.weeklyWins") }}</h2>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   instantToInput,
-  inputToInstant,
+  preservedInstant,
   type TaskRecord,
   type TaskFollowUp,
   type TaskPage,
@@ -24,6 +24,7 @@ const editing = ref<string | null | undefined>(undefined),
   choices = ref<TaskRecord[]>([]),
   error = ref(""),
   taskId = ref(props.taskId ?? "");
+const original = ref<TaskFollowUp | null>(null);
 const form = reactive({
   followUpAt: "",
   note: "",
@@ -43,6 +44,7 @@ async function findTasks() {
   }
 }
 function edit(f?: TaskFollowUp) {
+  original.value = f ?? null;
   editing.value = f?.id ?? null;
   taskId.value = props.taskId ?? f?.taskId ?? "";
   Object.assign(form, {
@@ -58,8 +60,16 @@ async function save() {
   try {
     const body = {
       ...form,
-      followUpAt: inputToInstant(form.followUpAt, props.timeZone),
-      remindAt: inputToInstant(form.remindAt, props.timeZone),
+      followUpAt: preservedInstant(
+        form.followUpAt,
+        props.timeZone,
+        original.value?.followUpAt,
+      ),
+      remindAt: preservedInstant(
+        form.remindAt,
+        props.timeZone,
+        original.value?.remindAt,
+      ),
     };
     if (
       await props.mutate(
