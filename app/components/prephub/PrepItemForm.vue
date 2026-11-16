@@ -64,7 +64,7 @@ async function save() {
       </label>
       <label class="prep-label"
         >{{ t("prephub.status")
-        }}<select v-model="form.status" class="prep-input">
+        }}<ModernSelect v-model="form.status" class="mt-1 w-full">
           <option
             v-for="v in [
               'TO_RESEARCH',
@@ -77,7 +77,7 @@ async function save() {
           >
             {{ t(`prephub.${v}`) }}
           </option>
-        </select></label
+        </ModernSelect></label
       >
       <label class="prep-label"
         >{{ t("prephub.findings")
@@ -136,10 +136,10 @@ async function save() {
     <template v-if="['CHECKLIST', 'DELIVERABLES'].includes(type)"
       ><label class="prep-label"
         >{{ t("prephub.dueAt")
-        }}<input
+        }}<ModernDateInput
           v-model="form.dueAt"
           type="datetime-local"
-          class="prep-input"
+          class="mt-1 w-full"
         /><span class="text-xs text-slate-500">{{ timeZone }}</span></label
       ><label class="flex min-h-11 items-center gap-2 text-sm"
         ><input v-model="form.isRequired" type="checkbox" class="size-5" />{{

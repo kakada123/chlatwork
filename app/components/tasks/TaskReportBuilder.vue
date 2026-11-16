@@ -250,14 +250,18 @@ function date(v: string) {
         <div class="grid grid-cols-2 gap-3">
           <label class="task-label"
             >{{ t("tasks.from")
-            }}<input
+            }}<ModernDateInput
               v-model="form.from"
               type="date"
-              class="task-input"
+              class="mt-1 w-full"
               required /></label
           ><label class="task-label"
             >{{ t("tasks.to")
-            }}<input v-model="form.to" type="date" class="task-input" required
+            }}<ModernDateInput
+              v-model="form.to"
+              type="date"
+              class="mt-1 w-full"
+              required
           /></label>
         </div>
         <p class="text-xs text-slate-500">
@@ -266,20 +270,20 @@ function date(v: string) {
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="task-label"
             >{{ t("tasks.project")
-            }}<select v-model="form.projectId" class="task-input">
+            }}<ModernSelect v-model="form.projectId" class="mt-1 w-full">
               <option :value="null">{{ t("tasks.all") }}</option>
               <option v-for="p in catalog.projects" :key="p.id" :value="p.id">
                 {{ p.name }}
               </option>
-            </select></label
+            </ModernSelect></label
           ><label class="task-label"
             >{{ t("tasks.objective")
-            }}<select v-model="form.objectiveId" class="task-input">
+            }}<ModernSelect v-model="form.objectiveId" class="mt-1 w-full">
               <option :value="null">{{ t("tasks.all") }}</option>
               <option v-for="o in catalog.objectives" :key="o.id" :value="o.id">
                 {{ o.title }}
               </option>
-            </select></label
+            </ModernSelect></label
           ><label class="task-label"
             >{{ t("tasks.category")
             }}<input
@@ -288,7 +292,7 @@ function date(v: string) {
               maxlength="80" /></label
           ><label class="task-label"
             >{{ t("tasks.status")
-            }}<select v-model="form.status" class="task-input">
+            }}<ModernSelect v-model="form.status" class="mt-1 w-full">
               <option
                 v-for="s in [
                   'ALL',
@@ -304,7 +308,7 @@ function date(v: string) {
               >
                 {{ s === "ALL" ? t("tasks.all") : t(`tasks.${s}`) }}
               </option>
-            </select></label
+            </ModernSelect></label
           >
         </div>
         <label class="task-label"

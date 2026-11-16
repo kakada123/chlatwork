@@ -25,6 +25,8 @@ import {
 } from "~/lib/work-tasks";
 import TaskForm from "~/components/tasks/TaskForm.vue";
 import TaskDetail from "~/components/tasks/TaskDetail.vue";
+import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
+import TasksMobileNavigation from "~/components/tasks/TasksMobileNavigation.vue";
 import TaskList from "~/components/tasks/TaskList.vue";
 import TaskFollowUps from "~/components/tasks/TaskFollowUps.vue";
 import TaskOrganization from "~/components/tasks/TaskOrganization.vue";
@@ -44,7 +46,7 @@ const { owner, timeZone, error, feedback, busy, request, mutate, fail, date } =
 const view = computed<TaskView>(() =>
   TASK_VIEWS.includes(route.query.view as TaskView)
     ? (route.query.view as TaskView)
-    : "overview",
+    : "tasks",
 );
 const catalog = ref<TaskCatalog>({
     timeZone: "Asia/Phnom_Penh",
@@ -92,6 +94,17 @@ const icons = {
   reports: FileText,
   archive: Archive,
 };
+const detailPanel = ref<HTMLElement | null>(null);
+const activeFilterCount = computed(
+  () =>
+    [
+      filters.status,
+      filters.category,
+      filters.projectId,
+      filters.objectiveId,
+      filters.focus,
+    ].filter(Boolean).length,
+);
 let mounted = false,
   viewVersion = 0,
   detailVersion = 0,
@@ -115,13 +128,25 @@ function close() {
 }
 async function loadDetail() {
   const version = ++detailVersion;
-  selected.value = null;
+  const opening = selected.value?.id !== taskId.value;
+  if (opening) selected.value = null;
   detailLoading.value = false;
   if (!taskId.value) return;
   detailLoading.value = true;
   try {
     const task = await request<TaskRecord>(`/records/${taskId.value}`);
-    if (version === detailVersion) selected.value = task;
+    if (version === detailVersion) {
+      selected.value = task;
+      await nextTick();
+      if (
+        opening &&
+        typeof window !== "undefined" &&
+        window.matchMedia("(max-width: 1279px)").matches
+      ) {
+        detailPanel.value?.scrollIntoView({ block: "start" });
+        detailPanel.value?.focus({ preventScroll: true });
+      }
+    }
   } catch (e) {
     if (version === detailVersion) fail(e);
   } finally {
@@ -348,15 +373,20 @@ onBeforeUnmount(() => {
         >
       </nav>
       <div class="min-w-0 space-y-4">
-        <header class="flex flex-wrap items-center justify-between gap-3">
+        <header
+          class="flex flex-wrap items-center justify-between gap-3"
+          :class="{ 'hidden xl:flex': selected || detailLoading }"
+        >
           <div>
             <h1 class="text-xl font-bold">{{ t(`tasks.${view}`) }}</h1>
-            <p class="mt-1 text-xs text-slate-500">{{ t("tasks.tagline") }}</p>
+            <p class="mt-1 hidden text-xs text-slate-500 sm:block">
+              {{ t("tasks.tagline") }}
+            </p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
               type="button"
-              class="task-button"
+              class="task-button hidden sm:inline-flex"
               :disabled="!catalogReady || busy"
               @click="createOpen = true"
             >
@@ -375,24 +405,13 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </header>
-        <nav
-          class="flex gap-2 overflow-x-auto pb-1 lg:hidden"
-          :aria-label="t('tasks.name')"
+
+        <aside
+          v-if="reminders.length"
+          :class="{ 'hidden xl:block': selected || detailLoading }"
+          class="space-y-2"
+          aria-live="polite"
         >
-          <NuxtLink
-            v-for="key in TASK_VIEWS"
-            :key="key"
-            :to="{ path: route.path, query: { view: key } }"
-            class="task-button shrink-0"
-            :class="{
-              'border-sky-500 bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-200':
-                view === key,
-            }"
-            :aria-current="view === key ? 'page' : undefined"
-            >{{ t(`tasks.${key}`) }}</NuxtLink
-          >
-        </nav>
-        <aside v-if="reminders.length" class="space-y-2" aria-live="polite">
           <div
             v-for="f in reminders"
             :key="f.id"
@@ -418,49 +437,55 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </aside>
-        <form
+        <WorkspaceFilters
           v-if="['overview', 'achievements'].includes(view) && catalogReady"
-          class="task-panel flex flex-wrap items-end gap-3"
-          @submit.prevent="loadView"
+          :title="t('tasks.period')"
+          :description="`${period.from} — ${period.to}`"
+          :class="{ 'hidden xl:block': selected || detailLoading }"
         >
-          <label class="task-label"
-            >{{ t("tasks.period")
-            }}<select
-              v-model="periodMode"
-              class="task-input"
-              @change="changePeriod"
-            >
-              <option
-                v-for="mode in ['today', 'week', 'month', 'custom']"
-                :key="mode"
-                :value="mode"
+          <form
+            class="task-panel flex flex-wrap items-end gap-3"
+            @submit.prevent="loadView"
+          >
+            <label class="task-label"
+              >{{ t("tasks.period")
+              }}<ModernSelect
+                v-model="periodMode"
+                class="mt-1 w-full"
+                @change="changePeriod"
               >
-                {{ t(`tasks.${mode}`) }}
-              </option>
-            </select></label
-          ><label class="task-label"
-            >{{ t("tasks.from")
-            }}<input
-              v-model="period.from"
-              type="date"
-              class="task-input"
-              required
-              @change="periodMode = 'custom'" /></label
-          ><label class="task-label"
-            >{{ t("tasks.to")
-            }}<input
-              v-model="period.to"
-              type="date"
-              class="task-input"
-              required
-              @change="periodMode = 'custom'" /></label
-          ><button class="task-button" :disabled="loading">
-            {{ t("tasks.preview") }}
-          </button>
-          <p class="w-full text-xs text-slate-500">
-            {{ t("tasks.timezone", { zone: timeZone }) }}
-          </p>
-        </form>
+                <option
+                  v-for="mode in ['today', 'week', 'month', 'custom']"
+                  :key="mode"
+                  :value="mode"
+                >
+                  {{ t(`tasks.${mode}`) }}
+                </option>
+              </ModernSelect></label
+            ><label class="task-label"
+              >{{ t("tasks.from")
+              }}<ModernDateInput
+                v-model="period.from"
+                type="date"
+                class="mt-1 w-full"
+                required
+                @change="periodMode = 'custom'" /></label
+            ><label class="task-label"
+              >{{ t("tasks.to")
+              }}<ModernDateInput
+                v-model="period.to"
+                type="date"
+                class="mt-1 w-full"
+                required
+                @change="periodMode = 'custom'" /></label
+            ><button class="task-button" :disabled="loading">
+              {{ t("tasks.preview") }}
+            </button>
+            <p class="w-full text-xs text-slate-500">
+              {{ t("tasks.timezone", { zone: timeZone }) }}
+            </p>
+          </form>
+        </WorkspaceFilters>
         <div
           v-if="error"
           role="alert"
@@ -494,7 +519,7 @@ onBeforeUnmount(() => {
         >
           <div
             class="min-w-0 space-y-4"
-            :class="{ 'hidden xl:block': selected }"
+            :class="{ 'hidden xl:block': selected || detailLoading }"
           >
             <TasksOverview
               v-if="view === 'overview' && dashboard"
@@ -506,10 +531,7 @@ onBeforeUnmount(() => {
               @view="overviewAction"
             /><template
               v-else-if="['tasks', 'achievements', 'archive'].includes(view)"
-              ><form
-                class="task-panel grid gap-3 sm:grid-cols-2"
-                @submit.prevent="applyFilters"
-              >
+              ><form class="space-y-3" @submit.prevent="applyFilters">
                 <label class="task-label"
                   >{{ t("tasks.search")
                   }}<input
@@ -517,121 +539,127 @@ onBeforeUnmount(() => {
                     type="search"
                     class="task-input"
                     maxlength="200" /></label
-                ><label class="task-label"
-                  >{{ t("tasks.status")
-                  }}<select
-                    v-model="filters.status"
-                    class="task-input"
-                    @change="applyFilters"
+                ><WorkspaceFilters :count="activeFilterCount"
+                  ><div
+                    class="task-panel grid grid-cols-2 gap-3 sm:grid-cols-3"
                   >
-                    <option value="">{{ t("tasks.all") }}</option>
-                    <option v-for="s in TASK_STATUSES" :key="s" :value="s">
-                      {{ t(`tasks.${s}`) }}
-                    </option>
-                  </select></label
-                ><label class="task-label"
-                  >{{ t("tasks.project")
-                  }}<select
-                    v-model="filters.projectId"
-                    class="task-input"
-                    @change="applyFilters"
-                  >
-                    <option value="">{{ t("tasks.all") }}</option>
-                    <option
-                      v-for="p in catalog.projects"
-                      :key="p.id"
-                      :value="p.id"
+                    <label class="task-label"
+                      >{{ t("tasks.status")
+                      }}<ModernSelect
+                        v-model="filters.status"
+                        class="mt-1 w-full"
+                        @change="applyFilters"
+                      >
+                        <option value="">{{ t("tasks.all") }}</option>
+                        <option v-for="s in TASK_STATUSES" :key="s" :value="s">
+                          {{ t(`tasks.${s}`) }}
+                        </option>
+                      </ModernSelect></label
+                    ><label class="task-label"
+                      >{{ t("tasks.project")
+                      }}<ModernSelect
+                        v-model="filters.projectId"
+                        class="mt-1 w-full"
+                        @change="applyFilters"
+                      >
+                        <option value="">{{ t("tasks.all") }}</option>
+                        <option
+                          v-for="p in catalog.projects"
+                          :key="p.id"
+                          :value="p.id"
+                        >
+                          {{ p.name }}
+                        </option>
+                      </ModernSelect></label
+                    ><label class="task-label"
+                      >{{ t("tasks.objective")
+                      }}<ModernSelect
+                        v-model="filters.objectiveId"
+                        class="mt-1 w-full"
+                        @change="applyFilters"
+                      >
+                        <option value="">{{ t("tasks.all") }}</option>
+                        <option
+                          v-for="o in catalog.objectives"
+                          :key="o.id"
+                          :value="o.id"
+                        >
+                          {{ o.title }}
+                        </option>
+                      </ModernSelect></label
+                    ><label class="task-label"
+                      >{{ t("tasks.category")
+                      }}<input
+                        v-model="filters.category"
+                        class="task-input"
+                        maxlength="80"
+                        @change="applyFilters" /></label
+                    ><label class="task-label"
+                      >{{ t("tasks.sort")
+                      }}<ModernSelect
+                        v-model="filters.sort"
+                        class="mt-1 w-full"
+                        @change="applyFilters"
+                      >
+                        <option
+                          v-for="s in ['UPDATED', 'DUE', 'COMPLETED', 'TITLE']"
+                          :key="s"
+                          :value="s"
+                        >
+                          {{ t(`tasks.${s}`) }}
+                        </option>
+                      </ModernSelect></label
+                    ><label class="task-label"
+                      >{{ t("tasks.group")
+                      }}<ModernSelect v-model="group" class="mt-1 w-full">
+                        <option
+                          v-for="s in [
+                            'none',
+                            'status',
+                            'project',
+                            'category',
+                            'objective',
+                            ...(view === 'achievements'
+                              ? ['day', 'week', 'month']
+                              : []),
+                          ]"
+                          :key="s"
+                          :value="s"
+                        >
+                          {{ t(`tasks.${s}`) }}
+                        </option>
+                      </ModernSelect></label
+                    ><label
+                      v-if="view === 'tasks'"
+                      class="flex min-h-11 items-center gap-2 text-sm"
+                      ><input v-model="board" type="checkbox" />{{
+                        t("tasks.board")
+                      }}</label
                     >
-                      {{ p.name }}
-                    </option>
-                  </select></label
-                ><label class="task-label"
-                  >{{ t("tasks.objective")
-                  }}<select
-                    v-model="filters.objectiveId"
-                    class="task-input"
-                    @change="applyFilters"
-                  >
-                    <option value="">{{ t("tasks.all") }}</option>
-                    <option
-                      v-for="o in catalog.objectives"
-                      :key="o.id"
-                      :value="o.id"
+                    <p
+                      v-if="filters.focus"
+                      class="text-sm text-sky-700 dark:text-sky-300"
                     >
-                      {{ o.title }}
-                    </option>
-                  </select></label
-                ><label class="task-label"
-                  >{{ t("tasks.category")
-                  }}<input
-                    v-model="filters.category"
-                    class="task-input"
-                    maxlength="80"
-                    @change="applyFilters" /></label
-                ><label class="task-label"
-                  >{{ t("tasks.sort")
-                  }}<select
-                    v-model="filters.sort"
-                    class="task-input"
-                    @change="applyFilters"
-                  >
-                    <option
-                      v-for="s in ['UPDATED', 'DUE', 'COMPLETED', 'TITLE']"
-                      :key="s"
-                      :value="s"
-                    >
-                      {{ t(`tasks.${s}`) }}
-                    </option>
-                  </select></label
-                ><label class="task-label"
-                  >{{ t("tasks.group")
-                  }}<select v-model="group" class="task-input">
-                    <option
-                      v-for="s in [
-                        'none',
-                        'status',
-                        'project',
-                        'category',
-                        'objective',
-                        ...(view === 'achievements'
-                          ? ['day', 'week', 'month']
-                          : []),
-                      ]"
-                      :key="s"
-                      :value="s"
-                    >
-                      {{ t(`tasks.${s}`) }}
-                    </option>
-                  </select></label
-                ><label
-                  v-if="view === 'tasks'"
-                  class="flex min-h-11 items-center gap-2 text-sm"
-                  ><input v-model="board" type="checkbox" />{{
-                    t("tasks.board")
-                  }}</label
+                      {{
+                        t(
+                          filters.focus === "OVERDUE"
+                            ? "tasks.overdue"
+                            : "tasks.dueToday",
+                        )
+                      }}
+                      <button
+                        type="button"
+                        class="underline"
+                        @click="
+                          filters.focus = '';
+                          applyFilters();
+                        "
+                      >
+                        {{ t("tasks.all") }}
+                      </button>
+                    </p>
+                  </div></WorkspaceFilters
                 >
-                <p
-                  v-if="filters.focus"
-                  class="text-sm text-sky-700 dark:text-sky-300"
-                >
-                  {{
-                    t(
-                      filters.focus === "OVERDUE"
-                        ? "tasks.overdue"
-                        : "tasks.dueToday",
-                    )
-                  }}
-                  <button
-                    type="button"
-                    class="underline"
-                    @click="
-                      filters.focus = '';
-                      applyFilters();
-                    "
-                  >
-                    {{ t("tasks.all") }}
-                  </button>
-                </p>
               </form>
               <p v-if="view === 'archive'" class="text-xs text-slate-500">
                 {{ t("tasks.archivedHint") }}
@@ -700,9 +728,9 @@ onBeforeUnmount(() => {
             <section v-else-if="view === 'follow-ups'" class="task-panel">
               <label class="task-label"
                 >{{ t("tasks.status")
-                }}<select
+                }}<ModernSelect
                   v-model="followScope"
-                  class="task-input mb-4"
+                  class="mt-1 w-full mb-4"
                   @change="
                     page = 1;
                     loadView();
@@ -721,7 +749,7 @@ onBeforeUnmount(() => {
                   >
                     {{ t(`tasks.${s.toLowerCase()}`) }}
                   </option>
-                </select></label
+                </ModernSelect></label
               ><TaskFollowUps
                 :items="followUps.items"
                 :time-zone="timeZone"
@@ -768,24 +796,44 @@ onBeforeUnmount(() => {
               :confirm="confirm"
             />
           </div>
-          <div v-if="detailLoading" role="status" class="task-panel">
+          <div
+            v-if="detailLoading && !selected"
+            role="status"
+            class="task-panel"
+          >
+            <button type="button" class="task-button mb-3" @click="close">
+              {{ t("ui.backToList") }}
+            </button>
             {{ t("tasks.loading") }}
           </div>
-          <TaskDetail
+          <div
             v-if="selected"
-            :task="selected"
-            :catalog="catalog"
-            :busy="busy"
-            :mutate="mutate"
-            :request="request"
-            :confirm="confirm"
-            @changed="refresh"
-            @close="close"
-            @open="open"
-          />
+            ref="detailPanel"
+            tabindex="-1"
+            class="min-w-0 scroll-mt-20 outline-none"
+          >
+            <TaskDetail
+              :task="selected"
+              :catalog="catalog"
+              :busy="busy"
+              :mutate="mutate"
+              :request="request"
+              :confirm="confirm"
+              @changed="refresh"
+              @close="close"
+              @open="open"
+            />
+          </div>
         </div>
       </div>
     </div>
+    <TasksMobileNavigation
+      :view="view"
+      :path="route.path"
+      :ready="catalogReady"
+      :busy="busy"
+      @create="createOpen = true"
+    />
     <WorkspaceDialog
       :open="createOpen"
       :title="t('tasks.create')"

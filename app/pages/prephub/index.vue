@@ -6,6 +6,7 @@ import {
   type PrepDashboard,
   type PrepList,
 } from "~/lib/prephub";
+import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
 import PrepDialog from "~/components/prephub/PrepDialog.vue";
 import PrepSubjectForm from "~/components/prephub/PrepSubjectForm.vue";
 import PrepCapture from "~/components/prephub/PrepCapture.vue";
@@ -26,6 +27,12 @@ const query = ref(""),
   category = ref(""),
   status = ref("ACTIVE"),
   sort = ref("UPCOMING");
+const activeFilterCount = computed(
+  () =>
+    Number(Boolean(category.value)) +
+    Number(status.value !== "ACTIVE") +
+    Number(sort.value !== "UPCOMING"),
+);
 const createOpen = ref(false),
   captureOpen = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
@@ -137,14 +144,18 @@ function captured() {
   <main
     class="prephub mx-auto max-w-6xl space-y-4 pb-24 text-slate-950 dark:text-white"
   >
-    <header class="flex flex-wrap items-center justify-between gap-3">
+    <header
+      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
-        <h1 class="text-2xl font-bold">PrepHub</h1>
-        <p class="mt-1 text-sm text-slate-500 dark:text-white/60">
+        <h1 class="text-xl font-bold sm:text-2xl">PrepHub</h1>
+        <p
+          class="mt-1 hidden text-sm text-slate-500 dark:text-white/60 sm:block"
+        >
           {{ t("prephub.tagline") }}
         </p>
       </div>
-      <div class="flex gap-2">
+      <div class="grid grid-cols-2 gap-2 sm:flex">
         <button type="button" class="prep-button" @click="captureOpen = true">
           <Zap class="size-4" aria-hidden="true" />{{
             t("prephub.quickCapture")
@@ -156,14 +167,14 @@ function captured() {
     </header>
     <PrepInbox v-if="owner" :time-zone="timeZone" />
     <nav
-      class="grid grid-cols-3 gap-2 sm:grid-cols-5"
+      class="flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-5"
       :aria-label="t('prephub.status')"
     >
       <button
         v-for="stat in stats"
         :key="stat.key"
         type="button"
-        class="prep-panel text-left"
+        class="prep-panel min-w-[6.5rem] flex-1 !p-3 text-left sm:min-w-0 sm:!p-4"
         :class="{ 'ring-2 ring-sky-500': status === stat.key }"
         :aria-pressed="status === stat.key"
         @click="status = stat.key"
@@ -176,7 +187,7 @@ function captured() {
         }}</span>
       </button>
     </nav>
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="space-y-3 sm:grid sm:grid-cols-4 sm:gap-3 sm:space-y-0">
       <label class="prep-label"
         ><span class="flex items-center gap-1"
           ><Search class="size-4" aria-hidden="true" />{{
@@ -187,46 +198,50 @@ function captured() {
           type="search"
           class="prep-input"
           maxlength="200" /></label
-      ><label class="prep-label"
-        >{{ t("prephub.category")
-        }}<select v-model="category" class="prep-input">
-          <option value="">{{ t("prephub.allCategories") }}</option>
-          <option v-for="v in PREP_CATEGORIES" :key="v" :value="v">
-            {{ t(`prephub.${v}`) }}
-          </option>
-        </select></label
-      ><label class="prep-label"
-        >{{ t("prephub.status")
-        }}<select v-model="status" class="prep-input">
-          <option
-            v-for="v in [
-              'ACTIVE',
-              'ALL',
-              'UPCOMING',
-              'OVERDUE',
-              'DRAFT',
-              'PREPARING',
-              'READY',
-              'COMPLETED',
-              'ARCHIVED',
-            ]"
-            :key="v"
-            :value="v"
+      ><WorkspaceFilters class="sm:col-span-3" :count="activeFilterCount"
+        ><div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <label class="prep-label"
+            >{{ t("prephub.category")
+            }}<ModernSelect v-model="category" class="mt-1 w-full">
+              <option value="">{{ t("prephub.allCategories") }}</option>
+              <option v-for="v in PREP_CATEGORIES" :key="v" :value="v">
+                {{ t(`prephub.${v}`) }}
+              </option>
+            </ModernSelect></label
+          ><label class="prep-label"
+            >{{ t("prephub.status")
+            }}<ModernSelect v-model="status" class="mt-1 w-full">
+              <option
+                v-for="v in [
+                  'ACTIVE',
+                  'ALL',
+                  'UPCOMING',
+                  'OVERDUE',
+                  'DRAFT',
+                  'PREPARING',
+                  'READY',
+                  'COMPLETED',
+                  'ARCHIVED',
+                ]"
+                :key="v"
+                :value="v"
+              >
+                {{ t(`prephub.${v}`) }}
+              </option>
+            </ModernSelect></label
+          ><label class="prep-label"
+            >{{ t("prephub.sort")
+            }}<ModernSelect v-model="sort" class="mt-1 w-full">
+              <option
+                v-for="v in ['UPCOMING', 'UPDATED', 'TITLE']"
+                :key="v"
+                :value="v"
+              >
+                {{ t(`prephub.${v}`) }}
+              </option>
+            </ModernSelect></label
           >
-            {{ t(`prephub.${v}`) }}
-          </option>
-        </select></label
-      ><label class="prep-label"
-        >{{ t("prephub.sort")
-        }}<select v-model="sort" class="prep-input">
-          <option
-            v-for="v in ['UPCOMING', 'UPDATED', 'TITLE']"
-            :key="v"
-            :value="v"
-          >
-            {{ t(`prephub.${v}`) }}
-          </option>
-        </select></label
+        </div></WorkspaceFilters
       >
     </div>
     <div
@@ -264,7 +279,7 @@ function captured() {
         v-for="subject in subjects"
         :key="subject.id"
         :to="linkTo(`/prephub/${subject.id}`)"
-        class="prep-panel group flex flex-col gap-3 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
+        class="prep-panel group flex flex-col gap-2 !p-3 transition sm:gap-3 sm:!p-4 hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
         ><div class="flex items-center justify-between gap-2 text-xs">
           <span class="text-sky-700 dark:text-sky-300">{{
             t(`prephub.${subject.category}`)

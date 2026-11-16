@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  MoreHorizontal,
   ArrowDown,
   ArrowUp,
   Pencil,
@@ -34,6 +35,7 @@ const base = computed(() => `/sections/${props.section.id}`);
 const editor = ref<PrepItem | null>();
 const rename = ref<{ title: string; path: string } | null>(null);
 const uploadError = ref("");
+const itemActions = ref<string | null>(null);
 const shownItems = computed(() =>
   props.review && ["CHECKLIST", "DELIVERABLES"].includes(props.section.type)
     ? props.section.items.filter((i) => !i.isCompleted)
@@ -159,19 +161,22 @@ async function saveRename() {
     <ol class="divide-y divide-slate-100 dark:divide-white/10">
       <li v-for="(item, index) in shownItems" :key="item.id" class="py-3">
         <div class="flex items-start gap-2">
-          <input
+          <label
             v-if="trackable && !review"
-            type="checkbox"
-            class="mt-3 size-5 shrink-0"
-            :checked="item.isCompleted"
-            :disabled="busy"
-            :aria-label="`${t('prephub.complete')}: ${item.title}`"
-            @change="
-              mutate(`${base}/items/${item.id}`, 'PATCH', {
-                isCompleted: !item.isCompleted,
-              })
-            "
-          />
+            class="grid size-11 shrink-0 cursor-pointer place-items-center"
+          >
+            <input
+              type="checkbox"
+              class="size-5"
+              :checked="item.isCompleted"
+              :disabled="busy"
+              :aria-label="`${t('prephub.complete')}: ${item.title}`"
+              @change="
+                mutate(`${base}/items/${item.id}`, 'PATCH', {
+                  isCompleted: !item.isCompleted,
+                })
+              "
+          /></label>
           <span
             v-if="section.type === 'AGENDA'"
             class="mt-1 text-sm text-slate-400"
@@ -258,37 +263,56 @@ async function saveRename() {
           </div>
         </div>
         <div v-if="!review" class="mt-2 flex justify-end">
+          <div
+            :id="`${section.id}-${item.id}-actions`"
+            class="items-center"
+            :class="itemActions === item.id ? 'flex' : 'hidden sm:flex'"
+          >
+            <button
+              class="prep-icon"
+              type="button"
+              :disabled="busy || index === 0"
+              :aria-label="t('prephub.moveUp')"
+              @click="moveItem(item.id, -1)"
+            >
+              <ArrowUp class="size-4" aria-hidden="true" /></button
+            ><button
+              class="prep-icon"
+              type="button"
+              :disabled="busy || index === section.items.length - 1"
+              :aria-label="t('prephub.moveDown')"
+              @click="moveItem(item.id, 1)"
+            >
+              <ArrowDown class="size-4" aria-hidden="true" /></button
+            ><button
+              class="prep-icon"
+              type="button"
+              :disabled="busy"
+              :aria-label="t('prephub.delete')"
+              @click="
+                confirm(() => mutate(`${base}/items/${item.id}`, 'DELETE'))
+              "
+            >
+              <Trash2 class="size-4" aria-hidden="true" />
+            </button>
+          </div>
           <button
-            class="prep-icon"
-            type="button"
-            :disabled="busy || index === 0"
-            :aria-label="t('prephub.moveUp')"
-            @click="moveItem(item.id, -1)"
-          >
-            <ArrowUp class="size-4" aria-hidden="true" /></button
-          ><button
-            class="prep-icon"
-            type="button"
-            :disabled="busy || index === section.items.length - 1"
-            :aria-label="t('prephub.moveDown')"
-            @click="moveItem(item.id, 1)"
-          >
-            <ArrowDown class="size-4" aria-hidden="true" /></button
-          ><button
             type="button"
             class="prep-button"
             :disabled="busy"
             @click="editor = item"
           >
-            {{ t("prephub.edit") }}</button
-          ><button
-            class="prep-icon"
+            {{ t("prephub.edit") }}
+          </button>
+          <button
             type="button"
-            :disabled="busy"
-            :aria-label="t('prephub.delete')"
-            @click="confirm(() => mutate(`${base}/items/${item.id}`, 'DELETE'))"
+            class="prep-icon sm:hidden"
+            :aria-label="`${t('ui.more')}: ${item.title}`"
+            :aria-controls="`${section.id}-${item.id}-actions`"
+            :aria-expanded="itemActions === item.id"
+            @click="itemActions = itemActions === item.id ? null : item.id"
           >
-            <Trash2 class="size-4" aria-hidden="true" />
+            <MoreHorizontal class="size-4" aria-hidden="true" />
           </button>
         </div>
       </li>

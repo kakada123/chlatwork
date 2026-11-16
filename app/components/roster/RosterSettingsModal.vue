@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ModernSelect from "~/components/ModernSelect.vue";
 import { ref, watch } from "vue";
 import {
   X,
@@ -287,26 +288,26 @@ function toggleShiftActive(shift: RosterShift) {
                     <label class="block text-[11px] font-semibold text-slate-600 dark:text-zinc-300">
                       {{ khmer ? "ប្រភេទច្បាប់" : "Leave Code" }}
                     </label>
-                    <select
+                    <ModernSelect
                       v-model="adjLeaveCode"
-                      class="mt-1 w-full rounded border border-slate-300 bg-white p-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                      class="mt-1 w-full"
                     >
                       <option value="AL">AL (Annual Leave)</option>
                       <option value="PHL">PHL (Public Holiday Leave)</option>
-                    </select>
+                    </ModernSelect>
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-slate-600 dark:text-zinc-300">
                       {{ khmer ? "ប្រភេទប្រតិបត្តិការ" : "Transaction Kind" }}
                     </label>
-                    <select
+                    <ModernSelect
                       v-model="adjKind"
-                      class="mt-1 w-full rounded border border-slate-300 bg-white p-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                      class="mt-1 w-full"
                     >
                       <option value="OPENING_BALANCE">Opening Balance (សមតុល្យដើមគ្រា)</option>
                       <option value="EARNED">Earned (ទទួលបន្ថែម)</option>
                       <option value="ADJUSTMENT">Manual Adjustment (កែតម្រូវដោយដៃ)</option>
-                    </select>
+                    </ModernSelect>
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-slate-600 dark:text-zinc-300">
@@ -613,14 +614,14 @@ function toggleShiftActive(shift: RosterShift) {
                   <label class="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
                     {{ khmer ? "វេនការងារលំនាំដើម (Default Working Shift)" : "Default Working Shift" }}
                   </label>
-                  <select
+                  <ModernSelect
                     v-model="localDefaultShift"
-                    class="mt-1 w-48 rounded border border-slate-300 bg-white p-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-800"
+                    class="mt-1 w-full"
                   >
                     <option v-for="s in shifts" :key="s.id" :value="s.code">
                       {{ s.code }} ({{ s.startTime }} - {{ s.endTime }})
                     </option>
-                  </select>
+                  </ModernSelect>
                 </div>
 
                 <div class="rounded-lg bg-slate-50 p-3 text-[11px] text-slate-600 dark:bg-zinc-800/60 dark:text-zinc-300">

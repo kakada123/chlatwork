@@ -1,3 +1,4 @@
+import { loadCalendarLanguage } from "./load-calendar-language.ts";
 import { calculateDayWorkingHours, calculateShiftHours, getRosterDayColors } from "../../app/lib/roster.ts";
 import { createI18nStub } from "./i18n-stubs.ts";
 import { translateMessage } from "../../app/lib/i18n.ts";
@@ -10,6 +11,8 @@ import ts from "../../api/node_modules/typescript/lib/typescript.js";
 import * as calendar from "../../app/lib/khmer-calendar.ts";
 import * as sharing from "../../app/lib/calendar-sharing.ts";
 import * as holidays from "../../app/data/cambodia-holidays.ts";
+import * as modernSelect from '../../app/lib/modern-select.ts';
+import * as datePickerPosition from '../../app/lib/date-picker-position.ts';
 import * as celebrations from "../../app/data/calendar-celebrations.ts";
 
 export function loadCalendarComponent(
@@ -37,6 +40,10 @@ export function loadCalendarComponent(
   }).outputText;
   const dependencies: Record<string, unknown> = {
     vue,
+    "~/composables/useCalendarLanguage": { useCalendarLanguage: () => loadCalendarLanguage(vue.ref("km"), {}) },
+    "~/composables/useLanguage": { useLanguage: () => ({ locale: vue.ref("km"), isKhmer: vue.ref(false) }) },
+    "~/lib/modern-select": modernSelect,
+    "~/lib/date-picker-position": datePickerPosition,
     "~/composables/useAppI18n": { useAppI18n: createI18nStub },
     "~/lib/i18n": { translateMessage },
     "lucide-vue-next": icons,

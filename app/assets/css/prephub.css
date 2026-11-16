@@ -1,6 +1,6 @@
 /* Feature-local controls reuse the shared palette, compact spacing and touch-target conventions. */
 .prephub .prep-input {
-  @apply mt-1 block min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-white/20 dark:bg-neutral-950 dark:text-white;
+  @apply mt-1 block min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-950 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-white/20 dark:bg-neutral-950 dark:text-white;
 }
 .prephub .prep-label {
   @apply block min-w-0 text-sm font-medium;

@@ -22,6 +22,7 @@ function component(path: string, globals: Record<string, unknown>, imports: Reco
     "~/composables/useAppI18n": appI18nStub,
     vue: framework,
     "~/composables/useProductCopy": productCopyStub,
+    "~/composables/useCalendarLanguage": { useCalendarLanguage: () => ({ isKhmer: vue.ref(false), switchLanguage() {} }) },
     "~/composables/useLanguage": { useLanguage: () => ({ isKhmer: vue.ref(false) }) },
     "lucide-vue-next": new Proxy({}, { get: () => ({}) }),
     "~/lib/product-mobile-navigation": navigation,

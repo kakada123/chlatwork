@@ -644,9 +644,8 @@ watch(
 <template>
   <!-- ✅ make whole page a flex column -->
   <div
-    class="flex min-h-[100dvh] flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
+    class="flex min-h-[calc(100dvh-var(--product-header-height,0px))] flex-col bg-[var(--app-color-page-bg)] text-gray-900 dark:bg-black dark:text-white"
   >
-    <LayoutProductNavigation v-if="domainProduct" />
     <MobileAppHeader
       v-if="!domainProduct && showSharedMobileHeader"
       :title="mobilePageTitle"

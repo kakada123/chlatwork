@@ -1,7 +1,23 @@
 export function frontendOrigins(primary: string, additional = ''): string[] {
   return [...new Set([primary, ...additional.split(',')].map((value) => {
-    if (!value.trim()) return '';
-    const url = new URL(value.trim());
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('chrome-extension://')) {
+      const url = new URL(trimmed);
+      if (
+        url.protocol !== 'chrome-extension:' ||
+        !/^[a-z0-9_-]+$/i.test(url.hostname) ||
+        (url.pathname !== '' && url.pathname !== '/') ||
+        url.search ||
+        url.hash ||
+        url.username ||
+        url.password
+      ) {
+        throw new Error('Chrome extension origins must be valid chrome-extension://<id> origins');
+      }
+      return `${url.protocol}//${url.hostname}`;
+    }
+    const url = new URL(trimmed);
     if (
       !['https:', 'http:'].includes(url.protocol) || url.username || url.password ||
       url.hostname.includes('*') || url.pathname !== '/' || url.search || url.hash ||

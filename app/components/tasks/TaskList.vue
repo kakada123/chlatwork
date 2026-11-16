@@ -59,11 +59,13 @@ function date(v: string) {
         }}
         · {{ items.length }}
       </h2>
-      <ul class="space-y-2">
+      <ul
+        class="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-neutral-950"
+      >
         <li
           v-for="task in items"
           :key="task.id"
-          class="task-panel flex items-start gap-2 !p-3"
+          class="flex items-start gap-2 border-b border-slate-100 px-2 py-2.5 last:border-b-0 dark:border-white/10 sm:px-3 sm:py-3"
         >
           <button
             type="button"
@@ -89,7 +91,9 @@ function date(v: string) {
             @click="emit('open', task.id)"
           >
             <span class="flex items-center gap-2"
-              ><strong class="break-words text-sm">{{ task.title }}</strong
+              ><strong class="line-clamp-2 break-words text-sm">{{
+                task.title
+              }}</strong
               ><Star
                 v-if="task.highlighted"
                 class="size-4 shrink-0 fill-amber-400 text-amber-500"
@@ -101,7 +105,7 @@ function date(v: string) {
               ></span
             ><span
               v-if="task.impact"
-              class="mt-2 block whitespace-pre-wrap break-words text-sm text-slate-600 dark:text-white/70"
+              class="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm text-slate-600 dark:text-white/70"
               >{{ task.impact }}</span
             ><span
               v-if="task.completedAt || task.dueAt"

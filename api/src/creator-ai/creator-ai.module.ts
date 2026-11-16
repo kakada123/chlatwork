@@ -18,6 +18,7 @@ import { CreatorVideoUploadTicketGuard } from './creator-video-upload-ticket.gua
 import { CreatorVideoUploadTicketService } from './creator-video-upload-ticket.service';
 import { CreatorCreditAdminController } from './creator-credit-admin.controller';
 import { CreatorCreditAdminService } from './creator-credit-admin.service';
+import { GrammarExtensionController } from './grammar-extension.controller';
 
 @Module({
   imports: [AuthModule, BotAccessModule, GroupAccessModule],
@@ -26,6 +27,7 @@ import { CreatorCreditAdminService } from './creator-credit-admin.service';
     CreatorCreditAdminController,
     CreatorVideoController,
     CreatorVideoDirectUploadController,
+    GrammarExtensionController,
   ],
   providers: [
     CreatorAiGatewayService,

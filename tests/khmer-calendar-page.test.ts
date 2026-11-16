@@ -1,3 +1,4 @@
+import { loadCalendarLanguage } from "./helpers/load-calendar-language.ts";
 import { getRosterDayColors } from "../app/lib/roster.ts";
 import type { AuthUser } from "../app/composables/useAuth.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
@@ -28,6 +29,7 @@ function loadPage(
     fetchMe: () => Promise<AuthUser | null>;
     logout: () => Promise<void>;
   },
+  productLocale?: vue.Ref<"en" | "km">,
 ) {
   const filename = new URL(sourcePath, import.meta.url).pathname;
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), {
@@ -46,6 +48,7 @@ function loadPage(
   }).outputText;
   const dependencies: Record<string, unknown> = {
     vue,
+    "~/composables/useCalendarLanguage": { useCalendarLanguage: () => loadCalendarLanguage(productLocale ?? vue.ref("km"), query) },
     "~/composables/useAppI18n": { useAppI18n: createI18nStub },
     "~/lib/i18n": { translateMessage },
     "lucide-vue-next": icons,
@@ -140,6 +143,7 @@ function loadPage(
     useRoute: () => ({ query }),
     useRouter: () => ({ push() {}, replace() {} }),
     useProductDomain: () => ({
+      product: productLocale ? "calendar" : undefined,
       config: { mainOrigin: "https://chlatwork.com" },
       destination: (path: string) => new URL(path, "https://chlatwork.com").href,
     }),
@@ -460,3 +464,13 @@ test("roster mode SSR renders successfully with ?mode=roster and hides khae khme
   const defaultHtml = await renderToString(defaultApp);
   assert.ok(defaultHtml.includes('class="lunar-date"'), "Default calendar mode must preserve lunar-date");
 });
+
+ test("calendar product content follows the shared header language and honors explicit language links", async () => {
+  const locale = vue.ref<"en" | "km">("en");
+  const page = loadPage(false, undefined, undefined, {}, undefined, locale).setup({}, { expose() {} });
+  assert.equal(page.khmer.value, false);
+  locale.value = "km"; await vue.nextTick(); assert.equal(page.khmer.value, true);
+  page.khmer.value = false; assert.equal(locale.value, "en");
+  const linked = loadPage(false, undefined, undefined, { lang: "km" }, undefined, locale).setup({}, { expose() {} });
+  assert.equal(linked.khmer.value, true);
+ });

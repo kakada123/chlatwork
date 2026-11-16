@@ -13,6 +13,7 @@ const POST_PATHS = new Set([
   "scripts/generate",
   "hooks/generate",
   "content-ideas/generate",
+  "grammar/correct",
   "khmer/grammar",
   "khmer/rewrite",
   "khmer/latin-to-khmer",

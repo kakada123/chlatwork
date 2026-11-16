@@ -1,15 +1,10 @@
 <script setup lang="ts">import { computed } from "vue";
 
-import { useLanguage } from "~/composables/useLanguage";
 import { useAppI18n } from "~/composables/useAppI18n";
-import { Moon, Sun, Utensils, Compass, ArrowLeft } from "lucide-vue-next";
-import { useColorMode } from "~/composables/useColorMode";
 import { useProductDomain } from "~/composables/useProductDomain";
 const { t } = useAppI18n();
-const { languageLabel, switchLanguage } = useLanguage();
 
-const { isDark, toggleColorMode } = useColorMode();
-const { config, canonical } = useProductDomain();
+const { config, canonical, product: domainProduct } = useProductDomain();
 const foodTitle = computed(() => (t("products.food.shell.meta_title")));
 const foodDescription = computed(() => (t("products.food.shell.meta_description")));
 // Share crawlers need an absolute, server-rendered image URL on either supported Food URL.
@@ -44,56 +39,12 @@ useHead({
 </script>
 
 <template>
-  <div class="food-shell min-h-dvh bg-[#fafaf9] text-stone-900 transition-colors duration-200 dark:bg-[#0c0f14] dark:text-stone-100" lang="km">
+  <div class="food-shell min-h-[calc(100dvh-var(--product-header-height,0px))] bg-[#fafaf9] text-stone-900 transition-colors duration-200 dark:bg-[#0c0f14] dark:text-stone-100" lang="km">
     <a href="#food-content" class="sr-only z-50 rounded-lg bg-white p-3 text-stone-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
       {{ t("products.food.shell.skip") }}
     </a>
 
-    <!-- Top Navigation Header -->
-    <header class="sticky top-0 z-40 border-b border-stone-200/80 bg-white/80 backdrop-blur-md dark:border-stone-800/80 dark:bg-[#0c0f14]/85">
-      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-        <div class="flex items-center gap-3">
-          <div class="grid size-10 place-items-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20">
-            <Utensils class="size-5" aria-hidden="true" />
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-bold leading-none sm:text-xl text-stone-900 dark:text-stone-100">
-                ChlatWork Food
-              </h1>
-              <span class="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700 dark:bg-orange-950/60 dark:text-orange-400">
-                {{ t("products.food.shell.free") }}
-              </span>
-            </div>
-            <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-              {{ t("products.food.page.title") }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button type="button" class="min-h-10 rounded-full border border-stone-200 px-3 text-xs font-semibold dark:border-stone-800" :aria-label="languageLabel" @click="switchLanguage">{{ languageLabel }}</button>
-          <a
-            :href="config.mainOrigin"
-            class="hidden items-center gap-1.5 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:text-stone-300 dark:hover:bg-stone-800 sm:inline-flex"
-            :title="t(&quot;products.food.shell.home_title&quot;)"
-          >
-            <ArrowLeft class="size-3.5" aria-hidden="true" />
-            <span>{{ t("products.food.shell.brand") }}</span>
-          </a>
-
-          <button
-            type="button"
-            class="grid size-10 place-items-center rounded-full border border-stone-200 bg-white text-stone-600 transition hover:border-orange-400 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300 dark:hover:border-orange-500"
-            :aria-label="isDark ? t(&quot;products.food.shell.switch_light&quot;) : t(&quot;products.food.shell.switch_dark&quot;)"
-            @click="toggleColorMode"
-          >
-            <Sun v-if="isDark" class="size-4.5" aria-hidden="true" />
-            <Moon v-else class="size-4.5" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-    </header>
+    <LayoutProductNavigation v-if="!domainProduct" product="food" />
 
     <!-- Main Content Area -->
     <main id="food-content" class="mx-auto max-w-5xl px-4 py-6 outline-none sm:px-6 sm:py-8" tabindex="-1">

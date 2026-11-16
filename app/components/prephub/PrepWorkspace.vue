@@ -7,6 +7,7 @@ import {
   type PrepDashboard,
   type PrepMutation,
 } from "~/lib/prephub";
+import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
 import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
 import PrepDialog from "./PrepDialog.vue";
 import PrepSubjectForm from "./PrepSubjectForm.vue";
@@ -290,7 +291,7 @@ onBeforeUnmount(() => {
         class="grid items-start gap-4"
         :class="review ? '' : 'lg:grid-cols-[minmax(0,1fr)_18rem]'"
       >
-        <div class="min-w-0 space-y-4">
+        <div class="order-2 min-w-0 space-y-4 lg:order-1">
           <section class="prep-panel" aria-labelledby="prep-progress">
             <div class="flex items-center justify-between gap-2">
               <h2 id="prep-progress" class="font-semibold">
@@ -314,27 +315,31 @@ onBeforeUnmount(() => {
                   : t("prephub.noRequirements")
               }}
             </p>
-            <dl class="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
-              <div
-                v-for="m in [
-                  'remaining',
-                  'overdueItems',
-                  'unansweredResearch',
-                  'unansweredQuestions',
-                  'missingDeliverables',
-                ] as const"
-                :key="m"
-                class="rounded-xl bg-slate-50 p-2 dark:bg-white/5"
-              >
-                <dt class="text-xs text-slate-500">{{ t(`prephub.${m}`) }}</dt>
-                <dd class="mt-1 font-semibold">
-                  {{ subject.progress[m === "overdueItems" ? "overdue" : m] }}
-                </dd>
-              </div>
-            </dl>
-            <p class="mt-3 text-xs text-slate-500">
-              {{ t("prephub.readyHint") }}
-            </p>
+            <WorkspaceFilters :title="t('ui.requirements')" class="mt-3">
+              <dl class="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                <div
+                  v-for="m in [
+                    'remaining',
+                    'overdueItems',
+                    'unansweredResearch',
+                    'unansweredQuestions',
+                    'missingDeliverables',
+                  ] as const"
+                  :key="m"
+                  class="rounded-xl bg-slate-50 p-2 dark:bg-white/5"
+                >
+                  <dt class="text-xs text-slate-500">
+                    {{ t(`prephub.${m}`) }}
+                  </dt>
+                  <dd class="mt-1 font-semibold">
+                    {{ subject.progress[m === "overdueItems" ? "overdue" : m] }}
+                  </dd>
+                </div>
+              </dl>
+              <p class="mt-3 text-xs text-slate-500">
+                {{ t("prephub.readyHint") }}
+              </p>
+            </WorkspaceFilters>
           </section>
           <nav
             v-if="visibleSections.length"
@@ -380,103 +385,112 @@ onBeforeUnmount(() => {
             }}
           </button>
         </div>
-        <aside v-if="!review" class="space-y-4">
-          <section class="prep-panel">
-            <form
-              class="space-y-3"
-              @submit.prevent="mutate('', 'PATCH', { status: statusValue })"
-            >
-              <label class="prep-label"
-                >{{ t("prephub.status")
-                }}<select
-                  v-model="statusValue"
-                  class="prep-input"
-                  :disabled="busy"
+        <aside v-if="!review" class="order-1 min-w-0 lg:order-2">
+          <WorkspaceFilters :title="t('ui.details')"
+            ><div class="space-y-4">
+              <section class="prep-panel">
+                <form
+                  class="space-y-3"
+                  @submit.prevent="mutate('', 'PATCH', { status: statusValue })"
                 >
-                  <option
-                    v-for="v in PREP_STATUSES.filter((v) => v !== 'ARCHIVED')"
-                    :key="v"
-                    :value="v"
+                  <label class="prep-label"
+                    >{{ t("prephub.status")
+                    }}<ModernSelect
+                      v-model="statusValue"
+                      class="mt-1 w-full"
+                      :disabled="busy"
+                    >
+                      <option
+                        v-for="v in PREP_STATUSES.filter(
+                          (v) => v !== 'ARCHIVED',
+                        )"
+                        :key="v"
+                        :value="v"
+                      >
+                        {{ t(`prephub.${v}`) }}
+                      </option>
+                      <option
+                        v-if="subject.status === 'ARCHIVED'"
+                        value="ARCHIVED"
+                      >
+                        {{ t("prephub.ARCHIVED") }}
+                      </option>
+                    </ModernSelect></label
+                  ><button
+                    class="prep-button w-full"
+                    :disabled="busy || statusValue === subject.status"
                   >
-                    {{ t(`prephub.${v}`) }}
-                  </option>
-                  <option v-if="subject.status === 'ARCHIVED'" value="ARCHIVED">
-                    {{ t("prephub.ARCHIVED") }}
-                  </option>
-                </select></label
-              ><button
-                class="prep-button w-full"
-                :disabled="busy || statusValue === subject.status"
-              >
-                {{ t("prephub.statusUpdate") }}
-              </button>
-            </form>
-            <button
-              v-if="subject.status === 'ARCHIVED'"
-              type="button"
-              class="prep-button mt-2 w-full"
-              :disabled="busy"
-              @click="mutate('/restore', 'POST')"
-            >
-              {{ t("prephub.restore") }}</button
-            ><button
-              v-else
-              type="button"
-              class="prep-button mt-2 w-full"
-              :disabled="busy"
-              @click="mutate('', 'PATCH', { status: 'ARCHIVED' })"
-            >
-              {{ t("prephub.archive") }}</button
-            ><button
-              type="button"
-              class="prep-button mt-2 w-full text-red-600"
-              :disabled="busy"
-              @click="confirm(deleteSubject)"
-            >
-              {{ t("prephub.delete") }}
-            </button>
-          </section>
-          <PrepReminders
-            :confirm="confirm"
-            :subject="subject"
-            :time-zone="timeZone"
-            :busy="busy"
-            :mutate="mutate"
-          />
-          <section class="prep-panel">
-            <h2 class="font-semibold">{{ t("prephub.history") }}</h2>
-            <button
-              type="button"
-              class="prep-button mt-3"
-              :disabled="historyBusy"
-              @click="loadHistory()"
-            >
-              {{ t("prephub.showHistory") }}
-            </button>
-            <ol v-if="historyOpen" class="mt-3 space-y-3">
-              <li v-for="h in history" :key="h.id" class="text-xs">
-                <p>{{ h.action }}</p>
-                <time class="text-slate-500">{{ date(h.createdAt) }}</time>
-              </li>
-            </ol>
-            <div v-if="historyOpen" class="mt-3 flex gap-2">
-              <button
-                type="button"
-                class="prep-button"
-                :disabled="historyBusy || historyPage === 1"
-                @click="loadHistory(historyPage - 1)"
-              >
-                {{ t("prephub.previous") }}</button
-              ><button
-                type="button"
-                class="prep-button"
-                :disabled="historyBusy || history.length < 50"
-                @click="loadHistory(historyPage + 1)"
-              >
-                {{ t("prephub.next") }}
-              </button>
-            </div>
-          </section>
+                    {{ t("prephub.statusUpdate") }}
+                  </button>
+                </form>
+                <button
+                  v-if="subject.status === 'ARCHIVED'"
+                  type="button"
+                  class="prep-button mt-2 w-full"
+                  :disabled="busy"
+                  @click="mutate('/restore', 'POST')"
+                >
+                  {{ t("prephub.restore") }}</button
+                ><button
+                  v-else
+                  type="button"
+                  class="prep-button mt-2 w-full"
+                  :disabled="busy"
+                  @click="mutate('', 'PATCH', { status: 'ARCHIVED' })"
+                >
+                  {{ t("prephub.archive") }}</button
+                ><button
+                  type="button"
+                  class="prep-button mt-2 w-full text-red-600"
+                  :disabled="busy"
+                  @click="confirm(deleteSubject)"
+                >
+                  {{ t("prephub.delete") }}
+                </button>
+              </section>
+              <PrepReminders
+                :confirm="confirm"
+                :subject="subject"
+                :time-zone="timeZone"
+                :busy="busy"
+                :mutate="mutate"
+              />
+              <section class="prep-panel">
+                <h2 class="font-semibold">{{ t("prephub.history") }}</h2>
+                <button
+                  type="button"
+                  class="prep-button mt-3"
+                  :disabled="historyBusy"
+                  @click="loadHistory()"
+                >
+                  {{ t("prephub.showHistory") }}
+                </button>
+                <ol v-if="historyOpen" class="mt-3 space-y-3">
+                  <li v-for="h in history" :key="h.id" class="text-xs">
+                    <p>{{ h.action }}</p>
+                    <time class="text-slate-500">{{ date(h.createdAt) }}</time>
+                  </li>
+                </ol>
+                <div v-if="historyOpen" class="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    class="prep-button"
+                    :disabled="historyBusy || historyPage === 1"
+                    @click="loadHistory(historyPage - 1)"
+                  >
+                    {{ t("prephub.previous") }}</button
+                  ><button
+                    type="button"
+                    class="prep-button"
+                    :disabled="historyBusy || history.length < 50"
+                    @click="loadHistory(historyPage + 1)"
+                  >
+                    {{ t("prephub.next") }}
+                  </button>
+                </div>
+              </section>
+            </div></WorkspaceFilters
+          >
         </aside>
       </div>
       <PrepDialog
@@ -501,11 +515,11 @@ onBeforeUnmount(() => {
         ><form class="space-y-4" @submit.prevent="createSection">
           <label class="prep-label"
             >{{ t("prephub.sectionType")
-            }}<select v-model="sectionForm.type" class="prep-input">
+            }}<ModernSelect v-model="sectionForm.type" class="mt-1 w-full">
               <option v-for="v in PREP_TYPES" :key="v" :value="v">
                 {{ t(`prephub.${v}`) }}
               </option>
-            </select></label
+            </ModernSelect></label
           ><label class="prep-label"
             >{{ t("prephub.title")
             }}<input

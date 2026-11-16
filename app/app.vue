@@ -3,11 +3,14 @@
   <div
     class="app-shell"
     :data-account-workspace="route.path === '/account' ? '' : undefined"
+    :data-product-host="domainContext.product"
     :data-moment-editor="route.meta.momentEditor === true ? '' : undefined"
     :class="canShowAds ? 'flex flex-col lg:grid lg:grid-cols-[160px_minmax(0,1fr)_160px] lg:gap-4 lg:px-4' : route.meta.momentEditor === true ? 'flex flex-col' : undefined"
   >
     <div class="app-center min-w-0 lg:order-2">
       <AdsBannerAd v-if="canShowAds" :key="route.path" />
+      <!-- One product chrome boundary includes custom layouts and layout-free product pages. -->
+      <LayoutProductNavigation v-if="domainContext.product" />
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
@@ -146,6 +149,9 @@ useHead(() => ({
 </script>
 
 <style scoped>
+.app-shell[data-product-host] { --product-header-height: 4rem; }
+.app-shell[data-product-host][data-moment-editor] :deep(.moment-editor-layout) { height: auto; }
+.app-shell[data-product-host] :deep(.khmer-calendar) { min-height: calc(100dvh - var(--product-header-height)); }
 .app-shell[data-moment-editor] {
   height: var(--moment-editor-viewport-height, 100dvh);
   min-height: 0;

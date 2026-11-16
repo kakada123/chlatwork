@@ -1,33 +1,23 @@
 <script setup lang="ts">
 import { useLanguage } from "~/composables/useLanguage";
 import { useAppI18n } from "~/composables/useAppI18n";
-import { Moon, Sun } from "lucide-vue-next";
 
 const { t } = useAppI18n();
 const { isKhmer } = useLanguage();
 
-const { isDark, toggleColorMode } = useColorMode();
-const { config } = useProductDomain();
+const { config, product: domainProduct } = useProductDomain();
 </script>
 
 <template>
-  <div class="jekluy-shell min-h-dvh bg-[#f4f8fb] text-[#102a43] dark:bg-[#0b1524] dark:text-slate-100" :lang="isKhmer ? 'km' : 'en'">
+  <div class="jekluy-shell min-h-[calc(100dvh-var(--product-header-height,0px))] bg-[#f4f8fb] text-[#102a43] dark:bg-[#0b1524] dark:text-slate-100" :lang="isKhmer ? 'km' : 'en'">
     <a href="#jekluy-content" class="sr-only z-50 rounded-lg bg-white p-3 text-slate-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">{{ t("native.jekluy.skipToTheCalculator") }}</a>
-    <header class="mx-auto flex max-w-5xl items-start justify-between gap-3 px-4 pb-6 pt-6 sm:px-6 sm:pb-8 sm:pt-10">
+    <LayoutProductNavigation v-if="!domainProduct" product="jekluy" />
+    <section class="mx-auto flex max-w-5xl items-start justify-between gap-3 px-4 pb-6 pt-6 sm:px-6 sm:pb-8 sm:pt-10">
       <div>
         <h1 class="text-2xl font-bold leading-relaxed tracking-normal sm:text-3xl">{{ t("native.jekluy.jekluy") }}</h1>
         <p class="mt-1 text-sm leading-7 text-slate-500 dark:text-slate-400">{{ t("native.jekluy.easilyCalculateWhoOwesWhom") }}</p>
       </div>
-      <button
-        type="button"
-        class="mt-1 grid size-11 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-        :aria-label="isDark ? t(&quot;native.jekluy.switchToLightMode&quot;) : t(&quot;native.jekluy.switchToDarkMode&quot;)"
-        @click="toggleColorMode"
-      >
-        <Sun v-if="isDark" class="size-5" aria-hidden="true" />
-        <Moon v-else class="size-5" aria-hidden="true" />
-      </button>
-    </header>
+    </section>
     <main id="jekluy-content" class="mx-auto max-w-5xl px-4 outline-none sm:px-6" tabindex="-1">
       <slot />
     </main>

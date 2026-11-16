@@ -133,19 +133,19 @@ function date(v: string) {
             @input="findTasks" /></label
         ><label class="task-label"
           >{{ t("tasks.tasks")
-          }}<select v-model="taskId" class="task-input" required>
+          }}<ModernSelect v-model="taskId" class="mt-1 w-full" required>
             <option value="" disabled>{{ t("tasks.tasks") }}</option>
             <option v-for="task in choices" :key="task.id" :value="task.id">
               {{ task.title }}
             </option>
-          </select></label
+          </ModernSelect></label
         ></template
       ><label class="task-label"
         >{{ t("tasks.followUpAt")
-        }}<input
+        }}<ModernDateInput
           v-model="form.followUpAt"
           type="datetime-local"
-          class="task-input"
+          class="mt-1 w-full"
           required /></label
       ><label class="task-label"
         >{{ t("tasks.notes")
@@ -163,10 +163,10 @@ function date(v: string) {
           maxlength="1000" /></label
       ><label class="task-label"
         >{{ t("tasks.remindAt")
-        }}<input
+        }}<ModernDateInput
           v-model="form.remindAt"
           type="datetime-local"
-          class="task-input"
+          class="mt-1 w-full"
       /></label>
       <p class="text-xs text-slate-500">{{ timeZone }}</p>
       <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>

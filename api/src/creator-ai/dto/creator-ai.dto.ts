@@ -125,6 +125,31 @@ export class KhmerGrammarDto {
   content!: string;
 }
 
+export class CorrectGrammarDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8_000)
+  @Matches(/\S/u, { message: 'text must contain non-whitespace text' })
+  text?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8_000)
+  @Matches(/\S/u, { message: 'content must contain non-whitespace text' })
+  content?: string;
+
+  @IsOptional()
+  @IsIn(['grammar', 'polish'])
+  mode?: 'grammar' | 'polish' = 'grammar';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  language?: string = 'en';
+}
+
 export class RewriteDto extends LanguageToneDto {
   @IsString()
   @MinLength(1)

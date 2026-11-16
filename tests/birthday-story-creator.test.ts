@@ -12,6 +12,7 @@ import { createBirthdayStorySettings } from "../app/lib/birthday-story.ts";
 const moduleUrl = (source: string) => `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
 const vue = import.meta.resolve("vue");
 const stub = moduleUrl(`import {h} from ${JSON.stringify(vue)};export default {setup:()=>()=>h('div')};`);
+const dateInput = moduleUrl(`import {h} from ${JSON.stringify(vue)};export default {props:['modelValue'],emits:['update:modelValue'],setup:(props,{attrs,emit})=>()=>h('input',{...attrs,value:props.modelValue,onInput:event=>emit('update:modelValue',event.target.value)})};`);
 const preview = moduleUrl(`import {h} from ${JSON.stringify(vue)};export default {props:['moment'],setup:props=>()=>h('div',{'data-preview':JSON.stringify(props.moment)})};`);
 // Shared-select behavior is covered separately; keep the creator tests focused on step transitions.
 const select = moduleUrl(`import {h} from ${JSON.stringify(vue)};export default {inheritAttrs:false,props:['value','disabled'],emits:['change'],setup:(props,{attrs,slots,emit})=>()=>h('select',{...attrs,value:props.value,disabled:props.disabled,onChange:event=>emit('change',event)},slots.default?.())};`);
@@ -27,6 +28,7 @@ function compile(filename: string): string {
 const storyEditor = moduleUrl(compile("app/components/moments/BirthdayStoryEditor.vue"));
 const unlockGate = moduleUrl(compile("app/components/moments/BirthdayUnlockGate.vue").replace(/from ["']lucide-vue-next["']/g, `from ${JSON.stringify(import.meta.resolve("lucide-vue-next"))}`));
 let source = compile("app/components/moments/MomentCreator.vue")
+  .replace(/from ["']~\/components\/ModernDateInput.vue["']/g, `from ${JSON.stringify(dateInput)}`)
   .replace(/from ["']~\/components\/ModernSelect.vue["']/g, `from ${JSON.stringify(select)}`)
   .replace(/from ["']lucide-vue-next["']/g, `from ${JSON.stringify(import.meta.resolve("lucide-vue-next"))}`)
   .replace(/from ["']~\/components\/moments\/BirthdayStoryEditor.vue["']/g, `from ${JSON.stringify(storyEditor)}`)
@@ -200,7 +202,7 @@ test("clearing an existing scheduled unlock explicitly saves an immediate birthd
     await view.go("unlock");
     const unlock = view.nodes().find(node => node.props.id === "unlock-date")!;
     assert.ok(unlock);
-    unlock.props["onUpdate:modelValue"]("");
+    unlock.props.onInput({ target: { value: "" } });
     await nextTick();
     await view.go("preview"); await view.submit();
     const put = view.requests.find(request => request.options?.method === "PUT")!;

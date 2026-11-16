@@ -93,16 +93,16 @@ function date(value: string) {
     <form v-if="schedule" class="mt-4 space-y-3" @submit.prevent="add">
       <label class="prep-label"
         >{{ t("prephub.reminderTime")
-        }}<select v-model="choice" class="prep-input">
+        }}<ModernSelect v-model="choice" class="mt-1 w-full">
           <option v-for="p in presets" :key="p.value" :value="p.value">
             {{ t(`prephub.${p.key}`) }}
           </option>
-        </select></label
-      ><input
+        </ModernSelect></label
+      ><ModernDateInput
         v-if="choice === 'custom'"
         v-model="custom"
         type="datetime-local"
-        class="prep-input"
+        class="mt-1 w-full"
         required
         :aria-label="t('prephub.custom')"
       />

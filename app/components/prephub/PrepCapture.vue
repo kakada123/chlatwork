@@ -100,17 +100,21 @@ async function capture(body: Record<string, unknown> = {}) {
             maxlength="200" /></label
         ><label class="prep-label"
           >{{ t("prephub.captureSubject")
-          }}<select v-model="selected" class="prep-input" :disabled="busy">
+          }}<ModernSelect
+            v-model="selected"
+            class="mt-1 w-full"
+            :disabled="busy"
+          >
             <option value="" disabled>{{ t("prephub.captureSubject") }}</option>
             <option v-for="s in subjects" :key="s.id" :value="s.id">
               {{ s.title }}
             </option>
-          </select></label
+          </ModernSelect></label
         ></template
       >
       <label class="prep-label"
         >{{ t("prephub.captureType")
-        }}<select v-model="type" class="prep-input" :disabled="busy">
+        }}<ModernSelect v-model="type" class="mt-1 w-full" :disabled="busy">
           <option
             v-for="v in [
               'NOTES',
@@ -124,7 +128,7 @@ async function capture(body: Record<string, unknown> = {}) {
           >
             {{ t(`prephub.${v}`) }}
           </option>
-        </select></label
+        </ModernSelect></label
       >
       <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
       <template v-if="selected"

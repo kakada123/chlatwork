@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
 <template>
   <!-- Creator owns its navigation so general utilities never enter this workspace. -->
   <div
-    class="flex min-h-[100dvh] flex-col bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white"
+    class="flex min-h-[calc(100dvh-var(--product-header-height,0px))] flex-col bg-[var(--app-color-page-bg)] text-slate-950 dark:bg-black dark:text-white"
   >
     <NuxtLoadingIndicator color="#7c3aed" />
     <a
@@ -75,9 +75,8 @@ onBeforeUnmount(() => {
       >{{ t("products.creator.skip_to_creator_content") }}</a
     >
 
-    <LayoutProductNavigation v-if="domainProduct" class="sm:hidden" />
     <header
-      :class="domainProduct ? 'hidden sm:block' : undefined"
+      v-if="!domainProduct"
       class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-black/95"
     >
       <div

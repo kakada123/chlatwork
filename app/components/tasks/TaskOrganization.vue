@@ -159,7 +159,7 @@ watch(
           /></label
         ><label class="task-label"
           >{{ t("tasks.status")
-          }}<select v-model="form.status" class="task-input">
+          }}<ModernSelect v-model="form.status" class="mt-1 w-full">
             <option
               v-for="s in kind === 'projects'
                 ? ['ACTIVE', 'COMPLETED', 'ARCHIVED']
@@ -169,7 +169,7 @@ watch(
             >
               {{ t(`tasks.${s}`) }}
             </option>
-          </select></label
+          </ModernSelect></label
         ><template v-if="kind === 'projects'"
           ><div class="grid grid-cols-2 gap-3">
             <label class="task-label"
@@ -180,7 +180,10 @@ watch(
                 class="task-input" /></label
             ><label class="task-label"
               >{{ t("tasks.targetDate")
-              }}<input v-model="form.targetDate" type="date" class="task-input"
+              }}<ModernDateInput
+                v-model="form.targetDate"
+                type="date"
+                class="mt-1 w-full"
             /></label>
           </div>
           <label class="task-label"
@@ -222,17 +225,17 @@ watch(
           <div class="grid grid-cols-2 gap-3">
             <label class="task-label"
               >{{ t("tasks.from")
-              }}<input
+              }}<ModernDateInput
                 v-model="form.from"
                 type="date"
-                class="task-input"
+                class="mt-1 w-full"
                 required /></label
             ><label class="task-label"
               >{{ t("tasks.to")
-              }}<input
+              }}<ModernDateInput
                 v-model="form.to"
                 type="date"
-                class="task-input"
+                class="mt-1 w-full"
                 required
             /></label>
           </div>

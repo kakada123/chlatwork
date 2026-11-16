@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { useAppI18n } from "~/composables/useAppI18n";
 import { useLanguage } from "~/composables/useLanguage";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  onUpdated,
+  ref,
+  useAttrs,
+  useId,
+  watch,
+} from "vue";
 import { getDatePickerPosition } from "~/lib/date-picker-position";
 
 const { t } = useAppI18n();
@@ -31,6 +41,8 @@ const props = withDefaults(
     size?: "sm" | "md";
     ariaLabel?: string;
     placement?: "top" | "bottom";
+    required?: boolean;
+    disabled?: boolean;
 
     /**
      * Optional year range for dropdown.
@@ -41,6 +53,8 @@ const props = withDefaults(
   }>(),
   {
     type: "date",
+    required: false,
+    disabled: false,
     size: "md",
 
     placement: "bottom",
@@ -49,6 +63,69 @@ const props = withDefaults(
   },
 );
 
+const emit = defineEmits<{ change: [event: Event] }>();
+const attrs = useAttrs();
+const generatedId = useId();
+const controlId = computed(() => String(attrs.id ?? generatedId + "-date"));
+const triggerRef = ref<HTMLButtonElement | null>(null);
+const nativeRef = ref<HTMLInputElement | null>(null);
+const invalid = ref(false);
+const validationMessage = ref("");
+const implicitLabel = ref("");
+function rootAttrs() {
+  return Object.fromEntries(
+    Object.entries(attrs).filter(
+      ([key]) =>
+        ![
+          "id",
+          "name",
+          "form",
+          "min",
+          "max",
+          "step",
+          "tabindex",
+          "autofocus",
+          "aria-label",
+          "aria-labelledby",
+          "aria-describedby",
+          "aria-invalid",
+          "title",
+        ].includes(key),
+    ),
+  );
+}
+function refreshLabel() {
+  const text = (node: Node): string =>
+    node === rootRef.value
+      ? ""
+      : node.nodeType === 3
+        ? (node.textContent ?? "")
+        : Array.from(node.childNodes).map(text).join(" ");
+  // A wrapping label belongs to the first native control, so include the validation proxy's labels.
+  const labels = new Set([
+    ...Array.from(triggerRef.value?.labels ?? []),
+    ...Array.from(nativeRef.value?.labels ?? []),
+  ]);
+  implicitLabel.value = Array.from(labels)
+    .map(text)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+async function commit(next: string) {
+  value.value = next;
+  invalid.value = false;
+  await nextTick();
+  // Existing forms receive the same native change target after the controlled model is updated.
+  nativeRef.value?.dispatchEvent(new Event("change", { bubbles: true }));
+}
+function handleInvalid(event: Event) {
+  event.preventDefault();
+  invalid.value = true;
+  validationMessage.value =
+    nativeRef.value?.validationMessage || t("ui.invalidDate");
+  triggerRef.value?.focus();
+}
 const rootRef = ref<HTMLElement | null>(null);
 const calendarRef = ref<HTMLElement | null>(null);
 const calendarStyle = ref<Record<string, string>>({});
@@ -150,7 +227,10 @@ function updateCalendarPosition() {
   if (!isOpen.value || !rootRef.value || !calendarRef.value) return;
   const position = getDatePickerPosition(
     rootRef.value.getBoundingClientRect(),
-    { width: calendarRef.value.offsetWidth, height: calendarRef.value.scrollHeight },
+    {
+      width: calendarRef.value.offsetWidth,
+      height: calendarRef.value.scrollHeight,
+    },
     { width: document.documentElement.clientWidth, height: window.innerHeight },
     props.placement,
     window.innerWidth < 640,
@@ -163,15 +243,18 @@ function updateCalendarPosition() {
 }
 
 async function openCalendar() {
+  if (props.disabled || triggerRef.value?.matches(":disabled")) return;
   isOpen.value = true;
   await nextTick();
   // The top layer escapes dialog overflow while preserving its focus-trap subtree.
-  calendarRef.value?.showPopover();
+  calendarRef.value?.showPopover?.();
   updateCalendarPosition();
 }
 
-function closeCalendar() {
+function closeCalendar(restoreFocus = true) {
+  if (!isOpen.value) return;
   isOpen.value = false;
+  if (restoreFocus) triggerRef.value?.focus();
 }
 
 function moveMonth(step: number) {
@@ -193,10 +276,12 @@ function setActiveYear(year: number) {
 }
 
 function selectDate(dateValue: string) {
-  value.value =
+  if (props.disabled) return;
+  void commit(
     props.type === "datetime-local"
       ? `${dateValue}T${timeValue.value}`
-      : dateValue;
+      : dateValue,
+  );
 
   if (props.type === "date") closeCalendar();
 }
@@ -206,7 +291,8 @@ function selectToday() {
 }
 
 function clearValue() {
-  value.value = "";
+  if (props.disabled) return;
+  void commit("");
   timeValue.value = "00:00";
   closeCalendar();
 }
@@ -215,18 +301,26 @@ function updateTime() {
   const dateValue = value.value.split("T")[0];
   if (!dateValue) return;
 
-  value.value = `${dateValue}T${timeValue.value}`;
+  if (!props.disabled) void commit(`${dateValue}T${timeValue.value}`);
 }
 
 function handleDocumentClick(event: MouseEvent) {
-  if (!rootRef.value?.contains(event.target as Node)) closeCalendar();
+  if (!rootRef.value?.contains(event.target as Node)) closeCalendar(false);
 }
 
 function handleEscape(event: KeyboardEvent) {
   if (event.key === "Escape") closeCalendar();
 }
 
+onUpdated(refreshLabel);
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (disabled) closeCalendar(false);
+  },
+);
 onMounted(() => {
+  refreshLabel();
   document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleEscape);
   window.addEventListener("resize", updateCalendarPosition);
@@ -247,7 +341,12 @@ function parseValueDate(input: string) {
   const [year, month, day] = datePart.split("-").map(Number);
   if (!year || !month || !day) return null;
 
-  return new Date(year, month - 1, day);
+  const parsed = new Date(year, month - 1, day);
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day
+    ? parsed
+    : null;
 }
 
 function parseValueTime(input: string) {
@@ -269,16 +368,60 @@ function toDateValue(date: Date) {
 </script>
 
 <template>
-  <div ref="rootRef" v-bind="$attrs" class="relative w-full min-w-0">
+  <div
+    ref="rootRef"
+    v-bind="rootAttrs()"
+    class="modern-date relative w-full min-w-0"
+  >
+    <input
+      ref="nativeRef"
+      :type="props.type"
+      :value="value"
+      :name="attrs.name as string"
+      :form="attrs.form as string"
+      :required="props.required"
+      :disabled="props.disabled"
+      :min="attrs.min as string"
+      :max="attrs.max as string"
+      :step="attrs.step as string"
+      tabindex="-1"
+      aria-hidden="true"
+      class="modern-date-native"
+      @change="emit('change', $event)"
+      @invalid="handleInvalid"
+      @focus="triggerRef?.focus()"
+    />
     <button
+      ref="triggerRef"
+      :id="controlId"
+      :disabled="props.disabled"
+      :aria-invalid="invalid || attrs['aria-invalid']"
+      :aria-labelledby="attrs['aria-labelledby'] as string"
+      :aria-describedby="
+        [attrs['aria-describedby'], invalid ? controlId + '-error' : undefined]
+          .filter(Boolean)
+          .join(' ') || undefined
+      "
+      :title="attrs.title as string"
+      :tabindex="attrs.tabindex as number"
+      :autofocus="attrs.autofocus as boolean"
       type="button"
-      :aria-label="props.ariaLabel ?? t(&quot;shared.components_modern_date_input.choose_date&quot;)"
+      :aria-label="
+        attrs['aria-labelledby']
+          ? undefined
+          : props.ariaLabel ||
+            implicitLabel ||
+            t('shared.components_modern_date_input.choose_date')
+      "
       :aria-expanded="isOpen"
+      aria-haspopup="dialog"
+      :aria-controls="controlId + '-calendar'"
       :class="[
         inputSizeClass,
-        'group flex w-full items-center justify-between gap-3 border border-slate-200 bg-white px-3 text-left text-slate-950 shadow-sm outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-sky-300 focus:ring-4 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.10] dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15',
+        'group flex w-full disabled:cursor-not-allowed disabled:opacity-50 items-center justify-between gap-3 border border-slate-200 bg-white px-3 text-left text-slate-950 shadow-sm outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-sky-300 focus:ring-4 focus:ring-sky-100 dark:border-white/10 dark:bg-white/[0.07] dark:text-white dark:shadow-black/20 dark:hover:border-white/20 dark:hover:bg-white/[0.10] dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15',
       ]"
       @click.stop="openCalendar"
+      @keydown.esc.stop.prevent="closeCalendar()"
     >
       <span
         class="min-w-0 truncate"
@@ -313,20 +456,37 @@ function toDateValue(date: Date) {
       </span>
     </button>
 
+    <p
+      v-if="invalid"
+      :id="controlId + '-error'"
+      role="alert"
+      class="mt-1 text-xs text-red-600 dark:text-red-300"
+    >
+      {{ validationMessage }}
+    </p>
     <div
       v-if="isOpen"
       ref="calendarRef"
+      :id="controlId + '-calendar'"
+      role="dialog"
+      :aria-label="
+        props.ariaLabel ||
+        implicitLabel ||
+        t('shared.components_modern_date_input.choose_date')
+      "
       popover="manual"
       :style="calendarStyle"
-      class="fixed inset-auto m-0 w-[calc(100vw-1.5rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 sm:w-[min(22rem,calc(100vw-2rem))] dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
+      class="fixed inset-auto z-[10000] m-0 w-[calc(100vw-1.5rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl shadow-slate-950/15 sm:w-[min(22rem,calc(100vw-2rem))] dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/50"
       @click.stop
-      @keydown.esc.stop.prevent="closeCalendar"
+      @keydown.esc.stop.prevent="closeCalendar()"
     >
-      <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div class="grid w-full grid-cols-2 gap-2 sm:flex-1">
           <ModernSelect
             v-model.number="activeMonthIndex"
-            :aria-label="t(&quot;shared.components_modern_date_input.select_month&quot;)"
+            :aria-label="t('shared.components_modern_date_input.select_month')"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option
@@ -340,7 +500,7 @@ function toDateValue(date: Date) {
 
           <ModernSelect
             v-model.number="activeYear"
-            :aria-label="t(&quot;shared.components_modern_date_input.select_year&quot;)"
+            :aria-label="t('shared.components_modern_date_input.select_year')"
             class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-950 outline-none transition hover:bg-slate-50 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:border-cyan-300/50 dark:focus:ring-cyan-200/15"
           >
             <option v-for="year in yearOptions" :key="year" :value="year">
@@ -353,7 +513,9 @@ function toDateValue(date: Date) {
           <button
             type="button"
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            :aria-label="t(&quot;shared.components_modern_date_input.previous_month&quot;)"
+            :aria-label="
+              t('shared.components_modern_date_input.previous_month')
+            "
             @click="moveMonth(-1)"
           >
             ‹
@@ -361,7 +523,7 @@ function toDateValue(date: Date) {
           <button
             type="button"
             class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-lg text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-            :aria-label="t(&quot;shared.components_modern_date_input.next_month&quot;)"
+            :aria-label="t('shared.components_modern_date_input.next_month')"
             @click="moveMonth(1)"
           >
             ›
@@ -373,7 +535,15 @@ function toDateValue(date: Date) {
         class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-500 dark:text-white/50"
       >
         <span
-          v-for="(day, index) in ([t(&quot;shared.extra_app_components_ModernDateInput_vue.s&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.m&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.t&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.w&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.t_2&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.f&quot;), t(&quot;shared.extra_app_components_ModernDateInput_vue.s_2&quot;)])"
+          v-for="(day, index) in [
+            t('shared.extra_app_components_ModernDateInput_vue.s'),
+            t('shared.extra_app_components_ModernDateInput_vue.m'),
+            t('shared.extra_app_components_ModernDateInput_vue.t'),
+            t('shared.extra_app_components_ModernDateInput_vue.w'),
+            t('shared.extra_app_components_ModernDateInput_vue.t_2'),
+            t('shared.extra_app_components_ModernDateInput_vue.f'),
+            t('shared.extra_app_components_ModernDateInput_vue.s_2'),
+          ]"
           :key="`${day}-${index}`"
           class="py-1"
         >
@@ -385,6 +555,12 @@ function toDateValue(date: Date) {
         <button
           v-for="day in calendarDays"
           :key="day.key"
+          :aria-pressed="day.isSelected"
+          :aria-label="
+            new Intl.DateTimeFormat(localeTag, { dateStyle: 'full' }).format(
+              parseValueDate(day.value)!,
+            )
+          "
           type="button"
           class="relative inline-flex aspect-square items-center justify-center rounded-xl text-sm font-medium transition"
           :class="[
@@ -408,13 +584,13 @@ function toDateValue(date: Date) {
         v-if="props.type === 'datetime-local'"
         class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-white/10 dark:bg-white/[0.05]"
       >
-        <span class="text-sm font-medium text-slate-600 dark:text-white/65"
-          >{{ t("shared.common.time") }}</span
-        >
+        <span class="text-sm font-medium text-slate-600 dark:text-white/65">{{
+          t("shared.common.time")
+        }}</span>
         <input
           v-model="timeValue"
           type="time"
-          class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:ring-cyan-200/15"
+          class="h-11 rounded-lg border border-slate-200 bg-white px-2 text-base sm:text-sm text-slate-950 outline-none focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-white/10 dark:text-white dark:focus:ring-cyan-200/15"
           @change="updateTime"
         />
       </div>
@@ -437,7 +613,32 @@ function toDateValue(date: Date) {
         >
           {{ t("shared.common.today") }}
         </button>
+        <button
+          v-if="props.type === 'datetime-local'"
+          type="button"
+          class="min-h-11 rounded-lg bg-sky-700 px-3 text-sm font-semibold text-white"
+          @click="closeCalendar()"
+        >
+          {{ t("ui.done") }}
+        </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.modern-date button[aria-invalid="true"] {
+  border-color: #e11d48;
+}
+.modern-date-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+</style>

@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { X, Star, Check, ExternalLink, Trash2 } from "lucide-vue-next";
+import {
+  X,
+  ArrowLeft,
+  Star,
+  Check,
+  ExternalLink,
+  Trash2,
+} from "lucide-vue-next";
 import {
   isTaskDone,
   safeExternalUrl,
@@ -133,10 +140,13 @@ watch(
       <button
         type="button"
         class="task-icon"
-        :aria-label="t('tasks.close')"
+        :aria-label="t('ui.backToList')"
         @click="emit('close')"
       >
-        <X class="size-5" aria-hidden="true" />
+        <ArrowLeft class="size-5 xl:hidden" aria-hidden="true" /><X
+          class="hidden size-5 xl:block"
+          aria-hidden="true"
+        />
       </button>
     </header>
     <TaskForm

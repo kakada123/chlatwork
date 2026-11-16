@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChlatWork Grammar · Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <div class="brand">CW</div>
+    <h1>ChlatWork Grammar</h1>
+    <p class="intro">Use your existing ChlatWork AI grammar API. No new Gemini key or separate AI server needed.</p>
+    <form id="settings-form">
+      <label for="apiEndpoint">Grammar API endpoint</label>
+      <input id="apiEndpoint" type="url" spellcheck="false" required placeholder="http://localhost:3002/creator-ai/grammar/correct" />
+      <p class="hint">Endpoint on your ChlatWork backend (e.g. <code>http://localhost:3002/creator-ai/grammar/correct</code> or <code>http://localhost:3002/creator-ai/khmer/grammar</code>). It reuses your existing Gemini grammar service.</p>
+      <label for="accessToken">ChlatWork access token (optional for authenticated API)</label>
+      <input id="accessToken" type="password" spellcheck="false" autocomplete="off" placeholder="Temporary user access token" />
+      <p class="hint">For local testing only. Held in session memory and cleared when the browser restarts, extension reloads, or is updated. Never paste your Google Gemini key here.</p>
+      <div class="buttons"><button type="submit">Save &amp; Grant Permission</button><button type="button" class="secondary" id="clearToken">Clear session token</button></div>
+      <p class="status" id="status" role="status"></p>
+    </form>
+    <section>
+      <h2>How to use</h2>
+      <ol>
+        <li>Connect the API above.</li>
+        <li>Open any regular website with a text field.</li>
+        <li>Write text and click <strong>✨ Fix grammar</strong>.</li>
+        <li>Review the correction, then Apply or Copy.</li>
+      </ol>
+      <p class="hint">Only text you explicitly submit is sent. Do not use with passwords, private customer data, or confidential work content.</p>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -79,7 +79,8 @@ function refreshLabel() {
     if (node.nodeType === 3) return node.textContent ?? "";
     return Array.from(node.childNodes).map(labelText).join(" ");
   };
-  const labels = Array.from(trigger.value?.labels ?? []);
+  // Implicit labels bind to the hidden native select before the visible trigger.
+  const labels = [...new Set([...Array.from(trigger.value?.labels ?? []), ...Array.from(native.value?.labels ?? [])])];
   const next = labels.map(labelText).join(" ").replace(/\s+/g, " ").trim();
   if (next !== implicitLabel.value) implicitLabel.value = next;
 }

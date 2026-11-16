@@ -157,7 +157,7 @@ test("mobile footer removes secondary navigation and dead scroll", () => {
   assert.match(layout, /<FooterMenuGroup/);
   assert.match(layout, /<div class="hidden sm:grid sm:grid-cols-3 sm:gap-6">/);
   assert.match(layout, /class="site-footer[^\"]*hidden[^\"]*sm:block"/);
-  assert.match(layout, /class="flex min-h-\[100dvh\] flex-col/);
+  assert.match(layout, /class="flex min-h-\[calc\(100dvh-var\(--product-header-height,0px\)\)\] flex-col/);
   assert.match(layout, /<MobileBottomNav/);
   assert.match(layout, /mobile-navigation-action/);
   assert.match(quickExpense, /left-1\/2 size-14 -translate-x-1\/2/);

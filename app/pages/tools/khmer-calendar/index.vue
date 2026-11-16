@@ -31,6 +31,7 @@ import {
   Sparkles,
   Sun,
 } from "lucide-vue-next";
+import { useCalendarLanguage } from "~/composables/useCalendarLanguage";
 import { useAuth } from "~/composables/useAuth";
 import { useColorMode } from "~/composables/useColorMode";
 import { useRoster } from "~/composables/useRoster";
@@ -68,7 +69,14 @@ import {
 definePageMeta({ layout: false, blankCanvas: true });
 
 const route = useRoute();
-const khmer = ref(route.query.lang !== "en");
+const { product: calendarProduct } = useProductDomain();
+const productLanguage = calendarProduct ? useCalendarLanguage() : null;
+const localKhmer = ref(route.query.lang !== "en");
+// Product chrome and calendar/roster content use the same preference; main-host local switching stays independent.
+const khmer = computed({
+  get: () => productLanguage ? productLanguage.isKhmer.value : localKhmer.value,
+  set: (value: boolean) => { if (productLanguage) productLanguage.isKhmer.value = value; else localKhmer.value = value; },
+});
 const { t } = useAppI18n(khmer);
 useSeoMeta({ title: () => t("tools.khmerCalendar.metaTitle"), description: () => t("tools.khmerCalendar.metaDescription"), ogTitle: () => t("tools.khmerCalendar.metaOgTitle"), ogDescription: () => t("tools.khmerCalendar.metaOgDescription") });
 // Lunar notations remain in Khmer as part of the calendar data in either interface language.
@@ -90,7 +98,7 @@ watch(
 watch(
   () => route.query.lang,
   (value) => {
-    khmer.value = value !== "en";
+    if (!calendarProduct) localKhmer.value = value !== "en";
   },
 );
 
@@ -462,7 +470,7 @@ onBeforeUnmount(() => {
   <main ref="calendarRoot" class="khmer-calendar" :class="{ 'is-roster': calendarMode === 'roster' }" :lang="(khmer ? 'km' : 'en')">
     <header class="calendar-header">
       <div class="brand-row">
-        <NuxtLink to="/tools" class="back-link"
+        <NuxtLink v-if="!calendarProduct" to="/tools" class="back-link"
           ><ArrowLeft :size="15" aria-hidden="true" /> ChlatWork
           <span>/ {{ t("tools.khmerCalendar.tools") }}</span></NuxtLink
         >
@@ -491,6 +499,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="header-actions">
+          <template v-if="!calendarProduct">
           <span v-if="checkingSession" class="calendar-session-status" role="status">{{ khmer ? 'កំពុងពិនិត្យគណនី…' : 'Checking sign-in…' }}</span>
           <template v-else-if="signedIn">
             <NuxtLink to="/account" class="calendar-account" :title="user?.name || (khmer ? 'គណនីរបស់ខ្ញុំ' : 'My account')">
@@ -510,6 +519,7 @@ onBeforeUnmount(() => {
           >
             {{ t("tools.khmerCalendar.message_2") }}
           </button>
+          </template>
           <button
             v-if="fullscreenSupported"
             type="button"

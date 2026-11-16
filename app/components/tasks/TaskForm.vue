@@ -117,14 +117,14 @@ async function save() {
       <div class="grid grid-cols-2 gap-3">
         <label v-if="!logDone" class="task-label"
           >{{ t("tasks.status")
-          }}<select v-model="form.status" class="task-input">
+          }}<ModernSelect v-model="form.status" class="mt-1 w-full">
             <option v-for="s in TASK_STATUSES" :key="s" :value="s">
               {{ t(`tasks.${s}`) }}
             </option>
-          </select></label
+          </ModernSelect></label
         ><label class="task-label"
           >{{ t("tasks.priority")
-          }}<select v-model="form.priority" class="task-input">
+          }}<ModernSelect v-model="form.priority" class="mt-1 w-full">
             <option
               v-for="s in ['LOW', 'NORMAL', 'HIGH', 'URGENT']"
               :key="s"
@@ -132,7 +132,7 @@ async function save() {
             >
               {{ t(`tasks.${s}`) }}
             </option>
-          </select></label
+          </ModernSelect></label
         ><label class="task-label"
           >{{ t("tasks.category")
           }}<input
@@ -156,12 +156,12 @@ async function save() {
             /></datalist></label
         ><label class="task-label"
           >{{ t("tasks.project")
-          }}<select v-model="form.projectId" class="task-input">
+          }}<ModernSelect v-model="form.projectId" class="mt-1 w-full">
             <option value="">{{ t("tasks.noProject") }}</option>
             <option v-for="p in catalog.projects" :key="p.id" :value="p.id">
               {{ p.name }}
             </option>
-          </select></label
+          </ModernSelect></label
         >
       </div>
       <fieldset
@@ -189,25 +189,25 @@ async function save() {
       </p>
       <label v-if="done" class="task-label"
         >{{ t("tasks.completedAt")
-        }}<input
+        }}<ModernDateInput
           v-model="form.completedAt"
           type="datetime-local"
-          class="task-input"
+          class="mt-1 w-full"
           :required="logDone"
       /></label>
       <div v-if="!logDone" class="grid gap-3 sm:grid-cols-2">
         <label class="task-label"
           >{{ t("tasks.startAt")
-          }}<input
+          }}<ModernDateInput
             v-model="form.startAt"
             type="datetime-local"
-            class="task-input" /></label
+            class="mt-1 w-full" /></label
         ><label class="task-label"
           >{{ t("tasks.dueAt")
-          }}<input
+          }}<ModernDateInput
             v-model="form.dueAt"
             type="datetime-local"
-            class="task-input"
+            class="mt-1 w-full"
         /></label>
       </div>
       <div class="grid grid-cols-2 gap-3">

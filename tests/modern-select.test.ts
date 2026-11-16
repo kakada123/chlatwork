@@ -28,7 +28,13 @@ class HostNode extends EventTarget {
   get nodeType() { return this.tag === "text" ? 3 : 1; }
   get childNodes() { return this.children; }
   get textContent(): string { return this.text + this.children.map((child) => child.textContent).join(""); }
-  get labels(): HostNode[] { const label = this.closest("label"); return label ? [label] : []; }
+  get labels(): HostNode[] {
+    const label = this.closest("label");
+    if (!label) return [];
+    const walk = (node: HostNode): HostNode[] => [node, ...node.children.flatMap(walk)];
+    const first = walk(label).find(node => ["input", "select", "button", "textarea"].includes(node.tag));
+    return first === this ? [label] : [];
+  }
   closest(tag: string): HostNode | null { let node: HostNode | null = this; while (node) { if (node.tag === tag) return node; node = node.parent; } return null; }
   getBoundingClientRect() { return { left: 16, top: 100, bottom: 144, width: 200, height: 44 }; }
   contains(node: HostNode | null) { while (node) { if (node === this) return true; node = node.parent; } return false; }

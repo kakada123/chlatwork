@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -19,6 +20,7 @@ import type { CurrentUser } from '../auth/types';
 import { CreatorCreditsService } from './creator-credits.service';
 import { CreatorGenerationService, type CreatorImageUpload } from './creator-generation.service';
 import {
+  CorrectGrammarDto,
   FacebookToTikTokDto,
   GenerateHooksDto,
   GenerateIdeasDto,
@@ -83,6 +85,35 @@ export class CreatorAiController {
   @Post('khmer/grammar')
   grammar(@CurrentAuthUser() user: CurrentUser, @Headers('idempotency-key') key: string | undefined, @Body() dto: KhmerGrammarDto) {
     return this.generate(user.id, AiFeature.KHMER_GRAMMAR, { ...dto }, 'Khmer grammar', key);
+  }
+
+  @Post('grammar/correct')
+  async correct(
+    @CurrentAuthUser() user: CurrentUser,
+    @Headers('idempotency-key') key: string | undefined,
+    @Body() dto: CorrectGrammarDto,
+  ) {
+    const text = (dto.text ?? dto.content ?? '').trim();
+    if (!text) {
+      throw new BadRequestException('text or content is required');
+    }
+    const isPolish = dto.mode === 'polish';
+    const feature = isPolish ? AiFeature.KHMER_REWRITE : AiFeature.KHMER_GRAMMAR;
+    const label = isPolish ? 'Polish text' : 'Grammar correction';
+    const result = await this.generate(
+      user.id,
+      feature,
+      { content: text },
+      label,
+      key,
+    );
+    const corrected =
+      result.data.sections.find((s) => s.id === 'result')?.content ?? text;
+    return {
+      original: text,
+      corrected,
+      changed: text !== corrected,
+    };
   }
 
   @Post('khmer/rewrite')

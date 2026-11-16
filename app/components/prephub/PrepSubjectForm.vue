@@ -71,18 +71,18 @@ async function save() {
     <div class="grid grid-cols-2 gap-3">
       <label class="prep-label"
         >{{ t("prephub.category")
-        }}<select v-model="form.category" class="prep-input">
+        }}<ModernSelect v-model="form.category" class="mt-1 w-full">
           <option v-for="c in PREP_CATEGORIES" :key="c" :value="c">
             {{ t(`prephub.${c}`) }}
           </option>
-        </select></label
+        </ModernSelect></label
       ><label class="prep-label"
         >{{ t("prephub.priority")
-        }}<select v-model="form.priority" class="prep-input">
+        }}<ModernSelect v-model="form.priority" class="mt-1 w-full">
           <option v-for="p in ['LOW', 'NORMAL', 'HIGH']" :key="p" :value="p">
             {{ t(`prephub.${p}`) }}
           </option>
-        </select></label
+        </ModernSelect></label
       >
     </div>
     <p class="text-xs text-slate-500">
@@ -90,18 +90,21 @@ async function save() {
     </p>
     <label class="prep-label"
       >{{ t("prephub.eventAt")
-      }}<input v-model="form.eventAt" type="datetime-local" class="prep-input"
+      }}<ModernDateInput
+        v-model="form.eventAt"
+        type="datetime-local"
+        class="mt-1 w-full"
     /></label>
     <label class="prep-label"
       >{{ t("prephub.deadlineAt")
-      }}<input
+      }}<ModernDateInput
         v-model="form.deadlineAt"
         type="datetime-local"
-        class="prep-input"
+        class="mt-1 w-full"
     /></label>
     <label v-if="!subject" class="prep-label"
       >{{ t("prephub.template")
-      }}<select v-model="form.template" class="prep-input">
+      }}<ModernSelect v-model="form.template" class="mt-1 w-full">
         <option
           v-for="v in ['NONE', 'GENERAL', 'RESEARCH', 'MEETING', 'VIDEO']"
           :key="v"
@@ -109,7 +112,7 @@ async function save() {
         >
           {{ t(`prephub.${v}`) }}
         </option>
-      </select></label
+      </ModernSelect></label
     >
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
     <div class="flex justify-end gap-2">

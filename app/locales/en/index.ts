@@ -9,4 +9,6 @@ import prephub from "./prephub.ts";
 
 import tasks from "./tasks.ts";
 
-export default { ...tasks, ...prephub, ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;
+import ui from "./ui.ts";
+
+export default { ...ui, ...tasks, ...prephub, ...shared, ...products, ...tools, ...developerCommands, ...catalogs, ...native } as const;

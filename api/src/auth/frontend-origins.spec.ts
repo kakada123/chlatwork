@@ -35,4 +35,20 @@ describe('frontend origin policy', () => {
       }
     }
   });
+  it('accepts valid chrome-extension origins and rejects malformed ones', () => {
+    const extOrigin = 'chrome-extension://abcdefghijklmnopabcdefghijklmnop';
+    expect(frontendOrigins('http://localhost:3001', extOrigin)).toEqual([
+      'http://localhost:3001',
+      extOrigin,
+    ]);
+    for (const invalid of [
+      'chrome-extension://',
+      'chrome-extension://abc?query=1',
+      'chrome-extension://abc#hash',
+      'chrome-extension://abc/subpath',
+      'chrome-extension://user:pass@abc',
+    ]) {
+      expect(() => frontendOrigins('http://localhost:3001', invalid)).toThrow();
+    }
+  });
 });

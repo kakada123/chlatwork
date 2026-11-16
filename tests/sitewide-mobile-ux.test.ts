@@ -21,7 +21,8 @@ test("the default layout provides one mobile app shell to every standard page", 
   assert.match(layout, /import MobileAppHeader from/);
   assert.match(layout, /import MobileBottomNav from/);
   assert.match(layout, /<MobileAppHeader\s+v-if="!domainProduct && showSharedMobileHeader"/);
-  assert.match(layout, /<LayoutProductNavigation v-if="domainProduct"/);
+  assert.match(readFileSync("app/app.vue", "utf8"), /<LayoutProductNavigation v-if="domainContext\.product"/);
+  assert.doesNotMatch(layout, /<LayoutProductNavigation/);
   assert.match(layout, /<MobileBottomNav/);
   assert.match(layout, /class="site-header[^"]*hidden[^"]*sm:block"/);
   assert.match(layout, /pb-\[calc\(6\.5rem\+env\(safe-area-inset-bottom\)\)\]/);

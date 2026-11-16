@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ModernDateInput from "~/components/ModernDateInput.vue";
 import { useAppI18n } from "~/composables/useAppI18n";
 import { useProductCopy } from "~/composables/useProductCopy";
 import {
@@ -917,7 +918,7 @@ onBeforeUnmount(() => {
               <textarea :id="`memory-caption-${activePhoto.id}`" v-model="activePhoto.caption" maxlength="200" rows="2" class="field-input" />
               <span class="character-count">{{ activePhoto.caption?.length ?? 0 }} / 200</span>
               <label :for="`memory-date-${activePhoto.id}`">{{ t("products.moments.memory_date_optional") }}</label>
-              <input :id="`memory-date-${activePhoto.id}`" v-model="activePhoto.date" type="date" class="field-input" />
+              <ModernDateInput :id="`memory-date-${activePhoto.id}`" v-model="activePhoto.date" type="date" class="mt-2 w-full" />
             </div>
           </div>
         </section>
@@ -964,8 +965,8 @@ onBeforeUnmount(() => {
                 <div><label for="birthday-unlock-month">{{ t("products.moments.month") }}</label><input id="birthday-unlock-month" :value="birthdayUnlockMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="MM" class="field-input" @input="updateBirthdayUnlockPart('month', $event)" @blur="birthdayUnlockMonth && (birthdayUnlockMonth = birthdayUnlockMonth.padStart(2, '0'))" /></div>
               </fieldset>
               <div class="grid gap-4 sm:grid-cols-2 mt-5">
-                <div><label for="special-date" class="field-label">{{ creatorCopy.specialDate }} <span>({{ creatorCopy.optional }})</span></label><input id="special-date" v-model="draft.specialDate" type="date" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.counterHelp }}</p></div>
-                <div><label for="unlock-date" class="field-label">{{ creatorCopy.scheduledUnlock }} <span>({{ creatorCopy.optional }})</span></label><input id="unlock-date" v-model="draft.publishAt" type="datetime-local" :min="isEditing ? undefined : minimumUnlockDate" class="field-input mt-2" /><p class="field-help">{{ creatorCopy.countdownHelp }}</p><p v-if="browserTimezone" class="field-help">{{ t("products.moments.schedule_timezone") }} {{ browserTimezone }}</p></div>
+                <div><label for="special-date" class="field-label">{{ creatorCopy.specialDate }} <span>({{ creatorCopy.optional }})</span></label><ModernDateInput id="special-date" v-model="draft.specialDate" type="date" class="mt-2 w-full" /><p class="field-help">{{ creatorCopy.counterHelp }}</p></div>
+                <div><label for="unlock-date" class="field-label">{{ creatorCopy.scheduledUnlock }} <span>({{ creatorCopy.optional }})</span></label><ModernDateInput id="unlock-date" v-model="draft.publishAt" type="datetime-local" :min="isEditing ? undefined : minimumUnlockDate" class="mt-2 w-full" /><p class="field-help">{{ creatorCopy.countdownHelp }}</p><p v-if="browserTimezone" class="field-help">{{ t("products.moments.schedule_timezone") }} {{ browserTimezone }}</p></div>
               </div>
             </div>
           </div>
@@ -1037,11 +1038,11 @@ onBeforeUnmount(() => {
                 <label for="special-date" class="field-label"
                   >{{ creatorCopy.specialDate }}
                   <span>({{ creatorCopy.optional }})</span></label
-                ><input
+                ><ModernDateInput
                   id="special-date"
                   v-model="draft.specialDate"
                   type="date"
-                  class="field-input mt-2"
+                  class="mt-2 w-full"
                 />
                 <p class="field-help">{{ creatorCopy.counterHelp }}</p>
               </div>
@@ -1049,12 +1050,12 @@ onBeforeUnmount(() => {
                 <label for="unlock-date" class="field-label"
                   >{{ creatorCopy.scheduledUnlock }}
                   <span>({{ creatorCopy.optional }})</span></label
-                ><input
+                ><ModernDateInput
                   id="unlock-date"
                   v-model="draft.publishAt"
                   type="datetime-local"
                   :min="isEditing ? undefined : minimumUnlockDate"
-                  class="field-input mt-2"
+                  class="mt-2 w-full"
                 />
                 <p class="field-help">{{ creatorCopy.countdownHelp }}</p>
                 <p v-if="browserTimezone" class="field-help">{{ t("products.moments.schedule_timezone") }} {{ browserTimezone }}</p>
@@ -1080,7 +1081,7 @@ onBeforeUnmount(() => {
               <div class="mt-3 grid gap-5 sm:grid-cols-2">
                 <div>
                   <label for="event-date" class="field-label">{{ creatorCopy.eventDate }}</label>
-                  <input id="event-date" v-model="draft.eventDate" type="datetime-local" class="field-input mt-2" required />
+                  <ModernDateInput id="event-date" v-model="draft.eventDate" type="datetime-local" class="mt-2 w-full" required />
                 </div>
                 <div>
                   <label for="venue-name" class="field-label">{{ creatorCopy.venueName }}</label>

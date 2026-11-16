@@ -10,8 +10,27 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const frontendOrigin = config.getOrThrow<string>('FRONTEND_ORIGIN');
 
+  const allowedOrigins = frontendOrigins(
+    frontendOrigin,
+    config.get<string>('FRONTEND_ADDITIONAL_ORIGINS', ''),
+  );
+
   app.enableCors({
-    origin: frontendOrigins(frontendOrigin, config.get<string>('FRONTEND_ADDITIONAL_ORIGINS', '')),
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      // Allow requests with no origin (e.g. server-to-server, mobile), explicitly allowlisted origins, or Chrome extensions
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('chrome-extension://')
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
     credentials: false,
