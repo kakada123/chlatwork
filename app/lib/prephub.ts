@@ -181,8 +181,41 @@ export type PrepMutation = (
 ) => Promise<boolean>;
 
 export interface PrepSharing {
-  enabled: boolean; token: string | null; includeAttachments: boolean; sharedAt: string | null;
+  enabled: boolean;
+  token: string | null;
+  includeAttachments: boolean;
+  sharedAt: string | null;
 }
-export interface PrepSharedSubject extends Omit<PrepSubject, 'reminders'> {
-  timeZone: string; includeAttachments: boolean;
+export interface PrepSharedSubject extends Omit<PrepSubject, "reminders"> {
+  timeZone: string;
+  includeAttachments: boolean;
+}
+
+export type PrepNotebookArea = "checklist" | "materials" | "questions";
+/** Group for display only; keep original sections, item identities and saved order intact. */
+export function notebookGroups(sections: readonly PrepSection[]) {
+  const groups: Record<PrepNotebookArea, PrepSection[]> = {
+    checklist: [],
+    materials: [],
+    questions: [],
+  };
+  for (const section of sections) {
+    const area = ["CHECKLIST", "DELIVERABLES"].includes(section.type)
+      ? "checklist"
+      : ["QUESTIONS", "RESEARCH"].includes(section.type)
+        ? "questions"
+        : "materials";
+    groups[area].push(section);
+  }
+  return groups;
+}
+export function notebookCaptureLabel(type: PrepType) {
+  const labels: Partial<Record<PrepType, string>> = {
+    CHECKLIST: "task",
+    NOTES: "note",
+    ATTACHMENTS: "file",
+    LINKS: "link",
+    QUESTIONS: "question",
+  };
+  return labels[type] ? `prephub.notebook.${labels[type]}` : `prephub.${type}`;
 }

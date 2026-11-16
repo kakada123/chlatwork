@@ -305,21 +305,27 @@ function captured() {
               date(subject.eventAt || subject.deadlineAt)
             }}
           </p>
-          <div class="mt-3 flex items-center justify-between gap-2 text-xs">
+          <div
+            v-if="subject.progress.total"
+            class="mt-3 flex items-center justify-between gap-2 text-xs"
+          >
             <span>{{
-              t("prephub.progressCount", {
+              t("prephub.notebook.progress", {
                 completed: subject.progress.completed,
                 total: subject.progress.total,
               })
-            }}</span
-            ><strong>{{ subject.progress.percent }}%</strong>
+            }}</span>
           </div>
           <progress
+            v-if="subject.progress.total"
             class="mt-1 h-2 w-full accent-sky-700"
             :value="subject.progress.completed"
             :max="subject.progress.total || 1"
             :aria-label="t('prephub.progress')"
           />
+          <p v-if="!subject.progress.total" class="mt-3 text-xs text-slate-500">
+            {{ t("prephub.notebook.noTasksProgress") }}
+          </p>
           <p
             class="mt-2 flex items-center justify-between gap-2 text-xs text-slate-500"
           >

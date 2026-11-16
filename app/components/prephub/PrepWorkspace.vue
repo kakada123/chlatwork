@@ -1,14 +1,25 @@
 <script setup lang="ts">
-import { Plus, ArrowLeft, ClipboardCheck, Zap, Share2 } from "lucide-vue-next";
+import {
+  ArrowLeft,
+  ClipboardCheck,
+  Share2,
+  MoreHorizontal,
+  CheckCircle2,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-vue-next";
 import {
   PREP_STATUSES,
   PREP_TYPES,
   type PrepSubject,
   type PrepDashboard,
   type PrepMutation,
+  type PrepType,
+  type PrepSection as SectionData,
 } from "~/lib/prephub";
-import WorkspaceFilters from "~/components/layout/WorkspaceFilters.vue";
-import ConfirmDialog from "~/components/ui/ConfirmDialog.vue";
+import PrepOverview from "./PrepOverview.vue";
+import PrepNotebook from "./PrepNotebook.vue";
+import PrepAddMenu from "./PrepAddMenu.vue";
 import PrepShareSettings from "./PrepShareSettings.vue";
 import PrepDialog from "./PrepDialog.vue";
 import PrepSubjectForm from "./PrepSubjectForm.vue";
@@ -16,7 +27,6 @@ import PrepSection from "./PrepSection.vue";
 import PrepCapture from "./PrepCapture.vue";
 import PrepReminders from "./PrepReminders.vue";
 import PrepInbox from "./PrepInbox.vue";
-import PrepFormattedText from "./PrepFormattedText.vue";
 import "~/assets/css/prephub.css";
 const props = defineProps<{ id: string; review?: boolean }>();
 const { t } = useAppI18n();
@@ -25,7 +35,21 @@ const { request, owner, timeZone, error, busy, feedback, fail, date } =
   usePrepHub();
 const subject = ref<PrepSubject | null>(null);
 const loading = ref(true);
-const shareOpen = ref(false);
+const shareOpen = ref(false),
+  moreOpen = ref(false),
+  reminderOpen = ref(false);
+const sectionEditorId = ref<string | null>(null);
+const activeType = ref<PrepType>("CHECKLIST"),
+  captureType = ref<PrepType>("NOTES"),
+  captureTarget = ref<string>();
+const contextSection = ref<string>();
+const contextTouched = ref(false);
+const notebook = ref<{
+  focusTask: (sectionId?: string) => Promise<void>;
+} | null>(null);
+const managedSection = computed(() =>
+  subject.value?.sections.find((s) => s.id === sectionEditorId.value),
+);
 const edit = ref(false),
   capture = ref(false),
   addSection = ref(false);
@@ -90,6 +114,81 @@ const mutate: PrepMutation = async (path, method, body) => {
     busy.value = false;
   }
 };
+function setAddContext(type: PrepType, sectionId?: string) {
+  contextTouched.value = true;
+  activeType.value = type;
+  contextSection.value = sectionId;
+}
+function resolveAddContext() {
+  // A deep link seeds the initial context; later notebook interactions take precedence.
+  if (contextTouched.value || typeof window === "undefined") return;
+  const section = subject.value?.sections.find(
+    (s) => window.location.hash === `#section-${s.id}`,
+  );
+  if (section) setAddContext(section.type, section.id);
+}
+function chooseAdd(type: PrepType | "REMINDER") {
+  if (type === "REMINDER") {
+    reminderOpen.value = true;
+    return;
+  }
+  if (["CHECKLIST", "DELIVERABLES"].includes(type)) {
+    void notebook.value?.focusTask(contextSection.value);
+    return;
+  }
+  captureType.value = type;
+  captureTarget.value = contextSection.value;
+  capture.value = true;
+}
+async function createTask(title: string, sectionId?: string) {
+  if (busy.value || !title.trim()) return false;
+  const id = props.id,
+    startedOwner = owner.value;
+  busy.value = true;
+  error.value = "";
+  feedback.value = "";
+  try {
+    // Reload before resolving a section so retrying a failed first item does not create another empty section.
+    const latest = await request<PrepSubject>(`/subjects/${id}`);
+    let section =
+      latest.sections.find(
+        (s) =>
+          s.id === sectionId && ["CHECKLIST", "DELIVERABLES"].includes(s.type),
+      ) ?? latest.sections.find((s) => s.type === "CHECKLIST");
+    if (!section)
+      section = await request<SectionData>(`/subjects/${id}/sections`, {
+        method: "POST",
+        body: { type: "CHECKLIST", title: t("prephub.notebook.checklist") },
+      });
+    await request(`/subjects/${id}/sections/${section.id}/items`, {
+      method: "POST",
+      body: { title: title.trim() },
+    });
+    if (props.id === id && owner.value === startedOwner) {
+      await load();
+      feedback.value = t("prephub.saved");
+    }
+    return true;
+  } catch (e) {
+    if (props.id === id && owner.value === startedOwner) fail(e);
+    return false;
+  } finally {
+    busy.value = false;
+  }
+}
+function primaryStatusAction() {
+  if (!subject.value) return;
+  if (subject.value.status === "ARCHIVED") return mutate("/restore", "POST");
+  return mutate("", "PATCH", {
+    status:
+      subject.value.status === "READY"
+        ? "COMPLETED"
+        : subject.value.status === "COMPLETED"
+          ? "PREPARING"
+          : "READY",
+  });
+}
+
 async function saveSubject(body: Record<string, unknown>) {
   const ok = await mutate("", "PATCH", body);
   if (ok) edit.value = false;
@@ -158,6 +257,12 @@ watch(
     subject.value = null;
     history.value = [];
     historyVersion++;
+    moreOpen.value = false;
+    reminderOpen.value = false;
+    sectionEditorId.value = null;
+    contextSection.value = undefined;
+    contextTouched.value = false;
+    activeType.value = "CHECKLIST";
     shareOpen.value = false;
     edit.value = false;
     capture.value = false;
@@ -172,6 +277,12 @@ watch(owner, () => {
   subject.value = null;
   history.value = [];
   pendingDelete.value = null;
+  moreOpen.value = false;
+  reminderOpen.value = false;
+  sectionEditorId.value = null;
+  contextSection.value = undefined;
+  contextTouched.value = false;
+  activeType.value = "CHECKLIST";
   shareOpen.value = false;
   edit.value = false;
   capture.value = false;
@@ -186,39 +297,24 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <main
-    class="prephub mx-auto max-w-6xl space-y-4 pb-24 text-slate-950 dark:text-white"
+    class="prephub mx-auto max-w-5xl space-y-4 pb-24 text-slate-950 dark:text-white"
   >
-    <nav class="flex flex-wrap items-center justify-between gap-2">
+    <nav class="flex items-center justify-between gap-2">
       <NuxtLink :to="linkTo('/prephub')" class="prep-button"
         ><ArrowLeft class="size-4" aria-hidden="true" />{{
           t("prephub.back")
         }}</NuxtLink
-      ><NuxtLink
-        v-if="subject"
-        :to="linkTo(review ? `/prephub/${id}` : `/prephub/${id}/review`)"
-        class="prep-button"
-        ><ClipboardCheck class="size-4" aria-hidden="true" />{{
-          t(review ? "prephub.workspace" : "prephub.review")
-        }}</NuxtLink
       >
-      <button
-        v-if="subject && owner"
-        type="button"
-        class="prep-button"
-        @click="shareOpen = true"
-      >
-        <Share2 class="size-4" aria-hidden="true" />{{ t("prephub.share") }}
-      </button>
+      <div v-if="subject && owner" class="flex gap-1">
+        <button type="button" class="prep-button" @click="shareOpen = true">
+          <Share2 class="size-4" aria-hidden="true" />{{
+            t("prephub.share")
+          }}</button
+        ><button type="button" class="prep-button" @click="moreOpen = true">
+          <MoreHorizontal class="size-4" aria-hidden="true" />{{ t("ui.more") }}
+        </button>
+      </div>
     </nav>
-    <PrepDialog
-      :open="shareOpen"
-      :title="t('prephub.shareWorkspace')"
-      @close="shareOpen = false"
-      ><PrepShareSettings
-        v-if="shareOpen && subject && owner"
-        :key="subject.id"
-        :subject-id="subject.id"
-    /></PrepDialog>
     <PrepInbox v-if="owner" :time-zone="timeZone" />
     <p v-if="loading" role="status" class="prep-panel animate-pulse">
       {{ t("prephub.loading") }}
@@ -228,10 +324,10 @@ onBeforeUnmount(() => {
       role="alert"
       class="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200"
     >
-      {{ error }}
-      <button
+      {{ error
+      }}<button
         type="button"
-        class="underline"
+        class="ml-2 min-h-11 underline"
         :disabled="busy"
         @click="load(!subject)"
       >
@@ -246,279 +342,291 @@ onBeforeUnmount(() => {
       {{ feedback }}
     </p>
     <template v-if="subject && owner">
-      <header class="prep-panel">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0 flex-1">
-            <p class="text-xs font-semibold text-sky-700 dark:text-sky-300">
-              PrepHub · {{ t(`prephub.${subject.category}`) }} ·
-              {{ t(`prephub.${subject.status}`) }}
-            </p>
-            <h1 class="mt-1 break-words text-2xl font-bold">
-              {{ subject.title }}
-            </h1>
-            <p
-              v-if="subject.description"
-              class="mt-2 whitespace-pre-wrap break-words text-sm text-slate-600 dark:text-white/65"
+      <PrepOverview :subject="subject" :time-zone="timeZone" />
+      <div
+        class="sticky top-16 z-30 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white/95 p-2 backdrop-blur dark:border-white/10 dark:bg-neutral-950/95"
+      >
+        <PrepAddMenu
+          v-if="!review"
+          :busy="busy"
+          :default-type="activeType"
+          @opening="resolveAddContext"
+          @select="chooseAdd"
+        />
+        <NuxtLink v-else :to="linkTo(`/prephub/${id}`)" class="prep-button"
+          ><ArrowLeft class="size-4" aria-hidden="true" />{{
+            t("prephub.notebook.backToNotebook")
+          }}</NuxtLink
+        >
+        <button
+          type="button"
+          class="prep-button"
+          :disabled="busy"
+          @click="primaryStatusAction"
+        >
+          <CheckCircle2 class="size-4 text-emerald-600" aria-hidden="true" />{{
+            t(
+              subject.status === "ARCHIVED"
+                ? "prephub.restore"
+                : subject.status === "COMPLETED"
+                  ? "prephub.notebook.prepareAgain"
+                  : subject.status === "READY"
+                    ? "prephub.notebook.finish"
+                    : "prephub.notebook.markReady",
+            )
+          }}
+        </button>
+      </div>
+      <p v-if="review" class="text-sm text-slate-500">
+        {{ t("prephub.notebook.reviewHelp") }}
+      </p>
+      <PrepNotebook
+        ref="notebook"
+        :sections="visibleSections"
+        :subject-id="id"
+        :time-zone="timeZone"
+        :busy="busy"
+        :error="error"
+        :mutate="mutate"
+        :confirm="confirm"
+        :create-task="createTask"
+        :review="review"
+        @context="setAddContext"
+      />
+      <PrepDialog
+        :open="shareOpen"
+        :title="t('prephub.shareWorkspace')"
+        @close="shareOpen = false"
+        ><PrepShareSettings
+          v-if="shareOpen"
+          :key="subject.id"
+          :subject-id="subject.id"
+      /></PrepDialog>
+      <PrepDialog
+        :open="moreOpen"
+        :error="error"
+        :title="t('prephub.notebook.moreSettings')"
+        @close="moreOpen = false"
+      >
+        <div class="space-y-4">
+          <button
+            type="button"
+            class="prep-button w-full"
+            :disabled="busy"
+            @click="edit = true"
+          >
+            {{ t("prephub.notebook.editSubject") }}
+          </button>
+          <NuxtLink
+            :to="linkTo(review ? `/prephub/${id}` : `/prephub/${id}/review`)"
+            class="prep-button w-full"
+            @click="moreOpen = false"
+            ><ClipboardCheck class="size-4" aria-hidden="true" />{{
+              t(review ? "prephub.workspace" : "prephub.review")
+            }}</NuxtLink
+          >
+          <details>
+            <summary
+              class="min-h-11 cursor-pointer content-center font-semibold"
             >
-              {{ subject.description }}
+              {{ t("prephub.status") }}
+            </summary>
+            <form
+              class="space-y-3 pb-3"
+              @submit.prevent="mutate('', 'PATCH', { status: statusValue })"
+            >
+              <label class="prep-label"
+                >{{ t("prephub.status")
+                }}<ModernSelect
+                  v-model="statusValue"
+                  class="mt-1 w-full"
+                  :disabled="busy"
+                  ><option
+                    v-for="status in PREP_STATUSES.filter(
+                      (s) => s !== 'ARCHIVED' || subject.status === 'ARCHIVED',
+                    )"
+                    :key="status"
+                    :value="status"
+                  >
+                    {{ t(`prephub.${status}`) }}
+                  </option></ModernSelect
+                ></label
+              ><button
+                class="prep-button"
+                :disabled="busy || statusValue === subject.status"
+              >
+                {{ t("prephub.statusUpdate") }}
+              </button>
+            </form>
+          </details>
+          <details>
+            <summary
+              class="min-h-11 cursor-pointer content-center font-semibold"
+            >
+              {{ t("prephub.reminders") }}
+            </summary>
+            <PrepReminders
+              :subject="subject"
+              :time-zone="timeZone"
+              :busy="busy"
+              :mutate="mutate"
+              :confirm="confirm"
+            />
+          </details>
+          <details>
+            <summary
+              class="min-h-11 cursor-pointer content-center font-semibold"
+            >
+              {{ t("prephub.notebook.advancedProgress") }}
+            </summary>
+            <p class="pb-3 text-xs leading-relaxed text-slate-500">
+              {{ t("prephub.notebook.progressHelp") }}
+              {{ t("prephub.readyHint") }}
             </p>
-          </div>
-          <div v-if="!review" class="flex gap-2">
+            <dl class="grid grid-cols-2 gap-2 text-sm">
+              <div
+                v-for="metric in [
+                  'remaining',
+                  'overdueItems',
+                  'unansweredResearch',
+                  'unansweredQuestions',
+                  'missingDeliverables',
+                ] as const"
+                :key="metric"
+                class="rounded-lg bg-slate-50 p-2 dark:bg-white/5"
+              >
+                <dt class="text-xs text-slate-500">
+                  {{ t(`prephub.${metric}`) }}
+                </dt>
+                <dd class="font-semibold">
+                  {{
+                    subject.progress[
+                      metric === "overdueItems" ? "overdue" : metric
+                    ]
+                  }}
+                </dd>
+              </div>
+            </dl>
+          </details>
+          <details>
+            <summary
+              class="min-h-11 cursor-pointer content-center font-semibold"
+            >
+              {{ t("prephub.notebook.customSections") }}
+            </summary>
+            <p class="mb-3 text-xs text-slate-500">
+              {{ t("prephub.notebook.sectionsHelp") }}
+            </p>
+            <ol class="divide-y divide-slate-100 dark:divide-white/10">
+              <li
+                v-for="(section, index) in subject.sections"
+                :key="section.id"
+                class="flex items-center gap-1 py-1"
+              >
+                <button
+                  type="button"
+                  class="min-h-11 min-w-0 flex-1 break-words text-left text-sm font-medium"
+                  @click="sectionEditorId = section.id"
+                >
+                  {{ section.title }}</button
+                ><button
+                  type="button"
+                  class="prep-icon"
+                  :disabled="busy || index === 0"
+                  :aria-label="`${t('prephub.moveUp')}: ${section.title}`"
+                  @click="moveSection(section.id, -1)"
+                >
+                  <ArrowUp class="size-4" aria-hidden="true" /></button
+                ><button
+                  type="button"
+                  class="prep-icon"
+                  :disabled="busy || index === subject.sections.length - 1"
+                  :aria-label="`${t('prephub.moveDown')}: ${section.title}`"
+                  @click="moveSection(section.id, 1)"
+                >
+                  <ArrowDown class="size-4" aria-hidden="true" />
+                </button>
+              </li>
+            </ol>
+            <button
+              type="button"
+              class="prep-button mt-3"
+              :disabled="busy || subject.sections.length >= 32"
+              @click="addSection = true"
+            >
+              {{ t("prephub.addSection") }}
+            </button>
+          </details>
+          <details>
+            <summary
+              class="min-h-11 cursor-pointer content-center font-semibold"
+              @click="!historyOpen && !historyBusy && loadHistory()"
+            >
+              {{ t("prephub.history") }}
+            </summary>
+            <p v-if="historyBusy" role="status" class="text-xs text-slate-500">
+              {{ t("prephub.loading") }}
+            </p>
+            <ol v-if="historyOpen" class="space-y-3 pb-3">
+              <li v-for="entry in history" :key="entry.id" class="text-xs">
+                <p>{{ entry.action }}</p>
+                <time class="text-slate-500">{{ date(entry.createdAt) }}</time>
+              </li>
+            </ol>
+            <div v-if="historyOpen" class="flex gap-2">
+              <button
+                type="button"
+                class="prep-button"
+                :disabled="historyBusy || historyPage === 1"
+                @click="loadHistory(historyPage - 1)"
+              >
+                {{ t("prephub.previous") }}</button
+              ><button
+                type="button"
+                class="prep-button"
+                :disabled="historyBusy || history.length < 50"
+                @click="loadHistory(historyPage + 1)"
+              >
+                {{ t("prephub.next") }}
+              </button>
+            </div>
+          </details>
+          <div
+            class="flex flex-wrap gap-2 border-t border-slate-200 pt-4 dark:border-white/10"
+          >
             <button
               type="button"
               class="prep-button"
               :disabled="busy"
-              @click="edit = true"
+              @click="
+                subject.status === 'ARCHIVED'
+                  ? mutate('/restore', 'POST')
+                  : mutate('', 'PATCH', { status: 'ARCHIVED' })
+              "
             >
-              {{ t("prephub.edit") }}</button
+              {{
+                t(
+                  subject.status === "ARCHIVED"
+                    ? "prephub.restore"
+                    : "prephub.archive",
+                )
+              }}</button
             ><button
               type="button"
-              class="prep-primary"
+              class="prep-button text-red-600 dark:text-red-300"
               :disabled="busy"
-              @click="capture = true"
+              @click="confirm(deleteSubject)"
             >
-              <Zap class="size-4" aria-hidden="true" />{{
-                t("prephub.quickCapture")
-              }}
+              {{ t("prephub.delete") }}
             </button>
           </div>
         </div>
-        <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
-          <p v-if="subject.eventAt">
-            {{ t("prephub.EVENT") }}: {{ date(subject.eventAt) }}
-          </p>
-          <p v-if="subject.deadlineAt">
-            {{ t("prephub.deadlineAt") }}: {{ date(subject.deadlineAt) }}
-          </p>
-          <p v-if="!subject.eventAt && !subject.deadlineAt">
-            {{ t("prephub.noSchedule") }}
-          </p>
-          <p>{{ timeZone }}</p>
-        </div>
-        <div
-          v-if="subject.goal"
-          class="mt-4 rounded-xl bg-slate-50 p-3 dark:bg-white/5"
-        >
-          <h2 class="text-xs font-semibold text-slate-500">
-            {{ t("prephub.goal") }}
-          </h2>
-          <PrepFormattedText class="mt-1" :text="subject.goal" />
-        </div>
-        <p v-if="review" class="mt-3 text-sm text-slate-500">
-          {{ t("prephub.readyReviewHint") }}
-        </p>
-      </header>
-      <div
-        class="grid items-start gap-4"
-        :class="review ? '' : 'lg:grid-cols-[minmax(0,1fr)_18rem]'"
-      >
-        <div class="order-2 min-w-0 space-y-4 lg:order-1">
-          <section class="prep-panel" aria-labelledby="prep-progress">
-            <div class="flex items-center justify-between gap-2">
-              <h2 id="prep-progress" class="font-semibold">
-                {{ t("prephub.progress") }}
-              </h2>
-              <strong>{{ subject.progress.percent }}%</strong>
-            </div>
-            <progress
-              class="mt-3 h-2 w-full accent-sky-700"
-              :value="subject.progress.completed"
-              :max="subject.progress.total || 1"
-              :aria-label="t('prephub.progress')"
-            />
-            <p class="mt-2 text-xs text-slate-500">
-              {{
-                subject.progress.total
-                  ? t("prephub.progressCount", {
-                      completed: subject.progress.completed,
-                      total: subject.progress.total,
-                    })
-                  : t("prephub.noRequirements")
-              }}
-            </p>
-            <WorkspaceFilters :title="t('ui.requirements')" class="mt-3">
-              <dl class="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
-                <div
-                  v-for="m in [
-                    'remaining',
-                    'overdueItems',
-                    'unansweredResearch',
-                    'unansweredQuestions',
-                    'missingDeliverables',
-                  ] as const"
-                  :key="m"
-                  class="rounded-xl bg-slate-50 p-2 dark:bg-white/5"
-                >
-                  <dt class="text-xs text-slate-500">
-                    {{ t(`prephub.${m}`) }}
-                  </dt>
-                  <dd class="mt-1 font-semibold">
-                    {{ subject.progress[m === "overdueItems" ? "overdue" : m] }}
-                  </dd>
-                </div>
-              </dl>
-              <p class="mt-3 text-xs text-slate-500">
-                {{ t("prephub.readyHint") }}
-              </p>
-            </WorkspaceFilters>
-          </section>
-          <nav
-            v-if="visibleSections.length"
-            class="flex gap-2 overflow-x-auto pb-1"
-            :aria-label="t('prephub.workspace')"
-          >
-            <a
-              v-for="s in visibleSections"
-              :key="s.id"
-              :href="`#section-${s.id}`"
-              class="prep-button shrink-0"
-              >{{ s.title }}</a
-            >
-          </nav>
-          <PrepSection
-            v-for="s in visibleSections"
-            :key="s.id"
-            :section="s"
-            :error="error"
-            :subject-id="id"
-            :time-zone="timeZone"
-            :busy="busy"
-            :mutate="mutate"
-            :confirm="confirm"
-            :review="review"
-            @move="moveSection(s.id, $event)"
-          />
-          <p
-            v-if="!visibleSections.length"
-            class="prep-panel text-sm text-slate-500"
-          >
-            {{ t("prephub.noMaterials") }}
-          </p>
-          <button
-            v-if="!review"
-            type="button"
-            class="prep-button w-full"
-            :disabled="busy || subject.sections.length >= 32"
-            @click="addSection = true"
-          >
-            <Plus class="size-4" aria-hidden="true" />{{
-              t("prephub.addSection")
-            }}
-          </button>
-        </div>
-        <aside v-if="!review" class="order-1 min-w-0 lg:order-2">
-          <WorkspaceFilters :title="t('ui.details')"
-            ><div class="space-y-4">
-              <section class="prep-panel">
-                <form
-                  class="space-y-3"
-                  @submit.prevent="mutate('', 'PATCH', { status: statusValue })"
-                >
-                  <label class="prep-label"
-                    >{{ t("prephub.status")
-                    }}<ModernSelect
-                      v-model="statusValue"
-                      class="mt-1 w-full"
-                      :disabled="busy"
-                    >
-                      <option
-                        v-for="v in PREP_STATUSES.filter(
-                          (v) => v !== 'ARCHIVED',
-                        )"
-                        :key="v"
-                        :value="v"
-                      >
-                        {{ t(`prephub.${v}`) }}
-                      </option>
-                      <option
-                        v-if="subject.status === 'ARCHIVED'"
-                        value="ARCHIVED"
-                      >
-                        {{ t("prephub.ARCHIVED") }}
-                      </option>
-                    </ModernSelect></label
-                  ><button
-                    class="prep-button w-full"
-                    :disabled="busy || statusValue === subject.status"
-                  >
-                    {{ t("prephub.statusUpdate") }}
-                  </button>
-                </form>
-                <button
-                  v-if="subject.status === 'ARCHIVED'"
-                  type="button"
-                  class="prep-button mt-2 w-full"
-                  :disabled="busy"
-                  @click="mutate('/restore', 'POST')"
-                >
-                  {{ t("prephub.restore") }}</button
-                ><button
-                  v-else
-                  type="button"
-                  class="prep-button mt-2 w-full"
-                  :disabled="busy"
-                  @click="mutate('', 'PATCH', { status: 'ARCHIVED' })"
-                >
-                  {{ t("prephub.archive") }}</button
-                ><button
-                  type="button"
-                  class="prep-button mt-2 w-full text-red-600"
-                  :disabled="busy"
-                  @click="confirm(deleteSubject)"
-                >
-                  {{ t("prephub.delete") }}
-                </button>
-              </section>
-              <PrepReminders
-                :confirm="confirm"
-                :subject="subject"
-                :time-zone="timeZone"
-                :busy="busy"
-                :mutate="mutate"
-              />
-              <section class="prep-panel">
-                <h2 class="font-semibold">{{ t("prephub.history") }}</h2>
-                <button
-                  type="button"
-                  class="prep-button mt-3"
-                  :disabled="historyBusy"
-                  @click="loadHistory()"
-                >
-                  {{ t("prephub.showHistory") }}
-                </button>
-                <ol v-if="historyOpen" class="mt-3 space-y-3">
-                  <li v-for="h in history" :key="h.id" class="text-xs">
-                    <p>{{ h.action }}</p>
-                    <time class="text-slate-500">{{ date(h.createdAt) }}</time>
-                  </li>
-                </ol>
-                <div v-if="historyOpen" class="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    class="prep-button"
-                    :disabled="historyBusy || historyPage === 1"
-                    @click="loadHistory(historyPage - 1)"
-                  >
-                    {{ t("prephub.previous") }}</button
-                  ><button
-                    type="button"
-                    class="prep-button"
-                    :disabled="historyBusy || history.length < 50"
-                    @click="loadHistory(historyPage + 1)"
-                  >
-                    {{ t("prephub.next") }}
-                  </button>
-                </div>
-              </section>
-            </div></WorkspaceFilters
-          >
-        </aside>
-      </div>
+      </PrepDialog>
       <PrepDialog
-        :error="error"
         :open="edit"
-        :title="t('prephub.edit')"
+        :title="t('prephub.notebook.editSubject')"
         :busy="busy"
+        :error="error"
         @close="edit = false"
         ><PrepSubjectForm
           :subject="subject"
@@ -528,19 +636,40 @@ onBeforeUnmount(() => {
           @cancel="edit = false"
       /></PrepDialog>
       <PrepDialog
+        :open="reminderOpen"
+        :title="t('prephub.notebook.reminder')"
+        :busy="busy"
         :error="error"
+        @close="reminderOpen = false"
+        ><PrepReminders
+          :subject="subject"
+          :time-zone="timeZone"
+          :busy="busy"
+          :mutate="mutate"
+          :confirm="confirm"
+        /><button
+          v-if="!subject.eventAt && !subject.deadlineAt"
+          type="button"
+          class="prep-button mt-3"
+          @click="edit = true"
+        >
+          {{ t("prephub.notebook.addDate") }}
+        </button></PrepDialog
+      >
+      <PrepDialog
         :open="addSection"
         :title="t('prephub.addSection')"
         :busy="busy"
+        :error="error"
         @close="addSection = false"
         ><form class="space-y-4" @submit.prevent="createSection">
           <label class="prep-label"
             >{{ t("prephub.sectionType")
-            }}<ModernSelect v-model="sectionForm.type" class="mt-1 w-full">
-              <option v-for="v in PREP_TYPES" :key="v" :value="v">
-                {{ t(`prephub.${v}`) }}
-              </option>
-            </ModernSelect></label
+            }}<ModernSelect v-model="sectionForm.type" class="mt-1 w-full"
+              ><option v-for="type in PREP_TYPES" :key="type" :value="type">
+                {{ t(`prephub.${type}`) }}
+              </option></ModernSelect
+            ></label
           ><label class="prep-label"
             >{{ t("prephub.title")
             }}<input
@@ -553,22 +682,61 @@ onBeforeUnmount(() => {
           </button>
         </form></PrepDialog
       >
+      <PrepDialog
+        :open="Boolean(managedSection)"
+        :title="managedSection?.title || t('prephub.notebook.customSections')"
+        :busy="busy"
+        :error="error"
+        @close="sectionEditorId = null"
+        ><template v-if="managedSection"
+          ><PrepSection
+            :section="managedSection"
+            :anchor="false"
+            :subject-id="id"
+            :time-zone="timeZone"
+            :busy="busy"
+            :error="error"
+            :mutate="mutate"
+            :confirm="confirm"
+            @move="moveSection(managedSection.id, $event)" /></template
+      ></PrepDialog>
       <PrepCapture
         :open="capture"
         :subject="subject"
         :time-zone="timeZone"
+        :initial-type="captureType"
+        :target-section-id="captureTarget"
+        simple
         @close="capture = false"
         @saved="load()"
       />
-      <ConfirmDialog
+      <PrepDialog
         :open="Boolean(pendingDelete)"
         :title="t('prephub.confirmTitle')"
-        :description="t('prephub.confirmDescription')"
-        :confirm-label="t('prephub.delete')"
         :busy="busy"
+        :error="error"
         @close="pendingDelete = null"
-        @confirm="confirmDelete"
-      />
+        ><p class="text-sm text-slate-600 dark:text-white/70">
+          {{ t("prephub.confirmDescription") }}
+        </p>
+        <div class="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            class="prep-button"
+            :disabled="busy"
+            @click="pendingDelete = null"
+          >
+            {{ t("prephub.cancel") }}</button
+          ><button
+            type="button"
+            class="prep-primary"
+            :disabled="busy"
+            @click="confirmDelete"
+          >
+            {{ t("prephub.delete") }}
+          </button>
+        </div></PrepDialog
+      >
     </template>
   </main>
 </template>

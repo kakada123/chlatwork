@@ -18,6 +18,7 @@ import {
   type PrepResource,
   type PrepSection,
 } from "~/lib/prephub";
+import PrepItemActions from "./PrepItemActions.vue";
 import PrepDialog from "./PrepDialog.vue";
 import PrepItemForm from "./PrepItemForm.vue";
 import PrepFormattedText from "./PrepFormattedText.vue";
@@ -29,6 +30,8 @@ const props = defineProps<{
   mutate: PrepMutation;
   confirm: (action: () => Promise<boolean>) => void;
   review?: boolean;
+  notebook?: boolean;
+  anchor?: boolean;
   readOnly?: boolean;
   resourceBase?: string;
   error?: string;
@@ -40,6 +43,51 @@ const editor = ref<PrepItem | null>();
 const rename = ref<{ title: string; path: string } | null>(null);
 const uploadError = ref("");
 const itemActions = ref<string | null>(null);
+const root = ref<HTMLElement | null>(null);
+const editingTitle = ref<string | null>(null),
+  draftTitle = ref(""),
+  titleInput = ref<HTMLInputElement | null>(null);
+const simpleTasks = computed(() =>
+  ["CHECKLIST", "DELIVERABLES"].includes(props.section.type),
+);
+async function startTitleEdit(item: PrepItem) {
+  if (props.busy || props.readOnly || props.review) return;
+  editingTitle.value = item.id;
+  draftTitle.value = item.title;
+  await nextTick();
+  titleInput.value?.focus();
+  titleInput.value?.select();
+}
+async function endTitleEdit(id: string) {
+  editingTitle.value = null;
+  await nextTick();
+  root.value
+    ?.querySelector<HTMLButtonElement>(`[data-prep-task-title="${id}"]`)
+    ?.focus();
+}
+async function saveInlineTitle(item: PrepItem) {
+  if (props.busy || !draftTitle.value.trim()) return;
+  if (
+    await props.mutate(`${base.value}/items/${item.id}`, "PATCH", {
+      title: draftTitle.value.trim(),
+    })
+  )
+    await endTitleEdit(item.id);
+}
+function answered(item: PrepItem) {
+  return props.section.type === "RESEARCH"
+    ? item.status === "ANSWERED"
+    : item.isCompleted;
+}
+async function toggleItem(item: PrepItem) {
+  await props.mutate(
+    `${base.value}/items/${item.id}`,
+    "PATCH",
+    props.section.type === "RESEARCH"
+      ? { status: answered(item) ? "TO_RESEARCH" : "ANSWERED" }
+      : { isCompleted: !item.isCompleted },
+  );
+}
 const shownItems = computed(() =>
   props.review &&
   !props.readOnly &&
@@ -107,24 +155,25 @@ async function saveRename() {
 </script>
 <template>
   <section
-    :id="`section-${section.id}`"
-    class="prep-panel scroll-mt-24"
+    ref="root"
+    :id="anchor === false ? undefined : `section-${section.id}`"
+    :class="notebook ? 'scroll-mt-36' : 'prep-panel scroll-mt-24'"
     :aria-label="section.title"
   >
     <header
       class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 dark:border-white/10"
     >
       <div class="min-w-0">
-        <p class="text-xs text-slate-500">
+        <p v-if="!notebook" class="text-xs text-slate-500">
           {{ t(`prephub.${section.type}`)
           }}<span v-if="trackable">
             · {{ completed }}/{{ section.items.length }}</span
           >
         </p>
-        <h2 class="break-words text-base font-semibold">{{ section.title }}</h2>
+        <h2 class="break-words text-sm font-semibold">{{ section.title }}</h2>
       </div>
       <div
-        v-if="!review && !readOnly"
+        v-if="!review && !readOnly && !notebook"
         class="flex items-center"
         :class="{ 'pointer-events-none opacity-50': busy }"
       >
@@ -168,33 +217,36 @@ async function saveRename() {
       <li v-for="(item, index) in shownItems" :key="item.id" class="py-3">
         <div class="flex items-start gap-2">
           <label
-            v-if="trackable && !review && !readOnly"
+            v-if="
+              (trackable || (notebook && section.type === 'RESEARCH')) &&
+              !review &&
+              !readOnly
+            "
             class="grid size-11 shrink-0 cursor-pointer place-items-center"
           >
             <input
               type="checkbox"
               class="size-5"
-              :checked="item.isCompleted"
+              :checked="answered(item)"
               :disabled="busy"
-              :aria-label="`${t('prephub.complete')}: ${item.title}`"
-              @change="
-                mutate(`${base}/items/${item.id}`, 'PATCH', {
-                  isCompleted: !item.isCompleted,
-                })
-              "
+              :aria-label="`${t(['QUESTIONS', 'RESEARCH'].includes(section.type) ? 'prephub.notebook.markAnswered' : 'prephub.complete')}: ${item.title}`"
+              @change="toggleItem(item)"
           /></label>
           <span
-            v-if="trackable && readOnly"
+            v-if="
+              (trackable || (notebook && section.type === 'RESEARCH')) &&
+              readOnly
+            "
             class="grid size-11 shrink-0 place-items-center"
-            :class="item.isCompleted ? 'text-emerald-600' : 'text-slate-400'"
+            :class="answered(item) ? 'text-emerald-600' : 'text-slate-400'"
           >
             <component
-              :is="item.isCompleted ? Check : Circle"
+              :is="answered(item) ? Check : Circle"
               class="size-5"
               aria-hidden="true"
             /><span class="sr-only">{{
               t(
-                item.isCompleted
+                answered(item)
                   ? "prephub.completedRequirements"
                   : "prephub.remaining",
               )
@@ -206,19 +258,81 @@ async function saveRename() {
             >{{ index + 1 }}.</span
           >
           <div class="min-w-0 flex-1">
+            <form
+              v-if="editingTitle === item.id"
+              class="space-y-2"
+              @submit.prevent="saveInlineTitle(item)"
+              @keydown.esc.stop.prevent="endTitleEdit(item.id)"
+            >
+              <label class="sr-only" :for="`edit-${item.id}`">{{
+                t("prephub.notebook.task")
+              }}</label
+              ><input
+                :id="`edit-${item.id}`"
+                :ref="(el) => (titleInput = el as HTMLInputElement | null)"
+                v-model="draftTitle"
+                class="prep-input"
+                required
+                maxlength="300"
+                :disabled="busy"
+              />
+              <div class="flex gap-2">
+                <button
+                  class="prep-button"
+                  :disabled="busy || !draftTitle.trim()"
+                >
+                  {{ t("prephub.save") }}</button
+                ><button
+                  type="button"
+                  class="prep-button"
+                  :disabled="busy"
+                  @click="endTitleEdit(item.id)"
+                >
+                  {{ t("prephub.cancel") }}
+                </button>
+              </div>
+            </form>
+            <button
+              v-else-if="notebook && simpleTasks && !readOnly && !review"
+              type="button"
+              class="min-h-11 w-full break-words text-left text-sm font-medium"
+              :class="{ 'line-through opacity-60': item.isCompleted }"
+              :disabled="busy"
+              :aria-label="`${t('prephub.edit')}: ${item.title}`"
+              :data-prep-task-title="item.id"
+              @click="startTitleEdit(item)"
+            >
+              {{ item.title }}
+            </button>
             <h3
-              class="break-words font-medium"
+              v-else
+              class="break-words text-sm font-medium"
               :class="{
-                'line-through opacity-60': trackable && item.isCompleted,
+                'line-through opacity-60':
+                  (notebook ? simpleTasks : trackable) && item.isCompleted,
               }"
             >
               {{ item.title }}
             </h3>
             <p
+              v-if="notebook && simpleTasks && !item.isRequired"
+              class="text-xs text-slate-400"
+            >
+              {{ t("prephub.notebook.optionalTask") }}
+            </p>
+            <p
               v-if="section.type === 'RESEARCH'"
               class="mt-1 text-xs font-medium text-sky-700 dark:text-sky-300"
             >
-              {{ t(`prephub.${item.status}`) }}
+              {{
+                notebook
+                  ? t(
+                      answered(item)
+                        ? "prephub.ANSWERED"
+                        : "prephub.notebook.unanswered",
+                    )
+                  : t(`prephub.${item.status}`)
+              }}
             </p>
             <p
               v-if="item.dueAt"
@@ -283,9 +397,47 @@ async function saveRename() {
                 </div>
               </div></template
             >
+            <button
+              v-if="
+                notebook &&
+                !readOnly &&
+                !review &&
+                ['QUESTIONS', 'RESEARCH'].includes(section.type)
+              "
+              type="button"
+              class="min-h-11 text-left text-sm font-semibold text-sky-700 dark:text-sky-300"
+              :disabled="busy"
+              @click="editor = item"
+            >
+              {{
+                t(
+                  section.type === "RESEARCH"
+                    ? "prephub.notebook.editFindings"
+                    : item.content
+                      ? "prephub.notebook.editAnswer"
+                      : "prephub.notebook.addAnswer",
+                )
+              }}
+            </button>
           </div>
+          <PrepItemActions
+            v-if="notebook && !readOnly && !review"
+            :title="item.title"
+            :busy="busy"
+            :first="index === 0"
+            :last="index === section.items.length - 1"
+            @edit="editor = item"
+            @up="moveItem(item.id, -1)"
+            @down="moveItem(item.id, 1)"
+            @remove="
+              confirm(() => mutate(`${base}/items/${item.id}`, 'DELETE'))
+            "
+          />
         </div>
-        <div v-if="!review && !readOnly" class="mt-2 flex justify-end">
+        <div
+          v-if="!review && !readOnly && !notebook"
+          class="mt-2 flex justify-end"
+        >
           <div
             :id="`${section.id}-${item.id}-actions`"
             class="items-center"
@@ -404,7 +556,7 @@ async function saveRename() {
     >
       {{ t("prephub.emptySection") }}
     </p>
-    <template v-if="!review && !readOnly"
+    <template v-if="!review && !readOnly && !notebook"
       ><div v-if="section.type === 'ATTACHMENTS'" class="mt-3">
         <label class="prep-label"
           >{{ t("prephub.upload")
@@ -442,6 +594,7 @@ async function saveRename() {
         :item="editor ?? undefined"
         :time-zone="timeZone"
         :busy="busy"
+        :simple="notebook"
         :submit="saveItem"
         @cancel="editor = undefined"
     /></PrepDialog>

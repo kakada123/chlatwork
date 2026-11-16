@@ -14,6 +14,9 @@ export class ControlNode extends EventTarget {
     super();
     this.tag = tag;
   }
+  getRootNode() {
+    return document;
+  }
   get type() {
     return this.props.type;
   }
@@ -69,6 +72,7 @@ export class ControlNode extends EventTarget {
   showPopover() {}
   hidePopover() {}
 }
+class ControlDocument extends EventTarget {}
 class InputNode extends ControlNode {}
 class TextareaNode extends ControlNode {}
 export const controlRenderer = createRenderer<ControlNode, ControlNode>({
@@ -136,7 +140,9 @@ export function installControlDocument() {
       innerHeight: 740,
       innerWidth: 375,
     }),
-    document: Object.assign(new EventTarget(), {
+    Document: ControlDocument,
+    ShadowRoot: class {},
+    document: Object.assign(new ControlDocument(), {
       documentElement: { clientWidth: 375 },
       activeElement: null,
     }),

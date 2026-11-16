@@ -1,16 +1,34 @@
 <script setup lang="ts">
-import type { PrepList, PrepSubject, PrepType } from "~/lib/prephub";
+import {
+  notebookCaptureLabel,
+  type PrepList,
+  type PrepSubject,
+  type PrepType,
+} from "~/lib/prephub";
 import PrepDialog from "./PrepDialog.vue";
 import PrepItemForm from "./PrepItemForm.vue";
 const props = defineProps<{
   open: boolean;
+  initialType?: PrepType;
+  targetSectionId?: string;
+  simple?: boolean;
   subject?: PrepSubject;
   timeZone: string;
 }>();
-const emit = defineEmits<{ close: []; saved: [] }>();
+const emit = defineEmits<{ close: []; saved: [sectionId?: string] }>();
 const { t } = useAppI18n();
 const { request, busy, error, fail, owner } = usePrepHub();
-const type = ref<PrepType>("NOTES");
+const type = ref<PrepType>(props.initialType ?? "NOTES");
+const typeOptions = computed(() => [
+  ...new Set<PrepType>([
+    "CHECKLIST",
+    "NOTES",
+    "ATTACHMENTS",
+    "LINKS",
+    "QUESTIONS",
+    ...(props.initialType ? [props.initialType] : ["RESEARCH" as const]),
+  ]),
+]);
 const selected = ref("");
 const query = ref("");
 const subjects = ref<PrepSubject[]>([]);
@@ -39,6 +57,7 @@ watch(
     error.value = "";
     selected.value = props.subject?.id ?? "";
     file.value = undefined;
+    type.value = props.initialType ?? "NOTES";
     if (!props.subject) void search();
   },
 );
@@ -57,7 +76,16 @@ async function capture(body: Record<string, unknown> = {}) {
   error.value = "";
   try {
     const subject = await request<PrepSubject>(`/subjects/${selected.value}`);
-    let section = subject.sections.find((s) => s.type === type.value);
+    if (
+      type.value === "ATTACHMENTS" &&
+      (!file.value || !file.value.size || file.value.size > 5 * 1024 * 1024)
+    )
+      throw new Error(t("prephub.fileHint"));
+    // An explicit section context wins; changing capture type falls back to a matching section.
+    let section =
+      subject.sections.find(
+        (s) => s.id === props.targetSectionId && s.type === type.value,
+      ) ?? subject.sections.find((s) => s.type === type.value);
     if (!section)
       section = await request(`/subjects/${selected.value}/sections`, {
         method: "POST",
@@ -65,13 +93,11 @@ async function capture(body: Record<string, unknown> = {}) {
       });
     const base = `/subjects/${selected.value}/sections/${section!.id}`;
     if (type.value === "ATTACHMENTS") {
-      if (!file.value || !file.value.size || file.value.size > 5 * 1024 * 1024)
-        throw new Error(t("prephub.fileHint"));
       const form = new FormData();
       form.append("file", file.value);
       await request(`${base}/resources`, { method: "POST", body: form });
     } else await request(`${base}/items`, { method: "POST", body });
-    emit("saved");
+    emit("saved", section!.id);
     emit("close");
     return true;
   } catch (e) {
@@ -85,7 +111,7 @@ async function capture(body: Record<string, unknown> = {}) {
 <template>
   <PrepDialog
     :open="open"
-    :title="t('prephub.quickCapture')"
+    :title="simple ? t(notebookCaptureLabel(type)) : t('prephub.quickCapture')"
     :busy="busy"
     @close="emit('close')"
   >
@@ -115,18 +141,8 @@ async function capture(body: Record<string, unknown> = {}) {
       <label class="prep-label"
         >{{ t("prephub.captureType")
         }}<ModernSelect v-model="type" class="mt-1 w-full" :disabled="busy">
-          <option
-            v-for="v in [
-              'NOTES',
-              'CHECKLIST',
-              'LINKS',
-              'RESEARCH',
-              'ATTACHMENTS',
-            ] as const"
-            :key="v"
-            :value="v"
-          >
-            {{ t(`prephub.${v}`) }}
+          <option v-for="v in typeOptions" :key="v" :value="v">
+            {{ t(notebookCaptureLabel(v)) }}
           </option>
         </ModernSelect></label
       >
@@ -158,6 +174,7 @@ async function capture(body: Record<string, unknown> = {}) {
           :type="type"
           :time-zone="timeZone"
           :busy="busy"
+          :simple="simple"
           :submit="capture"
           @cancel="emit('close')"
       /></template>

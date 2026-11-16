@@ -7,6 +7,7 @@ import {
 } from "~/lib/prephub";
 const props = defineProps<{
   type: PrepType;
+  simple?: boolean;
   item?: PrepItem;
   timeZone: string;
   busy?: boolean;
@@ -53,32 +54,41 @@ async function save() {
         autofocus
     /></label>
     <template v-if="type === 'RESEARCH'">
-      <label class="prep-label"
-        >{{ t("prephub.objective")
-        }}<textarea
-          v-model="form.objective"
-          class="prep-input"
-          maxlength="4000"
-          rows="2"
-        />
-      </label>
-      <label class="prep-label"
-        >{{ t("prephub.status")
-        }}<ModernSelect v-model="form.status" class="mt-1 w-full">
-          <option
-            v-for="v in [
-              'TO_RESEARCH',
-              'RESEARCHING',
-              'ANSWERED',
-              'NEEDS_VERIFICATION',
-            ]"
-            :key="v"
-            :value="v"
+      <details>
+        <summary
+          class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+        >
+          {{ t("prephub.notebook.researchDetails") }}
+        </summary>
+        <div class="space-y-4 pb-3">
+          <label class="prep-label"
+            >{{ t("prephub.objective")
+            }}<textarea
+              v-model="form.objective"
+              class="prep-input"
+              maxlength="4000"
+              rows="2"
+            />
+          </label>
+          <label class="prep-label"
+            >{{ t("prephub.status")
+            }}<ModernSelect v-model="form.status" class="mt-1 w-full">
+              <option
+                v-for="v in [
+                  'TO_RESEARCH',
+                  'RESEARCHING',
+                  'ANSWERED',
+                  'NEEDS_VERIFICATION',
+                ]"
+                :key="v"
+                :value="v"
+              >
+                {{ t(`prephub.${v}`) }}
+              </option>
+            </ModernSelect></label
           >
-            {{ t(`prephub.${v}`) }}
-          </option>
-        </ModernSelect></label
-      >
+        </div>
+      </details>
       <label class="prep-label"
         >{{ t("prephub.findings")
         }}<textarea
@@ -133,25 +143,32 @@ async function save() {
       />
     </label>
     <p class="text-xs text-slate-500">{{ t("prephub.formatting") }}</p>
-    <template v-if="['CHECKLIST', 'DELIVERABLES'].includes(type)"
-      ><label class="prep-label"
-        >{{ t("prephub.dueAt")
-        }}<ModernDateInput
-          v-model="form.dueAt"
-          type="datetime-local"
-          class="mt-1 w-full"
-        /><span class="text-xs text-slate-500">{{ timeZone }}</span></label
-      ><label class="flex min-h-11 items-center gap-2 text-sm"
-        ><input v-model="form.isRequired" type="checkbox" class="size-5" />{{
-          t("prephub.required")
-        }}</label
-      ></template
-    >
+    <details v-if="['CHECKLIST', 'DELIVERABLES'].includes(type)">
+      <summary
+        class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+      >
+        {{ t("prephub.notebook.taskOptions") }}
+      </summary>
+      <div class="space-y-3 pb-3">
+        <label class="prep-label"
+          >{{ t("prephub.dueAt")
+          }}<ModernDateInput
+            v-model="form.dueAt"
+            type="datetime-local"
+            class="mt-1 w-full"
+          /><span class="text-xs text-slate-500">{{ timeZone }}</span></label
+        ><label class="flex min-h-11 items-center gap-2 text-sm"
+          ><input v-model="form.isRequired" type="checkbox" class="size-5" />{{
+            t("prephub.required")
+          }}</label
+        >
+      </div>
+    </details>
     <label
       v-if="['CHECKLIST', 'DELIVERABLES', 'QUESTIONS'].includes(type)"
       class="flex min-h-11 items-center gap-2 text-sm"
       ><input v-model="form.isCompleted" type="checkbox" class="size-5" />{{
-        t("prephub.complete")
+        t(type === "QUESTIONS" ? "prephub.ANSWERED" : "prephub.complete")
       }}</label
     >
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>

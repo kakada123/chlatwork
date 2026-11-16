@@ -20,3 +20,6 @@
 .prephub input[type="checkbox"] {
   @apply accent-sky-700;
 }
+.prephub .prep-menu-item {
+  @apply flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10;
+}
