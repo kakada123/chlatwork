@@ -155,6 +155,55 @@ test("changing a filter from a later page requests the first page only once", as
   assert.equal(calls[0].category, "RESEARCH");
 });
 
+test("selecting a clipped category reveals it horizontally without moving a fully visible chip", () => {
+  const page = load(
+    "app/pages/prephub/index.vue",
+    hub(async () => ({ subjects: [], total: 0 })),
+  ).setup({}, { expose() {} });
+  const scrolls: any[] = [];
+  const strip = {
+    getBoundingClientRect: () => ({ left: 100, right: 500 }),
+    scrollBy: (options: any) => scrolls.push(options),
+  };
+  let bounds = { left: 440, right: 620 };
+  const event = {
+    currentTarget: {
+      parentElement: strip,
+      getBoundingClientRect: () => bounds,
+    },
+  };
+  page.selectCategory("TRAVEL", event);
+  assert.equal(page.category.value, "TRAVEL");
+  assert.deepEqual(scrolls, [{ left: 128, behavior: "smooth" }]);
+  bounds = { left: 60, right: 240 };
+  page.selectCategory("", event);
+  assert.deepEqual(scrolls[1], { left: -48, behavior: "smooth" });
+  bounds = { left: 120, right: 300 };
+  page.selectCategory("RESEARCH", event);
+  assert.equal(scrolls.length, 2);
+});
+
+test("category scrolling respects reduced motion", (context) => {
+  const restore = installControlDocument();
+  context.after(restore);
+  Object.assign(window, { matchMedia: () => ({ matches: true }) });
+  const page = load(
+    "app/pages/prephub/index.vue",
+    hub(async () => ({ subjects: [], total: 0 })),
+  ).setup({}, { expose() {} });
+  const scrolls: any[] = [];
+  page.selectCategory("TRAVEL", {
+    currentTarget: {
+      getBoundingClientRect: () => ({ left: 280, right: 440 }),
+      parentElement: {
+        getBoundingClientRect: () => ({ left: 0, right: 320 }),
+        scrollBy: (options: any) => scrolls.push(options),
+      },
+    },
+  });
+  assert.deepEqual(scrolls, [{ left: 128, behavior: "auto" }]);
+});
+
 const subject = {
   id: "research",
   title: "Offline research",

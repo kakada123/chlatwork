@@ -10,6 +10,7 @@ const props = defineProps<{
   busy: boolean;
   mutate: PrepMutation;
   confirm: (action: () => Promise<boolean>) => void;
+  embedded?: boolean;
 }>();
 const { t } = useAppI18n();
 const choice = ref("60");
@@ -51,12 +52,12 @@ function date(value: string) {
 }
 </script>
 <template>
-  <section class="prep-panel">
-    <h2 class="font-semibold">{{ t("prephub.reminders") }}</h2>
-    <p class="mt-2 text-xs text-slate-500">
+  <section :class="embedded ? 'pb-3' : 'prep-panel'">
+    <h2 v-if="!embedded" class="font-semibold">{{ t("prephub.reminders") }}</h2>
+    <p class="text-xs text-slate-500" :class="{ 'mt-2': !embedded }">
       {{ t("prephub.reminderHint", { timeZone }) }}
     </p>
-    <ul class="mt-3 space-y-2">
+    <ul v-if="subject.reminders.length" class="mt-3 space-y-2">
       <li
         v-for="r in subject.reminders"
         :key="r.id"

@@ -80,11 +80,43 @@
 .prephub .prep-area-icon--questions {
   @apply bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300;
 }
-.prephub .prep-checklist-progress {
-  @apply flex min-h-11 min-w-0 items-center gap-3 rounded-xl border border-slate-200 px-3 text-xs font-medium text-slate-600 sm:w-72 sm:shrink-0 dark:border-white/10 dark:text-white/70;
+.prephub .prep-checklist-heading {
+  @apply mb-3 flex-row items-center justify-between;
 }
-.prephub .prep-checklist-progress > span {
-  @apply shrink-0;
+.prephub .prep-checklist-progress {
+  @apply mb-3 block h-1.5 w-full appearance-none overflow-hidden rounded-full border-0 bg-slate-200 dark:bg-white/10;
+}
+.prephub .prep-checklist-progress::-webkit-progress-bar {
+  @apply rounded-full bg-slate-200 dark:bg-white/10;
+}
+.prephub .prep-checklist-progress::-webkit-progress-value {
+  @apply rounded-full bg-slate-950 dark:bg-neutral-200;
+}
+.prephub .prep-checklist-progress::-moz-progress-bar {
+  @apply rounded-full bg-slate-950 dark:bg-neutral-200;
+}
+.prephub .prep-checklist-item {
+  @apply py-0.5;
+}
+.prephub .prep-checklist-title {
+  @apply min-h-11 w-full content-center break-words text-left text-base leading-relaxed;
+  /* Read-only titles use headings but should have the same weight as editable task text. */
+  font-weight: 400 !important;
+}
+.prephub .prep-check-input {
+  @apply size-5 cursor-pointer appearance-none rounded-full border border-slate-400 bg-transparent checked:border-slate-950 checked:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-500 disabled:cursor-wait disabled:opacity-50 dark:border-white/40 dark:checked:border-white dark:checked:bg-white;
+}
+.prephub .prep-check-mark {
+  @apply pointer-events-none absolute left-1/2 top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 dark:text-neutral-950;
+}
+.prephub .prep-check-input:checked + .prep-check-mark {
+  @apply opacity-100;
+}
+.prephub .prep-check-static {
+  @apply grid size-5 place-items-center rounded-full border border-slate-400 dark:border-white/40;
+}
+.prephub .prep-check-static--done {
+  @apply border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-neutral-950;
 }
 .prephub .prep-task-entry {
   @apply mt-3 flex items-center gap-2;

@@ -56,6 +56,9 @@ const editingTitle = ref<string | null>(null),
 const simpleTasks = computed(() =>
   ["CHECKLIST", "DELIVERABLES"].includes(props.section.type),
 );
+const compactChecklist = computed(
+  () => props.notebook && props.section.type === "CHECKLIST",
+);
 async function startTitleEdit(item: PrepItem) {
   if (props.busy || props.readOnly || props.review) return;
   editingTitle.value = item.id;
@@ -266,22 +269,26 @@ async function saveRename() {
     </header>
     <ol
       :class="
-        notebook && section.type === 'DELIVERABLES'
-          ? 'prep-deliverable-grid'
-          : notebook && ['LINKS', 'NOTES'].includes(section.type)
-            ? 'space-y-2'
-            : 'divide-y divide-slate-100 dark:divide-white/10'
+        compactChecklist
+          ? 'prep-checklist-items'
+          : notebook && section.type === 'DELIVERABLES'
+            ? 'prep-deliverable-grid'
+            : notebook && ['LINKS', 'NOTES'].includes(section.type)
+              ? 'space-y-2'
+              : 'divide-y divide-slate-100 dark:divide-white/10'
       "
     >
       <li
         v-for="(item, index) in shownItems"
         :key="item.id"
         :class="
-          notebook && section.type === 'DELIVERABLES'
-            ? 'prep-deliverable-row'
-            : notebook && ['LINKS', 'NOTES'].includes(section.type)
-              ? 'prep-material-row'
-              : 'py-3'
+          compactChecklist
+            ? 'prep-checklist-item'
+            : notebook && section.type === 'DELIVERABLES'
+              ? 'prep-deliverable-row'
+              : notebook && ['LINKS', 'NOTES'].includes(section.type)
+                ? 'prep-material-row'
+                : 'py-3'
         "
       >
         <div class="flex items-start gap-2">
@@ -305,14 +312,19 @@ async function saveRename() {
               !readOnly
             "
             class="grid size-11 shrink-0 cursor-pointer place-items-center"
+            :class="{ relative: compactChecklist }"
           >
             <input
               type="checkbox"
-              class="size-5"
+              :class="compactChecklist ? 'prep-check-input' : 'size-5'"
               :checked="answered(item)"
               :disabled="busy"
               :aria-label="`${t(['QUESTIONS', 'RESEARCH'].includes(section.type) ? 'prephub.notebook.markAnswered' : 'prephub.complete')}: ${item.title}`"
-              @change="toggleItem(item)"
+              @change="toggleItem(item)" /><Check
+              v-if="compactChecklist"
+              class="prep-check-mark"
+              :stroke-width="3"
+              aria-hidden="true"
           /></label>
           <span
             v-if="
@@ -322,7 +334,19 @@ async function saveRename() {
             class="grid size-11 shrink-0 place-items-center"
             :class="answered(item) ? 'text-emerald-600' : 'text-slate-400'"
           >
-            <component
+            <span
+              v-if="compactChecklist"
+              class="prep-check-static"
+              :class="{ 'prep-check-static--done': answered(item) }"
+            >
+              <Check
+                v-if="answered(item)"
+                class="size-3.5"
+                :stroke-width="3"
+                aria-hidden="true"
+              /> </span
+            ><component
+              v-else
               :is="answered(item) ? Check : Circle"
               class="size-5"
               aria-hidden="true"
@@ -378,7 +402,11 @@ async function saveRename() {
               v-else-if="notebook && simpleTasks && !readOnly && !review"
               type="button"
               class="min-h-11 w-full break-words text-left text-sm font-medium"
-              :class="{ 'line-through opacity-60': item.isCompleted }"
+              :class="{
+                'prep-checklist-title': compactChecklist,
+                'line-through opacity-60':
+                  item.isCompleted && !compactChecklist,
+              }"
               :disabled="busy"
               :aria-label="`${t('prephub.edit')}: ${item.title}`"
               :data-prep-task-title="item.id"
@@ -390,8 +418,11 @@ async function saveRename() {
               v-else
               class="break-words text-sm font-medium"
               :class="{
+                'prep-checklist-title': compactChecklist,
                 'line-through opacity-60':
-                  (notebook ? simpleTasks : trackable) && item.isCompleted,
+                  !compactChecklist &&
+                  (notebook ? simpleTasks : trackable) &&
+                  item.isCompleted,
               }"
             >
               {{ item.title }}

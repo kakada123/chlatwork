@@ -47,6 +47,27 @@ const categoryTotal = computed(() =>
 function countText(count: number | undefined) {
   return count === undefined ? "—" : count > 999 ? "999+" : String(count);
 }
+function selectCategory(value: string, event: MouseEvent) {
+  category.value = value;
+  const button = event.currentTarget as HTMLElement;
+  const strip = button.parentElement;
+  if (!strip) return;
+  const bounds = button.getBoundingClientRect();
+  const viewport = strip.getBoundingClientRect();
+  const left = bounds.left - viewport.left - 8;
+  const right = bounds.right - viewport.right + 8;
+  const offset = left < 0 ? left : right > 0 ? right : 0;
+  if (!offset) return;
+  // Scroll only this strip so revealing a category never moves the page vertically.
+  strip.scrollBy({
+    left: offset,
+    behavior:
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+  });
+}
 const captureSubject = ref<PrepSubjectSummary | null>(null),
   captureType = ref<PrepType>("NOTES");
 const statIcons: Record<string, unknown> = {
@@ -338,7 +359,7 @@ function captured() {
         class="prep-category-chip"
         :class="{ 'prep-category-chip--selected': !category }"
         :aria-pressed="!category"
-        @click="category = ''"
+        @click="selectCategory('', $event)"
       >
         {{ t("prephub.ALL")
         }}<span
@@ -357,7 +378,7 @@ function captured() {
         class="prep-category-chip"
         :class="{ 'prep-category-chip--selected': category === value }"
         :aria-pressed="category === value"
-        @click="category = value"
+        @click="selectCategory(value, $event)"
       >
         <PrepCategoryIcon :category="value" class="size-4 shrink-0" />{{
           t(`prephub.${value}`)

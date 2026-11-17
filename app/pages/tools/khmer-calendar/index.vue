@@ -467,7 +467,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main ref="calendarRoot" class="khmer-calendar" :class="{ 'is-roster': calendarMode === 'roster' }" :lang="(khmer ? 'km' : 'en')">
+  <main ref="calendarRoot" class="khmer-calendar" :class="{ 'is-roster': calendarMode === 'roster', 'has-product-header': Boolean(calendarProduct) }" :lang="(khmer ? 'km' : 'en')">
     <header class="calendar-header">
       <div class="brand-row">
         <NuxtLink v-if="!calendarProduct" to="/tools" class="back-link"
@@ -2584,9 +2584,15 @@ summary:focus-visible {
 .calendar-resources { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; }
 .calendar-resource > summary { cursor: pointer; color: var(--muted); font-size: 12px; padding: 8px 0; }
 .calendar-resource-panel { padding: 8px 0; }
+/* The shared product header replaces the breadcrumb, so the remaining controls use two natural-width groups. */
+.has-product-header .brand-row { display: flex; justify-content: space-between; }
+.has-product-header .calendar-mode-switch { flex: 0 1 auto; min-width: 0; }
+.has-product-header .header-actions { margin-left: auto; flex-shrink: 0; }
 @media (min-width: 851px) {
   /* Fit the whole month to the desktop window; optional detail panels keep their own scroll. */
   .khmer-calendar { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  /* Native fullscreen hides the outer header and still needs the entire viewport. */
+  .khmer-calendar.has-product-header:not(:fullscreen) { height: calc(100dvh - var(--product-header-height, 4rem)); }
   .calendar-header { flex: none; padding: 5px 16px; }
   .brand-row { margin: 0; }
   .title-row { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

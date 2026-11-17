@@ -38,6 +38,9 @@ const loading = ref(true);
 const shareOpen = ref(false),
   moreOpen = ref(false),
   reminderOpen = ref(false);
+type SettingsPanel =
+  "status" | "reminders" | "progress" | "sections" | "history";
+const settingsPanel = ref<SettingsPanel | null>(null);
 const sectionEditorId = ref<string | null>(null);
 const activeType = ref<PrepType>("CHECKLIST"),
   captureType = ref<PrepType>("NOTES"),
@@ -251,6 +254,19 @@ async function loadHistory(page = 1) {
     historyBusy.value = false;
   }
 }
+function toggleSettings(panel: SettingsPanel) {
+  // Keep the menu focused on one task instead of growing into a long stacked form.
+  settingsPanel.value = settingsPanel.value === panel ? null : panel;
+  if (
+    settingsPanel.value === "history" &&
+    !historyOpen.value &&
+    !historyBusy.value
+  )
+    void loadHistory();
+}
+watch(moreOpen, (open) => {
+  if (!open) settingsPanel.value = null;
+});
 watch(
   () => props.id,
   () => {
@@ -430,19 +446,20 @@ onBeforeUnmount(() => {
               }}</NuxtLink
             >
           </div>
-          <details>
+          <details :open="settingsPanel === 'status'">
             <summary
               class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+              @click.prevent="toggleSettings('status')"
             >
               {{ t("prephub.status") }}
             </summary>
             <form
-              class="space-y-3 pb-3"
+              class="grid items-end gap-2 pb-3 sm:grid-cols-[minmax(0,1fr)_auto]"
               @submit.prevent="mutate('', 'PATCH', { status: statusValue })"
             >
               <label class="prep-label"
-                >{{ t("prephub.status")
-                }}<ModernSelect
+                ><span class="sr-only">{{ t("prephub.status") }}</span
+                ><ModernSelect
                   v-model="statusValue"
                   class="mt-1 w-full"
                   :disabled="busy"
@@ -464,13 +481,15 @@ onBeforeUnmount(() => {
               </button>
             </form>
           </details>
-          <details>
+          <details :open="settingsPanel === 'reminders'">
             <summary
               class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+              @click.prevent="toggleSettings('reminders')"
             >
               {{ t("prephub.reminders") }}
             </summary>
             <PrepReminders
+              embedded
               :subject="subject"
               :time-zone="timeZone"
               :busy="busy"
@@ -478,9 +497,10 @@ onBeforeUnmount(() => {
               :confirm="confirm"
             />
           </details>
-          <details>
+          <details :open="settingsPanel === 'progress'">
             <summary
               class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+              @click.prevent="toggleSettings('progress')"
             >
               {{ t("prephub.notebook.advancedProgress") }}
             </summary>
@@ -488,7 +508,9 @@ onBeforeUnmount(() => {
               {{ t("prephub.notebook.progressHelp") }}
               {{ t("prephub.readyHint") }}
             </p>
-            <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dl
+              class="divide-y divide-slate-100 pb-3 text-sm dark:divide-white/10"
+            >
               <div
                 v-for="metric in [
                   'remaining',
@@ -498,12 +520,12 @@ onBeforeUnmount(() => {
                   'missingDeliverables',
                 ] as const"
                 :key="metric"
-                class="rounded-lg bg-slate-50 p-2 dark:bg-white/5"
+                class="flex items-center justify-between gap-3 py-2"
               >
                 <dt class="text-xs text-slate-500">
                   {{ t(`prephub.${metric}`) }}
                 </dt>
-                <dd class="font-semibold">
+                <dd class="font-semibold tabular-nums">
                   {{
                     subject.progress[
                       metric === "overdueItems" ? "overdue" : metric
@@ -513,9 +535,10 @@ onBeforeUnmount(() => {
               </div>
             </dl>
           </details>
-          <details>
+          <details :open="settingsPanel === 'sections'">
             <summary
               class="min-h-11 cursor-pointer content-center text-sm font-semibold"
+              @click.prevent="toggleSettings('sections')"
             >
               {{ t("prephub.notebook.customSections") }}
             </summary>
@@ -562,10 +585,10 @@ onBeforeUnmount(() => {
               {{ t("prephub.addSection") }}
             </button>
           </details>
-          <details>
+          <details :open="settingsPanel === 'history'">
             <summary
               class="min-h-11 cursor-pointer content-center text-sm font-semibold"
-              @click="!historyOpen && !historyBusy && loadHistory()"
+              @click.prevent="toggleSettings('history')"
             >
               {{ t("prephub.history") }}
             </summary>

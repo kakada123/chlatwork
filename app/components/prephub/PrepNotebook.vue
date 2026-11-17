@@ -100,19 +100,32 @@ defineExpose({ focusTask });
         class="prep-panel prep-notebook-area scroll-mt-36"
         :aria-label="t(`prephub.notebook.${area.key}`)"
       >
-        <div class="prep-area-heading">
+        <div
+          class="prep-area-heading"
+          :class="{ 'prep-checklist-heading': area.key === 'checklist' }"
+        >
           <div class="flex min-w-0 items-center gap-3">
-            <span class="prep-area-icon" :class="`prep-area-icon--${area.key}`"
+            <span
+              v-if="area.key !== 'checklist'"
+              class="prep-area-icon"
+              :class="`prep-area-icon--${area.key}`"
               ><component
                 :is="area.icon"
                 class="size-5 sm:size-6"
                 aria-hidden="true"
             /></span>
             <div class="min-w-0">
-              <h2 class="text-lg font-bold sm:text-xl">
+              <h2
+                :class="
+                  area.key === 'checklist'
+                    ? 'text-sm font-medium text-slate-600 dark:text-white/70'
+                    : 'text-lg font-bold sm:text-xl'
+                "
+              >
                 {{ t(`prephub.notebook.${area.key}`) }}
               </h2>
               <p
+                v-if="area.key !== 'checklist' || review"
                 class="mt-0.5 text-sm leading-relaxed text-slate-500 dark:text-white/60"
               >
                 {{
@@ -129,20 +142,14 @@ defineExpose({ focusTask });
           </div>
           <div
             v-if="area.key === 'checklist' && progress?.total"
-            class="prep-checklist-progress"
+            class="shrink-0 text-xs font-medium tabular-nums text-slate-500 dark:text-white/60"
           >
             <span>{{
               t("prephub.visual.completedCount", {
                 completed: progress.completed,
                 total: progress.total,
               })
-            }}</span
-            ><progress
-              :value="progress.completed"
-              :max="progress.total"
-              :aria-label="t('prephub.notebook.preparation')"
-              class="h-2 min-w-0 flex-1 accent-sky-700"
-            /><strong>{{ progress.percent }}%</strong>
+            }}</span>
           </div>
           <p
             v-else-if="area.key === 'checklist' && progress"
@@ -157,6 +164,13 @@ defineExpose({ focusTask });
             }}
           </p>
         </div>
+        <progress
+          v-if="area.key === 'checklist' && progress?.total"
+          :value="progress.completed"
+          :max="progress.total"
+          :aria-label="t('prephub.notebook.preparation')"
+          class="prep-checklist-progress"
+        />
         <div class="space-y-4">
           <div
             v-for="section in content[area.key]"

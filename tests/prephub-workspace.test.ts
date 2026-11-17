@@ -21,7 +21,8 @@ function component(name: string, hub: any = {}) {
       },
     },
   ).outputText;
-  const globals = { useProductDomain: () => ({ linkTo: (path: string) => path }),
+  const globals = {
+    useProductDomain: () => ({ linkTo: (path: string) => path }),
     ...vue,
     onMounted() {},
     onBeforeUnmount() {},
@@ -42,6 +43,33 @@ function component(name: string, hub: any = {}) {
 function setup(name: string, props: any, hub?: any) {
   return component(name, hub).setup(props, { expose() {}, emit() {} });
 }
+
+test("workspace settings open one panel at a time and reset when the dialog closes", async () => {
+  const workspace = setup(
+    "PrepWorkspace",
+    { id: "subject" },
+    {
+      request: async () => [],
+      owner: vue.ref("owner"),
+      error: vue.ref(""),
+      busy: vue.ref(false),
+      feedback: vue.ref(""),
+      timeZone: vue.ref("Asia/Phnom_Penh"),
+    },
+  );
+  workspace.moreOpen.value = true;
+  await vue.nextTick();
+  workspace.toggleSettings("status");
+  assert.equal(workspace.settingsPanel.value, "status");
+  workspace.toggleSettings("reminders");
+  assert.equal(workspace.settingsPanel.value, "reminders");
+  workspace.toggleSettings("reminders");
+  assert.equal(workspace.settingsPanel.value, null);
+  workspace.toggleSettings("progress");
+  workspace.moreOpen.value = false;
+  await vue.nextTick();
+  assert.equal(workspace.settingsPanel.value, null);
+});
 
 test("research editor explicitly saves findings, references, conclusion and multiline notes", async () => {
   let saved: any;
