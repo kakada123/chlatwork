@@ -5,6 +5,7 @@ const props = defineProps<{
   title: string;
   busy?: boolean;
   error?: string;
+  compact?: boolean;
 }>();
 const emit = defineEmits<{ close: [] }>();
 const { t } = useAppI18n();
@@ -38,7 +39,8 @@ onBeforeUnmount(() => {
   <dialog
     ref="dialog"
     :aria-labelledby="titleId"
-    class="prep-dialog m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 shadow-xl backdrop:bg-slate-950/60 dark:border-white/15 dark:bg-neutral-950 dark:text-white"
+    class="prep-dialog m-auto max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-xl backdrop:bg-slate-950/60 dark:border-white/15 dark:bg-neutral-950 dark:text-white"
+    :class="compact ? 'max-w-md p-4' : 'max-w-xl p-5'"
     @cancel.prevent="!busy && emit('close')"
   >
     <div class="mb-4 flex items-center justify-between gap-3">

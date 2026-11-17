@@ -406,30 +406,33 @@ onBeforeUnmount(() => {
       /></PrepDialog>
       <PrepDialog
         :open="moreOpen"
+        compact
         :error="error"
         :title="t('prephub.notebook.moreSettings')"
         @close="moreOpen = false"
       >
-        <div class="space-y-4">
-          <button
-            type="button"
-            class="prep-button w-full"
-            :disabled="busy"
-            @click="edit = true"
-          >
-            {{ t("prephub.notebook.editSubject") }}
-          </button>
-          <NuxtLink
-            :to="linkTo(review ? `/prephub/${id}` : `/prephub/${id}/review`)"
-            class="prep-button w-full"
-            @click="moreOpen = false"
-            ><ClipboardCheck class="size-4" aria-hidden="true" />{{
-              t(review ? "prephub.workspace" : "prephub.review")
-            }}</NuxtLink
-          >
+        <div class="prep-settings">
+          <div class="mb-3 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              class="prep-button w-full"
+              :disabled="busy"
+              @click="edit = true"
+            >
+              {{ t("prephub.notebook.editSubject") }}
+            </button>
+            <NuxtLink
+              :to="linkTo(review ? `/prephub/${id}` : `/prephub/${id}/review`)"
+              class="prep-button w-full"
+              @click="moreOpen = false"
+              ><ClipboardCheck class="size-4" aria-hidden="true" />{{
+                t(review ? "prephub.workspace" : "prephub.review")
+              }}</NuxtLink
+            >
+          </div>
           <details>
             <summary
-              class="min-h-11 cursor-pointer content-center font-semibold"
+              class="min-h-11 cursor-pointer content-center text-sm font-semibold"
             >
               {{ t("prephub.status") }}
             </summary>
@@ -463,7 +466,7 @@ onBeforeUnmount(() => {
           </details>
           <details>
             <summary
-              class="min-h-11 cursor-pointer content-center font-semibold"
+              class="min-h-11 cursor-pointer content-center text-sm font-semibold"
             >
               {{ t("prephub.reminders") }}
             </summary>
@@ -477,7 +480,7 @@ onBeforeUnmount(() => {
           </details>
           <details>
             <summary
-              class="min-h-11 cursor-pointer content-center font-semibold"
+              class="min-h-11 cursor-pointer content-center text-sm font-semibold"
             >
               {{ t("prephub.notebook.advancedProgress") }}
             </summary>
@@ -512,7 +515,7 @@ onBeforeUnmount(() => {
           </details>
           <details>
             <summary
-              class="min-h-11 cursor-pointer content-center font-semibold"
+              class="min-h-11 cursor-pointer content-center text-sm font-semibold"
             >
               {{ t("prephub.notebook.customSections") }}
             </summary>
@@ -561,7 +564,7 @@ onBeforeUnmount(() => {
           </details>
           <details>
             <summary
-              class="min-h-11 cursor-pointer content-center font-semibold"
+              class="min-h-11 cursor-pointer content-center text-sm font-semibold"
               @click="!historyOpen && !historyBusy && loadHistory()"
             >
               {{ t("prephub.history") }}
@@ -593,9 +596,7 @@ onBeforeUnmount(() => {
               </button>
             </div>
           </details>
-          <div
-            class="flex flex-wrap gap-2 border-t border-slate-200 pt-4 dark:border-white/10"
-          >
+          <div class="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
               class="prep-button"

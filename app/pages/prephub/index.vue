@@ -34,7 +34,8 @@ const { request, owner, timeZone, error, busy, feedback, fail } = usePrepHub();
 const subjects = ref<PrepSubjectSummary[]>([]),
   total = ref(0),
   page = ref(1),
-  loading = ref(true);
+  loading = ref(true),
+  hasLoaded = ref(false);
 const pageSize = ref(20),
   categoryCounts = ref<Record<string, number> | null>(null);
 const categoryTotal = computed(() =>
@@ -43,6 +44,9 @@ const categoryTotal = computed(() =>
     0,
   ),
 );
+function countText(count: number | undefined) {
+  return count === undefined ? "—" : count > 999 ? "999+" : String(count);
+}
 const captureSubject = ref<PrepSubjectSummary | null>(null),
   captureType = ref<PrepType>("NOTES");
 const statIcons: Record<string, unknown> = {
@@ -87,6 +91,7 @@ async function load() {
     total.value = result.total;
     pageSize.value = result.limit || 20;
     categoryCounts.value = result.categoryCounts ?? null;
+    hasLoaded.value = true;
   } catch (e) {
     if (current === version) fail(e);
   } finally {
@@ -168,6 +173,8 @@ watch(owner, () => {
   version++;
   summaryVersion++;
   categoryCounts.value = null;
+  hasLoaded.value = false;
+  loading.value = Boolean(owner.value);
   captureSubject.value = null;
   subjects.value = [];
   dashboard.value = null;
@@ -249,7 +256,7 @@ function captured() {
             class="size-5 sm:size-6"
             aria-hidden="true" /></span
         ><span class="min-w-0"
-          ><strong class="block text-xl font-bold sm:text-2xl">{{
+          ><strong class="block text-xl font-bold tabular-nums sm:text-2xl">{{
             dashboard ? stat.count : "—"
           }}</strong
           ><span
@@ -334,8 +341,14 @@ function captured() {
         @click="category = ''"
       >
         {{ t("prephub.ALL")
-        }}<span v-if="categoryCounts && !loading"
-          >({{ categoryTotal }})</span
+        }}<span
+          class="prep-category-count"
+          :title="categoryCounts ? String(categoryTotal) : undefined"
+          ><span aria-hidden="true"
+            >({{ countText(categoryCounts ? categoryTotal : undefined) }})</span
+          ><span class="sr-only">{{
+            categoryCounts ? `(${categoryTotal})` : t("prephub.loading")
+          }}</span></span
         ></button
       ><button
         v-for="value in PREP_CATEGORIES"
@@ -348,8 +361,22 @@ function captured() {
       >
         <PrepCategoryIcon :category="value" class="size-4 shrink-0" />{{
           t(`prephub.${value}`)
-        }}<span v-if="categoryCounts && !loading"
-          >({{ categoryCounts[value] || 0 }})</span
+        }}<span
+          class="prep-category-count"
+          :title="
+            categoryCounts ? String(categoryCounts[value] || 0) : undefined
+          "
+          ><span aria-hidden="true"
+            >({{
+              countText(
+                categoryCounts ? categoryCounts[value] || 0 : undefined,
+              )
+            }})</span
+          ><span class="sr-only">{{
+            categoryCounts
+              ? `(${categoryCounts[value] || 0})`
+              : t("prephub.loading")
+          }}</span></span
         >
       </button>
     </nav>
@@ -377,25 +404,51 @@ function captured() {
     >
       {{ feedback }}
     </p>
-    <p v-if="loading" role="status" class="prep-panel animate-pulse">
-      {{ t("prephub.loading") }}
-    </p>
-    <div v-else-if="subjects.length" class="space-y-3">
-      <PrepSubjectCard
-        v-for="subject in subjects"
-        :key="subject.id"
-        :subject="subject"
-        :time-zone="timeZone"
-        :busy="busy"
-        @task="captureTask"
-      />
+    <div class="space-y-2">
+      <p role="status" class="h-5 text-xs text-slate-500 dark:text-white/60">
+        {{ loading ? t("prephub.loading") : "" }}
+      </p>
+      <!-- Refresh in place so loading does not collapse the cards or reset their controls. -->
+      <section
+        class="min-h-64"
+        :aria-busy="loading"
+        :aria-label="t('prephub.ALL')"
+      >
+        <div
+          v-if="loading && !hasLoaded"
+          class="prep-panel h-64 animate-pulse"
+          aria-hidden="true"
+        >
+          <div class="flex items-start gap-3">
+            <div
+              class="size-14 shrink-0 rounded-2xl bg-slate-100 dark:bg-white/10"
+            />
+            <div class="flex-1 space-y-4">
+              <div class="h-6 w-2/3 rounded bg-slate-100 dark:bg-white/10" />
+              <div class="h-4 rounded bg-slate-100 dark:bg-white/10" />
+              <div class="h-4 w-3/4 rounded bg-slate-100 dark:bg-white/10" />
+              <div class="h-16 rounded-xl bg-slate-100 dark:bg-white/10" />
+            </div>
+          </div>
+        </div>
+        <div v-else-if="subjects.length" class="space-y-3">
+          <PrepSubjectCard
+            v-for="subject in subjects"
+            :key="subject.id"
+            :subject="subject"
+            :time-zone="timeZone"
+            :busy="busy"
+            @task="captureTask"
+          />
+        </div>
+        <p
+          v-else-if="!error"
+          class="prep-panel py-8 text-center text-sm text-slate-500"
+        >
+          {{ t("prephub.empty") }}
+        </p>
+      </section>
     </div>
-    <p
-      v-else-if="!error"
-      class="prep-panel py-8 text-center text-sm text-slate-500"
-    >
-      {{ t("prephub.empty") }}
-    </p>
     <nav
       v-if="total > pageSize"
       class="flex items-center justify-center gap-3"

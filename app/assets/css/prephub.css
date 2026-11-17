@@ -14,6 +14,9 @@
 .prephub .prep-panel {
   @apply min-w-0 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-950;
 }
+.prephub .prep-settings > details {
+  @apply border-b border-slate-200 dark:border-white/10;
+}
 .prephub .prep-icon {
   @apply grid size-11 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 disabled:opacity-30 dark:text-white/60 dark:hover:bg-white/10;
 }
@@ -179,6 +182,10 @@
 }
 .prephub .prep-category-chip--selected {
   @apply bg-sky-700 text-white hover:bg-sky-800 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500;
+}
+/* Reserve badge width before loading; larger totals keep their exact value in accessible text. */
+.prephub .prep-category-count {
+  @apply inline-block w-[6ch] shrink-0 text-center tabular-nums;
 }
 .prephub .prep-subject-card {
   @apply border-l-2 p-3 sm:p-5;

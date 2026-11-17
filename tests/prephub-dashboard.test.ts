@@ -9,11 +9,18 @@ import * as icons from "lucide-vue-next";
 import * as prep from "../app/lib/prephub.ts";
 import * as popup from "../app/lib/date-picker-position.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
+import {
+  ControlNode,
+  controlNodes,
+  controlRenderer,
+  installControlDocument,
+} from "./helpers/component-host.ts";
 function load(
   file: string,
   hub: any = {},
   inline = false,
   navigations: any[] = [],
+  mounted = false,
 ) {
   const { descriptor } = parse(readFileSync(file, "utf8"), { filename: file });
   const code = ts.transpileModule(
@@ -28,7 +35,7 @@ function load(
   ).outputText;
   const globals = {
     ...vue,
-    onMounted() {},
+    onMounted: mounted ? vue.onMounted : () => {},
     onBeforeUnmount() {},
     definePageMeta() {},
     useSeoMeta() {},
@@ -48,12 +55,21 @@ function load(
             ? prep
             : name === "~/lib/date-picker-position"
               ? popup
-              : name.endsWith(".vue")
+              : name.endsWith("PrepSubjectCard.vue")
                 ? {
                     __esModule: true,
-                    default: { setup: () => () => vue.h("span") },
+                    default: load(
+                      "app/components/prephub/PrepSubjectCard.vue",
+                      hub,
+                      true,
+                    ),
                   }
-                : {},
+                : name.endsWith(".vue")
+                  ? {
+                      __esModule: true,
+                      default: { setup: () => () => vue.h("span") },
+                    }
+                  : {},
     mod,
     mod.exports,
     ...Object.values(globals),
@@ -149,6 +165,108 @@ const subject = {
   updatedAt: "2026-11-16T06:00:00Z",
   progress: { total: 0, completed: 0, percent: 0 },
 };
+
+test("dashboard refresh keeps category counts and existing cards mounted until replacement data arrives", async (context) => {
+  const restore = installControlDocument();
+  context.after(restore);
+  const pending: Array<{
+    resolve: (value: any) => void;
+    reject: (error: Error) => void;
+  }> = [];
+  const h = hub((path: string) =>
+    path === "/dashboard"
+      ? Promise.resolve({ counts: {}, timeZone: "Asia/Phnom_Penh" })
+      : new Promise((resolve, reject) => pending.push({ resolve, reject })),
+  );
+  const root = new ControlNode("root");
+  const app = controlRenderer.createApp(
+    load("app/pages/prephub/index.vue", h, true, [], true),
+  );
+  app.component("ModernSelect", { setup: () => () => vue.h("select") });
+  app.component("NuxtLink", {
+    props: ["to"],
+    setup:
+      (props: any, { slots }: any) =>
+      () =>
+        vue.h("a", { href: props.to }, slots.default?.()),
+  });
+  app.mount(root);
+  context.after(() => app.unmount());
+  const countSlots = () =>
+    controlNodes(root).filter((node) =>
+      String(node.props.class).split(" ").includes("prep-category-count"),
+    );
+  const slots = countSlots();
+  assert.equal(slots.length, prep.PREP_CATEGORIES.length + 1);
+  assert.ok(slots.every((node) => node.textContent.includes("—")));
+  pending.shift()!.resolve({
+    subjects: [subject],
+    total: 1,
+    limit: 20,
+    categoryCounts: { RESEARCH: 1001 },
+  });
+  await vue.nextTick();
+  await vue.nextTick();
+  const card = controlNodes(root).find((node) => node.tag === "article")!;
+  assert.ok(card.textContent.includes("Offline research"));
+  assert.equal(slots[0].props.title, "1001");
+  assert.ok(slots[0].textContent.includes("999+"));
+  const categoryButton = controlNodes(root).find(
+    (node) =>
+      node.tag === "button" &&
+      String(node.props.class).includes("prep-category-chip") &&
+      node.textContent.includes("Research"),
+  )!;
+  categoryButton.dispatchEvent(new Event("click"));
+  await vue.nextTick();
+  assert.equal(countSlots()[0], slots[0]);
+  assert.equal(slots[0].props.title, "1001");
+  assert.equal(
+    controlNodes(root).find((node) => node.tag === "article"),
+    card,
+  );
+  assert.ok(
+    controlNodes(root).some((node) => node.props["aria-busy"] === true),
+  );
+  pending.shift()!.resolve({
+    subjects: [{ ...subject, title: "Updated research" }],
+    total: 1,
+    limit: 20,
+    categoryCounts: { RESEARCH: 999 },
+  });
+  await vue.nextTick();
+  await vue.nextTick();
+  assert.equal(countSlots()[0], slots[0]);
+  assert.equal(slots[0].props.title, "999");
+  assert.ok(card.textContent.includes("Updated research"));
+
+  // A different status starts another refresh without changing the rendered list.
+  const statusButton = controlNodes(root).find(
+    (node) =>
+      node.tag === "button" &&
+      String(node.props.class).includes("prep-dashboard-stat") &&
+      node.textContent.includes("Upcoming"),
+  )!;
+  statusButton.dispatchEvent(new Event("click"));
+  await vue.nextTick();
+  pending.shift()!.reject(new Error("Temporary failure"));
+  await vue.nextTick();
+  await vue.nextTick();
+  assert.equal(
+    controlNodes(root).find((node) => node.tag === "article"),
+    card,
+  );
+  assert.equal(slots[0].props.title, "999");
+  assert.ok(root.textContent.includes("Temporary failure"));
+  h.owner.value = "another-owner";
+  await vue.nextTick();
+  assert.ok(!root.textContent.includes("Updated research"));
+  assert.ok(countSlots().every((node) => node.textContent.includes("—")));
+  pending
+    .shift()!
+    .resolve({ subjects: [], total: 0, limit: 20, categoryCounts: {} });
+  await vue.nextTick();
+});
 async function renderCard(overrides: any = {}) {
   const app = vue.createSSRApp(
     load("app/components/prephub/PrepSubjectCard.vue", {}, true),
