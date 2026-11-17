@@ -43,8 +43,11 @@
 .prephub .prep-status--preparing {
   @apply bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300;
 }
+.prephub .prep-schedule {
+  @apply grid gap-3 sm:grid-cols-3;
+}
 .prephub .prep-schedule-row {
-  @apply flex items-start gap-3 border-b border-slate-100 py-2.5 first:pt-0 last:border-0 last:pb-0 dark:border-white/10;
+  @apply flex min-w-0 items-start gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0 sm:border-0 sm:pb-0 dark:border-white/10;
 }
 .prephub .prep-schedule dt {
   @apply text-xs font-semibold text-slate-500 dark:text-white/60;
@@ -134,12 +137,6 @@
 .prephub .prep-deliverable-number {
   @apply mt-2 grid size-6 shrink-0 place-items-center rounded-lg bg-sky-50 text-xs font-bold text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
 }
-@media (min-width: 1024px) {
-  .prephub .prep-overview--with-aside {
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 21rem);
-  }
-}
-
 .prephub .prep-schedule .prep-detail-icon {
   @apply bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300;
 }

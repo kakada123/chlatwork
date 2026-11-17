@@ -342,7 +342,7 @@ onBeforeUnmount(() => {
       {{ feedback }}
     </p>
     <template v-if="subject && owner">
-      <PrepOverview :subject="subject" :time-zone="timeZone" />
+      <!-- Keep actions reachable even when the overview's long details are open. -->
       <div
         class="sticky top-16 z-30 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white/95 p-2 backdrop-blur dark:border-white/10 dark:bg-neutral-950/95"
       >
@@ -377,6 +377,7 @@ onBeforeUnmount(() => {
           }}
         </button>
       </div>
+      <PrepOverview :subject="subject" :time-zone="timeZone" />
       <p v-if="review" class="text-sm text-slate-500">
         {{ t("prephub.notebook.reviewHelp") }}
       </p>

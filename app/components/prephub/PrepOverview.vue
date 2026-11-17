@@ -18,20 +18,15 @@ const props = defineProps<{
 }>();
 const { t } = useAppI18n();
 const expanded = ref(false),
-  goalExpanded = ref(false),
   detailsOpen = ref(false),
-  detailsId = useId();
+  detailsId = useId(),
+  descriptionId = useId();
 const longDescription = computed(
   () =>
     props.subject.description.length > 180 ||
     props.subject.description.split("\n").length > 3,
 );
-const longGoal = computed(
-  () =>
-    props.subject.goal.length > 240 ||
-    props.subject.goal.split("\n").length > 4,
-);
-const hasAside = computed(() =>
+const hasDetails = computed(() =>
   Boolean(
     props.subject.eventAt || props.subject.deadlineAt || props.subject.goal,
   ),
@@ -40,12 +35,6 @@ watch(
   () => props.subject.description,
   () => {
     expanded.value = false;
-  },
-);
-watch(
-  () => props.subject.goal,
-  () => {
-    goalExpanded.value = false;
   },
 );
 function date(value: string, timeZone: string) {
@@ -57,10 +46,7 @@ function date(value: string, timeZone: string) {
 }
 </script>
 <template>
-  <header
-    class="prep-overview"
-    :class="{ 'prep-overview--with-aside': hasAside }"
-  >
+  <header class="prep-overview">
     <div class="prep-panel prep-overview-main">
       <div class="flex min-w-0 items-start gap-3 sm:gap-4">
         <span class="prep-overview-icon" aria-hidden="true"
@@ -82,29 +68,9 @@ function date(value: string, timeZone: string) {
           >
             {{ subject.title }}
           </h1>
-          <PrepFormattedText
-            v-if="subject.description"
-            :text="subject.description"
-            class="mt-3 text-slate-600 dark:text-white/70"
-            :class="{ 'line-clamp-3': longDescription && !expanded }"
-          /><button
-            v-if="longDescription"
-            type="button"
-            class="min-h-11 text-sm font-semibold text-sky-700 dark:text-sky-300"
-            :aria-expanded="expanded"
-            @click="expanded = !expanded"
-          >
-            {{
-              t(
-                expanded
-                  ? "prephub.notebook.showLess"
-                  : "prephub.notebook.readMore",
-              )
-            }}
-          </button>
           <p
             v-if="subject.eventAt || subject.deadlineAt"
-            class="mt-3 text-xs text-slate-500 lg:hidden"
+            class="mt-3 text-xs text-slate-500"
           >
             {{
               t(
@@ -116,15 +82,37 @@ function date(value: string, timeZone: string) {
           </p>
         </div>
       </div>
+      <PrepFormattedText
+        v-if="subject.description"
+        :id="descriptionId"
+        :text="subject.description"
+        class="mt-3 text-slate-600 dark:text-white/70"
+        :class="{ 'line-clamp-3': longDescription && !expanded }"
+      /><button
+        v-if="longDescription"
+        type="button"
+        class="min-h-11 text-sm font-semibold text-sky-700 dark:text-sky-300"
+        :aria-expanded="expanded"
+        :aria-controls="descriptionId"
+        @click="expanded = !expanded"
+      >
+        {{
+          t(
+            expanded
+              ? "prephub.notebook.showLess"
+              : "prephub.notebook.readMore",
+          )
+        }}
+      </button>
     </div>
-    <aside
-      v-if="hasAside"
+    <section
+      v-if="hasDetails"
       class="space-y-3"
       :aria-label="t('prephub.visual.subjectDetails')"
     >
       <button
         type="button"
-        class="prep-button w-full lg:hidden"
+        class="prep-button w-full"
         :aria-expanded="detailsOpen"
         :aria-controls="detailsId"
         @click="detailsOpen = !detailsOpen"
@@ -136,11 +124,7 @@ function date(value: string, timeZone: string) {
           aria-hidden="true"
         />
       </button>
-      <div
-        :id="detailsId"
-        class="space-y-3"
-        :class="detailsOpen ? 'block' : 'hidden lg:block'"
-      >
+      <div :id="detailsId" :hidden="!detailsOpen" class="space-y-3">
         <dl
           v-if="subject.eventAt || subject.deadlineAt"
           class="prep-panel prep-schedule"
@@ -179,26 +163,9 @@ function date(value: string, timeZone: string) {
               ><Flag class="size-5" aria-hidden="true" /></span
             >{{ t("prephub.notebook.goal") }}
           </h2>
-          <PrepFormattedText
-            :text="subject.goal"
-            :class="{ 'line-clamp-4': longGoal && !goalExpanded }"
-          /><button
-            v-if="longGoal"
-            type="button"
-            class="min-h-11 text-sm font-semibold text-violet-700 dark:text-violet-300"
-            :aria-expanded="goalExpanded"
-            @click="goalExpanded = !goalExpanded"
-          >
-            {{
-              t(
-                goalExpanded
-                  ? "prephub.notebook.showLess"
-                  : "prephub.notebook.readMore",
-              )
-            }}
-          </button>
+          <PrepFormattedText :text="subject.goal" />
         </section>
       </div>
-    </aside>
+    </section>
   </header>
 </template>
