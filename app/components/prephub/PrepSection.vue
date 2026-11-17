@@ -27,6 +27,14 @@ import PrepItemActions from "./PrepItemActions.vue";
 import PrepDialog from "./PrepDialog.vue";
 import PrepItemForm from "./PrepItemForm.vue";
 import PrepFormattedText from "./PrepFormattedText.vue";
+import PrepAttachmentPicker from "./PrepAttachmentPicker.vue";
+import PrepAttachmentViewer from "./PrepAttachmentViewer.vue";
+import {
+  canPreviewPrepResource,
+  prepResourceUrl,
+  uploadPrepFiles,
+  validatePrepFiles,
+} from "~/lib/prephub-attachments";
 const props = defineProps<{
   section: PrepSection;
   subjectId: string;
@@ -40,6 +48,7 @@ const props = defineProps<{
   anchor?: boolean;
   readOnly?: boolean;
   resourceBase?: string;
+  viewerResources?: PrepResource[];
   error?: string;
 }>();
 const emit = defineEmits<{ move: [direction: number] }>();
@@ -48,6 +57,26 @@ const base = computed(() => `/sections/${props.section.id}`);
 const editor = ref<PrepItem | null>();
 const rename = ref<{ title: string; path: string } | null>(null);
 const uploadError = ref("");
+const uploadFiles = ref<File[]>([]);
+const uploading = ref(false);
+const uploadProgress = ref({ current: 0, total: 0 });
+const previewId = ref<string | null>(null);
+const attachments = computed(
+  () => props.viewerResources ?? props.section.resources,
+);
+let uploadVersion = 0;
+watch(
+  () => props.subjectId,
+  () => {
+    uploadVersion++;
+    uploading.value = false;
+    uploadFiles.value = [];
+    previewId.value = null;
+  },
+);
+onBeforeUnmount(() => {
+  uploadVersion++;
+});
 const itemActions = ref<string | null>(null);
 const root = ref<HTMLElement | null>(null);
 const editingTitle = ref<string | null>(null),
@@ -134,23 +163,56 @@ async function moveItem(id: string, direction: number) {
   [ids[index], ids[target]] = [ids[target]!, ids[index]!];
   await props.mutate(`${base.value}/items/reorder`, "PUT", { ids });
 }
-async function upload(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
+async function upload() {
+  if (props.busy || uploading.value || !uploadFiles.value.length) return;
   uploadError.value = "";
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024 || !file.size) {
-    uploadError.value = t("prephub.fileHint");
-    input.value = "";
+  const invalid = validatePrepFiles(
+    uploadFiles.value,
+    attachments.value.length,
+  );
+  if (invalid) {
+    uploadError.value = t(
+      invalid === "count" ? "prephub.attachments.tooMany" : "prephub.fileHint",
+    );
     return;
   }
-  const body = new FormData();
-  body.append("file", file);
-  await props.mutate(`${base.value}/resources`, "POST", body);
-  input.value = "";
+  const version = ++uploadVersion;
+  const subjectId = props.subjectId;
+  const current = () =>
+    version === uploadVersion && props.subjectId === subjectId;
+  uploading.value = true;
+  const total = uploadFiles.value.length;
+  let completed = 0;
+  try {
+    await uploadPrepFiles(
+      uploadFiles.value,
+      (body) => {
+        uploadProgress.value = { current: completed + 1, total };
+        return props.mutate(`${base.value}/resources`, "POST", body);
+      },
+      {
+        current,
+        uploaded(file) {
+          completed++;
+          uploadFiles.value = uploadFiles.value.filter(
+            (pending) => pending !== file,
+          );
+        },
+      },
+    );
+  } catch {
+    if (current()) uploadError.value = t("prephub.saveError");
+  } finally {
+    if (current()) uploading.value = false;
+  }
 }
 function resourceUrl(resource: PrepResource, preview = false) {
-  return `${props.resourceBase ?? `/api/prephub/subjects/${props.subjectId}/resources`}/${resource.id}${preview ? "?preview=1" : ""}`;
+  return prepResourceUrl(
+    props.subjectId,
+    resource.id,
+    props.resourceBase,
+    preview,
+  );
 }
 async function saveRename() {
   if (
@@ -667,25 +729,18 @@ async function saveRename() {
               >{{ t("prephub.download") }}</span
             ></a
           >
-          <a
-            v-if="
-              [
-                'application/pdf',
-                'image/png',
-                'image/jpeg',
-                'image/webp',
-              ].includes(file.mimeType)
-            "
+          <button
+            v-if="canPreviewPrepResource(file)"
+            type="button"
             class="prep-button prep-file-action"
-            :href="resourceUrl(file, true)"
             :aria-label="`${t('prephub.preview')}: ${file.title}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            ><Eye class="size-4 shrink-0" aria-hidden="true" /><span
+            @click="previewId = file.id"
+          >
+            <Eye class="size-4 shrink-0" aria-hidden="true" /><span
               class="truncate"
               >{{ t("prephub.preview") }}</span
-            ></a
-          >
+            >
+          </button>
           <template v-if="!review && !readOnly"
             ><div class="hidden gap-1 md:flex">
               <button
@@ -733,21 +788,35 @@ async function saveRename() {
       {{ t("prephub.emptySection") }}
     </p>
     <template v-if="!review && !readOnly && !notebook"
-      ><div v-if="section.type === 'ATTACHMENTS'" class="mt-3">
-        <label class="prep-label"
-          >{{ t("prephub.upload")
-          }}<input
-            type="file"
-            class="prep-input"
-            accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.pptx,.xlsx,.txt"
-            :disabled="busy"
-            @change="upload"
-        /></label>
-        <p class="mt-2 text-xs text-slate-500">{{ t("prephub.fileHint") }}</p>
+      ><form
+        v-if="section.type === 'ATTACHMENTS'"
+        class="mt-3 space-y-3"
+        @submit.prevent="upload"
+      >
+        <PrepAttachmentPicker
+          v-model="uploadFiles"
+          :busy="busy || uploading"
+          :existing-count="attachments.length"
+        />
+        <p
+          v-if="uploading"
+          role="status"
+          class="text-sm tabular-nums text-slate-500"
+        >
+          {{ t("prephub.attachments.uploading", uploadProgress) }}
+        </p>
         <p v-if="uploadError" role="alert" class="text-sm text-red-600">
           {{ uploadError }}
         </p>
-      </div>
+        <button
+          class="prep-primary"
+          :disabled="busy || uploading || !uploadFiles.length"
+        >
+          {{
+            t(uploading ? "prephub.saving" : "prephub.attachments.uploadFiles")
+          }}
+        </button>
+      </form>
       <button
         v-else
         type="button"
@@ -758,6 +827,15 @@ async function saveRename() {
         <Plus class="size-4" aria-hidden="true" />{{ t("prephub.addItem") }}
       </button></template
     >
+    <PrepAttachmentViewer
+      v-if="previewId"
+      :key="subjectId"
+      :initial-id="previewId"
+      :resources="attachments"
+      :subject-id="subjectId"
+      :resource-base="resourceBase"
+      @close="previewId = null"
+    />
     <PrepDialog
       v-if="!readOnly"
       :error="error"

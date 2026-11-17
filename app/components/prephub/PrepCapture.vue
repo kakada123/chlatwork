@@ -8,6 +8,8 @@ import {
 } from "~/lib/prephub";
 import PrepDialog from "./PrepDialog.vue";
 import PrepItemForm from "./PrepItemForm.vue";
+import PrepAttachmentPicker from "./PrepAttachmentPicker.vue";
+import { uploadPrepFiles, validatePrepFiles } from "~/lib/prephub-attachments";
 const props = defineProps<{
   open: boolean;
   initialType?: PrepType;
@@ -33,7 +35,9 @@ const typeOptions = computed(() => [
 const selected = ref("");
 const query = ref("");
 const subjects = ref<PrepSubjectSummary[]>([]);
-const file = ref<File>();
+const files = ref<File[]>([]);
+const uploadProgress = ref({ current: 0, total: 0 });
+let captureVersion = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
 let searchVersion = 0;
 async function search() {
@@ -54,58 +58,117 @@ watch(query, () => {
 watch(
   () => props.open,
   (open) => {
+    captureVersion++;
+    if (!open) busy.value = false;
     if (!open) return;
     error.value = "";
     selected.value = props.subject?.id ?? "";
-    file.value = undefined;
+    files.value = [];
+    uploadProgress.value = { current: 0, total: 0 };
     type.value = props.initialType ?? "NOTES";
     if (!props.subject) void search();
   },
 );
 watch(owner, () => {
+  captureVersion++;
+  busy.value = false;
+  files.value = [];
   subjects.value = [];
   selected.value = "";
   emit("close");
 });
+watch(
+  () => props.subject?.id,
+  (id) => {
+    captureVersion++;
+    busy.value = false;
+    files.value = [];
+    selected.value = id ?? "";
+  },
+);
 onBeforeUnmount(() => {
+  captureVersion++;
   clearTimeout(timer);
   searchVersion++;
 });
 async function capture(body: Record<string, unknown> = {}) {
   if (busy.value || !selected.value) return false;
+  const version = captureVersion;
+  const startedOwner = owner.value;
+  const subjectId = selected.value;
+  const captureType = type.value;
+  const current = () =>
+    version === captureVersion &&
+    owner.value === startedOwner &&
+    selected.value === subjectId &&
+    type.value === captureType;
+  let uploaded = 0;
+  let savedSectionId: string | undefined;
   busy.value = true;
   error.value = "";
   try {
-    const subject = await request<PrepSubject>(`/subjects/${selected.value}`);
-    if (
-      type.value === "ATTACHMENTS" &&
-      (!file.value || !file.value.size || file.value.size > 5 * 1024 * 1024)
-    )
-      throw new Error(t("prephub.fileHint"));
+    const subject = await request<PrepSubject>(`/subjects/${subjectId}`);
+    if (!current()) return false;
+    if (captureType === "ATTACHMENTS") {
+      const invalid = validatePrepFiles(
+        files.value,
+        subject.sections.reduce(
+          (count, section) => count + section.resources.length,
+          0,
+        ),
+      );
+      if (!files.value.length || invalid)
+        throw new Error(
+          t(
+            invalid === "count"
+              ? "prephub.attachments.tooMany"
+              : "prephub.fileHint",
+          ),
+        );
+    }
     // An explicit section context wins; changing capture type falls back to a matching section.
     let section =
       subject.sections.find(
-        (s) => s.id === props.targetSectionId && s.type === type.value,
-      ) ?? subject.sections.find((s) => s.type === type.value);
+        (s) => s.id === props.targetSectionId && s.type === captureType,
+      ) ?? subject.sections.find((s) => s.type === captureType);
     if (!section)
-      section = await request(`/subjects/${selected.value}/sections`, {
+      section = await request(`/subjects/${subjectId}/sections`, {
         method: "POST",
-        body: { type: type.value, title: t(`prephub.${type.value}`) },
+        body: { type: captureType, title: t(`prephub.${captureType}`) },
       });
-    const base = `/subjects/${selected.value}/sections/${section!.id}`;
-    if (type.value === "ATTACHMENTS") {
-      const form = new FormData();
-      form.append("file", file.value);
-      await request(`${base}/resources`, { method: "POST", body: form });
+    if (!current()) return false;
+    savedSectionId = section!.id;
+    const base = `/subjects/${subjectId}/sections/${section!.id}`;
+    if (captureType === "ATTACHMENTS") {
+      const total = files.value.length;
+      const complete = await uploadPrepFiles(
+        files.value,
+        (form) => {
+          uploadProgress.value = { current: uploaded + 1, total };
+          return request(`${base}/resources`, { method: "POST", body: form });
+        },
+        {
+          current,
+          uploaded(file) {
+            uploaded++;
+            files.value = files.value.filter((pending) => pending !== file);
+          },
+        },
+      );
+      if (!complete) return false;
     } else await request(`${base}/items`, { method: "POST", body });
+    if (!current()) return false;
     emit("saved", section!.id);
     emit("close");
     return true;
   } catch (e) {
-    fail(e);
+    if (current()) {
+      if (uploaded) emit("saved", savedSectionId);
+      fail(e);
+    }
     return false;
   } finally {
-    busy.value = false;
+    if (current()) busy.value = false;
   }
 }
 </script>
@@ -154,19 +217,16 @@ async function capture(body: Record<string, unknown> = {}) {
           class="space-y-4"
           @submit.prevent="capture()"
         >
-          <label class="prep-label"
-            >{{ t("prephub.selectedFile")
-            }}<input
-              type="file"
-              class="prep-input"
-              accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.pptx,.xlsx,.txt"
-              required
-              :disabled="busy"
-              @change="file = ($event.target as HTMLInputElement).files?.[0]"
-          /></label>
-          <p class="text-xs text-slate-500">{{ t("prephub.fileHint") }}</p>
-          <button class="prep-primary" :disabled="busy || !file">
-            {{ t(busy ? "prephub.saving" : "prephub.save") }}
+          <PrepAttachmentPicker v-model="files" :busy="busy" />
+          <p
+            v-if="busy && uploadProgress.total"
+            role="status"
+            class="text-sm tabular-nums text-slate-500"
+          >
+            {{ t("prephub.attachments.uploading", uploadProgress) }}
+          </p>
+          <button class="prep-primary" :disabled="busy || !files.length">
+            {{ t(busy ? "prephub.saving" : "prephub.attachments.uploadFiles") }}
           </button>
         </form>
         <PrepItemForm

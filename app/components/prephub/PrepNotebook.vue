@@ -32,6 +32,9 @@ const props = defineProps<{
 const emit = defineEmits<{ context: [type: PrepType, sectionId?: string] }>();
 const { t } = useAppI18n();
 const groups = computed(() => notebookGroups(props.sections));
+const attachmentResources = computed(() =>
+  props.sections.flatMap((section) => section.resources),
+);
 const content = computed(() => ({
   checklist: groups.value.checklist.filter(hasContent),
   materials: groups.value.materials.filter(hasContent),
@@ -189,6 +192,7 @@ defineExpose({ focusTask });
               :read-only="readOnly"
               :review="review"
               :resource-base="resourceBase"
+              :viewer-resources="attachmentResources"
               :hide-heading="
                 area.key === 'checklist' &&
                 content.checklist.length === 1 &&

@@ -7,6 +7,7 @@ import { compileScript, parse } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as icons from "lucide-vue-next";
 import * as prep from "../app/lib/prephub.ts";
+import * as attachments from "../app/lib/prephub-attachments.ts";
 import { createI18nStub } from "./helpers/i18n-stubs.ts";
 function load(name: string, hub: any = {}, inline = false) {
   const file = `app/components/prephub/${name}.vue`,
@@ -39,17 +40,19 @@ function load(name: string, hub: any = {}, inline = false) {
           ? icons
           : path === "~/lib/prephub"
             ? prep
-            : path.endsWith("PrepFormattedText.vue")
-              ? {
-                  __esModule: true,
-                  default: load("PrepFormattedText", hub, true),
-                }
-              : path.endsWith(".vue")
+            : path === "~/lib/prephub-attachments"
+              ? attachments
+              : path.endsWith("PrepFormattedText.vue")
                 ? {
                     __esModule: true,
-                    default: { setup: () => () => vue.h("span") },
+                    default: load("PrepFormattedText", hub, true),
                   }
-                : {},
+                : path.endsWith(".vue")
+                  ? {
+                      __esModule: true,
+                      default: { setup: () => () => vue.h("span") },
+                    }
+                  : {},
     mod,
     mod.exports,
     ...Object.values(globals),
@@ -325,6 +328,107 @@ test("capture uses the selected custom section rather than the first section of 
   await capture.capture({ title: "Saved here" });
   assert.equal(calls[1].path, "/subjects/subject/sections/chosen/items");
 });
+
+test("multiple attachment capture retries only the files that were not saved", async () => {
+  const uploaded: string[] = [];
+  let failSecond = true;
+  const subject = {
+    id: "subject",
+    sections: [section("files", "ATTACHMENTS")],
+  };
+  const hub = {
+    owner: vue.ref("owner"),
+    busy: vue.ref(false),
+    error: vue.ref(""),
+    fail(e: Error) {
+      this.error.value = e.message;
+    },
+    request: async (path: string, options: any = {}) => {
+      if (path.endsWith("/resources")) {
+        const file = options.body.get("file") as File;
+        if (file.name === "two.png" && failSecond)
+          throw new Error("Retry this file");
+        uploaded.push(file.name);
+        return {};
+      }
+      return subject;
+    },
+  };
+  hub.fail = (e: Error) => {
+    hub.error.value = e.message;
+  };
+  const capture = load("PrepCapture", hub).setup(
+    {
+      open: true,
+      subject,
+      initialType: "ATTACHMENTS",
+      timeZone: "Asia/Phnom_Penh",
+    },
+    { expose() {}, emit() {} },
+  );
+  capture.selected.value = subject.id;
+  capture.files.value = [
+    new File(["one"], "one.png"),
+    new File(["two"], "two.png"),
+  ];
+  assert.equal(await capture.capture(), false);
+  assert.deepEqual(uploaded, ["one.png"]);
+  assert.deepEqual(
+    capture.files.value.map((file: File) => file.name),
+    ["two.png"],
+  );
+  failSecond = false;
+  assert.equal(await capture.capture(), true);
+  assert.deepEqual(uploaded, ["one.png", "two.png"]);
+  assert.equal(capture.files.value.length, 0);
+});
+
+test("an account change stops a queued capture before another file is sent", async () => {
+  let resolveUpload: (value: unknown) => void = () => {};
+  let uploads = 0;
+  const owner = vue.ref("owner");
+  const subject = {
+    id: "subject",
+    sections: [section("files", "ATTACHMENTS")],
+  };
+  const hub = {
+    owner,
+    busy: vue.ref(false),
+    error: vue.ref(""),
+    fail() {},
+    request: async (path: string) => {
+      if (!path.endsWith("/resources")) return subject;
+      uploads++;
+      return new Promise((resolve) => {
+        resolveUpload = resolve;
+      });
+    },
+  };
+  const capture = load("PrepCapture", hub).setup(
+    {
+      open: true,
+      subject,
+      initialType: "ATTACHMENTS",
+      timeZone: "Asia/Phnom_Penh",
+    },
+    { expose() {}, emit() {} },
+  );
+  capture.selected.value = subject.id;
+  capture.files.value = [
+    new File(["one"], "one.png"),
+    new File(["two"], "two.png"),
+  ];
+  const saving = capture.capture();
+  await vue.nextTick();
+  assert.equal(uploads, 1);
+  owner.value = "new-owner";
+  await vue.nextTick();
+  resolveUpload({});
+  assert.equal(await saving, false);
+  assert.equal(uploads, 1);
+  assert.equal(capture.files.value.length, 0);
+  assert.equal(capture.selected.value, "");
+});
 test("ready and finish are deliberate status actions independent of remaining tasks", async () => {
   const calls: any[] = [];
   const hub = {
@@ -481,7 +585,10 @@ test("reference file rows use actual counts and capability URLs while keeping pu
   assert.match(html, /Offline report.pdf/);
   assert.match(html, /362.0 KiB/);
   assert.match(html, /\/api\/prephub\/public\/token\/resources\/pdf/);
-  assert.doesNotMatch(html, /\/subjects\/subject|<button|type="file"/);
+  assert.doesNotMatch(
+    html,
+    /\/subjects\/subject|type="file"|aria-label="(?:Rename|Delete):|target="_blank"/,
+  );
   assert.equal((html.match(/aria-label="Preview:/g) || []).length, 2);
   assert.equal((html.match(/aria-label="Download:/g) || []).length, 3);
 });

@@ -225,6 +225,24 @@ export default {
   "prephub.formatting":
     "Formatting: **bold**, _italic_, `code`. Line breaks are preserved. Save to keep your changes.",
   "prephub.upload": "Upload file",
+  "prephub.attachments.chooseFiles": "Choose images or files",
+  "prephub.attachments.uploadFiles": "Upload selected files",
+  "prephub.attachments.tooMany":
+    "A subject can have up to 20 attachments. Remove some files and try again.",
+  "prephub.attachments.uploading": "Uploading {current} of {total}…",
+  "prephub.attachments.viewer": "Attachment viewer",
+  "prephub.attachments.position": "{current} of {total}",
+  "prephub.attachments.page": "Page {current} of {total}",
+  "prephub.attachments.thumbnails": "Choose an attachment",
+  "prephub.attachments.previousFile": "Previous attachment",
+  "prephub.attachments.nextFile": "Next attachment",
+  "prephub.attachments.previousPage": "Previous PDF page",
+  "prephub.attachments.nextPage": "Next PDF page",
+  "prephub.attachments.loading": "Loading preview…",
+  "prephub.attachments.failed":
+    "This preview could not be loaded. Try again or download the file.",
+  "prephub.attachments.unavailable":
+    "Preview is not available for this file type. You can download it below.",
   "prephub.fileHint":
     "Up to 5 MiB/file, 20 files/subject. PDF, PNG, JPEG, WebP, DOCX, PPTX, XLSX, TXT.",
   "prephub.download": "Download",

@@ -227,6 +227,25 @@ export default {
   "prephub.formatting":
     "ទ្រង់ទ្រាយ៖ **ដិត**, _ទ្រេត_, `កូដ`។ រក្សាការចុះបន្ទាត់។ ចុចរក្សាទុកដើម្បីរក្សាការកែប្រែ។",
   "prephub.upload": "ផ្ទុកឯកសារឡើង",
+  "prephub.attachments.chooseFiles": "ជ្រើសរូបភាព ឬឯកសារ",
+  "prephub.attachments.uploadFiles": "ផ្ទុកឯកសារដែលបានជ្រើសឡើង",
+  "prephub.attachments.tooMany":
+    "ប្រធានបទមួយអាចមានឯកសារភ្ជាប់រហូតដល់ 20។ សូមដកឯកសារខ្លះចេញ ហើយព្យាយាមម្ដងទៀត។",
+  "prephub.attachments.uploading":
+    "កំពុងផ្ទុកឯកសារ {current} ក្នុងចំណោម {total}…",
+  "prephub.attachments.viewer": "កម្មវិធីមើលឯកសារភ្ជាប់",
+  "prephub.attachments.position": "{current} ក្នុងចំណោម {total}",
+  "prephub.attachments.page": "ទំព័រ {current} ក្នុងចំណោម {total}",
+  "prephub.attachments.thumbnails": "ជ្រើសឯកសារភ្ជាប់",
+  "prephub.attachments.previousFile": "ឯកសារភ្ជាប់មុន",
+  "prephub.attachments.nextFile": "ឯកសារភ្ជាប់បន្ទាប់",
+  "prephub.attachments.previousPage": "ទំព័រ PDF មុន",
+  "prephub.attachments.nextPage": "ទំព័រ PDF បន្ទាប់",
+  "prephub.attachments.loading": "កំពុងផ្ទុកការមើលជាមុន…",
+  "prephub.attachments.failed":
+    "មិនអាចផ្ទុកការមើលជាមុននេះបានទេ។ សូមព្យាយាមម្ដងទៀត ឬទាញយកឯកសារ។",
+  "prephub.attachments.unavailable":
+    "ប្រភេទឯកសារនេះមិនអាចមើលជាមុនបានទេ។ អ្នកអាចទាញយកឯកសារនៅខាងក្រោម។",
   "prephub.fileHint":
     "អតិបរមា 5 MiB/ឯកសារ និង 20 ឯកសារ/ប្រធានបទ។ PDF, PNG, JPEG, WebP, DOCX, PPTX, XLSX, TXT។",
   "prephub.download": "ទាញយក",

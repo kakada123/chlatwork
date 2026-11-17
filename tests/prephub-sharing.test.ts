@@ -55,6 +55,7 @@ import { parse, compileScript } from "@vue/compiler-sfc";
 import ts from "../api/node_modules/typescript/lib/typescript.js";
 import * as icons from "lucide-vue-next";
 import * as prep from "../app/lib/prephub.ts";
+import * as attachments from "../app/lib/prephub-attachments.ts";
 function load(file: string, hub: any = {}, inline = true) {
   const { descriptor } = parse(readFileSync(file, "utf8"), { filename: file });
   const code = ts.transpileModule(
@@ -88,7 +89,9 @@ function load(file: string, hub: any = {}, inline = true) {
           ? icons
           : name === "~/lib/prephub"
             ? prep
-            : {},
+            : name === "~/lib/prephub-attachments"
+              ? attachments
+              : {},
     mod,
     mod.exports,
     ...Object.values(globals),
