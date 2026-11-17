@@ -54,13 +54,22 @@ function selectCategory(value: string, event: MouseEvent) {
   if (!strip) return;
   const bounds = button.getBoundingClientRect();
   const viewport = strip.getBoundingClientRect();
-  const left = bounds.left - viewport.left - 8;
-  const right = bounds.right - viewport.right + 8;
-  const offset = left < 0 ? left : right > 0 ? right : 0;
-  if (!offset) return;
-  // Scroll only this strip so revealing a category never moves the page vertically.
-  strip.scrollBy({
-    left: offset,
+  const maxScroll = Math.max(0, strip.scrollWidth - strip.clientWidth);
+  const edgeZone = Math.min(96, (viewport.right - viewport.left) / 4);
+  let destination = strip.scrollLeft;
+  // Move an edge selection inward far enough to reveal its neighbors, rather than just unclipping its label.
+  if (
+    bounds.right >= viewport.right - edgeZone &&
+    strip.scrollLeft < maxScroll - 1
+  )
+    destination += Math.max(0, bounds.left - viewport.left - 8);
+  else if (bounds.left <= viewport.left + edgeZone && strip.scrollLeft > 0)
+    destination += Math.min(0, bounds.right - viewport.right + 8);
+  destination = Math.max(0, Math.min(maxScroll, destination));
+  if (destination === strip.scrollLeft) return;
+  // Scroll only this strip so the page's vertical position stays unchanged.
+  strip.scrollTo({
+    left: destination,
     behavior:
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
@@ -350,10 +359,7 @@ function captured() {
         </div></WorkspaceFilters
       >
     </div>
-    <nav
-      class="flex gap-2 overflow-x-auto pb-1"
-      :aria-label="t('prephub.category')"
-    >
+    <nav class="prep-category-strip" :aria-label="t('prephub.category')">
       <button
         type="button"
         class="prep-category-chip"

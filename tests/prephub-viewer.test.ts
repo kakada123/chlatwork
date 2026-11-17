@@ -18,7 +18,13 @@ import {
 
 function load(
   name: string,
-  options: { fetch?: any; engine?: any; cleanup?: (() => void)[] } = {},
+  options: {
+    fetch?: any;
+    engine?: any;
+    cleanup?: (() => void)[];
+    mounted?: (() => void)[];
+    intersectionObserver?: any;
+  } = {},
 ) {
   const filename = `app/components/prephub/${name}.vue`;
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), {
@@ -36,11 +42,12 @@ function load(
   ).outputText;
   const globals = {
     ...vue,
-    onMounted() {},
+    onMounted: (callback: () => void) => options.mounted?.push(callback),
     onBeforeUnmount: (callback: () => void) => options.cleanup?.push(callback),
     useAppI18n: createI18nStub,
     fetch: options.fetch,
     window: { devicePixelRatio: 1, matchMedia: () => ({ matches: false }) },
+    IntersectionObserver: options.intersectionObserver,
   };
   const module = { exports: {} as any };
   new Function("require", "module", "exports", ...Object.keys(globals), code)(
@@ -179,6 +186,88 @@ function canvas(preview: any) {
   };
   preview.host.value = { clientWidth: 800 };
 }
+test("gallery PDF covers load when visible and release their worker after the first page", async () => {
+  const mounted: (() => void)[] = [];
+  let visible: (entries: { isIntersecting: boolean }[]) => void = () => {};
+  let fetched = 0,
+    destroyed = 0;
+  class Observer {
+    constructor(callback: typeof visible) {
+      visible = callback;
+    }
+    observe() {}
+    disconnect() {}
+  }
+  const preview = setup(
+    "PrepPdfPreview",
+    { url: "/pdf", thumbnail: true },
+    {
+      mounted,
+      intersectionObserver: Observer,
+      fetch: async () => {
+        fetched++;
+        return response();
+      },
+      engine: {
+        GlobalWorkerOptions: {},
+        getDocument: () => ({
+          promise: Promise.resolve(fakeDocument()),
+          destroy: async () => {
+            destroyed++;
+          },
+        }),
+      },
+    },
+  );
+  canvas(preview);
+  mounted[0]();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(fetched, 0);
+  visible([{ isIntersecting: false }]);
+  assert.equal(fetched, 0);
+  visible([{ isIntersecting: true }]);
+  for (let attempt = 0; !destroyed && attempt < 20; attempt++)
+    await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(fetched, 1);
+  assert.equal(destroyed, 1);
+  assert.equal(preview.pdf.value, null);
+  assert.ok(preview.canvas.value.width > 0);
+  assert.equal(preview.failed.value, false);
+});
+
+test("a queued gallery visibility callback cannot start a PDF request after unmount", async () => {
+  const mounted: (() => void)[] = [],
+    cleanup: (() => void)[] = [];
+  let visible: (entries: { isIntersecting: boolean }[]) => void = () => {};
+  let fetched = 0;
+  class Observer {
+    constructor(callback: typeof visible) {
+      visible = callback;
+    }
+    observe() {}
+    disconnect() {}
+  }
+  const preview = setup(
+    "PrepPdfPreview",
+    { url: "/pdf", thumbnail: true },
+    {
+      mounted,
+      cleanup,
+      intersectionObserver: Observer,
+      fetch: async () => {
+        fetched++;
+        return response();
+      },
+    },
+  );
+  canvas(preview);
+  mounted[0]();
+  cleanup[0]();
+  visible([{ isIntersecting: true }]);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(fetched, 0);
+});
+
 test("PDF preview ignores superseded fetches and destroys its loading task on close", async () => {
   const pending: ((value: Response) => void)[] = [];
   const requests: any[] = [],

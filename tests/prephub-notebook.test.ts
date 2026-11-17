@@ -584,6 +584,11 @@ test("reference file rows use actual counts and capability URLs while keeping pu
   assert.match(html, /3 files/);
   assert.match(html, /Offline report.pdf/);
   assert.match(html, /362.0 KiB/);
+  assert.match(
+    html,
+    /<img[^>]*src="\/api\/prephub\/public\/token\/resources\/photo\?preview=1"/,
+  );
+  assert.equal((html.match(/<img\b/g) || []).length, 1);
   assert.match(html, /\/api\/prephub\/public\/token\/resources\/pdf/);
   assert.doesNotMatch(
     html,

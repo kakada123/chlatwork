@@ -29,6 +29,7 @@ import PrepItemForm from "./PrepItemForm.vue";
 import PrepFormattedText from "./PrepFormattedText.vue";
 import PrepAttachmentPicker from "./PrepAttachmentPicker.vue";
 import PrepAttachmentViewer from "./PrepAttachmentViewer.vue";
+import PrepPdfPreview from "./PrepPdfPreview.vue";
 import {
   canPreviewPrepResource,
   prepResourceUrl,
@@ -61,6 +62,7 @@ const uploadFiles = ref<File[]>([]);
 const uploading = ref(false);
 const uploadProgress = ref({ current: 0, total: 0 });
 const previewId = ref<string | null>(null);
+const failedPreviews = ref<string[]>([]);
 const attachments = computed(
   () => props.viewerResources ?? props.section.resources,
 );
@@ -72,6 +74,7 @@ watch(
     uploading.value = false;
     uploadFiles.value = [];
     previewId.value = null;
+    failedPreviews.value = [];
   },
 );
 onBeforeUnmount(() => {
@@ -681,103 +684,92 @@ async function saveRename() {
         </div>
       </li>
     </ol>
-    <ul v-if="section.type === 'ATTACHMENTS'" class="prep-file-list">
+    <ul v-if="section.type === 'ATTACHMENTS'" class="prep-file-gallery">
       <li
         v-for="file in section.resources"
         :key="file.id"
-        class="prep-file-row"
+        class="prep-file-card group"
       >
-        <div class="flex min-w-0 items-center gap-3">
-          <span
-            class="prep-file-icon"
-            :class="
-              file.mimeType.startsWith('image/')
-                ? 'prep-file-icon--image'
-                : file.extension === 'pdf'
-                  ? 'prep-file-icon--pdf'
-                  : ''
+        <div class="prep-file-cover">
+          <PrepPdfPreview
+            v-if="file.mimeType === 'application/pdf'"
+            thumbnail
+            :url="resourceUrl(file, true)"
+          />
+          <img
+            v-else-if="
+              file.mimeType.startsWith('image/') &&
+              canPreviewPrepResource(file) &&
+              !failedPreviews.includes(file.id)
             "
+            :src="resourceUrl(file, true)"
+            alt=""
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            class="size-full object-contain motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-[1.02]"
+            @error="failedPreviews.push(file.id)"
+          />
+          <component
+            v-else
+            :is="file.mimeType.startsWith('image/') ? FileImage : FileText"
+            class="size-12 text-slate-400"
             aria-hidden="true"
-            ><FileImage
-              v-if="file.mimeType.startsWith('image/')"
-              class="size-6" /><span
-              v-else-if="file.extension === 'pdf'"
-              class="text-[10px] font-bold"
-              >PDF</span
-            ><FileText v-else class="size-6"
-          /></span>
-          <div class="min-w-0">
-            <p
-              class="line-clamp-2 break-words text-sm font-semibold md:line-clamp-1"
-              :title="file.title"
-            >
-              {{ file.title }}
-            </p>
-            <p class="mt-1 text-xs text-slate-500">
-              {{ file.extension.toUpperCase() }} ·
-              {{ (file.fileSize / 1024).toFixed(1) }} KiB
-            </p>
-          </div>
-        </div>
-        <div class="prep-file-actions">
-          <a
-            class="prep-button prep-file-action"
-            :href="resourceUrl(file)"
-            :aria-label="`${t('prephub.download')}: ${file.title}`"
-            ><Download class="size-4 shrink-0" aria-hidden="true" /><span
-              class="truncate"
-              >{{ t("prephub.download") }}</span
-            ></a
+          />
+          <span
+            class="pointer-events-none absolute left-3 top-3 rounded-md border border-white/20 bg-white/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600 shadow-sm dark:bg-neutral-950/85 dark:text-white/70"
+            aria-hidden="true"
+            >{{ file.extension }}</span
           >
           <button
             v-if="canPreviewPrepResource(file)"
             type="button"
-            class="prep-button prep-file-action"
+            class="absolute inset-0 size-full focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-sky-500"
             :aria-label="`${t('prephub.preview')}: ${file.title}`"
             @click="previewId = file.id"
           >
-            <Eye class="size-4 shrink-0" aria-hidden="true" /><span
-              class="truncate"
-              >{{ t("prephub.preview") }}</span
-            >
+            <span
+              class="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full bg-black/65 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+              aria-hidden="true"
+              ><Eye class="size-4"
+            /></span>
           </button>
-          <template v-if="!review && !readOnly"
-            ><div class="hidden gap-1 md:flex">
-              <button
-                type="button"
-                class="prep-icon border border-slate-200 dark:border-white/15"
-                :disabled="busy"
-                :aria-label="`${t('prephub.rename')}: ${file.title}`"
-                @click="
+        </div>
+        <div class="min-w-0 space-y-2 p-3">
+          <p
+            class="line-clamp-2 min-h-10 break-words text-sm font-medium leading-5"
+            :title="file.title"
+          >
+            {{ file.title }}
+          </p>
+          <div class="flex flex-wrap items-center gap-1">
+            <span
+              class="min-w-0 grow basis-28 text-xs tabular-nums text-slate-500"
+              >{{ file.extension.toUpperCase() }} ·
+              {{ (file.fileSize / 1024).toFixed(1) }} KiB</span
+            >
+            <div class="ml-auto flex items-center gap-1">
+              <a
+                class="prep-icon"
+                :href="resourceUrl(file)"
+                :aria-label="`${t('prephub.download')}: ${file.title}`"
+                :title="t('prephub.download')"
+                ><Download class="size-4" aria-hidden="true"
+              /></a>
+              <PrepItemActions
+                v-if="!review && !readOnly"
+                :title="file.title"
+                :busy="busy"
+                :reorderable="false"
+                :edit-label="t('prephub.rename')"
+                @edit="
                   rename = { title: file.title, path: `/resources/${file.id}` }
                 "
-              >
-                <Pencil class="size-4" aria-hidden="true" /></button
-              ><button
-                type="button"
-                class="prep-icon border border-slate-200 dark:border-white/15"
-                :disabled="busy"
-                :aria-label="`${t('prephub.delete')}: ${file.title}`"
-                @click="
+                @remove="
                   confirm(() => mutate(`/resources/${file.id}`, 'DELETE'))
                 "
-              >
-                <Trash2 class="size-4" aria-hidden="true" />
-              </button>
+              />
             </div>
-            <PrepItemActions
-              class="md:hidden"
-              :title="file.title"
-              :busy="busy"
-              :reorderable="false"
-              :edit-label="t('prephub.rename')"
-              @edit="
-                rename = { title: file.title, path: `/resources/${file.id}` }
-              "
-              @remove="
-                confirm(() => mutate(`/resources/${file.id}`, 'DELETE'))
-              "
-          /></template>
+          </div>
         </div>
       </li>
     </ul>

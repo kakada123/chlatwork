@@ -155,15 +155,20 @@ test("changing a filter from a later page requests the first page only once", as
   assert.equal(calls[0].category, "RESEARCH");
 });
 
-test("selecting a clipped category reveals it horizontally without moving a fully visible chip", () => {
+test("edge category clicks reveal neighboring options while central clicks keep the strip still", () => {
   const page = load(
     "app/pages/prephub/index.vue",
     hub(async () => ({ subjects: [], total: 0 })),
   ).setup({}, { expose() {} });
   const scrolls: any[] = [];
   const strip = {
+    scrollLeft: 0,
+    clientWidth: 400,
+    scrollWidth: 1400,
     getBoundingClientRect: () => ({ left: 100, right: 500 }),
-    scrollBy: (options: any) => scrolls.push(options),
+    scrollBy: (options: any) =>
+      scrolls.push({ ...options, left: strip.scrollLeft + options.left }),
+    scrollTo: (options: any) => scrolls.push(options),
   };
   let bounds = { left: 440, right: 620 };
   const event = {
@@ -174,13 +179,33 @@ test("selecting a clipped category reveals it horizontally without moving a full
   };
   page.selectCategory("TRAVEL", event);
   assert.equal(page.category.value, "TRAVEL");
-  assert.deepEqual(scrolls, [{ left: 128, behavior: "smooth" }]);
+  assert.deepEqual(scrolls, [{ left: 332, behavior: "smooth" }]);
+  strip.scrollLeft = 500;
   bounds = { left: 60, right: 240 };
   page.selectCategory("", event);
-  assert.deepEqual(scrolls[1], { left: -48, behavior: "smooth" });
-  bounds = { left: 120, right: 300 };
+  assert.deepEqual(scrolls[1], { left: 248, behavior: "smooth" });
+  bounds = { left: 230, right: 340 };
   page.selectCategory("RESEARCH", event);
   assert.equal(scrolls.length, 2);
+  strip.scrollLeft = 0;
+  bounds = { left: 350, right: 480 };
+  page.selectCategory("VIDEO", event);
+  assert.deepEqual(scrolls[2], { left: 242, behavior: "smooth" });
+  strip.scrollLeft = 950;
+  page.selectCategory("TRAVEL", event);
+  assert.deepEqual(scrolls[3], { left: 1000, behavior: "smooth" });
+  strip.scrollLeft = 1000;
+  page.selectCategory("OTHER", event);
+  assert.equal(scrolls.length, 4);
+  strip.scrollLeft = 30;
+  bounds = { left: 110, right: 210 };
+  page.selectCategory("", event);
+  assert.deepEqual(scrolls[4], { left: 0, behavior: "smooth" });
+  strip.scrollWidth = 400;
+  strip.scrollLeft = 0;
+  bounds = { left: 350, right: 480 };
+  page.selectCategory("OTHER", event);
+  assert.equal(scrolls.length, 5);
 });
 
 test("category scrolling respects reduced motion", (context) => {
@@ -196,12 +221,16 @@ test("category scrolling respects reduced motion", (context) => {
     currentTarget: {
       getBoundingClientRect: () => ({ left: 280, right: 440 }),
       parentElement: {
+        scrollLeft: 0,
+        clientWidth: 320,
+        scrollWidth: 1000,
         getBoundingClientRect: () => ({ left: 0, right: 320 }),
         scrollBy: (options: any) => scrolls.push(options),
+        scrollTo: (options: any) => scrolls.push(options),
       },
     },
   });
-  assert.deepEqual(scrolls, [{ left: 128, behavior: "auto" }]);
+  assert.deepEqual(scrolls, [{ left: 272, behavior: "auto" }]);
 });
 
 const subject = {
