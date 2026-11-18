@@ -30,7 +30,7 @@ const { config, product: domainProduct } = useProductDomain();
 
 <style scoped>
 .jekluy-shell {
-  --app-font: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --app-font: var(--content-khmer-font), "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-family: var(--app-font);
   letter-spacing: 0;
   line-height: 1.8;

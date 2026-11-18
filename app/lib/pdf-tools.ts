@@ -1,3 +1,4 @@
+import { containsKhmerContent } from "./site-appearance.ts";
 import { buildInvoicePdfHtml, getInvoiceColumnCount, getInvoicePdfLabels, type InvoicePdfOptions } from "~/lib/invoice-pdf";
 import { MAX_PDF_PAGE_COUNT, isExtremeImageResolution } from "~/lib/file-validation";
 import { sanitizeHtml } from "~/lib/sanitize-html";
@@ -393,7 +394,7 @@ async function waitForHtmlRenderFrame() {
   );
 }
 
-function createHtmlPdfRenderNode(html: string) {
+function createHtmlPdfRenderNode(html: string, page = HTML_TO_PDF_PAGE) {
   const wrapper = document.createElement("div");
   const container = document.createElement("article");
 
@@ -401,7 +402,7 @@ function createHtmlPdfRenderNode(html: string) {
     position: "fixed",
     left: "0",
     top: "0",
-    width: `${HTML_TO_PDF_PAGE.width}px`,
+    width: `${page.width}px`,
     overflow: "hidden",
     pointerEvents: "none",
     transform: "translateX(-120vw)",
@@ -410,12 +411,12 @@ function createHtmlPdfRenderNode(html: string) {
 
   Object.assign(container.style, {
     boxSizing: "border-box",
-    width: `${HTML_TO_PDF_PAGE.width}px`,
-    minHeight: `${HTML_TO_PDF_PAGE.minHeight}px`,
-    padding: `${HTML_TO_PDF_PAGE.padding}px`,
+    width: `${page.width}px`,
+    minHeight: `${page.minHeight}px`,
+    padding: `${page.padding}px`,
     backgroundColor: "#ffffff",
     color: "#111827",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "var(--app-font)",
     lineHeight: "1.55",
   });
 
@@ -461,6 +462,15 @@ export async function htmlToPdf(html: string) {
 export async function textToPdf(text: string, options: TextToPdfOptions) {
   const { jsPDF } = await import("jspdf");
   const size = getPdfPageSize(options.pageSize);
+  if (containsKhmerContent(text)) {
+    const block = document.createElement("div");
+    block.textContent = text;
+    block.style.cssText = `white-space:pre-wrap;overflow-wrap:anywhere;font-size:${options.fontSize}pt`;
+    return shapedTextPdf(block, options.pageSize, {
+      width: Math.round(size.width * 4 / 3), minHeight: Math.round(size.height * 4 / 3),
+      padding: Math.round(Math.max(24, options.margin) * 4 / 3),
+    });
+  }
   const doc = new jsPDF({
     unit: "pt",
     format: [size.width, size.height],
@@ -492,20 +502,19 @@ export async function textToPdf(text: string, options: TextToPdfOptions) {
   return doc.output("blob");
 }
 
-async function khmerInvoiceToPdf(input: InvoicePdfInput) {
-  const html = buildInvoicePdfHtml(input, "km");
+async function shapedTextPdf(content: HTMLElement, format: PdfPageSizeOption, page = HTML_TO_PDF_PAGE) {
   const { jsPDF } = await import("jspdf");
   const { toJpeg } = await import("html-to-image");
-  const { container, wrapper } = createHtmlPdfRenderNode("");
-  const contentWidth = HTML_TO_PDF_PAGE.width - HTML_TO_PDF_PAGE.padding * 2;
-  const contentHeight = HTML_TO_PDF_PAGE.minHeight - HTML_TO_PDF_PAGE.padding * 2;
-  const columnGap = HTML_TO_PDF_PAGE.padding * 2;
+  const { container, wrapper } = createHtmlPdfRenderNode("", page);
+  const contentWidth = page.width - page.padding * 2;
+  const contentHeight = page.minHeight - page.padding * 2;
+  const columnGap = page.padding * 2;
   const flow = document.createElement("div");
 
   Object.assign(container.style, {
-    height: `${HTML_TO_PDF_PAGE.minHeight}px`,
+    height: `${page.minHeight}px`,
     overflow: "hidden",
-    fontFamily: '"Hanuman", Arial, sans-serif',
+    fontFamily: "var(--khmer-font)",
   });
   Object.assign(flow.style, {
     width: `${contentWidth}px`,
@@ -514,28 +523,27 @@ async function khmerInvoiceToPdf(input: InvoicePdfInput) {
     columnGap: `${columnGap}px`,
     columnFill: "auto",
   });
-  flow.innerHTML = sanitizeHtml(html);
+  flow.appendChild(content);
   container.appendChild(flow);
 
   try {
-    // Wait for the bundled Khmer face before measuring columns or capturing shaped text.
-    const fonts = await document.fonts.load('14px "Hanuman"', "វិក្កយបត្រ");
-    if (!fonts.length) throw new Error("The Khmer invoice font could not be loaded. Reload the page and try again.");
+    // System fonts resolve without a FontFace entry. Wait for web fonts before pagination.
+    await document.fonts.load(`14px ${getComputedStyle(container).fontFamily}`, "វិក្កយបត្រ");
     await waitForHtmlRenderFrame();
     const pageCount = getInvoiceColumnCount(flow.scrollWidth, contentWidth, columnGap);
-    if (pageCount > MAX_PDF_PAGE_COUNT) throw new Error("The invoice has too many pages to render safely.");
-    const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    if (pageCount > MAX_PDF_PAGE_COUNT) throw new Error("The document has too many pages to render safely.");
+    const doc = new jsPDF({ unit: "pt", format, orientation: "portrait" });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    for (let page = 0; page < pageCount; page++) {
+    for (let index = 0; index < pageCount; index++) {
       // Browser columns fragment at line boundaries, preserving Khmer glyph shaping across pages.
-      flow.style.transform = `translateX(-${page * HTML_TO_PDF_PAGE.width}px)`;
+      flow.style.transform = `translateX(-${index * page.width}px)`;
       const dataUrl = await toJpeg(container, {
         quality: 0.95, pixelRatio: 2, backgroundColor: "#ffffff",
-        width: HTML_TO_PDF_PAGE.width, height: HTML_TO_PDF_PAGE.minHeight,
+        width: page.width, height: page.minHeight,
       });
-      if (page) doc.addPage();
+      if (index) doc.addPage();
       doc.addImage(dataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
     }
     return doc.output("blob");
@@ -545,7 +553,11 @@ async function khmerInvoiceToPdf(input: InvoicePdfInput) {
 }
 
 export async function invoiceToPdf(input: InvoicePdfInput, options: InvoicePdfOptions = {}) {
-  if (options.locale === "km") return khmerInvoiceToPdf(input);
+  if (options.locale === "km" || [input.companyName, input.customerName, input.invoiceNumber, input.notes, ...input.items.map(item => item.description)].some(containsKhmerContent)) {
+    const content = document.createElement("div");
+    content.innerHTML = sanitizeHtml(buildInvoicePdfHtml(input, options.locale ?? "en"));
+    return shapedTextPdf(content, "a4");
+  }
   const labels = getInvoicePdfLabels("en");
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "a4" });

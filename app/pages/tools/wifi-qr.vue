@@ -165,6 +165,7 @@ const exportPosterPng = async () => {
   const { toPng } = await loadHtmlToImage();
 
   try {
+    await document.fonts.ready;
     const dataUrl = await toPng(posterEl, {
       pixelRatio: 2,
       cacheBust: true,
@@ -185,6 +186,8 @@ const exportPosterPng = async () => {
 const triggerPrint = async () => {
   await generateSvg();
   if (!process.client) return;
+  await nextTick();
+  await document.fonts.ready;
   window.print();
 };
 

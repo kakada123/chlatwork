@@ -151,7 +151,7 @@ const createdDate = computed(() =>
 }
 .moment-summary-card.is-khmer,
 .moment-summary-card.is-khmer h3 {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
   line-height: 1.7;
   letter-spacing: 0;
 }

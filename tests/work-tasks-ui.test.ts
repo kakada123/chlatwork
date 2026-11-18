@@ -24,6 +24,7 @@ function setup(name: string, props: any, extra: Record<string, unknown> = {}) {
     mod = { exports: {} as any },
     globals = {
       ...vue,
+      useNuxtData: () => ({ data: vue.ref({ khmerFont: "google-sans" }) }),
       useAppI18n: () => ({ t: (key: string) => key }),
       onMounted() {},
       onBeforeUnmount() {},

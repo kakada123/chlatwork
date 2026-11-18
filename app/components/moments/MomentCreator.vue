@@ -1221,12 +1221,12 @@ onBeforeUnmount(() => {
   color: #172033;
 }
 .moments-creator.is-khmer {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
 }
 .moments-creator.is-khmer .creator-header h1,
 .moments-creator.is-khmer .success-card h1,
 .moments-creator.is-khmer .creator-card h2 {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
   letter-spacing: 0;
 }
 .moments-creator.is-khmer .creator-header h1,
@@ -1275,7 +1275,7 @@ onBeforeUnmount(() => {
 .creator-header h1,
 .success-card h1 {
   margin-top: 0.8rem;
-  font-family: "Hanuman", Georgia, serif;
+  font-family: var(--content-khmer-font), Georgia, serif;
   font-size: clamp(2.4rem, 7vw, 4.8rem) !important;
   font-weight: 500 !important;
   line-height: 1;

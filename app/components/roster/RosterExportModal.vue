@@ -138,7 +138,7 @@ const weekdays = computed(() => {
 
 async function captureRoster() {
   await nextTick();
-  // Measuring before Hanuman loads can cut off Khmer glyphs and the final calendar row.
+  // Measuring before the selected font loads can cut off Khmer glyphs and the final calendar row.
   await document.fonts.ready;
   const card = printCardRef.value;
   if (!card) throw new Error("Roster preview unavailable");

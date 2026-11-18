@@ -1,4 +1,9 @@
 export default {
+  "shared.admin_appearance.khmer_font": "Khmer font",
+  "shared.admin_appearance.save": "Save",
+  "shared.admin_appearance.saved": "Font saved.",
+  "shared.admin_appearance.failed": "Could not save the font. Please try again.",
+  "shared.admin_appearance.load_failed": "Could not load the current font.",
   "shared.components_layout_mobile_app_header.go_back": "Go back",
   "shared.components_layout_mobile_app_header.search_chlat_work": "Search ChlatWork",
   "shared.components_layout_mobile_bottom_nav.mobile_primary_navigation": "Mobile primary navigation",

@@ -89,3 +89,10 @@ test("Tasks proxy permits only named routes and authenticated file operations", 
   assert.equal(allowedTasksRoute("../admin", "GET"), false);
   assert.equal(allowedTasksRoute("work-log", "GET"), false);
 });
+
+test("Khmer workbooks store the selected font in Excel styles", () => {
+  const khmerReport = { ...report, draft: { ...report.draft, title: "របាយការណ៍" } };
+  const decode = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
+  assert.match(decode(reportXlsx(khmerReport)), /<name val="Google Sans"/);
+  assert.match(decode(reportXlsx(khmerReport, "hanuman")), /<name val="Hanuman"/);
+});

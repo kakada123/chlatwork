@@ -14,6 +14,8 @@ import {
   reportPdf,
   downloadReport,
 } from "~/lib/tasks-report-export";
+import type { SiteAppearance } from "~/lib/site-appearance";
+const { data: appearance } = useNuxtData<SiteAppearance>("site-appearance");
 const props = defineProps<{
   catalog: TaskCatalog;
   busy: boolean;
@@ -144,7 +146,7 @@ async function exportFile(kind: string) {
       );
     else if (kind === "xlsx")
       downloadReport(
-        reportXlsx(report.value),
+        reportXlsx(report.value, appearance.value?.khmerFont),
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         name + ".xlsx",
       );

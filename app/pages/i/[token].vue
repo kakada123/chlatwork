@@ -46,7 +46,7 @@ useSeoMeta({
 .personal-invitation-shell { position: relative; }
 .language-toggle { position: absolute; right: 1rem; top: 1rem; z-index: 40; }
 .invitation-state { display: grid; min-height: 100vh; place-items: center; background: radial-gradient(circle at 50% 0%, #ffe1e9, transparent 35rem), #fff8f8; padding: 1.25rem; color: #4c1427; }
-.invitation-state.is-khmer { font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; }
+.invitation-state.is-khmer { font-family: var(--khmer-font); }
 .state-card { width: min(100%, 680px); border: 1px solid rgb(156 45 78 / .15); border-radius: 2rem; background: rgb(255 255 255 / .8); padding: clamp(2rem, 7vw, 4rem); text-align: center; box-shadow: 0 2rem 6rem rgb(92 20 47 / .14); }
 .gift { display: grid; margin: 0 auto 1.5rem; height: 4rem; width: 4rem; place-items: center; border-radius: 1.25rem; background: #e84d76; color: white; }
 .guest-name { color: #e84d76; font-size: clamp(1.3rem, 4vw, 2rem); font-weight: 700; }

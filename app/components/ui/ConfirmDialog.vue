@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.confirm-dialog.is-khmer { font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; }
+.confirm-dialog.is-khmer { font-family: var(--khmer-font); }
 .confirm-dialog.is-khmer h2,
 .confirm-dialog.is-khmer p,
 .confirm-dialog.is-khmer button { line-height: 1.7; letter-spacing: 0; }

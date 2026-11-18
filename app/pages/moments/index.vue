@@ -231,7 +231,7 @@ async function resetVotes() {
   .moment-product-mobile > header > div:last-child > a { min-height: 2.75rem; }
 }
 .moments-manager.is-khmer {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
   line-height: 1.75;
 }
 </style>

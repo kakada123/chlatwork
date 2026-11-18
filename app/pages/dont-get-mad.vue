@@ -1402,7 +1402,7 @@ onBeforeUnmount(() => {
     radial-gradient(ellipse at 50% 0, rgb(59 130 246 / 8%), transparent 60%),
     var(--app-color-page-bg);
   color: var(--app-color-text);
-  font-family: "Hanuman", var(--app-font);
+  font-family: var(--content-khmer-font), var(--app-font);
 }
 .control-bar {
   position: sticky;

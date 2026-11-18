@@ -192,11 +192,11 @@ onBeforeUnmount(() => {
   color: #4c1427;
 }
 .locked-page.is-khmer {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
 }
 .locked-page.is-khmer h1,
 .locked-page.is-khmer .locked-copy {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
   line-height: 1.65;
   letter-spacing: 0;
 }
@@ -232,7 +232,7 @@ onBeforeUnmount(() => {
 }
 h1 {
   margin-top: 1rem;
-  font-family: "Hanuman", Georgia, serif;
+  font-family: var(--content-khmer-font), Georgia, serif;
   font-size: clamp(2.3rem, 8vw, 4.5rem) !important;
   font-weight: 500 !important;
   line-height: 1;
@@ -256,7 +256,7 @@ h1 {
 }
 .countdown strong {
   display: block;
-  font-family: "Hanuman", Georgia, serif;
+  font-family: var(--content-khmer-font), Georgia, serif;
   font-size: clamp(1.4rem, 5vw, 2.4rem);
 }
 .countdown span {

@@ -65,7 +65,7 @@ function completeLogin() {
 
 <style scoped>
 .login-dialog.is-khmer {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
 }
 .login-dialog.is-khmer h2,
 .login-dialog.is-khmer p {

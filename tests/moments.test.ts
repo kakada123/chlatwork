@@ -395,18 +395,18 @@ test("Khmer Moment headings use Khmer typography and spacing", () => {
   );
 });
 
-test("Khmer Moment detail applies Hanuman to nested text", () => {
+test("Khmer Moment detail applies the selected Khmer font to nested text", () => {
   const experience = readProjectFile(
     "app/components/moments/MomentExperience.vue",
   );
 
   assert.match(
     experience,
-    /\.moment-experience\.is-khmer\s+:where\(h1, h2, p, span, strong, figcaption, button\) \{\s+font-family: "Hanuman"/,
+    /\.moment-experience\.is-khmer\s+:where\(h1, h2, p, span, strong, figcaption, button\) \{\s+font-family: var\(--khmer-font\)/,
   );
   assert.match(
     experience,
-    /\.moment-experience\.is-khmer \.occasion-pill,[\s\S]*?\.moment-experience\.is-khmer \.moment-footer \{\s+font-family: "Hanuman"/,
+    /\.moment-experience\.is-khmer \.occasion-pill,[\s\S]*?\.moment-experience\.is-khmer \.moment-footer \{\s+font-family: var\(--khmer-font\)/,
   );
   assert.match(
     experience,

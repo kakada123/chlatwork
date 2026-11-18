@@ -37,7 +37,7 @@ const { locale, copy, setMomentLocale } = useMomentLanguage();
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   padding: 0.2rem;
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--content-khmer-font), ui-sans-serif, system-ui, sans-serif;
   box-shadow: 0 0.45rem 1.5rem rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
 }

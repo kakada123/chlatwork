@@ -133,17 +133,8 @@ const posterBarClass = computed(() => {
 </template>
 
 <style>
-@font-face {
-  font-family: "Hanuman";
-  src: url("/assets/fonts/Hanuman-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-.khmer {
-  font-family: "Hanuman", system-ui, -apple-system, Segoe UI, Roboto, Arial,
-    sans-serif;
+.print-card .khmer {
+  font-family: var(--khmer-font);
 }
 
 .cutline {

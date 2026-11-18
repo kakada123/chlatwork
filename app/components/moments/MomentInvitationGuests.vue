@@ -150,7 +150,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .guest-manager { margin-top: .75rem; border: 1px solid rgb(226 232 240); border-radius: 1rem; background: rgb(255 255 255); padding: 1rem; }
 :global(html.dark .guest-manager) { border-color: rgb(255 255 255 / .1); background: rgb(255 255 255 / .035); color: white; }
-.guest-manager.is-khmer { font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif; line-height: 1.7; }
+.guest-manager.is-khmer { font-family: var(--khmer-font); line-height: 1.7; }
 .guest-manager label > span { display: block; font-size: .7rem; font-weight: 700; color: rgb(100 116 139); }
 :global(html.dark .guest-manager label > span) { color: rgb(255 255 255 / .55); }
 .guest-input { width: 100%; border: 1px solid rgb(203 213 225); border-radius: .75rem; background: white; padding: .7rem .8rem; color: rgb(15 23 42); font-size: .8rem; outline: none; }

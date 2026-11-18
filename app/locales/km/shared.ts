@@ -1,4 +1,9 @@
 export default {
+  "shared.admin_appearance.khmer_font": "ពុម្ពអក្សរខ្មែរ",
+  "shared.admin_appearance.save": "រក្សាទុក",
+  "shared.admin_appearance.saved": "បានរក្សាទុកពុម្ពអក្សរ។",
+  "shared.admin_appearance.failed": "មិនអាចរក្សាទុកពុម្ពអក្សរបានទេ។ សូមព្យាយាមម្ដងទៀត។",
+  "shared.admin_appearance.load_failed": "មិនអាចផ្ទុកពុម្ពអក្សរបច្ចុប្បន្នបានទេ។",
   "shared.components_layout_mobile_app_header.go_back": "ត្រឡប់ក្រោយ",
   "shared.components_layout_mobile_app_header.search_chlat_work": "ស្វែងរកក្នុង ChlatWork",
   "shared.components_layout_mobile_bottom_nav.mobile_primary_navigation": "ម៉ឺនុយចម្បងលើទូរស័ព្ទ",

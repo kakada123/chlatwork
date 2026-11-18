@@ -1734,3 +1734,10 @@ model WorkReport {
   @@index([userId, updatedAt(sort: Desc)])
   @@map("work_reports")
 }
+
+model SiteAppearance {
+  id        Int    @id @db.SmallInt
+  khmerFont String @map("khmer_font") @db.VarChar(20)
+
+  @@map("site_appearance")
+}

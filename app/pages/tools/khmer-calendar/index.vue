@@ -2385,7 +2385,7 @@ summary:focus-visible {
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 246, 233, 0.25);
-  font-family: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--content-khmer-font), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .edit-roster-btn {
   display: inline-flex;

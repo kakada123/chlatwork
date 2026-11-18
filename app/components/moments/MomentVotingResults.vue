@@ -578,7 +578,7 @@ const votedResults = (results: MomentPollResult[]) => results.filter((result) =>
   font-size: 0.7rem;
 }
 .is-khmer {
-  font-family: "Hanuman", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--khmer-font);
 }
 :global(html.dark .vote-results) {
   border-color: rgb(255 255 255 / 0.1);

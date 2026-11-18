@@ -4,7 +4,7 @@ import { computed, nextTick, ref, useId } from "vue";
 import {
   Activity, ArrowLeft, ArrowUpRight, BarChart3, Bot, CheckCircle2,
   ChevronRight, Clock3, LayoutDashboard, QrCode, RefreshCw, Settings2,
-  ShieldCheck, UserRoundPlus, Users, Wrench,
+  ShieldCheck, Type, UserRoundPlus, Users, Wrench,
 } from "lucide-vue-next";
 import ActivityTrendChart from "./ActivityTrendChart.vue";
 import ToolIcon from "~/components/icons/ToolIcon.vue";
@@ -97,6 +97,7 @@ async function selectSection(value: Section) {
         </NuxtLink>
         <div class="dashboard-links">
           <NuxtLink to="/admin/bots" class="dashboard-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.open_bot_admin&quot;)"><Bot :size="16" aria-hidden="true" /><span>{{ t("shared.components_layout_product_navigation.bot_admin") }}</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
+          <NuxtLink to="/admin/appearance" class="dashboard-link" :aria-label="t('shared.pages_account.appearance')"><Type :size="16" aria-hidden="true" /><span>{{ t("shared.pages_account.appearance") }}</span></NuxtLink>
           <NuxtLink to="/admin/tools" class="dashboard-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.manage_tools_and_ads&quot;)"><Settings2 :size="16" aria-hidden="true" /><span>{{ t("shared.components_layout_product_navigation.tools_ads") }}</span><ArrowUpRight :size="14" class="dashboard-link-arrow" aria-hidden="true" /></NuxtLink>
           <NuxtLink to="/account" class="dashboard-account-link" :aria-label="t(&quot;shared.components_admin_activity_dashboard.back_to_account&quot;)"><ArrowLeft :size="16" aria-hidden="true" /><span>{{ t("shared.common.account") }}</span></NuxtLink>
         </div>

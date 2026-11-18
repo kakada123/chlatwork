@@ -88,7 +88,7 @@ useHead({
   isolation: isolate;
   --food-background-image: url("/images/food/khmer-food-background-v1.jpg");
   --food-background-wash: rgb(250 250 249 / 86%);
-  --app-font: "Hanuman", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --app-font: var(--content-khmer-font), "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-family: var(--app-font);
   letter-spacing: 0;
   line-height: 1.7;

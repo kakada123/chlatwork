@@ -1,3 +1,4 @@
+import { containsKhmerContent } from "../lib/site-appearance.ts";
 import { localizeMessageTree } from "../lib/i18n";
 import type { LandingTool, LandingToolCategory } from "~/data/tools";
 import type { ToolCategory } from "~/lib/tool-registry";
@@ -70,7 +71,7 @@ type LandingCopy = {
 
 const ENGLISH_FONT_STACK =
   '"-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui", "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif", "Segoe UI Emoji", "Segoe UI Symbol"';
-const KHMER_FONT_STACK = `"Hanuman", ${ENGLISH_FONT_STACK}`;
+const KHMER_FONT_STACK = "var(--khmer-font)";
 
 const COPY: Record<AppLocale, LandingCopy> = { en: localizeMessageTree({
   "metaTitle": "catalog.shell.meta_title",
@@ -430,10 +431,6 @@ export const TOOL_TRANSLATIONS: Record<
 
 function getInitialLocale(_routePath?: string): AppLocale {
   return "km";
-}
-
-function containsKhmerContent(value: string) {
-  return /[\u1780-\u17FF\u19E0-\u19FF]/u.test(value);
 }
 
 function getTextLineHeight(value: string, kind: "heading" | "body") {

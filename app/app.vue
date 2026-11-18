@@ -39,6 +39,8 @@ import { Analytics } from "@vercel/analytics/nuxt";
 import { getPublisherRobots } from "~/data/site-routes";
 import { canShowAdsForUser } from "~/lib/ad-visibility";
 
+import type { SiteAppearance } from "~/lib/site-appearance";
+
 const { t } = useAppI18n();
 
 const { copy, isKhmer } = useLanguage();
@@ -108,9 +110,12 @@ useSeoMeta({
   robots: robotsContent,
 });
 
+const { data: appearance } = await useFetch<SiteAppearance>("/api/appearance", { key: "site-appearance", retry: 0 });
+
 useHead(() => ({
   htmlAttrs: {
     lang: htmlLocale.value,
+    "data-khmer-font": appearance.value?.khmerFont ?? "google-sans",
     "data-locale": htmlLocale.value,
   },
   link: [

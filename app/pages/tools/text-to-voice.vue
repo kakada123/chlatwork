@@ -255,7 +255,7 @@ const DEFAULT_TEXT =
   "សួស្តី! សូមសាកល្បងបញ្ចូលអត្ថបទភាសាខ្មែរ ហើយចុច Speak ដើម្បីស្តាប់សំឡេង។";
 const ENGLISH_FONT_STACK =
   '"-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui", "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif", "Segoe UI Emoji", "Segoe UI Symbol"';
-const KHMER_FONT_STACK = `"Hanuman", ${ENGLISH_FONT_STACK}`;
+const KHMER_FONT_STACK = "var(--khmer-font)";
 const MAX_AUDIO_SECONDS = 10;
 const GOOGLE_TTS_CHUNK_LIMIT = 180;
 const KHMER_GRAPHEMES_PER_SECOND = 12;

@@ -59,7 +59,7 @@ export function buildInvoicePdfHtml(input: InvoicePdfInput, locale: InvoicePdfLo
     <div style="${cell}text-align:right;">${money(item.price)}</div>
     <div style="${cell}text-align:right;">${money(item.quantity * item.price)}</div>
   </div>`).join("");
-  return `<div lang="${locale === "km" ? "km" : "en"}" style="font-family:Hanuman,Arial,sans-serif;font-size:14px;line-height:1.7;color:#111827;">
+  return `<div lang="${locale === "km" ? "km" : "en"}" style="font-family:inherit;font-size:14px;line-height:1.7;color:#111827;">
     <header style="break-inside:avoid;margin-bottom:24px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;">
         <h1 style="font-family:inherit;font-size:30px;line-height:1.6;font-weight:700;margin:0;">${labels.title}</h1>
